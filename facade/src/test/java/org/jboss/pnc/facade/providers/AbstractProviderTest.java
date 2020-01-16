@@ -31,11 +31,13 @@ import org.jboss.pnc.mapper.BuildMapperImpl;
 import org.jboss.pnc.mapper.EnvironmentMapperImpl;
 import org.jboss.pnc.mapper.GroupBuildMapperImpl;
 import org.jboss.pnc.mapper.GroupConfigurationMapperImpl;
+import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.mapper.ProductMapperImpl;
 import org.jboss.pnc.mapper.ProductMilestoneMapperImpl;
 import org.jboss.pnc.mapper.ProductReleaseMapperImpl;
 import org.jboss.pnc.mapper.ProductVersionMapperImpl;
 import org.jboss.pnc.mapper.ProjectMapperImpl;
+import org.jboss.pnc.mapper.ResultMapperImpl;
 import org.jboss.pnc.mapper.SCMRepositoryMapperImpl;
 import org.jboss.pnc.mapper.TargetRepositoryMapperImpl;
 import org.jboss.pnc.mapper.UserMapperImpl;
@@ -51,6 +53,7 @@ import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.mapper.api.ProjectMapper;
+import org.jboss.pnc.mapper.api.ResultMapper;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
@@ -68,7 +71,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.jboss.pnc.mapper.MapSetMapper;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -141,6 +143,9 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
 
     @Spy
     protected MapSetMapper mapSetMapper = new MapSetMapper();
+
+    @Spy
+    protected ResultMapper resultMapper = new ResultMapperImpl();
 
     protected int entityId = 1;
 

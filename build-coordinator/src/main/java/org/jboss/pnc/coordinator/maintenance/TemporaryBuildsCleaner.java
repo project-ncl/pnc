@@ -17,9 +17,12 @@
  */
 package org.jboss.pnc.coordinator.maintenance;
 
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -31,12 +34,9 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.jboss.pnc.enums.ArtifactQuality;
 
 /**
  * Bean providing an interface to delete temporary builds
@@ -95,7 +95,7 @@ public class TemporaryBuildsCleaner {
         Result result = remoteBuildsCleaner.deleteRemoteBuilds(buildRecord, authToken);
         if (!result.isSuccess()) {
             log.error("Failed to delete remote temporary builds for BR.id:{}.", buildRecord.getId());
-            return new Result(buildRecordId.toString(), Result.Status.FAILED, "Failed to delete remote temporary builds.");
+            return new Result(buildRecordId.toString(), ResultStatus.FAILED, "Failed to delete remote temporary builds.");
         }
 
         /** Delete relation between BuildRecord and Artifact */
@@ -112,7 +112,7 @@ public class TemporaryBuildsCleaner {
 
         buildRecordRepository.delete(buildRecord.getId());
         log.info("Deletion of the temporary build {} finished successfully.", buildRecord);
-        return new Result(buildRecordId.toString(), Result.Status.SUCCESS);
+        return new Result(buildRecordId.toString(), ResultStatus.SUCCESS);
     }
 
     private void deleteDependencies(BuildRecord buildRecord) {
@@ -168,7 +168,7 @@ public class TemporaryBuildsCleaner {
         buildConfigSetRecordRepository.delete(buildConfigSetRecord.getId());
 
         log.info("Deletion of a temporary build record set {} finished successfully.", buildConfigSetRecord);
-        return new Result(buildConfigSetRecordId.toString(), Result.Status.SUCCESS);
+        return new Result(buildConfigSetRecordId.toString(), ResultStatus.SUCCESS);
     }
 
     private void removeRelationBuildRecordArtifact(

@@ -25,7 +25,7 @@ import org.mapstruct.ReportingPolicy;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @MapperConfig(
-        unmappedSourcePolicy = ReportingPolicy.ERROR,
+        unmappedSourcePolicy = ReportingPolicy.WARN,
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         implementationPackage = "org.jboss.pnc.mapper",
         componentModel = "cdi"

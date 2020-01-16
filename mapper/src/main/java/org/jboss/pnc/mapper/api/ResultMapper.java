@@ -15,23 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.mock;
+package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.coordinator.maintenance.RemoteBuildsCleaner;
-import org.jboss.pnc.enums.ResultStatus;
+import org.jboss.pnc.dto.DeleteOperationResult;
 import org.jboss.pnc.spi.coordinator.Result;
-import org.jboss.pnc.model.BuildRecord;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
 
-import javax.enterprise.context.Dependent;
+@Mapper(config = MapperCentralConfig.class)
+public interface ResultMapper {
 
-/**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- */
-@Dependent
-public class RemoteBuildsCleanerMock implements RemoteBuildsCleaner {
+    Result toEntity(DeleteOperationResult dtoEntity);
 
-    @Override
-    public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
-        return new Result(buildRecord.getId().toString(), ResultStatus.SUCCESS);
-    }
+    @BeanMapping(ignoreUnmappedSourceProperties = "success")
+    DeleteOperationResult toDTO(Result entity);
 }

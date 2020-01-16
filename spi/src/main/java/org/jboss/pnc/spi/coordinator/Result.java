@@ -15,29 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator.maintenance;
+package org.jboss.pnc.spi.coordinator;
 
+import lombok.Builder;
 import lombok.Getter;
+import org.jboss.pnc.enums.ResultStatus;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Getter
+@Builder
 public final class Result {
 
     private final String id;
 
-    private final Status status;
+    private final ResultStatus status;
 
     private final String message;
 
-    public Result(String id, Status status) {
+    public Result(String id, ResultStatus status) {
         this.id = id;
         this.status = status;
         this.message = "";
     }
 
-    public Result(String id, Status status, String message) {
+    public Result(String id, ResultStatus status, String message) {
         this.id = id;
         this.status = status;
         this.message = message;
@@ -45,22 +48,6 @@ public final class Result {
 
     public boolean isSuccess() {
         return status.isSuccess();
-    }
-
-    public enum  Status {
-        SUCCESS(true),
-        FAILED(false),
-        SYSTEM_ERROR(false);
-
-        private boolean success;
-
-        Status(boolean success) {
-            this.success = success;
-        }
-
-        public boolean isSuccess() {
-            return success;
-        }
     }
 
 }

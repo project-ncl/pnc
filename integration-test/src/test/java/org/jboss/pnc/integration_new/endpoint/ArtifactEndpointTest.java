@@ -21,21 +21,17 @@ import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-
 import org.jboss.pnc.client.ArtifactClient;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,9 +40,10 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import org.jboss.pnc.dto.Build;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -84,8 +81,8 @@ public class ArtifactEndpointTest {
         targetRepositoryRef = artifacts.get(0).getTargetRepository();
         artifactRest1 = artifacts.get(0);
         artifactRest2 = artifacts.get(1);
-        artifactRest3 = artifacts.get(2);
-        artifactRest4 = artifacts.get(4);
+        artifactRest3 = artifacts.get(4);
+        artifactRest4 = artifacts.get(6);
         logger.debug("Using targetRepositoryRef: {}", targetRepositoryRef);
     }
 
@@ -95,7 +92,7 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> all = client.getAll(null, null, null);
 
-        assertThat(all).hasSize(6); // from DatabaseDataInitializer
+        assertThat(all).hasSize(10); // from DatabaseDataInitializer
     }
 
     @Test

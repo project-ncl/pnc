@@ -17,13 +17,16 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jboss.pnc.common.gerrit.Gerrit;
 import org.jboss.pnc.common.gerrit.GerritException;
 import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.graph.NameUniqueVertex;
+import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.constants.Attributes;
+import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildRef;
@@ -41,6 +44,7 @@ import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.ResultMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -50,6 +54,7 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -61,6 +66,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
+import org.jboss.pnc.spi.exception.ValidationException;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
@@ -76,6 +82,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -87,6 +94,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -94,6 +102,8 @@ import static java.lang.Math.min;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDependency;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactProduced;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
@@ -122,17 +132,15 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     private SortInfoProducer sortInfoProducer;
     private UserService userService;
 
+    private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
+    private ResultMapper resultMapper;
+
     @Inject
-    public BuildProviderImpl(BuildRecordRepository repository,
-                             BuildMapper mapper,
-                             BuildConfigurationRepository buildConfigurationRepository,
-                             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
-                             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-                             Gerrit gerrit,
-                             BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
-                             BuildCoordinator buildCoordinator,
-                             SortInfoProducer sortInfoProducer,
-                             UserService userService) {
+    public BuildProviderImpl(BuildRecordRepository repository, BuildMapper mapper, BuildConfigurationRepository buildConfigurationRepository,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository, BuildConfigSetRecordRepository buildConfigSetRecordRepository,
+            Gerrit gerrit, BuildConfigurationRevisionMapper buildConfigurationRevisionMapper, BuildCoordinator buildCoordinator,
+            SortInfoProducer sortInfoProducer, UserService userService,
+            TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker, ResultMapper resultMapper) {
         super(repository, mapper, BuildRecord.class);
 
         this.buildRecordRepository = repository;
@@ -145,6 +153,8 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         this.buildCoordinator = buildCoordinator;
         this.sortInfoProducer = sortInfoProducer;
         this.userService = userService;
+        this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;
+        this.resultMapper = resultMapper;
     }
 
     @Override
@@ -155,13 +165,46 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     @RolesAllowed(SYSTEM_USER)
     @Override
     public void delete(String id) {
-        super.delete(id);
+        throw new UnsupportedOperationException("Deleting persistent builds is never allowed");
     }
 
     @RolesAllowed(SYSTEM_USER)
     @Override
     public Build update(String id, Build restEntity) {
         return super.update(id, restEntity);
+    }
+
+    @Override
+    public boolean delete(String id, String callback) {
+        User user = userService.currentUser();
+
+        if (user == null) {
+            throw new RuntimeException("Failed to load user metadata.");
+        }
+
+        try {
+            return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(Integer.valueOf(id), user.getLoginToken(), notifyOnBuildDeletionCompletion(callback));
+        } catch (ValidationException e) {
+            throw new RepositoryViolationException(e);
+        }
+    }
+
+    private Consumer<Result> notifyOnBuildDeletionCompletion(String callback) {
+        return (result) -> {
+            if (callback != null && !callback.isEmpty()) {
+                try {
+                    HttpUtils.performHttpPostRequest(callback, resultMapper.toDTO(result));
+                } catch (JsonProcessingException e) {
+                    logger.error("Failed to perform a callback of delete operation.", e);
+                }
+            }
+        };
+    }
+
+    @Override
+    public Page<Build> getAllTemporaryOlderThanTimestamp(int pageIndex, int pageSize, String sort, String q,
+            long timestamp) {
+        return queryForCollection(pageIndex, pageSize, sort, q, temporaryBuild(), buildFinishedBefore(new Date(timestamp)));
     }
 
     @Override

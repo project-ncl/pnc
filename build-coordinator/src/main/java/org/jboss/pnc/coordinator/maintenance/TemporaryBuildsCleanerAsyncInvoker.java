@@ -18,8 +18,10 @@
 package org.jboss.pnc.coordinator.maintenance;
 
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
+import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.ValidationException;
@@ -88,27 +90,43 @@ public class TemporaryBuildsCleanerAsyncInvoker {
                 onComplete.accept(result);
             } catch (ValidationException e) {
                 logger.error("Failed to delete temporary buildRecord.id: " + buildRecordId + ".", e);
-                onComplete.accept(new Result(buildRecordId.toString(), Result.Status.FAILED, "Failed to delete temporary buildRecord."));
+                onComplete.accept(new Result(buildRecordId.toString(), ResultStatus.FAILED, "Failed to delete temporary buildRecord."));
             }
         });
 
         return true;
     }
 
-    public void deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId, String authToken, Consumer<Result> onComplete) throws ValidationException {
+    /**
+     * Deletes a temporary BuildConfigSetRecord.
+     *
+     * @param buildConfigSetRecordId ID of the BuildConfigSetRecord to be deleted
+     * @param authToken Bearer token
+     * @param onComplete Operation to be executed after deletion operation
+     * @return True if the build exists and deletion started otherwise, false is build doesn't exist
+     * @throws ValidationException Thrown when build cannot be deleted
+     */
+    public boolean deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId, String authToken, Consumer<Result> onComplete) throws ValidationException {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
+        if (buildConfigSetRecord == null) {
+            return false;
+        }
+
         if (!buildConfigSetRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
+
         executorService.submit(() -> {
             try {
                 Result result = temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecordId, authToken);
                 onComplete.accept(result);
             } catch (ValidationException e) {
                 logger.error("Failed to delete temporary buildConfigSetRecord.id: " + buildConfigSetRecordId + ".", e);
-                onComplete.accept(new Result(buildConfigSetRecordId.toString(), Result.Status.FAILED, "Failed to delete temporary buildConfigSetRecord."));
+                onComplete.accept(new Result(buildConfigSetRecordId.toString(), ResultStatus.FAILED, "Failed to delete temporary buildConfigSetRecord."));
             }
         });
+
+        return true;
     }
 
 

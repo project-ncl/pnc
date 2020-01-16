@@ -139,8 +139,8 @@ public class UserRestTest {
                 .filter(record -> record.getUser().getId().equals(100) && record.getUser().getUsername().equals("demo-user"))
                 .collect(Collectors.toSet());
         assertThat(buildRecords.size())
-                .isEqualTo(2)
-                .overridingErrorMessage("2 BuildRecords in DB expected with user.id == 100 and user.username == \"demo-user\"");
+                .isEqualTo(4)
+                .overridingErrorMessage("4 BuildRecords in DB expected with user.id == 100 and user.username == \"demo-user\"");
 
         assertThat(buildCoordinatorMock).isNotNull();
         BuildRecord buildRecord = buildRecords.iterator().next();
@@ -170,7 +170,7 @@ public class UserRestTest {
         RestResponse<List<BuildRecordRest>> all = userRestClient.allUserBuilds(100);
 
         // then
-        assertThat(all.getValue()).hasSize(4);
+        assertThat(all.getValue()).hasSize(6);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class UserRestTest {
         RestResponse<List<BuildRecordRest>> all = userRestClient.allUserBuilds(100);
 
         // then
-        assertThat(all.getValue()).hasSize(3);
+        assertThat(all.getValue()).hasSize(5);
     }
 
     @Test
@@ -199,7 +199,7 @@ public class UserRestTest {
                 .collect(Collectors.toList());
 
         //then
-        assertThat(sorted).containsExactly(101, 2, 1);
+        assertThat(sorted).containsExactly(101, 4, 3, 2, 1);
     }
 
     @Test
@@ -230,11 +230,15 @@ public class UserRestTest {
         List<BuildRecordRest> firstPage = buildRestClient.all(true, 0, 1, null, sort).getValue();
         List<BuildRecordRest> secondPage = buildRestClient.all(true, 1, 1, null, sort).getValue();
         List<BuildRecordRest> thirdPage = buildRestClient.all(true, 2, 1, null, sort).getValue();
+        List<BuildRecordRest> fourthPage = buildRestClient.all(true, 3, 1, null, sort).getValue();
+        List<BuildRecordRest> fifthPage = buildRestClient.all(true, 4, 1, null, sort).getValue();
 
         //then
         assertThat(firstPage.get(0).getId()).isEqualTo(101);
-        assertThat(secondPage.get(0).getId()).isEqualTo(2);
-        assertThat(thirdPage.get(0).getId()).isEqualTo(1);
+        assertThat(secondPage.get(0).getId()).isEqualTo(4);
+        assertThat(thirdPage.get(0).getId()).isEqualTo(3);
+        assertThat(fourthPage.get(0).getId()).isEqualTo(2);
+        assertThat(fifthPage.get(0).getId()).isEqualTo(1);
     }
 
     @Test
@@ -246,7 +250,7 @@ public class UserRestTest {
         int totalPages = userRestClient.allUserBuilds(100, true, 0, 1, null, null).getRestCallResponse().getBody().jsonPath().getInt("totalPages");
 
         //then
-        assertThat(totalPages).isEqualTo(3);
+        assertThat(totalPages).isEqualTo(5);
     }
 
     @Test

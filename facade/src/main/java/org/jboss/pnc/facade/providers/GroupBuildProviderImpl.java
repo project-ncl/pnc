@@ -17,24 +17,29 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.LoggedInUser;
-import org.jboss.pnc.coordinator.maintenance.Result;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.validation.DTOValidationException;
-import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
+import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
+import org.jboss.pnc.mapper.api.GroupBuildMapper;
+import org.jboss.pnc.mapper.api.ResultMapper;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -53,6 +58,8 @@ public class GroupBuildProviderImpl
         extends AbstractIntIdProvider<BuildConfigSetRecord, GroupBuild, GroupBuildRef>
         implements GroupBuildProvider {
 
+    private static final Logger logger = LoggerFactory.getLogger(GroupBuildProviderImpl.class);
+
     @Inject
     private BuildConfigurationSetRepository buildConfigSetRecordRepository;
 
@@ -62,21 +69,22 @@ public class GroupBuildProviderImpl
     @Inject
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
 
-    //@Inject // TODO enable once notifier is ported from old module
-    //private Notifier notifier;
-
     @Inject
     private BuildCoordinator buildCoordinator;
-
-    @Inject
-    private AuthenticationProvider authenticationProvider;
 
     @Context
     private HttpServletRequest httpServletRequest;
 
+    private UserService userService;
+
+    private ResultMapper resultMapper;
+
     @Inject
-    public GroupBuildProviderImpl(BuildConfigSetRecordRepository repository, GroupBuildMapper mapper) {
+    public GroupBuildProviderImpl(BuildConfigSetRecordRepository repository, GroupBuildMapper mapper, UserService userService,
+            ResultMapper resultMapper) {
         super(repository, mapper, BuildConfigSetRecord.class);
+        this.userService = userService;
+        this.resultMapper = resultMapper;
     }
 
     @Override
@@ -91,16 +99,29 @@ public class GroupBuildProviderImpl
     }
 
     @Override
-    public void delete(String id) {
-        Consumer<Result> onComplete = (result) -> {
-            //notifier.sendToSubscribers(result.isSuccess(), Notifier.Topic.BUILD_CONFIG_SET_RECORDS_DELETE.getId(), result.getId());
-        };
+    public boolean delete(String id, String callback) {
+        User user = userService.currentUser();
 
+        if (user == null) {
+            throw new RuntimeException("Failed to load user metadata.");
+        }
         try {
-            temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(Integer.valueOf(id), currentUserToken(), onComplete);
+            return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(Integer.valueOf(id), user.getLoginToken(), notifyOnDeletionCompletion(callback));
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
+    }
+
+    private Consumer<Result> notifyOnDeletionCompletion(String callbackUrl) {
+        return (result) -> {
+            if (callbackUrl != null && !callbackUrl.isEmpty()) {
+                try {
+                    HttpUtils.performHttpPostRequest(callbackUrl, resultMapper.toDTO(result));
+                } catch (JsonProcessingException e) {
+                    logger.error("Failed to perform a callback of BuildConfigSetRecord delete operation.", e);
+                }
+            }
+        };
     }
 
     @Override
@@ -116,10 +137,4 @@ public class GroupBuildProviderImpl
             throw new RuntimeException("Error when canceling buildConfigSetRecord with id: " + id, e);
         }
     }
-    
-    private String currentUserToken() {
-        LoggedInUser currentUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        return currentUser.getTokenString();
-    }
-
 }

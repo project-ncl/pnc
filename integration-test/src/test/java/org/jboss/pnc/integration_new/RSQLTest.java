@@ -35,10 +35,9 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
@@ -64,7 +63,7 @@ public class RSQLTest {
 
         String queryTemporary = "temporaryBuild==TRUE";
         RemoteCollection<Build> temporary = client.getAll(null, null, Optional.empty(), Optional.of(queryTemporary));
-        assertThat(temporary).isEmpty();
+        assertThat(temporary).hasSize(2);
 
         String queryPersistent = "temporaryBuild==FALSE";
         RemoteCollection<Build> persistent = client.getAll(null, null, Optional.empty(), Optional.of(queryPersistent));
@@ -89,7 +88,7 @@ public class RSQLTest {
 
         String querySuccess = "status==SUCCESS";
         RemoteCollection<Build> persistent = client.getAll(null, null, Optional.empty(), Optional.of(querySuccess));
-        assertThat(persistent).hasSize(2);
+        assertThat(persistent).hasSize(4);
     }
 
     @Test
@@ -102,7 +101,16 @@ public class RSQLTest {
 
         String queryGT = "endTime=gt=2019-01-01T00:00:00Z";
         RemoteCollection<Build> persistent = client.getAll(null, null, Optional.empty(), Optional.of(queryGT));
-        assertThat(persistent).hasSize(2);
+        assertThat(persistent).hasSize(4);
+    }
+
+    @Test
+    public void shouldReturnTemporaryBuildsOlderThanTimestamp() throws RemoteResourceException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        String queryLT = "endTime=lt=2019-02-02T00:00:00Z;temporaryBuild==TRUE";
+        RemoteCollection<Build> temporary = client.getAll(null, null, Optional.empty(), Optional.of(queryLT));
+        assertThat(temporary).hasSize(1);
     }
 
     @Test

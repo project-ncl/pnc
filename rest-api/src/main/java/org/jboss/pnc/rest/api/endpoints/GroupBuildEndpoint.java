@@ -47,6 +47,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -95,8 +96,9 @@ public interface GroupBuildEndpoint {
     @Path("/{id}")
     GroupBuild getSpecific(@Parameter(description = GB_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Delete specific temporary group build.",
-            description = "The operation is async, for the result subscribe to 'build-config-set-records#delete' events with optional qualifier buildRecord.id.", // TODO buildRecord.id. ??
+    @Operation(summary = "Delete a specific temporary group build.",
+            description = "Operation is async. Once completed, a callback can be sent with a JSON body containing information about "
+                    + "the operation completion using object org.jboss.pnc.dto.DeleteOperationResult",
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
@@ -106,7 +108,8 @@ public interface GroupBuildEndpoint {
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}")
-    void delete(@Parameter(description = GB_ID) @PathParam("id") String id);
+    void delete(@Parameter(description = GB_ID) @PathParam("id") String id,
+                @Parameter(description = "Optional Callback URL") @QueryParam("callback") String callback);
 
     @Operation(summary = "Gets the builds associated with this group build.",
             responses = {

@@ -17,33 +17,33 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import org.assertj.core.api.Condition;
+import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-import static org.junit.Assert.assertEquals;
-
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.same;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -54,17 +54,28 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.assertj.core.api.Condition;
 
-import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.common.util.RandomUtils.randInt;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -72,6 +83,11 @@ import static org.mockito.ArgumentMatchers.anyInt;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
+
+    private static final int CURRENT_USER = randInt(1000, 100000);
+
+    private static final String USER_TOKEN = "token";
+
 
     @Mock
     private BuildRecordRepository repository;
@@ -81,6 +97,14 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
 
     @Mock
     private SortInfoProducer sortInfoProducer;
+
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
+
+    private User user;
 
     @InjectMocks
     private BuildProviderImpl provider;
@@ -119,6 +143,11 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
         when(sortInfoProducer.getSortInfo(any(String.class))).thenAnswer(i -> mock(SortInfo.class));
         when(sortInfoProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
         when(rsqlPredicateProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
+
+        user = mock(User.class);
+        when(user.getId()).thenReturn(CURRENT_USER);
+        when(user.getLoginToken()).thenReturn(USER_TOKEN);
+        when(userService.currentUser()).thenReturn(user);
     }
 
     private BuildTask mockBuildTask() {
@@ -364,6 +393,34 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
                         String.valueOf(taskDep.getId()),
                         String.valueOf(taskDepDep.getId()));
 
+    }
+
+    @Test
+    public void shouldPerformCallbackAfterDeletion() throws Exception {
+        // given
+        final int buildId = 88;
+        final String buildIdString = String.valueOf(buildId);
+        final String callbackUrl = "http://localhost:8088/callback";
+        WireMockServer wireMockServer = new WireMockServer(8088);
+        wireMockServer.start();
+        wireMockServer.stubFor(post(urlEqualTo("/callback")).willReturn(aResponse().withStatus(200)));
+
+        given(temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(eq(buildId), eq(USER_TOKEN), any()))
+                .willAnswer(invocation -> {
+                    Result result = new Result(buildIdString, ResultStatus.SUCCESS, "Build was deleted successfully");
+
+                    ((Consumer<Result>) invocation.getArgument(2)).accept(result);
+                    return true;
+                });
+
+        // when
+        boolean result = provider.delete(buildIdString, callbackUrl);
+
+        // then
+        assertThat(result).isTrue();
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/callback")).withRequestBody(matchingJsonPath("$.id",
+                equalTo(buildIdString))));
+        wireMockServer.stop();
     }
 
     private BuildTask mockBuildTaskWithSet(BuildSetTask buildSetTask) {

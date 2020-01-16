@@ -68,6 +68,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -488,9 +489,29 @@ public class DatabaseDataInitializer {
                 .sha256("2fafc2ed0f752ac2540283d48c5cd663254a853c5cb13dec02dce023fc7471a9")
                 .size(11L)
                 .build();
+        Artifact builtArtifact3 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact11:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 11")
+                .md5("5c8e1503e77dc8e370610098e01f0a8e")
+                .sha1("550748f6f58ed8d4f6b63850a867ac207da30013")
+                .sha256("b39f88c9937f201981767e539025121971e72bc590ea20ed7fdfffafc05f55a9")
+                .size(10L)
+                .build();
+        Artifact builtArtifact4 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact22:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 21")
+                .md5("48312fb24c7b2a116c2139d5b39bad66")
+                .sha1("6ce2fd75c35e7eed2c45338b943be34d0b974f16")
+                .sha256("61c9ccd3ba0013311ddb89cb9a29389b6761061bdcdfb48f0096bf98c7279a21")
+                .size(11L)
+                .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
         builtArtifact2 = artifactRepository.save(builtArtifact2);
+        builtArtifact2 = artifactRepository.save(builtArtifact3);
+        builtArtifact2 = artifactRepository.save(builtArtifact4);
 
         Artifact importedArtifact1 = Artifact.Builder.newBuilder()
                 .identifier("demo:imported-artifact1:jar:1.0")
@@ -558,9 +579,36 @@ public class DatabaseDataInitializer {
             log.info("Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: " + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
             buildRecords.add(buildRecord1);
 
+            nextId = datastore.getNextBuildRecordId();
+            log.info("####nextId: " + nextId);
+
+            BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
+                    .buildConfigurationAudited(buildConfigAudited1)
+                    .submitTime(Timestamp.from(Instant.now()))
+                    .startTime(Timestamp.from(Instant.now()))
+                    .endTime(Timestamp.from(Instant.now()))
+                    .builtArtifact(builtArtifact3)
+                    .builtArtifact(builtArtifact4)
+                    .user(demoUser)
+                    .repourLog("This is a wannabe alignment log.")
+                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                    .status(BuildStatus.SUCCESS)
+                    .buildEnvironment(buildConfigAudited1.getBuildEnvironment())
+                    .scmRepoURL(buildConfigAudited1.getRepositoryConfiguration().getInternalUrl())
+                    .scmRevision(buildConfigAudited1.getScmRevision())
+                    .executionRootName("org.jboss.pnc:parent")
+                    .executionRootVersion("1.2.3")
+                    .temporaryBuild(true)
+                    .build();
+
+                log.info("Saving tempRecord1: " + tempRecord1);
+                BuildRecord savedTempRecord1 = buildRecordRepository.save(tempRecord1);
+                log.info("Saved buildRecord1: " + savedTempRecord1 + "BuildConfigurationAuditedIdRev: " + savedTempRecord1.getBuildConfigurationAuditedIdRev());
+                buildRecords.add(tempRecord1);
+
         }
 
-        Artifact builtArtifact3 = Artifact.Builder.newBuilder()
+        Artifact builtArtifact5 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact3:jar:1.0")
                 .targetRepository(targetRepository)
                 .filename("demo built artifact 3")
@@ -570,7 +618,7 @@ public class DatabaseDataInitializer {
                 .size(10L)
                 .deployPath("/built3")
                 .build();
-        Artifact builtArtifact4 = Artifact.Builder.newBuilder()
+        Artifact builtArtifact6 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact4:jar:1.0")
                 .targetRepository(targetRepository)
                 .filename("demo built artifact 4")
@@ -581,13 +629,39 @@ public class DatabaseDataInitializer {
                 .deployPath("/built4")
                 .build();
 
-        builtArtifact3 = artifactRepository.save(builtArtifact3);
-        builtArtifact4 = artifactRepository.save(builtArtifact4);
+        Artifact builtArtifact7 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact5:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 7")
+                .md5("adsfs6df548w1327cx78he873217df98")
+                .sha1("a56asdf87a3cvx231b87987fasd6f5ads4f32sdf")
+                .sha256("sad5f64sf87b3cvx2b1v87tr89h7d3f5g432xcz1zv87fawrv23n8796534564er")
+                .size(10L)
+                .deployPath("/built5")
+                .build();
+        Artifact builtArtifact8 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact6:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 8")
+                .md5("md-fake-abcdefg1234")
+                .sha1("sha1-fake-abcdefg1234")
+                .sha256("sha256-fake-abcdefg1234")
+                .size(10L)
+                .deployPath("/built6")
+                .build();
+
+        builtArtifact5 = artifactRepository.save(builtArtifact5);
+        builtArtifact6 = artifactRepository.save(builtArtifact6);
+        builtArtifact7 = artifactRepository.save(builtArtifact7);
+        builtArtifact8 = artifactRepository.save(builtArtifact8);
 
         Artifact dependencyBuiltArtifact1 = artifactRepository
                 .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(),
                         builtArtifact1.getSha256()));
 
+        //For timestamp tests where concrete timestamp is needed
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2019, Calendar.JANUARY, 10);
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository
                 .queryById(buildConfig2AuditIdRev);
@@ -601,8 +675,8 @@ public class DatabaseDataInitializer {
                     .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
                     .endTime(Timestamp.from(Instant.now()))
-                    .builtArtifact(builtArtifact3)
-                    .builtArtifact(builtArtifact4)
+                    .builtArtifact(builtArtifact5)
+                    .builtArtifact(builtArtifact6)
                     .dependency(dependencyBuiltArtifact1)
                     .dependency(importedArtifact1)
                     .user(demoUser)
@@ -614,8 +688,30 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(false)
                     .build();
 
+            nextId = datastore.getNextBuildRecordId();
+            log.info("####nextId: " + nextId);
+
             buildRecordRepository.save(buildRecord2);
             buildRecords.add(buildRecord2);
+
+            BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
+                    .buildConfigurationAudited(buildConfigAudited2)
+                    .submitTime(Timestamp.from(calendar.toInstant().minus(8, ChronoUnit.HOURS)))
+                    .startTime(Timestamp.from(calendar.toInstant().minus(5, ChronoUnit.HOURS)))
+                    .endTime(Timestamp.from(calendar.toInstant()))
+                    .builtArtifact(builtArtifact7)
+                    .builtArtifact(builtArtifact8)
+                    .user(demoUser)
+                    .buildLog("Is it free?")
+                    .status(BuildStatus.SUCCESS)
+                    .buildEnvironment(buildConfigAudited2.getBuildEnvironment())
+                    .executionRootName("org.jboss.pnc:parent")
+                    .executionRootVersion("1.2.4")
+                    .temporaryBuild(true)
+                    .build();
+
+            buildRecordRepository.save(tempRecord1);
+            buildRecords.add(tempRecord1);
         }
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
@@ -639,9 +735,19 @@ public class DatabaseDataInitializer {
                 .build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord2);
 
+        BuildConfigSetRecord buildConfigSetRecord3 = BuildConfigSetRecord.Builder.newBuilder()
+                .buildConfigurationSet(buildConfigurationSet1)
+                .startTime(Timestamp.from(calendar.toInstant().minus(20, ChronoUnit.DAYS)))
+                .endTime(Timestamp.from(calendar.toInstant().minus(20, ChronoUnit.DAYS)))
+                .user(demoUser)
+                .status(BuildStatus.SUCCESS)
+                .temporaryBuild(true)
+                .build();
+        buildConfigSetRecordRepository.save(buildConfigSetRecord3);
+
         demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
         demoProductMilestone1.addDistributedArtifact(builtArtifact1);
-        demoProductMilestone1.addDistributedArtifact(builtArtifact3);
+        demoProductMilestone1.addDistributedArtifact(builtArtifact5);
         demoProductMilestone1.addDistributedArtifact(importedArtifact2);
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
 
