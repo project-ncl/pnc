@@ -24,9 +24,7 @@ import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupBuildClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
-import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -69,7 +67,7 @@ public class GroupBuildEndpointTest {
     public void shouldGetGroupBuilds() throws RemoteResourceException {
         RemoteCollection<GroupBuild> all = anonymousClient.getAll();
 
-        assertThat(all).hasSize(2);
+        assertThat(all).hasSize(3);
     }
 
     @Test

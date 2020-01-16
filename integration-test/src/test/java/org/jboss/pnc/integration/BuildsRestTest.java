@@ -114,7 +114,7 @@ public class BuildsRestTest  {
     @InSequence(-1)
     public void sanityTests() throws Exception {
         assertThat(buildRecordProvider.getAll(0, 99, "", "").getContent())
-                .hasSize(2)
+                .hasSize(4)
                 .overridingErrorMessage("2 BuildRecords are expected in DB before running this test");
 
         assertThat(buildCoordinatorMock).isNotNull();
@@ -134,7 +134,7 @@ public class BuildsRestTest  {
         RestResponse<List<BuildRecordRest>> all = buildRestClient.all();
 
         //then
-        assertThat(all.getValue()).hasSize(4);
+        assertThat(all.getValue()).hasSize(6);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class BuildsRestTest  {
                 .collect(Collectors.toList());
 
         //then
-        assertThat(sorted).containsExactly(99, 2, 1);
+        assertThat(sorted).containsExactly(99, 4, 3, 2, 1);
 
     }
 
@@ -204,11 +204,15 @@ public class BuildsRestTest  {
         List<BuildRecordRest> firstPage = buildRestClient.all(true, 0, 1, null, sort).getValue();
         List<BuildRecordRest> secondPage = buildRestClient.all(true, 1, 1, null, sort).getValue();
         List<BuildRecordRest> thirdPage = buildRestClient.all(true, 2, 1, null, sort).getValue();
+        List<BuildRecordRest> fourthPage = buildRestClient.all(true, 3, 1, null, sort).getValue();
+        List<BuildRecordRest> fifthPage = buildRestClient.all(true, 4, 1, null, sort).getValue();
 
         //then
         assertThat(firstPage.get(0).getId()).isEqualTo(99);
-        assertThat(secondPage.get(0).getId()).isEqualTo(2);
-        assertThat(thirdPage.get(0).getId()).isEqualTo(1);
+        assertThat(secondPage.get(0).getId()).isEqualTo(4);
+        assertThat(thirdPage.get(0).getId()).isEqualTo(3);
+        assertThat(fourthPage.get(0).getId()).isEqualTo(2);
+        assertThat(fifthPage.get(0).getId()).isEqualTo(1);
     }
 
     @Test
@@ -222,7 +226,7 @@ public class BuildsRestTest  {
         int totalPages = buildRestClient.all(true, 0, 1, null, sort).getRestCallResponse().getBody().jsonPath().getInt("totalPages");
 
         //then
-        assertThat(totalPages).isEqualTo(3);
+        assertThat(totalPages).isEqualTo(5);
     }
 
     @Test
@@ -238,7 +242,7 @@ public class BuildsRestTest  {
                 .collect(Collectors.toList());
 
         // then
-        assertThat(sorted).containsExactly(1, 2);
+        assertThat(sorted).containsExactly(1, 2, 3, 4);
     }
 
     @Test
@@ -254,7 +258,7 @@ public class BuildsRestTest  {
                 .collect(Collectors.toList());
 
         // then
-        assertThat(sorted).containsExactly(1, 2);
+        assertThat(sorted).containsExactly(1, 2, 3, 4);
     }
 
     @Test
@@ -270,7 +274,7 @@ public class BuildsRestTest  {
                 .collect(Collectors.toList());
 
         // then
-        assertThat(sorted).containsExactly(1, 99); //1=completed(from demo data); 99=running mock
+        assertThat(sorted).containsExactly(1, 2, 99); //1,2=completed(from demo data); 99=running mock
     }
 
     @Test
@@ -285,7 +289,7 @@ public class BuildsRestTest  {
                 .collect(Collectors.toList());
 
         // then
-        assertThat(sorted).containsExactly(2);
+        assertThat(sorted).containsExactly(3, 4);
     }
 
     @Test
@@ -316,7 +320,7 @@ public class BuildsRestTest  {
                 .collect(Collectors.toList());
 
         // then
-        assertThat(sorted).hasSize(1);
+        assertThat(sorted).hasSize(2);
     }
 
 
@@ -331,7 +335,7 @@ public class BuildsRestTest  {
                 .collect(Collectors.toList());
 
         // then
-        assertThat(sorted).hasSize(1);
+        assertThat(sorted).hasSize(2);
     }
 
     @Test
@@ -348,7 +352,7 @@ public class BuildsRestTest  {
                 .collect(Collectors.toList());
 
         // then
-        assertThat(sorted).hasSize(2);
+        assertThat(sorted).hasSize(3);
     }
 
     @Test

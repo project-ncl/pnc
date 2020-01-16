@@ -17,14 +17,18 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.enums.ResultStatus;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -43,15 +47,31 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.Consumer;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jboss.pnc.common.util.RandomUtils.randInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GroupBuildProviderTest extends AbstractProviderTest<BuildConfigSetRecord> {
+
+    private static final int CURRENT_USER = randInt(1000, 100000);
+
+    private static final String USER_TOKEN = "token";
 
     @Mock
     private BuildConfigSetRecordRepository repository;
@@ -64,6 +84,11 @@ public class GroupBuildProviderTest extends AbstractProviderTest<BuildConfigSetR
 
     @Mock
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
+
+    @Mock
+    private UserService userService;
+
+    private User user;
 
     @Spy
     @InjectMocks
@@ -81,6 +106,11 @@ public class GroupBuildProviderTest extends AbstractProviderTest<BuildConfigSetR
 
         List<BuildConfigSetRecord> records = new ArrayList<>(Arrays.asList(new BuildConfigSetRecord[]{a, b, c, d, e, bcsr}));
         fillRepository(records);
+
+        user = mock(User.class);
+        when(user.getId()).thenReturn(CURRENT_USER);
+        when(user.getLoginToken()).thenReturn(USER_TOKEN);
+        when(userService.currentUser()).thenReturn(user);
     }
 
     @Override
@@ -123,6 +153,36 @@ public class GroupBuildProviderTest extends AbstractProviderTest<BuildConfigSetR
         provider.cancel(bcsr.getId().toString());
         //Then
         verify(buildCoordinator, times(1)).cancelSet(bcsr.getId());
+    }
+
+    @Test
+    public void shouldProvideCallbackOnDeletion() throws Exception{
+        // given
+        final int buildId = 88;
+        final String buildIdString = String.valueOf(buildId);
+        final String callbackUrl = "http://localhost:8088/callback";
+
+        WireMockServer wireMockServer = new WireMockServer(8088);
+        wireMockServer.start();
+        wireMockServer.stubFor(post(urlEqualTo("/callback")).willReturn(aResponse().withStatus(200)));
+
+        given(temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(eq(buildId), eq(USER_TOKEN), any
+                ())).willAnswer(invocation -> {
+            Result result = new Result(buildIdString, ResultStatus.SUCCESS, "BuildConfigSetRecord was deleted " +
+                    "successfully");
+
+            ((Consumer<Result>) invocation.getArgument(2)).accept(result);
+            return true;
+        });
+
+        // when
+        boolean result = provider.delete(buildIdString, callbackUrl);
+
+        // then
+        assertThat(result).isTrue();
+        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/callback")).withRequestBody(matchingJsonPath("$.id",
+                equalTo(buildIdString))));
+        wireMockServer.stop();
     }
 
     private BuildConfigSetRecord prepareBCSetRecord(BuildConfigurationSet buildConfigurationSet) {

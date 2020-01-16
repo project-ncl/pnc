@@ -80,8 +80,10 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
     }
 
     @Override
-    public void delete(String id) {
-        endpointHelper.delete(id);
+    public void delete(String id, String callback) {
+        if (!provider.delete(id, callback)) {
+            throw new NotFoundException("Temporary GroupBuild with id: " + id + " was not found.");
+        }
     }
 
     @Override

@@ -27,8 +27,10 @@ import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.TaggedBuild;
 import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
+import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
+import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +80,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         if (!result.isSuccess()) {
             return result;
         }
-        return new Result(buildRecord.getId().toString(), Result.Status.SUCCESS);
+        return new Result(buildRecord.getId().toString(), ResultStatus.SUCCESS);
     }
 
     private Result requestDeleteViaCauseway(BuildRecord buildRecord) {
@@ -90,17 +92,17 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             if (!success) {
                 logger.error("Failed to un-tag pushed build record. BuildRecord.id: {}; brewBuildId: {}; tagPrefix: {};",
                         buildRecordId, pushResult.getBrewBuildId(), pushResult.getTagPrefix());
-                return new Result(buildRecordId.toString(), Result.Status.FAILED, "Failed to un-tag pushed build record.");
+                return new Result(buildRecordId.toString(), ResultStatus.FAILED, "Failed to un-tag pushed build record.");
             }
         }
-        return new Result(buildRecordId.toString(), Result.Status.SUCCESS);
+        return new Result(buildRecordId.toString(), ResultStatus.SUCCESS);
     }
 
     private Result deleteBuildsFromIndy(String buildContentId, String authToken) {
         Result result;
         if (buildContentId == null) {
             logger.debug("Build contentId is null. Nothing to be deleted from Indy.");
-            return new Result(buildContentId, Result.Status.SUCCESS, "BuildContentId is null. Nothing to be deleted from Indy.");
+            return new Result(buildContentId, ResultStatus.SUCCESS, "BuildContentId is null. Nothing to be deleted from Indy.");
         }
 
         Indy indy = indyFactory.get(authToken);
@@ -112,11 +114,11 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             //delete the tracking record
             IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
             foloAdmin.clearTrackingRecord(buildContentId);
-            result = new Result(buildContentId, Result.Status.SUCCESS);
+            result = new Result(buildContentId, ResultStatus.SUCCESS);
         } catch (IndyClientException e) {
             String description = MessageFormat.format("Failed to delete temporary hosted repository identified by buildContentId {0}.", buildContentId);
             logger.error(description, e);
-            result = new Result(buildContentId, Result.Status.FAILED, description);
+            result = new Result(buildContentId, ResultStatus.FAILED, description);
         } finally {
             IOUtils.closeQuietly(indy);
         }

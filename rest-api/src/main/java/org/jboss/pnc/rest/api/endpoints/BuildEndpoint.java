@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -59,7 +58,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.util.List;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
@@ -118,8 +116,9 @@ public interface BuildEndpoint{
     @Path("/{id}")
     Build getSpecific(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Delete specific temporary build.",
-            description = "The operation is async, for the result subscribe to 'build-records#delete' events with optional qualifier buildRecord.id.", // TODO buildRecord.id. ??
+    @Operation(summary = "Delete a specific temporary build.",
+            description = "Operation is async. Once completed, a callback can be sent with a JSON body containing information "
+                    + "about the operation completion using object org.jboss.pnc.dto.DeleteOperationResult",
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                 @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
@@ -129,7 +128,8 @@ public interface BuildEndpoint{
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}")
-    void delete(@Parameter(description = B_ID) @PathParam("id") String id);
+    void delete(@Parameter(description = B_ID) @PathParam("id") String id,
+                @Parameter(description = "Optional Callback URL") @QueryParam("callback") String callback);
 
     @Operation(summary = "Updates an existing build.",
             responses = {

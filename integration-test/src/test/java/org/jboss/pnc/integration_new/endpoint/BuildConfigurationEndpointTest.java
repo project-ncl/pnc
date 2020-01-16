@@ -17,29 +17,46 @@
  */
 package org.jboss.pnc.integration_new.endpoint;
 
-import java.time.Instant;
-
 import org.assertj.core.api.Assertions;
+import org.assertj.core.api.Condition;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.EnvironmentClient;
+import org.jboss.pnc.client.ProductClient;
+import org.jboss.pnc.client.ProjectClient;
+import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.client.SCMRepositoryClient;
 import org.jboss.pnc.client.patch.BuildConfigurationPatchBuilder;
 import org.jboss.pnc.client.patch.PatchBuilderException;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
+import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.DTOEntity;
+import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.dto.GroupConfiguration;
+import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.dto.response.Parameter;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
@@ -48,28 +65,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import org.assertj.core.api.Condition;
-import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.client.EnvironmentClient;
-import org.jboss.pnc.client.ProductClient;
-import org.jboss.pnc.client.ProjectClient;
-import org.jboss.pnc.client.RemoteCollection;
-import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.client.SCMRepositoryClient;
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.BuildConfigurationRef;
-import org.jboss.pnc.dto.DTOEntity;
-import org.jboss.pnc.dto.Environment;
-import org.jboss.pnc.dto.GroupConfiguration;
-import org.jboss.pnc.dto.ProjectRef;
-import org.jboss.pnc.dto.SCMRepository;
-import org.jboss.pnc.dto.response.Parameter;
-import org.jboss.pnc.enums.BuildType;
-
 import static org.junit.Assert.assertEquals;
-
-import org.junit.BeforeClass;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -286,7 +282,7 @@ public class BuildConfigurationEndpointTest {
         RemoteCollection<Build> all = client.getBuilds(configurationId, null);
 
         assertThat(all)
-                .hasSize(1)
+                .hasSize(2)
                 .allMatch(b -> configurationId.equals(b.getBuildConfigRevision().getId()));
     }
 

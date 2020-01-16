@@ -50,7 +50,11 @@ public interface BuildProvider extends Provider<Integer, org.jboss.pnc.model.Bui
 
     String getBuildLog(String id);
 
+    boolean delete(String id, String callback);
+
     SSHCredentials getSshCredentials(String id);
+
+    Page<Build> getAllTemporaryOlderThanTimestamp(int pageIndex, int pageSize, String sort, String q, long timestamp);
 
     Page<Build> getBuilds(BuildPageInfo pageInfo);
 

@@ -95,7 +95,7 @@ public class ArtifactRestTest extends AbstractTest {
             // artifact number 3 is 5th initialized
             artifactRest1 = arts.get(0);
             artifactRest2 = arts.get(1);
-            artifactRest3 = arts.get(4);
+            artifactRest3 = arts.get(6);
         }
     }
 

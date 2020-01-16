@@ -107,8 +107,10 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public void delete(String id) {
-        endpointHelper.delete(id);
+    public void delete(String id, String callback) {
+        if (!provider.delete(id, callback)) {
+            throw new NotFoundException("Temporary build with id: " + id + " was not found.");
+        }
     }
 
     @Override

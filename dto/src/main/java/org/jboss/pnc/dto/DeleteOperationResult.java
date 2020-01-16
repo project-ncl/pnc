@@ -15,23 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.mock;
+package org.jboss.pnc.dto;
 
-import org.jboss.pnc.coordinator.maintenance.RemoteBuildsCleaner;
+import lombok.Data;
 import org.jboss.pnc.enums.ResultStatus;
-import org.jboss.pnc.spi.coordinator.Result;
-import org.jboss.pnc.model.BuildRecord;
 
-import javax.enterprise.context.Dependent;
+@Data
+public class DeleteOperationResult {
 
-/**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- */
-@Dependent
-public class RemoteBuildsCleanerMock implements RemoteBuildsCleaner {
+    private String id;
 
-    @Override
-    public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
-        return new Result(buildRecord.getId().toString(), ResultStatus.SUCCESS);
-    }
+    private ResultStatus status;
+
+    private String message;
 }

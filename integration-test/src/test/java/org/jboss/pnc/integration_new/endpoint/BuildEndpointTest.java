@@ -100,7 +100,7 @@ public class BuildEndpointTest {
 
         RemoteCollection<Build> all = client.getAll(null, null);
 
-        assertThat(all).hasSize(2);
+        assertThat(all).hasSize(4);
     }
 
     @Test
@@ -161,7 +161,7 @@ public class BuildEndpointTest {
         String buildRecordId = "1";
         RemoteCollection<Artifact> artifacts = client.getBuiltArtifacts(buildRecordId);
         Set<Integer> artifactIds = artifactIds(artifacts);
-        Assertions.assertThat(artifactIds).contains(100, 101);
+        Assertions.assertThat(artifactIds).contains(100, 103);
 
         client.setBuiltArtifacts(buildRecordId, Collections.singletonList("101"));
         RemoteCollection<Artifact> newBuiltArtifacts = client.getBuiltArtifacts(buildRecordId);
@@ -176,7 +176,7 @@ public class BuildEndpointTest {
         String buildRecordId = "1";
         RemoteCollection<Artifact> artifacts = client.getDependencyArtifacts(buildRecordId);
         Set<Integer> artifactIds = artifactIds(artifacts);
-        Assertions.assertThat(artifactIds).contains(102, 103);
+        Assertions.assertThat(artifactIds).contains(104, 105);
 
         client.setDependentArtifacts(buildRecordId, Collections.singletonList("102"));
         RemoteCollection<Artifact> newDependencyArtifacts = client.getDependencyArtifacts(buildRecordId);
@@ -295,11 +295,14 @@ public class BuildEndpointTest {
         assertThatThrownBy(() -> client.setDependentArtifacts(buildRecordId, Collections.emptyList()))
                 .hasCauseInstanceOf(ForbiddenException.class);
 
-        assertThatThrownBy(() -> client.delete(buildRecordId))
-                .hasCauseInstanceOf(ForbiddenException.class);
-
         assertThatThrownBy(() -> client.update(buildRecordId, Build.builder().build()))
                 .hasCauseInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    public void shouldGetOldTemporaryBuild() {
+        BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
+
     }
 
     private Set<Integer> artifactIds(RemoteCollection<Artifact> artifacts) {
