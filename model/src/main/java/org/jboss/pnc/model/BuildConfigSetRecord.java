@@ -54,7 +54,7 @@ import java.util.Set;
  * time, links to the build records for the executed builds, and the overall status (success/failure) of the set execution.
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = {
            @Index(name = "idx_buildconfigsetrecord_buildconfigset", columnList = "buildconfigurationset_id"),

@@ -45,7 +45,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name = "uk_buildconfigurationset_name", columnNames = "name"),
        indexes = @Index(name = "idx_buildconfigurationset_productversion", columnList = "productversion_id")

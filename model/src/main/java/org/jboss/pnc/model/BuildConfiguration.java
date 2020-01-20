@@ -78,7 +78,7 @@ import java.util.stream.Collectors;
  * @author Jakub Bartecek
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Audited
 @Table(uniqueConstraints = @UniqueConstraint(name = "uk_build_configuration_name", columnNames = {"name", "active"}),

@@ -58,7 +58,7 @@ import java.util.Set;
  *
  */
 @Cacheable
-@Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
     uniqueConstraints = @UniqueConstraint(name="uk_artifact_name", columnNames = { "identifier", "sha256", "targetRepository_id"}),
