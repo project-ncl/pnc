@@ -44,6 +44,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     private final KeycloakConfig keycloak;
     private final Map<String, String> grafana;
     private final String bifrostUrl;
+    private final String kafkaStoreUrl;
 
     public UIModuleConfig(
             @JsonProperty("pncUrl") String pncUrl,
@@ -54,7 +55,8 @@ public class UIModuleConfig extends AbstractModuleConfig {
             @JsonProperty("ssoTokenLifespan") String ssoTokenLifespan,
             @JsonProperty("keycloak") KeycloakConfig keycloak,
             @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana,
-            @JsonProperty("bifrostUrl") String bifrostUrl) {
+            @JsonProperty("bifrostUrl") String bifrostUrl,
+            @JsonProperty("kafkaStoreUrl") String kafkaStoreUrl) {
         this.pncUrl = pncUrl;
         this.pncRestUrl = pncRestUrl;
         this.pncNotificationsUrl = pncNotificationsUrl;
@@ -64,6 +66,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
         this.keycloak = keycloak;
         this.grafana = grafana;
         this.bifrostUrl = bifrostUrl;
+        this.kafkaStoreUrl = kafkaStoreUrl;
     }
 
     /**
@@ -130,6 +133,10 @@ public class UIModuleConfig extends AbstractModuleConfig {
         return bifrostUrl;
     }
 
+    public String getKafkaStoreUrl() {
+        return kafkaStoreUrl;
+    }
+
     @Override
     public String toString() {
         return "UIModuleConfig{" +
@@ -142,6 +149,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
                 ", keycloak=" + keycloak +
                 ", grafana=" + grafana +
                 ", bifrostUrl=" + bifrostUrl +
+                ", kafkaStoreUrl=" + kafkaStoreUrl +
                 '}';
     }
 }
