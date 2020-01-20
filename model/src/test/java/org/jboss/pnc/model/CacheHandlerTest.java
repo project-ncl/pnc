@@ -84,6 +84,9 @@ public class CacheHandlerTest extends AbstractModelTest {
         SessionFactory sessionFactory = session.getSessionFactory();
         Statistics statistics = sessionFactory.getStatistics();
 
+        // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
+        insertExampleBuildConfigurations(em_1, basicRepositoryConfiguration);
+
         SortedMap<String, Map<String, String>> entitiesStatMap = HibernateStatsUtils
                 .getAllSecondLevelCacheEntitiesStats(statistics);
         logger.debug("All entities stats: {}", entitiesStatMap);
@@ -108,6 +111,9 @@ public class CacheHandlerTest extends AbstractModelTest {
         SessionFactory sessionFactory = session.getSessionFactory();
         Statistics statistics = sessionFactory.getStatistics();
 
+        // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
+        insertExampleBuildConfigurations(em_1, basicRepositoryConfiguration);
+
         SortedMap<String, Map<String, String>> secondLevelCacheStatMap = HibernateStatsUtils
                 .getAllSecondLevelCacheRegionsStats(statistics);
         logger.debug("All second level cache stats: {}", secondLevelCacheStatMap);
@@ -131,6 +137,9 @@ public class CacheHandlerTest extends AbstractModelTest {
         Session session = (Session) em_1.getDelegate();
         SessionFactory sessionFactory = session.getSessionFactory();
         Statistics statistics = sessionFactory.getStatistics();
+
+        // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
+        insertExampleBuildConfigurations(em_1, basicRepositoryConfiguration);
 
         SortedMap<String, Map<String, String>> collectionStatMap = HibernateStatsUtils
                 .getAllSecondLevelCacheCollectionsStats(statistics);
