@@ -35,7 +35,7 @@ public class HibernateStatsUtils {
      * @param statistics
      * @return a sorted map containing all the Hibernate entities stats
      */
-    public static SortedMap<String, Map<String, String>> getAllEntitiesStats(Statistics statistics) {
+    public static SortedMap<String, Map<String, String>> getAllSecondLevelCacheEntitiesStats(Statistics statistics) {
 
         SortedMap<String, Map<String, String>> entitiesStatMap = new TreeMap<String, Map<String, String>>();
         String[] entityNames = statistics.getEntityNames();
@@ -68,7 +68,7 @@ public class HibernateStatsUtils {
      * @param statistics
      * @return a sorted map containing all the Hibernate second level cache statistics
      */
-    public static SortedMap<String, Map<String, String>> getAllSecondLevelStats(Statistics statistics) {
+    public static SortedMap<String, Map<String, String>> getAllSecondLevelCacheRegionsStats(Statistics statistics) {
 
         SortedMap<String, Map<String, String>> secondLevelCachesStatMap = new TreeMap<String, Map<String, String>>();
         String[] cacheRegionNames = statistics.getSecondLevelCacheRegionNames();
@@ -101,7 +101,7 @@ public class HibernateStatsUtils {
      * @param statistics
      * @return a sorted map containing all the Hibernate collections statistics
      */
-    public static SortedMap<String, Map<String, String>> getAllCollectionStats(Statistics statistics) {
+    public static SortedMap<String, Map<String, String>> getAllSecondLevelCacheCollectionsStats(Statistics statistics) {
 
         SortedMap<String, Map<String, String>> collectionsStatMap = new TreeMap<String, Map<String, String>>();
         

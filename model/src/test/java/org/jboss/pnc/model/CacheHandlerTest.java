@@ -84,10 +84,8 @@ public class CacheHandlerTest extends AbstractModelTest {
         SessionFactory sessionFactory = session.getSessionFactory();
         Statistics statistics = sessionFactory.getStatistics();
 
-        // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
-        insertExampleBuildConfigurations(em_1, basicRepositoryConfiguration);
-
-        SortedMap<String, Map<String, String>> entitiesStatMap = HibernateStatsUtils.getAllEntitiesStats(statistics);
+        SortedMap<String, Map<String, String>> entitiesStatMap = HibernateStatsUtils
+                .getAllSecondLevelCacheEntitiesStats(statistics);
         logger.debug("All entities stats: {}", entitiesStatMap);
 
         String[] mappedEntities = { "org.hibernate.envers.DefaultRevisionEntity", "org.jboss.pnc.model.Artifact",
@@ -110,10 +108,8 @@ public class CacheHandlerTest extends AbstractModelTest {
         SessionFactory sessionFactory = session.getSessionFactory();
         Statistics statistics = sessionFactory.getStatistics();
 
-        // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
-        insertExampleBuildConfigurations(em_1, basicRepositoryConfiguration);
-
-        SortedMap<String, Map<String, String>> secondLevelCacheStatMap = HibernateStatsUtils.getAllSecondLevelStats(statistics);
+        SortedMap<String, Map<String, String>> secondLevelCacheStatMap = HibernateStatsUtils
+                .getAllSecondLevelCacheRegionsStats(statistics);
         logger.debug("All second level cache stats: {}", secondLevelCacheStatMap);
 
         String[] mappedEntities = { "org.jboss.pnc.model.Artifact", "org.jboss.pnc.model.BuildConfigSetRecord",
@@ -135,11 +131,9 @@ public class CacheHandlerTest extends AbstractModelTest {
         Session session = (Session) em_1.getDelegate();
         SessionFactory sessionFactory = session.getSessionFactory();
         Statistics statistics = sessionFactory.getStatistics();
-        
-        // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
-        insertExampleBuildConfigurations(em_1, basicRepositoryConfiguration);
 
-        SortedMap<String, Map<String, String>> collectionStatMap = HibernateStatsUtils.getAllCollectionStats(statistics);
+        SortedMap<String, Map<String, String>> collectionStatMap = HibernateStatsUtils
+                .getAllSecondLevelCacheCollectionsStats(statistics);
         logger.debug("All collection stats: {}", collectionStatMap);
 
         String[] mappedCollections = { "org.jboss.pnc.model.BuildConfigurationSet.buildConfigurations",
@@ -194,14 +188,14 @@ public class CacheHandlerTest extends AbstractModelTest {
         printSessionFactoryStats(sessionFactory_1.getStatistics(), "org.jboss.pnc.model.BuildConfiguration");
 
         SortedMap<String, Map<String, String>> entitiesStatMap_1 = HibernateStatsUtils
-                .getAllEntitiesStats(sessionFactory_1.getStatistics());
+                .getAllSecondLevelCacheEntitiesStats(sessionFactory_1.getStatistics());
         SortedMap<String, Map<String, String>> secondLevelCacheStatMap_1 = HibernateStatsUtils
-                .getAllSecondLevelStats(sessionFactory_1.getStatistics());
+                .getAllSecondLevelCacheRegionsStats(sessionFactory_1.getStatistics());
 
         session_1.load(BuildConfiguration.class, buildConfig1.getId());
         session_1.load(BuildConfiguration.class, buildConfig2.getId());
 
-        // 2 BuildConfigurations were inserted in SESSION_1, and should be inside 1st level cache
+        // 2 BuildConfigurations were inserted in SESSION_1, and should be inside 1st level cache of SESSION_1
         assertEquals(2, session_1.getStatistics().getEntityCount());
 
         // The 2 BuildConfigurations inserts in SESSION_1 should have been propagated to 2nd level cache
@@ -218,101 +212,95 @@ public class CacheHandlerTest extends AbstractModelTest {
 
         // Searching a not existing BuildConfiguration --> 1 miss in SESSION_1
         session_1.find(BuildConfiguration.class, 13);
-        // Searching an existing BuildConfiguration already in 1st level cache --> no hits in 2nd level cache as there is no
-        // need to go there
+        // Searching an existing BuildConfiguration already in 1st level cache of SESSION_1 --> no hits in 2nd level cache as
+        // there is no need to go there
         session_1.find(BuildConfiguration.class, buildConfig1.getId());
 
-        // Still 2 BuildConfigurations in 1st level cache
+        // Still 2 BuildConfigurations in 1st level cache of SESSION_1
         assertEquals(2, session_1.getStatistics().getEntityCount());
 
-        entitiesStatMap_1 = HibernateStatsUtils.getAllEntitiesStats(sessionFactory_1.getStatistics());
-        secondLevelCacheStatMap_1 = HibernateStatsUtils.getAllSecondLevelStats(sessionFactory_1.getStatistics());
+        entitiesStatMap_1 = HibernateStatsUtils.getAllSecondLevelCacheEntitiesStats(sessionFactory_1.getStatistics());
+        secondLevelCacheStatMap_1 = HibernateStatsUtils.getAllSecondLevelCacheRegionsStats(sessionFactory_1.getStatistics());
 
         // Still 2 BuildConfigurations in 2nd level cache
-        assertEquals("2", entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("insertCount"));
-        assertEquals("2", entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cachePutCount"));
-        assertEquals("2", secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("elementCountInMemory"));
-        assertEquals("2", secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("putCount"));
+        Map<String, String> firstLvlCache1_bc = entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration");
+        Map<String, String> secondLvlCache1_bc = secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration");
+        assertEquals("2", firstLvlCache1_bc.get("insertCount"));
+        assertEquals("2", firstLvlCache1_bc.get("cachePutCount"));
+        assertEquals("2", secondLvlCache1_bc.get("elementCountInMemory"));
+        assertEquals("2", secondLvlCache1_bc.get("putCount"));
 
-        // There should be 1 miss from 2nd level cache, and no hits (BuildConfiguration was found in 1st level cache)
-        assertEquals("0", entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cacheHitCount"));
-        assertEquals("1", entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cacheMissCount"));
-        assertEquals("1", secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("missCount"));
-        assertEquals("0", secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("hitCount"));
+        // There should be 1 miss from 1st and 2nd level cache, and no hits (BuildConfiguration was found in 1st level cache)
+        assertEquals("0", firstLvlCache1_bc.get("cacheHitCount"));
+        assertEquals("1", firstLvlCache1_bc.get("cacheMissCount"));
+        assertEquals("1", secondLvlCache1_bc.get("missCount"));
+        assertEquals("0", secondLvlCache1_bc.get("hitCount"));
 
-        // Create another session
+        // Create another session SESSION_2
         em_2 = getEmFactory().createEntityManager();
         Session session_2 = (Session) em_2.getDelegate();
         SessionFactory sessionFactory_2 = session_2.getSessionFactory();
 
-        // No BuildConfiguration were inserted in SESSION_2, 1st level cache should be empty
+        // No BuildConfiguration were inserted in SESSION_2, 1st level cache of SESSION_2 should be empty
         assertEquals(0, session_2.getStatistics().getEntityCount());
 
         SortedMap<String, Map<String, String>> entitiesStatMap_2 = HibernateStatsUtils
-                .getAllEntitiesStats(sessionFactory_2.getStatistics());
+                .getAllSecondLevelCacheEntitiesStats(sessionFactory_2.getStatistics());
         SortedMap<String, Map<String, String>> secondLevelCacheStatMap_2 = HibernateStatsUtils
-                .getAllSecondLevelStats(sessionFactory_2.getStatistics());
+                .getAllSecondLevelCacheRegionsStats(sessionFactory_2.getStatistics());
+
+        Map<String, String> firstLvlCache2_bc = entitiesStatMap_2.get("org.jboss.pnc.model.BuildConfiguration");
+        Map<String, String> secondLvlCache2_bc = secondLevelCacheStatMap_2.get("org.jboss.pnc.model.BuildConfiguration");
 
         // 2nd level cache is unique, so entitiesStatMap_1 should be identical to entitiesStatMap_2
-        assertEquals(entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("insertCount"),
-                entitiesStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("insertCount"));
-        assertEquals(entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cachePutCount"),
-                entitiesStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("cachePutCount"));
-        assertEquals(secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("elementCountInMemory"),
-                secondLevelCacheStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("elementCountInMemory"));
-        assertEquals(secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("putCount"),
-                secondLevelCacheStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("putCount"));
-        assertEquals(entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cacheHitCount"),
-                entitiesStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("cacheHitCount"));
-        assertEquals(entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cacheMissCount"),
-                entitiesStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("cacheMissCount"));
-        assertEquals(secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("missCount"),
-                secondLevelCacheStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("missCount"));
-        assertEquals(secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("hitCount"),
-                secondLevelCacheStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("hitCount"));
+        assertEquals(firstLvlCache1_bc.get("insertCount"), firstLvlCache2_bc.get("insertCount"));
+        assertEquals(firstLvlCache1_bc.get("cachePutCount"), firstLvlCache2_bc.get("cachePutCount"));
+        assertEquals(secondLvlCache1_bc.get("elementCountInMemory"), secondLvlCache2_bc.get("elementCountInMemory"));
+        assertEquals(secondLvlCache1_bc.get("putCount"), secondLvlCache2_bc.get("putCount"));
+        assertEquals(firstLvlCache1_bc.get("cacheHitCount"), firstLvlCache2_bc.get("cacheHitCount"));
+        assertEquals(firstLvlCache1_bc.get("cacheMissCount"), firstLvlCache2_bc.get("cacheMissCount"));
+        assertEquals(secondLvlCache1_bc.get("missCount"), secondLvlCache2_bc.get("missCount"));
+        assertEquals(secondLvlCache1_bc.get("hitCount"), secondLvlCache2_bc.get("hitCount"));
 
-        // Searching an existing BuildConfiguration not in 1st level cache --> should be a hit in 2nd level cache
+        // Searching an existing BuildConfiguration not in 1st level cache of SESSION_2 --> should be a hit in 2nd level cache
         session_2.find(BuildConfiguration.class, buildConfig1.getId());
 
         //
         printSessionStats(session_2.getStatistics());
         printSessionFactoryStats(sessionFactory_2.getStatistics(), "org.jboss.pnc.model.BuildConfiguration");
 
-        entitiesStatMap_1 = HibernateStatsUtils.getAllEntitiesStats(sessionFactory_1.getStatistics());
-        secondLevelCacheStatMap_1 = HibernateStatsUtils.getAllSecondLevelStats(sessionFactory_1.getStatistics());
-        entitiesStatMap_2 = HibernateStatsUtils.getAllEntitiesStats(sessionFactory_2.getStatistics());
-        secondLevelCacheStatMap_2 = HibernateStatsUtils.getAllSecondLevelStats(sessionFactory_2.getStatistics());
+        entitiesStatMap_1 = HibernateStatsUtils.getAllSecondLevelCacheEntitiesStats(sessionFactory_1.getStatistics());
+        secondLevelCacheStatMap_1 = HibernateStatsUtils.getAllSecondLevelCacheRegionsStats(sessionFactory_1.getStatistics());
+        entitiesStatMap_2 = HibernateStatsUtils.getAllSecondLevelCacheEntitiesStats(sessionFactory_2.getStatistics());
+        secondLevelCacheStatMap_2 = HibernateStatsUtils.getAllSecondLevelCacheRegionsStats(sessionFactory_2.getStatistics());
+
+        firstLvlCache1_bc = entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration");
+        secondLvlCache1_bc = secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration");
+        firstLvlCache2_bc = entitiesStatMap_2.get("org.jboss.pnc.model.BuildConfiguration");
+        secondLvlCache2_bc = secondLevelCacheStatMap_2.get("org.jboss.pnc.model.BuildConfiguration");
 
         // 2nd level cache should now contain a HIT (BuildConfiguration#100 was not found in SESSION_2 and so was taken from 2nd
         // level cache)
-        assertEquals("1", entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cacheHitCount"));
-        assertEquals("1", secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("hitCount"));
+        assertEquals("1", firstLvlCache1_bc.get("cacheHitCount"));
+        assertEquals("1", secondLvlCache1_bc.get("hitCount"));
 
         // All other stats should be identical to previous ones
-        assertEquals("2", entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("insertCount"));
-        assertEquals("2", entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cachePutCount"));
-        assertEquals("2", secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("elementCountInMemory"));
-        assertEquals("2", secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("putCount"));
-        assertEquals("1", entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cacheMissCount"));
-        assertEquals("1", secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("missCount"));
+        assertEquals("2", firstLvlCache1_bc.get("insertCount"));
+        assertEquals("2", firstLvlCache1_bc.get("cachePutCount"));
+        assertEquals("2", secondLvlCache1_bc.get("elementCountInMemory"));
+        assertEquals("2", secondLvlCache1_bc.get("putCount"));
+        assertEquals("1", firstLvlCache1_bc.get("cacheMissCount"));
+        assertEquals("1", secondLvlCache1_bc.get("missCount"));
 
         // 2nd level cache is unique, so again entitiesStatMap_1 should be identical to entitiesStatMap_2
-        assertEquals(entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("insertCount"),
-                entitiesStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("insertCount"));
-        assertEquals(entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cachePutCount"),
-                entitiesStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("cachePutCount"));
-        assertEquals(secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("elementCountInMemory"),
-                secondLevelCacheStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("elementCountInMemory"));
-        assertEquals(secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("putCount"),
-                secondLevelCacheStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("putCount"));
-        assertEquals(entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cacheHitCount"),
-                entitiesStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("cacheHitCount"));
-        assertEquals(entitiesStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("cacheMissCount"),
-                entitiesStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("cacheMissCount"));
-        assertEquals(secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("missCount"),
-                secondLevelCacheStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("missCount"));
-        assertEquals(secondLevelCacheStatMap_1.get("org.jboss.pnc.model.BuildConfiguration").get("hitCount"),
-                secondLevelCacheStatMap_2.get("org.jboss.pnc.model.BuildConfiguration").get("hitCount"));
+        assertEquals(firstLvlCache1_bc.get("insertCount"), firstLvlCache2_bc.get("insertCount"));
+        assertEquals(firstLvlCache1_bc.get("cachePutCount"), firstLvlCache2_bc.get("cachePutCount"));
+        assertEquals(secondLvlCache1_bc.get("elementCountInMemory"), secondLvlCache2_bc.get("elementCountInMemory"));
+        assertEquals(secondLvlCache1_bc.get("putCount"), secondLvlCache2_bc.get("putCount"));
+        assertEquals(firstLvlCache1_bc.get("cacheHitCount"), firstLvlCache2_bc.get("cacheHitCount"));
+        assertEquals(firstLvlCache1_bc.get("cacheMissCount"), firstLvlCache2_bc.get("cacheMissCount"));
+        assertEquals(secondLvlCache1_bc.get("missCount"), secondLvlCache2_bc.get("missCount"));
+        assertEquals(secondLvlCache1_bc.get("hitCount"), secondLvlCache2_bc.get("hitCount"));
     }
 
     @Test
@@ -369,11 +357,13 @@ public class CacheHandlerTest extends AbstractModelTest {
 
         // No change in fetch from 1st level cache as entity is not there anymore
         assertEquals(entityFetchCount2, entityFetchCount3);
-        // Change in fetch from 2nd level cache: the entity is not in 1st level cache anymore, so Hibernate gets it from 2nd level
+        // Change in fetch from 2nd level cache: the entity is not in 1st level cache anymore, so Hibernate gets it from 2nd
+        // level
         assertNotEquals(secondLevelCacheHitCount2, secondLevelCacheHitCount3);
 
         logger.debug("Entity fetch count #1: {}, #2: {}, #3: {}", entityFetchCount1, entityFetchCount2, entityFetchCount3);
-        logger.debug("Second level cache hit count #1: {}, #2: {}, #3: {}", secondLevelCacheHitCount1, secondLevelCacheHitCount2, secondLevelCacheHitCount3);
+        logger.debug("Second level cache hit count #1: {}, #2: {}, #3: {}", secondLevelCacheHitCount1,
+                secondLevelCacheHitCount2, secondLevelCacheHitCount3);
     }
 
     private void printSessionStats(SessionStatistics sessionStatistics) {
@@ -387,9 +377,12 @@ public class CacheHandlerTest extends AbstractModelTest {
 
     @SuppressWarnings("unused")
     private void printSessionFactoryStats(Statistics statistics) {
-        SortedMap<String, Map<String, String>> entitiesStatMap = HibernateStatsUtils.getAllEntitiesStats(statistics);
-        SortedMap<String, Map<String, String>> secondLevelCacheStatMap = HibernateStatsUtils.getAllSecondLevelStats(statistics);
-        SortedMap<String, Map<String, String>> collectionStatMap = HibernateStatsUtils.getAllCollectionStats(statistics);
+        SortedMap<String, Map<String, String>> entitiesStatMap = HibernateStatsUtils
+                .getAllSecondLevelCacheEntitiesStats(statistics);
+        SortedMap<String, Map<String, String>> secondLevelCacheStatMap = HibernateStatsUtils
+                .getAllSecondLevelCacheRegionsStats(statistics);
+        SortedMap<String, Map<String, String>> collectionStatMap = HibernateStatsUtils
+                .getAllSecondLevelCacheCollectionsStats(statistics);
 
         logger.debug("All second level cache stats: {}", secondLevelCacheStatMap);
         logger.debug("All entities stats: {}", entitiesStatMap);
@@ -397,9 +390,12 @@ public class CacheHandlerTest extends AbstractModelTest {
     }
 
     private void printSessionFactoryStats(Statistics statistics, String regionName) {
-        SortedMap<String, Map<String, String>> entitiesStatMap = HibernateStatsUtils.getAllEntitiesStats(statistics);
-        SortedMap<String, Map<String, String>> secondLevelCacheStatMap = HibernateStatsUtils.getAllSecondLevelStats(statistics);
-        SortedMap<String, Map<String, String>> collectionStatMap = HibernateStatsUtils.getAllCollectionStats(statistics);
+        SortedMap<String, Map<String, String>> entitiesStatMap = HibernateStatsUtils
+                .getAllSecondLevelCacheEntitiesStats(statistics);
+        SortedMap<String, Map<String, String>> secondLevelCacheStatMap = HibernateStatsUtils
+                .getAllSecondLevelCacheRegionsStats(statistics);
+        SortedMap<String, Map<String, String>> collectionStatMap = HibernateStatsUtils
+                .getAllSecondLevelCacheCollectionsStats(statistics);
 
         logger.debug("--- SECOND LEVEL STATS ---");
         logger.debug("Entities stats of {}: {}", regionName, entitiesStatMap.get(regionName));
