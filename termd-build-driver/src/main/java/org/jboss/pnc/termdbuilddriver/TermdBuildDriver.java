@@ -39,18 +39,11 @@ import javax.inject.Inject;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static org.jboss.pnc.buildagent.api.Status.COMPLETED;
-import static org.jboss.pnc.buildagent.api.Status.FAILED;
-import static org.jboss.pnc.buildagent.api.Status.INTERRUPTED;
+import static org.jboss.pnc.buildagent.api.Status.*;
 
 @ApplicationScoped
 public class TermdBuildDriver implements BuildDriver { //TODO rename class
@@ -187,7 +180,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 if (result != null) {
                     //both of combined futures return the same type
                     RemoteInvocationCompletion remoteInvocationCompletion = (RemoteInvocationCompletion) result;
-                    logger.debug("Completing build execution. Status: {};", remoteInvocationCompletion.getStatus());
+                    if (remoteInvocationCompletion.getException() != null) {
+                        logger.warn("Completing build execution. Exception: {};", remoteInvocationCompletion.getException());
+                    } else {
+                        logger.debug("Completing build execution. Status: {};", remoteInvocationCompletion.getStatus());
+                    }
                     completion = remoteInvocationCompletion;
                 } else if (exception != null && exception.getCause() instanceof java.util.concurrent.CancellationException){
                     //canceled in non build operation (completableFuture cancel), non graceful completion
@@ -313,13 +310,17 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     private void complete(TermdRunningBuild termdRunningBuild,
             RemoteInvocationCompletion completion,
             FileTranser fileTransfer) {
-        CompletedBuild completedBuild = collectResults(termdRunningBuild.getRunningEnvironment(), completion, fileTransfer);
-        logger.debug("Command result {}", completedBuild);
 
         if (completion.getException() != null) {
             logger.warn("Completed with exception.", completion.getException());
             termdRunningBuild.setBuildError(completion.getException());
-        } else if(completedBuild == null ) {
+            return;
+        }
+
+        CompletedBuild completedBuild = collectResults(termdRunningBuild.getRunningEnvironment(), completion, fileTransfer);
+        logger.debug("Command result {}", completedBuild);
+
+        if(completedBuild == null ) {
             termdRunningBuild.setBuildError(new BuildDriverException("Completed build should not be null."));
         } else {
             termdRunningBuild.setCompletedBuild(completedBuild);
