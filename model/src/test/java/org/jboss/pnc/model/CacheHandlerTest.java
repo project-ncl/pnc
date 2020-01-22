@@ -17,6 +17,13 @@
  */
 package org.jboss.pnc.model;
 
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.COLLECTION_STATS_PREFIX;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.ENTITY_STATS_PREFIX;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.REGION_STATS_PREFIX;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.getGenericStats;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheCollectionsStats;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheEntitiesStats;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheRegionsStats;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
@@ -34,20 +41,11 @@ import org.hibernate.SessionFactory;
 import org.hibernate.stat.SessionStatistics;
 import org.hibernate.stat.Statistics;
 import org.jboss.pnc.model.utils.HibernateMetric;
-import org.jboss.pnc.model.utils.HibernateStatsUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.ENTITY_STATS_PREFIX;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.COLLECTION_STATS_PREFIX;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.REGION_STATS_PREFIX;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheEntitiesStats;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheRegionsStats;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheCollectionsStats;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.getGenericStats;
 
 public class CacheHandlerTest extends AbstractModelTest {
 
@@ -301,23 +299,19 @@ public class CacheHandlerTest extends AbstractModelTest {
 
         // 2nd level cache is unique, so entitiesStats should be identical to entitiesStats_2, as secondLevelCacheStats should
         // be identical to secondLevelCacheStats_2
-        assertEquals(bcFirstLevelCacheStats.get("insert.count").getValue(),
-                bcFirstLevelCacheStats_2.get("insert.count").getValue());
-        assertEquals(bcFirstLevelCacheStats.get("cache.put.count").getValue(),
-                bcFirstLevelCacheStats_2.get("cache.put.count").getValue());
-        assertEquals(bcFirstLevelCacheStats.get("cache.hit.count").getValue(),
-                bcFirstLevelCacheStats_2.get("cache.hit.count").getValue());
-        assertEquals(bcFirstLevelCacheStats.get("cache.miss.count").getValue(),
-                bcFirstLevelCacheStats_2.get("cache.miss.count").getValue());
+        assertEquals(bcFirstLevelCacheStats.get("insert.count"), bcFirstLevelCacheStats_2.get("insert.count"));
+        assertEquals(bcFirstLevelCacheStats.get("cache.put.count"), bcFirstLevelCacheStats_2.get("cache.put.count"));
+        assertEquals(bcFirstLevelCacheStats.get("cache.hit.count"), bcFirstLevelCacheStats_2.get("cache.hit.count"));
+        assertEquals(bcFirstLevelCacheStats.get("cache.miss.count"), bcFirstLevelCacheStats_2.get("cache.miss.count"));
 
-        assertEquals(bcSecondLevelCacheStats.get("second-level-cache.element.count.in.memory").getValue(),
-                bcSecondLevelCacheStats_2.get("second-level-cache.element.count.in.memory").getValue());
-        assertEquals(bcSecondLevelCacheStats.get("second-level-cache.put.count").getValue(),
-                bcSecondLevelCacheStats_2.get("second-level-cache.put.count").getValue());
-        assertEquals(bcSecondLevelCacheStats.get("second-level-cache.miss.count").getValue(),
-                bcSecondLevelCacheStats_2.get("second-level-cache.miss.count").getValue());
-        assertEquals(bcSecondLevelCacheStats.get("second-level-cache.hit.count").getValue(),
-                bcSecondLevelCacheStats_2.get("second-level-cache.hit.count").getValue());
+        assertEquals(bcSecondLevelCacheStats.get("second-level-cache.element.count.in.memory"),
+                bcSecondLevelCacheStats_2.get("second-level-cache.element.count.in.memory"));
+        assertEquals(bcSecondLevelCacheStats.get("second-level-cache.put.count"),
+                bcSecondLevelCacheStats_2.get("second-level-cache.put.count"));
+        assertEquals(bcSecondLevelCacheStats.get("second-level-cache.miss.count"),
+                bcSecondLevelCacheStats_2.get("second-level-cache.miss.count"));
+        assertEquals(bcSecondLevelCacheStats.get("second-level-cache.hit.count"),
+                bcSecondLevelCacheStats_2.get("second-level-cache.hit.count"));
 
         // Searching an existing BuildConfiguration not in 1st level cache of SESSION_2 --> should be a hit in 2nd level cache
         session_2.find(BuildConfiguration.class, buildConfig1.getId());
@@ -351,18 +345,14 @@ public class CacheHandlerTest extends AbstractModelTest {
         assertEquals("1", bcSecondLevelCacheStats.get("second-level-cache.miss.count").getValue());
 
         // 2nd level cache is unique, so again entitiesStatMap_1 should be identical to entitiesStatMap_2
-        assertEquals(bcFirstLevelCacheStats.get("insert.count").getValue(),
-                bcFirstLevelCacheStats_2.get("insert.count").getValue());
-        assertEquals(bcFirstLevelCacheStats.get("cache.put.count").getValue(),
-                bcFirstLevelCacheStats_2.get("cache.put.count").getValue());
+        assertEquals(bcFirstLevelCacheStats.get("insert.count"), bcFirstLevelCacheStats_2.get("insert.count"));
+        assertEquals(bcFirstLevelCacheStats.get("cache.put.count"), bcFirstLevelCacheStats_2.get("cache.put.count"));
         assertEquals(bcSecondLevelCacheStats.get("second-level-cache.element.count.in.memory"),
                 bcSecondLevelCacheStats_2.get("second-level-cache.element.count.in.memory"));
         assertEquals(bcSecondLevelCacheStats.get("second-level-cache.put.count"),
                 bcSecondLevelCacheStats_2.get("second-level-cache.put.count"));
-        assertEquals(bcFirstLevelCacheStats.get("cache.hit.count").getValue(),
-                bcFirstLevelCacheStats_2.get("cache.hit.count").getValue());
-        assertEquals(bcFirstLevelCacheStats.get("cache.miss.count").getValue(),
-                bcFirstLevelCacheStats_2.get("cache.miss.count").getValue());
+        assertEquals(bcFirstLevelCacheStats.get("cache.hit.count"), bcFirstLevelCacheStats_2.get("cache.hit.count"));
+        assertEquals(bcFirstLevelCacheStats.get("cache.miss.count"), bcFirstLevelCacheStats_2.get("cache.miss.count"));
         assertEquals(bcSecondLevelCacheStats.get("second-level-cache.miss.count"),
                 bcSecondLevelCacheStats_2.get("second-level-cache.miss.count"));
         assertEquals(bcSecondLevelCacheStats.get("second-level-cache.hit.count"),

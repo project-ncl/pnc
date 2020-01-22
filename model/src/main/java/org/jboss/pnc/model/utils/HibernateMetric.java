@@ -18,6 +18,7 @@
 package org.jboss.pnc.model.utils;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class HibernateMetric implements Serializable {
 
@@ -56,4 +57,25 @@ public class HibernateMetric implements Serializable {
         return new StringBuilder().append("[name=").append(name).append(",description=").append(description).append(",value=")
                 .append(value).append(']').toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        HibernateMetric metric = (HibernateMetric) o;
+        return Objects.equals(name, metric.getName()) && Objects.equals(description, metric.getDescription())
+                && Objects.equals(value, metric.getValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, value);
+    }
+
 }
