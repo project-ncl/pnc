@@ -45,6 +45,16 @@ public class DefaultFileTranser implements FileTranser {
 
     private int maxDownloadSize;
 
+    /**
+     * Connect timeout in millis. See {@link java.net.URLConnection#setConnectTimeout(int)}
+     */
+    private int connectTimeout = 5000;
+
+    /**
+     * Read timeout in millis. See {@link java.net.URLConnection#setReadTimeout(int)}
+     */
+    private int readTimeout = 30000;
+
     public DefaultFileTranser(URI baseServerUri, int maxDownloadSize) {
         this.baseServerUri = baseServerUri;
         this.maxDownloadSize = maxDownloadSize;
@@ -62,6 +72,9 @@ public class DefaultFileTranser implements FileTranser {
 
             connection.setDoOutput(true);
             connection.setDoInput(true);
+
+            connection.setConnectTimeout(connectTimeout);
+            connection.setReadTimeout(readTimeout);
 
             Consumer<String> removedLines = (removedLine) -> {
                 fullyDownloaded = false;
@@ -111,6 +124,9 @@ public class DefaultFileTranser implements FileTranser {
             connection.setDoOutput(true);
             connection.setDoInput(true);
 
+            connection.setConnectTimeout(connectTimeout);
+            connection.setReadTimeout(readTimeout);
+
             byte[] fileContent = script.getBytes();
             connection.setRequestProperty("Content-Length", "" + Integer.toString(fileContent.length));
 
@@ -128,4 +144,11 @@ public class DefaultFileTranser implements FileTranser {
         }
     }
 
+    public void setConnectTimeout(int connectTimeout) {
+        this.connectTimeout = connectTimeout;
+    }
+
+    public void setReadTimeout(int readTimeout) {
+        this.readTimeout = readTimeout;
+    }
 }
