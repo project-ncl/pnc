@@ -30,12 +30,23 @@ public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
     private Long livenessProbeFrequencyMillis = 5000L;
     private Long livenessFailTimeoutMillis = 15000L;
 
+    /**
+     * Connect timeout in millis. See {@link java.net.URLConnection#setConnectTimeout(int)}
+     */
+    private int fileTransferConnectTimeout;
+
+    /**
+     * Connect timeout in millis. See {@link java.net.URLConnection#setReadTimeout(int)}
+     */
+    private int fileTransferReadTimeout;
+
     public TermdBuildDriverModuleConfig(
             @JsonProperty("internalCancelTimeoutMillis") Integer internalCancelTimeoutMillis,
             @JsonProperty("livenessProbeFrequencyMillis") Long livenessProbeFrequencyMillis,
-            @JsonProperty("livenessFailTimeoutMillis") Long livenessFailTimeoutMillis
+            @JsonProperty("livenessFailTimeoutMillis") Long livenessFailTimeoutMillis,
+            @JsonProperty("fileTransferConnectTimeout") Integer fileTransferConnectTimeout,
+            @JsonProperty("fileTransferReadTimeout") Integer fileTransferReadTimeout
             ) {
-
         if (internalCancelTimeoutMillis != null) {
             this.internalCancelTimeoutMillis = internalCancelTimeoutMillis;
         }
@@ -44,6 +55,12 @@ public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
         }
         if (livenessFailTimeoutMillis != null) {
             this.livenessFailTimeoutMillis = livenessFailTimeoutMillis;
+        }
+        if (fileTransferConnectTimeout != null) {
+            this.fileTransferConnectTimeout = fileTransferConnectTimeout;
+        }
+        if (fileTransferReadTimeout != null) {
+            this.fileTransferReadTimeout = fileTransferReadTimeout;
         }
     }
 
