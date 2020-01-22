@@ -17,23 +17,24 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import java.util.Map;
+import java.util.SortedMap;
+
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.stat.CacheRegionStatistics;
-import org.hibernate.stat.EntityStatistics;
-import org.hibernate.stat.SecondLevelCacheStatistics;
 import org.hibernate.stat.Statistics;
+import org.jboss.pnc.model.utils.HibernateMetric;
+import org.jboss.pnc.model.utils.HibernateStatsUtils;
 import org.jboss.pnc.spi.datastore.repositories.CacheHandlerRepository;
 
 @Dependent
 public class CacheHandlerRepositoryImpl implements CacheHandlerRepository {
-    
-    public CacheHandlerRepositoryImpl() {
 
+    public CacheHandlerRepositoryImpl() {
     }
 
     private EntityManager entityManager;
@@ -44,50 +45,31 @@ public class CacheHandlerRepositoryImpl implements CacheHandlerRepository {
     }
 
     @Override
-    public String getCacheStatistics() {
-        // TODO Auto-generated method stub
-        return null;
+    public SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheEntitiesStats() {
+        SessionFactory sessionFactory = ((Session) entityManager.getDelegate()).getSessionFactory();
+        Statistics statistics = sessionFactory.getStatistics();
+        return HibernateStatsUtils.getSecondLevelCacheEntitiesStats(statistics);
     }
 
     @Override
-    public String getCacheStatistics(Class entityClass) {
-        
-//        Session session = (Session) entityManager.getDelegate();
-//        SessionFactory sessionFactory = session.getSessionFactory();
-//        Statistics statistics = sessionFactory.getStatistics();
-//
-//        
-//        String[] collectionRoleNames = statistics.getCollectionRoleNames();
-//        long connectionsCount = statistics.getConnectCount();
-//        String[] entityNames = statistics.getEntityNames();
-//        EntityStatistics entityStatistics = statistics.getEntityStatistics("java.lang.String entityName");
-//        
-//        long queryExecutionMaxTime = statistics.getQueryExecutionMaxTime();
-//        String queryExecutionMaxTimeQueryString = statistics.getQueryExecutionMaxTimeQueryString();
-//
-//        long secondLevelCacheHitCount = statistics.getSecondLevelCacheHitCount();
-//        long secondLevelCacheMissCount = statistics.getSecondLevelCacheMissCount();
-//        long secondLevelCachePutCount = statistics.getSecondLevelCachePutCount();
-//        String[] cacheRegionNames = statistics.getSecondLevelCacheRegionNames();
-//        double hitRatio = (double) secondLevelCacheHitCount / ( secondLevelCacheHitCount + secondLevelCacheMissCount );
-//        
-//        CacheRegionStatistics secondLevelCacheStatistics = statistics.getDomainDataRegionStatistics("java.lang.String regionName");
-//        secondLevelCacheStatistics.getElementCountInMemory();
-//        secondLevelCacheStatistics.getElementCountOnDisk();
-//        secondLevelCacheStatistics.getHitCount();
-//        secondLevelCacheStatistics.getMissCount();
-//        secondLevelCacheStatistics.getPutCount();
-//        secondLevelCacheStatistics.getRegionName();
-//        secondLevelCacheStatistics.getSizeInMemory();
-//        
-//        statistics.getDomainDataRegionStatistics("");
-//        SecondLevelCacheStatistics secondLevelCacheStatistics =
-//                statistics.getSecondLevelCacheStatistics( "query.cache.person" );
-//        long hitCount = secondLevelCacheStatistics.getHitCount();
-//        long missCount = secondLevelCacheStatistics.getMissCount();
-//        double hitRatio = (double) hitCount / ( hitCount + missCount );
-//        // TODO Auto-generated method stub
-        return null;
+    public SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheRegionsStats() {
+        SessionFactory sessionFactory = ((Session) entityManager.getDelegate()).getSessionFactory();
+        Statistics statistics = sessionFactory.getStatistics();
+        return HibernateStatsUtils.getSecondLevelCacheRegionsStats(statistics);
+    }
+
+    @Override
+    public SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheCollectionsStats() {
+        SessionFactory sessionFactory = ((Session) entityManager.getDelegate()).getSessionFactory();
+        Statistics statistics = sessionFactory.getStatistics();
+        return HibernateStatsUtils.getSecondLevelCacheCollectionsStats(statistics);
+    }
+
+    @Override
+    public SortedMap<String, HibernateMetric> getGenericStats() {
+        SessionFactory sessionFactory = ((Session) entityManager.getDelegate()).getSessionFactory();
+        Statistics statistics = sessionFactory.getStatistics();
+        return HibernateStatsUtils.getGenericStats(statistics);
     }
 
     @Override
@@ -95,16 +77,4 @@ public class CacheHandlerRepositoryImpl implements CacheHandlerRepository {
         entityManager.getEntityManagerFactory().getCache().evictAll();
     }
 
-    @Override
-    public void clearCache(Class entityClass) {
-        entityManager.getEntityManagerFactory().getCache().evict(entityClass);
-    }
-
-//  public void getCacheStats() {
-//  Session session = (Session) entityManager.getDelegate();
-//  SessionFactory sessionFactory = session.getSessionFactory();
-//  sessionFactory.getStatistics().
-//}
-    
-    
 }

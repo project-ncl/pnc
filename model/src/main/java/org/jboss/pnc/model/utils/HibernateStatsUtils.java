@@ -382,11 +382,11 @@ public class HibernateStatsUtils {
         return genericStatsMap;
     }
 
-    public static HibernateMetric createHibernateMetricItem(String name, String description, long value) {
+    private static HibernateMetric createHibernateMetricItem(String name, String description, long value) {
         return new HibernateMetric(name, description, value);
     }
 
-    public static HibernateMetric createHibernateMetricItem(String name, String description, String strValue) {
+    private static HibernateMetric createHibernateMetricItem(String name, String description, String strValue) {
         return new HibernateMetric(name, description, strValue);
     }
 

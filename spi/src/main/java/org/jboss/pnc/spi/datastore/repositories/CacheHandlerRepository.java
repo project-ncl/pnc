@@ -17,14 +17,21 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import java.util.Map;
+import java.util.SortedMap;
+
+import org.jboss.pnc.model.utils.HibernateMetric;
+
 public interface CacheHandlerRepository {
-    
-    String getCacheStatistics();
-    
-    String getCacheStatistics(Class entityClass);
-    
+
+    SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheEntitiesStats();
+
+    SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheRegionsStats();
+
+    SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheCollectionsStats();
+
+    SortedMap<String, HibernateMetric> getGenericStats();
+
     void clearCache();
-    
-    void clearCache(Class entityClass);
 
 }

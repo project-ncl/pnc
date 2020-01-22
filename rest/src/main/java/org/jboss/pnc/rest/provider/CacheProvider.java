@@ -17,11 +17,15 @@
  */
 package org.jboss.pnc.rest.provider;
 
+import java.util.Map;
+import java.util.SortedMap;
+
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.jboss.pnc.model.utils.HibernateMetric;
 import org.jboss.pnc.spi.datastore.repositories.CacheHandlerRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,21 +36,30 @@ import lombok.extern.slf4j.Slf4j;
 public class CacheProvider {
 
     @Inject
-    private CacheHandlerRepository cacheHandlerRepository; 
-    
-    @Deprecated
-    public CacheProvider() {}
+    private CacheHandlerRepository cacheHandlerRepository;
 
-    @RolesAllowed("system-user")
-    public String getStatistics() {
-        log.debug("Get all statistics of second level cache");
-        return cacheHandlerRepository.getCacheStatistics();
+    @Deprecated
+    public CacheProvider() {
     }
 
-    @RolesAllowed("system-user")
-    public String getStatistics(Class entityClass) {
-        log.debug("Get statistics of entity {} in second level cache", entityClass);
-        return cacheHandlerRepository.getCacheStatistics(entityClass);
+    public SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheEntitiesStats() {
+        log.debug("Get statistics of all entities in second-level cache.");
+        return cacheHandlerRepository.getSecondLevelCacheEntitiesStats();
+    }
+
+    public SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheRegionsStats() {
+        log.debug("Get statistics of all cache region names in second-level cache.");
+        return cacheHandlerRepository.getSecondLevelCacheRegionsStats();
+    }
+
+    public SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheCollectionsStats() {
+        log.debug("Get statistics of all collections in second-level cache.");
+        return cacheHandlerRepository.getSecondLevelCacheCollectionsStats();
+    }
+
+    public SortedMap<String, HibernateMetric> getGenericStats() {
+        log.debug("Get general statistics related to Hibernate.");
+        return cacheHandlerRepository.getGenericStats();
     }
 
     @RolesAllowed("system-user")
@@ -54,13 +67,5 @@ public class CacheProvider {
         log.debug("Evict all content from second level cache");
         cacheHandlerRepository.clearCache();
     }
-
-    @RolesAllowed("system-user")
-    public void clearCache(Class entityClass) {
-        log.debug("Evict all content of entity {} from second level cache", entityClass);
-        cacheHandlerRepository.clearCache(entityClass);
-    }
-
-
 
 }
