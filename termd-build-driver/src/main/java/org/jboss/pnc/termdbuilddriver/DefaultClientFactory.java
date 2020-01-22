@@ -22,6 +22,7 @@ import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.buildagent.client.BuildAgentSocketClient;
+import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.termdbuilddriver.transfer.DefaultFileTranser;
 import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
 
@@ -37,6 +38,26 @@ import java.util.function.Consumer;
 @ApplicationScoped
 public class DefaultClientFactory implements ClientFactory {
 
+    /**
+     * Connect timeout in millis. See {@link java.net.URLConnection#setConnectTimeout(int)}
+     */
+    private final Optional<Integer> fileTransferConnectTimeout;
+
+    /**
+     * Connect timeout in millis. See {@link java.net.URLConnection#setReadTimeout(int)}
+     */
+    private final Optional<Integer> fileTransferReadTimeout;
+
+    public DefaultClientFactory() {
+        fileTransferConnectTimeout = Optional.empty();
+        fileTransferReadTimeout = Optional.empty();
+    }
+
+    public DefaultClientFactory(TermdBuildDriverModuleConfig config) {
+        fileTransferConnectTimeout = Optional.ofNullable(config.getFileTransferConnectTimeout());
+        fileTransferReadTimeout = Optional.ofNullable(config.getFileTransferReadTimeout());
+    }
+
     @Override
     public BuildAgentClient createBuildAgentClient(String terminalUrl, Consumer<TaskStatusUpdateEvent> onStatusUpdate)
             throws TimeoutException, InterruptedException, BuildAgentClientException {
@@ -51,6 +72,9 @@ public class DefaultClientFactory implements ClientFactory {
 
     @Override
     public FileTranser getFileTransfer(URI baseServerUri, int maxLogSize) {
-        return new DefaultFileTranser(baseServerUri, maxLogSize);
+        DefaultFileTranser defaultFileTranser = new DefaultFileTranser(baseServerUri, maxLogSize);
+        fileTransferConnectTimeout.ifPresent(i -> defaultFileTranser.setConnectTimeout(i));
+        fileTransferReadTimeout.ifPresent(i -> defaultFileTranser.setReadTimeout(i));
+        return defaultFileTranser;
     }
 }
