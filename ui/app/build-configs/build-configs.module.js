@@ -105,6 +105,12 @@
           },
           configurationSetList: function(BuildConfigurationSetDAO) {
             return BuildConfigurationSetDAO.getAll().$promise;
+          },
+          builds: function(BuildRecord, $stateParams) {
+            return BuildRecord.getByConfiguration({
+              id: $stateParams.configurationId,
+              pageSize: 200
+            }).$promise;
           }
         }
       });
