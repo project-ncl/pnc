@@ -55,36 +55,13 @@
               Custom configurations can be made to the single entities
               https://infinispan.org/docs/stable/titles/integrating/integrating.html#configuration_properties
           -->
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.max_entries" value= "5000"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.lifespan" value= "65000"/>
           <!--
-          // CacheConcurrencyStrategy.READ_ONLY
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildStatus.eviction.max_entries" value= "20"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildType.eviction.max_entries" value= "10"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.MilestoneReleaseStatus.eviction.max_entries" value= "10"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.SystemImageType.eviction.max_entries" value= "10"/>
-
-          // CacheConcurrencyStrategy.NONSTRICT_READ_WRITE
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildEnvironment.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.License.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Project.eviction.max_entries" value= "200"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Product.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductMilestone.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductMilestoneRelease.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductRelease.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductVersion.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.User.eviction.max_entries" value= "100"/>
-
-          // CacheConcurrencyStrategy.TRANSACTIONAL
+          # Examples to override single properties for each entity
+          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.strategy" value= "LRU"/>
+          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.wake_up_interval" value= "2000"/>
           <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.max_entries" value= "5000"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.lifespan" value= "65000"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.RepositoryConfiguration.eviction.max_entries" value= "200"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfiguration.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfigSetRecord.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildRecord.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfigurationSet.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildRecordPushResult.eviction.max_entries" value= "100"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.TargetRepository.eviction.max_entries" value= "100"/>
+          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.lifespan" value= "60000"/>
+          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.max_idle" value= "30000"/>
           -->
       </properties>
    </persistence-unit>
