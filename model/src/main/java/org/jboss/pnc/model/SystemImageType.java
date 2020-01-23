@@ -17,12 +17,21 @@
  */
 package org.jboss.pnc.model;
 
+import javax.persistence.Cacheable;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Immutable;
+
 /**
  * Enum that represents the type of the build environment system image which will be used 
  * for the build.  The system image type indicates which build environment driver(s) is 
  * capable of initializing the environment (container, vm, etc) in which the build will 
  * run.
  */
+@Immutable
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
 public enum SystemImageType {
 
     /** A Docker image will be used to run the build */

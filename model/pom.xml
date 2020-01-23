@@ -95,6 +95,11 @@
       <artifactId>javax.el-impl</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.infinispan</groupId>
+      <artifactId>infinispan-hibernate-cache-v53</artifactId>
+      <scope>test</scope>  
+    </dependency>
 
   </dependencies>
 

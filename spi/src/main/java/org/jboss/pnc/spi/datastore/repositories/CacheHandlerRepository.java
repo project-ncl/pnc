@@ -15,26 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.model;
+package org.jboss.pnc.spi.datastore.repositories;
 
-import javax.persistence.Cacheable;
+import java.util.Map;
+import java.util.SortedMap;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Immutable;
+import org.jboss.pnc.model.utils.HibernateMetric;
 
-/**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/30/16
- * Time: 1:16 PM
- */
-@Immutable
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_ONLY)
-public enum MilestoneReleaseStatus {
-    IN_PROGRESS,
-    FAILED,
-    SUCCEEDED,
-    CANCELED,
-    SYSTEM_ERROR
+public interface CacheHandlerRepository {
+
+    SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheEntitiesStats();
+
+    SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheRegionsStats();
+
+    SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheCollectionsStats();
+
+    SortedMap<String, HibernateMetric> getGenericStats();
+
+    void clearCache();
+
 }

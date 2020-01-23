@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -41,6 +44,8 @@ import java.util.Date;
  * Date: 8/30/16
  * Time: 12:57 PM
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = @Index(name = "idx_productmilestonerelease_milestone", columnList = "milestone_id"))
 public class ProductMilestoneRelease implements GenericEntity<Integer> {
@@ -57,7 +62,7 @@ public class ProductMilestoneRelease implements GenericEntity<Integer> {
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @JoinColumn(updatable = false, foreignKey = @ForeignKey(name = "fk_productmilestone_milestonerelease"))
     private ProductMilestone milestone;
-    
+
     @Enumerated(EnumType.STRING)
     private MilestoneReleaseStatus status;
     

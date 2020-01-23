@@ -26,6 +26,7 @@
    <persistence-unit name="primary">
        <jta-data-source>@persistence.jta-data-source@</jta-data-source>
        <jar-file>model.jar</jar-file>
+       <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
        <properties>
          <!-- Properties for Hibernate -->
           <property name="hibernate.dialect" value="@persistence.hibernate.dialect@"/>
@@ -35,6 +36,33 @@
           <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
           <!-- required by: BuildConfigurationRepositoryImpl.save to increment revision of parent entity when child is updated -->
           <property name="org.hibernate.envers.do_not_audit_optimistic_locking_field" value="false"/>
+
+          <!--
+              Infinispan second level cache (default Wildfly settings are
+              https://infinispan.org/docs/stable/titles/integrating/integrating.html#default_local_configuration_second_level):
+                - Eviction wake up interval is 5 seconds.
+                - Max number of entries are 10,000.
+                - Max idle time before expiration is 100 seconds.
+                - Default eviction algorithm is LRU, least recently used.
+          -->
+          <property name="hibernate.cache.use_reference_entries" value="true" />
+          <property name="hibernate.cache.use_second_level_cache" value="true" />
+          <property name="hibernate.cache.use_query_cache" value="false" />
+          <property name="hibernate.generate_statistics" value="true" />
+          <property name="hibernate.cache.region_prefix" value=""/>
+
+          <!--
+              Custom configurations can be made to the single entities
+              https://infinispan.org/docs/stable/titles/integrating/integrating.html#configuration_properties
+          -->
+          <!--
+          # Examples to override single properties for each entity
+          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.strategy" value= "LRU"/>
+          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.wake_up_interval" value= "2000"/>
+          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.max_entries" value= "5000"/>
+          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.lifespan" value= "60000"/>
+          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.max_idle" value= "30000"/>
+          -->
       </properties>
    </persistence-unit>
 </persistence>
