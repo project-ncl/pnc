@@ -45,9 +45,10 @@
     'configurationSetList',
     'linkedConfigurationSetList',
     'buildTypes',
+    'builds',
     function($log, $state, $filter, pncNotify, ProductDAO, BuildConfigurationSetDAO,
       configurationDetail, environments, products,
-      linkedProductVersions, dependencies, configurations, configurationSetList, linkedConfigurationSetList, buildTypes) {
+      linkedProductVersions, dependencies, configurations, configurationSetList, linkedConfigurationSetList, buildTypes, builds) {
 
       var that = this;
 
@@ -58,6 +59,10 @@
       that.configurationSetList = configurationSetList;
       that.products = products;
       that.buildTypes = buildTypes;
+
+      that.buildIds = builds.data.map(function(build) {
+        return build.id.toString();
+      });
 
       that.productVersions = {
         selected: linkedProductVersions
