@@ -25,6 +25,7 @@
   module.value('BUILD_PATH', '/builds/:id');
   module.value('SSH_CREDENTIALS_PATH', '/builds/ssh-credentials/:recordId');
   module.value('BUILD_RECORD_PUSH_PATH', '/build-record-push');
+  module.value('KAFKA_STORE_BUILDS', '/builds');
 
   /**
    *
@@ -39,15 +40,17 @@
     'BUILD_PATH',
     'SSH_CREDENTIALS_PATH',
     'BUILD_RECORD_PUSH_PATH',
+    'KAFKA_STORE_BUILDS',
     'rsqlQuery',
     'authService',
     function($resource, $q, $http, restConfig, BUILD_RECORD_PATH, BUILDS_PATH, BUILD_PATH, SSH_CREDENTIALS_PATH,
-             BUILD_RECORD_PUSH_PATH, rsqlQuery, authService) {
+             BUILD_RECORD_PUSH_PATH, KAFKA_STORE_BUILDS, rsqlQuery, authService) {
       var ENDPOINT = restConfig.getPncUrl() + BUILD_RECORD_PATH;
       var BUILDS_ENDPOINT = restConfig.getPncUrl() + BUILDS_PATH;
       var BUILD_ENDPOINT = restConfig.getPncUrl() + BUILD_PATH;
       var SSH_CREDENTIALS_ENDPOINT = restConfig.getPncUrl() + SSH_CREDENTIALS_PATH;
       var BUILD_RECORD_PUSH_ENDPOINT = restConfig.getPncUrl() + BUILD_RECORD_PUSH_PATH;
+      var KAFKA_STORE_BUILDS_ENDPOINT = restConfig.getKafkaStoreUrl() + KAFKA_STORE_BUILDS;
 
       var FINAL_STATUSES = [
         'DONE',
@@ -233,6 +236,14 @@
           return result.data;
         });
       };
+
+      resource.getBuildMetrics = function(buildIds) {
+        return $http.post(KAFKA_STORE_BUILDS_ENDPOINT, {
+          buildIds: buildIds
+        }, {
+          successNotification: false
+        });
+      }; 
 
       resource.prototype.$isCompleted = function () {
         return isCompleted(this.status);
