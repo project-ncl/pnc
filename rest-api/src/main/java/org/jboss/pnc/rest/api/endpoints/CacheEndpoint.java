@@ -33,7 +33,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.rest.endpoints.internal.api.Client;
+import org.jboss.pnc.processor.annotation.Client;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
