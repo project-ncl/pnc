@@ -93,7 +93,7 @@ public class CacheEndpoint {
             @ApiResponse(code = SERVER_ERROR_CODE, message = SERVER_ERROR_DESCRIPTION),
             @ApiResponse(code = INVALID_CODE, message = INVALID_DESCRIPTION) })
     @GET
-    @Path("/entity-statistics")
+    @Path("/collection-statistics")
     public Response getSecondLevelCacheCollectionsStats() {
         return Response.ok(cacheProvider.getSecondLevelCacheCollectionsStats()).build();
     }
