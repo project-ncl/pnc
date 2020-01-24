@@ -20,7 +20,7 @@ package org.jboss.pnc.datastore.repositories;
 import java.util.Map;
 import java.util.SortedMap;
 
-import javax.enterprise.context.Dependent;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
@@ -31,7 +31,7 @@ import org.jboss.pnc.model.utils.HibernateMetric;
 import org.jboss.pnc.model.utils.HibernateStatsUtils;
 import org.jboss.pnc.spi.datastore.repositories.CacheHandlerRepository;
 
-@Dependent
+@Stateless
 public class CacheHandlerRepositoryImpl implements CacheHandlerRepository {
 
     public CacheHandlerRepositoryImpl() {
