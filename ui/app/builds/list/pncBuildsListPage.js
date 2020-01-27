@@ -70,13 +70,12 @@
     $ctrl.buildsSortingFields = [{
       id: 'status',
       title: 'Status',
-      // seems order by Build Config is not supported by API
-    // }, {
-    //   id: 'buildConfigRevision.name',
-    //   title: 'Build Config',
     }, {
       id: 'startTime',
       title: 'Start Time',
+    }, {
+      id: 'submitTime',
+      title: 'Submit Time',
     }, {
       id: 'endTime',
       title: 'End Time',
