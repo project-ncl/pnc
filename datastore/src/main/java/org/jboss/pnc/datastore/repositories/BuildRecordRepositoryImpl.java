@@ -141,6 +141,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         Vertex<BuildRecord> current = graphBuilder.buildDependencyGraph(graph, buildRecordId);
         logger.trace("Dependency graph of buildRecord.id {} {}; Graph edges: {}.", buildRecordId, graph, graph.getEdges());
 
+        //if it is stored in the DB, add dependent nodes
         if (current != null) {
             BuildRecord buildRecord = current.getData();
             graphBuilder.buildDependentGraph(graph, buildRecord.getId());

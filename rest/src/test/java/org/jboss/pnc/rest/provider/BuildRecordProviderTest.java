@@ -18,13 +18,25 @@
 package org.jboss.pnc.rest.provider;
 
 import org.assertj.core.api.Assertions;
+import org.jboss.pnc.datastore.repositories.BuildRecordRepositoryImpl;
+import org.jboss.pnc.enums.BuildExecutionStatus;
+import org.jboss.pnc.executor.DefaultBuildExecutionConfiguration;
+import org.jboss.pnc.mock.executor.BuildExecutionSessionMock;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.executor.BuildExecutor;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
-import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -32,11 +44,14 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,8 +66,18 @@ public class BuildRecordProviderTest {
     @InjectMocks
     private BuildRecordProvider buildRecordProvider;
 
-    @Before
-    public void setUp() {
+    @Mock
+    private BuildRecordRepositoryImpl buildRecordRepository;
+
+    @Mock
+    private BuildExecutor buildExecutor;
+
+    @Mock
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+
+    @Test
+    public void shouldGetGraphWithDependencies() {
+        //given
         MockitoAnnotations.initMocks(this);
         List<BuildTask> submittedTasks = new ArrayList<>();
 
@@ -78,10 +103,7 @@ public class BuildRecordProviderTest {
         submittedTasks.add(taskDependencyDependency);
 
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(submittedTasks);
-    }
 
-    @Test
-    public void shouldGetGraphWithDependencies() {
         //when
         Graph<BuildTask> graph = buildRecordProvider.getRunningBCSetRecordGraph(1);
 
@@ -90,10 +112,74 @@ public class BuildRecordProviderTest {
         Assertions.assertThat(graph.getVerticies().stream().map(Vertex::getName).collect(Collectors.toList())).containsExactly("1", "2", "3");
     }
 
+    @Test
+    public void graphShouldContainRunningDependent() {
+        //given
+        MockitoAnnotations.initMocks(this);
+        List<BuildTask> submittedTasks = new ArrayList<>();
+
+        BuildTask runningTask = Mockito.mock(BuildTask.class); //id = 1
+        BuildTask runningDependency = Mockito.mock(BuildTask.class); //id = 2
+        BuildRecord completedDependencyDependency = Mockito.mock(BuildRecord.class); //id = 3
+
+        when(runningTask.getSubmitTime()).thenReturn(new Date());
+        mockMethods(null, runningTask, 1);
+        when(runningTask.getDependencies()).thenReturn(asSet(runningDependency));
+
+        mockMethods(null, runningDependency, 2);
+        when(runningDependency.getDependants()).thenReturn(asSet(runningTask));
+
+        when(completedDependencyDependency.getId()).thenReturn(3);
+        when(completedDependencyDependency.getDependentBuildRecordIds()).thenReturn(new Integer[]{2});
+        when(completedDependencyDependency.getDependencyBuildRecordIds()).thenReturn(new Integer[]{});
+
+
+        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder().build();
+        BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
+                .buildConfiguration(buildConfiguration)
+                .build();
+
+        when(buildConfigurationAuditedRepository.queryById(any(IdRev.class))).thenReturn(buildConfigurationAudited);
+
+        when(buildRecordRepository.findByIdFetchProperties(3)).thenReturn(completedDependencyDependency);
+        when(buildRecordRepository.queryById(3)).thenReturn(completedDependencyDependency);
+        when(buildRecordRepository.getDependencyGraph(anyInt())).thenCallRealMethod();
+
+        submittedTasks.add(runningTask);
+        submittedTasks.add(runningDependency);
+        when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(submittedTasks);
+
+        //bad dependency, it should be refactored
+        BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
+                2,
+                "",
+                null, null, null, null, null, null, null,
+                true, null, null, null, null,
+                false, null, null, true, null
+        );
+        BuildExecutionSessionMock executionSession = new BuildExecutionSessionMock(buildExecutionConfiguration, (v) -> {});
+        executionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP, false);
+        when(buildExecutor.getRunningExecution(anyInt())).thenReturn(executionSession);
+
+        //when
+        GraphWithMetadata<BuildRecordRest, Integer> graph = buildRecordProvider.getDependencyGraph(3);
+
+        //then
+        Assertions.assertThat(graph.getGraph().getVerticies().size()).isEqualTo(3);
+        Assertions.assertThat(graph.getGraph().getVerticies().stream().map(Vertex::getName).collect(Collectors.toList())).containsExactlyInAnyOrder("1", "2", "3");
+        Assertions.assertThat(graph.getMissingNodeIds().isEmpty());
+
+        Assertions.assertThat(graph.getGraph().getEdges().size()).isEqualTo(2);
+    }
+
     private void mockMethods(BuildSetTask buildSetTask, BuildTask task, int id) {
         when(task.getUser()).thenReturn(mock(User.class));
         when(task.getId()).thenReturn(id);
         when(task.getBuildSetTask()).thenReturn(buildSetTask);
+
+        BuildConfigurationAudited bca = Mockito.mock(BuildConfigurationAudited.class);
+        when(bca.getIdRev()).thenReturn(new IdRev(0,0));
+        when(task.getBuildConfigurationAudited()).thenReturn(bca);
     }
 
     private Set<BuildTask> asSet(BuildTask task) {

@@ -224,7 +224,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
     }
 
-    private GraphWithMetadata<BuildRecordRest, Integer> getDependencyGraph(Integer buildId) {
+    GraphWithMetadata<BuildRecordRest, Integer> getDependencyGraph(Integer buildId) {
         BuildTask buildTask = getSubmittedBuild(buildId);
 
         GraphWithMetadata<BuildRecordRest, Integer> buildRecordGraph;
@@ -235,10 +235,39 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                 logger.warn("Cannot find build {}", buildId);
                 return null;
             } else {
-                GraphWithMetadata dependencyGraph = repository.getDependencyGraph(buildId);
+                //current node is in the database
+                logger.debug("Getting dependency graph for a stored build: {}.", buildId);
+                GraphWithMetadata<BuildRecord, Integer> dependencyGraph = repository.getDependencyGraph(buildId);
                 Graph<BuildRecordRest> buildRecordRestGraph = convertBuildRecordToRest(dependencyGraph.getGraph());
-                logger.trace("Rest graph for buildRecordId {} {}; Graph edges {}.", buildId, buildRecordRestGraph, buildRecordRestGraph.getEdges());
-                buildRecordGraph = new GraphWithMetadata<>(buildRecordRestGraph, dependencyGraph.getMissingNodeIds());
+
+                List<Integer> missingNodeIds = dependencyGraph.getMissingNodeIds();
+                logger.trace("Rest graph for buildRecordId {} {}; Graph edges {}. Missing nodes {}.",
+                        buildId,
+                        buildRecordRestGraph,
+                        buildRecordRestGraph.getEdges(), missingNodeIds);
+
+                //if there are missing nodes, they should be from the running builds
+                if (missingNodeIds.isEmpty()) {
+                    buildRecordGraph = new GraphWithMetadata<>(buildRecordRestGraph, new ArrayList<>());
+                } else {
+                    GraphBuilder graphBuilder = new GraphBuilder<BuildRecordRest>(
+                            //get the current build from the graph as it is not in the running builds
+                            id -> Optional.ofNullable(id == buildId ? buildRecordRestGraph.findVertexByName(id.toString()).getData() : getSpecificRunning(id)),
+                            build -> Arrays.asList(build.getDependencyBuildRecordIds()),
+                            build -> Arrays.asList(build.getDependentBuildRecordIds())
+                    );
+
+                    graphBuilder.buildDependentGraph(buildRecordRestGraph, buildId);
+
+                    Set<Integer> verticies = buildRecordRestGraph.getVerticies()
+                            .stream()
+                            .map(v -> v.getData().getId())
+                            .collect(Collectors.toSet());
+                    List<Integer> stillMissing = missingNodeIds.stream()
+                            .filter(missing -> !verticies.contains(missing)).collect(Collectors.toList());
+
+                    buildRecordGraph = new GraphWithMetadata<>(buildRecordRestGraph, stillMissing);
+                }
             }
         } else {
             logger.debug("Getting dependency graph for running build: {}.", buildId);
