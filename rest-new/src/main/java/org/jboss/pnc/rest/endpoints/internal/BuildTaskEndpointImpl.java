@@ -23,6 +23,7 @@ import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
+import org.jboss.pnc.bpm.model.BuildExecutionConfigurationWithCallbackRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
@@ -174,7 +175,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     }
 
     @Override
-    public Response build(BuildExecutionConfigurationRest buildExecutionConfiguration) {
+    public Response build(BuildExecutionConfigurationWithCallbackRest buildExecutionConfiguration) {
         try {
             String callbackUrl = buildExecutionConfiguration.getCompletionCallbackUrl();
             AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
@@ -190,7 +191,6 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
             logger.info("Build execution requested.");
             logger.debug("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
-
 
             BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(
                     buildExecutionConfiguration.toBuildExecutionConfiguration(),

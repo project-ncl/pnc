@@ -49,7 +49,7 @@ public class BuildExecutionConfigurationTest {
         String buildExecutionConfigurationJson = JsonOutputConverterMapper.apply(buildExecutionConfigurationREST);
         log.debug("Json : {}", buildExecutionConfigurationJson);
 
-        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = new BuildExecutionConfigurationRest(buildExecutionConfigurationJson);
+        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = JsonOutputConverterMapper.readValue(buildExecutionConfigurationJson, BuildExecutionConfigurationRest.class);
         BuildExecutionConfiguration buildExecutionConfigurationFromJson = buildExecutionConfigurationRestFromJson.toBuildExecutionConfiguration();
         String message = "Deserialized object does not match the original.";
 
