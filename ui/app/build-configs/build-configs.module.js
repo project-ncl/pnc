@@ -29,14 +29,37 @@
     'pnc.common.authentication'
   ]);
 
-  // Throttling scroll events
-  // Scroll events can be triggered very frequently, which can hurt performance and make scrolling appear jerky.
-  // To mitigate this, infiniteScroll can be configured to process scroll events a maximum of once every x milliseconds.
-  angular.module('infinite-scroll').value('THROTTLE_MILLISECONDS', 350);
-
   module.config([
     '$stateProvider',
     function($stateProvider) {
+
+      $stateProvider.state('build-configs', {
+        abstract: true,
+        url: '/build-configs',
+        views: {
+          'content@': {
+            templateUrl: 'common/templates/single-col.tmpl.html'
+          }
+        },
+        data: {
+          proxy: 'build-configs.list'
+        }
+      });
+
+      $stateProvider.state('build-configs.list', {
+        url: '',
+        component: 'pncBuildConfigsListPage',
+        data: {
+          displayName: 'Build Configs',
+          title: 'Build Configs'
+        },
+        resolve: {
+          buildConfigs: ['BuildConfigResource', (BuildConfigResource) => {
+            return BuildConfigResource.query().$promise;
+          }]
+        }
+      });
+
 
       $stateProvider.state('projects.detail.build-configs', {
         abstract: true,
@@ -199,11 +222,11 @@
             'configurationDetail',
             function (configurationDetail) {
               return configurationDetail.$getRevisions();
-            } 
+            }
           ]
         }
       });
-      
+
       $stateProvider.state('projects.detail.build-configs.detail.revisions.detail', {
         url: '/{revisionId}',
         views: {
@@ -223,80 +246,12 @@
         },
         resolve: {
           revision : [
-            'configurationDetail', 
-            '$stateParams', 
+            'configurationDetail',
+            '$stateParams',
             function (configurationDetail, $stateParams) {
               return configurationDetail.$getRevision({ revisionId: $stateParams.revisionId });
-            } 
-          ]  
-        }
-      });
-
-
-
-      /*
-       * Shortcut states
-       */
-
-      $stateProvider.state('build-configs', {
-        abstract: true,
-        url: '/build-configs',
-        views: {
-          'content@': {
-            templateUrl: 'common/templates/single-col.tmpl.html'
-          }
-        },
-        data: {
-          proxy: 'build-configs.list'
-        }
-      });
-
-      $stateProvider.state('build-configs.list', {
-        url: '',
-        templateUrl: 'build-configs/views/build-configs.list.html',
-        data: {
-          displayName: 'Build Configs',
-          title: 'Build Configs'
-        },
-        controller: 'ConfigurationListController',
-        controllerAs: 'listCtrl',
-        resolve: {
-          configurationList: ['BuildConfigurationDAO', function(BuildConfigurationDAO) {
-            return BuildConfigurationDAO.getAll().$promise;
-          }]
-        }
-      });
-
-      $stateProvider.state('build-configs.detail', {
-        url: '/{configurationId}',
-        resolve: {
-          configurationDetail: ['BuildConfigurationDAO', '$stateParams', function(BuildConfigurationDAO, $stateParams) {
-            return BuildConfigurationDAO.get({
-              configurationId: $stateParams.configurationId }).$promise;
-          }]
-        },
-        onEnter: [
-          '$state',
-          '$timeout',
-          'configurationDetail',
-          function ($state, $timeout, configurationDetail) {
-            $timeout(function () { // Works around bug in ui.router https://github.com/angular-ui/ui-router/issues/1434
-              $state.go('projects.detail.build-configs.detail', {
-                projectId: configurationDetail.project.id,
-                configurationId: configurationDetail.id
-              });
-            });
-          }
-        ]
-      });
-
-      $stateProvider.state('build-configs.create', {
-        url: '/create',
-        templateUrl: 'build-configs/views/build-configs.create.html',
-        data: {
-          displayName: 'Create Build Config',
-          title: 'Create Build Config',
-          requireAuth: true
+            }
+          ]
         }
       });
     }
