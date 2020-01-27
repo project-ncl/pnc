@@ -72,6 +72,11 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
 
     List<BuildRecord> findTemporaryBuildsOlderThan(Date date);
 
+    /**
+     *
+     * @param buildRecordId
+     * @return the dependency graph containing only competed builds
+     */
     GraphWithMetadata<BuildRecord, Integer> getDependencyGraph(Integer buildRecordId);
 
     BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild);
