@@ -42,12 +42,6 @@
         templateUrl: 'dashboard/directives/pnc-my-builds-panel.html',
         scope: {},
         link: function (scope) {
-          scope.update = function(event, build) {
-            if (authService.isCurrentUser(build.user)) {
-              scope.page.refresh();
-            }
-          };
-
           scope.show = function() {
             return authService.isAuthenticated();
           };
@@ -65,9 +59,12 @@
 
             scope.displayFields = ['status', 'id', 'configurationName', 'startTime', 'endTime'];
 
-            scope.$on(events.BUILD_PENDING, scope.update);
-            scope.$on(events.BUILD_IN_PROGRESS, scope.update);
-            scope.$on(events.BUILD_FINISHED, scope.update);
+            scope.$on(events.BUILD_PROGRESS_CHANGED, (event, build) => {
+              if (authService.isCurrentUser(build.user)) {
+                scope.page.refresh();
+              }
+            });
+
           }
 
           if (authService.isAuthenticated()) {
