@@ -23,7 +23,7 @@
       builds: '<'
     },
     templateUrl: 'builds/list/pnc-builds-list-page.html',
-    controller: ['$scope', 'eventTypes', 'filteringPaginator', Controller]
+    controller: ['$scope', 'events', 'filteringPaginator', Controller]
   });
 
   function Controller($scope, events, filteringPaginator) {

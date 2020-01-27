@@ -43,7 +43,6 @@
         scope: {},
         link: function (scope) {
           scope.update = function(event, build) {
-            console.log('update build = %O', build);
             if (authService.isCurrentUser(build.user)) {
               scope.page.refresh();
             }
