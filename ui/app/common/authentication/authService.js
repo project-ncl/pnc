@@ -44,6 +44,10 @@
         return keycloak.idTokenParsed.preferred_username; // jshint ignore:line
       };
 
+      authService.isCurrentUser = function (user) {
+        return authService.getPrinciple() === user.username;
+      };
+
       authService.verifySsoTokenLifespan = function () {
         if (keycloak.authenticated) {
           return keycloak.refreshTokenParsed.exp < Date.now() + authConfig.getSsoTokenLifespan();

@@ -32,25 +32,19 @@
    * @author Alex Creasy
    */
   module.directive('pncMyBuildsPanel', [
-    '$log',
     'authService',
-    'PageFactory',
-    'BuildConfigurationDAO',
     'BuildResource',
-    'UserDAO',
     'events',
     'paginator',
-    function ($log, authService, PageFactory, BuildConfigurationDAO, BuildResource, UserDAO, events, paginator) {
+    function (authService, BuildResource, events, paginator) {
       return {
         restrict: 'E',
         templateUrl: 'dashboard/directives/pnc-my-builds-panel.html',
         scope: {},
         link: function (scope) {
-
-          var pncUser;
-
           scope.update = function(event, build) {
-            if (pncUser.id === build.user.id) {
+            console.log('update build = %O', build);
+            if (authService.isCurrentUser(build.user)) {
               scope.page.refresh();
             }
           };
@@ -62,7 +56,6 @@
           function init() {
 
             authService.getPncUser().then(function(result) {
-              pncUser = result;
               return BuildResource.queryByUser({
                 userId: result.id,
                 pageSize: 10
