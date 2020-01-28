@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.restmodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.Collections;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -111,8 +112,8 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.artifactQuality = artifact.getArtifactQuality();
         this.importDate = artifact.getImportDate();
         this.originUrl = artifact.getOriginUrl();
-        this.buildRecordIds = nullableStreamOf(artifact.getBuildRecords())
-                .map(BuildRecord::getId).collect(Collectors.toSet());
+        this.buildRecordIds = artifact.getBuildRecord() == null ? Collections.emptySet()
+                : Collections.singleton(artifact.getBuildRecord().getId());
         this.dependantBuildRecordIds = nullableStreamOf(artifact.getDependantBuildRecords())
                 .map(BuildRecord::getId).collect(Collectors.toSet());
         this.size = artifact.getSize();

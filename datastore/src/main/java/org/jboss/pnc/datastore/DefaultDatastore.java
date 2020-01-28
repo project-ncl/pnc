@@ -249,7 +249,6 @@ public class DefaultDatastore implements Datastore {
             logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
 
             //Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
-            artifact.setBuildRecords(Collections.emptySet());
             artifact.setDependantBuildRecords(Collections.emptySet());
             artifactFromDb = artifactRepository.save(artifact);
 
@@ -267,7 +266,6 @@ public class DefaultDatastore implements Datastore {
         logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
 
         //Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
-        artifact.setBuildRecords(Collections.emptySet());
         artifact.setDependantBuildRecords(Collections.emptySet());
         Artifact artifactFromDb = artifactRepository.save(artifact);
 
