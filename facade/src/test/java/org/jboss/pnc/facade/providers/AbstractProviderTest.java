@@ -154,6 +154,7 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
     @Before
     public void injectMappers() throws ReflectiveOperationException, IllegalArgumentException{
         injectMethod("targetRepositoryMapper", artifactMapper, targetRepositoryMapper, AbstractArtifactMapperImpl.class);
+        injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
         injectMethod("config", artifactMapper, configuration, AbstractArtifactMapper.class);
 
         injectMethod("buildConfigurationRevisionMapper", buildMapper, buildConfigurationRevisionMapper, BuildMapperImpl.class);

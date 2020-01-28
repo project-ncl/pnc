@@ -411,11 +411,9 @@ public abstract class AbstractDependentBuildTest {
         private Artifact mockArtifactBuiltWith(BuildConfiguration config) {
             BuildRecord record = buildRecordRepository.getLatestSuccessfulBuildRecord(config.getId(), false);
 
-            Set<BuildRecord> records = new HashSet<>();
-            records.add(record);
             Artifact artifact = Artifact.Builder.newBuilder()
                     .id(artifactsIdSequence.incrementAndGet())
-                    .buildRecords(records)
+                    .buildRecord(record)
                     .build();
             record.addBuiltArtifact(artifact);
             return artifact;

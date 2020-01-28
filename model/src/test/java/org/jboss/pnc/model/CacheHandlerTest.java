@@ -187,7 +187,6 @@ public class CacheHandlerTest extends AbstractModelTest {
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.ProductVersion.buildConfigurationSets",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildRecord.buildRecordPushResults",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.Artifact.dependantBuildRecords",
-                COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.Artifact.buildRecords",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.Product.productVersions",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.ProductVersion.productMilestones",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration.buildConfigurationSets",

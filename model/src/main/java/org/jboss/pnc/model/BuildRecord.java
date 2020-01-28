@@ -225,30 +225,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Artifacts which were produced by this build
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @ManyToMany
-    @JoinTable(name = "build_record_built_artifact_map", joinColumns = {
-            @JoinColumn(
-                name = "build_record_id",
-                referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_record_built_artifact_map_buildrecord")
-            )
-        },
-        inverseJoinColumns = {
-            @JoinColumn(
-                name = "built_artifact_id",
-                referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_record_built_artifact_map_builtartifact")
-            )
-        },
-        uniqueConstraints = @UniqueConstraint(
-            name = "uk_build_record_id_built_artifact_id",
-            columnNames = {"build_record_id", "built_artifact_id" }
-        ),
-        indexes = {
-            @Index(name = "idx_build_record_built_artifact_map_buildrecord", columnList = "build_record_id"),
-            @Index(name = "idx_build_record_built_artifact_map_builtartifact", columnList = "built_artifact_id")
-        }
-    )
+    @OneToMany(mappedBy = "buildRecord")
     @Column(updatable = false)
     private Set<Artifact> builtArtifacts;
 

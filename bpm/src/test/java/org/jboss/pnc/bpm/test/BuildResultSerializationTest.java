@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import org.jboss.pnc.mapper.api.BuildMapper;
 
 import static org.mockito.Mockito.when;
 /**
@@ -60,6 +61,9 @@ public class BuildResultSerializationTest {
 
     @Spy
     private TargetRepositoryMapper targetRepositoryMapper;
+    
+    @Spy
+    private BuildMapper buildMapper;
 
     @Spy
     private AbstractArtifactMapperImpl artifactMapper;
@@ -82,6 +86,7 @@ public class BuildResultSerializationTest {
         injectMethod("artifactMapper", repositoryManagerResultMapper, artifactMapper, RepositoryManagerResultMapper.class);
         injectMethod("config", artifactMapper, configuration, AbstractArtifactMapper.class);
         injectMethod("targetRepositoryMapper", artifactMapper, targetRepositoryMapper, AbstractArtifactMapperImpl.class);
+        injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
         when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class))).thenReturn(indyRepoDriverModuleConfig);
     }
 
