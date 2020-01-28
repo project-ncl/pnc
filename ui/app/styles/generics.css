@@ -75,10 +75,12 @@
   .text-right-sm { text-align: right; }
 }
 
+.m-t-3  { margin-top:       3px;  }
 .m-t-5  { margin-top:       5px;  }
 .m-r-5  { margin-right:     5px;  }
 .m-b-5  { margin-bottom:    5px;  }
 .m-l-5  { margin-left:      5px;  }
+.m-r-8  { margin-right:     8px;  }
 .m-t-10 { margin-top:       10px; }
 .m-r-10 { margin-right:     10px; }
 .m-b-10 { margin-bottom:    10px; }
@@ -107,3 +109,4 @@
 .lh-1-6 { line-height: 1.6 !important }
 
 .border-t-w-1 { border-top-width: 1px !important;}
+.opacity-50 { opacity: 50%;}
