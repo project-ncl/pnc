@@ -20,13 +20,6 @@
 
   var module = angular.module('pnc.build-configs');
 
-  module.controller('ConfigurationListController', [
-    'configurationList',
-    function(configurationList) {
-      this.configurations = configurationList;
-    }
-  ]);
-
   module.controller('ConfigurationSidebarController', [
     '$stateParams',
     'configurationDetail',

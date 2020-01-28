@@ -22,52 +22,5 @@
 </pnc-header>
 
 <div>
-  <!-- <pnc-build-configs-list build-configs="$ctrl.buildConfigs.data"></pnc-build-configs-list> -->
-  <pnc-build-configs-data-table page="$ctrl.buildConfigs" hide-actions="true"></pnc-build-configs-data-table>
-  <!-- <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.buildConfigs" ng-if="$ctrl.buildConfigs"></pnc-page-controls> -->
+  <pnc-build-configs-data-table page="$ctrl.buildConfigs" hide-actions="true" display-fields="$ctrl.displayFields"></pnc-build-configs-data-table>
 </div>
-
-
-<!--
-  <pnc-search-field class="search" page="listCtrl.configurations" text="build configs"></pnc-search-field>
-  <table class="table table-bordered table-striped table-hover">
-    <thead>
-      <th>Name</th>
-      <th>Description</th>
-      <th>Project</th>
-      <th>SCM Repository</th>
-      <th>SCM Revision</th>
-      <th>Created</th>
-      <th>Modified</th>
-    </thead>
-    <tbody>
-      <tr ng-repeat="configuration in listCtrl.configurations.data">
-        <td>
-          <a ui-sref="projects.detail.build-configs.detail({ projectId: configuration.project.id, configurationId: configuration.id })" href>
-            {{ configuration.name }}
-          </a>
-        </td>
-        <td>{{ configuration.description }}</td>
-        <td>
-          <a ui-sref="projects.detail({projectId: configuration.project.id})" href>
-            {{ configuration.project.name }}
-          </a>
-        </td>
-        <td>{{ configuration.scmRepoURL }}</td>
-        <td>{{ configuration.scmRevision }}</td>
-        <td>{{ configuration.creationTime | date:'medium'}}</td>
-        <td>{{ configuration.lastModificationTime | date:'medium'}}</td>
-      </tr>
-    </tbody>
-  </table>
-  <pnc-pager class="pull-right" page="listCtrl.configurations"></pnc-pager>
-</div>
-
-<div class="row">
-  <pnc-toolbar filtering-page="$ctrl.projectsFilteringPage" filtering-fields="$ctrl.projectsFilteringFields"
-    sorting-fields="$ctrl.projectsSortingFields" sorting-configs="$ctrl.projectsSortingConfigs"></pnc-toolbar>
-</div>
-<div>
-  <pnc-projects-list projects="$ctrl.projectsFilteringPage.data"></pnc-projects-list>
-  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.projectsFilteringPage" ng-if="$ctrl.projectsFilteringPage"></pnc-page-controls>
-</div> -->
