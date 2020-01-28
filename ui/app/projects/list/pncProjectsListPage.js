@@ -32,7 +32,7 @@
   function Controller(filteringPaginator,sortHelper) {
     const $ctrl = this;
 
-    const PAGE_NAME = 'projectList';
+    const PAGE_NAME = 'projectsList';
 
     // -- Controller API --
     $ctrl.projectsFilteringFields = [{

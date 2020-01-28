@@ -54,8 +54,8 @@
         component: 'pncBuildsListPage',
         resolve: {
           builds: [
-            'BuildResource',
-            (BuildResource) => BuildResource.query().$promise
+            'BuildResource', 'SortHelper',
+            (BuildResource, sortHelper) => BuildResource.query(sortHelper.getSortQueryString('buildsList')).$promise
           ]
         }
       });

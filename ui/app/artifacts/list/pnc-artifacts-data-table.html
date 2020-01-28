@@ -18,7 +18,8 @@
 
 -->
 <div class="row">
-  <pnc-toolbar filtering-page="$ctrl.artifactsFilteringPage" filtering-fields="$ctrl.artifactsFilteringFields"></pnc-toolbar>
+  <pnc-toolbar filtering-page="$ctrl.artifactsFilteringPage" filtering-fields="$ctrl.artifactsFilteringFields"
+    sorting-fields="$ctrl.artifactsSortingFields" sorting-configs="$ctrl.artifactsSortingConfigs"></pnc-toolbar>
 </div>
 <div>
   <pnc-artifacts-list artifacts="$ctrl.artifactsFilteringPage.data"></pnc-artifacts-list>

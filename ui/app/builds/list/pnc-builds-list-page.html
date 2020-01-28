@@ -22,7 +22,8 @@
 </pnc-header>
 
 <div class="row">
-  <pnc-toolbar filtering-page="$ctrl.buildsFilteringPage" filtering-fields="$ctrl.buildsFilteringFields"></pnc-toolbar>
+  <pnc-toolbar filtering-page="$ctrl.buildsFilteringPage" filtering-fields="$ctrl.buildsFilteringFields"
+    sorting-fields="$ctrl.buildsSortingFields" sorting-configs="$ctrl.buildsSortingConfigs"></pnc-toolbar>
 </div>
 <div>
   <pnc-builds-list builds="$ctrl.buildsFilteringPage.data"></pnc-builds-list>
