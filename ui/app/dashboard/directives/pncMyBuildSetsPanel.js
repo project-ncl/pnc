@@ -30,25 +30,16 @@
    * @author Alex Creasy
    */
   module.directive('pncMyBuildSetsPanel', [
-    '$log',
     'authService',
-    'PageFactory',
     'GroupBuildResource',
-    'BuildRecordDAO',
-    'UserDAO',
-    'eventTypes',
+    'events',
     'paginator',
-    function ($log, authService, PageFactory, GroupBuildResource,
-              BuildRecordDAO, UserDAO, eventTypes, paginator) {
+    function (authService, GroupBuildResource, events, paginator) {
       return {
         restrict: 'E',
         templateUrl: 'dashboard/directives/pnc-my-build-sets-panel.html',
         scope: {},
         link: function (scope) {
-
-          scope.update = function() {
-            scope.page.refresh();
-          };
 
           scope.show = function() {
             return authService.isAuthenticated();
@@ -67,10 +58,11 @@
 
             scope.displayFields = ['status', 'id', 'configurationName', 'startTime', 'endTime'];
 
-            /* NCL-4433 group builds need to be updated
-            scope.$on(eventTypes.BUILD_SET_STARTED, scope.update);
-            scope.$on(eventTypes.BUILD_SET_FINISHED, scope.update);
-            */
+            scope.$on(events.GROUP_BUILD_PROGRESS_CHANGED, (event, groupBuild) => {
+              if (authService.isCurrentUser(groupBuild.user)) {
+                scope.page.refresh();
+              }
+            });
           }
 
           if (authService.isAuthenticated()) {

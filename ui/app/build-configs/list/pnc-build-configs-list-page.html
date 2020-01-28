@@ -17,8 +17,10 @@
     limitations under the License.
 
 -->
+<pnc-header>
+  <pnc-header-title>Build Configs</pnc-header-title>
+</pnc-header>
+
 <div>
-  <pnc-search-field class="search" page="page" text="recent builds"></pnc-search-field>
-  <pnc-builds-list builds="page.data"></pnc-builds-list>
-  <pnc-pager class="pull-right" page="page"></pnc-pager>
+  <pnc-build-configs-data-table page="$ctrl.buildConfigs" hide-actions="true" display-fields="$ctrl.displayFields"></pnc-build-configs-data-table>
 </div>

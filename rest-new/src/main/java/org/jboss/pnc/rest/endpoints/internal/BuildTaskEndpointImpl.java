@@ -23,6 +23,7 @@ import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
+import org.jboss.pnc.bpm.model.BuildExecutionConfigurationWithCallbackRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
@@ -131,6 +132,11 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     }
 
     @Override
+    public Response buildTaskCompletedJson(int buildId, BuildResultRest buildResult) throws InvalidEntityException {
+        return buildTaskCompleted(buildId, buildResult);
+    }
+
+    @Override
     public Response build(BuildExecutionConfigurationRest buildExecutionConfiguration, String usernameTriggered, String callbackUrl) {
         try {
             logger.debug("Endpoint /execute-build requested for buildTaskId [{}], from [{}]", buildExecutionConfiguration.getId(), request.getRemoteAddr());
@@ -166,7 +172,42 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
         }
+    }
 
+    @Override
+    public Response build(BuildExecutionConfigurationWithCallbackRest buildExecutionConfiguration) {
+        try {
+            String callbackUrl = buildExecutionConfiguration.getCompletionCallbackUrl();
+            AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
+            LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
+
+            boolean temporaryBuild = buildExecutionConfiguration.isTempBuild();
+            MDCUtils.addBuildContext(
+                    buildExecutionConfiguration.getBuildContentId(),
+                    temporaryBuild,
+                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
+                    userService.currentUser().getId().toString()
+            );
+
+            logger.info("Build execution requested.");
+            logger.debug("Staring new build execution for configuration: {}. Caller requested a callback to {}.", buildExecutionConfiguration.toString(), callbackUrl);
+
+            BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(
+                    buildExecutionConfiguration.toBuildExecutionConfiguration(),
+                    callbackUrl,
+                    loginInUser.getTokenString());
+
+            UIModuleConfig uiModuleConfig = configuration.getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
+            UriBuilder uriBuilder = UriBuilder.fromUri(uiModuleConfig.getPncUrl()).path("/ws/executor/notifications");
+
+            String id = Integer.toString(buildExecutionConfiguration.getId());
+            AcceptedResponse acceptedResponse = new AcceptedResponse(id, uriBuilder.build().toString());
+
+            return Response.ok().entity(new Singleton(acceptedResponse)).build();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

@@ -32,25 +32,16 @@
    * @author Alex Creasy
    */
   module.directive('pncMyBuildsPanel', [
-    '$log',
     'authService',
-    'PageFactory',
-    'BuildConfigurationDAO',
     'BuildResource',
-    'UserDAO',
-    'eventTypes',
+    'events',
     'paginator',
-    function ($log, authService, PageFactory, BuildConfigurationDAO, BuildResource, UserDAO, eventTypes, paginator) {
+    function (authService, BuildResource, events, paginator) {
       return {
         restrict: 'E',
         templateUrl: 'dashboard/directives/pnc-my-builds-panel.html',
         scope: {},
         link: function (scope) {
-
-          scope.update = function() {
-            scope.page.refresh();
-          };
-
           scope.show = function() {
             return authService.isAuthenticated();
           };
@@ -63,13 +54,17 @@
                 pageSize: 10
               }).$promise.then(function(page){
                 scope.page = paginator(page);
-              }); 
+              });
             });
 
             scope.displayFields = ['status', 'id', 'configurationName', 'startTime', 'endTime'];
 
-            scope.$on(eventTypes.BUILD_STARTED, scope.update);
-            scope.$on(eventTypes.BUILD_FINISHED, scope.update);
+            scope.$on(events.BUILD_PROGRESS_CHANGED, (event, build) => {
+              if (authService.isCurrentUser(build.user)) {
+                scope.page.refresh();
+              }
+            });
+
           }
 
           if (authService.isAuthenticated()) {

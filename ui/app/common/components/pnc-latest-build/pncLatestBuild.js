@@ -33,10 +33,14 @@
       buildGroup: '<?'
     },
     templateUrl: 'common/components/pnc-latest-build/pnc-latest-build.html',
-    controller: ['eventTypes', '$scope', 'BuildRecord', 'BuildConfigurationSetDAO', 'UserDAO', Controller]
+    controller: ['BuildRecord', 'BuildConfigurationSetDAO', Controller]
   });
 
-  function Controller(eventTypes, $scope, BuildRecord, BuildConfigurationSetDAO, UserDAO) {
+
+  /*
+   * This component requires extensive refactoring when BC refactor takes place
+   */
+  function Controller(BuildRecord, BuildConfigurationSetDAO) {
     var $ctrl = this;
 
     $ctrl.isLoaded = false;
@@ -63,45 +67,9 @@
       });
     }
 
-    function updateLatestBuild(id, status, startTime, endTime, userId) {
-      if ($ctrl.latestBuild && id && status) {
-        $ctrl.latestBuild.id        = id;
-        $ctrl.latestBuild.status    = status;
-        $ctrl.latestBuild.startTime = startTime; // when building
-        $ctrl.latestBuild.endTime   = endTime;   // when finished
-
-        // todo NCL-3085
-        if ($ctrl.latestBuild.userId !== userId) {
-          $ctrl.latestBuild.userId = userId;
-
-          UserDAO.get({ userId: userId }).$promise.then(function(data) {
-            $ctrl.latestBuild.username = data.username;
-          });
-        }
-
-      } else {
-        loadLatestBuild();
-      }
-    }
-
-    function processLatestBuild(event, payload) {
-      if ($ctrl.buildGroup && payload.buildSetConfigurationId === $ctrl.buildGroup.id) {
-        updateLatestBuild(payload.id, payload.buildStatus, payload.buildSetStartTime, payload.buildSetEndTime, payload.userId);
-      } else if ($ctrl.buildConfig && payload.buildConfigurationId === $ctrl.buildConfig.id) {
-        updateLatestBuild(payload.id, payload.buildCoordinationStatus, payload.buildStartTime, payload.buildEndTime, payload.userId);
-      }
-    }
-
     $ctrl.$onInit = function() {
       loadLatestBuild();
 
-      if ($ctrl.buildGroup) {
-        $scope.$on(eventTypes.BUILD_SET_STARTED, processLatestBuild);
-        $scope.$on(eventTypes.BUILD_SET_FINISHED, processLatestBuild);
-      } else {
-        $scope.$on(eventTypes.BUILD_STARTED, processLatestBuild);
-        $scope.$on(eventTypes.BUILD_FINISHED, processLatestBuild);
-      }
     };
 
   }

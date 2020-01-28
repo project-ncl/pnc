@@ -239,7 +239,7 @@ public class StringUtils {
     }
 
     public static String nullIfBlank(String string){
-        if(string == null || string.isBlank()){
+        if(string == null || string.trim().isEmpty()){
             return null;
         }
         return string;

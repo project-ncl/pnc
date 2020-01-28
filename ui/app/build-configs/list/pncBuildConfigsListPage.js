@@ -18,20 +18,27 @@
 (function () {
   'use strict';
 
-  angular
-      .module('pnc.common.events')
-      .constant('events', Object.freeze({
+  angular.module('pnc.build-configs').component('pncBuildConfigsListPage', {
+    bindings: {
+      buildConfigs: '<'
+    },
+    templateUrl: 'build-configs/list/pnc-build-configs-list-page.html',
+    controller: [Controller]
+  });
 
-        BUILD_PENDING: 'BUILD_PENDING',
-        BUILD_IN_PROGRESS: 'BUILD_IN_PROGRESS',
-        BUILD_FINISHED: 'BUILD_FINISHED',
-        BUILD_PROGRESS_CHANGED: 'BUILD_PROGRESS_CHANGED',
-        BUILD_STATUS_CHANGED: 'BUILD_STATUS_CHANGED',
 
-        GROUP_BUILD_IN_PROGRESS: 'GROUP_BUILD_IN_PROGRESS',
-        GROUP_BUILD_FINISHED: 'GROUP_BUILD_FINISHED',
-        GROUP_BUILD_PROGRESS_CHANGED: 'GROUP_BUILD_PROGRESS_CHANGED',
-        GROUP_BUILD_STATUS_CHANGED: 'GROUP_BUILD_STATUS_CHANGED'
+  function Controller() {
+    const $ctrl = this;
 
-      }));
+    // -- Controller API --
+
+
+    // --------------------
+
+    $ctrl.$onInit = () => {
+      $ctrl.displayFields = ['name', 'project', 'buildStatus'];
+    };
+
+  }
+
 })();

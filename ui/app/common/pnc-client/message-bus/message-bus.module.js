@@ -18,8 +18,6 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.pnc-client.message-bus', [
-    'angular-websocket'
-  ]);
+  angular.module('pnc.common.pnc-client.message-bus', []);
 
 })();

@@ -19,13 +19,13 @@
   'use strict';
 
   angular.module('pnc.common.authentication').factory('authService', [
-    '$log', 
-    '$window', 
-    '$q', 
-    '$http', 
-    '$httpParamSerializerJQLike', 
+    '$log',
+    '$window',
+    '$q',
+    '$http',
+    '$httpParamSerializerJQLike',
     'keycloak',
-    'authConfig', 
+    'authConfig',
     'User',
     function($log, $window, $q, $http, $httpParamSerializerJQLike, keycloak, authConfig, User) {
       var authService = {};
@@ -44,6 +44,10 @@
         return keycloak.idTokenParsed.preferred_username; // jshint ignore:line
       };
 
+      authService.isCurrentUser = function (user) {
+        return authService.getPrinciple() === user.username;
+      };
+
       authService.verifySsoTokenLifespan = function () {
         if (keycloak.authenticated) {
           return keycloak.refreshTokenParsed.exp < Date.now() + authConfig.getSsoTokenLifespan();
@@ -54,8 +58,8 @@
         return $q((resolve, reject) => {
           if (!authService.isAuthenticated) {
             return reject('User is not authenticated');
-          } 
-          
+          }
+
           if (!pncUser) {
             pncUser =  User.getAuthenticatedUser().$promise;
           }
@@ -66,7 +70,8 @@
 
       authService.forUserId = function (userId) {
         return authService.getPncUser().then(user => {
-            if (user.id !== userId) {
+          console.log('authService.forUserId -> userId: %s | user: %O', userId, user);
+            if (user.id.toString() !== userId) {
               return $q.reject();
             }
         });

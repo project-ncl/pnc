@@ -19,10 +19,10 @@
   'use strict';
 
   /**
-   * The dumb component representing Build Tree Link displaying information like build status icon, 
+   * The dumb component representing Build Tree Link displaying information like build status icon,
    * build configuration link and Build link for given Build or Group Build.
-   * 
-   * @example 
+   *
+   * @example
    * <pnc-build-tree-link build="build"></pnc-build-tree-link>
    */
   angular.module('pnc.builds').component('pncBuildTreeLink', {
@@ -37,17 +37,17 @@
       groupBuild: '<?'
     },
     templateUrl: 'builds/directives/pnc-build-tree/pnc-build-tree-link.html',
-    controller: ['$scope', 'eventTypes', Controller]
+    controller: ['$scope', 'events', Controller]
   });
 
-  function Controller($scope, eventTypes) {
+  function Controller($scope, events) {
     var $ctrl = this;
 
     $ctrl.$onInit = function() {
       copyBuildItem($ctrl.build ? $ctrl.build : $ctrl.groupBuild);
 
-      $scope.$on(eventTypes.BUILD_STATUS_CHANGED, onEvent);
-      $scope.$on(eventTypes.BUILD_SET_STATUS_CHANGED, onEvent);
+      $scope.$on(events.BUILD_STATUS_CHANGED, onEvent);
+      $scope.$on(events.GROUP_BUILD_STATUS_CHANGED, onEvent);
     };
 
     $ctrl.$onChanges = function(changedBindings) {
@@ -62,14 +62,11 @@
       $ctrl.buildItem = angular.copy(buildItem);
     }
 
-    function onEvent(event, payload) {
-      if (payload.id === $ctrl.buildItem.id) {
-        $scope.$applyAsync(function () {
-          Object.assign($ctrl.buildItem, payload);
-        });
+    function onEvent(event, buildItem) {
+      if (buildItem.id === $ctrl.buildItem.id) {
+        copyBuildItem(buildItem);
       }
     }
-    
   }
 
 })();

@@ -23,12 +23,12 @@
       builds: '<'
     },
     templateUrl: 'builds/list/pnc-builds-list-page.html',
-    controller: ['$scope', 'eventTypes', 'filteringPaginator', 'SortHelper', Controller]
+    controller: ['$scope', 'events', 'filteringPaginator', 'SortHelper', Controller]
   });
 
-  function Controller($scope, eventTypes, filteringPaginator,sortHelper) {
-    const $ctrl = this;
+  function Controller($scope, events, filteringPaginator, sortHelper) {
 
+    const $ctrl = this;
     const PAGE_NAME = 'buildsList';
 
     // -- Controller API --
@@ -67,6 +67,7 @@
       ]
     }];
 
+
     $ctrl.buildsSortingFields = [{
       id: 'status',
       title: 'Status',
@@ -89,18 +90,13 @@
 
     $ctrl.$onInit = function () {
       $ctrl.buildsFilteringPage = filteringPaginator($ctrl.builds);
-
       $ctrl.buildsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
-
       $ctrl.buildsFilteringPage.addSortChangeListener(currentSortConfig => {
         sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
       });
 
-      /* NCL-4433 group builds need to be updated
-      function processEvent() {}
-      $scope.$on(eventTypes.BUILD_STARTED, processEvent);
-      $scope.$on(eventTypes.BUILD_FINISHED, processEvent);
-      */
+      $scope.$on(events.BUILD_PROGRESS_CHANGED, () => $ctrl.buildsFilteringPage.refresh());
+
     };
 
   }

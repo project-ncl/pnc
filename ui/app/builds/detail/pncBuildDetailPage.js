@@ -26,11 +26,11 @@
       brewPushResult: '<'
     },
     templateUrl: 'builds/detail/pnc-build-detail-page.html',
-    controller: ['buildStatusHelper', Controller]
+    controller: ['$scope', 'events', Controller]
   });
 
 
-  function Controller(buildStatusHelper) {
+  function Controller($scope, events) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -41,18 +41,15 @@
 
 
     $ctrl.$onInit = function () {
-      $ctrl.isFinished = buildStatusHelper.isFinished($ctrl.build);
+      $ctrl.isFinished = $ctrl.build.progress === 'FINISHED';
       $ctrl.hasPushResults = !!$ctrl.brewPushResult.status;
 
-      /* NCL-4433
-      $scope.$on(eventTypes.BUILD_STATUS_CHANGED, function (event, payload) {
-        if (payload.id === $ctrl.build.id) {
-          $scope.$applyAsync(function () {
-            Object.assign($ctrl.build, payload);
-          });
+
+      $scope.$on(events.BUILD_STATUS_CHANGED, (event, build) => {
+        if ($ctrl.build.id === build.id) {
+          $scope.$applyAsync(() => $ctrl.build = build);
         }
       });
-      */
     };
 
   }

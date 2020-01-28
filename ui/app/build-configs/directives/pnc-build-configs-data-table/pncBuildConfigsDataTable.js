@@ -94,8 +94,7 @@
 
     function generateToolbarActions() {
       const actions = [];
-
-      if ($ctrl.onEdit) {
+      if ($ctrl.onEdit()) {
         actions.push({
           name: 'Edit',
           title: 'Add or remove build configs to the list',

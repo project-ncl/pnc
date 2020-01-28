@@ -24,78 +24,106 @@
 
   module.run([
     '$state',
-    '$log',
-    '$rootScope',
-    'eventTypes',
-    'BuildResource',
-    'authService',
-    'pncNotify',
-    function($state, $log, $rootScope, eventTypes, BuildResource,
-             authService, pncNotify) {
-      var scope = $rootScope.$new();
+    'pncNotifyUser',
+    'messageBus',
+    function($state, pncNotifyUser, messageBus) {
 
-      function buildLinkCallback(buildId) {
+      function canonicalName(build) {
+        return `${build.buildConfigRevision.name}#${build.id}`;
+      }
+
+      function buildLinkCallback(build) {
         return function() {
-          $state.go('builds.detail.default', {buildId: buildId});
+          $state.go('projects.detail.build-configs.detail.builds.detail.default', {
+            projectId: build.project.id,
+            configurationId: build.buildConfigRevision.id,
+            buildId: build.id
+          });
         };
       }
 
-      //TODO: When backend functionality is available these notifications
-      // should only be fired if the userId of the payload matches the
-      // current logged in user.
 
-      scope.$on(eventTypes.BUILD_STARTED, function(event, payload) {
+      /*
+       * Default build notifications
+       */
 
-        authService.forUserId(payload.userId).then(function() {
-          if (payload.buildCoordinationStatus === 'NEW') {
-            pncNotify.info('Build ' + payload.buildConfigurationName + ' in new state',
-                         'Build #' + payload.id, buildLinkCallback(payload.id));
-          } else if (payload.buildCoordinationStatus === 'WAITING_FOR_DEPENDENCIES') {
-            pncNotify.info('Build ' + payload.buildConfigurationName + ' waiting for dependencies',
-                         'Build #' + payload.id, buildLinkCallback(payload.id));
-          } else if (payload.buildCoordinationStatus === 'ENQUEUED') {
-            pncNotify.info('Build ' + payload.buildConfigurationName + ' was enqueued',
-                         'Build #' + payload.id, buildLinkCallback(payload.id));
-          } else if (payload.buildCoordinationStatus === 'BUILDING') {
-            pncNotify.info('Build ' + payload.buildConfigurationName + ' is being built',
-                         'Build #' + payload.id, buildLinkCallback(payload.id));
-          }
-        });
+      messageBus.onBuildProgress('IN_PROGRESS', build => {
+        console.log('BUILD STATUS: IN_PROGRESS, %O', build);
+        if (build.groupBuild) {
+          return;
+        }
+        pncNotifyUser(build.user).info(`Build ${canonicalName(build)} IN PROGRESS`,`Build #${build.id}`, buildLinkCallback(build));
       });
 
-      // Notify user when builds finish
-      // (see events-services.js for the conversion
-      // between server and client buildCoordinationStatus)
-      scope.$on(eventTypes.BUILD_FINISHED, function(event, payload) {
+      messageBus.onBuildProgress('FINISHED', build => {
+        console.log('BUILD STATUS: FINISHED, %O', build);
 
-        authService.forUserId(payload.userId).then(function() {
-          if (payload.buildCoordinationStatus === 'REJECTED') {
-            pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' rejected.',
-                           'Build #' + payload.id, buildLinkCallback(payload.id));
-          } else if (payload.buildCoordinationStatus === 'REJECTED_ALREADY_BUILT') {
-            pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' was rejected because already built.',
-                           'Build #' + payload.id, buildLinkCallback(payload.id));
-          } else if (payload.buildCoordinationStatus === 'SYSTEM_ERROR') {
-            pncNotify.error('A system error prevented the Build ' + payload.buildConfigurationName + '#' + payload.id + ' from starting.',
-                            'Build #' + payload.id, buildLinkCallback(payload.id));
-          } else {
-            BuildResource.get({buildId: payload.id}).$promise.then(
-              function (result) {
-                if (result.status === 'BUILD_COMPLETED' || result.status === 'DONE' || result.status === 'SUCCESS') {
-                  pncNotify.success('Build ' + payload.buildConfigurationName + '#' + payload.id + ' completed',
-                                    'Build #' + payload.id, buildLinkCallback(payload.id));
-                } else if (result.status === 'CANCELLED') {
-                  pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' cancelled',
-                                 'Build #' + payload.id, buildLinkCallback(payload.id));
-                } else {
-                  pncNotify.warn('Build ' + payload.buildConfigurationName + '#' + payload.id + ' failed',
-                                 'Build #' + payload.id, buildLinkCallback(payload.id));
-                }
-              }
-            );
-          }
-        });
+        if (build.groupBuild) {
+          return;
+        }
+
+        const notify = pncNotifyUser(build.user);
+        const linkText = `Build #${build.id}`;
+        const callback = buildLinkCallback(build);
+
+        switch (build.status) {
+          case 'SUCCESS':
+            notify.success(`Build ${canonicalName(build)} COMPLETED`, linkText, callback);
+            break;
+          case 'FAILED':
+            notify.warn(`Build ${canonicalName(build)} FAILED`,  linkText, callback);
+            break;
+          case 'SYSTEM_ERROR':
+            notify.error(`Build ${canonicalName(build)} completed with status SYSTEM_ERROR`,  linkText, callback);
+            break;
+          default:
+            notify.info(`Build ${canonicalName(build)} completed with status ${build.status}`,  linkText, callback);
+        }
       });
+
+      /*
+       * Default group build notifications
+       */
+
+      function groupBuildCanonicalName(groupBuild) {
+        return `${groupBuild.groupConfig.name}#${groupBuild.id}`;
+      }
+
+      function groupBuildLinkCallback(groupBuild) {
+        return () => $state.go('group-configs.detail', { groupConfigId: groupBuild.groupConfig.id });
+      }
+
+
+      messageBus.onGroupBuildProgress('IN_PROGRESS', groupBuild => {
+        console.log('GROUP BUILD STATUS: IN_PROGRESS: %O', groupBuild);
+
+        pncNotifyUser(groupBuild.user).info(`GroupBuild: ${groupBuildCanonicalName(groupBuild)} IN PROGRESS`, `GroupBuild #${groupBuild.id}`, groupBuildLinkCallback(groupBuild));
+      });
+
+      messageBus.onGroupBuildProgress('FINISHED', groupBuild => {
+        console.log('GROUP BUILD STATUS: FINISHED: %O', groupBuild);
+
+        const notify = pncNotifyUser(groupBuild.user);
+        const canonicalName = groupBuildCanonicalName(groupBuild);
+        const linkText = `GroupBuild #${groupBuild.id}`;
+        const callback = groupBuildLinkCallback(groupBuild);
+
+        switch(groupBuild.status) {
+          case 'SUCCESS':
+            notify.success(`GroupBuild ${canonicalName} completed successfully`, linkText, callback);
+            break;
+          case 'FAILED':
+            notify.warn(`GroupBuild ${canonicalName} FAILED`, linkText, callback);
+            break;
+          case 'SYSTEM_ERROR':
+            notify.error(`GroupBuild ${canonicalName} completed with status SYSTEM_ERROR`);
+            break;
+          default:
+            notify.info(`GroupBuild ${canonicalName} completed with status ${groupBuild.status}`);
+          }
+
+        });
+
     }
   ]);
 
