@@ -34,9 +34,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Bean providing an interface to delete temporary builds
@@ -98,15 +95,7 @@ public class TemporaryBuildsCleaner {
             return new Result(buildRecordId.toString(), ResultStatus.FAILED, "Failed to delete remote temporary builds.");
         }
 
-        /** Delete relation between BuildRecord and Artifact */
-        Set<Artifact> artifactsToBeDeleted = new HashSet<>();
-
-        removeRelationBuildRecordArtifact(buildRecord, artifactsToBeDeleted);
-
-        /**
-         * Delete artifacts, if the artifacts are not used in other builds
-         */
-        deleteArtifacts(artifactsToBeDeleted);
+        removeBuiltArtifacts(buildRecord);
 
         deleteDependencies(buildRecord);
 
@@ -126,16 +115,14 @@ public class TemporaryBuildsCleaner {
         }
     }
 
-    private void deleteArtifacts(Set<Artifact> artifactsToBeDeleted) {
-        for(Artifact artifact : artifactsToBeDeleted) {
-            if (artifact.getDependantBuildRecords().size() > 0) {
-                log.info("Marking temporary artifact as DELETED: " + artifact.getDescriptiveString());
-                artifact.setArtifactQuality(ArtifactQuality.DELETED);
-                artifactRepository.save(artifact);
-            } else {
-                log.info("Deleting temporary artifact: " + artifact.getDescriptiveString());
-                artifactRepository.delete(artifact.getId());
-            }
+    private void deleteArtifact(Artifact artifact) {
+        if (artifact.getDependantBuildRecords().size() > 0) {
+            log.info("Marking temporary artifact as DELETED: " + artifact.getDescriptiveString());
+            artifact.setArtifactQuality(ArtifactQuality.DELETED);
+            artifactRepository.save(artifact);
+        } else {
+            log.info("Deleting temporary artifact: " + artifact.getDescriptiveString());
+            artifactRepository.delete(artifact.getId());
         }
     }
 
@@ -171,31 +158,21 @@ public class TemporaryBuildsCleaner {
         return new Result(buildConfigSetRecordId.toString(), ResultStatus.SUCCESS);
     }
 
-    private void removeRelationBuildRecordArtifact(
-            BuildRecord buildRecord,
-            Set<Artifact> artifactsToBeDeleted) {
-        Set<Artifact> artifacts;
-
-        artifacts = buildRecord.getBuiltArtifacts();
-
-        for (Artifact artifact : artifacts) {
+    private void removeBuiltArtifacts(BuildRecord buildRecord) {
+        for (Artifact artifact : buildRecord.getBuiltArtifacts()) {
             log.debug(String.format(
                     "Deleting relation BR-Artifact. BR=%s, artifact=%s",
                     buildRecord,
                     artifact.getDescriptiveString()));
 
-            if (artifact.getDistributedInProductMilestones().size() != 0) {
+            if (!artifact.getDistributedInProductMilestones().isEmpty()) {
                 log.error("Temporary artifact was distributed in milestone! Artifact: "
                         + artifact.toString() + "\n Milestones: " + artifact.getDistributedInProductMilestones().toString());
                 continue;
             }
 
             artifact.setBuildRecord(null);
-            artifactRepository.save(artifact);
-            artifactsToBeDeleted.add(artifact);
+            deleteArtifact(artifact);
         }
-
-        buildRecord.setBuiltArtifacts(Collections.emptySet());
-        buildRecordRepository.save(buildRecord);
     }
 }
