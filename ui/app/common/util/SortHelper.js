@@ -24,10 +24,16 @@
 
   module.factory('SortHelper', function () {
 
-    //Todo: use regular expression to validate every Json object that stores in Local Storage, if not match just drop it
-
+    /* default setting for sort configuration */
     const DEFAULT_SORT_CONFIG = {
-      projectList: { field: { id: 'name', title: 'Name' }, asc: true }
+      projectsList: { field: { id: 'name', title: 'Name' }, asc: true },
+      // productList: { field: { id: 'name', title: 'Name' }, asc: true },
+      // buildConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
+      groupConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
+      scmRepositoriesList: { field: { id: 'internalUrl', title: 'Internal URL' }, asc: true },
+      artifactsList: { field: { id: 'identifier', title: 'Identifier' }, asc: true },
+      buildsList: { field: { id: 'submitTime', title: 'Submit Time' }, asc: false },
+      groupBuildsList: { field: { id: 'startTime', title: 'Start Time' }, asc: false },
     };
 
     var helper = {};
@@ -56,6 +62,13 @@
       if (currentSortConfig) {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(currentSortConfig));
       }
+    };
+
+    helper.getSortQueryString = function (pageName) {
+      let sortConfig = helper.getSortConfigFromLocalStorage(pageName);
+      return {
+        sort: '=' + (sortConfig.asc ? 'asc' : 'desc') + '=' + sortConfig.field.id
+      };
     };
 
     return helper;

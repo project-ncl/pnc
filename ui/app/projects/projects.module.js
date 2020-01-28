@@ -27,7 +27,7 @@
 
   module.config([
     '$stateProvider',
-    function($stateProvider) {
+    function ($stateProvider) {
 
       $stateProvider.state('projects', {
         abstract: true,
@@ -42,13 +42,6 @@
         }
       });
 
-      function getSortFromLocalStorage(sortHelper) {
-        let sortConfig = sortHelper.getSortConfigFromLocalStorage('projectList');
-        return {
-          sort: '=' + (sortConfig.asc ? 'asc' : 'desc') + '=' + sortConfig.field.id
-        };
-      }
-
       $stateProvider.state('projects.list', {
         url: '',
         component: 'pncProjectsListPage',
@@ -57,7 +50,8 @@
           title: 'Projects'
         },
         resolve: {
-          projects: ['ProjectResource', 'SortHelper', (ProjectResource, sortHelper) => ProjectResource.query(getSortFromLocalStorage(sortHelper)).$promise]
+          projects: ['ProjectResource', 'SortHelper',
+            (ProjectResource, sortHelper) => ProjectResource.query(sortHelper.getSortQueryString('projectsList')).$promise]
         }
       });
 
