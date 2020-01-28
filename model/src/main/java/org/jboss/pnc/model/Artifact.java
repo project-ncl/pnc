@@ -131,13 +131,10 @@ public class Artifact implements GenericEntity<Integer> {
 
     /**
      * The record of the build which produced this artifact.
-     * Usually there should be only one build record that produced this artifact.
-     * However some other build may produce the same artifact (same checksum)
-     * in such case we link the BuildRecord to the same artifact.
      */
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @ManyToMany(mappedBy = "builtArtifacts")
-    private Set<BuildRecord> buildRecords;
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_buildrecord"))
+    private BuildRecord buildRecord;
 
     /**
      * The list of builds which depend on this artifact.
@@ -179,7 +176,6 @@ public class Artifact implements GenericEntity<Integer> {
      * empty set.
      */
     Artifact() {
-        buildRecords = new HashSet<>();
         dependantBuildRecords = new HashSet<>();
         distributedInProductMilestones = new HashSet<>();
     }
@@ -269,7 +265,7 @@ public class Artifact implements GenericEntity<Integer> {
      * @return true if there is a build record for this artifact, false otherwise
      */
     public boolean isBuilt() {
-        return (buildRecords != null && buildRecords.size() > 0);
+        return buildRecord != null;
     }
 
     /** Check if this artifact was imported from a remote URL
@@ -320,31 +316,21 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     /**
-     * Gets the set of build records which produced this artifact.
+     * Gets the build record which produced this artifact.
      *
-     * @return the set of build records
+     * @return the build record
      */
-    public Set<BuildRecord> getBuildRecords() {
-        return buildRecords;
+    public BuildRecord getBuildRecord() {
+        return buildRecord;
     }
 
     /**
-     * Sets the project build record.
+     * Sets the build record which produced this artifact.
      *
-     * @param buildRecords the set of build records
+     * @param buildRecord the build record
      */
-    public void setBuildRecords(Set<BuildRecord> buildRecords) {
-        this.buildRecords = buildRecords;
-    }
-
-    /**
-     * Add a build record which produced this artifact
-     *
-     * @param buildRecord the new project build record
-     * @return
-     */
-    public boolean addBuildRecord(BuildRecord buildRecord) {
-        return this.buildRecords.add(buildRecord);
+    public void setBuildRecord(BuildRecord buildRecord) {
+        this.buildRecord = buildRecord;
     }
 
     public Set<BuildRecord> getDependantBuildRecords() {
@@ -466,7 +452,7 @@ public class Artifact implements GenericEntity<Integer> {
 
         private Set<BuildRecord> dependantBuildRecords;
 
-        private Set<BuildRecord> buildRecords;
+        private BuildRecord buildRecord;
 
         private Set<ProductMilestone> distributedInProductMilestones;
 
@@ -475,7 +461,6 @@ public class Artifact implements GenericEntity<Integer> {
         private Date importDate;
 
         private Builder() {
-            buildRecords = new HashSet<>();
             dependantBuildRecords = new HashSet<>();
             distributedInProductMilestones = new HashSet<>();
         }
@@ -502,7 +487,7 @@ public class Artifact implements GenericEntity<Integer> {
             if (dependantBuildRecords != null) {
                 artifact.setDependantBuildRecords(dependantBuildRecords);
             }
-            artifact.setBuildRecords(buildRecords);
+            artifact.setBuildRecord(buildRecord);
             artifact.setDistributedInProductMilestones(distributedInProductMilestones);
             artifact.setOriginUrl(originUrl);
             artifact.setImportDate(importDate);
@@ -561,12 +546,7 @@ public class Artifact implements GenericEntity<Integer> {
         }
 
         public Builder buildRecord(BuildRecord buildRecord) {
-            this.buildRecords.add(buildRecord);
-            return this;
-        }
-
-        public Builder buildRecords(Set<BuildRecord> buildRecords) {
-            this.buildRecords = buildRecords;
+            this.buildRecord = buildRecord;
             return this;
         }
 

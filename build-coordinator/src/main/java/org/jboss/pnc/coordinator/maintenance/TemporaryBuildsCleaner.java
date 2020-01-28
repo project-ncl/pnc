@@ -190,12 +190,9 @@ public class TemporaryBuildsCleaner {
                 continue;
             }
 
-            artifact.getBuildRecords().remove(buildRecord);
+            artifact.setBuildRecord(null);
             artifactRepository.save(artifact);
-            //remove only artifacts that are not connected to any build record
-            if (artifact.getBuildRecords().size() == 0) {
-                artifactsToBeDeleted.add(artifact);
-            }
+            artifactsToBeDeleted.add(artifact);
         }
 
         buildRecord.setBuiltArtifacts(Collections.emptySet());
