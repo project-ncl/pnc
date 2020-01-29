@@ -42,7 +42,7 @@
     <div class="pull-right" ng-if="$ctrl.buildIds.length > 1">
       <div ng-if="$ctrl.isUpdating" class="spinner spinner-sm pull-left m-t-3 m-r-8"></div>
       Display every
-      <pf-select selected="$ctrl.navigationSelected" options="$ctrl.navigationOptions" display-field="name" on-select="$ctrl.navigationSelect"></pf-select>
+      <select id="{{$ctrl.componentId}}-select" ng-model="$ctrl.navigationSelected" ng-change="$ctrl.navigationSelect($ctrl.navigationSelected)" ng-options="option.name for option in $ctrl.navigationOptions"></select>
       build
       <a uib-popover="Always a maximum of {{::$ctrl.BUILDS_DISPLAY_LIMIT}} builds will be displayed if they are available, eg. if every {{::$ctrl.BUILDS_DISPLAY_LIMIT_EXAMPLE}}th build is displayed, {{::$ctrl.BUILDS_DISPLAY_LIMIT}} builds will cover last {{$ctrl.BUILDS_DISPLAY_LIMIT * $ctrl.BUILDS_DISPLAY_LIMIT_EXAMPLE}} builds."
         popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
