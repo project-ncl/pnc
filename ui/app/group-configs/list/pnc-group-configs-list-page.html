@@ -28,7 +28,8 @@
   </pnc-header>
 
   <div class="row">
-    <pnc-toolbar filtering-page="$ctrl.paginator" filtering-fields="$ctrl.filterFields"></pnc-toolbar>
+    <pnc-toolbar filtering-page="$ctrl.paginator" filtering-fields="$ctrl.filterFields"
+      sorting-fields="$ctrl.groupConfigsSortingFields" sorting-configs="$ctrl.groupConfigsSortingConfigs"></pnc-toolbar>
   </div>
   <div>
     <pnc-group-configs-list group-configs="$ctrl.paginator.data"></pnc-group-configs-list>

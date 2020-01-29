@@ -28,14 +28,16 @@
     },
     templateUrl: 'artifacts/list/pnc-artifacts-data-table.html',
     controller: [
-      'filteringPaginator',
+      'filteringPaginator','SortHelper',
       Controller
     ]
   });
 
 
-  function Controller(filteringPaginator) {
+  function Controller(filteringPaginator,sortHelper) {
     const $ctrl = this;
+
+    const PAGE_NAME = 'artifactsList';
 
     // -- Controller API --
 
@@ -46,8 +48,8 @@
       filterType: 'text'
     }, {
       id: 'filename',
-      title:  'Filename',
-      placeholder: 'Filter by Filename',
+      title: 'File Name',
+      placeholder: 'Filter by File Name',
       filterType: 'text'
     }, {
       id: 'targetRepository.repositoryType',
@@ -75,26 +77,56 @@
       ]
     }, {
       id: 'md5',
-      title:  'md5',
+      title: 'md5',
       placeholder: 'Filter by md5 checksum',
       filterType: 'text'
     }, {
       id: 'sha1',
-      title:  'sha1',
+      title: 'sha1',
       placeholder: 'Filter by sha1 checksum',
       filterType: 'text'
     }, {
       id: 'sha256',
-      title:  'sha256',
+      title: 'sha256',
       placeholder: 'Filter by sha256 checksum',
       filterType: 'text'
     }];
 
-   
+    $ctrl.artifactsSortingFields = [{
+      id: 'identifier',
+      title: 'Identifier',
+    }, {
+      id: 'artifactQuality',
+      title: 'Quality',
+    }, {
+      id: 'filename',
+      title: 'File Name',
+    }, {
+      id: 'targetRepository.repositoryType',
+      title: 'Repo Type',
+    }, {
+      id: 'md5',
+      title: 'md5',
+    }, {
+      id: 'sha1',
+      title: 'sha1',
+    }, {
+      id: 'sha256',
+      title: 'sha256',
+    }];
+
+
     // --------------------
 
     $ctrl.$onInit = () => {
       $ctrl.artifactsFilteringPage = filteringPaginator($ctrl.artifacts);
+
+
+      $ctrl.artifactsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
+
+      $ctrl.artifactsFilteringPage.addSortChangeListener(currentSortConfig => {
+        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
+      });
     };
 
   }

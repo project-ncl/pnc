@@ -24,11 +24,19 @@
       groupConfigsPage: '<'
     },
     templateUrl: 'group-configs/list/pnc-group-configs-list-page.html',
-    controller: ['filteringPaginator', Controller]
+    controller: ['filteringPaginator', 'SortHelper', Controller]
   });
 
-  function Controller(filteringPaginator) {
+  function Controller(filteringPaginator, sortHelper) {
     const $ctrl = this;
+
+    const PAGE_NAME = 'groupConfigsList';
+
+
+    $ctrl.groupConfigsSortingFields = [{
+      id: 'name',
+      title: 'Name'
+    }];
 
     // -- Controller API --
 
@@ -44,6 +52,12 @@
         placeholder: 'Filter by Name',
         filterType: 'text'
       }];
+
+      $ctrl.groupConfigsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
+
+      $ctrl.paginator.addSortChangeListener(currentSortConfig => {
+        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
+      });
     };
   }
 

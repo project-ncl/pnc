@@ -26,7 +26,7 @@
   ]);
 
   module.config(['$stateProvider', function($stateProvider) {
-    
+
     $stateProvider.state('scm-repositories', {
       url: '/scm-repositories',
       abstract: true,
@@ -48,8 +48,8 @@
         title: 'SCM Repositories'
       },
       resolve: {
-        scmRepositories: ['ScmRepositoryResource', function(ScmRepositoryResource) {
-          return ScmRepositoryResource.query().$promise;
+        scmRepositories: ['ScmRepositoryResource', 'SortHelper', function (ScmRepositoryResource, sortHelper) {
+          return ScmRepositoryResource.query(sortHelper.getSortQueryString('scmRepositoriesList')).$promise;
         }]
       }
     });
