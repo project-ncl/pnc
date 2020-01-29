@@ -52,10 +52,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withOriginUrl;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256InAndBuilt;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 
@@ -102,23 +104,16 @@ public class DefaultDatastore implements Datastore {
         this.targetRepositoryRepository = targetRepositoryRepository;
     }
 
-    private static final String ARITFACT_ORIGIN_URL_IDENTIFIER_CONFLICT_MESSAGE = "Another artifact with the same originUrl but a different identifier already exists";
-    private static final String ARITFACT_ORIGIN_URL_CHECKSUM_CONFLICT_MESSAGE = "Another artifact with the same originUrl but a different checksum already exists";
+    private static final String ARITFACT_ALREADY_BUILT_CONFLICT_MESSAGE = "This artifact was already built in build #";
 
     @Override
-    public Map<Artifact, String> checkForConflictingArtifacts(Collection<Artifact> artifacts) {
+    public Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts) {
+        Map<String, Artifact> sha256s = artifacts.stream().collect(Collectors.toMap(Artifact::getSha256, Function.identity()));
+        List<Artifact> conflicting = artifactRepository.queryWithPredicates(withSha256InAndBuilt(sha256s.keySet()));
         Map<Artifact, String> conflicts = new HashMap<>();
-        for (Artifact artifact : artifacts) {
-            // Check for matching URL with different identifier or checksum
-            if (artifact.getOriginUrl() != null) {
-                Artifact artifactFromDb = artifactRepository.queryByPredicates(withOriginUrl(artifact.getOriginUrl()));
-                if (artifactFromDb.getIdentifier().equals(artifact.getIdentifier())) {
-                    conflicts.put(artifact, ARITFACT_ORIGIN_URL_IDENTIFIER_CONFLICT_MESSAGE);
-                }
-                if (artifactFromDb.getSha256().equals(artifact.getSha256())) {
-                    conflicts.put(artifact, ARITFACT_ORIGIN_URL_CHECKSUM_CONFLICT_MESSAGE);
-                }
-            }
+        for (Artifact conflict : conflicting) {
+            Artifact artifact = sha256s.get(conflict.getSha256());
+            conflicts.put(artifact, ARITFACT_ALREADY_BUILT_CONFLICT_MESSAGE + conflict.getBuildRecord().getId());
         }
         return conflicts;
     }

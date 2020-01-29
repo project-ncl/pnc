@@ -35,7 +35,7 @@ import java.util.Set;
 public class ArtifactPredicates {
 
     public static Predicate<Artifact> withBuildRecordId(Integer buildRecordId) {
-        return (root, query, cb) -> cb.equal(root.get(Artifact_.buildRecord).get(BuildRecord_.id), buildRecordId);
+        return (root, query, cb) -> cb.equal(root.join(Artifact_.buildRecord).get(BuildRecord_.id), buildRecordId);
     }
 
     public static Predicate<Artifact> withDependantBuildRecordId(Integer buildRecordId) {
@@ -77,6 +77,15 @@ public class ArtifactPredicates {
 
     public static Predicate<Artifact> withSha256In(Set<String> sha256s) {
         return (root, query, cb) -> root.get(Artifact_.sha256).in(sha256s);
+    }
+
+    public static Predicate<Artifact> withSha256InAndBuilt(Set<String> sha256s) {
+        return (root, query, cb) -> cb.and(root.get(Artifact_.buildRecord).isNotNull(),
+                root.get(Artifact_.sha256).in(sha256s));
+    }
+
+    public static Predicate<Artifact> withIds(Set<Integer> ids) {
+        return (root, query, cb) -> root.get(Artifact_.id).in(ids);
     }
 
     public static Predicate<Artifact> withOriginUrl(String originUrl) {
