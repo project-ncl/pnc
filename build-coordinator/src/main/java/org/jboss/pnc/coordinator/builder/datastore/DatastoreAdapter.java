@@ -46,7 +46,6 @@ import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -161,17 +160,13 @@ public class DatastoreAdapter {
                     buildRecordStatus = FAILED; //TODO, do not mix statuses
                 }
 
-                Collection<Artifact> builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
-                Map<Artifact, String> builtConflicts = datastore.checkForConflictingArtifacts(builtArtifacts);
+                List<Artifact> builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
+                Map<Artifact, String> builtConflicts = datastore.checkForBuiltArtifacts(builtArtifacts);
                 if (builtConflicts.size() > 0) {
                     return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + builtConflicts.toString()));
                 }
-                buildRecordBuilder.builtArtifacts(repositoryManagerResult.getBuiltArtifacts());
+                buildRecordBuilder.builtArtifacts(builtArtifacts);
 
-                Map<Artifact, String> depConflicts = datastore.checkForConflictingArtifacts(builtArtifacts);
-                if (depConflicts.size() > 0) {
-                    return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + depConflicts.toString()));
-                }
                 buildRecordBuilder.dependencies(repositoryManagerResult.getDependencies());
             } else if (!buildResult.hasFailed()) {
                 return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
@@ -255,12 +250,15 @@ public class DatastoreAdapter {
                 rmr -> {
                     errorLog.append(rmr.getLog());
                     errorLog.append("\n---- End Repository Manager Log ----\n");
+                    errorLog.append("\n---- Start Built Artifacts List ----\n");
+                    rmr.getBuiltArtifacts().forEach(b -> errorLog.append(b).append('\n'));
+                    errorLog.append("\n---- End Built Artifacts List ----\n");
             });
 
             result.getEnvironmentDriverResult().ifPresent(
                 r -> {
                     if (r.getLog() != null && !r.getLog().equals(""))
-                    errorLog.append(r.getLog());
+                        errorLog.append(r.getLog());
                     errorLog.append("\n---- End Environment Driver Log ----\n");
             });
 

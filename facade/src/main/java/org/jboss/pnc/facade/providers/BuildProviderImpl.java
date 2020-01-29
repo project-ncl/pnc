@@ -100,8 +100,13 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.lang.Math.min;
+import java.util.HashSet;
+import java.util.function.Function;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
+import org.jboss.pnc.facade.validation.InvalidEntityException;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIds;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
@@ -115,6 +120,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withB
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutAttribute;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 
 @PermitAll
 @Stateless
@@ -122,6 +128,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
 
     private static final Logger logger = LoggerFactory.getLogger(BuildProviderImpl.class);
 
+    private ArtifactRepository artifactRepository;
     private BuildRecordRepository buildRecordRepository;
     private BuildConfigurationRepository buildConfigurationRepository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
@@ -139,13 +146,16 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     private ResultMapper resultMapper;
 
     @Inject
-    public BuildProviderImpl(BuildRecordRepository repository, BuildMapper mapper, BuildConfigurationRepository buildConfigurationRepository,
-            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository, BuildConfigSetRecordRepository buildConfigSetRecordRepository,
+    public BuildProviderImpl(ArtifactRepository artifactRepository, BuildRecordRepository repository, BuildMapper mapper,
+            BuildConfigurationRepository buildConfigurationRepository,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+            BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             Gerrit gerrit, BuildConfigurationRevisionMapper buildConfigurationRevisionMapper, BuildCoordinator buildCoordinator,
             SortInfoProducer sortInfoProducer, UserService userService,
             TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker, ResultMapper resultMapper) {
         super(repository, mapper, BuildRecord.class);
 
+        this.artifactRepository = artifactRepository;
         this.buildRecordRepository = repository;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
@@ -586,12 +596,27 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     @RolesAllowed(SYSTEM_USER)
     @Override
     public void setBuiltArtifacts(String id, List<String> artifactIds) {
-        BuildRecord buildRecord = repository.queryById(Integer.valueOf(id));
-        Set<Artifact> artifacts = artifactIds.stream()
-                .map(aId -> Artifact.Builder.newBuilder().id(Integer.valueOf(aId)).build())
-                .collect(Collectors.toSet());
-        buildRecord.setBuiltArtifacts(artifacts);
-        repository.save(buildRecord);
+        Set<Integer> ids = artifactIds.stream().map(Integer::valueOf).collect(Collectors.toSet());
+        List<Artifact> artifacts = artifactRepository.queryWithPredicates(withIds(ids));
+
+        if(ids.size() != artifacts.size()){
+            artifacts.stream().map(Artifact::getId).forEach(ids::remove);
+            throw new InvalidEntityException("Artifacts not found, missing ids: " + ids);
+        }
+
+        final Integer buildId = Integer.valueOf(id);
+        BuildRecord buildRecord = repository.queryById(buildId);
+        for (Artifact artifact : artifacts) {
+            if(artifact.getBuildRecord() != null && !buildId.equals(artifact.getBuildRecord().getId())){
+                throw new ConflictedEntryException("Artifact " + artifact.getId() + " is already marked as built by different build.",
+                        BuildRecord.class, artifact.getBuildRecord().getId().toString());
+            }
+            artifact.setBuildRecord(buildRecord);
+        }
+        HashSet<Artifact> oldBuiltArtifacts = new HashSet<>(buildRecord.getBuiltArtifacts());
+        oldBuiltArtifacts.stream()
+                .filter(a -> !ids.contains(a.getId()))
+                .forEach(a -> a.setBuildRecord(null));
     }
 
     @RolesAllowed(SYSTEM_USER)

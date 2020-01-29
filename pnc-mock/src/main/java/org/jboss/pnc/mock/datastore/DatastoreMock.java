@@ -59,7 +59,7 @@ public class DatastoreMock implements Datastore {
     AtomicInteger buildConfigAuditedRevSequence = new AtomicInteger(0);
 
     @Override
-    public Map<Artifact, String> checkForConflictingArtifacts(Collection<Artifact> artifacts) {
+    public Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts) {
         return new HashMap<Artifact, String>();
     }
 
