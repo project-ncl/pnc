@@ -20,7 +20,7 @@
 
   angular
     .module('pnc.group-builds', [])
-  
+
     .config([
       '$stateProvider',
       function ($stateProvider) {
@@ -48,9 +48,9 @@
           component: 'pncGroupBuildsListPage',
           resolve: {
             groupBuilds: [
-              'GroupBuildResource',
-              function (GroupBuildResource) {
-                return GroupBuildResource.query().$promise;
+              'GroupBuildResource', 'SortHelper',
+              function (GroupBuildResource, sortHelper) {
+                return GroupBuildResource.query(sortHelper.getSortQueryString('groupBuildsList')).$promise;
               }
             ]
           }
@@ -72,15 +72,15 @@
           component: 'pncGroupBuildDetailPage',
           resolve: {
             groupBuild: [
-              'GroupBuildResource', 
-              '$stateParams', 
+              'GroupBuildResource',
+              '$stateParams',
               function (GroupBuildResource, $stateParams) {
                 return GroupBuildResource.get({ id: $stateParams.id }).$promise;
               }
             ],
             dependencyGraph: [
-              'GroupBuildResource', 
-              '$stateParams', 
+              'GroupBuildResource',
+              '$stateParams',
               function (GroupBuildResource, $stateParams) {
                 return GroupBuildResource.queryDependencyGraph({ id: $stateParams.id }).$promise;
               }

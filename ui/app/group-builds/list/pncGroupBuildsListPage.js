@@ -24,12 +24,14 @@
       groupBuilds: '<',
     },
     templateUrl: 'group-builds/list/pnc-group-builds-list-page.html',
-    controller: ['filteringPaginator', Controller]
+    controller: ['filteringPaginator', 'SortHelper', Controller]
   });
 
 
-  function Controller(filteringPaginator) {
+  function Controller(filteringPaginator,sortHelper) {
     const $ctrl = this;
+
+    const PAGE_NAME = 'groupBuildsList';
 
     // -- Controller API --
     $ctrl.groupBuildsFilteringFields = [{
@@ -65,10 +67,33 @@
       ]
     }];
 
+    $ctrl.groupBuildsSortingFields = [{
+      id: 'status',
+      title: 'Status',
+    }, {
+      id: 'groupConfig.name',
+      title: 'Build Config',
+    }, {
+      id: 'startTime',
+      title: 'Start Time'
+    }, {
+      id: 'endTime',
+      title: 'End Time',
+    }, {
+      id: 'user.username',
+      title: 'User',
+    }];
+
     // --------------------
 
     $ctrl.$onInit = function () {
       $ctrl.groupBuildsFilteringPage = filteringPaginator($ctrl.groupBuilds);
+
+      $ctrl.groupBuildsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
+
+      $ctrl.groupBuildsFilteringPage.addSortChangeListener(currentSortConfig => {
+        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
+      });
 
       /* NCL-4433 group builds need to be updated
       function processEvent() {}

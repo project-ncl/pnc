@@ -27,7 +27,9 @@
 </pnc-header>
 
 <div class="row">
-  <pnc-toolbar filtering-page="$ctrl.scmRepositoriesFilteringPage" filtering-fields="$ctrl.scmRepositoriesFilteringFields"></pnc-toolbar>
+  <pnc-toolbar filtering-page="$ctrl.scmRepositoriesFilteringPage" filtering-fields="$ctrl.scmRepositoriesFilteringFields"
+    sorting-fields="$ctrl.scmRepositoriesSortingFields" sorting-configs="$ctrl.scmRepositoriesSortingConfigs"></pnc-toolbar>
+
 </div>
 <div>
   <pnc-scm-repositories-list scm-repositories="$ctrl.scmRepositoriesFilteringPage.data"></pnc-scm-repositories-list>
