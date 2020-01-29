@@ -127,6 +127,7 @@
         return 'Not Available';
       }
 
+      var DAYS_MS = 86400000;
       var HOUR_MS = 3600000;
       var MINUTE_MS = 60000;
       var SECOND_MS = 1000;
@@ -135,9 +136,14 @@
         milliseconds: metricValue % SECOND_MS,
         seconds: Math.floor((metricValue / SECOND_MS) % 60),
         minutes: Math.floor((metricValue / MINUTE_MS) % 60),
-        hours: Math.floor((metricValue / HOUR_MS) % 24)
+        hours: Math.floor((metricValue / HOUR_MS) % 24),
+        days: Math.floor(metricValue / DAYS_MS)
       };
       
+      // days
+      if (metricValue >= HOUR_MS) {
+        return time.days + 'd ' + (time.hours ? (time.hours + 'h') : '');
+      }
       // hours
       if (metricValue >= HOUR_MS) {
         return time.hours + 'h ' + (time.minutes ? (time.minutes + 'm') : '');
@@ -293,6 +299,9 @@
 
                   if (label) {
                       label += ': ' + generateTimeTitle(tooltipItem.value);
+                  }
+                  if (tooltipItem.value !== 'NaN' && tooltipItem.value > 1000) {
+                    label += '  (' + tooltipItem.value + ' ms)';
                   }
                   return label;
                 }
