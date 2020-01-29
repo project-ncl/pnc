@@ -37,12 +37,12 @@ public interface Datastore {
 
 
     /**
-     * Check a list of artifacts for conflicts with the existing artifacts in the db
+     * Check a list of artifacts if any of them was already built
      *
      * @param artifacts The artifacts to check
      * @return A Map containing the conflicting artifact and an error message, empty if there are no conflicts
      */
-    Map<Artifact, String> checkForConflictingArtifacts(Collection<Artifact> artifacts);
+    Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts);
 
     /**
      * Stores a completed build.
