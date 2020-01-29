@@ -23,13 +23,11 @@
       builds: '<'
     },
     templateUrl: 'builds/list/pnc-builds-list-page.html',
-    controller: ['$scope', 'events', 'filteringPaginator', 'SortHelper', Controller]
+    controller: ['$scope', 'events', 'filteringPaginator', Controller]
   });
 
-  function Controller($scope, events, filteringPaginator, sortHelper) {
-
+  function Controller($scope, events, filteringPaginator) {
     const $ctrl = this;
-    const PAGE_NAME = 'buildsList';
 
     // -- Controller API --
     $ctrl.buildsFilteringFields = [{
@@ -68,35 +66,12 @@
     }];
 
 
-    $ctrl.buildsSortingFields = [{
-      id: 'status',
-      title: 'Status',
-    }, {
-      id: 'startTime',
-      title: 'Start Time',
-    }, {
-      id: 'submitTime',
-      title: 'Submit Time',
-    }, {
-      id: 'endTime',
-      title: 'End Time',
-    }, {
-      id: 'user.username',
-      title: 'Username',
-    }];
-
-
     // --------------------
 
     $ctrl.$onInit = function () {
       $ctrl.buildsFilteringPage = filteringPaginator($ctrl.builds);
-      $ctrl.buildsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
-      $ctrl.buildsFilteringPage.addSortChangeListener(currentSortConfig => {
-        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
-      });
 
       $scope.$on(events.BUILD_PROGRESS_CHANGED, () => $ctrl.buildsFilteringPage.refresh());
-
     };
 
   }
