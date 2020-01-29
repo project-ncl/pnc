@@ -55,8 +55,8 @@
         component: 'pncGroupConfigsListPage',
         resolve: {
           groupConfigsPage: [
-            'GroupConfigResource',
-            GroupConfigResource => GroupConfigResource.query().$promise
+            'GroupConfigResource', 'SortHelper',
+            (GroupConfigResource, sortHelper) => GroupConfigResource.query(sortHelper.getSortQueryString('groupConfigsList')).$promise
           ]
         },
         data: {

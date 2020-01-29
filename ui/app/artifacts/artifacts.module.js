@@ -20,7 +20,7 @@
 
   angular
     .module('pnc.artifacts', [])
-  
+
     .config([
       '$stateProvider',
       function ($stateProvider) {
@@ -48,9 +48,9 @@
           component: 'pncArtifactsListPage',
           resolve: {
             artifacts: [
-              'Artifact',
-              function (Artifact) {
-                return Artifact.query().$promise;
+              'Artifact','SortHelper',
+              function (Artifact, sortHelper) {
+                return Artifact.query(sortHelper.getSortQueryString('artifactsList')).$promise;
               }
             ]
           }
@@ -81,7 +81,7 @@
                 return BuildResource.get({ id: artifact.buildRecordIds[0] }).$promise;
               }
             ],
-            usages: [ 
+            usages: [
               'artifact',
               function (artifact) {
                 return artifact.$getDependantBuildRecords({ pageSize:  10 });
