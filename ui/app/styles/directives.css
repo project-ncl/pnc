@@ -321,6 +321,11 @@
   background-color: #f3f3f3;
   line-height: 2;
 }
+.pnc-build-metrics .pnc-build-metric-navigation select {
+  background-color: white;
+  height: 25px;
+  margin: 0 5px;
+}
 
 
 
