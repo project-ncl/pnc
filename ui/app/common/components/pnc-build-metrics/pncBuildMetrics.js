@@ -119,8 +119,40 @@
           };
       }
     };
+
     
-    var generateTimeTitle = function(metricValue) { return  metricValue + ' ms'; };
+    var generateTimeTitle = function(metricValue) { 
+      // Chart.js converts null values to NaN string
+      if (metricValue === null || metricValue === 'NaN') {
+        return 'Not Available';
+      }
+
+      var HOUR_MS = 3600000;
+      var MINUTE_MS = 60000;
+      var SECOND_MS = 1000;
+
+      var time = {
+        milliseconds: metricValue % SECOND_MS,
+        seconds: Math.floor((metricValue / SECOND_MS) % 60),
+        minutes: Math.floor((metricValue / MINUTE_MS) % 60),
+        hours: Math.floor((metricValue / HOUR_MS) % 24)
+      };
+      
+      // hours
+      if (metricValue >= HOUR_MS) {
+        return time.hours + 'h ' + (time.minutes ? (time.minutes + 'm') : '');
+      }
+      // minutes
+      if (metricValue >= MINUTE_MS) {
+        return time.minutes + 'm ' + (time.seconds ? (time.seconds + 's') : '');
+      }
+      // seconds
+      if (metricValue >= SECOND_MS) {
+        return time.seconds + (time.milliseconds ? ('.' + time.milliseconds + ' s') : ' s');
+      }
+      // ms
+      return  time.milliseconds + ' ms'; 
+    };
 
     var generateBuildTitle = function(buildId) { return  '#' + buildId; };
 
@@ -201,7 +233,7 @@
                   },
                   scaleLabel: {
                     display: true,
-                    labelString: 'Logarithmic scale is used'
+                    labelString: 'Logarithmic scale'
                   }
                 }
               }
@@ -228,7 +260,11 @@
                     maxTicksLimit: 30,
                     callback: generateTimeTitle
                   },
-                  stacked: true
+                  stacked: true,
+                  scaleLabel: {
+                    display: true,
+                    labelString: 'Linear scale'
+                  }
                 },
                 y: {
                   ticks: {
@@ -251,6 +287,14 @@
               callbacks: {
                 title: function(tooltipItems) {
                   return generateBuildTitle(tooltipItems[0].label);
+                },
+                label: function(tooltipItem, data) {
+                  var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                  if (label) {
+                      label += ': ' + generateTimeTitle(tooltipItem.value);
+                  }
+                  return label;
                 }
               }
             }
