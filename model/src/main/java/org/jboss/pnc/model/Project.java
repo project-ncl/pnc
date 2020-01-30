@@ -80,6 +80,7 @@ public class Project implements GenericEntity<Integer> {
     @Size(max=255)
     private String projectUrl;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "project", cascade = { CascadeType.REFRESH, CascadeType.REMOVE })
     private Set<BuildConfiguration> buildConfigurations;
 

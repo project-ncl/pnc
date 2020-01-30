@@ -226,6 +226,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     /**
      * Artifacts which were produced by this build
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany
     @JoinTable(name = "build_record_built_artifact_map", joinColumns = {
             @JoinColumn(
@@ -256,6 +257,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     /**
      * Artifacts which are required external dependencies of this build
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany
     @JoinTable(name = "build_record_artifact_dependencies_map", joinColumns = {
             @JoinColumn(
@@ -313,6 +315,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Example attributes
      * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id", foreignKey = @ForeignKey(name = "fk_build_record_attributes_build_record")))
     @MapKeyColumn(name="key")
@@ -335,6 +338,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(updatable = false)
     private Integer repourLogSize;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.REMOVE)
     private Set<BuildRecordPushResult> buildRecordPushResults;
 

@@ -146,6 +146,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildconfiguration_buildenvironment"))
     private BuildEnvironment buildEnvironment;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToMany(mappedBy = "buildConfigurations")
     private Set<BuildConfigurationSet> buildConfigurationSets;
@@ -175,6 +176,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * The set of build configs upon which this build depends. The build configs contained in dependencies should normally be
      * completed before this build config is executed. Similar to Maven dependencies.
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @NotAudited
     @ManyToMany(cascade = { CascadeType.REFRESH })
     @JoinTable(name = "build_configuration_dep_map", joinColumns = {
@@ -202,10 +204,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * The set of build configs which depend upon this config. These builds must normally be built after this build is
      * completed. This is the reverse relationship as Maven dependencies.
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @NotAudited
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildConfiguration> dependants;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "build_configuration_parameters", joinColumns=@JoinColumn(name = "buildconfiguration_id", foreignKey = @ForeignKey(name = "fk_build_configuration_parameters_bc")))
     @MapKeyColumn(length = 50, name = "key", nullable = false)
