@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.enums.ArtifactQuality;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -41,9 +44,9 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.jboss.pnc.enums.ArtifactQuality;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -56,6 +59,8 @@ import java.util.Set;
  * The repoType repo indicates the format for the identifier field.
  *
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
     uniqueConstraints = @UniqueConstraint(name="uk_artifact_name", columnNames = { "identifier", "sha256", "targetRepository_id"}),

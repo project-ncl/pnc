@@ -17,12 +17,20 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.Type;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
-import org.hibernate.envers.RelationTargetAuditMode;
-import org.jboss.pnc.enums.BuildType;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -48,19 +56,15 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.enums.BuildType;
 
 /**
  * The Class BuildConfiguration cointains the information needed to execute a build of a project, i.e. the sources,
@@ -73,6 +77,8 @@ import org.jboss.pnc.common.util.StringUtils;
  * @author avibelli
  * @author Jakub Bartecek
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Audited
 @Table(uniqueConstraints = @UniqueConstraint(name = "uk_build_configuration_name", columnNames = {"name", "active"}),

@@ -45,6 +45,10 @@
     <class>org.jboss.pnc.model.TargetRepository</class>
     <class>org.jboss.pnc.model.User</class>
 
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+    <validation-mode>AUTO</validation-mode>
+
     <!-- Configure hibernate with HSQL -->
     <properties>
       <property name="javax.persistence.jdbc.driver" value="org.hsqldb.jdbcDriver" />
@@ -64,6 +68,21 @@
       <property name="hibernate.order_inserts" value="true"/>
       <property name="hibernate.order_updates" value="true"/>
       <property name="hibernate.batch_versioned_data" value="true"/>
+
+      <property name="hibernate.cache.use_reference_entries" value="true" />
+      <property name="hibernate.cache.use_second_level_cache" value="true" />
+      <property name="hibernate.cache.use_query_cache" value="false" />
+      <property name="hibernate.cache.region_prefix" value=""/>
+
+      <!-- Use Infinispan second level cache provider -->
+      <property name="hibernate.cache.region.factory_class"
+                value="infinispan"/>
+
+      <!-- Optional: Force using local configuration when only using a single node.
+           Otherwise a clustered configuration is loaded 
+           (see https://infinispan.org/docs/stable/titles/integrating/integrating.html#single_node_standalone_hibernate_application). -->
+      <property name="hibernate.cache.infinispan.cfg"
+                value="org/infinispan/hibernate/cache/commons/builder/infinispan-configs-local.xml"/>
 
     </properties>
 

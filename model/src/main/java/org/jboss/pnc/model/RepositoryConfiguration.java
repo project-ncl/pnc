@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.common.util.UrlUtils;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -32,14 +33,19 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
-import java.util.Set;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.util.UrlUtils;
 
 /**
  * The JPA entity class that contains configuration of the SCM repositories.
  *
  * @author Jakub Bartecek
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = {@UniqueConstraint(name = "uk_repositoryconfiguration_externalurl", columnNames = {"externalurl"}),
         @UniqueConstraint(name = "uk_repositoryconfiguration_externalurlnormalized", columnNames = {"externalurlnormalized"}),

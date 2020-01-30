@@ -18,12 +18,16 @@
 package org.jboss.pnc.model;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -36,9 +40,12 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
-import java.util.Set;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name = "uk_buildconfigurationset_name", columnNames = "name"),
        indexes = @Index(name = "idx_buildconfigurationset_productversion", columnList = "productversion_id")

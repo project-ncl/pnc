@@ -17,9 +17,7 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.enums.BuildPushStatus;
-import org.hibernate.annotations.Type;
-
+import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -34,9 +32,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
+import org.jboss.pnc.enums.BuildPushStatus;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = {@Index(name = "idx_buildrecordpushresult_buildrecord", columnList = "buildRecord_id")})
 public class BuildRecordPushResult implements GenericEntity<Integer> {

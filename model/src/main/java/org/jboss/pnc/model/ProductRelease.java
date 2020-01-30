@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jboss.pnc.enums.SupportLevel;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Enumerated;
@@ -46,6 +49,8 @@ import static org.jboss.pnc.constants.Patterns.PRODUCT_RELEASE_VERSION;
  * product version 1.0 could have three milestones (1.0.0.Build1, 1.0.0.Build2, and 1.0.0.Build3) and two releases (1.0.0.Beta1
  * which was promoted from 1.0.0.Build1 and 1.0.0.GA which was promoted from 1.0.0.Build3).
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = @Index(name = "idx_productrelease_milestone", columnList = "productmilestone_id"))
 public class ProductRelease implements GenericEntity<Integer> {

@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.enums.MilestoneReleaseStatus;
-import org.hibernate.annotations.Type;
+import java.util.Date;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -36,13 +36,18 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import java.util.Date;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
  * Date: 8/30/16
  * Time: 12:57 PM
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = @Index(name = "idx_productmilestonerelease_milestone", columnList = "milestone_id"))
 public class ProductMilestoneRelease implements GenericEntity<Integer> {
