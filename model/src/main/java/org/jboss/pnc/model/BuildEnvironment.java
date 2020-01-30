@@ -17,9 +17,10 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.enums.SystemImageType;
-import org.hibernate.annotations.Type;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -41,14 +42,18 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
+import org.jboss.pnc.enums.SystemImageType;
 
 /**
  * The BuildEnvironment, selected by the Environment Driver to run a build, based on the buildConfiguration requirements
  *
  * @author avibelli
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name="uk_buildenvironment_name", columnNames = "name"),
        indexes = {

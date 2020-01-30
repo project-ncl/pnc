@@ -17,14 +17,16 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.constants.Patterns;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -40,15 +42,17 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.jboss.pnc.constants.Patterns;
 
 /**
  * Represents a product milestone. A single product version, for example "1.0", can be associated with several product
  * milestones such as "1.0.0.build1", "1.0.0.build2", etc. A milestone represents the set of work (build records) that was
  * performed during a development cycle from the previous milestone until the end of the current milestone.
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name="uk_productmilestone_vers_prodversid", columnNames = {"version", "productVersion_id"}),
        indexes = @Index(name = "idx_productmilestone_productversion", columnList = "productversion_id")

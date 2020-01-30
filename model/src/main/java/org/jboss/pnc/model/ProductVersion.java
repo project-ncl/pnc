@@ -17,9 +17,15 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.constants.Patterns;
-import org.jboss.util.StringPropertyReplacer;
+import static org.jboss.pnc.constants.Attributes.BREW_TAG_PREFIX;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -43,19 +49,18 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
-import static org.jboss.pnc.constants.Attributes.BREW_TAG_PREFIX;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.jboss.pnc.constants.Patterns;
+import org.jboss.util.StringPropertyReplacer;
 
 /**
  * Class that contains all the versions for a Product
  *
  * @author avibelli
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name = "uk_productversion_version_prod_id", columnNames = {"version", "product_id"}),
        indexes = {

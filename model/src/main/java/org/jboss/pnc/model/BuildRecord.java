@@ -17,16 +17,19 @@
  */
 package org.jboss.pnc.model;
 
-import org.jboss.pnc.enums.BuildStatus;
-import org.hibernate.annotations.LazyGroup;
-import org.hibernate.annotations.Type;
-import org.jboss.pnc.common.security.Md5;
-import org.jboss.pnc.common.security.Sha256;
-import org.jboss.pnc.common.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Basic;
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -54,16 +57,16 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.LazyGroup;
+import org.hibernate.annotations.Type;
+import org.jboss.pnc.common.security.Md5;
+import org.jboss.pnc.common.security.Sha256;
+import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.enums.BuildStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -74,6 +77,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * that was used to run the build, the system Image where is was run in, and is mapped to a BuildRecordSet, that encapsulates
  * the set of buildRecord that compose a Product
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = {
         @Index(name = "idx_buildrecord_user", columnList = "user_id"),
