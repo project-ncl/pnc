@@ -89,9 +89,11 @@ public class ProductVersion implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_productversion_product"))
     private Product product;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "productVersion")
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "productVersion")
     private Set<ProductMilestone> productMilestones;
 
@@ -99,9 +101,11 @@ public class ProductVersion implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_productversion_currentmilestone"))
     private ProductMilestone currentProductMilestone;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "productVersion")
     private Set<BuildConfiguration> buildConfigurations;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="product_version_attributes", joinColumns=@JoinColumn(name="product_version_id", foreignKey = @ForeignKey(name = "fk_product_version_attributes_productversion")))
     @MapKeyColumn(name="key")
