@@ -379,7 +379,7 @@ public class BuildConfigurationProviderImpl
     public BuildConfigCreationResponse createWithScm(BuildConfigWithSCMRequest request) {
         ValidationBuilder.validateObject(request, WhenCreatingNew.class)
                 .validateNotEmptyArgument().validateAnnotations();
-        BuildConfiguration buildConfiguration = request.getBuildConfiguration();
+        BuildConfiguration buildConfiguration = request.getBuildConfig();
         validateBeforeSaving(buildConfiguration.toBuilder().scmRepository(FAKE_REPOSITORY).build());
         Long buildConfigurationId = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
         MDCUtils.addProcessContext(buildConfigurationId.toString());
