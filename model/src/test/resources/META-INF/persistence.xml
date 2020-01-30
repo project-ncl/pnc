@@ -56,6 +56,15 @@
       <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
 
       <property name="hibernate.generate_statistics" value="true" />
+
+      <!-- Configure batches to improve performance when doing bulk inserts and updates.
+           Do not exceed with the size because when an entity is persisted, Hibernate stores it in the persistence context (in memory) before flushing.
+      -->
+      <property name="hibernate.jdbc.batch_size" value="100"/>
+      <property name="hibernate.order_inserts" value="true"/>
+      <property name="hibernate.order_updates" value="true"/>
+      <property name="hibernate.batch_versioned_data" value="true"/>
+
     </properties>
 
   </persistence-unit>
