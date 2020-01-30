@@ -69,6 +69,9 @@
       <property name="hibernate.order_updates" value="true"/>
       <property name="hibernate.batch_versioned_data" value="true"/>
 
+      <!-- Raise error instead of warning if “HHH000104: firstResult/maxResults specified with collection fetch; applying in memory!” is detected (since Hibernate 5.2.13)-->
+      <property name="hibernate.query.fail_on_pagination_over_collection_fetch" value="true"/>
+
       <property name="hibernate.cache.use_reference_entries" value="true" />
       <property name="hibernate.cache.use_second_level_cache" value="true" />
       <property name="hibernate.cache.use_query_cache" value="false" />

@@ -46,6 +46,9 @@
           <property name="hibernate.order_updates" value="true"/>
           <property name="hibernate.batch_versioned_data" value="true"/>
 
+          <!-- Raise error instead of warning if “HHH000104: firstResult/maxResults specified with collection fetch; applying in memory!” is detected (since Hibernate 5.2.13) -->
+          <property name="hibernate.query.fail_on_pagination_over_collection_fetch" value="true"/>
+
           <!--
               Infinispan second level cache (default Wildfly settings are
               https://infinispan.org/docs/stable/titles/integrating/integrating.html#default_local_configuration_second_level):
