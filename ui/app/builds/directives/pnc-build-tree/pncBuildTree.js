@@ -57,6 +57,26 @@
 
     // --------------------
 
+
+    /**
+     * Calculate and save dependencies & dependents to the vertices of the dependency graph
+     *
+     * @param {Object} dependencyGraph - Dependency graph from this build (or group build)
+     */
+    function calculateDependencies(dependencyGraph) {
+      dependencyGraph.edges.forEach(edge => {
+        let sourceId = edge.source;
+        let targetId = edge.target;
+        let sourceNode = dependencyGraph.vertices[sourceId];
+        let targetNode = dependencyGraph.vertices[targetId];
+
+        sourceNode._dependencyBuildIds = sourceNode._dependencyBuildIds || [];
+        targetNode._dependentBuildIds = targetNode._dependentBuildIds || [];
+        sourceNode._dependencyBuildIds.push(targetId);
+        targetNode._dependentBuildIds.push(sourceId);
+      });
+    }
+
     $ctrl.$onInit = function() {
       $ctrl.buildItem = $ctrl.build ? $ctrl.build : $ctrl.groupBuild;
 
@@ -69,6 +89,7 @@
       }
 
       buildItemPromise.then(function (dependencyGraph) {
+        calculateDependencies(dependencyGraph);
         $ctrl.buildTree = convertGraphToTree(dependencyGraph, { expandLevel: 2 });
       }).finally(function () {
         $ctrl.isLoaded = true;
@@ -160,38 +181,6 @@
       var builtMap = {};
 
       /**
-       * Calculate and returns all dependency (child) build ids as a list
-       *
-       * @param {String} buildId - Build id of current root
-       * @param {Object} dependencyGraph - Dependency graph from this build (or group build)
-       */
-      function getDependencyBuildIds(buildId, dependencyGraph) {
-        var dependencyBuildIds = [];
-        dependencyGraph.edges.forEach(edge => {
-          if (edge.source === buildId) {
-            dependencyBuildIds.push(edge.target);
-          }
-        });
-        return dependencyBuildIds;
-      }
-
-      /**
-       * Calculate and returns all direct dependent (parent) build ids as a list
-       *
-       * @param {String} buildId - Build id of current root
-       * @param {Object} dependencyGraph - Dependency graph from this build (or group build)
-       */
-      function getDependentBuildIds(buildId, dependencyGraph) {
-        var dependentBuildIds = [];
-        dependencyGraph.edges.forEach(edge => {
-          if (edge.target === buildId) {
-            dependentBuildIds.push(edge.source);
-          }
-        });
-        return dependentBuildIds;
-      }
-
-      /**
        * Creates dependency structure
        *
        * @param {Object} build - processed build
@@ -237,7 +226,7 @@
         }
 
         dependencyStructure.push(customBuild);
-        build._dependencyBuildIds = getDependencyBuildIds(build.id, dependencyGraph);
+        build._dependencyBuildIds = dependencyGraph.vertices[build.id]._dependencyBuildIds || [];
         (isBuild ? build._dependencyBuildIds : build._buildIds).forEach(function (buildId) {
           if (dependencyGraph.vertices[buildId] && !builtMap[buildId]) {
             //To prevent loop while calculating the dependency structures.
@@ -249,7 +238,7 @@
         return dependencyStructure;
       }
       if (EntityRecognizer.isBuild($ctrl.buildItem)) {
-        $ctrl.buildItem._dependentBuildIds = getDependentBuildIds($ctrl.buildItem.id, dependencyGraph);
+        $ctrl.buildItem._dependentBuildIds = dependencyGraph.vertices[$ctrl.buildItem.id]._dependentBuildIds || [];
       }
 
       return {
