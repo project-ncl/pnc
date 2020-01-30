@@ -43,7 +43,7 @@ public class BuildConfigWithSCMRequest {
 
     private final Boolean preBuildSyncEnabled;
 
-    private final BuildConfiguration buildConfiguration;
+    private final BuildConfiguration buildConfig;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {

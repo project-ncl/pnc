@@ -118,7 +118,7 @@ public class DeserializerTest {
         String json = "{"
                 + "   \"scmUrl\":\"https://github.com/matedo1/empty_19082666\","
                 + "   \"preBuildSyncEnabled\":true,"
-                + "   \"buildConfiguration\":{"
+                + "   \"buildConfig\":{"
                 + "      \"name\":\"mtest190826\","
                 + "      \"environment\":{"
                 + "         \"id\":8,"
