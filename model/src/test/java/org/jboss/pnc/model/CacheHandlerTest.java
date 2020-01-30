@@ -106,7 +106,7 @@ public class CacheHandlerTest extends AbstractModelTest {
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.BuildEnvironment",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.BuildRecord",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.BuildRecordPushResult",
-                ENTITY_STATS_PREFIX + "org.jboss.pnc.model.License", ENTITY_STATS_PREFIX + "org.jboss.pnc.model.Product",
+                ENTITY_STATS_PREFIX + "org.jboss.pnc.model.Product",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.ProductMilestone",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.ProductMilestoneRelease",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.ProductRelease",
@@ -138,7 +138,7 @@ public class CacheHandlerTest extends AbstractModelTest {
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildEnvironment",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildRecord",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildRecordPushResult",
-                REGION_STATS_PREFIX + "org.jboss.pnc.model.License", REGION_STATS_PREFIX + "org.jboss.pnc.model.Product",
+                REGION_STATS_PREFIX + "org.jboss.pnc.model.Product",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.ProductMilestone",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.ProductMilestoneRelease",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.ProductRelease",
@@ -206,15 +206,25 @@ public class CacheHandlerTest extends AbstractModelTest {
         sessionFactory_1.getStatistics().clear();
 
         // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
-        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 1")
-                .description("Test Build Configuration 1 Description").project(Project.Builder.newBuilder().id(1).build())
-                .repositoryConfiguration(basicRepositoryConfiguration).buildScript("mvn install")
-                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
+        BuildConfiguration buildConfig1 = BuildConfiguration.Builder.newBuilder()
+                .id(1)
+                .name("Test Build Configuration 1")
+                .description("Test Build Configuration 1 Description")
+                .project(Project.Builder.newBuilder().id(1).build())
+                .repositoryConfiguration(basicRepositoryConfiguration)
+                .buildScript("mvn install")
+                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build())
+                .build();
 
-        BuildConfiguration buildConfig2 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 2")
-                .description("Test Build Configuration 2 Description").project(Project.Builder.newBuilder().id(1).build())
-                .repositoryConfiguration(basicRepositoryConfiguration).buildScript("mvn install")
-                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
+        BuildConfiguration buildConfig2 = BuildConfiguration.Builder.newBuilder()
+                .id(2)
+                .name("Test Build Configuration 2")
+                .description("Test Build Configuration 2 Description")
+                .project(Project.Builder.newBuilder().id(1).build())
+                .repositoryConfiguration(basicRepositoryConfiguration)
+                .buildScript("mvn install")
+                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build())
+                .build();
 
         em_1.getTransaction().begin();
         em_1.persist(buildConfig1);
@@ -370,10 +380,15 @@ public class CacheHandlerTest extends AbstractModelTest {
         // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
         insertExampleBuildConfigurations(em_1, basicRepositoryConfiguration);
 
-        BuildConfiguration buildConfig3 = BuildConfiguration.Builder.newBuilder().name("Test Build Configuration 3")
-                .description("Test Build Configuration 3 Description").project(Project.Builder.newBuilder().id(1).build())
-                .repositoryConfiguration(basicRepositoryConfiguration).buildScript("mvn clean install")
-                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build()).build();
+        BuildConfiguration buildConfig3 = BuildConfiguration.Builder.newBuilder()
+                .id(3)
+                .name("Test Build Configuration 3")
+                .description("Test Build Configuration 3 Description")
+                .project(Project.Builder.newBuilder().id(1).build())
+                .repositoryConfiguration(basicRepositoryConfiguration)
+                .buildScript("mvn install")
+                .buildEnvironment(BuildEnvironment.Builder.newBuilder().id(1).build())
+                .build();
 
         // Persist in Session 1
         em_1.getTransaction().begin();
