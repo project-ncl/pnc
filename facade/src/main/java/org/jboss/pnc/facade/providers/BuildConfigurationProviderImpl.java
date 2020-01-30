@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import java.util.Collections;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -186,8 +187,8 @@ public class BuildConfigurationProviderImpl
                     repository.queryByPredicates(withName(buildConfigurationRest.getName()), isNotArchived());
 
             // don't validate against myself
-            if (buildConfigurationFromDB != null &&
-                !buildConfigurationFromDB.getId().equals(Integer.valueOf(buildConfigurationRest.getId()))) {
+            if (buildConfigurationFromDB != null && (buildConfigurationRest.getId() == null ||
+                !buildConfigurationFromDB.getId().equals(Integer.valueOf(buildConfigurationRest.getId())))) {
 
                 return new ConflictedEntryValidator.ConflictedEntryValidationError(
                         buildConfigurationFromDB.getId(),
@@ -443,26 +444,28 @@ public class BuildConfigurationProviderImpl
         buildConfiguration.setRepositoryConfiguration(repositoryConfiguration);
         org.jboss.pnc.model.BuildConfiguration buildConfigurationSaved = repository.save(buildConfiguration);
 
-        Set<Integer> bcSetIds = configuration.getGroupConfigs()
-                .keySet()
-                .stream()
-                .map(Integer::valueOf)
-                .collect(Collectors.toSet());
+        Set<Integer> bcSetIds;
+        if (configuration.getGroupConfigs() == null) {
+            bcSetIds = Collections.emptySet();
+        } else {
+            bcSetIds = configuration.getGroupConfigs()
+                    .keySet()
+                    .stream()
+                    .map(Integer::valueOf)
+                    .collect(Collectors.toSet());
+        }
 
         SCMRepository scmRepository = scmRepositoryMapper.toDTO(repositoryConfiguration);
         BuildConfiguration buildConfig = mapper.toDTO(buildConfigurationSaved);
         try {
-            if (bcSetIds != null) {
-                addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
-            }
+            addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
         } catch (Exception e) {
             logger.error(e.getMessage());
             sendErrorMessage(scmRepository, buildConfig, e.getMessage());
             return;
         }
 
-        BuildConfigurationCreation successMessage
-                = BuildConfigurationCreation.success(scmRepository, buildConfig);
+        BuildConfigurationCreation successMessage = BuildConfigurationCreation.success(scmRepository, buildConfig);
 
         notifier.sendMessage(successMessage);
     }
