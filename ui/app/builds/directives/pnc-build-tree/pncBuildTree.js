@@ -178,16 +178,16 @@
       var ID_SEPARATOR = '-';
 
       var dependencyStructure = [];
+      var builtMap = {};
 
       /**
        * Creates dependency structure
        *
        * @param {Object} build - processed build
        * @param {Object} customBuildParent - parent build for processed build
-       * @param {Array} parentdependencyList - parent dependency array, null if current node causes a loop and its children should be neglected.
        */
-      function createDependencyStructure(build, customBuildParent, level, parentDependencyList) {
-        let dependencyList = parentDependencyList ? Object.assign([], parentDependencyList) : null; //get a hard copy of parentDependencyList
+      function createDependencyStructure(build, customBuildParent, level) {
+
         level = level || 1;
 
         // Build or GroupBuild
@@ -228,16 +228,10 @@
         dependencyStructure.push(customBuild);
         build._dependencyBuildIds = dependencyGraph.vertices[build.id]._dependencyBuildIds || [];
         (isBuild ? build._dependencyBuildIds : build._buildIds).forEach(function (buildId) {
-          //If dependencyList is null, then it means this is a node that already appeared in parent dependency list.
-          if (dependencyList && dependencyGraph.vertices[buildId]) {
-            if (!dependencyList.includes(buildId)) {
-              //If this is a node that not appears in parent dependency list, process it normally.
-              dependencyList.push(buildId);
-              createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1, dependencyList);
-            } else {
-              //If this is a node that have already appeared in parent dependency list, set the dependencyList to null.
-              createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1, null);
-            }
+          if (dependencyGraph.vertices[buildId] && !builtMap[buildId]) {
+            //To prevent loop while calculating the dependency structures.
+            builtMap[buildId] = buildId;
+            createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1);
           }
         });
 
@@ -249,7 +243,7 @@
 
       return {
         dependentStructure: $ctrl.buildItem._dependentBuildIds, // undefined when GroupBuild is being processed
-        dependencyStructure: createDependencyStructure($ctrl.buildItem, NO_PARENT_EXISTS, null, [$ctrl.buildItem.id]),
+        dependencyStructure: createDependencyStructure($ctrl.buildItem, NO_PARENT_EXISTS),
         nodes: dependencyGraph.vertices
       };
     }
