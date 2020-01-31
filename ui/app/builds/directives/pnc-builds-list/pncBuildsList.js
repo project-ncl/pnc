@@ -45,7 +45,7 @@
 
   function Controller() {
     var $ctrl = this;
-    var DEFAULT_FIELDS = ['status', 'id', 'configurationName', 'startTime', 'endTime', 'username'];
+    var DEFAULT_FIELDS = ['status', 'id', 'configurationName', 'submitTime', 'startTime', 'endTime', 'username'];
 
     // -- Controller API --
 
@@ -55,7 +55,7 @@
     // --------------------
 
     $ctrl.$onInit = function() {
-      $ctrl.items = $ctrl.builds ? $ctrl.builds : $ctrl.groupBuilds;  
+      $ctrl.items = $ctrl.builds ? $ctrl.builds : $ctrl.groupBuilds;
       $ctrl.fields = $ctrl.displayFields || DEFAULT_FIELDS;
     };
 
