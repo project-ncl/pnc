@@ -26,8 +26,12 @@ import org.hibernate.stat.CacheRegionStatistics;
 import org.hibernate.stat.CollectionStatistics;
 import org.hibernate.stat.EntityStatistics;
 import org.hibernate.stat.Statistics;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HibernateStatsUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(HibernateStatsUtils.class);
 
     public static String ENTITY_STATS_PREFIX = "hibernate-orm.entity.";
     public static String REGION_STATS_PREFIX = "hibernate-orm.region.";
@@ -113,42 +117,46 @@ public class HibernateStatsUtils {
         if (statistics.isStatisticsEnabled()) {
             String[] cacheRegionNames = statistics.getSecondLevelCacheRegionNames();
             Stream.of(cacheRegionNames).forEach(crN -> {
-                CacheRegionStatistics sLCStats = statistics.getDomainDataRegionStatistics(crN);
-                SortedMap<String, HibernateMetric> sLCStatMap = new TreeMap<String, HibernateMetric>();
+                try {
+                    CacheRegionStatistics sLCStats = statistics.getDomainDataRegionStatistics(crN);
+                    SortedMap<String, HibernateMetric> sLCStatMap = new TreeMap<String, HibernateMetric>();
 
-                sLCStatMap.put("second-level-cache.cache.region.name", createHibernateMetricItem("regionName",
-                        "The name of the region where this data is cached.", sLCStats.getRegionName()));
+                    sLCStatMap.put("second-level-cache.cache.region.name", createHibernateMetricItem("regionName",
+                            "The name of the region where this data is cached.", sLCStats.getRegionName()));
 
-                sLCStatMap.put("second-level-cache.element.count.in.memory",
-                        createHibernateMetricItem("elementCountInMemory",
-                                "The number of elements currently in memory within the cache provider.",
-                                sLCStats.getElementCountInMemory()));
-                sLCStatMap.put("second-level-cache.element.count.on.disk",
-                        createHibernateMetricItem("elementCountOnDisk",
-                                "The number of elements currently stored to disk within the cache provider.",
-                                sLCStats.getElementCountOnDisk()));
-                sLCStatMap.put("second-level-cache.size.in.memory", createHibernateMetricItem("sizeInMemory",
-                        "The size that the in-memory elements take up within the cache provider.", sLCStats.getSizeInMemory()));
+                    sLCStatMap.put("second-level-cache.element.count.in.memory",
+                            createHibernateMetricItem("elementCountInMemory",
+                                    "The number of elements currently in memory within the cache provider.",
+                                    sLCStats.getElementCountInMemory()));
+                    sLCStatMap.put("second-level-cache.element.count.on.disk",
+                            createHibernateMetricItem("elementCountOnDisk",
+                                    "The number of elements currently stored to disk within the cache provider.",
+                                    sLCStats.getElementCountOnDisk()));
+                    sLCStatMap.put("second-level-cache.size.in.memory", createHibernateMetricItem("sizeInMemory",
+                            "The size that the in-memory elements take up within the cache provider.", sLCStats.getSizeInMemory()));
 
-                sLCStatMap.put("second-level-cache.hit.count", createHibernateMetricItem("hitCount",
-                        "The number of successful cache look-ups against the region since the last Statistics clearing.",
-                        sLCStats.getHitCount()));
-                sLCStatMap.put("second-level-cache.miss.count", createHibernateMetricItem("missCount",
-                        "The number of unsuccessful cache look-ups against the region since the last Statistics clearing.",
-                        sLCStats.getMissCount()));
-                Long secondLvlCacheHitsRatio = (sLCStats.getHitCount() + sLCStats.getMissCount()) != 0
-                        ? sLCStats.getHitCount() / (sLCStats.getHitCount() + sLCStats.getMissCount())
-                        : -1L;
-                sLCStatMap.put("second-level-cache.hit.ratio",
-                        createHibernateMetricItem("hitRatio",
-                                "The ratio of successful cache look-ups against the region since the last Statistics clearing.",
-                                secondLvlCacheHitsRatio));
-                sLCStatMap.put("second-level-cache.put.count",
-                        createHibernateMetricItem("putCount",
-                                "The number of cache puts into the region since the last Statistics clearing.",
-                                sLCStats.getPutCount()));
+                    sLCStatMap.put("second-level-cache.hit.count", createHibernateMetricItem("hitCount",
+                            "The number of successful cache look-ups against the region since the last Statistics clearing.",
+                            sLCStats.getHitCount()));
+                    sLCStatMap.put("second-level-cache.miss.count", createHibernateMetricItem("missCount",
+                            "The number of unsuccessful cache look-ups against the region since the last Statistics clearing.",
+                            sLCStats.getMissCount()));
+                    Long secondLvlCacheHitsRatio = (sLCStats.getHitCount() + sLCStats.getMissCount()) != 0
+                            ? sLCStats.getHitCount() / (sLCStats.getHitCount() + sLCStats.getMissCount())
+                            : -1L;
+                    sLCStatMap.put("second-level-cache.hit.ratio",
+                            createHibernateMetricItem("hitRatio",
+                                    "The ratio of successful cache look-ups against the region since the last Statistics clearing.",
+                                    secondLvlCacheHitsRatio));
+                    sLCStatMap.put("second-level-cache.put.count",
+                            createHibernateMetricItem("putCount",
+                                    "The number of cache puts into the region since the last Statistics clearing.",
+                                    sLCStats.getPutCount()));
 
-                secondLevelCachesStatMap.put(REGION_STATS_PREFIX + crN, sLCStatMap);
+                    secondLevelCachesStatMap.put(REGION_STATS_PREFIX + crN, sLCStatMap);
+                } catch (IllegalArgumentException e) {
+                    logger.error("The region name could not be resolved: {}", e);
+                }
             });
         }
 
