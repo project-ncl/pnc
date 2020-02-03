@@ -26,6 +26,7 @@
         <configuration>
             <property name="jbossHome">${test.server.build.dir}</property>
             <property name="javaVmArguments">--add-modules=java.se</property>
+<!--            <property name="javaVmArguments">&#45;&#45;add-modules=java.se -Xmx2G -Xrunjdwp:transport=dt_socket,address=1044,server=y,suspend=y</property>-->
         </configuration>
     </container>
 

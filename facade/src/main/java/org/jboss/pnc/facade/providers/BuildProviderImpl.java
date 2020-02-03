@@ -84,6 +84,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -106,12 +107,14 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.build
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDependency;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactProduced;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withAttribute;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIds;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutAttribute;
 
 @PermitAll
 @Stateless
@@ -212,6 +215,9 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         BuildRecord buildRecord = getBuildRecord(id);
         if(null == key){
             throw new IllegalArgumentException("Attribute key must not be null");
+        }
+        if(!key.matches("[a-zA-Z_0-9]+")){
+            throw new IllegalArgumentException("Attribute key must match [a-zA-Z_0-9]+");
         }
         switch (key) {
             case Attributes.BUILD_BREW_NAME: // workaround for NCL-4889
@@ -597,6 +603,42 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
                 .collect(Collectors.toSet());
         buildRecord.setDependencies(artifacts);
         repository.save(buildRecord);
+    }
+
+    public Page<Build> getByAttribute(BuildPageInfo buildPageInfo, Map<String, String> attributeConstraints) {
+        Set<Predicate<BuildRecord>> predicates = new HashSet<>();
+        for (Map.Entry<String, String> entry : attributeConstraints.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (key.startsWith("!")) {
+                withoutAttribute(key.substring(1));
+            } else {
+                withAttribute(key, value);
+            }
+        }
+
+        Predicate<BuildRecord> queryPredicate = rsqlPredicateProducer
+                .getCriteriaPredicate(BuildRecord.class, buildPageInfo.getQ());
+        predicates.add(queryPredicate);
+
+        Predicate<BuildRecord>[] predicatesArray = predicates.toArray(new Predicate[predicates.size()]);
+
+        PageInfo pageInfo = toPageInfo(buildPageInfo);
+        SortInfo sortInfo = rsqlPredicateProducer.getSortInfo(type, buildPageInfo.getSort());
+        List<BuildRecord> resultList = ((BuildRecordRepository) BuildProviderImpl.this.repository)
+                .queryWithPredicatesUsingCursor(pageInfo, sortInfo, predicatesArray);
+
+        int hits = repository.count(predicatesArray);
+
+        return new Page<>(
+                buildPageInfo.getPageIndex(),
+                buildPageInfo.getPageSize(),
+                hits,
+                resultList.stream().map(b -> mapper.toDTO(b)).collect(Collectors.toList()));
+    }
+
+    private DefaultPageInfo toPageInfo(BuildPageInfo buildPageInfo) {
+        return new DefaultPageInfo(buildPageInfo.getPageIndex() * buildPageInfo.getPageSize(), buildPageInfo.getPageSize());
     }
 
     /**

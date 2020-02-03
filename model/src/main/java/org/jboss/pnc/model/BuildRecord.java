@@ -17,23 +17,21 @@
  */
 package org.jboss.pnc.model;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.LazyGroup;
+import org.hibernate.annotations.Type;
+import org.jboss.pnc.common.security.Md5;
+import org.jboss.pnc.common.security.Sha256;
+import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.enums.BuildStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -46,7 +44,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PersistenceException;
 import javax.persistence.PrePersist;
@@ -56,17 +53,18 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.LazyGroup;
-import org.hibernate.annotations.Type;
-import org.jboss.pnc.common.security.Md5;
-import org.jboss.pnc.common.security.Sha256;
-import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.enums.BuildStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -316,11 +314,9 @@ public class BuildRecord implements GenericEntity<Integer> {
      * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="build_record_attributes", joinColumns=@JoinColumn(name="build_record_id", foreignKey = @ForeignKey(name = "fk_build_record_attributes_build_record")))
-    @MapKeyColumn(name="key")
-    @Column(name="value")
-    private Map<String, String> attributes = new HashMap<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "build_record_id", foreignKey = @ForeignKey(name = "fk_build_record_attributes_build_record"))
+    private Set<BuildRecordAttribute> attributes = new HashSet<>();
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
@@ -673,24 +669,49 @@ public class BuildRecord implements GenericEntity<Integer> {
         return "BuildRecord [id=" + id + ", buildConfiguration=" + buildConfigurationAudited + ", status=" + status + "]";
     }
 
-    public Map<String, String> getAttributes() {
+    public Set<BuildRecordAttribute> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Map<String, String> attributes) {
+    public Map<String,String> getAttributesMap() {
+        return attributes.stream().collect(Collectors.toMap(BuildRecordAttribute::getKey, BuildRecordAttribute::getValue));
+    }
+
+    public void setAttributes(Set<BuildRecordAttribute> attributes) {
         this.attributes = attributes;
     }
 
     public String getAttribute(String key) {
-        return attributes.get(key);
+        Optional<BuildRecordAttribute> attribute = getAttributeEntity(key);
+        if (attribute.isPresent()) {
+            return attribute.get().getValue();
+        } else {
+            return null;
+        }
+    }
+
+    public Optional<BuildRecordAttribute> getAttributeEntity(String key) {
+        return attributes.stream().filter(a -> a.getKey().equals(key)).findAny();
     }
 
     public String putAttribute(String key, String value) {
-        return attributes.put(key, value);
+        if (this.id == null) {
+            throw new PersistenceException("Build record id must be set before adding the attributes.");
+        }
+        Optional<BuildRecordAttribute> old = getAttributeEntity(key);
+        BuildRecordAttribute attribute = new BuildRecordAttribute(this.id, key, value);
+        old.ifPresent(attributes::remove);
+        attributes.add(attribute);
+        if (old.isPresent()) {
+            return old.get().getValue();
+        } else {
+            return null;
+        }
     }
 
     public void removeAttribute(String key) {
-        attributes.remove(key);
+        Optional<BuildRecordAttribute> attribute = getAttributeEntity(key);
+        attribute.ifPresent(attributes::remove);
     }
 
     public Integer getBuildConfigurationId() {
@@ -941,7 +962,6 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setScmTag(scmTag);
             buildRecord.setStatus(status);
             buildRecord.setBuildEnvironment(buildEnvironment);
-            buildRecord.setAttributes(attributes);
             buildRecord.setSshCommand(sshCommand);
             buildRecord.setSshPassword(sshPassword);
             buildRecord.setExecutionRootName(executionRootName);
@@ -997,6 +1017,10 @@ public class BuildRecord implements GenericEntity<Integer> {
 
             buildRecord.setDependentBuildRecordIds(dependentBuildRecordIds);
             buildRecord.setDependencyBuildRecordIds(dependencyBuildRecordIds);
+
+            Set<BuildRecordAttribute> buildRecordAttributes = attributes.entrySet().stream()
+                    .map(kv -> new BuildRecordAttribute(id, kv.getKey(), kv.getValue())).collect(Collectors.toSet());
+            buildRecord.setAttributes(buildRecordAttributes);
 
             return buildRecord;
         }
