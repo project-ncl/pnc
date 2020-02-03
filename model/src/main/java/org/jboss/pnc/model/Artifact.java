@@ -214,6 +214,28 @@ public class Artifact implements GenericEntity<Integer> {
         distributedInProductMilestones = new HashSet<>();
     }
 
+    // Required for the minimized query in ArtifactPredicates (NCL-5386)
+    Artifact(Integer id, String identifier, Artifact.Quality artifactQuality, TargetRepository targetRepository, String md5,
+            String sha1, String sha256, String filename, String deployPath, Date importDate, String originUrl, Long size) {
+
+        this.id = id;
+        this.identifier = identifier;
+        this.artifactQuality = artifactQuality;
+        this.targetRepository = targetRepository;
+        this.md5 = md5;
+        this.sha1 = sha1;
+        this.sha256 = sha256;
+        this.filename = filename;
+        this.deployPath = deployPath;
+        this.importDate = importDate;
+        this.originUrl = originUrl;
+        this.size = size;
+
+        buildRecords = new HashSet<>();
+        dependantBuildRecords = new HashSet<>();
+        distributedInProductMilestones = new HashSet<>();
+    }
+
     @PreRemove
     public void preRemove() {
         if(artifactQuality != Quality.TEMPORARY) {

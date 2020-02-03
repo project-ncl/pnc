@@ -59,7 +59,9 @@ import static org.jboss.pnc.model.TargetRepository.Type.MAVEN;
 import static org.jboss.pnc.model.TargetRepository.Type.NPM;
 import static org.jboss.pnc.rest.utils.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordIdMinimized;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordIdMinimized;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
@@ -118,6 +120,11 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildRecordId));
+    }
+
+    public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecordMinimized(int pageIndex, int pageSize, String sortingRsql, String query,
+            int buildRecordId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordIdMinimized(buildRecordId));
     }
 
     @Deprecated
@@ -183,6 +190,11 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
             int buildRecordId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordId(buildRecordId));
+    }
+
+    public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecordMinimized(int pageIndex, int pageSize, String sortingRsql, String query,
+            int buildRecordId) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordIdMinimized(buildRecordId));
     }
 
     public CollectionInfo<ArtifactRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query,
