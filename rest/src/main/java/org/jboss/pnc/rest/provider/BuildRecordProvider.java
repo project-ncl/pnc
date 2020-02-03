@@ -49,8 +49,8 @@ import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.predicates.ProjectPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -826,22 +826,20 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         return (int) Math.ceil( (totalRunningBuilds + totalDbBuilds) / (double) pageSize );
     }
 
-
     public Map<String, String> putAttribute(Integer id, String name, String value) {
         BuildRecord buildRecord = repository.queryById(id);
         buildRecord.putAttribute(name, value);
-        return buildRecord.getAttributes();
+        return getAttributes(id);
     }
 
     public void removeAttribute(Integer id, String name) {
         BuildRecord buildRecord = repository.queryById(id);
         buildRecord.removeAttribute(name);
-
     }
 
     public Map<String, String> getAttributes(Integer id) {
         BuildRecord buildRecord = repository.queryById(id);
-        return buildRecord.getAttributes();
+        return buildRecord.getAttributesMap();
     }
 
     public Collection<BuildRecordRest> getByAttribute(String key, String value) {

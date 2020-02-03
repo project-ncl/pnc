@@ -133,7 +133,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.scmRepoURL = buildRecord.getScmRepoURL();
         this.scmRevision = buildRecord.getScmRevision();
         this.scmTag = buildRecord.getScmTag();
-        this.attributes = buildRecord.getAttributes();
+        this.attributes = buildRecord.getAttributesMap();
         this.buildConfigurationId = buildRecord.getBuildConfigurationId();
         this.buildConfigurationRev = buildRecord.getBuildConfigurationRev();
 

@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.mapper;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.model.BuildRecord;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.MappingTarget;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Workaround for NCL-4889.
@@ -33,7 +34,7 @@ public class BrewNameWorkaround {
 
     @BeforeMapping
     public static void mockBrewAttributes(BuildRecord build, @MappingTarget Build.Builder dtoBuilder) {
-        Map<String, String> attributes = new HashMap<>(build.getAttributes());
+        Map<String, String> attributes = new HashMap<>(build.getAttributesMap());
 
         if (build.getExecutionRootName() != null) {
             attributes.putIfAbsent(Attributes.BUILD_BREW_NAME, build.getExecutionRootName());

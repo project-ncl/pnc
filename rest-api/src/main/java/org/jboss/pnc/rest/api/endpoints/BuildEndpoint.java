@@ -35,7 +35,6 @@ import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
-import org.jboss.pnc.rest.api.parameters.BuildAttributeParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
@@ -91,6 +90,10 @@ public interface BuildEndpoint{
     static final String BUILD_STATUS = "Status of the build";
 
     @Operation(summary = "Gets all builds.",
+            description = "Query by attribute: when the attributes are specified only the completed builds are searched. "
+                    + "The query format is: attribute=KEY:VALUE&attribute=KEY2:VALUE2 "
+                    + "which translates to 'where KEY=VALUE AND KEY2=VALUE2' "
+                    + "To search for the records without certain key the key must be prefixed with '!': attribute=!KEY",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = BuildPage.class))),
@@ -102,7 +105,7 @@ public interface BuildEndpoint{
     @GET
     Page<Build> getAll(@Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters filterParams,
-            @BeanParam BuildAttributeParameters attributes);
+            @QueryParam("attribute") List<String> attributes);
 
     @Operation(summary = "Gets specific build.",
             responses = {
@@ -228,7 +231,7 @@ public interface BuildEndpoint{
     @Path("/{id}/attributes")
     void addAttribute(
             @Parameter(description = B_ID) @PathParam("id") String id,
-            @Parameter(description = "Attribute key", required = true) @QueryParam("key") String key,
+            @Parameter(description = "Attribute key. The key must match '[a-zA-Z_0-9]+'.", required = true) @QueryParam("key") String key,
             @Parameter(description = "Attribute value", required = true) @QueryParam("value") String value);
 
     @Operation(summary = "Remove attribute from a specific build.",

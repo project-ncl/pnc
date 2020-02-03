@@ -25,6 +25,8 @@ import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildConfigurationSet_;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordAttribute;
+import org.jboss.pnc.model.BuildRecordAttribute_;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductMilestone;
@@ -36,7 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 import javax.persistence.criteria.Subquery;
@@ -210,8 +211,23 @@ public class BuildRecordPredicates {
 
     public static Predicate<BuildRecord> withAttribute(String key, String value) {
         return (root, query, cb) -> {
-            MapJoin<Object, Object, Object> mapJoinAttributes = root.joinMap(BuildRecord_.attributes.getName());
-            return query.where(cb.and(cb.equal(mapJoinAttributes.key(), key), cb.equal(mapJoinAttributes.value(), value))).getRestriction();
+            SetJoin<BuildRecord, BuildRecordAttribute> joinAttributer = root.join(BuildRecord_.attributes);
+            return query.where(cb.and(
+                    cb.equal(joinAttributer.get(BuildRecordAttribute_.key), key)),
+                    cb.equal(joinAttributer.get(BuildRecordAttribute_.value), value)).getRestriction();
+        };
+    }
+
+    public static Predicate<BuildRecord> withoutAttribute(String key) {
+        return (root, query, cb) -> {
+            Subquery<String> subquery = query.subquery(String.class);
+            Root<BuildRecordAttribute> subRoot = subquery.from(BuildRecordAttribute.class);
+            subquery.select(subRoot.get(BuildRecordAttribute_.key));
+            subquery.where(
+                    cb.and(
+                        cb.equal(subRoot.get(BuildRecordAttribute_.key), key),
+                        cb.equal(root.get(BuildRecord_.id), subRoot.get(BuildRecordAttribute_.buildRecordId))));
+            return query.where(cb.not(cb.exists(subquery))).getRestriction();
         };
     }
 

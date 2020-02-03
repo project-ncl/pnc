@@ -35,7 +35,6 @@ import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
-import org.jboss.pnc.rest.api.parameters.BuildAttributeParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.spi.coordinator.ProcessException;
@@ -46,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -54,7 +54,9 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -119,8 +121,28 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public Page<Build> getAll(PageParameters pageParams, BuildsFilterParameters filterParams, BuildAttributeParameters attributes) {
-        return provider.getBuilds(toBuildPageInfo(pageParams, filterParams));
+    public Page<Build> getAll(PageParameters pageParams, BuildsFilterParameters filterParams, List<String> attributes) {
+        if (attributes != null && !attributes.isEmpty()) {
+            Map<String,String> attributeConstraints = parseAttributes(attributes);
+            return provider.getByAttribute(toBuildPageInfo(pageParams, filterParams), attributeConstraints);
+        } else {
+            return provider.getBuilds(toBuildPageInfo(pageParams, filterParams));
+        }
+    }
+
+    private Map<String, String> parseAttributes(List<String> attributes) {
+        Map<String, String> map = new HashMap<>();
+        for (String attribute : attributes) {
+            String[] kv = attribute.split(":");
+            if (kv.length == 2) {
+                map.put(kv[0],kv[1]);
+            } else if (kv.length == 1) {
+                map.put(kv[0],"");
+            } else {
+                throw new BadRequestException("Invalid 'attributes' query parameters.");
+            }
+        }
+        return map;
     }
 
     @Override

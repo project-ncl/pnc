@@ -17,16 +17,18 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.datastore.DeploymentFactory;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -43,7 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.util.Date;
 import java.util.List;
 
@@ -202,6 +203,37 @@ public class BuildRecordRepositoryTest {
         assertEquals("110000", dependencyGraph.getMissingNodeIds().get(0) + "");
     }
 
+    @InSequence(4)
+    @Test
+    public void shouldGetRecordsWithoutAttributeKey() {
+        // given
+        Date now = new Date();
+        BuildRecord buildRecord0 = initBuildRecordBuilder(200000)
+                .endTime(now)
+                .temporaryBuild(true)
+                .attribute("ATTR1", "X")
+                .attribute("TEST", "true") //exclude all other builds
+                .build();
+        buildRecordRepository.save(buildRecord0);
+
+        BuildRecord buildRecord1 = initBuildRecordBuilder(200001)
+                .endTime(now)
+                .temporaryBuild(true)
+                .attribute("ATTR1", "X")
+                .attribute("ATTR2", "X")
+                .attribute("TEST", "true")
+                .build();
+        buildRecordRepository.save(buildRecord1);
+
+        //when
+        List<BuildRecord> result = buildRecordRepository.queryWithPredicates(
+                BuildRecordPredicates.withoutAttribute("ATTR2"),
+                BuildRecordPredicates.withAttribute("TEST", "true"));
+
+        //then
+        logger.debug("Builds {}", result);
+        Assertions.assertThat(result.size()).isEqualTo(1);
+    }
 
     private BuildRecord.Builder initBuildRecordBuilder(Integer id) {
         if(user == null) {

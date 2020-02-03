@@ -27,6 +27,7 @@ import org.jboss.pnc.enums.BuildStatus;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 public interface BuildProvider extends Provider<Integer, org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
 
@@ -88,4 +89,6 @@ public interface BuildProvider extends Provider<Integer, org.jboss.pnc.model.Bui
     void setBuiltArtifacts(String id, List<String> artifactIds);
 
     void setDependentArtifacts(String id, List<String> artifactIds);
+
+    Page<Build> getByAttribute(BuildPageInfo pageInfo, Map<String, String> attributeConstraints);
 }

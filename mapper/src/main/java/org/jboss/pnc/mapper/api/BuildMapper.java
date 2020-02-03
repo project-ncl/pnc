@@ -67,7 +67,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
             "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize",
             "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
             "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
-            "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds"
+            "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap"
     })
     Build toDTO(BuildRecord dbEntity);
 
@@ -88,7 +88,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
             "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
             "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog", "repourLogMd5", "repourLogSha256",
             "repourLogSize", "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev", "buildEnvironment",
-            "buildConfigurationAudited" ,"dependentBuildRecordIds", "dependencyBuildRecordIds", "user", "attributes",
+            "buildConfigurationAudited" ,"dependentBuildRecordIds", "dependencyBuildRecordIds", "user", "attributes", "attributesMap",
             "buildConfigurationAuditedIdRev", "buildOutputChecksum"
     })
     BuildRef toRef(BuildRecord dbEntity);
@@ -121,6 +121,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "buildOutputChecksum", ignore = true)
     @Mapping(target = "buildRecordPushResults", ignore = true)
     @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "attributesMap", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {"project", "scmRepository", "progress"})
     BuildRecord toEntity(Build dtoEntity);
 
