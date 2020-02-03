@@ -228,9 +228,7 @@
         dependencyStructure.push(customBuild);
         build._dependencyBuildIds = dependencyGraph.vertices[build.id]._dependencyBuildIds || [];
         (isBuild ? build._dependencyBuildIds : build._buildIds).forEach(function (buildId) {
-          if (dependencyGraph.vertices[buildId] && !builtMap[buildId]) {
-            //To prevent loop while calculating the dependency structures.
-            builtMap[buildId] = buildId;
+          if (dependencyGraph.vertices[buildId]) {
             createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1);
           }
         });
