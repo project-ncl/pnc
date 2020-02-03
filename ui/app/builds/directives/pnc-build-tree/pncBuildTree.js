@@ -178,7 +178,6 @@
       var ID_SEPARATOR = '-';
 
       var dependencyStructure = [];
-      var builtMap = {};
 
       /**
        * Creates dependency structure
