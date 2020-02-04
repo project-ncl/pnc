@@ -15,6 +15,7 @@ bin
 
 # Netbeans
 nb-configuration.xml
+nbactions*
 
 # DB test file
 indy-repository-manager/derby.log
