@@ -17,12 +17,12 @@
     limitations under the License.
 
 -->
-<div class="panel panel-default" ng-if="show()">
+<div class="panel panel-default" ng-if="show()" style="">
   <div class="panel-heading">
     <div class="spinner spinner-sm pull-right" ng-hide="page.isLoaded"></div>
     <h3 class="panel-title">My Builds</h3>
   </div>
 
   <pnc-builds-list builds="page.data" display-fields="displayFields"></pnc-builds-list>
-  <pnc-page-controls class="pull-right m-t-10" pnc-page="page" ng-if="page"></pnc-page-controls>
+  <pnc-page-controls class="pull-right" pnc-page="page" ng-if="page"></pnc-page-controls>
 </div>
