@@ -229,10 +229,11 @@ public class DefaultBuildExecutor implements BuildExecutor {
                     serviceAccountToken,
                     repositoryType,
                     buildExecutionSession.getBuildExecutionConfiguration().getGenericParameters());
-            ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.REPO_SETTING_UP.toString(), "Repository setup complete.");
             return buildRepository;
         } catch (Throwable e) {
             throw new BuildProcessException(e);
+        } finally {
+            ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.REPO_SETTING_UP.toString(), "Repository setup complete.");
         }
     }
 
