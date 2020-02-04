@@ -21,7 +21,7 @@ html {
   min-height: 100%;
 }
 body {
-  padding-bottom: 60px;
+  padding-bottom: 40px;
 }
 
 .notification-area {
@@ -37,7 +37,7 @@ body {
   position: absolute;
   bottom: 0;
   width: 100%;
-  height: 60px;
+  height: 41px;
   text-align: center;
   background-color: #fafafa;
   border-top: 1px solid #d0d0d0;
@@ -119,7 +119,7 @@ button.debutton {
 /* angular xeditable override */
 form .editable-wrap {
   width: 100%;
-  
+
 }
 
 #loading-bar .bar {
