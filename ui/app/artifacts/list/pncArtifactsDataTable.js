@@ -104,15 +104,6 @@
     }, {
       id: 'targetRepository.repositoryType',
       title: 'Repo Type',
-    }, {
-      id: 'md5',
-      title: 'md5',
-    }, {
-      id: 'sha1',
-      title: 'sha1',
-    }, {
-      id: 'sha256',
-      title: 'sha256',
     }];
 
 
