@@ -333,7 +333,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
             @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
         this.getSpecific(id);
-        return fromCollection(artifactProvider.getBuiltArtifactsForBuildRecordMinimized(pageIndex, pageSize, sort, q, id));
+        return fromCollection(artifactProvider.getBuiltArtifactsForBuildRecordMinimized(pageIndex, pageSize, id));
     }
 
     @ApiOperation(value = "[role:admin] Set built artifacts on the BuildRecord. Note that operation replaces existing collection!")

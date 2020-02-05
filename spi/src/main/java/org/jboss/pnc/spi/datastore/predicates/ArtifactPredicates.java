@@ -41,54 +41,9 @@ public class ArtifactPredicates {
         };
     }
 
-    public static Predicate<Artifact> withBuildRecordIdMinimized(Integer buildRecordId) {
-        return (root, query, cb) -> {
-            Join<Artifact, BuildRecord> buildRecords = root.join(Artifact_.buildRecords);
-            // Needs to have a corresponding contructor in Artifact entity
-            // See https://stackoverflow.com/a/12702437
-            query.multiselect(root.get(Artifact_.id),
-                    root.get(Artifact_.identifier),
-                    root.get(Artifact_.artifactQuality),
-                    root.get(Artifact_.targetRepository),
-                    root.get(Artifact_.md5),
-                    root.get(Artifact_.sha1),
-                    root.get(Artifact_.sha256),
-                    root.get(Artifact_.filename),
-                    root.get(Artifact_.deployPath),
-                    root.get(Artifact_.importDate),
-                    root.get(Artifact_.originUrl),
-                    root.get(Artifact_.size)
-                    );
-            return cb.equal(buildRecords.get(BuildRecord_.id), buildRecordId);
-        };
-    }
-
     public static Predicate<Artifact> withDependantBuildRecordId(Integer buildRecordId) {
         return (root, query, cb) -> {
             Join<Artifact, BuildRecord> buildRecords = root.join(Artifact_.dependantBuildRecords);
-            return cb.equal(buildRecords.get(BuildRecord_.id), buildRecordId);
-        };
-    }
-
-    public static Predicate<Artifact> withDependantBuildRecordIdMinimized(Integer buildRecordId) {
-
-        return (root, query, cb) -> {
-            Join<Artifact, BuildRecord> buildRecords = root.join(Artifact_.dependantBuildRecords);
-            // Needs to have a corresponding contructor in Artifact entity
-            // See https://stackoverflow.com/a/12702437
-            query.multiselect(root.get(Artifact_.id),
-                    root.get(Artifact_.identifier),
-                    root.get(Artifact_.artifactQuality),
-                    root.get(Artifact_.targetRepository),
-                    root.get(Artifact_.md5),
-                    root.get(Artifact_.sha1),
-                    root.get(Artifact_.sha256),
-                    root.get(Artifact_.filename),
-                    root.get(Artifact_.deployPath),
-                    root.get(Artifact_.importDate),
-                    root.get(Artifact_.originUrl),
-                    root.get(Artifact_.size)
-                    );
             return cb.equal(buildRecords.get(BuildRecord_.id), buildRecordId);
         };
     }

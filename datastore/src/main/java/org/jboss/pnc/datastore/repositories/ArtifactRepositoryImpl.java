@@ -64,4 +64,14 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
         return ((ArtifactSpringRepository)springRepository).countMinimizedDependencyArtifactsForBuildRecord(buildRecordId);
     }
 
+    @Override
+    public List<RawArtifact> getMinimizedBuiltArtifactsForBuildRecord(Integer buildRecordId, int pageSize, int offset) {
+        return ((ArtifactSpringRepository)springRepository).getMinimizedBuiltArtifactsForBuildRecord(buildRecordId, pageSize, offset);
+    }
+
+    @Override
+    public Object[] countMinimizedBuiltArtifactsForBuildRecord(Integer buildRecordId) {
+        return ((ArtifactSpringRepository)springRepository).countMinimizedBuiltArtifactsForBuildRecord(buildRecordId);
+    }
+
 }
