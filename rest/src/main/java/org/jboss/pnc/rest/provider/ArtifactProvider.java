@@ -50,6 +50,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -232,7 +234,12 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
                 artifactRest.setSha256(rawArtifact.getSha256());
                 artifactRest.setSize(rawArtifact.getSize());
                 artifactRest.setOriginUrl(rawArtifact.getOriginUrl());
+                artifactRest.setBuildRecordIds(Collections.emptySet());
+                artifactRest.setDependantBuildRecordIds(Collections.emptySet());
                 artifactRest.setTargetRepository(targetRepositoryRest);
+                Artifact artifact = artifactRest.toDBEntityBuilder().build();
+                artifactRest.setDeployUrl(getDeployUrl(artifact));
+                artifactRest.setPublicUrl(getPublicUrl(artifact));
 
                 content.add(artifactRest);
             }
