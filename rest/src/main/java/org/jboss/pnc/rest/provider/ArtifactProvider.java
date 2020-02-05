@@ -204,7 +204,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         Object[] countArtifacts = ((ArtifactRepository)repository).countMinimizedDependencyArtifactsForBuildRecord(buildRecordId);
 
         logger.debug("countArtifacts: {}, countArtifacts[0]: {}", countArtifacts, countArtifacts[0]);
-        int count = (int)countArtifacts[0];
+        int count = ((Number)countArtifacts[0]).intValue();
         int totalPages = (int) Math.ceil( (count) / (double) pageSize );
         logger.debug("totalPages: {}", totalPages);
 
