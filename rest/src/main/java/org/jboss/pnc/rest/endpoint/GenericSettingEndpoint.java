@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoint;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.jboss.pnc.rest.provider.GenericSettingProvider;
@@ -68,7 +69,7 @@ public class GenericSettingEndpoint {
     })
     @POST
     @Path("announcement-banner")
-    public Response setAnnouncementBanner(BannerRest banner) {
+    public Response setAnnouncementBanner(@ApiParam(value = "Banner text", required = true) BannerRest banner) {
         genericSettingProvider.setAnnouncementBanner(banner.getBanner());
         return Response.ok().build();
     }
@@ -91,7 +92,7 @@ public class GenericSettingEndpoint {
     })
     @POST
     @Path("activate-maintenance-mode")
-    public Response activateMaintenanceMode(String reason) {
+    public Response activateMaintenanceMode(@ApiParam(value = "Reason to activate Maintenance Mode", required = true) String reason) {
         genericSettingProvider.activateMaintenanceMode(reason);
         return Response.ok().build();
     }
