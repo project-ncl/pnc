@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.api.endpoints;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -72,7 +73,7 @@ public interface GenericSettingEndpoint {
             })
     @POST
     @Path("announcement-banner")
-    public void setAnnouncementBanner(String banner);
+    public void setAnnouncementBanner(@Parameter(description = "Announcement Banner text", required = true) String banner);
 
     @Operation(summary = "Get status of maintenance mode",
             responses = {
@@ -98,7 +99,7 @@ public interface GenericSettingEndpoint {
             })
     @POST
     @Path("activate-maintenance-mode")
-    public void activateMaintenanceMode(String reason);
+    public void activateMaintenanceMode(@Parameter(description = "Reason to activate Maintenance Mode", required = true) String reason);
 
     @Operation(summary = "Deactivate maintenance mode. needs to be admin",
             responses = {
