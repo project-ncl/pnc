@@ -20,6 +20,7 @@ package org.jboss.pnc.mock.repository;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,6 +32,16 @@ public class ArtifactRepositoryMock extends RepositoryMock<Artifact> implements 
 
     @Override
     public Set<Artifact> withIdentifierAndSha256s(Set<Artifact.IdentifierSha256> identifierSha256s) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<RawArtifact> getMinimizedDependencyArtifactsForBuildRecord(Integer buildRecordId, int pageSize, int offset) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object[] countMinimizedDependencyArtifactsForBuildRecord(Integer buildRecordId) {
         throw new UnsupportedOperationException();
     }
 }
