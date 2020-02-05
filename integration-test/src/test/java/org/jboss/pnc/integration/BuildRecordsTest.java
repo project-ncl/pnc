@@ -355,6 +355,16 @@ public class BuildRecordsTest {
     }
 
     @Test
+    public void shouldGetOnlyMinimizedDependencyArtifacts() {
+        // when
+        Collection<ArtifactRest> artifacts = artifactProvider.getDependencyArtifactsForBuildRecordMinimized(0, 999, buildRecord2Id).getContent();
+
+        // then
+        assertThat(artifacts).hasSize(2);
+        assertThat(artifacts).are(new HasEmptyBuildRecordsCollections());
+    }
+
+    @Test
     public void shouldGetOnlyBuiltArtifacts() {
         // when
         Collection<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 999, null, null, buildRecord2Id).getContent();
@@ -606,6 +616,13 @@ public class BuildRecordsTest {
         @Override
         public boolean matches(ArtifactRest artifactRest) {
             return artifactRest.getBuildRecordIds().size() > 0;
+        }
+    }
+
+    class HasEmptyBuildRecordsCollections extends Condition<ArtifactRest> {
+        @Override
+        public boolean matches(ArtifactRest artifactRest) {
+            return artifactRest.getBuildRecordIds().isEmpty() && artifactRest.getDependantBuildRecordIds().isEmpty();
         }
     }
 
