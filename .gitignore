@@ -6,6 +6,7 @@ settings.xml
 .project
 .settings
 .classpath
+.factorypath
 /eclipse-target
 bin
 
