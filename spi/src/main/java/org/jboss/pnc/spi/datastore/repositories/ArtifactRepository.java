@@ -36,6 +36,11 @@ public interface ArtifactRepository extends Repository<Artifact, Integer> {
 
     Object[] countMinimizedDependencyArtifactsForBuildRecord(Integer buildRecordId);
 
+    List<RawArtifact> getMinimizedBuiltArtifactsForBuildRecord(Integer buildRecordId, int pageSize, int offset);
+
+    Object[] countMinimizedBuiltArtifactsForBuildRecord(Integer buildRecordId);
+
+
     public interface RawArtifact {
         Integer getId();
         Artifact.Quality getArtifactQuality();

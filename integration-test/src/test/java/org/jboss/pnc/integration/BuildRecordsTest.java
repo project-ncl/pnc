@@ -376,6 +376,17 @@ public class BuildRecordsTest {
     }
 
     @Test
+    public void shouldGetOnlyMinimizedBuiltArtifacts() {
+        // when
+        // making so that offset is not 0 to avoid org.hsqldb.HsqlException with offset equal to 0
+        Collection<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecordMinimized(1, 1, buildRecord2Id).getContent();
+
+        // then
+        assertThat(artifacts).hasSize(1);
+        assertThat(artifacts).are(new HasEmptyBuildRecordsCollections());
+    }
+
+    @Test
     public void shouldGetBuiltArtifactsSortedByFilename() {
         //when
         CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=filename", null, buildRecordWithArtifactsId);

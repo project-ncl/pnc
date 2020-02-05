@@ -76,4 +76,50 @@ public interface ArtifactSpringRepository extends JpaRepository<Artifact, Intege
             nativeQuery = true)
     Object[] countMinimizedDependencyArtifactsForBuildRecord(Integer buildRecordId);
 
+    @Query(
+            value = "SELECT DISTINCT " +
+                    " artifact.id, " +
+                    " artifact.artifactQuality, " +
+                    " artifact.deployPath, " +
+                    " artifact.filename, " +
+                    " artifact.identifier, " +
+                    " artifact.importDate, " +
+                    " artifact.md5, " +
+                    " artifact.originUrl, " +
+                    " artifact.sha1, " +
+                    " artifact.sha256, " +
+                    " artifact.size, " +
+                    " artifact.targetRepository_id as targetRepositoryId, " +
+                    " targetRepository.temporaryRepo, " +
+                    " targetRepository.identifier as targetRepositoryIdentifier, " +
+                    " targetRepository.repositoryPath, " +
+                    " targetRepository.repositoryType " +
+                    "FROM Artifact artifact " +
+                    "INNER JOIN build_record_built_artifact_map built_artifact " +
+                    "  ON built_artifact.built_artifact_id = artifact.id " +
+                    "INNER JOIN BuildRecord buildRecord " +
+                    "  ON built_artifact.build_record_id = buildRecord.id " +
+                    "INNER JOIN TargetRepository targetRepository " +
+                    "  ON targetRepository.id = artifact.targetRepository_id " +
+                    "WHERE " +
+                    " buildRecord.id = ?1 " +
+                    "ORDER BY " +
+                    " artifact.id ASC LIMIT ?2 OFFSET ?3",
+            nativeQuery = true)
+    List<RawArtifact> getMinimizedBuiltArtifactsForBuildRecord(Integer buildRecordId, int pageSize, int offset);
+
+    @Query(
+            value = "SELECT COUNT(DISTINCT artifact.id) " +
+                    "FROM Artifact artifact " +
+                    "INNER JOIN build_record_built_artifact_map built_artifact " +
+                    "  ON built_artifact.built_artifact_id = artifact.id " +
+                    "INNER JOIN BuildRecord buildRecord " +
+                    "  ON built_artifact.build_record_id = buildRecord.id " +
+                    "INNER JOIN TargetRepository targetRepository " +
+                    "  ON targetRepository.id = artifact.targetRepository_id " +
+                    "WHERE " +
+                    " buildRecord.id = ?1",
+            nativeQuery = true)
+    Object[] countMinimizedBuiltArtifactsForBuildRecord(Integer buildRecordId);
+
 }
