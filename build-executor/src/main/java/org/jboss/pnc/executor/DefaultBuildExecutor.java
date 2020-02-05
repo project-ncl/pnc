@@ -348,8 +348,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
             return null;
         }
         try {
-            ProcessStageUtils.logProcessStageBegin(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER.toString(), "Collecting results from build driver ...");
-
             buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
             BuildDriverResult buildResult = completedBuild.getBuildResult();
             BuildStatus buildStatus = buildResult.getBuildStatus();
@@ -364,7 +362,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 userLog.warn("Build completed with errors.");
                 buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR);
             }
-            ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER.toString(), "Collected results from build driver.");
             return null;
         } catch (Throwable e) {
             throw new BuildProcessException(e, completedBuild.getRunningEnvironment());
@@ -421,7 +418,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private Void completeExecution(DefaultBuildExecutionSession buildExecutionSession, Throwable e) {
         Integer buildExecutionId = buildExecutionSession.getId();
         try {
-            ProcessStageUtils.logProcessStageBegin(BuildExecutionStatus.FINALIZING_EXECUTION.toString(), "Finalizing build execution ...");
+            //Ends when the result is stored by the Orchestrator
+            ProcessStageUtils.logProcessStageBegin("FINALIZING_BUILD", "Finalizing build ...");
             if (e != null) {
                 log.debug("Finalizing FAILED execution. Exception: ", e);
             } else {
@@ -497,7 +495,6 @@ public class DefaultBuildExecutor implements BuildExecutor {
                     repositorySession.close();
                 }
             }
-            ProcessStageUtils.logProcessStageEnd(BuildExecutionStatus.FINALIZING_EXECUTION.toString(), "Finalized build execution.");
         }
         return null;
     }

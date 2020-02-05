@@ -316,11 +316,17 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         if (buildTask.readyToBuild()) {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
             buildQueue.addReadyTask(buildTask);
+            ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.ENQUEUED.toString());
         } else {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
-            buildQueue.addWaitingTask(buildTask, () -> updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED));
+            Runnable onTaskReady = () -> {
+                ProcessStageUtils.logProcessStageEnd(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
+                updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
+                ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.ENQUEUED.toString());
+            };
+            buildQueue.addWaitingTask(buildTask, onTaskReady);
+            ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
         }
-        ProcessStageUtils.logProcessStageBegin("Enqueued");
     }
 
     private boolean isBuildConfigurationAlreadyInQueue(BuildTask buildTask) {
@@ -579,7 +585,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
             throw error;
         } finally {
-            ProcessStageUtils.logProcessStageEnd("Enqueued");
+            ProcessStageUtils.logProcessStageEnd(BuildCoordinationStatus.ENQUEUED.toString());
         }
     }
 
@@ -681,6 +687,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         } catch (Throwable e ) {
             log.error("[buildTaskId: "+buildTaskId+"] Cannot store results to datastore.", e);
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.SYSTEM_ERROR);
+        } finally {
+            //Starts when the build execution completes
+            ProcessStageUtils.logProcessStageEnd("FINALIZING_BUILD", "Finalizing completed.");
         }
     }
 
