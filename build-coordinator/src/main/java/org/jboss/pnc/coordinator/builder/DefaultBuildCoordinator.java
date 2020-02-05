@@ -313,11 +313,17 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         if (buildTask.readyToBuild()) {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
             buildQueue.addReadyTask(buildTask);
+            ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.ENQUEUED.toString());
         } else {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
-            buildQueue.addWaitingTask(buildTask, () -> updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED));
+            Runnable onTaskReady = () -> {
+                ProcessStageUtils.logProcessStageEnd(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
+                updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
+                ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.ENQUEUED.toString());
+            };
+            buildQueue.addWaitingTask(buildTask, onTaskReady);
+            ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
         }
-        ProcessStageUtils.logProcessStageBegin("Enqueued");
     }
 
     private boolean isBuildConfigurationAlreadyInQueue(BuildTask buildTask) {
@@ -562,7 +568,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         BuildSetStatus oldStatus = buildSetTask.getStatus();
         Optional<BuildConfigSetRecord> buildConfigSetRecord = buildSetTask.getBuildConfigSetRecord();
         sendSetStatusChangeEvent(buildSetTask, status, oldStatus, buildConfigSetRecord, description);
-        
+
         // Rejected status needs to be propagated to the BuildConfigSetRecord in database. 
         // Completed BuildSets are updated using BuildSetTask#taskStatusUpdatedToFinalState()
         if( buildConfigSetRecord.isPresent() && BuildSetStatus.REJECTED.equals(status)) {
@@ -641,7 +647,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
             throw error;
         } finally {
-            ProcessStageUtils.logProcessStageEnd("Enqueued");
+            ProcessStageUtils.logProcessStageEnd(BuildCoordinationStatus.ENQUEUED.toString());
         }
     }
 
@@ -744,6 +750,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         } finally {
             updateBuildTaskStatus(buildTask, coordinationStatus);
+            //Starts when the build execution completes
+            ProcessStageUtils.logProcessStageEnd("FINALIZING_BUILD", "Finalizing completed.");
         }
     }
 
