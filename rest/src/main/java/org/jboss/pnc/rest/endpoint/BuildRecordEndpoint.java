@@ -379,10 +379,8 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @Path("/{id}/dependency-artifacts-minimized")
     public Response getDependencyArtifactsMinimized(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id,
             @ApiParam(value = PAGE_INDEX_DESCRIPTION) @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-            @ApiParam(value = SORTING_DESCRIPTION) @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @ApiParam(value = QUERY_DESCRIPTION, required = false) @QueryParam(QUERY_QUERY_PARAM) String q) {
-        return fromCollection(artifactProvider.getDependencyArtifactsForBuildRecordMinimized(pageIndex, pageSize, sort, q, id));
+            @ApiParam(value = PAGE_SIZE_DESCRIPTION) @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize) {
+        return fromCollection(artifactProvider.getDependencyArtifactsForBuildRecordMinimized(pageIndex, pageSize, id));
     }
 
     @ApiOperation(value = "[role:admin] Set dependent artifacts on the BuildRecord. Note that operation replaces existing collection!")

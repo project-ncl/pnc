@@ -26,14 +26,18 @@ import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.TargetRepository.Type;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.ArtifactRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.rest.restmodel.TargetRepositoryRest;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository.RawArtifact;
 import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.slf4j.Logger;
@@ -45,6 +49,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -192,9 +198,47 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordId(buildRecordId));
     }
 
-    public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecordMinimized(int pageIndex, int pageSize, String sortingRsql, String query,
-            int buildRecordId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordIdMinimized(buildRecordId));
+    public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecordMinimized(int pageIndex, int pageSize, int buildRecordId) {
+        logger.debug("Executing getDependencyArtifactsForBuildRecordMinimized with parameters pageIndex: {}, pageSize: {}, buildRecordId: {}", pageIndex, pageSize, buildRecordId);
+        List<ArtifactRest> content = new ArrayList<>();
+        Object[] countArtifacts = ((ArtifactRepository)repository).countMinimizedDependencyArtifactsForBuildRecord(buildRecordId);
+
+        logger.debug("countArtifacts: {}, countArtifacts[0]: {}", countArtifacts, countArtifacts[0]);
+        int count = (int)countArtifacts[0];
+        int totalPages = (int) Math.ceil( (count) / (double) pageSize );
+        logger.debug("totalPages: {}", totalPages);
+
+        if (count > 0) {
+            int offset = (pageIndex - 1) * pageSize;
+
+            logger.debug("offset: {}", offset);
+
+            List<RawArtifact> rawArtifacts = ((ArtifactRepository)repository).getMinimizedDependencyArtifactsForBuildRecord(buildRecordId, pageSize, offset);
+            for (RawArtifact rawArtifact :  rawArtifacts) {
+                TargetRepositoryRest targetRepositoryRest = new TargetRepositoryRest(rawArtifact.getTargetRepositoryId(),
+                        rawArtifact.getTemporaryRepo(), rawArtifact.getTargetRepositoryIdentifier(),
+                        rawArtifact.getRepositoryType(), rawArtifact.getRepositoryPath());
+
+                ArtifactRest artifactRest = new ArtifactRest();
+                artifactRest.setId(rawArtifact.getId());
+                artifactRest.setArtifactQuality(rawArtifact.getArtifactQuality());
+                artifactRest.setDeployPath(rawArtifact.getDeployPath());
+                artifactRest.setFilename(rawArtifact.getFilename());
+                artifactRest.setIdentifier(rawArtifact.getIdentifier());
+                artifactRest.setImportDate(rawArtifact.getImportDate());
+                artifactRest.setMd5(rawArtifact.getMd5());
+                artifactRest.setOriginUrl(rawArtifact.getOriginUrl());
+                artifactRest.setSha1(rawArtifact.getSha1());
+                artifactRest.setSha256(rawArtifact.getSha256());
+                artifactRest.setSize(rawArtifact.getSize());
+                artifactRest.setOriginUrl(rawArtifact.getOriginUrl());
+                artifactRest.setTargetRepository(targetRepositoryRest);
+
+                content.add(artifactRest);
+            }
+        }
+
+        return new CollectionInfo<>(pageIndex, pageSize, totalPages, content);
     }
 
     public CollectionInfo<ArtifactRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query,
