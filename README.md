@@ -59,7 +59,7 @@ Tests annotated with @DebugTest are also skipped by default as they are usually 
 
 To run container tests use profile `-Pcontainer-tests`.
 Extra parameter `-Deap6.zip.url` is required to provide the location of server distribution archive.
-Tests requiring JEE application server (tested with JBoss EAP 7.0)
+Tests requiring JEE application server (tested with JBoss EAP 7.0).
 
 Example:
 
