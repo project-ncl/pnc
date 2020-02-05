@@ -44,4 +44,15 @@ public class ArtifactRepositoryMock extends RepositoryMock<Artifact> implements 
     public Object[] countMinimizedDependencyArtifactsForBuildRecord(Integer buildRecordId) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public List<RawArtifact> getMinimizedBuiltArtifactsForBuildRecord(Integer buildRecordId, int pageSize, int offset) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object[] countMinimizedBuiltArtifactsForBuildRecord(Integer buildRecordId) {
+        throw new UnsupportedOperationException();
+    }
+
 }
