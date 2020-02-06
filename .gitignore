@@ -4,6 +4,7 @@ settings.xml
 
 # Eclipse
 .project
+.factorypath
 .settings
 .classpath
 /eclipse-target
