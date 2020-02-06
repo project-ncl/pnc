@@ -28,7 +28,7 @@ public class HibernateMetric implements Serializable {
     private String description;
     private String value;
 
-    public HibernateMetric(String name, String description, long value) {
+    public HibernateMetric(String name, String description, double value) {
         this.name = name;
         this.description = description;
         this.value = String.valueOf(value);
