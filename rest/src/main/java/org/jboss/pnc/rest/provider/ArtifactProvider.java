@@ -145,7 +145,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             for (RawArtifact rawArtifact :  rawArtifacts) {
                 TargetRepositoryRest targetRepositoryRest = new TargetRepositoryRest(rawArtifact.getTargetRepositoryId(),
                         rawArtifact.getTemporaryRepo(), rawArtifact.getTargetRepositoryIdentifier(),
-                        rawArtifact.getRepositoryType(), rawArtifact.getRepositoryPath());
+                        rawArtifact.getRepositoryType(), rawArtifact.getRepositoryPath(), Collections.emptySet());
 
                 ArtifactRest artifactRest = new ArtifactRest();
                 artifactRest.setId(rawArtifact.getId());
@@ -258,7 +258,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             for (RawArtifact rawArtifact :  rawArtifacts) {
                 TargetRepositoryRest targetRepositoryRest = new TargetRepositoryRest(rawArtifact.getTargetRepositoryId(),
                         rawArtifact.getTemporaryRepo(), rawArtifact.getTargetRepositoryIdentifier(),
-                        rawArtifact.getRepositoryType(), rawArtifact.getRepositoryPath());
+                        rawArtifact.getRepositoryType(), rawArtifact.getRepositoryPath(), Collections.emptySet());
 
                 ArtifactRest artifactRest = new ArtifactRest();
                 artifactRest.setId(rawArtifact.getId());

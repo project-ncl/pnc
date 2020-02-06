@@ -78,15 +78,6 @@ public class TargetRepositoryRest implements GenericEntity<Integer> {
     @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
     private Set<Integer> artifactIds = new HashSet<>();
 
-    public TargetRepositoryRest(Integer id, Boolean temporaryRepo,
-            String identifier, TargetRepository.Type repositoryType, String repositoryPath) {
-        this.id = id;
-        this.temporaryRepo = temporaryRepo;
-        this.identifier = identifier;
-        this.repositoryType = repositoryType;
-        this.repositoryPath = repositoryPath;
-    }
-
     public TargetRepositoryRest(TargetRepository targetRepository) {
         id = targetRepository.getId();
         identifier = targetRepository.getIdentifier();
