@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model.utils;
 
+import java.text.DecimalFormat;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -37,6 +38,7 @@ public class HibernateStatsUtils {
     public static String REGION_STATS_PREFIX = "hibernate-orm.region.";
     public static String COLLECTION_STATS_PREFIX = "hibernate-orm.collection.";
 
+    private static DecimalFormat df2 = new DecimalFormat("#.##");
     /**
      * Get all the Hibernate Entities statistics aggregated in a sorted Map
      * 
@@ -65,12 +67,13 @@ public class HibernateStatsUtils {
                 entityStatMap.put("cache.put.count", createHibernateMetricItem("cachePutCount",
                         "The number of times this data has been into its configured cache region since the last Statistics clearing.",
                         entityStat.getCachePutCount()));
-                Long hitsRatio = (entityStat.getCacheHitCount() + entityStat.getCacheMissCount()) != 0
-                        ? entityStat.getCacheHitCount() / (entityStat.getCacheHitCount() + entityStat.getCacheMissCount())
-                        : -1L;
+                double hitsRatio = (entityStat.getCacheHitCount() + entityStat.getCacheMissCount()) != 0
+                        ? ((double) entityStat.getCacheHitCount()
+                                / (entityStat.getCacheHitCount() + entityStat.getCacheMissCount()) * 100)
+                        : -1;
                 entityStatMap.put("cache.hit.ratio", createHibernateMetricItem("cacheHitRatio",
                         "The ratio of successful cache look-ups for this data from its configured cache region since the last Statistics clearing.",
-                        hitsRatio));
+                        df2.format(hitsRatio)));
 
                 // Entity stats
                 entityStatMap.put("fetch.count",
@@ -127,13 +130,21 @@ public class HibernateStatsUtils {
                     sLCStatMap.put("second-level-cache.element.count.in.memory",
                             createHibernateMetricItem("elementCountInMemory",
                                     "The number of elements currently in memory within the cache provider.",
-                                    sLCStats.getElementCountInMemory()));
+                                    sLCStats.getElementCountInMemory() != CacheRegionStatistics.NO_EXTENDED_STAT_SUPPORT_RETURN
+                                            ? sLCStats.getElementCountInMemory()
+                                            : -1));
                     sLCStatMap.put("second-level-cache.element.count.on.disk",
                             createHibernateMetricItem("elementCountOnDisk",
                                     "The number of elements currently stored to disk within the cache provider.",
-                                    sLCStats.getElementCountOnDisk()));
-                    sLCStatMap.put("second-level-cache.size.in.memory", createHibernateMetricItem("sizeInMemory",
-                            "The size that the in-memory elements take up within the cache provider.", sLCStats.getSizeInMemory()));
+                                    sLCStats.getElementCountOnDisk() != CacheRegionStatistics.NO_EXTENDED_STAT_SUPPORT_RETURN
+                                            ? sLCStats.getElementCountOnDisk()
+                                            : -1));
+                    sLCStatMap.put("second-level-cache.size.in.memory",
+                            createHibernateMetricItem("sizeInMemory",
+                                    "The size that the in-memory elements take up within the cache provider.",
+                                    sLCStats.getSizeInMemory() != CacheRegionStatistics.NO_EXTENDED_STAT_SUPPORT_RETURN
+                                            ? sLCStats.getSizeInMemory()
+                                            : -1));
 
                     sLCStatMap.put("second-level-cache.hit.count", createHibernateMetricItem("hitCount",
                             "The number of successful cache look-ups against the region since the last Statistics clearing.",
@@ -141,13 +152,12 @@ public class HibernateStatsUtils {
                     sLCStatMap.put("second-level-cache.miss.count", createHibernateMetricItem("missCount",
                             "The number of unsuccessful cache look-ups against the region since the last Statistics clearing.",
                             sLCStats.getMissCount()));
-                    Long secondLvlCacheHitsRatio = (sLCStats.getHitCount() + sLCStats.getMissCount()) != 0
-                            ? sLCStats.getHitCount() / (sLCStats.getHitCount() + sLCStats.getMissCount())
-                            : -1L;
-                    sLCStatMap.put("second-level-cache.hit.ratio",
-                            createHibernateMetricItem("hitRatio",
+                    double secondLvlCacheHitsRatio = (sLCStats.getHitCount() + sLCStats.getMissCount()) != 0
+                            ? ((double) sLCStats.getHitCount() / (sLCStats.getHitCount() + sLCStats.getMissCount()) * 100)
+                            : -1;
+                    sLCStatMap.put("second-level-cache.hit.ratio", createHibernateMetricItem("hitRatio",
                                     "The ratio of successful cache look-ups against the region since the last Statistics clearing.",
-                                    secondLvlCacheHitsRatio));
+                            df2.format(secondLvlCacheHitsRatio)));
                     sLCStatMap.put("second-level-cache.put.count",
                             createHibernateMetricItem("putCount",
                                     "The number of cache puts into the region since the last Statistics clearing.",
@@ -189,12 +199,12 @@ public class HibernateStatsUtils {
                 cStatMap.put("cache.miss.count", createHibernateMetricItem("cacheMissCount",
                         "The number of unsuccessful cache look-ups for this data from its configured cache region since the last Statistics clearing.",
                         cStats.getCacheMissCount()));
-                Long hitsRatio = (cStats.getCacheHitCount() + cStats.getCacheMissCount()) != 0
-                        ? cStats.getCacheHitCount() / (cStats.getCacheHitCount() + cStats.getCacheMissCount())
-                        : -1L;
+                double secondLvlCacheHitsRatio = (cStats.getCacheHitCount() + cStats.getCacheMissCount()) != 0
+                        ? ((double) cStats.getCacheHitCount() / (cStats.getCacheHitCount() + cStats.getCacheMissCount()) * 100)
+                        : -1;
                 cStatMap.put("cache.hit.ratio", createHibernateMetricItem("cacheHitRatio",
                         "The ratio of successful cache look-ups for this data from its configured cache region since the last Statistics clearing.",
-                        hitsRatio));
+                        df2.format(secondLvlCacheHitsRatio)));
                 cStatMap.put("cache.put.count", createHibernateMetricItem("cachePutCount",
                         "The number of times this data has been into its configured cache region since the last Statistics clearing.",
                         cStats.getCachePutCount()));
@@ -290,14 +300,16 @@ public class HibernateStatsUtils {
                     "secondLevelCacheMissCount",
                     "Global number of cacheable entities/collections not found in the cache and loaded from the database.",
                     statistics.getSecondLevelCacheMissCount()));
-            Long hitsRatio = (statistics.getSecondLevelCacheHitCount() + statistics.getSecondLevelCacheMissCount()) != 0
-                    ? statistics.getSecondLevelCacheHitCount()
+            double secondLvlCacheHitsRatio = (statistics.getSecondLevelCacheHitCount()
+                    + statistics.getSecondLevelCacheMissCount()) != 0
+                            ? ((double) statistics.getSecondLevelCacheHitCount()
                             / (statistics.getSecondLevelCacheHitCount() + statistics.getSecondLevelCacheMissCount())
-                    : -1L;
+                                    * 100)
+                            : -1;
             genericStatsMap.put("hibernate-orm.second-level-cache.hit.ratio", createHibernateMetricItem(
                     "secondLevelCacheHitRatio",
                     "Ratio of number of cacheable entities/collections found in the cache and the not found in the cache and loaded from the database.",
-                    hitsRatio));
+                    df2.format(secondLvlCacheHitsRatio)));
 
             // Entities
             genericStatsMap.put("hibernate-orm.entities.load.count", createHibernateMetricItem("entityLoadCount",
@@ -334,13 +346,13 @@ public class HibernateStatsUtils {
                     createHibernateMetricItem("naturalIdCacheHitCount",
                             "Global number of cached natural id lookups *not* found in cache.",
                             statistics.getNaturalIdCacheMissCount()));
-            Long nIdHitsRatio = (statistics.getNaturalIdCacheHitCount() + statistics.getNaturalIdCacheMissCount()) != 0
-                    ? statistics.getNaturalIdCacheHitCount()
-                            / (statistics.getNaturalIdCacheHitCount() + statistics.getNaturalIdCacheMissCount())
-                    : -1L;
+            double nIdHitsRatio = (statistics.getNaturalIdCacheHitCount() + statistics.getNaturalIdCacheMissCount()) != 0
+                    ? ((double) statistics.getNaturalIdCacheHitCount()
+                            / (statistics.getNaturalIdCacheHitCount() + statistics.getNaturalIdCacheMissCount()) * 100)
+                    : -1;
             genericStatsMap.put("hibernate-orm.natural-id.cache.hit.ratio", createHibernateMetricItem("naturalIdCacheHitCount",
                     "Ratio of number of cacheable natural ids found in the cache and the not found in the cache and loaded from the database.",
-                    nIdHitsRatio));
+                    df2.format(nIdHitsRatio)));
 
             // Natural id queries
             genericStatsMap.put("hibernate-orm.natural-id.query.execution.count",
@@ -390,7 +402,7 @@ public class HibernateStatsUtils {
         return genericStatsMap;
     }
 
-    private static HibernateMetric createHibernateMetricItem(String name, String description, long value) {
+    private static HibernateMetric createHibernateMetricItem(String name, String description, double value) {
         return new HibernateMetric(name, description, value);
     }
 
