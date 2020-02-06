@@ -177,7 +177,12 @@
       for (var i = 0; i < array.length; i = i + nth) {
         result.push(array[i]);
       }
-      return result.slice(0, max);
+
+      if ($ctrl.chartType === 'line') {
+        return result.slice(0, max).reverse();
+      } else if ($ctrl.chartType === 'horizontalBar') {
+        return result.slice(0, max);
+      }
     };
 
 
