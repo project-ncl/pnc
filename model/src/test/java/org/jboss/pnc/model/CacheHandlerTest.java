@@ -253,15 +253,15 @@ public class CacheHandlerTest extends AbstractModelTest {
         // The 2 BuildConfigurations inserts in SESSION_1 should have been propagated to 2nd level cache
         // Also, no BuildConfiguration was searched in SESSION_1, so there should be no misses nor hits in the 2nd level cache
 
-        assertEquals("2", bcFirstLevelCacheStats.get("insert.count").getValue());
-        assertEquals("2", bcFirstLevelCacheStats.get("cache.put.count").getValue());
-        assertEquals("0", bcFirstLevelCacheStats.get("cache.hit.count").getValue());
-        assertEquals("0", bcFirstLevelCacheStats.get("cache.miss.count").getValue());
+        assertEquals("2.0", bcFirstLevelCacheStats.get("insert.count").getValue());
+        assertEquals("2.0", bcFirstLevelCacheStats.get("cache.put.count").getValue());
+        assertEquals("0.0", bcFirstLevelCacheStats.get("cache.hit.count").getValue());
+        assertEquals("0.0", bcFirstLevelCacheStats.get("cache.miss.count").getValue());
 
-        assertEquals("2", bcSecondLevelCacheStats.get("second-level-cache.element.count.in.memory").getValue());
-        assertEquals("2", bcSecondLevelCacheStats.get("second-level-cache.put.count").getValue());
-        assertEquals("0", bcSecondLevelCacheStats.get("second-level-cache.miss.count").getValue());
-        assertEquals("0", bcSecondLevelCacheStats.get("second-level-cache.hit.count").getValue());
+        assertEquals("2.0", bcSecondLevelCacheStats.get("second-level-cache.element.count.in.memory").getValue());
+        assertEquals("2.0", bcSecondLevelCacheStats.get("second-level-cache.put.count").getValue());
+        assertEquals("0.0", bcSecondLevelCacheStats.get("second-level-cache.miss.count").getValue());
+        assertEquals("0.0", bcSecondLevelCacheStats.get("second-level-cache.hit.count").getValue());
 
         // Searching a not existing BuildConfiguration --> 1 miss in SESSION_1
         session_1.find(BuildConfiguration.class, 13);
@@ -280,15 +280,15 @@ public class CacheHandlerTest extends AbstractModelTest {
 
         // Still 2 BuildConfigurations in 2nd level cache
         // There should be 1 miss from 1st and 2nd level cache, and no hits (BuildConfiguration was found in 1st level cache)
-        assertEquals("2", bcFirstLevelCacheStats.get("insert.count").getValue());
-        assertEquals("2", bcFirstLevelCacheStats.get("cache.put.count").getValue());
-        assertEquals("0", bcFirstLevelCacheStats.get("cache.hit.count").getValue());
-        assertEquals("1", bcFirstLevelCacheStats.get("cache.miss.count").getValue());
+        assertEquals("2.0", bcFirstLevelCacheStats.get("insert.count").getValue());
+        assertEquals("2.0", bcFirstLevelCacheStats.get("cache.put.count").getValue());
+        assertEquals("0.0", bcFirstLevelCacheStats.get("cache.hit.count").getValue());
+        assertEquals("1.0", bcFirstLevelCacheStats.get("cache.miss.count").getValue());
 
-        assertEquals("2", bcSecondLevelCacheStats.get("second-level-cache.element.count.in.memory").getValue());
-        assertEquals("2", bcSecondLevelCacheStats.get("second-level-cache.put.count").getValue());
-        assertEquals("1", bcSecondLevelCacheStats.get("second-level-cache.miss.count").getValue());
-        assertEquals("0", bcSecondLevelCacheStats.get("second-level-cache.hit.count").getValue());
+        assertEquals("2.0", bcSecondLevelCacheStats.get("second-level-cache.element.count.in.memory").getValue());
+        assertEquals("2.0", bcSecondLevelCacheStats.get("second-level-cache.put.count").getValue());
+        assertEquals("1.0", bcSecondLevelCacheStats.get("second-level-cache.miss.count").getValue());
+        assertEquals("0.0", bcSecondLevelCacheStats.get("second-level-cache.hit.count").getValue());
 
         // Create another session SESSION_2
         em_2 = getEmFactory().createEntityManager();
@@ -342,17 +342,17 @@ public class CacheHandlerTest extends AbstractModelTest {
 
         // 2nd level cache should now contain a HIT (BuildConfiguration#100 was not found in SESSION_2 and so was taken from 2nd
         // level cache)
-        assertEquals("1", bcFirstLevelCacheStats.get("cache.hit.count").getValue());
-        assertEquals("1", bcSecondLevelCacheStats.get("second-level-cache.hit.count").getValue());
+        assertEquals("1.0", bcFirstLevelCacheStats.get("cache.hit.count").getValue());
+        assertEquals("1.0", bcSecondLevelCacheStats.get("second-level-cache.hit.count").getValue());
 
         // All other stats should be identical to previous ones
-        assertEquals("2", bcFirstLevelCacheStats.get("insert.count").getValue());
-        assertEquals("2", bcFirstLevelCacheStats.get("cache.put.count").getValue());
-        assertEquals("1", bcFirstLevelCacheStats.get("cache.miss.count").getValue());
+        assertEquals("2.0", bcFirstLevelCacheStats.get("insert.count").getValue());
+        assertEquals("2.0", bcFirstLevelCacheStats.get("cache.put.count").getValue());
+        assertEquals("1.0", bcFirstLevelCacheStats.get("cache.miss.count").getValue());
 
-        assertEquals("2", bcSecondLevelCacheStats.get("second-level-cache.element.count.in.memory").getValue());
-        assertEquals("2", bcSecondLevelCacheStats.get("second-level-cache.put.count").getValue());
-        assertEquals("1", bcSecondLevelCacheStats.get("second-level-cache.miss.count").getValue());
+        assertEquals("2.0", bcSecondLevelCacheStats.get("second-level-cache.element.count.in.memory").getValue());
+        assertEquals("2.0", bcSecondLevelCacheStats.get("second-level-cache.put.count").getValue());
+        assertEquals("1.0", bcSecondLevelCacheStats.get("second-level-cache.miss.count").getValue());
 
         // 2nd level cache is unique, so again entitiesStatMap_1 should be identical to entitiesStatMap_2
         assertEquals(bcFirstLevelCacheStats.get("insert.count"), bcFirstLevelCacheStats_2.get("insert.count"));
@@ -401,22 +401,20 @@ public class CacheHandlerTest extends AbstractModelTest {
         BuildConfiguration bc = (BuildConfiguration) session_3.load(BuildConfiguration.class, newBCId);
 
         SortedMap<String, HibernateMetric> genericStats = getGenericStats(sessionFactory_3.getStatistics());
-        int entityFetchCount1 = Integer.parseInt(genericStats.get("hibernate-orm.entities.fetch.count").getValue());
-        int secondLevelCacheHitCount1 = Integer
-                .parseInt(genericStats.get("hibernate-orm.second-level-cache.hit.count").getValue());
+        double entityFetchCount1 = Double.parseDouble(genericStats.get("hibernate-orm.entities.fetch.count").getValue());
+        double secondLevelCacheHitCount1 = Double.parseDouble(genericStats.get("hibernate-orm.second-level-cache.hit.count").getValue());
 
         // fetch the BuildConfiguration entity again, no change in fetch count from 1st level cache nor access to 2nd level
         // cache as there is no need for it
         bc = (BuildConfiguration) session_3.load(BuildConfiguration.class, newBCId);
 
         SortedMap<String, HibernateMetric> genericStats_2 = getGenericStats(sessionFactory_3.getStatistics());
-        int entityFetchCount2 = Integer.parseInt(genericStats_2.get("hibernate-orm.entities.fetch.count").getValue());
-        int secondLevelCacheHitCount2 = Integer
-                .parseInt(genericStats_2.get("hibernate-orm.second-level-cache.hit.count").getValue());
+        double entityFetchCount2 = Double.parseDouble(genericStats_2.get("hibernate-orm.entities.fetch.count").getValue());
+        double secondLevelCacheHitCount2 = Double.parseDouble(genericStats_2.get("hibernate-orm.second-level-cache.hit.count").getValue());
 
         // No change in fetch from 1st and 2nd level caches
-        assertEquals(entityFetchCount1, entityFetchCount2);
-        assertEquals(secondLevelCacheHitCount2, secondLevelCacheHitCount2);
+        assertEquals((int)entityFetchCount1, (int)entityFetchCount2);
+        assertEquals((int)secondLevelCacheHitCount2, (int)secondLevelCacheHitCount2);
 
         // Evict from first level cache
         session_3.evict(bc);
@@ -425,12 +423,11 @@ public class CacheHandlerTest extends AbstractModelTest {
         bc = (BuildConfiguration) session_3.load(BuildConfiguration.class, newBCId);
 
         SortedMap<String, HibernateMetric> genericStats_3 = getGenericStats(sessionFactory_3.getStatistics());
-        int entityFetchCount3 = Integer.parseInt(genericStats_3.get("hibernate-orm.entities.fetch.count").getValue());
-        int secondLevelCacheHitCount3 = Integer
-                .parseInt(genericStats_3.get("hibernate-orm.second-level-cache.hit.count").getValue());
+        double entityFetchCount3 = Double.parseDouble(genericStats_3.get("hibernate-orm.entities.fetch.count").getValue());
+        double secondLevelCacheHitCount3 = Double.parseDouble(genericStats_3.get("hibernate-orm.second-level-cache.hit.count").getValue());
 
         // No change in fetch from 1st level cache as entity is not there anymore
-        assertEquals(entityFetchCount2, entityFetchCount3);
+        assertEquals((int)entityFetchCount2, (int)entityFetchCount3);
         // Change in fetch from 2nd level cache: the entity is not in 1st level cache anymore, so Hibernate gets it from 2nd
         // level
         assertNotEquals(secondLevelCacheHitCount2, secondLevelCacheHitCount3);
