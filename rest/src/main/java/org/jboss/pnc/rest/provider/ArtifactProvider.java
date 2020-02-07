@@ -131,13 +131,13 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         List<ArtifactRest> content = new ArrayList<>();
         Object[] countArtifacts = ((ArtifactRepository)repository).countMinimizedBuiltArtifactsForBuildRecord(buildRecordId);
 
-        logger.debug("countArtifacts: {}, countArtifacts[0]: {}", countArtifacts, countArtifacts[0]);
+        logger.debug("countArtifacts: {}", countArtifacts[0]);
         int count = ((Number)countArtifacts[0]).intValue();
         int totalPages = (int) Math.ceil( (count) / (double) pageSize );
         logger.debug("totalPages: {}", totalPages);
 
         if (count > 0) {
-            int offset = (pageIndex - 1) * pageSize;
+            int offset = pageIndex * pageSize;
 
             logger.debug("offset: {}", offset);
 
@@ -244,13 +244,13 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         List<ArtifactRest> content = new ArrayList<>();
         Object[] countArtifacts = ((ArtifactRepository)repository).countMinimizedDependencyArtifactsForBuildRecord(buildRecordId);
 
-        logger.debug("countArtifacts: {}, countArtifacts[0]: {}", countArtifacts, countArtifacts[0]);
+        logger.debug("countArtifacts: {}", countArtifacts[0]);
         int count = ((Number)countArtifacts[0]).intValue();
         int totalPages = (int) Math.ceil( (count) / (double) pageSize );
         logger.debug("totalPages: {}", totalPages);
 
         if (count > 0) {
-            int offset = (pageIndex - 1) * pageSize;
+            int offset = pageIndex * pageSize;
 
             logger.debug("offset: {}", offset);
 
