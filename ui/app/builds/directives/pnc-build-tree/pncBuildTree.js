@@ -229,7 +229,7 @@
         build._dependencyBuildIds = dependencyGraph.vertices[build.id]._dependencyBuildIds || [];
         (isBuild ? build._dependencyBuildIds : build._buildIds).forEach(function (buildId) {
           //If dependencyList is null, then it means this is a node that already appeared in parent dependency list.
-          createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1); if (dependencyList && dependencyGraph.vertices[buildId]) {
+          if (dependencyList && dependencyGraph.vertices[buildId]) {
             if (!dependencyList.includes(buildId)) {
               //If this is a node that not appears in parent dependency list, process it normally.
               dependencyList.push(buildId);
