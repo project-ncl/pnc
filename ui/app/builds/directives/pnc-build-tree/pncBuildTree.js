@@ -184,9 +184,10 @@
        *
        * @param {Object} build - processed build
        * @param {Object} customBuildParent - parent build for processed build
+       * @param {Array} parentdependencyList - parent dependency array, null if current node causes a loop and its children should be neglected.
        */
-      function createDependencyStructure(build, customBuildParent, level) {
-
+      function createDependencyStructure(build, customBuildParent, level, parentDependencyList) {
+        let dependencyList = parentDependencyList ? Object.assign([], parentDependencyList) : null; //get a hard copy of parentDependencyList
         level = level || 1;
 
         // Build or GroupBuild
@@ -227,8 +228,16 @@
         dependencyStructure.push(customBuild);
         build._dependencyBuildIds = dependencyGraph.vertices[build.id]._dependencyBuildIds || [];
         (isBuild ? build._dependencyBuildIds : build._buildIds).forEach(function (buildId) {
-          if (dependencyGraph.vertices[buildId]) {
-            createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1);
+          //If dependencyList is null, then it means this is a node that already appeared in parent dependency list.
+          createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1); if (dependencyList && dependencyGraph.vertices[buildId]) {
+            if (!dependencyList.includes(buildId)) {
+              //If this is a node that not appears in parent dependency list, process it normally.
+              dependencyList.push(buildId);
+              createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1, dependencyList);
+            } else {
+              //If this is a node that have already appeared in parent dependency list, set the dependencyList to null.
+              createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1, null);
+            }
           }
         });
 
@@ -240,7 +249,7 @@
 
       return {
         dependentStructure: $ctrl.buildItem._dependentBuildIds, // undefined when GroupBuild is being processed
-        dependencyStructure: createDependencyStructure($ctrl.buildItem, NO_PARENT_EXISTS),
+        dependencyStructure: createDependencyStructure($ctrl.buildItem, NO_PARENT_EXISTS, null, [$ctrl.buildItem.id]),
         nodes: dependencyGraph.vertices
       };
     }
