@@ -829,8 +829,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void finishDueToFailedDependency(BuildTask failedTask, BuildTask dependentTask) {
-        log.debug("Finishing task {} due ta failed dependency.", dependentTask);
+
+        MDCUtils.addContext(getMDCMeta(dependentTask));
+
+        log.debug("Finishing task {} due to a failed dependency.", dependentTask);
         buildQueue.removeTask(dependentTask);
+
+        ProcessStageUtils.logProcessStageEnd(dependentTask.getStatus().toString(), "Ended due to failed dependency of " + failedTask.getContentId());
+
         if (failedTask.getStatus() == BuildCoordinationStatus.CANCELLED) {
             updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.CANCELLED,
                     "Dependent build " + failedTask.getBuildConfigurationAudited().getName() + " was cancelled");
@@ -841,6 +847,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
         log.trace("Status of build task {} updated.", dependentTask);
         storeRejectedTask(dependentTask);
+
+        MDCUtils.clear();
     }
 
     public List<BuildTask> getSubmittedBuildTasks() {
