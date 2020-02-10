@@ -46,6 +46,7 @@ import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -152,6 +153,8 @@ public class DatastoreAdapter {
                 });
             }
 
+            List<Artifact> builtArtifacts = Collections.emptyList();
+            List<Artifact> dependencies = Collections.emptyList();
             if (buildResult.getRepositoryManagerResult().isPresent()) {
                 RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
 
@@ -160,14 +163,13 @@ public class DatastoreAdapter {
                     buildRecordStatus = FAILED; //TODO, do not mix statuses
                 }
 
-                List<Artifact> builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
+                builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
                 Map<Artifact, String> builtConflicts = datastore.checkForBuiltArtifacts(builtArtifacts);
                 if (builtConflicts.size() > 0) {
                     return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + builtConflicts.toString()));
                 }
-                buildRecordBuilder.builtArtifacts(builtArtifacts);
 
-                buildRecordBuilder.dependencies(repositoryManagerResult.getDependencies());
+                dependencies = repositoryManagerResult.getDependencies();
             } else if (!buildResult.hasFailed()) {
                 return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
             }
@@ -196,7 +198,7 @@ public class DatastoreAdapter {
 
             log.debug("Storing results of buildTask [{}] to datastore.", buildTask.getId());
             userLog.info("Successfully completed.");
-            return datastore.storeCompletedBuild(buildRecordBuilder);
+            return datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
         } catch (Exception e) {
             return storeResult(buildTask, Optional.of(buildResult), e);
         }
@@ -281,7 +283,7 @@ public class DatastoreAdapter {
 
         userLog.error("Build status: {}.", getBuildStatus(buildResult));
         log.debug("Storing ERROR result of buildTask.getBuildConfigurationAudited().getName() to datastore.",  e);
-        return datastore.storeCompletedBuild(buildRecordBuilder);
+        return datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
     }
 
     private CompletionStatus getBuildStatus(Optional<BuildResult> buildResult) {
@@ -300,7 +302,7 @@ public class DatastoreAdapter {
         userLog.warn(buildTask.getStatusDescription());
 
         log.debug("Storing REJECTED build of {} to datastore. Reason: {}", buildTask.getBuildConfigurationAudited().getName(), buildTask.getStatusDescription());
-        datastore.storeCompletedBuild(buildRecordBuilder);
+        datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
     }
 
 

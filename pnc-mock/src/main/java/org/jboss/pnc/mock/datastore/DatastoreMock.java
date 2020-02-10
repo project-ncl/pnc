@@ -35,10 +35,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.mockito.Mockito;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-24.
@@ -64,8 +66,10 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
-        BuildRecord buildRecord = buildRecordBuilder.build();
+    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, List<Artifact> builtArtifacts, List<Artifact> dependencies) {
+        buildRecordBuilder.dependencies(dependencies);
+        BuildRecord buildRecord = Mockito.spy(buildRecordBuilder.build());
+        Mockito.when(buildRecord.getBuiltArtifacts()).thenReturn(new HashSet<>(builtArtifacts));
         BuildConfiguration buildConfiguration = buildRecord.getBuildConfigurationAudited().getBuildConfiguration();
         log.info("Storing build " + buildConfiguration);
         synchronized (this) {

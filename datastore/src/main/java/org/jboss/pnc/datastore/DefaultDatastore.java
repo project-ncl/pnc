@@ -120,7 +120,7 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) {
+    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, List<Artifact> builtArtifacts, List<Artifact> dependencies) {
         BuildRecord buildRecord = buildRecordBuilder.build(true);
         logger.debug("Storing completed build {}.", buildRecord);
         if (logger.isTraceEnabled()) {
@@ -135,15 +135,20 @@ public class DefaultDatastore implements Datastore {
          *  it must be linked to built artifacts repository.
          */
         logger.debug("Saving built artifacts ...");
-        buildRecord.setBuiltArtifacts(saveArtifacts(buildRecord.getBuiltArtifacts(), repositoriesCache, artifactCache));
+        final Set<Artifact> savedBuiltArtifacts = saveArtifacts(builtArtifacts, repositoriesCache, artifactCache);
 
         logger.debug("Saving dependencies ...");
-        buildRecord.setDependencies(saveArtifacts(buildRecord.getDependencies(), repositoriesCache, artifactCache));
+        buildRecord.setDependencies(saveArtifacts(dependencies, repositoriesCache, artifactCache));
 
         logger.debug("Done saving artifacts.");
         logger.trace("Saving build record {}.", buildRecord);
         buildRecord = buildRecordRepository.save(buildRecord);
         logger.debug("Build record {} saved.", buildRecord.getId());
+
+        logger.trace("Setting artifacts as built.");
+        for (Artifact builtArtifact : savedBuiltArtifacts) {
+            builtArtifact.setBuildRecord(buildRecord);
+        }
 
         return buildRecord;
     }

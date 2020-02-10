@@ -142,8 +142,6 @@ public class BasicModelTest extends AbstractModelTest {
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
                 .endTime(Date.from(Instant.now()))
-                .builtArtifact(artifact1)
-                .builtArtifact(artifact2)
                 .dependency(artifact3)
                 .user(pncUser)
                 .temporaryBuild(false)
@@ -212,8 +210,6 @@ public class BasicModelTest extends AbstractModelTest {
                 .startTime(Date.from(Instant.now()))
                 .endTime(Date.from(Instant.now()))
                 //Add the built artifact and dependency artifact twice
-                .builtArtifact(builtArtifact)
-                .builtArtifact(builtArtifact)
                 .dependency(importedArtifact)
                 .dependency(importedArtifact)
                 .user(pncUser)
