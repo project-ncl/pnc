@@ -24,6 +24,7 @@ import lombok.Getter;
 import org.jboss.pnc.common.logging.MDCUtils;
 
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -35,6 +36,7 @@ import java.util.Map;
 public class Configuration {
 
     private final String host;
+
     private final Integer port;
 
     private final BasicAuth basicAuth;
@@ -68,12 +70,11 @@ public class Configuration {
         public String getBase64Credentials() {
             return Base64.getEncoder().encodeToString((username + ":"  + password).getBytes());
         }
-
     }
 
     public static final class ConfigurationBuilder {
 
-        private Map<String, String> mdcToHeadersMappings;
+        private Map<String, String> mdcToHeadersMappings = new HashMap<>();
 
         public ConfigurationBuilder addDefaultMdcToHeadersMappings() {
             this.mdcToHeadersMappings = MDCUtils.getMDCToHeaderMappings();
