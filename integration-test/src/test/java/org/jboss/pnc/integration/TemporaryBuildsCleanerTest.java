@@ -227,10 +227,6 @@ public class TemporaryBuildsCleanerTest {
         Artifact artifact3 = storeAndGetArtifact();
         Artifact artifact4 = storeAndGetArtifact();
 
-        Set<Artifact> builtArtifacts = new HashSet<>();
-        builtArtifacts.add(artifact1);
-        builtArtifacts.add(artifact2);
-
         Set<Artifact> dependencies = new HashSet<>();
         dependencies.add(artifact3);
         dependencies.add(artifact4);
@@ -239,9 +235,12 @@ public class TemporaryBuildsCleanerTest {
                 .temporaryBuild(true)
                 .build();
 
-        tempBr.setBuiltArtifacts(builtArtifacts);
         tempBr.setDependencies(dependencies);
-        buildRecordRepository.save(tempBr);
+        BuildRecord savedTempBr = buildRecordRepository.save(tempBr);
+        artifact1.setBuildRecord(savedTempBr);
+        artifactRepository.save(artifact1);
+        artifact2.setBuildRecord(savedTempBr);
+        artifactRepository.save(artifact2);
 
         List<BuildRecord> givenBuilds = buildRecordRepository.queryAll();
         int numberOfBuilds = givenBuilds.size();
@@ -272,8 +271,9 @@ public class TemporaryBuildsCleanerTest {
         BuildRecord tempBr = initBuildRecordBuilder()
                 .temporaryBuild(true)
                 .build();
-        tempBr.setBuiltArtifacts(builtArtifacts);
-        buildRecordRepository.save(tempBr);
+        BuildRecord savedTempBr = buildRecordRepository.save(tempBr);
+        artifact.setBuildRecord(savedTempBr);
+        artifactRepository.save(artifact);
 
         // when - then
         try {

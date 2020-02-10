@@ -75,7 +75,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.anySet;
@@ -182,7 +182,7 @@ public class DefaultBuildCoordinatorTest {
         when(buildResult.getRepourResult()).thenReturn(Optional.of(RepourResultMock.mock()));
 
         ArgumentGrabbingAnswer<BuildRecord.Builder> answer = new ArgumentGrabbingAnswer<>(BuildRecord.Builder.class);
-        when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class))).thenAnswer(answer);
+        when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class), any(), any())).thenAnswer(answer);
 
         coordinator.completeBuild(buildTask, buildResult);
 

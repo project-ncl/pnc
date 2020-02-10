@@ -510,8 +510,8 @@ public class DatabaseDataInitializer {
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
         builtArtifact2 = artifactRepository.save(builtArtifact2);
-        builtArtifact2 = artifactRepository.save(builtArtifact3);
-        builtArtifact2 = artifactRepository.save(builtArtifact4);
+        builtArtifact3 = artifactRepository.save(builtArtifact3);
+        builtArtifact4 = artifactRepository.save(builtArtifact4);
 
         Artifact importedArtifact1 = Artifact.Builder.newBuilder()
                 .identifier("demo:imported-artifact1:jar:1.0")
@@ -555,8 +555,6 @@ public class DatabaseDataInitializer {
                     .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
                     .endTime(Timestamp.from(Instant.now()))
-                    .builtArtifact(builtArtifact1)
-                    .builtArtifact(builtArtifact2)
                     .dependency(importedArtifact1)
                     .dependency(importedArtifact2)
                     .user(demoUser)
@@ -576,6 +574,9 @@ public class DatabaseDataInitializer {
 
             log.info("Saving buildRecord1: " + buildRecord1);
             BuildRecord savedBuildRecord1 = buildRecordRepository.save(buildRecord1);
+            builtArtifact1.setBuildRecord(savedBuildRecord1);
+            builtArtifact2.setBuildRecord(savedBuildRecord1);
+
             log.info("Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: " + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
             buildRecords.add(buildRecord1);
 
@@ -587,8 +588,6 @@ public class DatabaseDataInitializer {
                     .submitTime(Timestamp.from(Instant.now()))
                     .startTime(Timestamp.from(Instant.now()))
                     .endTime(Timestamp.from(Instant.now()))
-                    .builtArtifact(builtArtifact3)
-                    .builtArtifact(builtArtifact4)
                     .user(demoUser)
                     .repourLog("This is a wannabe alignment log.")
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
@@ -603,6 +602,8 @@ public class DatabaseDataInitializer {
 
                 log.info("Saving tempRecord1: " + tempRecord1);
                 BuildRecord savedTempRecord1 = buildRecordRepository.save(tempRecord1);
+                builtArtifact3.setBuildRecord(savedTempRecord1);
+                builtArtifact4.setBuildRecord(savedTempRecord1);
                 log.info("Saved buildRecord1: " + savedTempRecord1 + "BuildConfigurationAuditedIdRev: " + savedTempRecord1.getBuildConfigurationAuditedIdRev());
                 buildRecords.add(tempRecord1);
 
@@ -675,8 +676,6 @@ public class DatabaseDataInitializer {
                     .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
                     .endTime(Timestamp.from(Instant.now()))
-                    .builtArtifact(builtArtifact5)
-                    .builtArtifact(builtArtifact6)
                     .dependency(dependencyBuiltArtifact1)
                     .dependency(importedArtifact1)
                     .user(demoUser)
@@ -691,7 +690,9 @@ public class DatabaseDataInitializer {
             nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
-            buildRecordRepository.save(buildRecord2);
+            BuildRecord savedBuildRecord2 = buildRecordRepository.save(buildRecord2);
+            builtArtifact5.setBuildRecord(savedBuildRecord2);
+            builtArtifact6.setBuildRecord(savedBuildRecord2);
             buildRecords.add(buildRecord2);
 
             BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
@@ -699,8 +700,6 @@ public class DatabaseDataInitializer {
                     .submitTime(Timestamp.from(calendar.toInstant().minus(8, ChronoUnit.HOURS)))
                     .startTime(Timestamp.from(calendar.toInstant().minus(5, ChronoUnit.HOURS)))
                     .endTime(Timestamp.from(calendar.toInstant()))
-                    .builtArtifact(builtArtifact7)
-                    .builtArtifact(builtArtifact8)
                     .user(demoUser)
                     .buildLog("Is it free?")
                     .status(BuildStatus.SUCCESS)
@@ -710,7 +709,10 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(true)
                     .build();
 
-            buildRecordRepository.save(tempRecord1);
+            BuildRecord savedTempRecord1 = buildRecordRepository.save(tempRecord1);
+
+            builtArtifact7.setBuildRecord(savedTempRecord1);
+            builtArtifact8.setBuildRecord(savedTempRecord1);
             buildRecords.add(tempRecord1);
         }
 
@@ -750,7 +752,6 @@ public class DatabaseDataInitializer {
         demoProductMilestone1.addDistributedArtifact(builtArtifact5);
         demoProductMilestone1.addDistributedArtifact(importedArtifact2);
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
-
     }
 
     private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl, String externalUrl) {

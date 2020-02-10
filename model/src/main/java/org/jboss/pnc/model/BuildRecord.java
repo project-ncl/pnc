@@ -55,6 +55,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -515,20 +516,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * @return the built artifacts
      */
     public Set<Artifact> getBuiltArtifacts() {
-        return builtArtifacts;
-    }
-
-    public void addBuiltArtifact(Artifact builtArtifact) {
-        builtArtifacts.add(builtArtifact);
-    }
-
-    /**
-     * Sets the built artifacts.
-     *
-     * @param builtArtifacts the new built artifacts
-     */
-    public void setBuiltArtifacts(Set<Artifact> builtArtifacts) {
-        this.builtArtifacts = builtArtifacts;
+        return Collections.unmodifiableSet(builtArtifacts);
     }
 
     /**
@@ -884,8 +872,6 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         private BuildStatus status;
 
-        private Set<Artifact> builtArtifacts;
-
         private Set<Artifact> dependencies;
 
         private BuildEnvironment buildEnvironment;
@@ -909,7 +895,6 @@ public class BuildRecord implements GenericEntity<Integer> {
         private Integer[] dependencyBuildRecordIds;
 
         public Builder() {
-            builtArtifacts = new HashSet<>();
             dependencies = new HashSet<>();
         }
 
@@ -989,7 +974,6 @@ public class BuildRecord implements GenericEntity<Integer> {
                 buildRecord.setBuildConfigSetRecord(buildConfigSetRecord);
             }
 
-            buildRecord.setBuiltArtifacts(builtArtifacts);
             buildRecord.setDependencies(dependencies);
 
             buildRecord.setDependentBuildRecordIds(dependentBuildRecordIds);
@@ -1084,21 +1068,6 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public Builder status(BuildStatus status) {
             this.status = status;
-            return this;
-        }
-
-        public Builder builtArtifact(Artifact builtArtifact) {
-            this.builtArtifacts.add(builtArtifact);
-            return this;
-        }
-
-        public Builder builtArtifacts(Set<Artifact> builtArtifacts) {
-            this.builtArtifacts = builtArtifacts;
-            return this;
-        }
-
-        public Builder builtArtifacts(List<Artifact> builtArtifacts) {
-            this.builtArtifacts.addAll(builtArtifacts);
             return this;
         }
 
