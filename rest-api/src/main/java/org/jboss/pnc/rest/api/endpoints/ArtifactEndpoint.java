@@ -134,21 +134,6 @@ public interface ArtifactEndpoint {
     @Path("/{id}")
     void update(@PathParam("id") String id, @NotNull Artifact artifact);
 
-    @Operation(summary = "Gets the build(s) that produced this artifact.",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SwaggerPages.BuildPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    @GET
-    @Path("/{id}/builds")
-    Page<Build> getBuilds(
-            @Parameter(description = A_ID) @PathParam("id") String id,
-            @BeanParam PageParameters pageParams);
-
     @Operation(summary = "Gets the build(s) that depends on this artifact.",
             responses = {
                 @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
