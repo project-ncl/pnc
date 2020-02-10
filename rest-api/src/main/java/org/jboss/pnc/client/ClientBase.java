@@ -21,10 +21,10 @@ import org.jboss.pnc.client.patch.PatchBase;
 import org.jboss.pnc.client.patch.PatchBuilderException;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.resteasy.client.jaxrs.BasicAuthentication;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.resteasy.client.jaxrs.internal.BasicAuthentication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +32,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -67,7 +68,7 @@ public abstract class ClientBase<T> {
 
         this.configuration = configuration;
 
-        client = new ResteasyClientBuilder()
+        client = ((ResteasyClientBuilder)ClientBuilder.newBuilder())
                 .httpEngine(engine)
                 .build();
         client.register(ResteasyJackson2ProviderWithDateISO8601.class);
