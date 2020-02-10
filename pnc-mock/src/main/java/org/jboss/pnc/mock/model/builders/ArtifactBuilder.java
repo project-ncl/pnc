@@ -42,7 +42,7 @@ public class ArtifactBuilder {
                 .sha256("sha256-fake-ABCDABCD" + id)
                 .size(12342L)
                 .deployPath("http://myrepo.com/org/jboss/mock/artifactFile" + id + ".jar")
-                .targetRepository(mockTargetRepository(""))
+                .targetRepository(mockTargetRepository("builds-untested")) // using TargetRepository from demo data to avoid NCL-5474
                 .filename("artifactFile" + id + ".jar");
     }
 

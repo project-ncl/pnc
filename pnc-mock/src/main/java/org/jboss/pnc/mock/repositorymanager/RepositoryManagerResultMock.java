@@ -25,28 +25,34 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class RepositoryManagerResultMock {
 
+    private static AtomicInteger rebuildNumber = new AtomicInteger();
+
     public static RepositoryManagerResult mockResult() {
         return mockResult(false);
     }
 
     public static RepositoryManagerResult mockResult(boolean failed) {
+        int rebuild = rebuildNumber.getAndAdd(100);
         return new RepositoryManagerResult() {
             @Override
             public List<Artifact> getBuiltArtifacts() {
-                Artifact[] artifacts = {ArtifactBuilder.mockArtifact(11), ArtifactBuilder.mockArtifact(12)};
+                Artifact[] artifacts = {ArtifactBuilder.mockArtifact(rebuild + 11),
+                    ArtifactBuilder.mockArtifact(rebuild + 12)};
                 return Arrays.asList(artifacts);
             }
 
             @Override
             public List<Artifact> getDependencies() {
-                Artifact[] artifacts = { ArtifactBuilder.mockImportedArtifact(21), ArtifactBuilder.mockImportedArtifact(22),
-                        ArtifactBuilder.mockArtifact(13) };
+                Artifact[] artifacts = {ArtifactBuilder.mockImportedArtifact(rebuild + 21),
+                    ArtifactBuilder.mockImportedArtifact(rebuild + 22),
+                    ArtifactBuilder.mockArtifact(rebuild + 13)};
                 return Arrays.asList(artifacts);
             }
 
