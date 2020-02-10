@@ -34,9 +34,7 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
-import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PaginationParameters;
-import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
 
 @Stateless
 public class ArtifactEndpointImpl implements ArtifactEndpoint {
@@ -85,15 +83,6 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     @Override
     public void update(String id, Artifact artifact){
         endpointHelper.update(id, artifact);
-    }
-
-    @Override
-    public Page<Build> getBuilds(String id, PageParameters pageParams) {
-        return buildProvider.getBuildsForArtifact(pageParams.getPageIndex(),
-                pageParams.getPageSize(),
-                pageParams.getSort(),
-                pageParams.getQ(),
-                id);
     }
 
     @Override
