@@ -25,6 +25,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,17 +59,17 @@ public class RepositoryMock<EntityType extends GenericEntity<Integer>> implement
 
     @Override
     public List<EntityType> queryAll(PageInfo pageInfo, SortInfo sortInfo) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<EntityType> queryWithPredicates(PageInfo pageInfo, SortInfo sortInfo, Predicate<EntityType>... predicates) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
     public List<EntityType> queryWithPredicates(Predicate<EntityType>... predicates) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
