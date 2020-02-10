@@ -330,6 +330,12 @@ public class Artifact implements GenericEntity<Integer> {
      * @param buildRecord the build record
      */
     public void setBuildRecord(BuildRecord buildRecord) {
+        if (this.buildRecord != null) {
+            this.buildRecord.getBuiltArtifacts().remove(this);
+        }
+        if (buildRecord != null) {
+            buildRecord.getBuiltArtifacts().add(this);
+        }
         this.buildRecord = buildRecord;
     }
 

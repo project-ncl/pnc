@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import java.lang.reflect.Field;
 import lombok.RequiredArgsConstructor;
 
 import org.jboss.pnc.common.Configuration;
@@ -83,6 +84,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -91,6 +93,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 
 import static org.mockito.Matchers.any;
+import org.mockito.Mockito;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -415,7 +418,13 @@ public abstract class AbstractDependentBuildTest {
                     .id(artifactsIdSequence.incrementAndGet())
                     .buildRecord(record)
                     .build();
-            record.addBuiltArtifact(artifact);
+            try{
+                Field field = BuildRecord.class.getDeclaredField("builtArtifacts");
+                field.setAccessible(true);
+                ((Set<Artifact>) field.get(record)).add(artifact);
+            } catch (ReflectiveOperationException  ex) {
+                throw new RuntimeException(ex);
+            }
             return artifact;
         }
     }

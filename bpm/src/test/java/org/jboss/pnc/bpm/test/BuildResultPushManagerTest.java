@@ -215,7 +215,6 @@ public class BuildResultPushManagerTest {
         record.setId(buildRecordIdSequence++);
         record.setStatus(BuildStatus.SUCCESS);
         record.setBuildConfigurationAudited(bca);
-        record.setBuiltArtifacts(Collections.emptySet());
         record.setDependencies(Collections.emptySet());
         buildRecordRepository.save(record);
         return record;

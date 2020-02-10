@@ -27,6 +27,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,10 +49,12 @@ public interface Datastore {
      * Stores a completed build.
      *
      * @param buildRecordBuilder The build record builder which has been intialized with appropriate data.
+     * @param builtArtifacts The list of artifacts built by the build.
+     * @param dependencies The list of dependencies used by the build.
      * @return The updated BuildRecord
      * @throws DatastoreException Thrown if database is unable to process the request.
      */
-    BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder) throws DatastoreException;
+    BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, List<Artifact> builtArtifacts, List<Artifact> dependencies) throws DatastoreException;
 
     BuildRecord storeRecordForNoRebuild(BuildRecord buildRecord);
 

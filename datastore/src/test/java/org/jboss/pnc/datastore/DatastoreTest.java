@@ -59,6 +59,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -78,17 +80,23 @@ public class DatastoreTest {
 
     private static String ARTIFACT_3_IDENTIFIER = "org.jboss.test:artifact3";
 
+    private static String ARTIFACT_4_IDENTIFIER = "org.jboss.test:artifact4";
+
     private static String ARTIFACT_1_CHECKSUM = "1";
 
     private static String ARTIFACT_2_CHECKSUM = "2";
 
     private static String ARTIFACT_3_CHECKSUM = "3";
 
+    private static String ARTIFACT_4_CHECKSUM = "4";
+
     private static Long ARTIFACT_1_SIZE = 111L;
 
     private static Long ARTIFACT_2_SIZE = 222L;
 
     private static Long ARTIFACT_3_SIZE = 333L;
+
+    private static Long ARTIFACT_4_SIZE = 444L;
 
     @Inject
     ArtifactRepository artifactRepository;
@@ -227,7 +235,6 @@ public class DatastoreTest {
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
                 .endTime(Date.from(Instant.now()))
-                .builtArtifact(builtArtifact1)
                 .dependency(importedArtifact2)
                 .user(user)
                 .temporaryBuild(false)
@@ -240,6 +247,7 @@ public class DatastoreTest {
         Assert.assertNotNull(importedArtifact2.getId());
 
         buildRecord = buildRecordRepository.save(buildRecord);
+        builtArtifact1.setBuildRecord(buildRecord);
 
     }
 
@@ -284,11 +292,11 @@ public class DatastoreTest {
                 .build();
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder()
-                .identifier(ARTIFACT_1_IDENTIFIER)
-                .size(ARTIFACT_1_SIZE)
-                .md5("md-fake-" + ARTIFACT_1_CHECKSUM)
-                .sha1("sha1-fake-" + ARTIFACT_1_CHECKSUM)
-                .sha256("sha256-fake-" + ARTIFACT_1_CHECKSUM)
+                .identifier(ARTIFACT_4_IDENTIFIER)
+                .size(ARTIFACT_4_SIZE)
+                .md5("md-fake-" + ARTIFACT_4_CHECKSUM)
+                .sha1("sha1-fake-" + ARTIFACT_4_CHECKSUM)
+                .sha256("sha256-fake-" + ARTIFACT_4_CHECKSUM)
                 .targetRepository(targetRepository)
                 .build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder()
@@ -335,25 +343,27 @@ public class DatastoreTest {
         user = userRepository.save(user);
         Assert.assertNotNull(user.getId());
 
+        List<Artifact> builtArtifacts = new ArrayList<>();
+        builtArtifacts.add(builtArtifact1);
+        builtArtifacts.add(builtArtifact3);
+        builtArtifacts.add(builtDuplicateArtifact);
+        List<Artifact> dependencies = new ArrayList<>();
+        dependencies.add(importedArtifact2);
+        dependencies.add(importedDuplicateArtifact);
         BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder()
                 .id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
                 .endTime(Date.from(Instant.now()))
-                .builtArtifact(builtArtifact1)
-                .dependency(importedArtifact2)
-                .builtArtifact(builtArtifact3)
-                .builtArtifact(builtDuplicateArtifact)
-                .dependency(importedDuplicateArtifact)
                 .user(user)
                 .temporaryBuild(false);
 
-        BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder);
+        BuildRecord buildRecord = datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
 
         Assert.assertEquals(3, buildRecord.getBuiltArtifacts().size());
         Assert.assertEquals(2, buildRecord.getDependencies().size());
-        Assert.assertEquals(4, artifactRepository.queryAll().size()); //!only 4 as importedDuplicateArtifact is the same as builtDuplicateArtifact only in different repository
+        Assert.assertEquals(5, artifactRepository.queryAll().size());
 
         Set<Artifact.IdentifierSha256> identifiersAndSha = new HashSet<>();
         identifiersAndSha.add(new Artifact.IdentifierSha256(importedDuplicateArtifact.getIdentifier(), importedDuplicateArtifact.getSha256()));
