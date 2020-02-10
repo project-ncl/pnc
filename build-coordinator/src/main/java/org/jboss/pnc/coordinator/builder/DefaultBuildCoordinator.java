@@ -304,6 +304,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void addTaskToBuildQueue(BuildTask buildTask) {
+
+        MDCUtils.addContext(getMDCMeta(buildTask));
+
         if (isBuildConfigurationAlreadyInQueue(buildTask)) {
             log.debug("Skipping buildTask {}, its buildConfiguration is already in the buildQueue.", buildTask);
             return;
@@ -324,6 +327,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             buildQueue.addWaitingTask(buildTask, onTaskReady);
             ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
         }
+
+        MDCUtils.clear();
     }
 
     private boolean isBuildConfigurationAlreadyInQueue(BuildTask buildTask) {
