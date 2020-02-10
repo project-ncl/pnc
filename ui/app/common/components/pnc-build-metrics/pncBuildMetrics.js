@@ -21,13 +21,13 @@
   /**
    * The component representing Build Metric charts.
    * 
-   * @param {string[]} buildIds - List of Build ids.
+   * @param {Object[]} builds - List of Builds.
    * @param {string} chartType - Possible values: line, horizontalBar
    * @param {string} componentId - Unique component id.
    */
   angular.module('pnc.common.components').component('pncBuildMetrics', {
     bindings: {
-      buildIds: '<',
+      builds: '<',
       chartType: '@?',
       componentId: '@?'
     },
@@ -111,6 +111,12 @@
           };
 
         // gray
+        case 'OTHER': 
+          return { 
+            color: 'silver', 
+            label: 'Other' 
+          };
+
         default: 
           console.warn('adaptMetric: Unknown metric name: "' + metricName + '"', metricName); 
           return { 
@@ -170,7 +176,7 @@
      * @param {number} nth - Returned array will contain only every Nth item.
      * @param {number} max [20] - Returned array max size.
      */
-    var filterBuildIds = function(array, nth, max) {
+    var filterBuilds = function(array, nth, max) {
       max = typeof max !== 'undefined' ? max : $ctrl.BUILDS_DISPLAY_LIMIT;
 
       var result = [];
@@ -188,11 +194,15 @@
 
     
     /**
-     * Load Build Metrics for specified buildIds.
+     * Load Build Metrics for specified builds.
      *
-     * @param {string[]} buildIds - List of Build ids.
+     * @param {Object[]} builds - List of Builds.
      */
-    var loadBuildMetrics = function(buildIds) {
+    var loadBuildMetrics = function(builds) {
+      var buildIds = builds.map(function(build) {
+        return build.id.toString();
+      });
+
       return BuildRecord.getBuildMetrics(buildIds).then(function(buildMetricsDatasetsResult) {
         canvasElement = document.getElementById($ctrl.componentId);
 
@@ -206,20 +216,42 @@
             datasets: buildMetricsDatasetsResult.data
           };
 
-          var datasets = buildMetricsData.datasets;
+          // sum individual metrics for given build
+          var buildMetricsSum = new Array(buildIds.length).fill(0);
+          
+          for (var m = 0; m < buildMetricsData.datasets.length; m++) {
+            for (var n = 0; n < buildMetricsData.datasets[m].data.length; n++) {
+              buildMetricsSum[n] += buildMetricsData.datasets[m].data[n];
+            }
+          }
+
+          // compute Other metric
+          var metricOthersData = [];
+
+          for (var k = 0; k < builds.length; k++) {
+            var metricOther = builds[k].endTime - builds[k].submitTime - buildMetricsSum[k];
+            metricOthersData.push(metricOther > 0 ? metricOther : 0);
+          }
+
+          buildMetricsData.datasets.push({
+            name: 'OTHER',
+            data: metricOthersData
+          });
+          
+         
   
           if ($ctrl.chartType === 'line') {
-            for (var i = 0; i < datasets.length; i++) {
-              Object.assign(datasets[i], {
-                label: adaptMetric(datasets[i].name).label,
+            for (var i = 0; i < buildMetricsData.datasets.length; i++) {
+              Object.assign(buildMetricsData.datasets[i], {
+                label: adaptMetric(buildMetricsData.datasets[i].name).label,
                 fill: false, 
   
                 // lines
-                borderColor: adaptMetric(datasets[i].name).color,
+                borderColor: adaptMetric(buildMetricsData.datasets[i].name).color,
                 borderWidth: 4,
   
                 // points
-                pointBackgroundColor: adaptMetric(datasets[i].name).color,
+                pointBackgroundColor: adaptMetric(buildMetricsData.datasets[i].name).color,
                 pointBorderColor: 'white',
                 pointBorderWidth: 1.5,
                 pointRadius: 4
@@ -252,10 +284,10 @@
   
           } else if ($ctrl.chartType === 'horizontalBar') {
   
-            for (var j = 0; j < datasets.length; j++) {
-              Object.assign(datasets[j], {
-                label: adaptMetric(datasets[j].name).label,
-                backgroundColor: adaptMetric(datasets[j].name).color
+            for (var j = 0; j < buildMetricsData.datasets.length; j++) {
+              Object.assign(buildMetricsData.datasets[j], {
+                label: adaptMetric(buildMetricsData.datasets[j].name).label,
+                backgroundColor: adaptMetric(buildMetricsData.datasets[j].name).color
               });
             }
   
@@ -354,10 +386,10 @@
     /**
      * Load Build Metrics and handle individual states when there are no datasets available or there was an error when loading them.
      * 
-     * @param {string[]} buildIds - List of Build ids.
+     * @param {Object[]} builds - List of Builds.
      * @param {number} displayEveryNthItem - Number specifying every Nth metric will be displayed.
      */
-    var processBuildMetrics = function(buildIds, displayEveryNthItem) {
+    var processBuildMetrics = function(builds, displayEveryNthItem) {
       $ctrl.loadingError = false;
       $ctrl.noDataAvailable = false;
 
@@ -369,7 +401,7 @@
         $ctrl.isLoading = true;
       }
 
-      loadBuildMetrics(filterBuildIds(buildIds, displayEveryNthItem)).catch(function() {
+      loadBuildMetrics(filterBuilds(builds, displayEveryNthItem)).catch(function() {
         $ctrl.loadingError = true;
         $ctrl.noDataAvailable = false;
       }).finally(function() {
@@ -384,9 +416,9 @@
 
       $ctrl.navigationSelect = function (item) {
         $ctrl.isUpdating = true;
-        processBuildMetrics($ctrl.buildIds, item.id);
+        processBuildMetrics($ctrl.builds, item.id);
       };
-      processBuildMetrics($ctrl.buildIds, $ctrl.navigationSelected.id);
+      processBuildMetrics($ctrl.builds, $ctrl.navigationSelected.id);
 
     };
 

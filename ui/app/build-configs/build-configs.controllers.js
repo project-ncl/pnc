@@ -60,9 +60,7 @@
       that.products = products;
       that.buildTypes = buildTypes;
 
-      that.buildIds = builds.data.map(function(build) {
-        return build.id.toString();
-      });
+      that.builds = builds.data;
 
       that.productVersions = {
         selected: linkedProductVersions
