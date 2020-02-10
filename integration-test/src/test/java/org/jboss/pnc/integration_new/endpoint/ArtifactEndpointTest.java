@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.jboss.pnc.client.BuildClient;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -247,12 +248,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetBuildThatProducedArtifact() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
-
-        RemoteCollection<Build> builds = client.getBuilds(artifactRest1.getId());
-
-        assertThat(builds)
-                .hasSize(1);
+        assertThat(artifactRest1.getBuild()).isNotNull();
     }
 
     @Test
