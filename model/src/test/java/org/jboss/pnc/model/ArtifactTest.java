@@ -103,6 +103,26 @@ public class ArtifactTest extends AbstractModelTest {
         assertTrue(em.find(Artifact.class, artifactId) == null);
     }
 
+    @Test
+    public void shouldAllowDeletionOfDeletedQualityArtifacts(){
+        //given
+        Artifact artifact = prepareArtifactBuilder().artifactQuality(ArtifactQuality.DELETED).build();
+
+        em.getTransaction().begin();
+        em.persist(artifact);
+        em.getTransaction().commit();
+        int artifactId = artifact.getId();
+        assertTrue(artifact.getId() != 0);
+
+        //when
+        em.getTransaction().begin();
+        em.remove(artifact);
+        em.getTransaction().commit();
+
+        //then
+        assertTrue(em.find(Artifact.class, artifactId) == null);
+    }
+
     private void insertBasicTargetRepository() {
         this.targetRepository = TargetRepository.newBuilder()
                 .identifier("Indy")
