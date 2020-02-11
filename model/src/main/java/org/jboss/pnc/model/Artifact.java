@@ -238,7 +238,7 @@ public class Artifact implements GenericEntity<Integer> {
 
     @PreRemove
     public void preRemove() {
-        if(artifactQuality != Quality.TEMPORARY) {
+        if(artifactQuality != Quality.TEMPORARY && artifactQuality != Quality.DELETED) {
             throw new PersistenceException("The non-temporary artifacts cannot be deleted! Only deletion of temporary artifacts is supported ");
         }
     }
