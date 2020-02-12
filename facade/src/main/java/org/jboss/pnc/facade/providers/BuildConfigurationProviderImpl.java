@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import java.util.Collections;
+
 import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -34,6 +35,7 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
+import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider.RepositoryCreated;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.DTOValidationException;
@@ -62,6 +64,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -431,12 +434,14 @@ public class BuildConfigurationProviderImpl
         return Optional.of(mapper.toDTO(newBc));
     }
 
-    private void onRCCreationSuccess(int repositoryConfigurationId, BuildConfiguration configuration) {
-        RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
+    private void onRCCreationSuccess(RepositoryCreated event, BuildConfiguration configuration) {
+        final int scmRepositoryId = event.getRepositoryId();
+        RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(scmRepositoryId);
+        final String taskId = event.getTaskId() == null ? null : event.getTaskId().toString();
         if (repositoryConfiguration == null) {
             String errorMessage = "Repository Configuration was not found in database.";
             logger.error(errorMessage);
-            sendErrorMessage(SCMRepository.builder().id(Integer.toString(repositoryConfigurationId)).build(), null, errorMessage);
+            sendErrorMessage(SCMRepository.builder().id(Integer.toString(scmRepositoryId)).build(), null, errorMessage, taskId);
             return;
         }
 
@@ -461,11 +466,11 @@ public class BuildConfigurationProviderImpl
             addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            sendErrorMessage(scmRepository, buildConfig, e.getMessage());
+            sendErrorMessage(scmRepository, buildConfig, e.getMessage(), taskId);
             return;
         }
 
-        BuildConfigurationCreation successMessage = BuildConfigurationCreation.success(scmRepository, buildConfig);
+        BuildConfigurationCreation successMessage = BuildConfigurationCreation.success(scmRepository, buildConfig, taskId);
 
         notifier.sendMessage(successMessage);
     }
@@ -493,12 +498,12 @@ public class BuildConfigurationProviderImpl
     }
 
     private void sendErrorMessage(SCMRepository scmRepository, BuildConfigurationRef buildConfig,
-            String message) {
+            String message, String taskId) {
         BuildConfigurationCreation errorMessage
                 = BuildConfigurationCreation.error(
                         scmRepository,
                         buildConfig,
-                        message);
+                        message, taskId);
         notifier.sendMessage(errorMessage);
     }
 }

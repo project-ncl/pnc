@@ -60,27 +60,34 @@ public class BuildConfigurationCreation extends Notification {
      * Build configuration that was created by the job. Null in case of failure.
      */
     private final BuildConfigurationRef buildConfig;
+    
+    private final String taskId;
 
-    private BuildConfigurationCreation(SCMRepository scmRepository, BuildConfigurationRef buildConfig) {
+    private BuildConfigurationCreation(SCMRepository scmRepository, BuildConfigurationRef buildConfig, String taskId) {
         super(BUILD_CONFIG_CREATION, BC_CREATION_SUCCESS, FINISHED, IN_PROGRESS);
         this.scmRepository = scmRepository;
         this.buildConfig = buildConfig;
+        this.taskId = taskId;
     }
 
     @JsonCreator
     private BuildConfigurationCreation(@JsonProperty("scmRepository") SCMRepository scmRepository,
             @JsonProperty("buildConfig") BuildConfigurationRef buildConfig,
-            @JsonProperty("message") String message) {
+            @JsonProperty("message") String message,
+            @JsonProperty("taskId") String taskId) {
         super(BUILD_CONFIG_CREATION, BC_CREATION_ERROR, FINISHED, IN_PROGRESS, message);
         this.scmRepository = scmRepository;
         this.buildConfig = buildConfig;
+        this.taskId = taskId;
     }
 
-    public static BuildConfigurationCreation success(SCMRepository scmRepository, BuildConfigurationRef buildConfig) {
-        return new BuildConfigurationCreation(scmRepository, buildConfig);
+    public static BuildConfigurationCreation success(SCMRepository scmRepository, BuildConfigurationRef buildConfig,
+            String taskId) {
+        return new BuildConfigurationCreation(scmRepository, buildConfig, taskId);
     }
 
-    public static BuildConfigurationCreation error(SCMRepository scmRepository, BuildConfigurationRef buildConfig, String errorMessage) {
-        return new BuildConfigurationCreation(scmRepository, buildConfig, errorMessage);
+    public static BuildConfigurationCreation error(SCMRepository scmRepository, BuildConfigurationRef buildConfig,
+            String errorMessage, String taskId) {
+        return new BuildConfigurationCreation(scmRepository, buildConfig, errorMessage, taskId);
     }
 }
