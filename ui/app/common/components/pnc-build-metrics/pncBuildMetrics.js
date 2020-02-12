@@ -45,6 +45,7 @@
 
     $ctrl.BUILDS_DISPLAY_LIMIT = 20;
     $ctrl.BUILDS_DISPLAY_LIMIT_EXAMPLE = 5;
+    $ctrl.metricsTooltip = null;
    
 
     $ctrl.navigationOptions = [
@@ -67,54 +68,89 @@
     var adaptMetric = function (metricName) {
       switch (metricName) {
 
+        // purple
+        case 'WAITING_FOR_DEPENDENCIES': 
+          return { 
+            color: '#a18fff', 
+            label: 'Waiting',
+            description: 'Waiting for dependencies'
+          };
+        
         // light-green
-        case 'Enqueued': 
+        case 'ENQUEUED': 
           return { 
             color: '#c8eb79', 
-            label: 'Enqueued' 
+            label: 'Enqueued',
+            description: 'Waiting to be started, the metric ends with the BPM process being started from PNC Orchestrator'
+          };
+
+        // cyan
+        case 'SCM_CLONE': 
+          return { 
+            color: '#7dbdc3', 
+            label: 'SCM Clone',
+            description: 'Cloning / Syncing from Gerrit' 
+          };
+
+        // orange
+        case 'ALIGNMENT_ADJUST': 
+          return { 
+            color: '#f7bd7f', 
+            label: 'Alignment',
+            description: 'Alignment only' 
           };
 
         // blue
         case 'BUILD_ENV_SETTING_UP': 
           return { 
             color: '#7cdbf3', 
-            label: 'Build Env Setting Up' 
+            label: 'Starting Environment',
+            description: 'Requesting to start new Build Environment in OpenShift' 
           };
         case 'REPO_SETTING_UP': 
           return { 
             color: '#00b9e4',
-            label: 'Repo Setting Up' 
+            label: 'Artifact Repos Setup',
+            description: 'Creating per build artifact repositories in Indy'
           };
         case 'BUILD_SETTING_UP': 
           return { 
             color: '#008bad',
-            label: 'Build Setting Up' 
+            label: 'Building',
+            description: 'Uploading the build script, running the build, downloading the results (logs)'
+          };
+
+        // black
+        case 'COLLECTING_RESULTS_FROM_BUILD_DRIVER': 
+          return { 
+            color: 'black',
+            label: 'Collecting Results From Build Driver',
+            description: '',
+            skip: true
           };
 
         // purple
-        case 'COLLECTING_RESULTS_FROM_BUILD_DRIVER': 
-          return { 
-            color: '#a18fff',
-            label: 'Collecting Results From Build Driver' 
-          };
         case 'COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER': 
           return { 
             color: '#703fec',
-            label: 'Collecting Results From Repository Manager' 
+            label: 'Promotion',
+            description: 'Downloading the list of built artifact and dependencies from Indy, promoting them to shared repository in Indy'
           };
 
         // green
-        case 'FINALIZING_EXECUTION': 
+        case 'FINALIZING_BUILD': 
           return { 
             color: '#3f9c35', 
-            label: 'Finalizing Execution' 
+            label: 'Finalizing',
+            description: 'Completing all other build execution tasks, destroying build environments, invoking the BPM'
           };
 
         // gray
         case 'OTHER': 
           return { 
             color: 'silver', 
-            label: 'Other' 
+            label: 'Other',
+            description: 'Other tasks from the time when the build was submitted to the time when the build ends'
           };
 
         default: 
@@ -205,11 +241,17 @@
 
       return BuildRecord.getBuildMetrics(buildIds).then(function(buildMetricsDatasetsResult) {
         canvasElement = document.getElementById($ctrl.componentId);
+        var adaptedMetric;
 
         if (!buildMetricsDatasetsResult.data.length) {
           $ctrl.noDataAvailable = true;
 
         } else {
+
+          // skip specific metrics
+          buildMetricsDatasetsResult.data = buildMetricsDatasetsResult.data.filter(function(item) {
+            return !adaptMetric(item.name).skip;
+          });
 
           var buildMetricsData = {
             labels: buildIds,
@@ -237,21 +279,30 @@
             name: 'OTHER',
             data: metricOthersData
           });
-          
-         
+
+          // generate tooltip content
+          $ctrl.metricsTooltip = buildMetricsData.datasets.map(function(item) {
+            adaptedMetric = adaptMetric(item.name);
+            return { 
+              label: adaptedMetric.label,
+              description: adaptedMetric.description
+            };
+          });
   
           if ($ctrl.chartType === 'line') {
             for (var i = 0; i < buildMetricsData.datasets.length; i++) {
+              adaptedMetric = adaptMetric(buildMetricsData.datasets[i].name);
+
               Object.assign(buildMetricsData.datasets[i], {
-                label: adaptMetric(buildMetricsData.datasets[i].name).label,
+                label: adaptedMetric.label,
                 fill: false, 
   
                 // lines
-                borderColor: adaptMetric(buildMetricsData.datasets[i].name).color,
+                borderColor: adaptedMetric.color,
                 borderWidth: 4,
   
                 // points
-                pointBackgroundColor: adaptMetric(buildMetricsData.datasets[i].name).color,
+                pointBackgroundColor: adaptedMetric.color,
                 pointBorderColor: 'white',
                 pointBorderWidth: 1.5,
                 pointRadius: 4
@@ -285,16 +336,20 @@
           } else if ($ctrl.chartType === 'horizontalBar') {
   
             for (var j = 0; j < buildMetricsData.datasets.length; j++) {
+              adaptedMetric = adaptMetric(buildMetricsData.datasets[j].name);
               Object.assign(buildMetricsData.datasets[j], {
-                label: adaptMetric(buildMetricsData.datasets[j].name).label,
-                backgroundColor: adaptMetric(buildMetricsData.datasets[j].name).color
+                label: adaptedMetric.label,
+                backgroundColor: adaptedMetric.color
               });
             }
   
             chartConfig.options = {
               tooltips: {
-                position: 'average'
+                position: 'nearest'
               }, 
+              animation: {
+                duration: 0  // disable animation
+              },
               scales: {
                 x: {
                   position: 'bottom',
@@ -322,9 +377,16 @@
           } else {
             console.warn('Unsupported chart type: ' + $ctrl.chartType);
           }
-  
+
+          var isSingleBuild = buildMetricsData.datasets[0].data.length === 1;
   
           Object.assign(chartConfig.options, {
+            layout: {
+              padding: {
+                top: 20,
+                bottom: 20
+              }
+            },
             maintainAspectRatio: false,
             tooltips: {
               callbacks: {
@@ -353,18 +415,16 @@
           chartConfig.plugins = [{
             beforeInit: function(chart) {
               chart.legend.afterFit = function() {
-                this.height = this.height + 20;
+                this.height = this.height + 25;
               };
             }
           }];
-  
 
           var heightTmp = 0;
           var MIN_HEIGHT = 290;
-          var MIN_HEIGHT_SINGLE_BUILD = 220;
+          var MIN_HEIGHT_SINGLE_BUILD = 300;
   
           if ($ctrl.chartType === 'horizontalBar') {
-            var isSingleBuild = buildMetricsData.datasets[0].data.length === 1;
             heightTmp = buildMetricsData.datasets[0].data.length * 30;
             canvasElement.parentElement.style.height = ((heightTmp < MIN_HEIGHT) ? (isSingleBuild ? MIN_HEIGHT_SINGLE_BUILD : MIN_HEIGHT) : heightTmp) + 'px';
           } else {
