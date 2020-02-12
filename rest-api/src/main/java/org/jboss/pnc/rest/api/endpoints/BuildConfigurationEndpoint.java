@@ -60,9 +60,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.util.Set;
+import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.BUILD_CONFIG_CREATED;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.BUILD_CONFIG_CREATING;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
@@ -75,6 +78,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NO_CONTENT_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SCM_REPOSITORY_CREATED;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
@@ -350,7 +354,9 @@ public interface BuildConfigurationEndpoint {
             description = "The given SCM URL is automatically analyzed and if it's an external URL"
                     + "the content of the SCM repository is cloned into an internal repository.",
             responses = {
-                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
+                @ApiResponse(responseCode = ACCEPTED_CODE, description = BUILD_CONFIG_CREATING,
+                    content = @Content(schema = @Schema(implementation = BuildConfigCreationResponse.class))),
+                @ApiResponse(responseCode = SUCCESS_CODE, description = BUILD_CONFIG_CREATED,
                     content = @Content(schema = @Schema(implementation = BuildConfigCreationResponse.class))),
                 @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
