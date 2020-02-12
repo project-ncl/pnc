@@ -68,8 +68,12 @@ public interface SwaggerConstants {
     public static final String MATCH_QUERY_PARAM = "url";
     public static final String SEARCH_DEFAULT_VALUE = "";
 
-    public static final String SCM_REPOSITORY_EXISTS = "SCM repository is already present in PNC. The 'repository' key "
-            + "is populated with the details of the SCM repository ('taskId' key is null)";
-    public static final String SCM_REPOSITORY_CREATING = "SCM repository is being created. The 'taskId' key has the id of "
+    public static final String SCM_REPOSITORY_CREATED = "SCM Repository was created. The 'repository' key is populated with "
+            + "the details of the SCM Repository ('taskId' key is null)";
+    public static final String SCM_REPOSITORY_CREATING = "SCM Repository is being created. The 'taskId' key has the id of "
             + "the Maitai process instance creating the repository ('repository' key is null)";
+    public static final String BUILD_CONFIG_CREATED = "Build Config was created. The 'buildConfig' key is populated with "
+            + "the details of the Build Config ('taskId' key is null)";
+    public static final String BUILD_CONFIG_CREATING = "Build Config is being created. The 'taskId' key has the id of "
+            + "the Maitai process instance creating the repository ('buildConfig' key is null)";
 }

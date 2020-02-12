@@ -60,12 +60,12 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.MATCH_QUERY_PARA
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SCM_REPOSITORY_CREATING;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SCM_REPOSITORY_EXISTS;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SEARCH_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SCM_REPOSITORY_CREATED;
 
 /**
  * @author Jakub Bartecek
@@ -147,7 +147,7 @@ public interface SCMRepositoryEndpoint{
             responses = {
                 @ApiResponse(responseCode = ACCEPTED_CODE, description = SCM_REPOSITORY_CREATING,
                     content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SCM_REPOSITORY_EXISTS,
+                @ApiResponse(responseCode = SUCCESS_CODE, description = SCM_REPOSITORY_CREATED,
                         content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
                 @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
