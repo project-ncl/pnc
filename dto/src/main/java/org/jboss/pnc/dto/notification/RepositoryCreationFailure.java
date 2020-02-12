@@ -54,12 +54,16 @@ public class RepositoryCreationFailure extends Notification {
      * Object with data describing the failure.
      */
     private final Object data;
+    
+    private final String taskId;
 
     @JsonCreator
     public RepositoryCreationFailure(@JsonProperty("job") JobNotificationType job,
             @JsonProperty("notificationType") String notificationType,
-            @JsonProperty("data") Object data) {
+            @JsonProperty("data") Object data,
+            @JsonProperty("taskId") String taskId) {
         super(job, notificationType, FINISHED, IN_PROGRESS);
         this.data = data;
+        this.taskId = taskId;
     }
 }

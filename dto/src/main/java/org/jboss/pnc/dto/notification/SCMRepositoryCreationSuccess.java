@@ -55,10 +55,14 @@ public class SCMRepositoryCreationSuccess extends Notification {
      * The created SCM Repository.
      */
     private final SCMRepository scmRepository;
+    
+    private final String taskId;
 
     @JsonCreator
-    public SCMRepositoryCreationSuccess(@JsonProperty("scmRepository") SCMRepository scmRepository) {
+    public SCMRepositoryCreationSuccess(@JsonProperty("scmRepository") SCMRepository scmRepository,
+            @JsonProperty("taskId") String taskId) {
         super(SCM_REPOSITORY_CREATION, BC_CREATION_SUCCESS, FINISHED, IN_PROGRESS);
         this.scmRepository = scmRepository;
+        this.taskId = taskId;
     }
 }

@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
@@ -52,11 +53,14 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
+
+import lombok.Data;
 
 import static org.jboss.pnc.constants.Patterns.INTERNAL_REPOSITORY_NAME;
 import static org.jboss.pnc.enums.JobNotificationType.SCM_REPOSITORY_CREATION;
@@ -136,18 +140,23 @@ public class SCMRepositoryProviderImpl
 
     @Override
     public RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled) {
-        Consumer<Integer> successListener = i -> notifier.sendMessage(new SCMRepositoryCreationSuccess(getSpecific(Integer.toString(i))));
-        return createSCMRepository(scmUrl, preBuildSyncEnabled, SCM_REPOSITORY_CREATION, successListener);
+        return createSCMRepository(scmUrl, preBuildSyncEnabled, SCM_REPOSITORY_CREATION, this::onSCMRepositoryCreated);
+    }
+
+    private void onSCMRepositoryCreated(RepositoryCreated event){
+        final SCMRepository repository = getSpecific(Integer.toString(event.getRepositoryId()));
+        final String taskId = event.getTaskId() == null ? null : event.getTaskId().toString();
+        notifier.sendMessage(new SCMRepositoryCreationSuccess(repository, taskId));
     }
 
     @Override
-    public RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled, JobNotificationType jobType, Consumer<Integer> consumer) {
+    public RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled, JobNotificationType jobType, Consumer<RepositoryCreated> consumer) {
         log.trace("Received request to start RC creation with url autodetect: " + scmUrl + " (sync enabled? " + preBuildSyncEnabled + ")");
         if(StringUtils.isEmpty(scmUrl)) throw new InvalidEntityException("You must specify the SCM URL.");
 
         if(scmUrl.contains(config.getInternalScmAuthority())){
             SCMRepository scmRepository = getInternalRepository(scmUrl);
-            consumer.accept(Integer.valueOf(scmRepository.getId()));
+            consumer.accept(new RepositoryCreated(null, Integer.valueOf(scmRepository.getId())));
             return new RepositoryCreationResponse(scmRepository);
         }else{
             RepositoryCreationTask task = getExternalRepository(scmUrl, preBuildSyncEnabled, jobType, consumer);
@@ -178,7 +187,7 @@ public class SCMRepositoryProviderImpl
         return mapper.toDTO(entity);
     }
 
-    private RepositoryCreationTask getExternalRepository(String scmUrl, Boolean preBuildSyncEnabled, JobNotificationType jobType, Consumer<Integer> consumer) {
+    private RepositoryCreationTask getExternalRepository(String scmUrl, Boolean preBuildSyncEnabled, JobNotificationType jobType, Consumer<RepositoryCreated> consumer) {
         checkIfRepositoryWithExternalURLExists(scmUrl);
         boolean sync = preBuildSyncEnabled == null || preBuildSyncEnabled;
         return startRCreationTask(scmUrl, sync, jobType, consumer);
@@ -224,7 +233,7 @@ public class SCMRepositoryProviderImpl
         }
     }
 
-    private RepositoryCreationTask startRCreationTask(String externalURL, boolean preBuildSyncEnabled, JobNotificationType jobType, Consumer<Integer> consumer){
+    private RepositoryCreationTask startRCreationTask(String externalURL, boolean preBuildSyncEnabled, JobNotificationType jobType, Consumer<RepositoryCreated> consumer){
         String userToken = userService.currentUserToken();
 
         org.jboss.pnc.bpm.model.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.bpm.model.RepositoryConfiguration.builder()
@@ -239,7 +248,12 @@ public class SCMRepositoryProviderImpl
         RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(
                 repositoryCreationProcess, userToken);
 
-        Consumer<RepositoryCreationSuccess> successListener = n -> consumer.accept(Integer.valueOf(n.getData().getRepositoryConfigurationId()));
+        Consumer<RepositoryCreationSuccess> successListener = n -> {
+            final Integer taskId = repositoryCreationTask.getTaskId();
+            Integer repositoryId = Integer.valueOf(n.getData().getRepositoryConfigurationId());
+            RepositoryCreated notification = new RepositoryCreated(taskId, repositoryId);
+            consumer.accept(notification);
+        };
         repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS, MDCWrappers.wrap(successListener));
         addErrorListeners(jobType, repositoryCreationTask);
 
@@ -252,14 +266,17 @@ public class SCMRepositoryProviderImpl
     }
 
     private void addErrorListeners(JobNotificationType jobType, RepositoryCreationTask task) {
-        Consumer<BpmStringMapNotificationRest> doNotifySMNError = MDCWrappers.wrap((e) -> notifier.sendMessage(mapError(jobType, e)));
+        Consumer<BpmStringMapNotificationRest> doNotifySMNError = MDCWrappers
+                .wrap((e) -> notifier.sendMessage(mapError(jobType, e, task)));
         task.addListener(BpmEventType.RC_REPO_CREATION_ERROR, doNotifySMNError);
         task.addListener(BpmEventType.RC_REPO_CLONE_ERROR, doNotifySMNError);
         task.addListener(BpmEventType.RC_CREATION_ERROR, doNotifySMNError);
     }
 
-    private RepositoryCreationFailure mapError(JobNotificationType jobType, BpmStringMapNotificationRest notification){
+    private RepositoryCreationFailure mapError(JobNotificationType jobType, BpmStringMapNotificationRest notification,
+            BpmTask task){
         log.debug("Received BPM event error: " + notification);
-        return new RepositoryCreationFailure(jobType, notification.getEventType(), notification.getData());
+        final String taskId = task.getTaskId() == null ? null : task.getTaskId().toString();
+        return new RepositoryCreationFailure(jobType, notification.getEventType(), notification.getData(), taskId);
     }
 }

@@ -24,6 +24,7 @@ import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.model.RepositoryConfiguration;
 
 import java.util.function.Consumer;
+import lombok.Data;
 
 public interface SCMRepositoryProvider extends Provider<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {
 
@@ -57,6 +58,12 @@ public interface SCMRepositoryProvider extends Provider<Integer, RepositoryConfi
      * function takes SCM repository id as a parameter.
      * @return id of the created
      */
-    RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled, JobNotificationType jobType, Consumer<Integer> consumer);
+    RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled, JobNotificationType jobType, Consumer<RepositoryCreated> consumer);
 
+    
+    @Data
+    public static class RepositoryCreated{
+        private final Integer taskId;
+        private final int repositoryId;
+    }
 }
