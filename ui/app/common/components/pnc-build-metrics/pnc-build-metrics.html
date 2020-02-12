@@ -18,9 +18,27 @@
 
 -->
 <div class="pnc-build-metrics">
+
+  <script type="text/ng-template" id="metricsDescriptionsTooltipTemplate.html"><div>
+    Each metric consists of several subtasks:
+    <dl class="m-t-10" ng-repeat="metric in $ctrl.metricsTooltip">
+      <dt>{{ metric.label }}</dt>
+      <dd>
+        {{ metric.description }}
+      </dd>
+    </dl>
+  </div></script>
+
   <div class="pnc-build-metrics-body" ng-class="{'status-visible' : $ctrl.isLoading || $ctrl.loadingError || $ctrl.noDataAvailable}">
     <div class="pnc-build-metrics-help">
       <small>Select specific metric in the chart legend to filter it out:</small>
+    </div>
+    <div class="pnc-build-metrics-help pnc-build-metrics-help--right">
+      <small>Metrics Descriptions 
+        <a uib-popover-template="'metricsDescriptionsTooltipTemplate.html'" popover-trigger="'outsideClick'" popover-placement="left" popover-class="popover-info-tip" popover-append-to-body="true" href>
+          <span class="fa fa-info-circle"></span>
+        </a>
+      </small>
     </div>
     <div class="loading-status" ng-class="{ 'opacity-50' : $ctrl.isUpdating }">
       <div ng-if="$ctrl.isLoading">
@@ -39,13 +57,13 @@
     <div class="pull-left">
       
     </div>
-    <div class="pull-right" ng-if="$ctrl.buildIds.length > 1">
+    <div class="pull-right" ng-if="$ctrl.builds.length > 1">
       <div ng-if="$ctrl.isUpdating" class="spinner spinner-sm pull-left m-t-3 m-r-8"></div>
       Display every
       <select id="{{$ctrl.componentId}}-select" ng-model="$ctrl.navigationSelected" ng-change="$ctrl.navigationSelect($ctrl.navigationSelected)" ng-options="option.name for option in $ctrl.navigationOptions"></select>
       build
       <a uib-popover="Always a maximum of {{::$ctrl.BUILDS_DISPLAY_LIMIT}} builds will be displayed if they are available, eg. if every {{::$ctrl.BUILDS_DISPLAY_LIMIT_EXAMPLE}}th build is displayed, {{::$ctrl.BUILDS_DISPLAY_LIMIT}} builds will cover last {{$ctrl.BUILDS_DISPLAY_LIMIT * $ctrl.BUILDS_DISPLAY_LIMIT_EXAMPLE}} builds."
-        popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
+        popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" popover-trigger="'outsideClick'" href>
         <span class="fa fa-info-circle"></span>
       </a>
     </div>

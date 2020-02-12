@@ -32,18 +32,17 @@
 
 <div class="row">
   <div class="col-sm-12 col-md-10 col-lg-8">
-    <pnc-build-tree build-record="recordCtrl.record"></pnc-build-tree>
-  </div>
-</div>
-
-
-<div class="row">
-  <div class="col-sm-12 col-md-10 col-lg-8">
 
     <div class="p-t-40">
       <h2>Build Metrics</h2>
     </div>
     
     <pnc-build-metrics build-metrics-data="detailCtrl.buildMetricsData" builds="[recordCtrl.record]" chart-type="horizontalBar" component-id="horizontalBar1"></pnc-build-metrics>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-sm-12 col-md-10 col-lg-8">
+    <pnc-build-tree build-record="recordCtrl.record"></pnc-build-tree>
   </div>
 </div>
