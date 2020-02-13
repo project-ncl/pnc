@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.common.json;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -30,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -65,6 +65,10 @@ public class JsonOutputConverterMapper {
     }
 
     public static <T> T readValue(String serialized, Class<T> clazz) throws IOException {
+        return mapper.readValue(serialized, clazz);
+    }
+
+    public static <T> T readValue(InputStream serialized, Class<T> clazz) throws IOException {
         return mapper.readValue(serialized, clazz);
     }
 

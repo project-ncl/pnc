@@ -19,16 +19,12 @@ package org.jboss.pnc.bpm.mock;
 
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
+import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.kie.api.definition.process.Process;
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.process.ProcessInstance;
 import org.mockito.Mockito;
 
-import javax.annotation.PostConstruct;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -45,17 +41,12 @@ public class BpmMock extends BpmManager {
 
     public BpmMock() throws ConfigurationParseException, CoreException {
         super(mockBpmConfig());
-        super.init();
-    }
-
-    @Override
-    protected KieSession initKieSession() throws CoreException {
-        mockBpmConfig();
-        session.onStartProcess(this::startProcessMock);
-        return session;
     }
 
     public boolean startTask(BpmTask task) throws CoreException {
+        Connector connector = Mockito.mock(Connector.class);
+        Mockito.when(connector.startProcess(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(1L);
+        task.setConnector(connector);
         boolean started = super.startTask(task);
         onTaskStarted.ifPresent(supplier -> supplier.accept(task));
         return started;
@@ -71,56 +62,7 @@ public class BpmMock extends BpmManager {
         return bpmConfig;
     }
 
-    protected ProcessInstance startProcessMock(String processName, Map params) {
-        return new ProcessInstanceMock();
-    }
-
-    @PostConstruct
     public void setUp() throws CoreException {
         super.init();
     }
-
-
-    public static class ProcessInstanceMock implements ProcessInstance {
-
-        @Override
-        public String getProcessId() {
-            return null;
-        }
-
-        @Override
-        public Process getProcess() {
-            return null;
-        }
-
-        @Override
-        public long getId() {
-            return 0;
-        }
-
-        @Override
-        public String getProcessName() {
-            return null;
-        }
-
-        @Override
-        public int getState() {
-            return 0;
-        }
-
-        @Override
-        public long getParentProcessInstanceId() {
-            return 0;
-        }
-
-        @Override
-        public void signalEvent(String s, Object o) {
-        }
-
-        @Override
-        public String[] getEventTypes() {
-            return new String[0];
-        }
-    }
-
 }
