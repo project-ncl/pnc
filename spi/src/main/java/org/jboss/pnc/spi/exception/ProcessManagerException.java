@@ -25,4 +25,8 @@ public class ProcessManagerException extends Exception {
     public ProcessManagerException(String message) {
         super(message);
     }
+
+    public ProcessManagerException(String message, Exception e) {
+        super(message, e);
+    }
 }
