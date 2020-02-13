@@ -128,6 +128,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         logger.debug("Will notify for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
         bpmManager.notify(taskId, buildResult);
         logger.debug("Notified for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
+        bpmManager.remove(taskId);
         return Response.ok().build();
     }
 
