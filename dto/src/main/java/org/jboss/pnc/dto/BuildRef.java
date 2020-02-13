@@ -17,24 +17,19 @@
  */
 package org.jboss.pnc.dto;
 
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-
-import java.time.Instant;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
 import lombok.Builder;
 import lombok.Data;
-
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import java.time.Instant;
 
 /**
  *
@@ -69,6 +64,8 @@ public class BuildRef implements DTOEntity {
     protected final String scmRevision;
 
     protected final String scmTag;
+
+    protected final String buildOutputChecksum;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

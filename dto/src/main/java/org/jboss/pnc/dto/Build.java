@@ -23,12 +23,12 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
 import java.util.Map;
-import org.jboss.pnc.enums.BuildProgress;
 
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
@@ -69,8 +69,8 @@ public class Build extends BuildRef {
             String id, Instant submitTime, Instant startTime, Instant endTime,
             BuildProgress progress, BuildStatus status, String buildContentId,
             Boolean temporaryBuild, String scmUrl, String scmRevision, String scmTag,
-            GroupBuildRef groupBuild, ProductMilestoneRef productMilestone) {
-        super(id, submitTime, startTime, endTime, progress, status, buildContentId, temporaryBuild, scmUrl, scmRevision, scmTag);
+            GroupBuildRef groupBuild, ProductMilestoneRef productMilestone, String buildOutputChecksum) {
+        super(id, submitTime, startTime, endTime, progress, status, buildContentId, temporaryBuild, scmUrl, scmRevision, scmTag, buildOutputChecksum);
         this.project = project;
         this.scmRepository = scmRepository;
         this.environment = environment;

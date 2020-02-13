@@ -140,6 +140,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "scmTag", ignore = true)
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "progress", source = "status")
+    @Mapping(target = "buildOutputChecksum", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = {
         "statusDescription", "buildSetTask", "buildConfigSetRecordId", "buildOptions", "dependants",
         "dependencies", "requestContext"})
