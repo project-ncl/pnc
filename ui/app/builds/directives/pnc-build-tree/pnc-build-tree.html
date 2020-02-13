@@ -44,7 +44,7 @@
         </td>
       </tr>
     </tbody>
-    
+
     <!-- Dependencies -->
     <tbody ng-if="$ctrl.buildTree.dependencyStructure" class="border-t-w-1">
       <tr class="bg-white">
@@ -74,7 +74,7 @@
     <tbody ng-if="!$ctrl.buildTree.dependencyStructure" class="border-t-w-1">
       <tr>
         <td class="text-center">
-          <span ng-show="$ctrl.isLoaded">Build Tree could not be constructed properly. There is known NCL-5335 issue.</span>
+          <span ng-show="$ctrl.isLoaded">Build Tree could not be constructed properly.</span>
           <div ng-hide="$ctrl.isLoaded" class="loading-placeholder w-100-20"></div>
         </td>
       </tr>
