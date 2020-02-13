@@ -20,12 +20,15 @@ package org.jboss.pnc.client;
 import java.util.Optional;
 import org.jboss.pnc.dto.response.ErrorResponse;
 
-import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.WebApplicationException;
 
 import lombok.Getter;
 
 /**
+ * Client exception, which indicates a failure of the request to the server.
+ *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @author Jakub Bartecek
  */
 public class RemoteResourceException extends ClientException {
 
@@ -40,13 +43,13 @@ public class RemoteResourceException extends ClientException {
         this.response = null;
     }
 
-    public RemoteResourceException(ClientErrorException cause) {
+    public RemoteResourceException(WebApplicationException cause) {
         super(cause);
         this.status = cause.getResponse().getStatus();
         this.response = null;
     }
 
-    public RemoteResourceException(ErrorResponse response, ClientErrorException cause) {
+    public RemoteResourceException(ErrorResponse response, WebApplicationException cause) {
         super(response == null ? cause.getMessage() : response.getErrorMessage(), cause);
         this.status = cause.getResponse().getStatus();
         this.response = response;

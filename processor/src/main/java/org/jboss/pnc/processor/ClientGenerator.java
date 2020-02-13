@@ -46,6 +46,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
@@ -279,7 +280,7 @@ public class ClientGenerator extends AbstractProcessor {
 
     private MethodSpec completeMethod(MethodSpec.Builder methodBuilder) {
         return methodBuilder
-                                .nextControlFlow("catch ($T e)", ClientErrorException.class)
+                                .nextControlFlow("catch ($T e)", WebApplicationException.class)
                                 .addStatement("throw new RemoteResourceException(readErrorResponse(e), e)")
                                 .endControlFlow()
                                 .build();
