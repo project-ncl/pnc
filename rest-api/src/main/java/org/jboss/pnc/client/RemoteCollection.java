@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.client;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -26,11 +28,21 @@ import java.util.NoSuchElementException;
 public interface RemoteCollection<T> extends Iterable<T> {
     int size();
 
+    /**
+     * Reads all pages and returns all elements.
+     */
+    Collection<T> getAll();
+
     static<T> RemoteCollection<T> empty() {
         return new RemoteCollection<T>() {
             @Override
             public int size() {
                 return 0;
+            }
+
+            @Override
+            public Collection<T> getAll() {
+                return Collections.emptyList();
             }
 
             @Override
