@@ -102,7 +102,7 @@ public class DefaultRemoteCollection<T> implements RemoteCollection<T> {
             } else if (currentPage.getPageIndex() < currentPage.getTotalPages() - 1) {
                 currentPage = loadNextPage(endpoint, currentPage);
                 iterator = currentPage.getContent().iterator();
-                return true;
+                return iterator.hasNext();
             } else {
                 return false;
             }
