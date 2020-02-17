@@ -58,6 +58,7 @@ public class BuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildRecord> {
             case "scmUrl": return BuildRecord_.scmRepoURL;
             case "scmTag": return BuildRecord_.scmTag;
             case "scmRevision": return BuildRecord_.scmRevision;
+            case "buildOutputChecksum": return BuildRecord_.buildOutputChecksum;
             default: return null;
         }
     }
