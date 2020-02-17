@@ -33,6 +33,7 @@ import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
@@ -56,11 +57,15 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.jboss.pnc.enums.ArtifactQuality.BLACKLISTED;
+import static org.jboss.pnc.enums.ArtifactQuality.DELETED;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -186,7 +191,11 @@ public class BuildResultPushManager {
             } else if (!buildRecord.getStatus().completedSuccessfully()) {
                 logger.warn("Not pushing record id: " + buildRecordId + " because it is a failed build.");
                 message = "Cannot push failed build.";
-            } else {
+            } else if (hasBadArtifactQuality(buildRecord.getBuiltArtifacts())) {
+                logger.warn("Not pushing record id: " + buildRecordId + " because it contains artifacts of insufficient quality: BLACKLISTED/DELETED.");
+                message = "Build contains artifacts of insufficient quality: BLACKLISTED/DELETED.";
+            }
+            else {
                 BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken, reimport);
                 successfullyPushed = causewayClient.importBuild(buildImportRequest, authToken);
             }
@@ -410,6 +419,13 @@ public class BuildResultPushManager {
                 artifact.getSize())
                 )
                 .collect(Collectors.toSet());
+    }
+
+    private boolean hasBadArtifactQuality(Collection<Artifact> builtArtifacts){
+        EnumSet<ArtifactQuality> badQuality = EnumSet.of(DELETED, BLACKLISTED);
+        return builtArtifacts.stream()
+                .map(Artifact::getArtifactQuality)
+                .anyMatch(badQuality::contains);
     }
 
     public Integer complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) throws ProcessException {
