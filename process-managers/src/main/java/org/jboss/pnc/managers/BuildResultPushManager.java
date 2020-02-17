@@ -49,6 +49,7 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -168,7 +169,11 @@ public class BuildResultPushManager {
             } else if (!buildRecord.getStatus().completedSuccessfully()) {
                 logger.warn("Not pushing record id: " + buildRecordId + " because it is a failed build.");
                 message = "Cannot push failed build.";
-            } else {
+            } else if (hasBadArtifactQuality(buildRecord.getBuiltArtifacts())) {
+                logger.warn("Not pushing record id: " + buildRecordId + " because it contains artifacts of insufficient quality: BLACKLISTED/DELETED.");
+                message = "Build contains artifacts of insufficient quality: BLACKLISTED/DELETED.";
+            }
+            else {
                 BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken, reimport);
                 successfullyPushed = causewayClient.importBuild(buildImportRequest, authToken);
             }
@@ -316,6 +321,13 @@ public class BuildResultPushManager {
                 artifact.getSize())
                 )
                 .collect(Collectors.toSet());
+    }
+
+    private boolean hasBadArtifactQuality(Collection<Artifact> builtArtifacts){
+        EnumSet<Artifact.Quality> badQuality = EnumSet.of(Artifact.Quality.DELETED, Artifact.Quality.BLACKLISTED);
+        return builtArtifacts.stream()
+                .map(Artifact::getArtifactQuality)
+                .anyMatch(badQuality::contains);
     }
 
     public Integer complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) throws ProcessException {

@@ -26,12 +26,14 @@ import org.junit.Test;
 import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.enterprise.event.Event;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.jboss.pnc.causewayclient.CausewayClient;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
@@ -40,6 +42,7 @@ import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.junit.runner.RunWith;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -115,11 +118,51 @@ public class BuildResultPushManagerTest {
     }
 
     @Test
+    public void shouldRejectBlacklisted() {
+        // given
+        BuildRecord record = buildRecord();
+        int brewBuildId = 100;
+        record.setExecutionRootName("Foo:bar");
+        record.setExecutionRootVersion("baz");
+        Artifact a = Artifact.Builder.newBuilder().build();
+        a.setArtifactQuality(Artifact.Quality.BLACKLISTED);
+        record.setBuiltArtifacts(new HashSet<Artifact>(Arrays.asList(a)));
+
+        // when
+        Set<Result> results = release(brewBuildId, record);
+
+        // then
+        assertThat(results).isNotEmpty()
+                .first()
+                .extracting(Result::getStatus).isEqualTo(Result.Status.REJECTED);
+    }
+
+    @Test
+    public void shouldRejectDeleted(){
+        // given
+        BuildRecord record = buildRecord();
+        int brewBuildId = 100;
+        record.setExecutionRootName("Foo:bar");
+        record.setExecutionRootVersion("baz");
+        Artifact a = Artifact.Builder.newBuilder().build();
+        a.setArtifactQuality(Artifact.Quality.DELETED);
+        record.setBuiltArtifacts(new HashSet<Artifact>(Arrays.asList(a)));
+
+        // when
+        Set<Result> results = release(brewBuildId, record);
+
+        // then
+        assertThat(results).isNotEmpty()
+                .first()
+                .extracting(Result::getStatus).isEqualTo(Result.Status.REJECTED);
+    }
+
+    @Test
     public void shouldRejectWithMissingData() {
         // given
         BuildRecord record = buildRecord();
         int brewBuildId = 100;
-
+        
         // when
         Set<Result> results = release(brewBuildId, record);
 
