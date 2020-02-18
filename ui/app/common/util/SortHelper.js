@@ -44,9 +44,7 @@
      * returns: A JSON formatted object of sort config that should be used for current page
      */
     helper.getSortConfig = function (pageName) {
-      const STORAGE_KEY = pageName + 'SortingConfig';
-      let sortConfigJson = window.localStorage.getItem(STORAGE_KEY);
-      return sortConfigJson ? JSON.parse(sortConfigJson) : DEFAULT_SORT_CONFIG[pageName];
+      return DEFAULT_SORT_CONFIG[pageName];
     };
 
     /**
