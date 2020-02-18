@@ -53,11 +53,8 @@
         filterType: 'text'
       }];
 
-      $ctrl.groupConfigsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
+      $ctrl.groupConfigsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
 
-      $ctrl.paginator.addSortChangeListener(currentSortConfig => {
-        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
-      });
     };
   }
 

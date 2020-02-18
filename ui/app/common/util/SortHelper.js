@@ -39,33 +39,23 @@
     var helper = {};
 
     /**
-     * The helper that read specific sort configuration from localStorage according to the page name that passed in(the
-     * first parameter). If there is no such config in the local storage, it will use the default config (the second
-     * parameter) passed in.
+     * The helper that read the default config from DEFAULT_SORT_CONFIG and return it in json format
      * @pageName: The name of the sorting page;
-     * returns: An object of sort config that should be used for current page
+     * returns: A JSON formatted object of sort config that should be used for current page
      */
-    helper.getSortConfigFromLocalStorage = function (pageName) {
+    helper.getSortConfig = function (pageName) {
       const STORAGE_KEY = pageName + 'SortingConfig';
       let sortConfigJson = window.localStorage.getItem(STORAGE_KEY);
       return sortConfigJson ? JSON.parse(sortConfigJson) : DEFAULT_SORT_CONFIG[pageName];
     };
 
     /**
-     * The helper that set specific sort configuration to localStorage according to the page name that passed in(the
-     * first parameter).
+     * The helper that read the default config from DEFAULT_SORT_CONFIG and return it as RSQL string
      * @pageName: The name of the sorting page;
-     * @currentSortConfig: The current sort config to be saved into local storage.
+     * returns: An RSQL string from sort config that sends to back end for initial query
      */
-    helper.setSortConfigToLocalStorage = function (pageName, currentSortConfig) {
-      const STORAGE_KEY = pageName + 'SortingConfig';
-      if (currentSortConfig) {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(currentSortConfig));
-      }
-    };
-
     helper.getSortQueryString = function (pageName) {
-      let sortConfig = helper.getSortConfigFromLocalStorage(pageName);
+      let sortConfig = DEFAULT_SORT_CONFIG[pageName];
       return {
         sort: '=' + (sortConfig.asc ? 'asc' : 'desc') + '=' + sortConfig.field.id
       };

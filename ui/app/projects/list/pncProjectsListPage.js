@@ -61,11 +61,7 @@
     $ctrl.$onInit = () => {
       $ctrl.projectsFilteringPage = filteringPaginator($ctrl.projects);
 
-      $ctrl.projectsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
-
-      $ctrl.projectsFilteringPage.addSortChangeListener(currentSortConfig => {
-        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
-      });
+      $ctrl.projectsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
     };
 
   }
