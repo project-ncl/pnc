@@ -112,12 +112,7 @@
     $ctrl.$onInit = () => {
       $ctrl.artifactsFilteringPage = filteringPaginator($ctrl.artifacts);
 
-
-      $ctrl.artifactsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
-
-      $ctrl.artifactsFilteringPage.addSortChangeListener(currentSortConfig => {
-        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
-      });
+      $ctrl.artifactsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
     };
 
   }

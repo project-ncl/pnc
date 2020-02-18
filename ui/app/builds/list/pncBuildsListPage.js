@@ -90,10 +90,7 @@
 
     $ctrl.$onInit = function () {
       $ctrl.buildsFilteringPage = filteringPaginator($ctrl.builds);
-      $ctrl.buildsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
-      $ctrl.buildsFilteringPage.addSortChangeListener(currentSortConfig => {
-        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
-      });
+      $ctrl.buildsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
 
       $scope.$on(events.BUILD_PROGRESS_CHANGED, () => $ctrl.buildsFilteringPage.refresh());
 

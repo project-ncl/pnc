@@ -89,11 +89,8 @@
     $ctrl.$onInit = function () {
       $ctrl.groupBuildsFilteringPage = filteringPaginator($ctrl.groupBuilds);
 
-      $ctrl.groupBuildsSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
+      $ctrl.groupBuildsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
 
-      $ctrl.groupBuildsFilteringPage.addSortChangeListener(currentSortConfig => {
-        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
-      });
 
       /* NCL-4433 group builds need to be updated
       function processEvent() {}

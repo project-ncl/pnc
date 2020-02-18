@@ -63,11 +63,8 @@
     $ctrl.$onInit = function () {
       $ctrl.scmRepositoriesFilteringPage = filteringPaginator($ctrl.scmRepositories);
 
-      $ctrl.scmRepositoriesSortingConfigs = sortHelper.getSortConfigFromLocalStorage(PAGE_NAME);
+      $ctrl.scmRepositoriesSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
 
-      $ctrl.scmRepositoriesFilteringPage.addSortChangeListener(currentSortConfig => {
-        sortHelper.setSortConfigToLocalStorage(PAGE_NAME, currentSortConfig);
-      });
     };
 
   }
