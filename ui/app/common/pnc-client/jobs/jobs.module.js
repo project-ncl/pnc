@@ -18,12 +18,6 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.pnc-client', [
-    'pnc.common.pnc-client.pagination',
-    'pnc.common.pnc-client.resources',
-    'pnc.common.pnc-client.rsql',
-    'pnc.common.pnc-client.message-bus',
-    'pnc.common.pnc-client.jobs'
-  ]);
+  angular.module('pnc.common.pnc-client.jobs', []);
 
 })();

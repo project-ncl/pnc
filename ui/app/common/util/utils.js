@@ -29,11 +29,44 @@
     function ($q) {
 
       /**
-       * Returns true if the given value is undefined, null or an empty string.
+       * Returns true if the given value is empty, that is one of the following criteria
+       * holds:
+       * - value is undefined
+       * - value is null
+       * - value is a string of length 0
+       * - value is an array of length 0
+       * - value is an object with no enumerable properties of its own (inherited properties are not checked)
        */
       function isEmpty(value) {
-        return angular.isUndefined(value) || value === null ||
-            (angular.isString(value) && value === '');
+        if (typeof value === 'undefined') {
+          return true;
+        }
+
+        if (value === null) {
+          return true;
+        }
+
+        if ((typeof value === 'string' || value instanceof String) && value.length === 0) {
+          return true;
+        }
+
+        if (Array.isArray(value) && value.length === 0) {
+          return true;
+        }
+
+        if (typeof value === 'object' && value.constructor === Object && Object.keys(value).length === 0) {
+          return true;
+        }
+
+        return false;
+      }
+
+
+      /**
+       * Returns the inverse of isEmpty.
+       */
+      function isNotEmpty(value) {
+        return !isEmpty(value);
       }
 
       /**
@@ -125,16 +158,16 @@
 
        /**
         * Takes a page object and fetches all objects of all pages and returns as a flat array.
-        * 
+        *
         * WARNING: This function should not be used except in exceptional circumstances.
         * It has the potential to cause severe performance issues on the backend and
-        * using it should be seen as a code / UX smell. In some rare cases it is a pragmatic necessity 
+        * using it should be seen as a code / UX smell. In some rare cases it is a pragmatic necessity
         * to use this to get around some shortcomings in the PNC REST API that are difficult to
         * address at present. The long term goal is to address the backend issues and delete this function
-        * with extreme prejudice. 
-        * 
+        * with extreme prejudice.
+        *
         * @param {Object} page a page object
-        * @return {Object} returns a promise with the  
+        * @return {Object} returns a promise with the
         */
        function dePaginate(page) {
          return $q.when(page)
@@ -149,6 +182,7 @@
 
       return {
         isEmpty,
+        isNotEmpty,
         parseBoolean,
         concatStrings,
         hashCode,

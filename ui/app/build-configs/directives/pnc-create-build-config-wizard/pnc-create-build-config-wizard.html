@@ -44,7 +44,7 @@
       <pf-wizard-substep step-title="Product Version" step-id="productVersion" step-priority="15" show-review="true" show-review-details="true" review-template="build-configs/directives/pnc-create-build-config-wizard/review-product-version.html">
         <div class="form-group">
           <label class="control-label">Product Version</label>
-          <pnc-product-version-combobox ng-model="$ctrl.wizardData.productVersion"></pnc-product-version-combobox>              
+          <pnc-product-version-combobox ng-model="$ctrl.wizardData.productVersion"></pnc-product-version-combobox>
         </div>
       </pf-wizard-substep>
 
@@ -72,31 +72,29 @@
       </pf-wizard-substep>
 
       <pf-wizard-substep step-title="Create" step-id="review-create" step-priority="20" wz-disabled="false" on-show="$ctrl.create">
-        
+
         <!-- Display when loading -->
         <div class="wizard-pf-contents" ng-if="!$ctrl.wizardDone && !$ctrl.createError">
           <div class="wizard-pf-process blank-slate-pf">
             <div class="spinner spinner-lg blank-slate-pf-icon"></div>
-            <h5 class="blank-slate-pf-main-action">Creating Build Config</h5>
-            <!-- <p class="blank-slate-pf-secondary-action" ng-repeat="message in $ctrl.createStatusMessages">{{ message }}</p> -->
+            <h5 class="blank-slate-pf-main-action">Creating Build Config<span ng-hide="$ctrl.wizardData.repoConfig.useExistingRepoConfig"> and SCM Repository, this may take several minutes.</span></h5>
           </div>
           <ul class="list-unstyled">
             <li ng-repeat="message in $ctrl.createStatusMessages">{{ message }}</li>
           </ul>
         </div>
-        
-        <!-- Display on success -->   
-        <div class="wizard-pf-contents" ng-if="$ctrl.wizardDone && !$ctrl.createError">        
+
+        <!-- Display on success -->
+        <div class="wizard-pf-contents" ng-if="$ctrl.wizardDone && !$ctrl.createError">
           <div class="wizard-pf-complete blank-slate-pf">
             <div class="wizard-pf-success-icon"><span class="glyphicon glyphicon-ok-circle"></span></div>
             <h5 class="blank-slate-pf-main-action">Build Config Creation Successful</h5>
-            <p class="blank-slate-pf-secondary-action">Your Build Config was created successfully.</p>
             <a role="button" class="btn btn-lg btn-primary" ui-sref="projects.detail.build-configs.detail({ projectId: $ctrl.wizardData.project.id, configurationId: $ctrl.createdBuildConfigId })" ng-click="$ctrl.onClose()" href>View Build Config</a>
           </div>
         </div>
 
         <!-- Display on error -->
-        <div class="wizard-pf-contents" ng-if="$ctrl.createError">        
+        <div class="wizard-pf-contents" ng-if="$ctrl.createError">
           <div class="wizard-pf-complete blank-slate-pf">
             <div class="wizard-pf-error-icon"><span class="glyphicon glyphicon-remove-circle"></span></div>
             <h5 class="blank-slate-pf-main-action">Error</h5>
