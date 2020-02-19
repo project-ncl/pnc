@@ -23,24 +23,25 @@
 
   /**
    * @ngdoc directive
-   * @name pnc.dashboard:pncMyBuildSetsPanel
+   * @name pnc.dashboard:pncMyBuildsPanel
    * @restrict E
    * @description
+   * If the user is authenticated displays a panel of the user's builds.
    * @example
+   * <pnc-my-builds-panel></pnc-my-builds-panel>
    * @author Alex Creasy
    */
-  module.directive('pncMyBuildSetsPanel', [
+  module.directive('pncMyBuildsPanel', [
     'authService',
-    'GroupBuildResource',
+    'BuildResource',
     'events',
     'paginator',
-    function (authService, GroupBuildResource, events, paginator) {
+    function (authService, BuildResource, events, paginator) {
       return {
         restrict: 'E',
-        templateUrl: 'dashboard/directives/pnc-my-build-sets-panel.html',
+        templateUrl: 'dashboard/directives/pnc-my-builds-panel/pnc-my-builds-panel.html',
         scope: {},
         link: function (scope) {
-
           scope.show = function() {
             return authService.isAuthenticated();
           };
@@ -48,21 +49,22 @@
           function init() {
 
             authService.getPncUser().then(function(result) {
-              return GroupBuildResource.queryByUser({
+              return BuildResource.queryByUser({
                 userId: result.id,
                 pageSize: 10
-              }).$promise.then(function(page) {
+              }).$promise.then(function(page){
                 scope.page = paginator(page);
               });
             });
 
             scope.displayFields = ['status', 'id', 'configurationName', 'startTime', 'endTime'];
 
-            scope.$on(events.GROUP_BUILD_PROGRESS_CHANGED, (event, groupBuild) => {
-              if (authService.isCurrentUser(groupBuild.user)) {
+            scope.$on(events.BUILD_PROGRESS_CHANGED, (event, build) => {
+              if (authService.isCurrentUser(build.user)) {
                 scope.page.refresh();
               }
             });
+
           }
 
           if (authService.isAuthenticated()) {
