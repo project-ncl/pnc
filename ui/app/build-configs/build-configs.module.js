@@ -88,10 +88,11 @@
               buildConfig: 'configurationDetail'
             }
           },
-          'sidebar': {
-            templateUrl: 'build-configs/views/build-configs.detail-sidebar.html',
-            controller: 'ConfigurationSidebarController',
-            controllerAs: 'sidebarCtrl'
+          sidebar: {
+            component: 'pncBuildConfigDetailSidebar',
+            bindings: {
+              buildConfig: 'configurationDetail'
+            }
           }
         },
         resolve: {
@@ -100,6 +101,13 @@
             'BuildConfiguration',
             function ($stateParams, BuildConfiguration) {
               return BuildConfiguration.get({ id: $stateParams.configurationId }).$promise;
+            }
+          ],
+          builds: [
+            '$stateParams',
+            'BuildConfigResource',
+            ($stateParams, BuildConfigResource) => {
+              return BuildConfigResource.getBuilds({ id: $stateParams.configurationId, pageSize: 10, sort: '=desc=submitTime' }).$promise;
             }
           ]
         }

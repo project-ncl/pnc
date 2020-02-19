@@ -18,19 +18,18 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.build-configs');
+  angular.module('pnc.build-configs').component('pncBuildConfigDetailSidebar', {
+    bindings: {
+      buildConfig: '<',
+      builds: '<'
+    },
+    templateUrl: 'build-configs/detail/sidebar/pnc-build-config-detail-sidebar.html',
+    controller: [Controller]
+  });
 
-  module.controller('ConfigurationSidebarController', [
-    '$stateParams',
-    'configurationDetail',
-    function($stateParams, configurationDetail) {
-      this.buildConfigurationId = $stateParams.configurationId;
-      this.buildConfiguration = configurationDetail;
-      this.filterBy = {
-        buildConfigurationId: $stateParams.configurationId
-      };
 
-    }
-  ]);
+  function Controller() {
+
+  }
 
 })();
