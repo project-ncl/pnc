@@ -49,6 +49,11 @@
           method: 'POST',
           url: ENDPOINT + '/build',
           successNotification: false
+        },
+        getBuilds: {
+          method: 'GET',
+          url: ENDPOINT + '/builds',
+          isPaged: true
         }
       });
 

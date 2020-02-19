@@ -27,7 +27,7 @@
     <span title="End Time">{{ $ctrl.item.endTime | date:'medium' }}</span>
     <span title="Start Time" ng-hide="$ctrl.item.endTime">{{ $ctrl.item.startTime | date:'medium' }}</span>
     <span ng-show="$ctrl.item.username">,</span>
-    <span class="text-bold">{{ $ctrl.item.username }}</span>
+    <span class="text-bold">{{ $ctrl.item.user.username }}</span>
   </div>
   <em ng-show="!$ctrl.item && $ctrl.isLoaded">none</em>
   <div ng-hide="$ctrl.isLoaded" class="loading-placeholder w-100-20"></div>
