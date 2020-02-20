@@ -135,7 +135,7 @@ public class BuildResultPushManagerTest {
         record.setExecutionRootVersion("baz");
         Artifact a = Artifact.builder().build();
         a.setArtifactQuality(BLACKLISTED);
-        record.setBuiltArtifacts(new HashSet<Artifact>(Arrays.asList(a)));
+        a.setBuildRecord(record);
 
         // when
         Set<Result> results = release(brewBuildId, record);
@@ -155,7 +155,7 @@ public class BuildResultPushManagerTest {
         record.setExecutionRootVersion("baz");
         Artifact a = Artifact.builder().build();
         a.setArtifactQuality(DELETED);
-        record.setBuiltArtifacts(new HashSet<Artifact>(Arrays.asList(a)));
+        a.setBuildRecord(record);
 
         // when
         Set<Result> results = release(brewBuildId, record);
