@@ -40,7 +40,7 @@
     $ctrl.$onInit = () => {
       $ctrl.page = paginator($ctrl.builds);
 
-      $scope.$on(events.BUILD_PROGRESS_CHANGED, (e, build) => {
+      $scope.$on(events.BUILD_STATUS_CHANGED, (e, build) => {
         if (build.buildConfigRevision.id !== $ctrl.buildConfig.id.toString()) {
           return;
         }
