@@ -20,13 +20,13 @@
 <div>
   <dl class="dl-horizontal">
     <dt>Project</dt>
-    <dd> 
+    <dd>
       <a ui-sref="projects.detail({projectId: $ctrl.buildConfig.project.id})" ng-bind="$ctrl.buildConfig.project.name" href></a>
     </dd>
     <dt>Created</dt>
     <dd>{{ $ctrl.buildConfig.creationTime | date : 'medium' }}</dd>
     <dt>Modified</dt>
-    <dd>{{ $ctrl.buildConfig.lastModificationTime | date : 'medium' }}</dd>
+    <dd>{{ $ctrl.buildConfig.modificationTime | date : 'medium' }}</dd>
     <dt>Description</dt>
     <dd>{{ $ctrl.buildConfig.description }}</dd>
     <dt>Build Type</dt>
@@ -35,7 +35,7 @@
     <dd>{{ $ctrl.buildConfig.environment.name }}</dd>
     <dt>SCM Repository</dt>
     <dd>
-      <pnc-scm-repository-link scm-repository="$ctrl.buildConfig.repositoryConfiguration"></pnc-scm-repository-link>
+      <pnc-scm-repository-link scm-repository="$ctrl.buildConfig.scmRepository"></pnc-scm-repository-link>
     </dd>
     <dt>Revision</dt>
     <dd>{{ $ctrl.buildConfig.scmRevision }}</dd>

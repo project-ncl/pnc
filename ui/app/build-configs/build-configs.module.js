@@ -98,17 +98,13 @@
         resolve: {
           configurationDetail: [
             '$stateParams',
-            'BuildConfiguration',
-            function ($stateParams, BuildConfiguration) {
-              return BuildConfiguration.get({ id: $stateParams.configurationId }).$promise;
-            }
+            'BuildConfigResource',
+            ($stateParams, BuildConfigResource) => BuildConfigResource.get({ id: $stateParams.configurationId }).$promise
           ],
           builds: [
             '$stateParams',
             'BuildConfigResource',
-            ($stateParams, BuildConfigResource) => {
-              return BuildConfigResource.getBuilds({ id: $stateParams.configurationId, pageSize: 10, sort: '=desc=submitTime' }).$promise;
-            }
+            ($stateParams, BuildConfigResource) => BuildConfigResource.getBuilds({ id: $stateParams.configurationId, pageSize: 10, sort: '=desc=submitTime' }).$promise
           ]
         }
       });
