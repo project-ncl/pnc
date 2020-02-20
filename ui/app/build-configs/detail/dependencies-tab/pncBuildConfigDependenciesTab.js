@@ -27,12 +27,12 @@
       mainCtrl: '^^pncBuildConfigDetailMain'
     },
     templateUrl: 'build-configs/detail/dependencies-tab/pnc-build-config-dependencies-tab.html',
-    controller: ['paginator', Controller]
+    controller: [Controller]
   });
 
 
-  function Controller(paginator) {
-    var $ctrl = this;
+  function Controller() {
+    const $ctrl = this;
 
     // -- Controller API --
 
@@ -43,21 +43,12 @@
 
     // --------------------
 
-
-    $ctrl.$onInit = function () {
-      $ctrl.page = paginator($ctrl.dependencies);
-    };
-
     function onRemove(dependency) {
-      return $ctrl.buildConfig.$removeDependency({ dependencyId: dependency.id });
+      console.log('Remove dependency: %O', dependency);
     }
 
     function onEdit(dependencies) {
-      $ctrl.buildConfig.dependencyIds = dependencies.map(function (dep) {
-        return dep.id;
-      });
-
-      return $ctrl.buildConfig.$update();
+      console.log('Update dependencies: %O', dependencies);
     }
   }
 

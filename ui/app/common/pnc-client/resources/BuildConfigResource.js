@@ -63,7 +63,12 @@
           method: 'GET',
           url: ENDPOINT + '/builds',
           isPaged: true
-        }
+        },
+        getDependencies: {
+          method: 'GET',
+          url: ENDPOINT + '/dependencies',
+          isPaged: true
+        },
       });
 
       return resource;

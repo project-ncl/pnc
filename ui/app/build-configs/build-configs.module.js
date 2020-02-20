@@ -130,12 +130,7 @@
           buildConfig: 'configurationDetail'
         },
         resolve: {
-          dependencies: [
-            'configurationDetail',
-            function (configurationDetail) {
-              return configurationDetail.$getDependencies();
-            }
-          ]
+          dependencies: ['configurationDetail', buildConfig => buildConfig.$getDependencies()]
         }
       });
 
