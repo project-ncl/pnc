@@ -26,8 +26,9 @@
   module.factory('BuildConfigResource', [
     '$resource',
     'restConfig',
+    'patchHelper',
     'BUILD_CONFIG_PATH',
-    ($resource, restConfig, BUILD_CONFIG_PATH) => {
+    ($resource, restConfig, patchHelper, BUILD_CONFIG_PATH) => {
       const ENDPOINT = restConfig.getPncRestUrl() + BUILD_CONFIG_PATH;
 
       const resource = $resource(ENDPOINT, {
@@ -70,6 +71,8 @@
           isPaged: true
         },
       });
+
+      patchHelper.assignPatchMethods(resource);
 
       return resource;
     }
