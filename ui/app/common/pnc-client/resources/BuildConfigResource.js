@@ -70,6 +70,20 @@
           url: ENDPOINT + '/dependencies',
           isPaged: true
         },
+        getRevisions: {
+          method: 'GET',
+          url: ENDPOINT + '/revisions',
+          isPaged: true
+        },
+        getRevision: {
+          method: 'GET',
+          url: ENDPOINT + '/revisions/:revisionId'
+        },
+        restoreRevision: {
+          method: 'POST',
+          url: ENDPOINT + '/revisions/:revisionId/restore',
+          successNotification: false
+        }
       });
 
       patchHelper.assignPatchMethods(resource);
