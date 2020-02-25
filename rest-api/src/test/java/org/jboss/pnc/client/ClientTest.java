@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.slf4j.MDC;
 
 import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -116,6 +117,7 @@ public class ClientTest {
 
         wireMockServer.stubFor(get(urlMatching(".*")).willReturn(aResponse()
                 .withStatus(401)
+                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
         ));
 
         BuildClient buildClient = new BuildClient(configuration);
