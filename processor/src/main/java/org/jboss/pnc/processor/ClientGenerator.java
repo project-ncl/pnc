@@ -306,6 +306,7 @@ public class ClientGenerator extends AbstractProcessor {
     private MethodSpec completeMethod(MethodSpec.Builder methodBuilder, Consumer<MethodSpec.Builder> coreStatementConsumer) {
         methodBuilder = methodBuilder
                 .nextControlFlow("catch ($T e)", NotAuthorizedException.class)
+                .beginControlFlow("if (configuration.getBearerTokenSupplier() != null)")
                 .beginControlFlow("try")
                 .addStatement("bearerAuthentication.setToken(configuration.getBearerTokenSupplier().get())");
 
@@ -314,6 +315,9 @@ public class ClientGenerator extends AbstractProcessor {
         return methodBuilder
                 .nextControlFlow("catch ($T wae)", WebApplicationException.class)
                 .addStatement("throw new RemoteResourceException(readErrorResponse(wae), wae)")
+                .endControlFlow()
+                .nextControlFlow("else")
+                .addStatement("throw new RemoteResourceException(readErrorResponse(e), e)")
                 .endControlFlow()
                 .nextControlFlow("catch ($T e)", WebApplicationException.class)
                 .addStatement("throw new RemoteResourceException(readErrorResponse(e), e)")
