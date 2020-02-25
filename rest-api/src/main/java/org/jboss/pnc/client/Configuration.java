@@ -46,6 +46,13 @@ public class Configuration {
 
     private final String bearerToken;
 
+    /**
+     * Allows to provide a supplied method, which can be repeatedly used by client to generate new bearer token.
+     * If a request fails with 401 Unauthorized, client tries to generate new token and re-run the requests.
+     *
+     * This is very useful when using long running applications. Users doesn't need to care about token expiration.
+     *
+     */
     private final Supplier<String> bearerTokenSupplier;
 
     private final String protocol;
@@ -83,11 +90,6 @@ public class Configuration {
 
         public ConfigurationBuilder addDefaultMdcToHeadersMappings() {
             this.mdcToHeadersMappings = MDCUtils.getMDCToHeaderMappings();
-            return this;
-        }
-
-        public ConfigurationBuilder bearerTokenProvider(Supplier<String> bearerTokenSupplier) {
-            this.bearerTokenSupplier = bearerTokenSupplier;
             return this;
         }
     }
