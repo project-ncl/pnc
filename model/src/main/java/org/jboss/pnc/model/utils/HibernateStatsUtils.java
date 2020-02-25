@@ -166,7 +166,7 @@ public class HibernateStatsUtils {
 
                     secondLevelCachesStatMap.put(REGION_STATS_PREFIX + crN, sLCStatMap);
                 } catch (IllegalArgumentException e) {
-                    logger.error("The region name could not be resolved: {}", e);
+                    //logger.error("The region name could not be resolved: {}", e);
                 }
             });
         }
