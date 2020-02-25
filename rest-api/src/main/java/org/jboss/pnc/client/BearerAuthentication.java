@@ -24,12 +24,17 @@ import java.io.IOException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @author Jakub Bartecek
  */
 public class BearerAuthentication implements ClientRequestFilter {
 
     private String token;
 
     public BearerAuthentication(String token) {
+        this.token = token;
+    }
+
+    public void setToken(String token) {
         this.token = token;
     }
 

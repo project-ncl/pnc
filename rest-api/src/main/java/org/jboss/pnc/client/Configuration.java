@@ -26,9 +26,12 @@ import org.jboss.pnc.common.logging.MDCUtils;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @author Jakub Bartecek
  */
 @Data
 @AllArgsConstructor
@@ -42,6 +45,8 @@ public class Configuration {
     private final BasicAuth basicAuth;
 
     private final String bearerToken;
+
+    private final Supplier<String> bearerTokenSupplier;
 
     private final String protocol;
 
@@ -74,10 +79,13 @@ public class Configuration {
 
     public static final class ConfigurationBuilder {
 
-        private Map<String, String> mdcToHeadersMappings = new HashMap<>();
-
         public ConfigurationBuilder addDefaultMdcToHeadersMappings() {
             this.mdcToHeadersMappings = MDCUtils.getMDCToHeaderMappings();
+            return this;
+        }
+
+        public ConfigurationBuilder bearerTokenProvider(Supplier<String> bearerTokenSupplier) {
+            this.bearerTokenSupplier = bearerTokenSupplier;
             return this;
         }
     }

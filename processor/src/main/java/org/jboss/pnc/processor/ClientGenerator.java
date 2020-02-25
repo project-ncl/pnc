@@ -39,9 +39,9 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
@@ -55,12 +55,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @author Jakub Bartecek
  */
 @SupportedAnnotationTypes(
         {"org.jboss.pnc.processor.annotation.Client"})
@@ -156,10 +158,13 @@ public class ClientGenerator extends AbstractProcessor {
                         String endpointInvokeParameters = endpointParameters.stream()
                                 .collect(Collectors.joining(", "));
 
+
+                        String coreStatement1 = "PageReader pageLoader = new PageReader<>((pageParameters) -> { " + setSortAndQuery + " return getEndpoint()." + restApiMethod.getSimpleName() + "(" + endpointInvokeParameters + ");}, getRemoteCollectionConfig())";
+                        String coreStatement2 = "return pageLoader.getCollection()";
                         defaultMethod.returns(ParameterizedTypeName.get(returnClass, TypeName.get(returnGeneric)))
-                                .addStatement("PageReader pageLoader = new PageReader<>((pageParameters) -> { " + setSortAndQuery + " return getEndpoint()." + restApiMethod.getSimpleName() + "(" + endpointInvokeParameters + ");}, getRemoteCollectionConfig())")
-                                .addStatement("return pageLoader.getCollection()");
-                        MethodSpec methodSpec = completeMethod(defaultMethod);
+                                .addStatement(coreStatement1)
+                                .addStatement(coreStatement2);
+                        MethodSpec methodSpec = completeMethod(defaultMethod, coreStatement1, coreStatement2);
                         methods.add(methodSpec);
 
                         //without sort and query
@@ -179,71 +184,82 @@ public class ClientGenerator extends AbstractProcessor {
                             String defaultMethodParametersString = defaultMethodParameters.stream()
                                     .collect(Collectors.joining(", "));
 
-                            simpleMethod.addStatement("return " + restApiMethod.getSimpleName() + "(" + defaultMethodParametersString + ")");
-                            methods.add(completeMethod(simpleMethod));
+                            String coreStatement = "return " + restApiMethod.getSimpleName() + "(" + defaultMethodParametersString + ")";
+                            simpleMethod.addStatement(coreStatement);
+                            methods.add(completeMethod(simpleMethod, coreStatement));
                         }
 
                     } else if (ClassName.get(returnType).toString().startsWith(ClassName.get("org.jboss.pnc.dto.response", "Singleton").toString())) {
                         //single result
                         MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
                         addDefaultParameters(restApiMethod, methodBuilder);
+                        MethodSpec methodSpec = null;
                         if (restApiMethod.getAnnotation(GET.class) != null) {
-                            methodBuilder
-                                    .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(returnGeneric)))
-                                    .addStatement("return Optional.of(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent())") //TODO check for empty Singleton
+                            Consumer<MethodSpec.Builder> coreStatementConsumer = (builder) -> builder
+                                    .addStatement("return Optional.of(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent())")
                                     .nextControlFlow("catch ($T e)", NotFoundException.class)
                                     .addStatement("return Optional.empty()");
+
+                            methodBuilder
+                                    .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(returnGeneric)));
+                            coreStatementConsumer.accept(methodBuilder);
+                            methodSpec = completeMethod(methodBuilder, coreStatementConsumer);
                         } else if (restApiMethod.getAnnotation(POST.class) != null) {
+                            String coreStatement = "return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent()";
                             methodBuilder
                                     .returns(TypeName.get(returnGeneric))
-                                    .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ").getContent()");
+                                    .addStatement(coreStatement);
+                            methodSpec = completeMethod(methodBuilder, coreStatement);
                         }
-                        MethodSpec methodSpec = completeMethod(methodBuilder);
                         methods.add(methodSpec);
                     } else if (ClassName.get(returnType).toString().equals("java.lang.String")) {
                         //string response
+                        String coreStatement = "return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + "))";
                         MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
                         addDefaultParameters(restApiMethod, methodBuilder);
                         methodBuilder
                                 .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(String.class)))
-                                .addStatement("return Optional.ofNullable(getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + "))")
+                                .addStatement(coreStatement)
                                 .nextControlFlow("catch ($T e)", NotFoundException.class)
                                 .addStatement("return Optional.empty()");
-                        MethodSpec methodSpec = completeMethod(methodBuilder);
+                        MethodSpec methodSpec = completeMethod(methodBuilder, coreStatement);
                         methods.add(methodSpec);
                     } else if (ClassName.get(returnType).toString().equals("javax.ws.rs.core.StreamingOutput")) {
                         //string response
+                        String coreStatement = "return Optional.ofNullable(getInputStream(\"" + restApiMethod.getAnnotation(Path.class).value() + "\", " + parametersList + "))";
                         MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
                         addDefaultParameters(restApiMethod, methodBuilder);
                         methodBuilder
                                 .returns(ParameterizedTypeName.get(ClassName.get(Optional.class), TypeName.get(InputStream.class)))
-                                .addStatement("return Optional.ofNullable(getInputStream(\"" + restApiMethod.getAnnotation(Path.class).value() + "\", " + parametersList + "))")
+                                .addStatement(coreStatement)
                                 .nextControlFlow("catch ($T e)", NotFoundException.class)
                                 .addStatement("return Optional.empty()");
-                        MethodSpec methodSpec = completeMethod(methodBuilder);
+                        MethodSpec methodSpec = completeMethod(methodBuilder, coreStatement);
                         methods.add(methodSpec);
                     } else if (ClassName.get(returnType).toString().equals("void")) {
                         //void response
+                        String coreStatement = "getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")";
                         MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
                         addDefaultParameters(restApiMethod, methodBuilder);
                         methodBuilder
                                 .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceNotFoundException"))
                                 .returns(TypeName.get(void.class))
-                                .addStatement("getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
+                                .addStatement(coreStatement)
                                 .nextControlFlow("catch ($T e)", NotFoundException.class)
                                 .addStatement("throw new RemoteResourceNotFoundException(e)");
-                        MethodSpec methodSpec = completeMethod(methodBuilder);
+                        MethodSpec methodSpec = completeMethod(methodBuilder, coreStatement);
                         methods.add(methodSpec);
                     } else {
                         //any other return types
+                        String coreStatement = "return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")";
                         MethodSpec.Builder methodBuilder = beginMethod(restApiMethod);
                         addDefaultParameters(restApiMethod, methodBuilder);
                         methodBuilder
                                 .returns(TypeName.get(returnType))
-                                .addStatement("return getEndpoint()." + restApiMethod.getSimpleName() + "(" + parametersList + ")")
+                                .addStatement(coreStatement)
                                 .nextControlFlow("catch ($T e)", NotFoundException.class)
                                 .addStatement("throw new RemoteResourceNotFoundException(e)");
-                        MethodSpec methodSpec = completeMethod(methodBuilder);
+                        MethodSpec methodSpec = completeMethod(methodBuilder, coreStatement);
                         methods.add(methodSpec);
                     }
                 }
@@ -278,12 +294,31 @@ public class ClientGenerator extends AbstractProcessor {
         return true;
     }
 
-    private MethodSpec completeMethod(MethodSpec.Builder methodBuilder) {
+    private MethodSpec completeMethod(MethodSpec.Builder methodBuilder, String ... coreStatements) {
+        Consumer<MethodSpec.Builder> coreStatementFunction = (builder) -> {
+            for (String coreStatement : coreStatements) {
+                builder.addStatement(coreStatement);
+            }
+        };
+        return completeMethod(methodBuilder, coreStatementFunction);
+    }
+
+    private MethodSpec completeMethod(MethodSpec.Builder methodBuilder, Consumer<MethodSpec.Builder> coreStatementConsumer) {
+        methodBuilder = methodBuilder
+                .nextControlFlow("catch ($T e)", NotAuthorizedException.class)
+                .beginControlFlow("try")
+                .addStatement("bearerAuthentication.setToken(configuration.getBearerTokenSupplier().get())");
+
+        coreStatementConsumer.accept(methodBuilder);
+
         return methodBuilder
-                                .nextControlFlow("catch ($T e)", WebApplicationException.class)
-                                .addStatement("throw new RemoteResourceException(readErrorResponse(e), e)")
-                                .endControlFlow()
-                                .build();
+                .nextControlFlow("catch ($T wae)", WebApplicationException.class)
+                .addStatement("throw new RemoteResourceException(readErrorResponse(e), wae)")
+                .endControlFlow()
+                .nextControlFlow("catch ($T e)", WebApplicationException.class)
+                .addStatement("throw new RemoteResourceException(readErrorResponse(e), e)")
+                .endControlFlow()
+                .build();
     }
 
     private MethodSpec.Builder beginMethod(ExecutableElement restApiMethod) {
