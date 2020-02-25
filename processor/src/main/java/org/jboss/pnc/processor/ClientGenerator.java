@@ -313,7 +313,7 @@ public class ClientGenerator extends AbstractProcessor {
 
         return methodBuilder
                 .nextControlFlow("catch ($T wae)", WebApplicationException.class)
-                .addStatement("throw new RemoteResourceException(readErrorResponse(e), wae)")
+                .addStatement("throw new RemoteResourceException(readErrorResponse(wae), wae)")
                 .endControlFlow()
                 .nextControlFlow("catch ($T e)", WebApplicationException.class)
                 .addStatement("throw new RemoteResourceException(readErrorResponse(e), e)")
