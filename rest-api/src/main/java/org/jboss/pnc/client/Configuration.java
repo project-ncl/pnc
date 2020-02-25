@@ -79,6 +79,8 @@ public class Configuration {
 
     public static final class ConfigurationBuilder {
 
+        private Map<String, String> mdcToHeadersMappings = new HashMap<>();
+
         public ConfigurationBuilder addDefaultMdcToHeadersMappings() {
             this.mdcToHeadersMappings = MDCUtils.getMDCToHeaderMappings();
             return this;
