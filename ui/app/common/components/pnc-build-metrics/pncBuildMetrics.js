@@ -169,10 +169,10 @@
         return 'Not Available';
       }
 
-      var DAYS_MS = 86400000;
-      var HOUR_MS = 3600000;
-      var MINUTE_MS = 60000;
       var SECOND_MS = 1000;
+      var MINUTE_MS = 60 * SECOND_MS;
+      var HOUR_MS = 60 * MINUTE_MS;
+      var DAYS_MS = 24 * HOUR_MS;
 
       var time = {
         milliseconds: metricValue % SECOND_MS,
@@ -183,7 +183,7 @@
       };
       
       // days
-      if (metricValue >= HOUR_MS) {
+      if (metricValue >= DAYS_MS) {
         return time.days + 'd ' + (time.hours ? (time.hours + 'h') : '');
       }
       // hours
