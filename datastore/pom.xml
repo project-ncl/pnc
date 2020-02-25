@@ -310,6 +310,10 @@
                       <command>
                         /subsystem=logging/logger=org.jboss.pnc.datastore:add(level=TRACE)
                       </command>
+                      <command>
+                        /subsystem=logging/logger=org.hibernate.engine.internal.StatisticalLoggingSessionEventListener:add(level=TRACE)
+                      </command>
+
                       <!--command>
                         /subsystem=logging/logger=org.hibernate:add(level=DEBUG)
                       </command>
