@@ -200,6 +200,10 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException("Internal repository url has to start with: <protocol>://"
                     + internalScmAuthority + " followed by a repository name or match the pattern: "
                     + REPOSITORY_NAME_PATTERN);
+        } else if (internalRepoUrl.contains("/gerrit/")) {
+            log.info("Invalid internal repo url: " + internalRepoUrl);
+            throw new InvalidEntityException("Incorrect format of internal repository. Internal repository"
+                    + " url should not contain '/gerrit/' part of the url");
         }
     }
 
