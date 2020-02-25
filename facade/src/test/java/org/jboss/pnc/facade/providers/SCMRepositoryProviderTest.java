@@ -244,6 +244,18 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
     }
 
     @Test
+    public void testCreateSCMRepositoryWithInvalidInternalRepositoryShouldFail() {
+
+        // when
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("internalrepo.com");
+        String invalidInternal = scmModuleConfig.getInternalScmAuthority() + "/gerrit/random-project.git";
+
+        // then
+        assertThatThrownBy(() -> provider.createSCMRepository(invalidInternal, false))
+                .isInstanceOf(InvalidEntityException.class);
+    }
+
+    @Test
     public void testGetAllWithMatchAndSearchUrl() {
 
         // I can't really test the search predicates here since repository is mocked. But I can test the other code path
