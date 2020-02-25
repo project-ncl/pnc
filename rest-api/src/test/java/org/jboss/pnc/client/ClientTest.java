@@ -17,22 +17,36 @@
  */
 package org.jboss.pnc.client;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderValues;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.MDC;
 
+import javax.ws.rs.NotAuthorizedException;
+import javax.ws.rs.core.MediaType;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class ClientTest {
+
+    @Rule
+    public WireMockRule wireMockServer = new WireMockRule(options().port(8081));
 
     @Test
     public void shouldRetryFailedConnection() throws RemoteResourceException {
@@ -56,11 +70,7 @@ public class ClientTest {
                 }).build();
         server.start();
 
-        Configuration configuration = Configuration.builder()
-                .protocol("http")
-                .host("localhost")
-                .port(8080)
-//                .mdcToHeadersMappings(MDCUtils.getMDCToHeaderMappings())
+        Configuration configuration = getBasicConfiguration(8080)
                 .addDefaultMdcToHeadersMappings()
                 .build();
 
@@ -77,5 +87,67 @@ public class ClientTest {
         Assert.assertTrue(requestsReceived.intValue() > 2);
         Assert.assertEquals(requestContext, headerReceived.get());
         System.out.println("Done!");
+    }
+
+    @Test
+    public void shouldGenerateTokenUsingSupplier() {
+        final TokenGenerator tokenGenerator = new TokenGenerator();
+
+        // given
+        Configuration configuration = getBasicConfiguration(8081)
+                .bearerTokenSupplier(() -> tokenGenerator.getToken())
+                .build();
+
+        // when
+        new BuildClient(configuration);
+
+        // then
+        Assert.assertEquals(1, tokenGenerator.getInvocationCount());
+    }
+
+    @Test
+    public void shouldRefreshTokenIfNotAuthorized() throws RemoteResourceException {
+        final TokenGenerator tokenGenerator = new TokenGenerator();
+
+        // given
+        Configuration configuration = getBasicConfiguration(8081)
+                .bearerTokenSupplier(() -> tokenGenerator.getToken())
+                .build();
+
+        wireMockServer.stubFor(get(urlMatching(".*")).willReturn(aResponse()
+                .withStatus(401)
+        ));
+
+        BuildClient buildClient = new BuildClient(configuration);
+
+        // when
+        try {
+            buildClient.getSpecific("1");
+        } catch (NotAuthorizedException e) {
+            // We are returning 401 also after token refresh
+        }
+
+        // then
+        Assert.assertEquals(2, tokenGenerator.getInvocationCount());
+    }
+
+    private Configuration.ConfigurationBuilder getBasicConfiguration(int port) {
+        return Configuration.builder()
+                .protocol("http")
+                .host("localhost")
+                .port(port);
+    }
+
+    private class TokenGenerator {
+
+        private int invocationCount = 0;
+
+        public String getToken() {
+            return "TOKEN-" + ++invocationCount;
+        }
+
+        public int getInvocationCount() {
+            return invocationCount;
+        }
     }
 }
