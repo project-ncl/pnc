@@ -37,6 +37,7 @@
           <property name="org.hibernate.envers.do_not_audit_optimistic_locking_field" value="false"/>
 
           <property name="hibernate.generate_statistics" value="true" />
+          <property name="hibernate.session.events.log" value="false" />
       </properties>
    </persistence-unit>
 </persistence>

@@ -440,9 +440,6 @@
                       <command>
                         /subsystem=logging/logger=org.jboss.as.jpa:add(level=DEBUG)
                       </command>
-                      <command>
-                        /subsystem=logging/logger=org.hibernate.engine.internal.StatisticalLoggingSessionEventListener:add(level=TRACE)
-                      </command>
                     </commands>
                   </execute-commands>
                 </configuration>
