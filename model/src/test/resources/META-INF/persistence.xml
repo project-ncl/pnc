@@ -61,6 +61,7 @@
       <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
 
       <property name="hibernate.generate_statistics" value="true" />
+      <property name="hibernate.session.events.log" value="false" />
 
       <!-- Configure batches to improve performance when doing bulk inserts and updates.
            Do not exceed with the size because when an entity is persisted, Hibernate stores it in the persistence context (in memory) before flushing.

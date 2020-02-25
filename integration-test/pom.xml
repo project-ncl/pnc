@@ -456,9 +456,6 @@
                       <command>
                         /subsystem=logging/root-logger=ROOT:change-root-log-level(level=DEBUG)
                       </command>
-                      <command>
-                        /subsystem=logging/logger=org.hibernate.engine.internal.StatisticalLoggingSessionEventListener:add(level=TRACE)
-                      </command>
 
                       <!--log sql queries and parameter bindings-->
                       <!--command>
