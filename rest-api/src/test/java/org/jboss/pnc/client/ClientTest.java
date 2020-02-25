@@ -123,8 +123,9 @@ public class ClientTest {
         // when
         try {
             buildClient.getSpecific("1");
-        } catch (NotAuthorizedException e) {
+        } catch (RemoteResourceException e) {
             // We are returning 401 also after token refresh
+            Assert.assertTrue(e.getCause() instanceof NotAuthorizedException);
         }
 
         // then
