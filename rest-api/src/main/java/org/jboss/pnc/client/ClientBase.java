@@ -41,6 +41,7 @@ import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @author Jakub Bartecek
  */
 public abstract class ClientBase<T> {
 
@@ -58,6 +59,8 @@ public abstract class ClientBase<T> {
     protected Configuration configuration;
 
     protected Class<T> iface;
+
+    protected BearerAuthentication bearerAuthentication;
 
     protected ClientBase(Configuration configuration, Class<T> iface) {
         this.iface = iface;
@@ -77,13 +80,22 @@ public abstract class ClientBase<T> {
         client.register(RequestLoggingFilter.class);
         target = client.target(configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort() + BASE_PATH);
         Configuration.BasicAuth basicAuth = configuration.getBasicAuth();
+
         if (basicAuth != null) {
             target.register(new BasicAuthentication(basicAuth.getUsername(), basicAuth.getPassword()));
+        } else {
+            if (configuration.getBearerTokenSupplier() != null) {
+                bearerAuthentication = new BearerAuthentication(configuration.getBearerTokenSupplier().get());
+                target.register(bearerAuthentication);
+            } else {
+                String bearerToken = configuration.getBearerToken();
+                if (bearerToken != null && !bearerToken.equals("")) {
+                    bearerAuthentication = new BearerAuthentication(bearerToken);
+                    target.register(bearerAuthentication);
+                }
+            }
         }
-        String bearerToken = configuration.getBearerToken();
-        if (bearerToken != null && !bearerToken.equals("")) {
-            target.register(new BearerAuthentication(bearerToken));
-        }
+
         proxy = ProxyBuilder.builder(iface, target).build();
     }
 
