@@ -320,9 +320,16 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         } else {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
             Runnable onTaskReady = () -> {
+
+                // we need to add this because we need to re-put those metadata in the thread context since the
+                // current thread context probably belongs to another build
+                MDCUtils.addContext(getMDCMeta(buildTask));
+
                 ProcessStageUtils.logProcessStageEnd(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
                 updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
                 ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.ENQUEUED.toString());
+
+                MDCUtils.clear();
             };
             buildQueue.addWaitingTask(buildTask, onTaskReady);
             ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
@@ -332,12 +339,17 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private boolean isBuildConfigurationAlreadyInQueue(BuildTask buildTask) {
+
+        MDCUtils.addContext(getMDCMeta(buildTask));
+
         BuildConfigurationAudited buildConfigurationAudited = buildTask.getBuildConfigurationAudited();
         Optional<BuildTask> unfinishedTask = buildQueue.getUnfinishedTask(buildConfigurationAudited);
         if (unfinishedTask.isPresent()) {
             log.debug("Task with the same buildConfigurationAudited is in the queue {}.", unfinishedTask.get());
+            MDCUtils.clear();
             return true;
         } else {
+            MDCUtils.clear();
             return false;
         }
     }
@@ -348,6 +360,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     .filter(buildTask -> buildTask.getId() == buildTaskId)
                     .findAny();
         if (taskOptional.isPresent()) {
+            MDCUtils.addContext(getMDCMeta(taskOptional.get()));
             log.debug("Cancelling task {}.", taskOptional.get());
             try {
                 boolean cancelSubmitted = buildScheduler.cancel(taskOptional.get());
@@ -359,9 +372,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             } catch (CoreException e) {
                 cancelInternal(taskOptional.get());
             }
+            MDCUtils.clear();
             return true;
         } else {
             log.warn("Cannot find task {} to cancel.", buildTaskId);
+            MDCUtils.clear();
             return false;
         }
     }
@@ -418,12 +433,17 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         PullingMonitor monitor = new PullingMonitor();
 
         Runnable invokeCancelInternal = () -> {
+
+            MDCUtils.addContext(getMDCMeta(buildTask));
+
             if (!getSubmittedBuildTasks().contains(buildTask)) {
                 log.debug("Task {} cancellation already completed.", buildTask.getId());
                 return;
             }
             log.warn("Cancellation did not complete in {} seconds.", cancellationTimeout);
             cancelInternal(buildTask);
+
+            MDCUtils.clear();
         };
         ScheduledFuture<?> timer = monitor.timer(invokeCancelInternal, cancellationTimeout, TimeUnit.SECONDS);
         //TODO optimization: cancel the timer when the task is canceled
@@ -431,6 +451,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void cancelInternal(BuildTask buildTask) {
+
+        MDCUtils.addContext(getMDCMeta(buildTask));
 
         BuildResult result = new BuildResult(
                 CompletionStatus.CANCELLED,
@@ -445,6 +467,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         //TODO 2.0 completeNoBuild(buildTask, CompletionStatus.CANCELLED); NCL-4242
 
         log.info("Task {} canceled internally.", buildTask.getId());
+
+        MDCUtils.clear();
     }
 
     private void checkForCyclicDependencies(BuildSetTask buildSetTask) {
@@ -464,12 +488,17 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private boolean rejectAlreadySubmitted(BuildTask buildTask) {
+
+        MDCUtils.addContext(getMDCMeta(buildTask));
+
         Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getUnfinishedTask(buildTask.getBuildConfigurationAudited());
         if (alreadyActiveBuildTask.isPresent()) {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED,
                     "The configuration is already in the build queue.");
+            MDCUtils.clear();
             return false;
         } else {
+            MDCUtils.clear();
             return true;
         }
     }
@@ -479,6 +508,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription){
+
+        MDCUtils.addContext(getMDCMeta(task));
         BuildCoordinationStatus oldStatus = task.getStatus();
 
         BuildConfigurationAudited buildConfigurationAudited = task.getBuildConfigurationAudited();
@@ -562,6 +593,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
         log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
+        MDCUtils.clear();
     }
 
     private void updateBuildSetTaskStatus(BuildSetTask buildSetTask, BuildSetStatus status) {
@@ -613,6 +645,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void processBuildTask(BuildTask task) {
+
+        MDCUtils.addContext(getMDCMeta(task));
+
         Consumer<BuildResult> onComplete = (result) ->  completeBuild(task, result);
 
         try {
@@ -653,10 +688,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             throw error;
         } finally {
             ProcessStageUtils.logProcessStageEnd(BuildCoordinationStatus.ENQUEUED.toString());
+            MDCUtils.clear();
         }
     }
 
     public void completeNoBuild(BuildTask buildTask, CompletionStatus completionStatus) {
+
+        MDCUtils.addContext(getMDCMeta(buildTask));
+
         int buildTaskId = buildTask.getId();
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         try {
@@ -681,12 +720,16 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         } catch (Throwable e ) {
             log.error("[buildTaskId: "+buildTaskId+"] Cannot store results to datastore.", e);
             coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
-            } finally {
+        } finally {
             updateBuildTaskStatus(buildTask, coordinationStatus);
-            }
+            MDCUtils.clear();
+        }
     }
 
     public void completeBuild(BuildTask buildTask, BuildResult buildResult) {
+
+        MDCUtils.addContext(getMDCMeta(buildTask));
+
         int buildTaskId = buildTask.getId();
 
         updateBuildTaskStatus(buildTask, BuildCoordinationStatus.BUILD_COMPLETED);
@@ -757,10 +800,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             updateBuildTaskStatus(buildTask, coordinationStatus);
             //Starts when the build execution completes
             ProcessStageUtils.logProcessStageEnd("FINALIZING_BUILD", "Finalizing completed.");
+            MDCUtils.clear();
         }
     }
 
     private synchronized void markFinished(BuildTask task, BuildCoordinationStatus status, String statusDescription) {
+
+        MDCUtils.addContext(getMDCMeta(task));
+
         log.debug("Finishing buildTask {}. Setting status {}.", task, status);
         buildQueue.removeTask(task);
         task.setStatus(status);
@@ -785,9 +832,13 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         if (buildSetTask != null && buildSetTask.isFinished()) {
             completeBuildSetTask(buildSetTask);
         }
+
+        MDCUtils.clear();
     }
 
     private void handleErroneousFinish(BuildTask failedTask) {
+        MDCUtils.addContext(getMDCMeta(failedTask));
+
         BuildSetTask taskSet = failedTask.getBuildSetTask();
         if (taskSet != null) {
             log.debug("Finishing tasks in set {}, after failedTask {}.", taskSet, failedTask);
@@ -796,6 +847,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     .filter(t -> !t.getStatus().isCompleted())
                     .forEach(t -> finishDueToFailedDependency(failedTask, t));
         }
+        MDCUtils.clear();
     }
 
     /**
