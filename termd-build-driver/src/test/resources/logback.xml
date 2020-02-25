@@ -28,9 +28,6 @@
     </layout>
   </appender>
 
-  <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="trace" additivity="false">
-    <appender-ref ref="STDOUT" />
-  </logger>
   <logger name="org.jboss.pnc" level="debug" additivity="false">
     <appender-ref ref="STDOUT" />
   </logger>

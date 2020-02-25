@@ -37,6 +37,7 @@
           <!-- required by: BuildConfigurationRepositoryImpl.save to increment revision of parent entity when child is updated -->
           <property name="org.hibernate.envers.do_not_audit_optimistic_locking_field" value="false"/>
           <property name="hibernate.generate_statistics" value="true" />
+          <property name="hibernate.session.events.log" value="false" />
 
           <!-- Configure batches to improve performance when doing bulk inserts and updates.
                Do not exceed with the size because when an entity is persisted, Hibernate stores it in the persistence context (in memory) before flushing.
