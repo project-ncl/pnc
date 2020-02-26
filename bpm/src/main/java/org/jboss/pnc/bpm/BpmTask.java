@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Consumer;
@@ -77,7 +76,6 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      * Users OAuth token used to authenticate requests on remote services
      */
     private final String accessToken;
-    private Optional<Connector> connector = Optional.empty();
 
     public BpmTask(String accessToken) {
         this.accessToken = accessToken;
@@ -189,10 +187,6 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         return actualParameters;
     }
 
-    public String getAccessToken() {
-        return accessToken;
-    }
-
     @Override
     public int compareTo(BpmTask other) {
         requireNonNull(other);
@@ -214,13 +208,5 @@ public abstract class BpmTask implements Comparable<BpmTask> {
                 ", listeners=" + listeners +
                 ", accessToken='***'" +
                 '}';
-    }
-
-    public Optional<Connector> getConnector() {
-        return connector;
-    }
-
-    public void setConnector(Connector connector) {
-        this.connector = Optional.ofNullable(connector);
     }
 }

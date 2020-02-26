@@ -20,7 +20,6 @@ package org.jboss.pnc.bpm.task;
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.bpm.ConnectorSelector;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.ComponentBuildParameters;
 import org.jboss.pnc.common.util.TimeUtils;
@@ -101,11 +100,7 @@ public class BpmBuildTask extends BpmTask {
 
     @Override
     protected String getProcessId() {
-        if (ConnectorSelector.useNewProcess(this)) {
-            return config.getBpmNewBuildProcessName();
-        } else {
-            return config.getComponentBuildProcessId();
-        }
+        return config.getComponentBuildProcessId();
     }
 
     public static Optional<BpmTask> getBpmTaskByBuildTaskId(BpmManager bpmManager, Integer buildTaskId) {

@@ -129,5 +129,6 @@ public class AbstractMilestoneReleaseTest {
                 buildConfigurationRepository,
                 new SequenceHandlerRepositoryMock(),
                 pncConfiguration);
+        bpmMock.setUp();
     }
 }

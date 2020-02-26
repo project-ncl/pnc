@@ -21,10 +21,10 @@ package org.jboss.pnc.bpm.test;
 import lombok.Getter;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.bpm.KieClientConnector;
 import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.api.runtime.KieSession;
@@ -38,12 +38,14 @@ import org.slf4j.LoggerFactory;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.jboss.pnc.bpm.BpmEventType.RC_REPO_CREATION_ERROR;
 import static org.jboss.pnc.bpm.BpmEventType.RC_REPO_CREATION_SUCCESS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.kie.api.runtime.process.ProcessInstance.STATE_ACTIVE;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -64,14 +66,21 @@ public class BpmSchedulerSmokeTest {
     @Mock
     private KieSession kieSession;
 
-    @Mock
-    private KieClientConnector kieClientConnector;
-
     @InjectMocks
     private BpmManager bpmManager = new BpmManager();
 
     private boolean successNotification;
     private boolean errorNotification;
+
+    @Before
+    public void setUp() {
+        when(bpmConfig.getPncBaseUrl()).thenReturn("http://localhost");
+        when(processInstance.getId()).thenReturn(777L);
+        when(processInstance.getProcessId()).thenReturn("colors");
+        when(processInstance.getState()).thenReturn(STATE_ACTIVE);
+        when(kieSession.startProcess(eq("colors"), any())).thenReturn(processInstance);
+        when(kieSession.getProcessInstance(777L)).thenReturn(processInstance);
+    }
 
     @Test
     public void notificationTest() throws CoreException {
