@@ -23,10 +23,7 @@ import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -39,8 +36,6 @@ import java.util.function.Consumer;
 @SuppressWarnings("WeakerAccess")
 public class BpmMock extends BpmManager {
 
-    private static final Logger log = LoggerFactory.getLogger(BpmMock.class);
-
     private MockKieSession session = new MockKieSession();
     private Optional<Consumer<BpmTask>> onTaskStarted = Optional.empty();
 
@@ -50,11 +45,7 @@ public class BpmMock extends BpmManager {
 
     public boolean startTask(BpmTask task) throws CoreException {
         Connector connector = Mockito.mock(Connector.class);
-        try {
-            Mockito.when(connector.startProcess(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(1L);
-        } catch (ProcessManagerException e) {
-            log.error("Cannot mock start process.", e);
-        }
+        Mockito.when(connector.startProcess(Mockito.any(),Mockito.any(),Mockito.any())).thenReturn(1L);
         task.setConnector(connector);
         boolean started = super.startTask(task);
         onTaskStarted.ifPresent(supplier -> supplier.accept(task));
