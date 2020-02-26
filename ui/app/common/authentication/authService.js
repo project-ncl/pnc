@@ -19,13 +19,13 @@
   'use strict';
 
   angular.module('pnc.common.authentication').factory('authService', [
-    '$log', 
-    '$window', 
-    '$q', 
-    '$http', 
-    '$httpParamSerializerJQLike', 
+    '$log',
+    '$window',
+    '$q',
+    '$http',
+    '$httpParamSerializerJQLike',
     'keycloak',
-    'authConfig', 
+    'authConfig',
     'UserDAO',
     function($log, $window, $q, $http, $httpParamSerializerJQLike, keycloak, authConfig, UserDAO) {
       var authService = {};
@@ -103,10 +103,14 @@
           },
           successNotification: false
         });
-        
+
         keycloak.clearToken();
 
         return promise;
+      };
+
+      authService.getUserRole = function () {
+        return keycloak.authenticated ? keycloak.realmAccess.roles : null;
       };
 
       return authService;
