@@ -17,10 +17,22 @@
  */
 package org.jboss.pnc.bpm;
 
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.manager.RuntimeEngine;
+import org.kie.api.runtime.process.ProcessInstance;
+import org.kie.services.client.api.RemoteRuntimeEngineFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +40,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +58,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.bpm.BpmEventType.nullableValueOf;
+import static org.kie.api.runtime.process.ProcessInstance.STATE_ABORTED;
+import static org.kie.api.runtime.process.ProcessInstance.STATE_COMPLETED;
 
 /**
  * Responsible for starting, keeping track of, and notifying BPM tasks.
@@ -54,13 +72,13 @@ public class BpmManager {
 
     private static final Logger log = LoggerFactory.getLogger(BpmManager.class);
 
-    static final int AUTHENTICATION_TIMEOUT_S = 2 * 60;
+    private static final int AUTHENTICATION_TIMEOUT_S = 2 * 60;
 
+    private Configuration configuration;
     private BpmModuleConfig bpmConfig;
     private AtomicInteger nextTaskId = new AtomicInteger(1);
     private Map<Integer, BpmTask> tasks = new ConcurrentHashMap<>();
-    private KieClientConnector kieConnector;
-    private RestConnector restConnector;
+    private KieSession session;
 
     private static final String SIGNAL_CANCEL = "CANCELLED";
 
@@ -75,35 +93,55 @@ public class BpmManager {
         this.bpmConfig = bpmConfig;
     }
 
+
     @PostConstruct
     public void init() throws CoreException {
-        kieConnector = new KieClientConnector(bpmConfig);
-        restConnector = new RestConnector(bpmConfig);
+        session = initKieSession();
+    }
+
+    protected KieSession initKieSession() throws CoreException {
+        RuntimeEngine restSessionFactory;
+        try {
+            restSessionFactory = RemoteRuntimeEngineFactory.newRestBuilder()
+                    .addDeploymentId(bpmConfig.getDeploymentId())
+                    .addUrl(new URL(bpmConfig.getBpmInstanceUrl()))
+                    .addUserName(bpmConfig.getUsername())
+                    .addPassword(bpmConfig.getPassword())
+                    .addTimeout(AUTHENTICATION_TIMEOUT_S)
+                    .build();
+        } catch (Exception e) {
+            throw new CoreException("Could not initialize connection to BPM server at '" +
+                    bpmConfig.getBpmInstanceUrl() + "' check that the URL is correct.", e);
+        }
+
+        return restSessionFactory.getKieSession();
     }
 
     @PreDestroy
     private void dispose() {
-        kieConnector.close();
-        restConnector.close();
+        session.dispose();
     }
+
 
     private int getNextTaskId() {
         return nextTaskId.getAndIncrement();
     }
 
+
     public boolean startTask(BpmTask task) throws CoreException {
         try {
             task.setTaskId(getNextTaskId());
             task.setBpmConfig(bpmConfig);
-            if (!task.getConnector().isPresent()) {
-                defineConnector(task);
+
+            ProcessInstance processInstance = session.startProcess(task.getProcessId(),
+                    task.getExtendedProcessParameters());
+            if (processInstance == null) {
+                log.warn("Failed to create new process instance.");
+                return false;
             }
 
-            String processId = task.getProcessId();
-            Long processInstanceId = task.getConnector().get()
-                    .startProcess(processId, task.getExtendedProcessParameters(), task.getAccessToken());
-            task.setProcessInstanceId(processInstanceId);
-            task.setProcessName(processId);
+            task.setProcessInstanceId(processInstance.getId());
+            task.setProcessName(processInstance.getProcessId());
             tasks.put(task.getTaskId(), task);
 
             log.debug("Notifying new task added {}.", task.getTaskId());
@@ -111,16 +149,9 @@ public class BpmManager {
 
             log.debug("Created new process linked to task: {}", task);
             return true;
+
         } catch (Exception e) {
             throw new CoreException("Could not start BPM task '" + task + "'.", e);
-        }
-    }
-
-    public void defineConnector(BpmTask task) {
-        if (ConnectorSelector.useNewProcess(task)) {
-            task.setConnector(restConnector);
-        } else {
-            task.setConnector(kieConnector);
         }
     }
 
@@ -132,8 +163,46 @@ public class BpmManager {
         });
     }
 
+    public boolean subscribeToNewTasks(Consumer<BpmTask> consumer) {
+        log.debug("Subscribing new tasks consumer {}.", consumer);
+        return newTaskAddedSubscribes.add(consumer);
+    }
+
+    public boolean unSubscribeFromNewTasks(Consumer<BpmTask> consumer) {
+        return newTaskAddedSubscribes.remove(consumer);
+    }
+
     public boolean cancelTask(BpmTask bpmTask) {
-        return bpmTask.getConnector().get().cancel(bpmTask.getProcessInstanceId());
+        String cancelEndpointUrl = StringUtils.stripEndingSlash(bpmConfig.getBpmInstanceUrl()) + "/nclcancelhandler";
+
+        URI uri;
+        try {
+            URIBuilder uriBuilder = new URIBuilder(cancelEndpointUrl);
+            uriBuilder.addParameter("processInstanceId", bpmTask.getProcessInstanceId().toString());
+            uri = uriBuilder.build();
+        } catch (URISyntaxException e) {
+            log.error("Unable to cancel process id: " + bpmTask.getProcessId(), e);
+            return false;
+        }
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            log.debug("Triggering the cancellation using url: {}", uri.toString());
+            HttpGet httpget = new HttpGet(uri);
+            httpget.setConfig(RequestConfig.custom()
+                    .setConnectionRequestTimeout(bpmConfig.getCancelConnectionRequestTimeout())
+                    .setConnectTimeout(bpmConfig.getCancelConnectTimeout())
+                    .setSocketTimeout(bpmConfig.getCancelSocketTimeout())
+                    .build());
+            CloseableHttpResponse httpResponse = httpClient.execute(httpget);
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            httpResponse.close();
+            log.info("Cancel request for bpmTask.id: {} and processInstanceId: {} completed with status: {}.",
+                    bpmTask.getTaskId(), bpmTask.getProcessInstanceId(), statusCode);
+            return statusCode == 200;
+        } catch (IOException e) {
+            log.error("Unable to cancel process id: " + bpmTask.getProcessId(), e);
+            return false;
+        }
     }
 
     public void notify(int taskId, BpmEvent notification) { //TODO do not use RestModel down here.
@@ -160,6 +229,10 @@ public class BpmManager {
     public void cleanup() { //TODO remove tasks immediately after the completion, see: BuildTaskEndpoint.buildTaskCompleted
         log.debug("Bpm manager tasks cleanup started");
 
+        if (session == null) {
+            log.error("Kie session not available.");
+        }
+
         Map<Integer, BpmTask> clonedTaskMap = new HashMap<>(this.tasks);
 
         Set<Integer> toBeRemoved = clonedTaskMap.values().stream()
@@ -170,7 +243,12 @@ public class BpmManager {
                     }
                     log.debug("Attempting to fetch process instance for bpmTask: {}.", bpmTask.getTaskId());
                     Long processInstanceId = bpmTask.getProcessInstanceId();
-                    return bpmTask.getConnector().get().isProcessInstanceCompleted(processInstanceId);
+                    ProcessInstance processInstance = session.getProcessInstance(processInstanceId);
+                    log.debug("fetched: {}", processInstance);
+                    if (processInstance == null) // instance has been terminated from outside
+                        return true;
+                    int state = processInstance.getState();
+                    return state == STATE_COMPLETED || state == STATE_ABORTED;
                 })
                 .map(BpmTask::getTaskId)
                 .collect(Collectors.toSet());
@@ -208,14 +286,5 @@ public class BpmManager {
 
     public Optional<BpmTask> getTaskById(int taskId) {
         return Optional.ofNullable(tasks.get(taskId));
-    }
-
-    public void remove(Integer taskId) {
-        BpmTask removed = tasks.remove(taskId);
-        if (removed != null) {
-            log.debug("Removed task id: {}.", removed.getTaskId());
-        } else {
-            log.warn("Trying to remove non-existing task with id: [{}]. Ids of tasks in progress: {}", taskId, tasks.keySet());
-        }
     }
 }

@@ -21,15 +21,19 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.mock.BpmMock;
-import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
+import org.jboss.pnc.bpm.model.MilestoneReleaseParameters;
+import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseRest;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.JsonUtils;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.kie.api.runtime.process.ProcessInstance;
 
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -43,12 +47,19 @@ public class BpmPushMock extends BpmMock {
         pushes = new ArrayList<>();
     }
 
-    public boolean startTask(BpmTask task) throws CoreException {
-        MilestoneReleaseTask releaseTask = (MilestoneReleaseTask) task;
+    protected ProcessInstance startProcessMock(String processName, Map params) {
+        Integer taskId = (Integer) params.get("taskId");
+        MilestoneReleaseRest milestoneRest;
+        try {
+            MilestoneReleaseParameters processParameters = JsonUtils
+                    .fromJson((String) params.get("processParameters"), MilestoneReleaseParameters.class);
+            milestoneRest = processParameters.getBrewPush();
+        } catch (IOException e) {
+            throw new RuntimeException("failed to read brew push milestone rest from json", e);
+        }
         String callbackId = RandomStringUtils.randomNumeric(12);
-        boolean started = super.startTask(task);
-        pushes.add(new Push(releaseTask.getMilestone().getId(), task.getTaskId(), callbackId));
-        return started;
+        pushes.add(new Push(milestoneRest.getMilestoneId(), taskId, callbackId));
+        return super.startProcessMock(processName, params);
     }
 
     public Response getPushesFor(int milestoneId) {
