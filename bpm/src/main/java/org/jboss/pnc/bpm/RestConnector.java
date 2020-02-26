@@ -28,7 +28,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,8 +58,7 @@ public class RestConnector implements Connector {
     }
 
     @Override
-    public Long startProcess(String processId, Map<String, Object> processParameters, String accessToken)
-            throws ProcessManagerException {
+    public Long startProcess(String processId, Map<String, Object> processParameters, String accessToken) {
         String url = endpointUrl.get(processId);
         log.debug("Staring new process using http endpoint: {}", url);
 
@@ -71,7 +69,8 @@ public class RestConnector implements Connector {
         try {
             requestEntity = new StringEntity(JsonOutputConverterMapper.apply(body));
         } catch (UnsupportedEncodingException e) {
-            throw new ProcessManagerException("Cannot prepare BPM REST call.", e);
+            log.error("Cannot prepare BPM REST call.", e);
+            return -1L;
         }
         HttpPost request = new HttpPost(url);
         request.setEntity(requestEntity);
@@ -83,10 +82,12 @@ public class RestConnector implements Connector {
                 log.info("Started new process instance with id: {}", processInstanceId);
                 return processInstanceId;
             } else {
-                throw new ProcessManagerException("Cannot start new process instance, response status: " + statusCode);
+                log.error("Cannot start new process instance, response status: {}.", statusCode);
+                return -1L;
             }
         } catch (IOException e) {
-            throw new ProcessManagerException("Cannot start new process instance.", e);
+            log.error("Cannot start new process instance.", e);
+            return -1L;
         }
     }
 
