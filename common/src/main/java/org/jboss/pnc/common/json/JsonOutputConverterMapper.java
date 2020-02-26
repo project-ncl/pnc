@@ -41,6 +41,7 @@ public class JsonOutputConverterMapper {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     static {
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.registerModule(new Jdk8Module());
         mapper.registerModule(new JavaTimeModule());
 
