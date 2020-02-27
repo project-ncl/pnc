@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
@@ -47,6 +48,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.NotFoundException;
+import java.util.List;
 import java.util.OptionalInt;
 import java.util.Set;
 
@@ -69,6 +71,9 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Inject
     private BuildTriggerer buildTriggerer;
+
+    @Inject
+    private AlignmentConfig alignmentConfig;
 
     private EndpointHelper<Integer, BuildConfiguration, BuildConfigurationRef> endpointHelper;
 
@@ -186,6 +191,10 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     @Override
     public Set<Parameter> getSupportedParameters() {
         return bcSupportedGenericParametersProvider.getSupportedGenericParameters();
+    }
+
+    @Override public String getBuildTypeDefaultAlignmentParameters(String buildType) {
+        return alignmentConfig.getAlignmentParameters().get(buildType);
     }
 
     private Build triggerBuild(String id, OptionalInt rev, BuildParameters buildParams) {
