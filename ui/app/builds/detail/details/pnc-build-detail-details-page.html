@@ -30,7 +30,9 @@
         <dd ng-class="$ctrl.buildStatusHelper.isSuccess($ctrl.build.status) ? 'text-success' : 'text-danger'">{{ $ctrl.build.status }} <span ng-show="$ctrl.buildStatusHelper.isFinished($ctrl.build.status)" class="m-l-20">[ <a ng-href="{{ $ctrl.build.$buildLogUrl() }}" >Plain Text Log</a> ]</span></dd>
 
         <dt>Build Config:</dt>
-        <dd><a href ui-sref="build-configs.detail({ configurationId: $ctrl.build.buildConfigRevision.id })">{{ $ctrl.build.buildConfigRevision.name || '&mdash;' }}</a></dd>
+        <dd>
+          <pnc-build-config-link revision="$ctrl.build.buildConfigRevision"></pnc-build-config-link>
+        </dd>
 
         <dt>Started By:</dt>
         <dd>{{ $ctrl.build.user.username || '&mdash;' }}</dd>
