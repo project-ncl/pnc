@@ -59,7 +59,9 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -137,6 +139,7 @@ public class BuildConfigurationEndpointTest {
         final Iterator<SCMRepository> scmrIt = scmrc.getAll(null, null).iterator();
         repositoryConfigurationId = scmrIt.next().getId();
         repositoryConfiguration2Id = scmrIt.next().getId();
+
     }
 
     @Test
@@ -459,9 +462,20 @@ public class BuildConfigurationEndpointTest {
 
         assertThat(all)
                 .haveExactly(1, new Condition<>(
-                        p -> p.getName().equals("CUSTOM_PME_PARAMETERS")
+                        p -> p.getName().equals("ALIGNMENT_PARAMETERS")
                         && p.getDescription().startsWith("Additional parameters, which will be "),
                         "has PME parameter"))
                 .size().isGreaterThanOrEqualTo(4);
+    }
+
+    @Test
+    public void testGetBuildTypeDefaultAlignmentParameters() throws RemoteResourceException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+
+        for (BuildType buildType: BuildType.values()){
+            Optional<String> params = client.getBuildTypeDefaultAlignmentParameters(buildType.name());
+            assertThat(params).isPresent();
+            assertThat(!params.get().isEmpty());
+        }
     }
 }

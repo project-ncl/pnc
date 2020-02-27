@@ -26,6 +26,14 @@
                     "temporaryBuildsLifeSpan" : "14"
                 },
                 {
+                    "@module-config": "alignment-config",
+                    "alignmentParameters" : {
+                        "MVN" : "default-maven-parameters",
+                        "NPM" : "default-npm-parameters",
+                        "GRADLE": "default-gradle-parameters"
+                    }
+                },
+                {
                     "@module-config": "demo-data-config",
                     "importDemoData": true,
                     "internalRepos": ["ssh://git@github.com:22/project-ncl/pnc.git",
