@@ -806,6 +806,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 throw new IllegalArgumentException("Unhandled build task status: " + task.getStatus() + ". Build task: " + task);
         }
 
+        // Need to re-add it because buildQueue.executeNewReadyTasks may alter the mdc values
+        MDCUtils.addContext(getMDCMeta(task));
         BuildSetTask buildSetTask = task.getBuildSetTask();
         if (buildSetTask != null && buildSetTask.isFinished()) {
             completeBuildSetTask(buildSetTask);
