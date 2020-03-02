@@ -17,11 +17,13 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 import java.net.MalformedURLException;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BpmModuleConfig extends AbstractModuleConfig {
 
     /**
