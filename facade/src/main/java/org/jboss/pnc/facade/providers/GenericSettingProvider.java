@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.provider;
+package org.jboss.pnc.facade.providers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.model.GenericSetting;

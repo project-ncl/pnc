@@ -19,7 +19,7 @@ package org.jboss.pnc.rest.endpoints.internal;
 
 import org.jboss.pnc.dto.Banner;
 import org.jboss.pnc.rest.api.endpoints.GenericSettingEndpoint;
-import org.jboss.pnc.rest.provider.GenericSettingProvider;
+import org.jboss.pnc.facade.providers.GenericSettingProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
