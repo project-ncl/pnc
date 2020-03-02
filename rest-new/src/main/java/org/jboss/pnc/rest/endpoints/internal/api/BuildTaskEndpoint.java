@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
-import org.jboss.pnc.bpm.model.BuildExecutionConfigurationWithCallbackRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 
@@ -107,7 +106,7 @@ public interface BuildTaskEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response build(
             @Parameter(description = "Build Execution Configuration. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
-            BuildExecutionConfigurationWithCallbackRest buildExecutionConfiguration);
+            BuildExecutionConfigurationRest buildExecutionConfiguration);
 
     @Operation(summary = "Cancel the build execution defined with given executionConfigurationId. DEPRECATED NOTE: use Media type APPLICATION_JSON instead of APPLICATION_FORM_URLENCODED.",
             responses = {
