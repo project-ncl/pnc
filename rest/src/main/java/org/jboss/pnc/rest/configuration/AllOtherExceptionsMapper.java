@@ -31,8 +31,8 @@ import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 /**
- * Mapper that catches all exception and extracts the http status code from the JAXRS/RESTEASY runtime exception.
- * Status code extraction is required for proper response error codes eg. 404.
+ * Mapper that catches all exception and extracts the http status code from the JAXRS/RESTEASY runtime exception. Status
+ * code extraction is required for proper response error codes eg. 404.
  */
 @Provider
 public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
@@ -47,8 +47,8 @@ public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
         if (e instanceof WebApplicationException) {
             response = ((WebApplicationException) e).getResponse();
             logger.debug("An exception occurred when processing REST response", e);
-        } else if (e instanceof Failure) { //Resteasy support
-            Failure failure = ((Failure)e);
+        } else if (e instanceof Failure) { // Resteasy support
+            Failure failure = ((Failure) e);
             if (failure.getErrorCode() > 0) {
                 status = failure.getErrorCode();
             }
@@ -62,9 +62,9 @@ public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
 
         if (response != null) {
             builder = Response.status(response.getStatus());
-//            b.entity(response.getEntity());
+            // b.entity(response.getEntity());
 
-            //copy headers
+            // copy headers
             for (String headerName : response.getMetadata().keySet()) {
                 List<Object> headerValues = response.getMetadata().get(headerName);
                 for (Object headerValue : headerValues) {

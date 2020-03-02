@@ -29,9 +29,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 1/25/17
- * Time: 2:25 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 1/25/17 Time: 2:25 PM
  */
 @Hidden
 @Tag(name = "Internal")
@@ -42,14 +40,14 @@ public interface DebugEndpoint {
 
     @GET
     @Path("/build-queue")
-    String getBuildQueueInfo() ;
+    String getBuildQueueInfo();
 
     /**
-     *  curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message
-     *  curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message?type=status
+     * curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message curl -v -X POST
+     * http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message?type=status
      */
     @POST
     @Path("/mq-send-dummy-message")
-    void sendDummyMessageToQueue(@QueryParam("type") String type) ;
+    void sendDummyMessageToQueue(@QueryParam("type") String type);
 
 }

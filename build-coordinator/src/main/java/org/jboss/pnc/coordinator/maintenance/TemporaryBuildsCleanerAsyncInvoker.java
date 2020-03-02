@@ -49,7 +49,7 @@ public class TemporaryBuildsCleanerAsyncInvoker {
 
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
-    @Deprecated //CDI workaround
+    @Deprecated // CDI workaround
     public TemporaryBuildsCleanerAsyncInvoker() {
     }
 
@@ -62,7 +62,8 @@ public class TemporaryBuildsCleanerAsyncInvoker {
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
 
-        executorService = Executors.newSingleThreadExecutor(new NamedThreadFactory("build-coordinator.TemporaryBuildsCleanerAsyncInvoker"));
+        executorService = Executors.newSingleThreadExecutor(
+                new NamedThreadFactory("build-coordinator.TemporaryBuildsCleanerAsyncInvoker"));
     }
 
     /**
@@ -74,7 +75,8 @@ public class TemporaryBuildsCleanerAsyncInvoker {
      * @return True if the build exists and deletion started otherwise, false is build doesn't exist
      * @throws ValidationException Thrown when build cannot be deleted
      */
-    public boolean deleteTemporaryBuild(Integer buildRecordId, String authToken, Consumer<Result> onComplete) throws ValidationException {
+    public boolean deleteTemporaryBuild(Integer buildRecordId, String authToken, Consumer<Result> onComplete)
+            throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
         if (buildRecord == null) {
             return false;
@@ -90,7 +92,11 @@ public class TemporaryBuildsCleanerAsyncInvoker {
                 onComplete.accept(result);
             } catch (ValidationException e) {
                 logger.error("Failed to delete temporary buildRecord.id: " + buildRecordId + ".", e);
-                onComplete.accept(new Result(buildRecordId.toString(), ResultStatus.FAILED, "Failed to delete temporary buildRecord."));
+                onComplete.accept(
+                        new Result(
+                                buildRecordId.toString(),
+                                ResultStatus.FAILED,
+                                "Failed to delete temporary buildRecord."));
             }
         });
 
@@ -106,7 +112,10 @@ public class TemporaryBuildsCleanerAsyncInvoker {
      * @return True if the build exists and deletion started otherwise, false is build doesn't exist
      * @throws ValidationException Thrown when build cannot be deleted
      */
-    public boolean deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId, String authToken, Consumer<Result> onComplete) throws ValidationException {
+    public boolean deleteTemporaryBuildConfigSetRecord(
+            Integer buildConfigSetRecordId,
+            String authToken,
+            Consumer<Result> onComplete) throws ValidationException {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
         if (buildConfigSetRecord == null) {
             return false;
@@ -118,17 +127,20 @@ public class TemporaryBuildsCleanerAsyncInvoker {
 
         executorService.submit(() -> {
             try {
-                Result result = temporaryBuildsCleaner.deleteTemporaryBuildConfigSetRecord(buildConfigSetRecordId, authToken);
+                Result result = temporaryBuildsCleaner
+                        .deleteTemporaryBuildConfigSetRecord(buildConfigSetRecordId, authToken);
                 onComplete.accept(result);
             } catch (ValidationException e) {
                 logger.error("Failed to delete temporary buildConfigSetRecord.id: " + buildConfigSetRecordId + ".", e);
-                onComplete.accept(new Result(buildConfigSetRecordId.toString(), ResultStatus.FAILED, "Failed to delete temporary buildConfigSetRecord."));
+                onComplete.accept(
+                        new Result(
+                                buildConfigSetRecordId.toString(),
+                                ResultStatus.FAILED,
+                                "Failed to delete temporary buildConfigSetRecord."));
             }
         });
 
         return true;
     }
-
-
 
 }

@@ -106,8 +106,7 @@ public class UserProviderImplTest extends AbstractProviderTest<User> {
         Page<org.jboss.pnc.dto.User> all = provider.getAll(0, 10, null, null);
 
         // then
-        assertThat(all.getContent())
-                .hasSize(4);
+        assertThat(all.getContent()).hasSize(4);
     }
 
     @Test
@@ -130,17 +129,14 @@ public class UserProviderImplTest extends AbstractProviderTest<User> {
                 .build();
 
         // then: can't store new user with id already set
-        assertThatThrownBy(() -> provider.store(userDTO))
-                .isInstanceOf(InvalidEntityException.class);
+        assertThatThrownBy(() -> provider.store(userDTO)).isInstanceOf(InvalidEntityException.class);
     }
 
     @Test
     public void testStoreNewUserWithoutId() {
 
         // when
-        org.jboss.pnc.dto.User userDTO = org.jboss.pnc.dto.User.builder()
-                .username("john-cormack")
-                .build();
+        org.jboss.pnc.dto.User userDTO = org.jboss.pnc.dto.User.builder().username("john-cormack").build();
 
         org.jboss.pnc.dto.User userDTOSaved = provider.store(userDTO);
 
@@ -152,19 +148,14 @@ public class UserProviderImplTest extends AbstractProviderTest<User> {
     @Test
     public void testUpdateShouldFail() {
 
-        org.jboss.pnc.dto.User userDTO = org.jboss.pnc.dto.User.builder()
-                .id("1001")
-                .username("john-cormack")
-                .build();
+        org.jboss.pnc.dto.User userDTO = org.jboss.pnc.dto.User.builder().id("1001").username("john-cormack").build();
 
-        assertThatThrownBy(() -> provider.update("1001", userDTO))
-                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> provider.update("1001", userDTO)).isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test
     public void testDeleteShouldFail() {
-        assertThatThrownBy(() -> provider.delete("hello-test"))
-                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> provider.delete("hello-test")).isInstanceOf(UnsupportedOperationException.class);
     }
 
     private User prepareNewUser(String username) {

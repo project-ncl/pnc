@@ -75,7 +75,10 @@ public class BuildEndpointTest {
     @Mock
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
-    /** new BuildRecordProvider(buildRecordRepository, buildCoordinator, null, null, buildConfigurationAuditedRepository, buildExecutor);*/
+    /**
+     * new BuildRecordProvider(buildRecordRepository, buildCoordinator, null, null, buildConfigurationAuditedRepository,
+     * buildExecutor);
+     */
     @InjectMocks
     private BuildRecordProvider buildRecordProvider = new BuildRecordProvider();
 
@@ -97,7 +100,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldReturnSshCredentialsForBuildRequester() {
-        //given
+        // given
         int buildRecordId = randInt(10000, 20000);
         String sshCommand = randomAlphabetic(20);
         String sshPassword = randomAlphabetic(20);
@@ -115,7 +118,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldNotReturnSshCredentialsForOtherUsers() {
-        //given
+        // given
         int buildRecordId = randInt(10000, 20000);
         String sshCommand = randomAlphabetic(20);
         String sshPassword = randomAlphabetic(20);
@@ -139,16 +142,24 @@ public class BuildEndpointTest {
         BuildSetTask buildSetTask = mock(BuildSetTask.class);
         when(buildSetTask.getBuildConfigSetRecord()).thenReturn(Optional.empty());
 
-        User user = User.Builder.newBuilder()
-                .id(CURRENT_USER)
-                .build();
+        User user = User.Builder.newBuilder().id(CURRENT_USER).build();
 
         IdRev idRev = new IdRev(1, 1);
         BuildConfigurationAudited buildConfigurationAudited = new BuildConfigurationAudited();
         buildConfigurationAudited.setIdRev(idRev);
         when(buildConfigurationAuditedRepository.queryById(idRev)).thenReturn(buildConfigurationAudited);
 
-        buildTasks.add( BuildTask.build(buildConfigurationAudited, buildOptions, user, buildId, buildSetTask, null, null, "context-id", Optional.empty()));
+        buildTasks.add(
+                BuildTask.build(
+                        buildConfigurationAudited,
+                        buildOptions,
+                        user,
+                        buildId,
+                        buildSetTask,
+                        null,
+                        null,
+                        "context-id",
+                        Optional.empty()));
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(buildTasks);
 
         // when
@@ -160,7 +171,11 @@ public class BuildEndpointTest {
         assertThat(buildRecordSingleton.getContent().getTemporaryBuild()).isEqualTo(true);
     }
 
-    private void prepareEndpointForKeepPodAlive(int buildRecordId, int buildRequesterId, String sshCommand, String sshPassword) {
+    private void prepareEndpointForKeepPodAlive(
+            int buildRecordId,
+            int buildRequesterId,
+            String sshCommand,
+            String sshPassword) {
         User user = mock(User.class);
         when(user.getId()).thenReturn(buildRequesterId);
 
@@ -172,11 +187,10 @@ public class BuildEndpointTest {
         when(buildRecordRepository.queryById(eq(buildRecordId))).thenReturn(record);
     }
 
-
     private <T> T getSshCredentials(int buildRecordId, int expectedStatus) {
         Response response = endpoint.getSshCredentials(buildRecordId);
         assertThat(response.getStatus()).isEqualTo(expectedStatus);
-        T wrappedRecord = (T)response.getEntity();
+        T wrappedRecord = (T) response.getEntity();
         return wrappedRecord;
     }
 }

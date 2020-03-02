@@ -48,6 +48,7 @@ import java.lang.reflect.Field;
 import org.jboss.pnc.mapper.api.BuildMapper;
 
 import static org.mockito.Mockito.when;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -61,7 +62,7 @@ public class BuildResultSerializationTest {
 
     @Spy
     private TargetRepositoryMapper targetRepositoryMapper;
-    
+
     @Spy
     private BuildMapper buildMapper;
 
@@ -75,22 +76,31 @@ public class BuildResultSerializationTest {
     @InjectMocks
     private BuildResultMapper buildResultMapper;
 
-
     @Before
-    public void before() throws Exception{
+    public void before() throws Exception {
         IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig("http://url.com");
         indyRepoDriverModuleConfig.setExternalRepositoryMvnPath("http://url.com");
         indyRepoDriverModuleConfig.setExternalRepositoryNpmPath("http://url.com");
         indyRepoDriverModuleConfig.setInternalRepositoryMvnPath("http://url.com");
         indyRepoDriverModuleConfig.setInternalRepositoryNpmPath("http://url.com");
-        injectMethod("artifactMapper", repositoryManagerResultMapper, artifactMapper, RepositoryManagerResultMapper.class);
+        injectMethod(
+                "artifactMapper",
+                repositoryManagerResultMapper,
+                artifactMapper,
+                RepositoryManagerResultMapper.class);
         injectMethod("config", artifactMapper, configuration, AbstractArtifactMapper.class);
-        injectMethod("targetRepositoryMapper", artifactMapper, targetRepositoryMapper, AbstractArtifactMapperImpl.class);
+        injectMethod(
+                "targetRepositoryMapper",
+                artifactMapper,
+                targetRepositoryMapper,
+                AbstractArtifactMapperImpl.class);
         injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
-        when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class))).thenReturn(indyRepoDriverModuleConfig);
+        when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class)))
+                .thenReturn(indyRepoDriverModuleConfig);
     }
 
-    private void injectMethod(String fieldName, Object to, Object what, Class clazz) throws NoSuchFieldException, IllegalAccessException {
+    private void injectMethod(String fieldName, Object to, Object what, Class clazz)
+            throws NoSuchFieldException, IllegalAccessException {
         Field f = clazz.getDeclaredField(fieldName);
         f.setAccessible(true);
         f.set(to, what);
@@ -105,28 +115,59 @@ public class BuildResultSerializationTest {
         String buildResultJson = buildResultRest.toFullLogString();
         log.debug("BuildResultJson : {}", buildResultJson);
 
-        BuildResultRest buildResultRestFromJson = JsonOutputConverterMapper.readValue(buildResultJson, BuildResultRest.class);
+        BuildResultRest buildResultRestFromJson = JsonOutputConverterMapper
+                .readValue(buildResultJson, BuildResultRest.class);
 
         BuildResult buildResultFromJson = buildResultMapper.toEntity(buildResultRestFromJson);
         String message = "Deserialized object does not match the original.";
 
         Assert.assertEquals(message, buildResult.hasFailed(), buildResultFromJson.hasFailed());
         Assert.assertEquals(message, buildResult.getCompletionStatus(), buildResultFromJson.getCompletionStatus());
-        Assert.assertEquals(message, buildResult.getProcessException().get().getMessage(), buildResultFromJson.getProcessException().get().getMessage());
+        Assert.assertEquals(
+                message,
+                buildResult.getProcessException().get().getMessage(),
+                buildResultFromJson.getProcessException().get().getMessage());
 
-        Assert.assertEquals(message, buildResult.getBuildExecutionConfiguration().get().getId(), buildResultFromJson.getBuildExecutionConfiguration().get().getId());
+        Assert.assertEquals(
+                message,
+                buildResult.getBuildExecutionConfiguration().get().getId(),
+                buildResultFromJson.getBuildExecutionConfiguration().get().getId());
 
-        Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuildContentId(), buildResultFromJson.getRepositoryManagerResult().get().getBuildContentId());
-        Assert.assertEquals(message, buildResult.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId(), buildResultFromJson.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId());
+        Assert.assertEquals(
+                message,
+                buildResult.getRepositoryManagerResult().get().getBuildContentId(),
+                buildResultFromJson.getRepositoryManagerResult().get().getBuildContentId());
+        Assert.assertEquals(
+                message,
+                buildResult.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId(),
+                buildResultFromJson.getRepositoryManagerResult().get().getBuiltArtifacts().get(0).getId());
 
-        Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildLog(), buildResultFromJson.getBuildDriverResult().get().getBuildLog());
-        Assert.assertEquals(message, buildResult.getBuildDriverResult().get().getBuildStatus(), buildResultFromJson.getBuildDriverResult().get().getBuildStatus());
+        Assert.assertEquals(
+                message,
+                buildResult.getBuildDriverResult().get().getBuildLog(),
+                buildResultFromJson.getBuildDriverResult().get().getBuildLog());
+        Assert.assertEquals(
+                message,
+                buildResult.getBuildDriverResult().get().getBuildStatus(),
+                buildResultFromJson.getBuildDriverResult().get().getBuildStatus());
 
-        Assert.assertEquals(message, buildResult.getRepourResult().get().getCompletionStatus(), buildResultFromJson.getRepourResult().get().getCompletionStatus());
-        Assert.assertEquals(message, buildResult.getRepourResult().get().getExecutionRootName(), buildResultFromJson.getRepourResult().get().getExecutionRootName());
+        Assert.assertEquals(
+                message,
+                buildResult.getRepourResult().get().getCompletionStatus(),
+                buildResultFromJson.getRepourResult().get().getCompletionStatus());
+        Assert.assertEquals(
+                message,
+                buildResult.getRepourResult().get().getExecutionRootName(),
+                buildResultFromJson.getRepourResult().get().getExecutionRootName());
 
-        Assert.assertEquals(message, buildResult.getEnvironmentDriverResult().get().getCompletionStatus(), buildResultFromJson.getEnvironmentDriverResult().get().getCompletionStatus());
-        Assert.assertEquals(message, buildResult.getEnvironmentDriverResult().get().getSshCredentials().get().getCommand(), buildResultFromJson.getEnvironmentDriverResult().get().getSshCredentials().get().getCommand());
+        Assert.assertEquals(
+                message,
+                buildResult.getEnvironmentDriverResult().get().getCompletionStatus(),
+                buildResultFromJson.getEnvironmentDriverResult().get().getCompletionStatus());
+        Assert.assertEquals(
+                message,
+                buildResult.getEnvironmentDriverResult().get().getSshCredentials().get().getCommand(),
+                buildResultFromJson.getEnvironmentDriverResult().get().getSshCredentials().get().getCommand());
 
     }
 }

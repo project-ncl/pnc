@@ -43,11 +43,12 @@ import java.util.stream.Collectors;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class,
-        uses = {BuildConfigurationMapper.class, UserMapper.class, StatusMapper.class, BuildMapper.IDMapper.class,
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { BuildConfigurationMapper.class, UserMapper.class, StatusMapper.class, BuildMapper.IDMapper.class,
                 SCMRepositoryMapper.class, ProjectMapper.class, BuildConfigurationRevisionMapper.class,
                 EnvironmentMapper.class, BuildMapper.BuildTaskIdMapper.class, BrewNameWorkaround.class,
-                GroupBuildMapper.class, BuildBCRevisionFetcher.class, ProductMilestoneMapper.class})
+                GroupBuildMapper.class, BuildBCRevisionFetcher.class, ProductMilestoneMapper.class })
 
 public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, BuildRef> {
 
@@ -62,13 +63,13 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "scmUrl", source = "scmRepoURL")
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "progress", source = "status")
-    @BeanMapping(ignoreUnmappedSourceProperties = {"buildLog", "buildLogMd5", "buildLogSha256",
-            "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
-            "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize",
-            "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
-            "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
-            "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap"
-    })
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "buildLog", "buildLogMd5", "buildLogSha256", "buildLogSize",
+                    "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
+                    "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize",
+                    "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
+                    "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
+                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
     Build toDTO(BuildRecord dbEntity);
 
     @Override
@@ -84,13 +85,14 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Override
     @Mapping(target = "scmUrl", source = "scmRepoURL")
     @Mapping(target = "progress", source = "status")
-    @BeanMapping(ignoreUnmappedSourceProperties = {"scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
-            "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
-            "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog", "repourLogMd5", "repourLogSha256",
-            "repourLogSize", "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev", "buildEnvironment",
-            "buildConfigurationAudited" ,"dependentBuildRecordIds", "dependencyBuildRecordIds", "user", "attributes", "attributesMap",
-            "buildConfigurationAuditedIdRev", "buildOutputChecksum"
-    })
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
+                    "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
+                    "builtArtifacts", "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog",
+                    "repourLogMd5", "repourLogSha256", "repourLogSize", "buildRecordPushResults",
+                    "buildConfigurationId", "buildConfigurationRev", "buildEnvironment", "buildConfigurationAudited",
+                    "dependentBuildRecordIds", "dependencyBuildRecordIds", "user", "attributes", "attributesMap",
+                    "buildConfigurationAuditedIdRev", "buildOutputChecksum" })
     BuildRef toRef(BuildRecord dbEntity);
 
     @Override
@@ -122,15 +124,25 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "buildRecordPushResults", ignore = true)
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "attributesMap", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"project", "scmRepository", "progress"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "project", "scmRepository", "progress" })
     BuildRecord toEntity(Build dtoEntity);
 
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
-    @Mapping(target = "scmRepository", source = "buildConfigurationAudited.repositoryConfiguration", qualifiedBy = Reference.class)
-    @Mapping(target = "environment", source = "buildConfigurationAudited.buildEnvironment", qualifiedBy = Reference.class)
-    @Mapping(target = "buildConfigRevision", source = "buildConfigurationAudited", resultType = BuildConfigurationRevisionRef.class)
-    //Workaround for [NCL-4228]
-    //Use of Reference class was needed here because resultType=GroupBuildRef.class along with unwrapping of Optional resulted in NPE in Mapstruct processor
+    @Mapping(
+            target = "scmRepository",
+            source = "buildConfigurationAudited.repositoryConfiguration",
+            qualifiedBy = Reference.class)
+    @Mapping(
+            target = "environment",
+            source = "buildConfigurationAudited.buildEnvironment",
+            qualifiedBy = Reference.class)
+    @Mapping(
+            target = "buildConfigRevision",
+            source = "buildConfigurationAudited",
+            resultType = BuildConfigurationRevisionRef.class)
+    // Workaround for [NCL-4228]
+    // Use of Reference class was needed here because resultType=GroupBuildRef.class along with unwrapping of Optional
+    // resulted in NPE in Mapstruct processor
     @Mapping(target = "groupBuild", source = "buildSetTask.buildConfigSetRecord", qualifiedBy = Reference.class)
     @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
     @Mapping(target = "buildContentId", source = "contentId")
@@ -141,9 +153,9 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "progress", source = "status")
     @Mapping(target = "buildOutputChecksum", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {
-        "statusDescription", "buildSetTask", "buildConfigSetRecordId", "buildOptions", "dependants",
-        "dependencies", "requestContext"})
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "statusDescription", "buildSetTask", "buildConfigSetRecordId",
+                    "buildOptions", "dependants", "dependencies", "requestContext" })
     Build fromBuildTask(BuildTask buildTask);
 
     public static <T> T unwrap(Optional<T> optional) {
@@ -171,17 +183,14 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
             return buildRecord;
         }
 
-        public static Integer toId(BuildRecord buildRecord){
+        public static Integer toId(BuildRecord buildRecord) {
             return buildRecord.getId();
         }
     }
 
     public static class BuildTaskIdMapper {
         public static List<String> toBuildIds(Set<BuildTask> buildTasks) {
-            return buildTasks.stream()
-                    .map(BuildTask::getId)
-                    .map(String::valueOf)
-                    .collect(Collectors.toList());
+            return buildTasks.stream().map(BuildTask::getId).map(String::valueOf).collect(Collectors.toList());
         }
     }
 }

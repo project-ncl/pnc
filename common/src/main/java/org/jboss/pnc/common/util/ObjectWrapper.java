@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.common.util;
 
-
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-09.
  */

@@ -29,8 +29,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
- * Provider of statically defined BuildConfiguration generic parameters,
- * that are known to the Orchestrator.
+ * Provider of statically defined BuildConfiguration generic parameters, that are known to the Orchestrator.
  * 
  * The parameters are set in the resources file
  * 
@@ -39,7 +38,8 @@ import java.util.Set;
  */
 @PermitAll
 @ApplicationScoped
-public class BuildConfigurationSupportedGenericParametersProviderImpl implements BuildConfigurationSupportedGenericParametersProvider {
+public class BuildConfigurationSupportedGenericParametersProviderImpl
+        implements BuildConfigurationSupportedGenericParametersProvider {
 
     private static final String RESOURCES_FILE = "buildConfigurationSupportedGenericParameters.properties";
 

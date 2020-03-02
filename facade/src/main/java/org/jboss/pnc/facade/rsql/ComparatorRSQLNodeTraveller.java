@@ -48,13 +48,13 @@ class ComparatorRSQLNodeTraveller<DTO> extends RSQLNodeTraveller<Comparator<DTO>
         Comparator<DTO> comparator = null;
         for (String argument : node.getArguments()) {
             Comparator<DTO> comp = Comparator.comparing(dto -> getProperty(dto, argument));
-            if(comparator == null){
+            if (comparator == null) {
                 comparator = comp;
-            }else{
+            } else {
                 comparator = comparator.thenComparing(comp);
             }
         }
-        if(comparator == null){
+        if (comparator == null) {
             throw new RSQLException("No argument for RSQL comparsion found.");
         }
         if (node.getOperator().equals(DESC)) {
@@ -63,15 +63,15 @@ class ComparatorRSQLNodeTraveller<DTO> extends RSQLNodeTraveller<Comparator<DTO>
 
         return comparator;
     }
-    
+
     private Comparable getProperty(Object object, String argument) {
         try {
             String getter = "get" + StringUtils.firstCharToUpperCase(argument);
             Method method = object.getClass().getMethod(getter);
             Object obj = method.invoke(object);
-            if(obj instanceof Comparable){
+            if (obj instanceof Comparable) {
                 return (Comparable) obj;
-            }else{
+            } else {
                 throw new RSQLException("Field " + argument + " is not comparable.");
             }
         } catch (NoSuchMethodException ex) {
@@ -80,5 +80,5 @@ class ComparatorRSQLNodeTraveller<DTO> extends RSQLNodeTraveller<Comparator<DTO>
             throw new RuntimeException("Could not access field " + argument + ": " + ex.getMessage(), ex);
         }
     }
-    
+
 }

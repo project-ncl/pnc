@@ -37,19 +37,26 @@ public class TargetRepositoryRSQLMapper extends AbstractRSQLMapper<Integer, Targ
     @Override
     protected SingularAttribute<TargetRepository, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            default: return null;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<TargetRepository, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return TargetRepository_.id;
-            case "repositoryPath": return TargetRepository_.repositoryPath;
-            case "repositoryType": return TargetRepository_.repositoryType;
-            case "identifier": return TargetRepository_.identifier;
-            case "temporaryRepo": return TargetRepository_.temporaryRepo;
-            default: return null;
+            case "id":
+                return TargetRepository_.id;
+            case "repositoryPath":
+                return TargetRepository_.repositoryPath;
+            case "repositoryType":
+                return TargetRepository_.repositoryType;
+            case "identifier":
+                return TargetRepository_.identifier;
+            case "temporaryRepo":
+                return TargetRepository_.temporaryRepo;
+            default:
+                return null;
         }
     }
 }

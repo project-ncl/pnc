@@ -55,7 +55,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withS
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.includeTemporary;
 
 @Stateless
-public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer> implements BuildRecordRepository {
+public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer>
+        implements BuildRecordRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildRecordRepositoryImpl.class);
 
@@ -92,22 +93,32 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         }
 
         Integer revision = buildRecord.getBuildConfigurationRev();
-        BuildConfigurationAudited buildConfigurationAudited =
-                buildConfigurationAuditedRepository.queryById(new IdRev(buildRecord.getBuildConfigurationId(), revision));
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
+                .queryById(new IdRev(buildRecord.getBuildConfigurationId(), revision));
         buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
         return buildRecord;
     }
 
-
     @Override
-    public List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates) {
-        return repository.findAll(SpecificationsMapper.map(predicates), PageableMapper.mapCursored(pageInfo, sortInfo)).getContent();
+    public List<BuildRecord> queryWithPredicatesUsingCursor(
+            PageInfo pageInfo,
+            SortInfo sortInfo,
+            Predicate<BuildRecord>... predicates) {
+        return repository.findAll(SpecificationsMapper.map(predicates), PageableMapper.mapCursored(pageInfo, sortInfo))
+                .getContent();
     }
 
     @Override
-    public List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, List<Predicate<BuildRecord>> andPredicates,
-                                                            List<Predicate<BuildRecord>> orPredicates) {
-        return repository.findAll(SpecificationsMapper.map(andPredicates, orPredicates), PageableMapper.mapCursored(pageInfo, sortInfo)).getContent();
+    public List<BuildRecord> queryWithPredicatesUsingCursor(
+            PageInfo pageInfo,
+            SortInfo sortInfo,
+            List<Predicate<BuildRecord>> andPredicates,
+            List<Predicate<BuildRecord>> orPredicates) {
+        return repository
+                .findAll(
+                        SpecificationsMapper.map(andPredicates, orPredicates),
+                        PageableMapper.mapCursored(pageInfo, sortInfo))
+                .getContent();
     }
 
     @Override
@@ -123,9 +134,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
 
     @Override
     public List<BuildRecord> findTemporaryBuildsOlderThan(Date date) {
-        return queryWithPredicates(
-                temporaryBuild(),
-                buildFinishedBefore(date));
+        return queryWithPredicates(temporaryBuild(), buildFinishedBefore(date));
     }
 
     @Override
@@ -133,20 +142,27 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         GraphBuilder graphBuilder = new GraphBuilder<BuildRecord>(
                 id -> Optional.ofNullable(findByIdFetchProperties(id)),
                 buildRecord -> Arrays.asList(buildRecord.getDependencyBuildRecordIds()),
-                buildRecord -> Arrays.asList(buildRecord.getDependentBuildRecordIds())
-        );
+                buildRecord -> Arrays.asList(buildRecord.getDependentBuildRecordIds()));
 
         Graph<BuildRecord> graph = new Graph<>();
         logger.debug("Building dependency graph for buildRecordId: {}.", buildRecordId);
         Vertex<BuildRecord> current = graphBuilder.buildDependencyGraph(graph, buildRecordId);
-        logger.trace("Dependency graph of buildRecord.id {} {}; Graph edges: {}.", buildRecordId, graph, graph.getEdges());
+        logger.trace(
+                "Dependency graph of buildRecord.id {} {}; Graph edges: {}.",
+                buildRecordId,
+                graph,
+                graph.getEdges());
 
-        //if it is stored in the DB, add dependent nodes
+        // if it is stored in the DB, add dependent nodes
         if (current != null) {
             BuildRecord buildRecord = current.getData();
             graphBuilder.buildDependentGraph(graph, buildRecord.getId());
         }
-        logger.trace("Graph with dependents of buildRecord.id {} {}; Graph edges: {}.", buildRecordId, graph, graph.getEdges());
+        logger.trace(
+                "Graph with dependents of buildRecord.id {} {}; Graph edges: {}.",
+                buildRecordId,
+                graph,
+                graph.getEdges());
 
         return new GraphWithMetadata(graph, graphBuilder.getMissingNodes());
     }
@@ -156,7 +172,8 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         PageInfo pageInfo = new DefaultPageInfo(0, 1);
         SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.id.getName());
 
-        List<BuildRecord> buildRecords = queryWithPredicates(pageInfo,
+        List<BuildRecord> buildRecords = queryWithPredicates(
+                pageInfo,
                 sortInfo,
                 withBuildConfigurationIdRev(idRev),
                 withSuccess(),

@@ -97,11 +97,11 @@ public class BpmSchedulerSmokeTest {
                 return new SimpleParameters();
             }
         };
-        task.<BpmStringMapNotificationRest>addListener(RC_REPO_CREATION_SUCCESS, t -> {
+        task.<BpmStringMapNotificationRest> addListener(RC_REPO_CREATION_SUCCESS, t -> {
             assertEquals("green", t.getData().get("color"));
             successNotification = true;
         });
-        task.<BpmStringMapNotificationRest>addListener(RC_REPO_CREATION_ERROR, t -> {
+        task.<BpmStringMapNotificationRest> addListener(RC_REPO_CREATION_ERROR, t -> {
             assertEquals("red", t.getData().get("color"));
             errorNotification = true;
         });

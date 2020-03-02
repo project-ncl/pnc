@@ -22,9 +22,7 @@ import lombok.NoArgsConstructor;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/24/16
- * Time: 3:42 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/24/16 Time: 3:42 PM
  */
 @Data
 @NoArgsConstructor

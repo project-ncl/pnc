@@ -69,7 +69,7 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
     private AuthenticationProvider authenticationProvider;
 
     private Datastore datastore;
-    
+
     public UserEndpoint() {
     }
 
@@ -86,7 +86,8 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q) {
@@ -106,10 +107,8 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
 
     @POST
     @Path("/loggedUser")
-    public Response getLoggedUser(
-            @Context UriInfo uriInfo,
-            @Context HttpServletRequest httpServletRequest
-    ) throws RestValidationException {
+    public Response getLoggedUser(@Context UriInfo uriInfo, @Context HttpServletRequest httpServletRequest)
+            throws RestValidationException {
         try {
             LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
@@ -125,21 +124,21 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
                         .username(loggedUser)
                         .firstName(loginInUser.getFirstName())
                         .lastName(loginInUser.getLastName())
-                        .email(loginInUser.getEmail()).build();
+                        .email(loginInUser.getEmail())
+                        .build();
                 return super.createNew(new UserRest(currentUser), uriInfo);
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             return ErrorResponse.toResponse(e);
         }
-        
+
     }
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Integer id,
-            UserRest userRest) throws RestValidationException {
-       return super.update(id, userRest);
+    public Response update(@PathParam("id") Integer id, UserRest userRest) throws RestValidationException {
+        return super.update(id, userRest);
     }
 
     @GET
@@ -150,7 +149,8 @@ public class UserEndpoint extends AbstractEndpoint<User, UserRest> {
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @PathParam("id") Integer id) {
-        return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecordsByUserId(pageIndex, pageSize, sort, q, id));
+        return fromCollection(
+                buildRecordProvider.getRunningAndCompletedBuildRecordsByUserId(pageIndex, pageSize, sort, q, id));
     }
 
 }

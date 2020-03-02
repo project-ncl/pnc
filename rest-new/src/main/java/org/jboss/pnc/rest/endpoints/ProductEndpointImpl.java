@@ -49,7 +49,8 @@ public class ProductEndpointImpl implements ProductEndpoint {
     @Override
     public Page<Product> getAll(PageParameters pageParameters) {
 
-        return productProvider.getAll(pageParameters.getPageIndex(),
+        return productProvider.getAll(
+                pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),
                 pageParameters.getSort(),
                 pageParameters.getQ());
@@ -77,7 +78,8 @@ public class ProductEndpointImpl implements ProductEndpoint {
 
     @Override
     public Page<ProductVersion> getProductVersions(String id, PageParameters pageParameters) {
-        return productVersionProvider.getAllForProduct(pageParameters.getPageIndex(),
+        return productVersionProvider.getAllForProduct(
+                pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),
                 pageParameters.getSort(),
                 pageParameters.getQ(),

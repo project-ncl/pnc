@@ -38,16 +38,20 @@ public class UserRSQLMapper extends AbstractRSQLMapper<Integer, User> {
     @Override
     protected SingularAttribute<User, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            default: return null;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<User, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return User_.id;
-            case "username": return User_.username;
-            default: return null;
+            case "id":
+                return User_.id;
+            case "username":
+                return User_.username;
+            default:
+                return null;
         }
     }
 

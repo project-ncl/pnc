@@ -29,8 +29,12 @@ import org.mapstruct.Mapping;
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class, ProductReleaseMapper.class, BuildMapper.IDMapper.class, AbstractArtifactMapper.IDMapper.class})
-public interface ProductMilestoneMapper extends EntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { ProductVersionMapper.class, ProductReleaseMapper.class, BuildMapper.IDMapper.class,
+                AbstractArtifactMapper.IDMapper.class })
+public interface ProductMilestoneMapper
+        extends EntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
 
     @Override
     @Mapping(target = "distributedArtifacts", ignore = true)
@@ -50,10 +54,12 @@ public interface ProductMilestoneMapper extends EntityMapper<Integer, ProductMil
     @Override
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "productRelease", resultType = ProductReleaseRef.class)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"performedBuilds", "distributedArtifacts"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "performedBuilds", "distributedArtifacts" })
     org.jboss.pnc.dto.ProductMilestone toDTO(ProductMilestone dbEntity);
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"productVersion", "productRelease", "performedBuilds", "distributedArtifacts"})
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "productVersion", "productRelease", "performedBuilds",
+                    "distributedArtifacts" })
     ProductMilestoneRef toRef(ProductMilestone dbEntity);
 }

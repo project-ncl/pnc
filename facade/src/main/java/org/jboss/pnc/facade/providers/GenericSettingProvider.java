@@ -39,7 +39,8 @@ public class GenericSettingProvider {
     private GenericSettingRepository genericSettingRepository;
 
     @Deprecated
-    public GenericSettingProvider() {}
+    public GenericSettingProvider() {
+    }
 
     @RolesAllowed("system-user")
     public void activateMaintenanceMode(String reason) {

@@ -35,8 +35,9 @@ import static org.junit.Assert.fail;
  */
 public class BuildRecordTest extends AbstractModelTest {
 
-    protected final RepositoryConfiguration REPOSITORY_CONFIGURATION_ID_1 = RepositoryConfiguration.Builder
-            .newBuilder().id(1).build();
+    protected final RepositoryConfiguration REPOSITORY_CONFIGURATION_ID_1 = RepositoryConfiguration.Builder.newBuilder()
+            .id(1)
+            .build();
 
     private EntityManager em;
 
@@ -53,17 +54,12 @@ public class BuildRecordTest extends AbstractModelTest {
         initDatabaseUsingDataset(em, BasicModelTest.DBUNIT_DATASET_FILE);
         insertExampleBuildConfigurations(em, REPOSITORY_CONFIGURATION_ID_1);
 
-        if(user == null) {
-            this.user = User.Builder.newBuilder()
-                    .id(1)
-                    .build();
+        if (user == null) {
+            this.user = User.Builder.newBuilder().id(1).build();
         }
 
         if (buildEnvironment == null) {
-            this.buildEnvironment = BuildEnvironment.Builder
-                    .newBuilder()
-                    .id(1)
-                    .build();
+            this.buildEnvironment = BuildEnvironment.Builder.newBuilder().id(1).build();
         }
     }
 
@@ -77,10 +73,7 @@ public class BuildRecordTest extends AbstractModelTest {
     public void shouldProhibitDeletionOfNonTemporaryBuild() {
         // given
         int brId = 666;
-        BuildRecord br = prepareBuildRecordBuilder()
-                .id(brId)
-                .temporaryBuild(false)
-                .build();
+        BuildRecord br = prepareBuildRecordBuilder().id(brId).temporaryBuild(false).build();
 
         em.getTransaction().begin();
         em.persist(br);
@@ -105,10 +98,7 @@ public class BuildRecordTest extends AbstractModelTest {
     public void shouldAllowDeletionOfTemporaryBuild() {
         // given
         int brId = 666;
-        BuildRecord br = prepareBuildRecordBuilder()
-                .id(brId)
-                .temporaryBuild(true)
-                .build();
+        BuildRecord br = prepareBuildRecordBuilder().id(brId).temporaryBuild(true).build();
 
         em.getTransaction().begin();
         em.persist(br);

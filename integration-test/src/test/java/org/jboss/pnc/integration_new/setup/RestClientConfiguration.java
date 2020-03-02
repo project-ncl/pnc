@@ -49,7 +49,7 @@ public class RestClientConfiguration {
         return builder.build();
     }
 
-    public static Configuration asAnonymous(){
+    public static Configuration asAnonymous() {
         return getConfiguration(AuthenticateAs.NONE);
     }
 
@@ -57,16 +57,13 @@ public class RestClientConfiguration {
         return getConfiguration(AuthenticateAs.USER);
     }
 
-    public static Configuration asSystem(){
+    public static Configuration asSystem() {
         return getConfiguration(AuthenticateAs.SYSTEM_USER);
     }
 
     public static org.apache.http.Header getAuthenticationHeaderApache(RestClientConfiguration.AuthenticateAs user) {
-        String base64Credentials = getConfiguration(user)
-                .getBasicAuth()
-                .getBase64Credentials();
+        String base64Credentials = getConfiguration(user).getBasicAuth().getBase64Credentials();
         return new BasicHeader("Authorization", "Basic " + base64Credentials);
     }
-
 
 }

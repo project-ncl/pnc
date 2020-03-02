@@ -31,7 +31,8 @@ public class SystemConfigMock {
 
     public static SystemConfig withKeycloakServiceAccount() throws IOException {
         String configJson = IoUtils.readResource("keycloakClientConfig.json", SystemConfigMock.class.getClassLoader());
-        KeycloakClientConfig serviceAccountConfig = JsonOutputConverterMapper.readValue(configJson, KeycloakClientConfig.class);
+        KeycloakClientConfig serviceAccountConfig = JsonOutputConverterMapper
+                .readValue(configJson, KeycloakClientConfig.class);
 
         return new SystemConfig(
                 null,

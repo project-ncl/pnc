@@ -46,9 +46,7 @@ import static org.jboss.pnc.rest.provider.MilestoneTestUtils.createBuildRecord;
 import static org.jboss.pnc.rest.utils.RequestUtils.requestWithEntity;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/25/16
- * Time: 3:21 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/25/16 Time: 3:21 PM
  */
 public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
     @Test
@@ -62,8 +60,9 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
         BuildRecord buildRecord = createBuildRecord(buildRecordRepository);
         ProductMilestone milestone = createAndReleaseMilestone();
         int taskId = assertBpmCalled(milestone);
-        MilestoneReleaseResultRest pushResult =
-                createSuccessfulPushResult(milestone, singletonList(createSuccessfulBuildImportResult(buildRecord.getId())));
+        MilestoneReleaseResultRest pushResult = createSuccessfulPushResult(
+                milestone,
+                singletonList(createSuccessfulBuildImportResult(buildRecord.getId())));
         releaseBpmCallback(pushResult, taskId);
         assertLog(milestone).contains("Brew push SUCCEEDED");
     }
@@ -78,8 +77,9 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
         BuildImportResultRest buildResult1 = createSuccessfulBuildImportResult(record1.getId());
         BuildImportResultRest buildResult2 = createSuccessfulBuildImportResult(record2.getId());
 
-        MilestoneReleaseResultRest pushResult =
-                createSuccessfulPushResult(milestone, asList(buildResult1, buildResult2));
+        MilestoneReleaseResultRest pushResult = createSuccessfulPushResult(
+                milestone,
+                asList(buildResult1, buildResult2));
         releaseBpmCallback(pushResult, taskId);
 
         assertLog(milestone).contains("Brew push SUCCEEDED")
@@ -99,29 +99,39 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
 
         ArtifactImportError artifactError1 = createArtifactImportError(artifact1);
         ArtifactImportError artifactError2 = createArtifactImportError(artifact2);
-        BuildImportResultRest buildResult = createBuildResult(record.getId(),
+        BuildImportResultRest buildResult = createBuildResult(
+                record.getId(),
                 BuildImportStatus.FAILED,
                 errorMessage,
                 asList(artifactError1, artifactError2));
 
-        MilestoneReleaseResultRest pushResult =
-                createPushResult(milestone, ReleaseStatus.IMPORT_ERROR,singletonList(buildResult));
+        MilestoneReleaseResultRest pushResult = createPushResult(
+                milestone,
+                ReleaseStatus.IMPORT_ERROR,
+                singletonList(buildResult));
         releaseBpmCallback(pushResult, taskId);
 
         assertLog(milestone).contains("Brew push FAILED")
                 .contains("Error message: " + errorMessage)
-                .contains(String.format("Failed to import %s [artifactId:%s]. Error message: %s",
-                        artifact1, artifactError1.getArtifactId(), artifactError1.getErrorMessage()))
-                .contains(String.format("Failed to import %s [artifactId:%s]. Error message: %s",
-                        artifact2, artifactError2.getArtifactId(), artifactError2.getErrorMessage()))
+                .contains(
+                        String.format(
+                                "Failed to import %s [artifactId:%s]. Error message: %s",
+                                artifact1,
+                                artifactError1.getArtifactId(),
+                                artifactError1.getErrorMessage()))
+                .contains(
+                        String.format(
+                                "Failed to import %s [artifactId:%s]. Error message: %s",
+                                artifact2,
+                                artifactError2.getArtifactId(),
+                                artifactError2.getErrorMessage()))
                 .contains(expectedDescription(record, buildResult));
     }
 
     private ArtifactImportError createArtifactImportError(String artifactName) {
         int artifactId = randInt(1000, 1000000);
 
-        Artifact artifact = Artifact.Builder.newBuilder().id(artifactId).identifier(artifactName)
-                .build();
+        Artifact artifact = Artifact.Builder.newBuilder().id(artifactId).identifier(artifactName).build();
         artifactRepository.save(artifact);
 
         ArtifactImportError.Builder artifactImportErrorBuilder = ArtifactImportError.builder();
@@ -132,7 +142,8 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
 
     private String expectedDescription(BuildRecord buildRecord, BuildImportResultRest buildResult) {
 
-        return String.format("%s [buildRecordId: %d, built from %s revision %s tag %s] import %s. Brew build id: %d, Brew build url: %s\n",
+        return String.format(
+                "%s [buildRecordId: %d, built from %s revision %s tag %s] import %s. Brew build id: %d, Brew build url: %s\n",
                 buildRecord.getBuildConfigurationAudited().getName(),
                 buildRecord.getId(),
                 buildRecord.getScmRepoURL(),
@@ -143,13 +154,16 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
                 buildResult.getBrewBuildUrl());
     }
 
-    private MilestoneReleaseResultRest createSuccessfulPushResult(ProductMilestone milestone,
-                                                                  List<BuildImportResultRest> buildImportResults) {
+    private MilestoneReleaseResultRest createSuccessfulPushResult(
+            ProductMilestone milestone,
+            List<BuildImportResultRest> buildImportResults) {
         return createPushResult(milestone, ReleaseStatus.SUCCESS, buildImportResults);
     }
-    private MilestoneReleaseResultRest createPushResult(ProductMilestone milestone,
-                                                                  ReleaseStatus status,
-                                                                  List<BuildImportResultRest> buildImportResults) {
+
+    private MilestoneReleaseResultRest createPushResult(
+            ProductMilestone milestone,
+            ReleaseStatus status,
+            List<BuildImportResultRest> buildImportResults) {
         MilestoneReleaseResultRest result = new MilestoneReleaseResultRest();
         result.setBuilds(buildImportResults);
         result.setMilestoneId(milestone.getId());
@@ -161,10 +175,11 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
         return createBuildResult(buildRecordId, BuildImportStatus.SUCCESSFUL, null, null);
     }
 
-    private BuildImportResultRest createBuildResult(int buildRecordId,
-                                                    BuildImportStatus status,
-                                                    String errorMessage,
-                                                    List<ArtifactImportError> artifactImportErrors) {
+    private BuildImportResultRest createBuildResult(
+            int buildRecordId,
+            BuildImportStatus status,
+            String errorMessage,
+            List<ArtifactImportError> artifactImportErrors) {
         BuildImportResultRest importResult = new BuildImportResultRest();
         importResult.setBrewBuildId(randInt(10000, 200000));
         importResult.setBrewBuildUrl(String.format("http://broo.redhat.com/bild/%d", importResult.getBrewBuildId()));
@@ -185,7 +200,8 @@ public class MilestoneReleaseTest extends AbstractMilestoneReleaseTest {
         return milestone;
     }
 
-    private void releaseBpmCallback(MilestoneReleaseResultRest result, Integer taskId) throws CoreException, IOException {
+    private void releaseBpmCallback(MilestoneReleaseResultRest result, Integer taskId)
+            throws CoreException, IOException {
         bpmEndpoint.notifyTask(requestWithEntity(result), taskId);
     }
 

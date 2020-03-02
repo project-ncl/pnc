@@ -26,7 +26,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 @Stateless
-public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMilestone, Integer> implements ProductMilestoneRepository {
+public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMilestone, Integer>
+        implements ProductMilestoneRepository {
 
     /**
      * @deprecated Created for CDI.

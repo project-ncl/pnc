@@ -55,9 +55,9 @@ import static org.jboss.pnc.rest.endpoints.BuildEndpointImpl.toBuildPageInfo;
  */
 @ApplicationScoped
 public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoint {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    
+
     @Inject
     private GroupConfigurationProvider provider;
 
@@ -112,7 +112,8 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
 
     @Override
     public Page<BuildConfiguration> getConfigurations(String id, PageParameters pageParams) {
-        return buildConfigurationProvider.getBuildConfigurationsForGroup(pageParams.getPageIndex(),
+        return buildConfigurationProvider.getBuildConfigurationsForGroup(
+                pageParams.getPageIndex(),
                 pageParams.getPageSize(),
                 pageParams.getSort(),
                 pageParams.getQ(),
@@ -136,7 +137,8 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
 
     @Override
     public Page<GroupBuild> getAllGroupBuilds(String id, PageParameters pageParams) {
-        return groupBuildProvider.getGroupBuilds(pageParams.getPageIndex(),
+        return groupBuildProvider.getGroupBuilds(
+                pageParams.getPageIndex(),
                 pageParams.getPageSize(),
                 pageParams.getSort(),
                 pageParams.getQ(),
@@ -151,7 +153,8 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
         try {
             BuildOptions buildOptions = toBuildOptions(buildParams);
 
-            int groupBuildId = buildTriggerer.triggerGroupBuild(Integer.parseInt(groupConfigId), buildConfigRevisions, buildOptions);
+            int groupBuildId = buildTriggerer
+                    .triggerGroupBuild(Integer.parseInt(groupConfigId), buildConfigRevisions, buildOptions);
 
             return groupBuildProvider.getSpecific(Integer.toString(groupBuildId));
         } catch (BuildConflictException | CoreException ex) {

@@ -28,12 +28,13 @@ import org.mapstruct.Mapping;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class)
-public interface SCMRepositoryMapper extends EntityMapper<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {
+public interface SCMRepositoryMapper
+        extends EntityMapper<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {
 
     @Override
-    @Mapping(target="internalUrlNormalized", ignore = true)
-    @Mapping(target="externalUrlNormalized", ignore = true)
-    @Mapping(target="buildConfigurations", ignore = true)
+    @Mapping(target = "internalUrlNormalized", ignore = true)
+    @Mapping(target = "externalUrlNormalized", ignore = true)
+    @Mapping(target = "buildConfigurations", ignore = true)
     RepositoryConfiguration toEntity(SCMRepository dtoEntity);
 
     @Override
@@ -49,13 +50,14 @@ public interface SCMRepositoryMapper extends EntityMapper<Integer, RepositoryCon
 
     @Override
     @Reference
-    default SCMRepository toRef(RepositoryConfiguration dbEntity){
+    default SCMRepository toRef(RepositoryConfiguration dbEntity) {
         return toDTO(dbEntity);
     }
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"internalUrlNormalized", "externalUrlNormalized",
-        "buildConfigurations"})
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "internalUrlNormalized", "externalUrlNormalized",
+                    "buildConfigurations" })
     SCMRepository toDTO(RepositoryConfiguration dbEntity);
 
 }

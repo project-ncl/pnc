@@ -25,8 +25,7 @@ package org.jboss.pnc.constants;
 public class Attributes {
 
     /**
-     * Attribute key for org.jboss.pnc.dto.ProductVersion representing Brew tag prefix for a
-     * Version.
+     * Attribute key for org.jboss.pnc.dto.ProductVersion representing Brew tag prefix for a Version.
      */
     public static final String BREW_TAG_PREFIX = "BREW_TAG_PREFIX";
 

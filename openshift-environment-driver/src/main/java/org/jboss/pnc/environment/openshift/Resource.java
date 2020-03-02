@@ -45,7 +45,7 @@ public enum Resource {
     public String getDefaultConfiguration() {
         try {
             return IoUtils.readResource(filePath, Configurations.class.getClassLoader());
-        } catch(IOException e){
+        } catch (IOException e) {
             throw new RuntimeException("Could not read configuration file " + filePath + ".", e);
         }
     }

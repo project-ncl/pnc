@@ -38,18 +38,26 @@ public class ProductVersionRestClient extends AbstractRestClient<ProductVersionR
         super(PRODUCT_VERSION_REST_ENDPOINT, ProductVersionRest.class);
     }
 
-    public RestResponse<List<BuildConfigurationSetRest>> updateBuildConfigurationSets(int id, List<BuildConfigurationSetRest> buildConfigurationSetRest) {
+    public RestResponse<List<BuildConfigurationSetRest>> updateBuildConfigurationSets(
+            int id,
+            List<BuildConfigurationSetRest> buildConfigurationSetRest) {
         return updateBuildConfigurationSets(id, buildConfigurationSetRest, true);
     }
 
-    public RestResponse<List<BuildConfigurationSetRest>> updateBuildConfigurationSets(int id, List<BuildConfigurationSetRest> buildConfigurationSetRests, boolean withValidation) {
-        Response response = put(PRODUCT_VERSION_REST_ENDPOINT + id + BUILD_CONFIGURATION_SETS_SUB_ENDPOINT, buildConfigurationSetRests);
+    public RestResponse<List<BuildConfigurationSetRest>> updateBuildConfigurationSets(
+            int id,
+            List<BuildConfigurationSetRest> buildConfigurationSetRests,
+            boolean withValidation) {
+        Response response = put(
+                PRODUCT_VERSION_REST_ENDPOINT + id + BUILD_CONFIGURATION_SETS_SUB_ENDPOINT,
+                buildConfigurationSetRests);
 
         if (withValidation) {
             response.then().statusCode(200);
         }
 
-        List<BuildConfigurationSetRest> buildConfSets = all(BuildConfigurationSetRest.class,
+        List<BuildConfigurationSetRest> buildConfSets = all(
+                BuildConfigurationSetRest.class,
                 PRODUCT_VERSION_REST_ENDPOINT + id + BUILD_CONFIGURATION_SETS_SUB_ENDPOINT,
                 true,
                 0,

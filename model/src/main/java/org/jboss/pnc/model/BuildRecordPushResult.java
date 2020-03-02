@@ -43,7 +43,7 @@ import org.jboss.pnc.enums.BuildPushStatus;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(indexes = {@Index(name = "idx_buildrecordpushresult_buildrecord", columnList = "buildRecord_id")})
+@Table(indexes = { @Index(name = "idx_buildrecordpushresult_buildrecord", columnList = "buildRecord_id") })
 public class BuildRecordPushResult implements GenericEntity<Integer> {
     private static final long serialVersionUID = 8461294730832773438L;
 
@@ -93,7 +93,6 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
     public static Builder newBuilder() {
         return new Builder();
     }
-
 
     @Override
     public Integer getId() {
@@ -155,15 +154,9 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "BuildRecordPushResult{" +
-                "id=" + id +
-                ", buildRecord=" + buildRecord +
-                ", status=" + status +
-                ", log='" + log + '\'' +
-                ", brewBuildId=" + brewBuildId +
-                ", brewBuildUrl='" + brewBuildUrl + '\'' +
-                ", tagPrefix='" + tagPrefix + '\'' +
-                '}';
+        return "BuildRecordPushResult{" + "id=" + id + ", buildRecord=" + buildRecord + ", status=" + status + ", log='"
+                + log + '\'' + ", brewBuildId=" + brewBuildId + ", brewBuildUrl='" + brewBuildUrl + '\''
+                + ", tagPrefix='" + tagPrefix + '\'' + '}';
     }
 
     public static final class Builder {

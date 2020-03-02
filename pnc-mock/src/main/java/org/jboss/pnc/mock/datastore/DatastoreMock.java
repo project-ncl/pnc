@@ -53,7 +53,7 @@ public class DatastoreMock implements Datastore {
     private List<BuildRecord> buildRecords = Collections.synchronizedList(new ArrayList<>());
 
     private List<BuildConfigSetRecord> buildConfigSetRecords = Collections.synchronizedList(new ArrayList<>());
-    
+
     private Map<Integer, BuildConfiguration> buildConfigurations = Collections.synchronizedMap(new HashMap<>());
 
     AtomicInteger buildRecordSequence = new AtomicInteger(0);
@@ -66,7 +66,10 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, List<Artifact> builtArtifacts, List<Artifact> dependencies) {
+    public BuildRecord storeCompletedBuild(
+            BuildRecord.Builder buildRecordBuilder,
+            List<Artifact> builtArtifacts,
+            List<Artifact> dependencies) {
         buildRecordBuilder.dependencies(dependencies);
         BuildRecord buildRecord = Mockito.spy(buildRecordBuilder.build());
         Mockito.when(buildRecord.getBuiltArtifacts()).thenReturn(new HashSet<>(builtArtifacts));
@@ -75,7 +78,9 @@ public class DatastoreMock implements Datastore {
         synchronized (this) {
             boolean exists = getBuildRecords().stream().anyMatch(br -> br.equals(buildRecord));
             if (exists) {
-                throw new PersistenceException("Unique constraint violation, the record with id [" + buildRecord.getId()+ "] already exists.");
+                throw new PersistenceException(
+                        "Unique constraint violation, the record with id [" + buildRecord.getId()
+                                + "] already exists.");
             }
             buildRecords.add(buildRecord);
         }
@@ -96,7 +101,7 @@ public class DatastoreMock implements Datastore {
     }
 
     public List<BuildRecord> getBuildRecords() {
-        return new ArrayList<>(buildRecords); //avoid concurrent modification exception
+        return new ArrayList<>(buildRecords); // avoid concurrent modification exception
     }
 
     public List<BuildConfigSetRecord> getBuildConfigSetRecords() {
@@ -136,7 +141,8 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(Integer buildConfigurationId) {
+    public BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(
+            Integer buildConfigurationId) {
         BuildConfiguration buildConfig = buildConfigurations.get(buildConfigurationId);
 
         int rev = buildConfigAuditedRevSequence.incrementAndGet();
@@ -150,7 +156,10 @@ public class DatastoreMock implements Datastore {
 
     @Override
     public BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId) {
-        return buildConfigSetRecords.stream().filter(bcsr -> bcsr.getId().equals(buildConfigSetRecordId)).findFirst().orElse(null);
+        return buildConfigSetRecords.stream()
+                .filter(bcsr -> bcsr.getId().equals(buildConfigSetRecordId))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -164,8 +173,11 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited, boolean checkImplicitDependencies,
-            boolean temporaryBuild, Set<Integer> processedDependenciesCache) {
+    public boolean requiresRebuild(
+            BuildConfigurationAudited buildConfigurationAudited,
+            boolean checkImplicitDependencies,
+            boolean temporaryBuild,
+            Set<Integer> processedDependenciesCache) {
         return true;
     }
 

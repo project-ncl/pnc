@@ -59,15 +59,18 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
 
     @Override
     public Page<Artifact> getAll(PageParameters pageParams, String sha256, String md5, String sha1) {
-        logger.debug("Retrieving Artifacts with these " + pageParams.toString() + "and checksums:" +
-                ((sha256 == null) ? "" : " Sha256: " + sha256) +
-                ((md5 == null) ? "" : " Md5: " + md5) +
-                ((sha1 == null) ? "" : " Sha1: " + sha1));
-        return artifactProvider.getAll(pageParams.getPageIndex(),pageParams.getPageSize(), pageParams.getSort(),pageParams.getQ(),
+        logger.debug(
+                "Retrieving Artifacts with these " + pageParams.toString() + "and checksums:"
+                        + ((sha256 == null) ? "" : " Sha256: " + sha256) + ((md5 == null) ? "" : " Md5: " + md5)
+                        + ((sha1 == null) ? "" : " Sha1: " + sha1));
+        return artifactProvider.getAll(
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ(),
                 Optional.ofNullable(sha256),
                 Optional.ofNullable(md5),
-                Optional.ofNullable(sha1)
-        );
+                Optional.ofNullable(sha1));
     }
 
     @Override
@@ -81,13 +84,14 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
-    public void update(String id, Artifact artifact){
+    public void update(String id, Artifact artifact) {
         endpointHelper.update(id, artifact);
     }
 
     @Override
     public Page<Build> getDependantBuilds(String id, PageParameters pageParams) {
-        return buildProvider.getDependantBuildsForArtifact(pageParams.getPageIndex(),
+        return buildProvider.getDependantBuildsForArtifact(
+                pageParams.getPageIndex(),
                 pageParams.getPageSize(),
                 pageParams.getSort(),
                 pageParams.getQ(),
@@ -95,7 +99,8 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
-    public Page<MilestoneInfo> getMilestonesInfo(String id, PaginationParameters pageParams){
-        return productMilestoneProvider.getMilestonesOfArtifact(id, pageParams.getPageIndex(), pageParams.getPageSize());
+    public Page<MilestoneInfo> getMilestonesInfo(String id, PaginationParameters pageParams) {
+        return productMilestoneProvider
+                .getMilestonesOfArtifact(id, pageParams.getPageIndex(), pageParams.getPageSize());
     }
 }

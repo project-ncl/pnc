@@ -32,14 +32,13 @@ import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName
 
 @PermitAll
 @Stateless
-public class UserProviderImpl
-        extends AbstractIntIdProvider<org.jboss.pnc.model.User, User, User> implements UserProvider {
+public class UserProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.model.User, User, User>
+        implements UserProvider {
 
     private static final Logger log = LoggerFactory.getLogger(UserProviderImpl.class);
 
     @Inject
-    public UserProviderImpl(UserRepository repository,
-                            UserMapper mapper) {
+    public UserProviderImpl(UserRepository repository, UserMapper mapper) {
         super(repository, mapper, org.jboss.pnc.model.User.class);
     }
 
@@ -61,6 +60,7 @@ public class UserProviderImpl
 
     /**
      * Not allowed
+     * 
      * @param id
      * @param user
      *
@@ -75,6 +75,7 @@ public class UserProviderImpl
 
     /**
      * Not allowed
+     * 
      * @param id
      *
      * @throws UnsupportedOperationException

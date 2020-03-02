@@ -51,11 +51,20 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
 
         // create a dummy composed (chained) build execution, and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession session = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
 
         // simulate a build deploying a file.
         indy.module(IndyFoloContentClientModule.class)
-                .store(buildId, new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId), path, new ByteArrayInputStream(content.getBytes()));
+                .store(
+                        buildId,
+                        new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId),
+                        path,
+                        new ByteArrayInputStream(content.getBytes()));
 
         // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the chain group.
         RepositoryManagerResult result = session.extractBuildArtifacts(true);

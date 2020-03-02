@@ -62,89 +62,89 @@ public class ProjectRestTest extends AbstractTest {
 
     @Before
     public void before() {
-        if(projectRestClient == null) {
+        if (projectRestClient == null) {
             projectRestClient = new ProjectRestClient();
         }
-        if(buildConfigurationRestClient == null) {
+        if (buildConfigurationRestClient == null) {
             buildConfigurationRestClient = new BuildConfigurationRestClient();
         }
     }
 
     @Test
     public void shouldInsertNewProject() throws Exception {
-        //given
+        // given
         ProjectRest project = new ProjectRest();
         project.setName(UUID.randomUUID().toString());
 
-        //when
+        // when
         RestResponse<ProjectRest> response = projectRestClient.createNew(project);
 
-        //than
+        // than
         assertThat(response.hasValue()).isEqualTo(true);
     }
 
     @Test
     public void shouldFailBecauseThereIsProjectWithTheSameName() throws Exception {
-        //given
+        // given
         ProjectRest project = new ProjectRest();
         project.setName(UUID.randomUUID().toString());
 
-        //when
+        // when
         RestResponse<ProjectRest> firstResponse = projectRestClient.createNew(project);
         RestResponse<ProjectRest> secondResponse = projectRestClient.createNew(project, false);
 
-        //than
+        // than
         assertThat(firstResponse.hasValue()).isEqualTo(true);
         assertThat(secondResponse.hasValue()).isEqualTo(false);
     }
 
     @Test
     public void shouldNotAllowChangingTheListOfConfigurationFromProject() throws Exception {
-        //given
+        // given
         RestResponse<BuildConfigurationRest> configuration = buildConfigurationRestClient.firstNotNull();
 
         ProjectRest project = new ProjectRest();
         project.setName(UUID.randomUUID().toString());
 
-        //when
+        // when
         project = projectRestClient.createNew(project).getValue();
         project.setConfigurationIds(Arrays.asList(configuration.getValue().getId()));
 
         ProjectRest updatedProject = projectRestClient.update(project.getId(), project).getValue();
 
-        //than
+        // than
         assertThat(updatedProject.getConfigurationIds()).isEmpty();
     }
 
     @Test
     public void shouldDeleteProject() throws Exception {
-        //given
+        // given
         ProjectRest project = new ProjectRest();
         project.setName(UUID.randomUUID().toString());
 
         RestResponse<ProjectRest> createdProject = projectRestClient.createNew(project);
 
-        //when
+        // when
         projectRestClient.delete(createdProject.getValue().getId());
         RestResponse<ProjectRest> returnedProject = projectRestClient.get(createdProject.getValue().getId(), false);
 
-        //than
+        // than
         assertThat(returnedProject.hasValue()).isEqualTo(false);
     }
+
     @Test
     public void shouldGetBuildConfigurations() throws Exception {
-        //when
+        // when
         RestResponse<List<BuildConfigurationRest>> response = projectRestClient.getBuildConfigurations(100, true);
 
-        //then
+        // then
         assertThat(response.getValue()).hasSize(1);
     }
-
 
     @Test
     @InSequence(999)
     public void shouldDeleteProjectWithConfiguration() throws Exception {
-        //given
+        // given
         BuildConfigurationRest configuration = buildConfigurationRestClient.firstNotNull().getValue();
         assertNotNull(configuration.getId());
 
@@ -152,7 +152,7 @@ public class ProjectRestTest extends AbstractTest {
         project.setName(UUID.randomUUID().toString());
         project.setConfigurationIds(Arrays.asList(configuration.getId()));
 
-        //when
+        // when
         RestResponse<ProjectRest> createdProject = projectRestClient.createNew(project);
         projectRestClient.delete(createdProject.getValue().getId());
         RestResponse<ProjectRest> returnedProject = projectRestClient.get(createdProject.getValue().getId(), false);
@@ -160,7 +160,7 @@ public class ProjectRestTest extends AbstractTest {
         RestResponse<BuildConfigurationRest> configurationAfterDeletingTheProject = buildConfigurationRestClient
                 .get(configuration.getId());
 
-        //then
+        // then
         assertThat(returnedProject.hasValue()).isEqualTo(false);
         assertThat(configurationAfterDeletingTheProject.hasValue()).isEqualTo(true);
     }

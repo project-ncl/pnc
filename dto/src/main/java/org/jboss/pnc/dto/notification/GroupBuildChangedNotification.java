@@ -33,14 +33,12 @@ import static org.jboss.pnc.enums.JobNotificationType.GROUP_BUILD;
 
 /**
  * Notification about change in Group Build.
- *   
+ * 
  * <pre>
- * Job: {@link JobNotificationType#GROUP_BUILD}
- * Notification type: {@code GROUP_BUILD_STATUS_CHANGED}
- * Progress:
- *     {@link JobNotificationProgress#IN_PROGRESS} - build is not in a final state
- *     {@link JobNotificationProgress#FINISHED} - build is in final state
- * Message: no
+ * Job: {@link JobNotificationType#GROUP_BUILD} Notification type: {@code GROUP_BUILD_STATUS_CHANGED} Progress:
+ * {@link JobNotificationProgress#IN_PROGRESS} - build is not in a final state {@link JobNotificationProgress#FINISHED}
+ * - build is in final state Message: no
+ * 
  * <pre>
  * For other failure notifications see {@link RepositoryCreationFailure}.
  * 
@@ -58,7 +56,11 @@ public class GroupBuildChangedNotification extends Notification {
 
     @JsonCreator
     public GroupBuildChangedNotification(@JsonProperty("groupBuild") GroupBuild groupBuild) {
-        super(GROUP_BUILD, GROUP_BUILD_STATUS_CHANGED, getProgress(groupBuild.getStatus()), getPreviousProgress(groupBuild.getStatus()));
+        super(
+                GROUP_BUILD,
+                GROUP_BUILD_STATUS_CHANGED,
+                getProgress(groupBuild.getStatus()),
+                getPreviousProgress(groupBuild.getStatus()));
         this.groupBuild = groupBuild;
     }
 

@@ -74,29 +74,28 @@ public class RepositoryCreationRestTest {
 
     @Before
     public void before() {
-        //init http client
+        // init http client
     }
 
     @Test
     @Ignore
     public void shouldCreateRCAndBC() {
-        //given
+        // given
         String internalScmUrl = INTERNAL_REPO + "/my/repo.git";
 
         String buildConfigurationName = "pnc-1.1";
-        RepositoryCreationUrlAutoRest repositoryCreationRest = RepositoryCreationUrlAutoRestMockBuilder.mock(
-                buildConfigurationName,
-                "mvn clean deploy",
-                internalScmUrl);
+        RepositoryCreationUrlAutoRest repositoryCreationRest = RepositoryCreationUrlAutoRestMockBuilder
+                .mock(buildConfigurationName, "mvn clean deploy", internalScmUrl);
 
-        //when invoking remote endpoint
-        //Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryCreationRest);
+        // when invoking remote endpoint
+        // Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryCreationRest);
         Response response = null;
 
-                //expect
+        // expect
         Assert.assertEquals(200, response.statusCode());
 
-        RepositoryConfigurationRest retrievedRepositoryConfig = repositoryConfigurationProvider.getSpecificByInternalScm(internalScmUrl);
+        RepositoryConfigurationRest retrievedRepositoryConfig = repositoryConfigurationProvider
+                .getSpecificByInternalScm(internalScmUrl);
         Assert.assertEquals(internalScmUrl, retrievedRepositoryConfig.getInternalUrl());
 
         RepositoryCreationResultRest result = response.jsonPath().getObject("", RepositoryCreationResultRest.class);
@@ -108,26 +107,26 @@ public class RepositoryCreationRestTest {
     @Test
     @Ignore
     public void shouldCreateRCOnly() {
-        //given
+        // given
         String internalScmUrl = INTERNAL_REPO + "/my/repo2.git";
         RepositoryCreationUrlAutoRest repositoryConfiguration = RepositoryCreationUrlAutoRest.builder()
                 .scmUrl(internalScmUrl)
                 .build();
 
-        //when invoking remote endpoint
-        //        Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryConfiguration);
+        // when invoking remote endpoint
+        // Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryConfiguration);
         Response response = null;
 
-        //expect
+        // expect
         Assert.assertEquals(200, response.statusCode());
 
-        RepositoryConfigurationRest retrievedRepositoryConfig = repositoryConfigurationProvider.getSpecificByInternalScm(internalScmUrl);
+        RepositoryConfigurationRest retrievedRepositoryConfig = repositoryConfigurationProvider
+                .getSpecificByInternalScm(internalScmUrl);
         Assert.assertEquals(internalScmUrl, retrievedRepositoryConfig.getInternalUrl());
 
         RepositoryCreationResultRest result = response.jsonPath().getObject("", RepositoryCreationResultRest.class);
 
         Assert.assertEquals(new Integer(-1), result.getBuildConfigurationId());
     }
-
 
 }

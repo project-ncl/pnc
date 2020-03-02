@@ -42,7 +42,11 @@ public class AbstractProviderTest {
     class TestedAbstractProvider extends AbstractProvider<BuildConfiguration, BuildConfigurationRest> {
 
         public TestedAbstractProvider() {
-            super(AbstractProviderTest.this.repository, AbstractProviderTest.this.rsqlPredicateProducer, AbstractProviderTest.this.sortInfoProducer, AbstractProviderTest.this.pageInfoProducer);
+            super(
+                    AbstractProviderTest.this.repository,
+                    AbstractProviderTest.this.rsqlPredicateProducer,
+                    AbstractProviderTest.this.sortInfoProducer,
+                    AbstractProviderTest.this.pageInfoProducer);
         }
 
         @Override
@@ -52,7 +56,9 @@ public class AbstractProviderTest {
 
         @Override
         protected Function<? super BuildConfigurationRest, ? extends BuildConfiguration> toDBModel() {
-            return buildConfigurationRest -> BuildConfiguration.Builder.newBuilder().id(buildConfigurationRest.getId()).build();
+            return buildConfigurationRest -> BuildConfiguration.Builder.newBuilder()
+                    .id(buildConfigurationRest.getId())
+                    .build();
         }
 
     }
@@ -72,17 +78,18 @@ public class AbstractProviderTest {
 
     @Test
     public void shouldReturnCollectionWithPagingInfo() throws Exception {
-        //given
+        // given
         BuildConfiguration exampleConfiguration = BuildConfiguration.Builder.newBuilder().build();
 
         TestedAbstractProvider testedAbstractProvider = new TestedAbstractProvider();
         doReturn(Arrays.asList(exampleConfiguration)).when(repository).queryWithPredicates(any(), any(), any());
         doReturn(100).when(repository).count(any());
 
-        //when
-        CollectionInfo<BuildConfigurationRest> returnedCollection = testedAbstractProvider.getAll(0, 10, "sort", "query");
+        // when
+        CollectionInfo<BuildConfigurationRest> returnedCollection = testedAbstractProvider
+                .getAll(0, 10, "sort", "query");
 
-        //when
+        // when
         assertThat(returnedCollection.getPageIndex()).isEqualTo(0);
         assertThat(returnedCollection.getPageSize()).isEqualTo(10);
         assertThat(returnedCollection.getTotalPages()).isEqualTo(10);
@@ -91,25 +98,23 @@ public class AbstractProviderTest {
 
     @Test
     public void shouldReturnSingleton() throws Exception {
-        //given
-        BuildConfiguration exampleConfiguration = BuildConfiguration.Builder.newBuilder()
-                .id(1).build();
+        // given
+        BuildConfiguration exampleConfiguration = BuildConfiguration.Builder.newBuilder().id(1).build();
 
         TestedAbstractProvider testedAbstractProvider = new TestedAbstractProvider();
         doReturn(exampleConfiguration).when(repository).queryById(1);
 
-        //when
+        // when
         BuildConfigurationRest returnedSingleton = testedAbstractProvider.getSpecific(1);
 
-        //when
+        // when
         assertThat(returnedSingleton.getId()).isEqualTo(1);
     }
 
     @Test
     public void shouldCallStore() throws Exception {
-        //given
-        BuildConfiguration exampleConfiguration = BuildConfiguration.Builder.newBuilder()
-                .id(1).build();
+        // given
+        BuildConfiguration exampleConfiguration = BuildConfiguration.Builder.newBuilder().id(1).build();
 
         BuildConfigurationRest exampleConfigurationRest = new BuildConfigurationRest(exampleConfiguration);
 
@@ -121,10 +126,10 @@ public class AbstractProviderTest {
         };
         doReturn(exampleConfiguration).when(repository).save(any());
 
-        //when
+        // when
         Integer id = testedAbstractProvider.store(exampleConfigurationRest);
 
-        //when
+        // when
         assertThat(id).isEqualTo(1);
     }
 

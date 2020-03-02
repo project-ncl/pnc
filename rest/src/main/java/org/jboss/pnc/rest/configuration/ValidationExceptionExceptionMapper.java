@@ -54,7 +54,7 @@ public class ValidationExceptionExceptionMapper implements ExceptionMapper<RestV
     @Override
     public Response toResponse(RestValidationException e) {
         Response.Status status = Response.Status.BAD_REQUEST;
-        if(e instanceof ConflictedEntryException) {
+        if (e instanceof ConflictedEntryException) {
             status = Response.Status.CONFLICT;
             logger.debug("A ConflictedEntry error occurred when processing REST call", e);
         } else {

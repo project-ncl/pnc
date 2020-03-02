@@ -103,7 +103,7 @@ public class ProductMilestoneEndpointTest {
         assertThat(created.getId()).isNotEmpty();
         ProductMilestone retrieved = client.getSpecific(created.getId());
 
-        //then
+        // then
         assertThat(created.getProductVersion().getId()).isEqualTo(productMilestone.getProductVersion().getId());
         assertThat(retrieved.getProductVersion().getId()).isEqualTo(productMilestone.getProductVersion().getId());
         assertThat(created).isEqualToIgnoringGivenFields(productMilestone, "id", "productVersion");
@@ -119,8 +119,7 @@ public class ProductMilestoneEndpointTest {
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         // when then
-        assertThatThrownBy(() -> client.createNew(copyWithoutId))
-                .isInstanceOf(ClientException.class);
+        assertThatThrownBy(() -> client.createNew(copyWithoutId)).isInstanceOf(ClientException.class);
     }
 
     @Test
@@ -138,8 +137,7 @@ public class ProductMilestoneEndpointTest {
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
 
         // when then
-        assertThatThrownBy(() -> client.createNew(closedMilestone))
-                .isInstanceOf(ClientException.class);
+        assertThatThrownBy(() -> client.createNew(closedMilestone)).isInstanceOf(ClientException.class);
     }
 
     @Test
@@ -152,8 +150,7 @@ public class ProductMilestoneEndpointTest {
 
         // when then
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
-        assertThatThrownBy(() -> client.createNew(productMilestone))
-                .isInstanceOf(ClientException.class);
+        assertThatThrownBy(() -> client.createNew(productMilestone)).isInstanceOf(ClientException.class);
     }
 
     @Test

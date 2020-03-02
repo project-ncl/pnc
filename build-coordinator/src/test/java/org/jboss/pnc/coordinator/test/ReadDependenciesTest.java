@@ -48,7 +48,9 @@ public class ReadDependenciesTest extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
+        return BuildCoordinatorDeployments.deployment(
+                BuildCoordinatorDeployments.Options.WITH_DATASTORE,
+                BuildCoordinatorDeployments.Options.WITH_BPM);
     }
 
     @Inject
@@ -72,14 +74,17 @@ public class ReadDependenciesTest extends ProjectBuilder {
         }
 
         Assert.assertEquals("Missing build tasks in set.", 5, buildSetTask.getBuildTasks().size());
-        BuildTask buildTask2 = buildSetTask.getBuildTasks().stream().filter(task -> task.getBuildConfigurationAudited().getId().equals(2)).findFirst().get();
+        BuildTask buildTask2 = buildSetTask.getBuildTasks()
+                .stream()
+                .filter(task -> task.getBuildConfigurationAudited().getId().equals(2))
+                .findFirst()
+                .get();
         Assert.assertEquals("Wrong number of dependencies.", 2, buildTask2.getDependencies().size());
     }
 
-    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
-        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(
-                datastoreAdapter,
-                1L);
+    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user)
+            throws CoreException {
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, 1L);
         AtomicInteger atomicInteger = new AtomicInteger(1);
 
         BuildOptions buildOptions = new BuildOptions();

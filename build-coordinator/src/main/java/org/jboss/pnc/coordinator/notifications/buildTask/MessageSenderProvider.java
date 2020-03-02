@@ -86,7 +86,8 @@ public class MessageSenderProvider {
                 logger.info("Using {} MQ message sender.", matchingMessageSender.getMessageSenderId());
                 selectedMessageSender = Optional.of(matchingMessageSender);
             } else {
-                throw new MessagingConfigurationException("Non of the available MessageSenders is matching configured name or the default.");
+                throw new MessagingConfigurationException(
+                        "Non of the available MessageSenders is matching configured name or the default.");
             }
         } else {
             logger.info("Using {} MQ message sender.", messageSenders.get().getClass().getName());
@@ -112,6 +113,5 @@ public class MessageSenderProvider {
         }
         logger.info("Found multiple message senders: {}.", names.stream().collect(Collectors.joining(", ")));
     }
-
 
 }

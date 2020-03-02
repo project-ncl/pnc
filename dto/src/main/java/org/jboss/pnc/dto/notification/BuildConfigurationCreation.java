@@ -33,14 +33,12 @@ import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 
 /**
  * Notification about created Build Config.
- *   
+ * 
  * <pre>
- * Job: {@link JobNotificationType#BUILD_CONFIG_CREATION}
- * Notification type:
- *     {@code BC_CREATION_SUCCESS} - The Build Config was created successfully.
- *     {@code BC_CREATION_ERROR} - The Build Config was not created.
- * Progress:{@link JobNotificationProgress#FINISHED}
- * Message: In case of error it contains an error message.
+ * Job: {@link JobNotificationType#BUILD_CONFIG_CREATION} Notification type: {@code BC_CREATION_SUCCESS} - The Build
+ * Config was created successfully. {@code BC_CREATION_ERROR} - The Build Config was not created.
+ * Progress:{@link JobNotificationProgress#FINISHED} Message: In case of error it contains an error message.
+ * 
  * <pre>
  * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -60,7 +58,7 @@ public class BuildConfigurationCreation extends Notification {
      * Build configuration that was created by the job. Null in case of failure.
      */
     private final BuildConfigurationRef buildConfig;
-    
+
     private final String taskId;
 
     private BuildConfigurationCreation(SCMRepository scmRepository, BuildConfigurationRef buildConfig, String taskId) {
@@ -71,7 +69,8 @@ public class BuildConfigurationCreation extends Notification {
     }
 
     @JsonCreator
-    private BuildConfigurationCreation(@JsonProperty("scmRepository") SCMRepository scmRepository,
+    private BuildConfigurationCreation(
+            @JsonProperty("scmRepository") SCMRepository scmRepository,
             @JsonProperty("buildConfig") BuildConfigurationRef buildConfig,
             @JsonProperty("message") String message,
             @JsonProperty("taskId") String taskId) {
@@ -81,13 +80,18 @@ public class BuildConfigurationCreation extends Notification {
         this.taskId = taskId;
     }
 
-    public static BuildConfigurationCreation success(SCMRepository scmRepository, BuildConfigurationRef buildConfig,
+    public static BuildConfigurationCreation success(
+            SCMRepository scmRepository,
+            BuildConfigurationRef buildConfig,
             String taskId) {
         return new BuildConfigurationCreation(scmRepository, buildConfig, taskId);
     }
 
-    public static BuildConfigurationCreation error(SCMRepository scmRepository, BuildConfigurationRef buildConfig,
-            String errorMessage, String taskId) {
+    public static BuildConfigurationCreation error(
+            SCMRepository scmRepository,
+            BuildConfigurationRef buildConfig,
+            String errorMessage,
+            String taskId) {
         return new BuildConfigurationCreation(scmRepository, buildConfig, errorMessage, taskId);
     }
 }

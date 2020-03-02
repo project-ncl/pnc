@@ -26,31 +26,36 @@ import org.jboss.pnc.dto.response.Page;
 
 import java.util.Optional;
 
-public interface BuildConfigurationProvider extends Provider<Integer, org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef> {
+public interface BuildConfigurationProvider
+        extends Provider<Integer, org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef> {
 
-    Page<BuildConfiguration> getBuildConfigurationsForProductVersion(int pageIndex,
-                                                                     int pageSize,
-                                                                     String sortingRsql,
-                                                                     String query,
-                                                                     String productVersionId);
+    Page<BuildConfiguration> getBuildConfigurationsForProductVersion(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String productVersionId);
 
-    Page<BuildConfiguration> getBuildConfigurationsForProject(int pageIndex,
-                                                              int pageSize,
-                                                              String sortingRsql,
-                                                              String query,
-                                                              String projectId);
+    Page<BuildConfiguration> getBuildConfigurationsForProject(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String projectId);
 
-    Page<BuildConfiguration> getBuildConfigurationsForGroup(int pageIndex,
-                                                            int pageSize,
-                                                            String sortingRsql,
-                                                            String query,
-                                                            String groupConfigId);
+    Page<BuildConfiguration> getBuildConfigurationsForGroup(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String groupConfigId);
 
-    Page<BuildConfiguration> getBuildConfigurationsForScmRepository(int pageIndex,
-                                                                   int pageSize,
-                                                                   String sortingRsql,
-                                                                   String query,
-                                                                   String scmRepositoryId);
+    Page<BuildConfiguration> getBuildConfigurationsForScmRepository(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String scmRepositoryId);
 
     BuildConfiguration clone(String buildConfigurationId);
 
@@ -58,8 +63,12 @@ public interface BuildConfigurationProvider extends Provider<Integer, org.jboss.
 
     void removeDependency(String configId, String dependencyId);
 
-    Page<BuildConfiguration> getDependencies(int pageIndex, int pageSize, String sortingRsql, String query, String configId);
-
+    Page<BuildConfiguration> getDependencies(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String configId);
 
     Page<BuildConfigurationRevision> getRevisions(int pageIndex, int pageSize, String id);
 

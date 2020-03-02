@@ -72,7 +72,8 @@ public class BuildEnvironmentTest {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildExecutorDeployments.deployment(BuildExecutorDeployments.Options.ENV_DRIVER_WITH_FAILED_CONTAINER_INITIALIZATION);
+        return BuildExecutorDeployments
+                .deployment(BuildExecutorDeployments.Options.ENV_DRIVER_WITH_FAILED_CONTAINER_INITIALIZATION);
     }
 
     @Inject
@@ -84,10 +85,16 @@ public class BuildEnvironmentTest {
     @Inject
     BuildDriverFactory buildDriverFactory;
 
-    private void checkBuildStatuses(Set<BuildExecutionStatusChangedEvent> statusChangedEvents, List<BuildExecutionStatus> expectedStatuses) {
+    private void checkBuildStatuses(
+            Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
+            List<BuildExecutionStatus> expectedStatuses) {
         expectedStatuses.forEach(expectedStatus -> {
             try {
-                Wait.forCondition(() -> contains(statusChangedEvents, expectedStatus), 1, ChronoUnit.SECONDS, "Did not receive expected status " + expectedStatus.toString());
+                Wait.forCondition(
+                        () -> contains(statusChangedEvents, expectedStatus),
+                        1,
+                        ChronoUnit.SECONDS,
+                        "Did not receive expected status " + expectedStatus.toString());
             } catch (Exception e) {
                 log.error("Error in tests execution.", e);
                 Assert.fail(e.getMessage());
@@ -96,7 +103,8 @@ public class BuildEnvironmentTest {
     }
 
     @Test
-    public void shouldReportErrorInCaseOfPodCreationFailure() throws ExecutorException, InterruptedException, TimeoutException {
+    public void shouldReportErrorInCaseOfPodCreationFailure()
+            throws ExecutorException, InterruptedException, TimeoutException {
         BuildConfiguration buildConfiguration = configurationBuilder.build(123, "Pod creation failure");
 
         Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
@@ -104,13 +112,15 @@ public class BuildEnvironmentTest {
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, true);
 
-        checkBuildStatuses(statusChangedEvents, Arrays.asList(
-                BUILD_ENV_SETTING_UP,
-                BUILD_ENV_WAITING,
-                BUILD_ENV_SETUP_COMPLETE_WITH_ERROR,
-                //SYSTEM_ERROR, //TODO should be system error instead of DONE_WITH_ERRORS but it is not supported yet
-                DONE_WITH_ERRORS
-        ));
+        checkBuildStatuses(
+                statusChangedEvents,
+                Arrays.asList(
+                        BUILD_ENV_SETTING_UP,
+                        BUILD_ENV_WAITING,
+                        BUILD_ENV_SETUP_COMPLETE_WITH_ERROR,
+                        // SYSTEM_ERROR, //TODO should be system error instead of DONE_WITH_ERRORS but it is not
+                        // supported yet
+                        DONE_WITH_ERRORS));
 
         assertNoState(statusChangedEvents, BUILD_ENV_SETUP_COMPLETE_SUCCESS);
         assertNoState(statusChangedEvents, BUILD_SETTING_UP);
@@ -120,10 +130,11 @@ public class BuildEnvironmentTest {
         Assertions.assertThat(statusEvents.stream().anyMatch(e -> e.getNewStatus() == state)).isFalse();
     }
 
-    private void runBuild(BuildConfiguration buildConfiguration,
-                          Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
-                          ObjectWrapper<BuildResult> buildExecutionResultWrapper,
-                          boolean keepAliveOnFailure) throws ExecutorException {
+    private void runBuild(
+            BuildConfiguration buildConfiguration,
+            Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
+            ObjectWrapper<BuildResult> buildExecutionResultWrapper,
+            boolean keepAliveOnFailure) throws ExecutorException {
         DefaultBuildExecutor executor = null;
         try {
             executor = new DefaultBuildExecutor(
@@ -131,8 +142,7 @@ public class BuildEnvironmentTest {
                     buildDriverFactory,
                     environmentDriverFactory,
                     new Configuration(),
-                    null
-            );
+                    null);
         } catch (ConfigurationParseException e) {
             log.error(e.toString());
         }

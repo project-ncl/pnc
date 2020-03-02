@@ -37,16 +37,15 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
 public class ModuleConfigJsonTest {
 
     @Test
     public void serializationTest() throws JsonGenerationException, JsonMappingException, IOException {
         ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
-        JenkinsBuildDriverModuleConfig jenkinsBuildDriverModuleConfig =
-                new JenkinsBuildDriverModuleConfig("user", "pass");
-        IndyRepoDriverModuleConfig indyRepoDriverModuleConfig =
-                new IndyRepoDriverModuleConfig("http://something/base");
+        JenkinsBuildDriverModuleConfig jenkinsBuildDriverModuleConfig = new JenkinsBuildDriverModuleConfig(
+                "user",
+                "pass");
+        IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig("http://something/base");
         indyRepoDriverModuleConfig.setBuildRepositoryAllowSnapshots(true);
         indyRepoDriverModuleConfig.setDefaultRequestTimeout(100);
         IgnoredPathPatterns ignoredPatterns = new IgnoredPathPatterns();
@@ -62,7 +61,8 @@ public class ModuleConfigJsonTest {
         moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();
-        PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<>(AuthenticationModuleConfig.class);
+        PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<>(
+                AuthenticationModuleConfig.class);
         pncProvider.registerProvider(mapper);
         ByteArrayOutputStream byteOutStream = new ByteArrayOutputStream();
         mapper.writeValue(byteOutStream, moduleConfigJson);
@@ -73,7 +73,8 @@ public class ModuleConfigJsonTest {
     @Test
     public void deserializationTest() throws JsonParseException, JsonMappingException, IOException {
         ObjectMapper mapper = new ObjectMapper();
-        PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<>(AuthenticationModuleConfig.class);
+        PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<>(
+                AuthenticationModuleConfig.class);
         pncProvider.registerProvider(mapper);
         mapper.registerSubtypes(PNCModuleGroup.class);
         ModuleConfigJson config = mapper.readValue(loadConfig("testConfigNoSpaces.json"), ModuleConfigJson.class);

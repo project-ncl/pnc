@@ -47,7 +47,7 @@ public class UIConfigurationServletJs extends HttpServlet {
 
     @Inject
     private Configuration configuration;
-    
+
     private String uiConfig;
 
     @Override
@@ -57,12 +57,18 @@ public class UIConfigurationServletJs extends HttpServlet {
             String json = JsonOutputConverterMapper.apply(configRest);
             this.uiConfig = generateJS(json);
         } catch (ConfigurationParseException e) {
-            throw new ServletException("Lazy-loading of UI configuration failed because the servlet was not able to fetch the configuration.", e);
+            throw new ServletException(
+                    "Lazy-loading of UI configuration failed because the servlet was not able to fetch the configuration.",
+                    e);
         }
     }
 
     private String generateJS(String configJson) {
-        return String.format("var %1$s = %1$s || {}; %1$s.%2$s = %3$s; window.%1$s = %1$s;", PNC_GLOBAL_MODULE, CONFIG_PROPERTY, configJson);
+        return String.format(
+                "var %1$s = %1$s || {}; %1$s.%2$s = %3$s; window.%1$s = %1$s;",
+                PNC_GLOBAL_MODULE,
+                CONFIG_PROPERTY,
+                configJson);
     }
 
     @Override

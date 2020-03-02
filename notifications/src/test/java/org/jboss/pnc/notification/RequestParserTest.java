@@ -37,7 +37,7 @@ public class RequestParserTest {
 
         MessageType messageType = requestParser.getMessageType();
         if (MessageType.PROCESS_UPDATES.equals(messageType)) {
-            ProgressUpdatesRequest progressUpdatesRequest = requestParser.<ProgressUpdatesRequest>getData();
+            ProgressUpdatesRequest progressUpdatesRequest = requestParser.<ProgressUpdatesRequest> getData();
             Assert.assertEquals("123", progressUpdatesRequest.getId());
         }
     }

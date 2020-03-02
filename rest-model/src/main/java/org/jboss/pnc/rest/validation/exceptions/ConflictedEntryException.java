@@ -27,7 +27,10 @@ public class ConflictedEntryException extends RestValidationException {
     private final Integer conflictedRecordId;
     private final Class<? extends GenericEntity<?>> conflictedEntity;
 
-    public ConflictedEntryException(String message, Class<? extends GenericEntity<?>> conflictedEntity, Integer conflictedId) {
+    public ConflictedEntryException(
+            String message,
+            Class<? extends GenericEntity<?>> conflictedEntity,
+            Integer conflictedId) {
         super(message);
         this.conflictedRecordId = conflictedId;
         this.conflictedEntity = conflictedEntity;

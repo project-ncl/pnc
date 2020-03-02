@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 
 @ApplicationScoped
 public class TestCDIBuildStatusChangedReceiver {
-    //TODO instance should not be used with @ApplicationScoped
+    // TODO instance should not be used with @ApplicationScoped
     public static final TestCDIBuildStatusChangedReceiver INSTANCE = new TestCDIBuildStatusChangedReceiver();
 
     private List<Consumer<BuildStatusChangedEvent>> listeners = new LinkedList<>();

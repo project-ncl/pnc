@@ -75,65 +75,88 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SCM_REPOSITORY_C
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
-public interface SCMRepositoryEndpoint{
-    static final String SCM_ID =  "ID of the SCM repository";
+public interface SCMRepositoryEndpoint {
+    static final String SCM_ID = "ID of the SCM repository";
 
-    @Operation(summary = "Gets all SCM repositories.",
+    @Operation(
+            summary = "Gets all SCM repositories.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SCMRepositoryPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = SCMRepositoryPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     Page<SCMRepository> getAll(
             @Valid @BeanParam PageParameters pageParameters,
             @Parameter(description = "Url to search for") @QueryParam(MATCH_QUERY_PARAM) String matchUrl,
             @Parameter(description = "Url part to search for") @QueryParam(SEARCH_QUERY_PARAM) String searchUrl);
 
-    @Operation(summary = "Gets a specific SCM repository.",
+    @Operation(
+            summary = "Gets a specific SCM repository.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SCMRepository.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = SCMRepository.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     SCMRepository getSpecific(@Parameter(description = SCM_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Updates an existing SCM repository.",
-            responses = {
-                @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+    @Operation(
+            summary = "Updates an existing SCM repository.",
+            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = CONFLICTED_CODE,
+                            description = CONFLICTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}")
     void update(
             @Parameter(description = SCM_ID) @PathParam("id") String id,
             @NotNull SCMRepository repositoryConfiguration);
 
-    @Operation(summary = "Patch an existing SCM repository.",
+    @Operation(
+            summary = "Patch an existing SCM repository.",
             responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = SCMRepository.class))),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PATCH
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
@@ -141,34 +164,49 @@ public interface SCMRepositoryEndpoint{
             @Parameter(description = SCM_ID) @PathParam("id") String id,
             @NotNull SCMRepository scmRepository);
 
-
-    @Operation(summary = "Creates a new SCM repository.",
+    @Operation(
+            summary = "Creates a new SCM repository.",
             description = "If the given URL is external, it does create the repository in the scm server.",
             responses = {
-                @ApiResponse(responseCode = ACCEPTED_CODE, description = SCM_REPOSITORY_CREATING,
-                    content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SCM_REPOSITORY_CREATED,
-                        content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = ACCEPTED_CODE,
+                            description = SCM_REPOSITORY_CREATING,
+                            content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SCM_REPOSITORY_CREATED,
+                            content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = CONFLICTED_CODE,
+                            description = CONFLICTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/create-and-sync")
     RepositoryCreationResponse createNew(@NotNull CreateAndSyncSCMRequest request);
 
-    @Operation(summary = "Gets all build configs associated with a specific SCM repository.",
+    @Operation(
+            summary = "Gets all build configs associated with a specific SCM repository.",
             responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = BuildConfigPage.class))),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/build-configs")
     Page<BuildConfiguration> getBuildsConfigs(

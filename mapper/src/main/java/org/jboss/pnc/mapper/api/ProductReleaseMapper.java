@@ -28,10 +28,11 @@ import org.mapstruct.Mapping;
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = {ProductMilestoneMapper.class, ProductVersionMapper.class})
-public interface ProductReleaseMapper extends EntityMapper<Integer, ProductRelease, org.jboss.pnc.dto.ProductRelease, ProductReleaseRef> {
+@Mapper(config = MapperCentralConfig.class, uses = { ProductMilestoneMapper.class, ProductVersionMapper.class })
+public interface ProductReleaseMapper
+        extends EntityMapper<Integer, ProductRelease, org.jboss.pnc.dto.ProductRelease, ProductReleaseRef> {
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"productVersion"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "productVersion" })
     ProductRelease toEntity(org.jboss.pnc.dto.ProductRelease dtoEntity);
 
     @Override
@@ -45,11 +46,14 @@ public interface ProductReleaseMapper extends EntityMapper<Integer, ProductRelea
     }
 
     @Override
-    @Mapping(target = "productVersion", source = "productMilestone.productVersion", resultType = ProductVersionRef.class)
+    @Mapping(
+            target = "productVersion",
+            source = "productMilestone.productVersion",
+            resultType = ProductVersionRef.class)
     @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
     org.jboss.pnc.dto.ProductRelease toDTO(ProductRelease dbEntity);
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"productMilestone", "productVersion"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "productMilestone", "productVersion" })
     ProductReleaseRef toRef(ProductRelease dbEntity);
 }

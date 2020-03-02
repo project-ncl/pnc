@@ -62,7 +62,8 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
     }
 
     @Inject
-    public ProductVersionEndpoint(ProductVersionProvider productVersionProvider,
+    public ProductVersionEndpoint(
+            ProductVersionProvider productVersionProvider,
             BuildConfigurationSetProvider buildConfigurationSetProvider) {
         super(productVersionProvider);
         this.productVersionProvider = productVersionProvider;
@@ -70,24 +71,24 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
-            @QueryParam(QUERY_QUERY_PARAM) String q){
+            @QueryParam(QUERY_QUERY_PARAM) String q) {
         return super.getAll(pageIndex, pageSize, sort, q);
     }
 
     @GET
     @Path("/{id}")
-    public Response getSpecific(
-            @PathParam("id") Integer id) {
+    public Response getSpecific(@PathParam("id") Integer id) {
         return super.getSpecific(id);
     }
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Integer id,
-            ProductVersionRest productVersionRest) throws RestValidationException {
+    public Response update(@PathParam("id") Integer id, ProductVersionRest productVersionRest)
+            throws RestValidationException {
         productVersionProvider.update(id, productVersionRest);
         return Response.ok().build();
     }
@@ -100,13 +101,15 @@ public class ProductVersionEndpoint extends AbstractEndpoint<ProductVersion, Pro
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @PathParam("id") Integer id) {
-        return Response.ok().entity(buildConfigurationSetProvider.getAllForProductVersion(pageIndex, pageSize, sort,
-                q, id)).build();
+        return Response.ok()
+                .entity(buildConfigurationSetProvider.getAllForProductVersion(pageIndex, pageSize, sort, q, id))
+                .build();
     }
 
     @PUT
     @Path("/{id}/build-configuration-sets")
-    public Response updateBuildConfigurationSets(@PathParam("id") Integer id,
+    public Response updateBuildConfigurationSets(
+            @PathParam("id") Integer id,
             List<BuildConfigurationSetRest> buildConfigurationSetRests) throws RestValidationException {
         productVersionProvider.updateBuildConfigurationSets(id, buildConfigurationSetRests);
         return Response.ok().build();

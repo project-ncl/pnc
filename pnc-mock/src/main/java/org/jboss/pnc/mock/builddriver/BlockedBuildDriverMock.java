@@ -60,7 +60,10 @@ public class BlockedBuildDriverMock extends BuildDriverBase implements BuildDriv
         };
     }
 
-    protected void complete(BuildExecutionSession buildExecutionSession, final RunningEnvironment runningEnvironment, Consumer<CompletedBuild> onComplete) throws InterruptedException {
+    protected void complete(
+            BuildExecutionSession buildExecutionSession,
+            final RunningEnvironment runningEnvironment,
+            Consumer<CompletedBuild> onComplete) throws InterruptedException {
         log.info("Running blocked build ...");
         semaphore.acquire();
         setBuildStatus(TestProjectConfigurationBuilder.CANCEL);

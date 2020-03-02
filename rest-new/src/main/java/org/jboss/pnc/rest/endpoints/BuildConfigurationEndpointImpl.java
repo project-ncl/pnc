@@ -156,10 +156,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     @Override
     public Page<BuildConfigurationRevision> getRevisions(String id, PageParameters pageParams) {
 
-        return buildConfigurationProvider.getRevisions(
-                pageParams.getPageIndex(),
-                pageParams.getPageSize(),
-                id);
+        return buildConfigurationProvider.getRevisions(pageParams.getPageIndex(), pageParams.getPageSize(), id);
     }
 
     @Override
@@ -179,8 +176,10 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public BuildConfiguration restoreRevision(String id, int rev) {
-        return buildConfigurationProvider.restoreRevision(id, rev).orElseThrow(
-                () -> new NotFoundException("BuildConfigurationAudited with [id=" + id + ", rev=" + rev + "] does not exists"));
+        return buildConfigurationProvider.restoreRevision(id, rev)
+                .orElseThrow(
+                        () -> new NotFoundException(
+                                "BuildConfigurationAudited with [id=" + id + ", rev=" + rev + "] does not exists"));
     }
 
     @Override
@@ -193,14 +192,18 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
         return bcSupportedGenericParametersProvider.getSupportedGenericParameters();
     }
 
-    @Override public String getBuildTypeDefaultAlignmentParameters(String buildType) {
+    @Override
+    public String getBuildTypeDefaultAlignmentParameters(String buildType) {
         return alignmentConfig.getAlignmentParameters().get(buildType);
     }
 
     private Build triggerBuild(String id, OptionalInt rev, BuildParameters buildParams) {
         try {
-            logger.debug("Endpoint /build requested for buildConfigurationId: {}, revision: {}, parameters: {}",
-                    id, rev, buildParams);
+            logger.debug(
+                    "Endpoint /build requested for buildConfigurationId: {}, revision: {}, parameters: {}",
+                    id,
+                    rev,
+                    buildParams);
 
             BuildOptions buildOptions = toBuildOptions(buildParams);
             int buildId = buildTriggerer.triggerBuild(Integer.parseInt(id), rev, buildOptions);
@@ -223,9 +226,10 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     public static void checkBuildOptionsValidity(BuildOptions buildOptions) {
-        if(!buildOptions.isTemporaryBuild() && buildOptions.isTimestampAlignment()) {
+        if (!buildOptions.isTemporaryBuild() && buildOptions.isTimestampAlignment()) {
             // Combination timestampAlignment + standard build is not allowed
-            throw new InvalidEntityException("Combination of the build parameters is not allowed. Timestamp alignment is allowed only for temporary builds. ");
+            throw new InvalidEntityException(
+                    "Combination of the build parameters is not allowed. Timestamp alignment is allowed only for temporary builds. ");
         }
     }
 

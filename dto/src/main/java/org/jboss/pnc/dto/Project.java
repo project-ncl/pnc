@@ -42,11 +42,17 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Project extends ProjectRef {
 
-    @PatchSupport({ADD, REPLACE})
+    @PatchSupport({ ADD, REPLACE })
     private final Map<String, BuildConfigurationRef> buildConfigs;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Project(Map<String, BuildConfigurationRef> buildConfigs, String id, String name, String description, String issueTrackerUrl, String projectUrl) {
+    private Project(
+            Map<String, BuildConfigurationRef> buildConfigs,
+            String id,
+            String name,
+            String description,
+            String issueTrackerUrl,
+            String projectUrl) {
         super(id, name, description, issueTrackerUrl, projectUrl);
         this.buildConfigs = buildConfigs;
     }

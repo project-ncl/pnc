@@ -48,19 +48,19 @@ public class ProductReleaseRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String version;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final SupportLevel supportLevel;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final Instant releaseDate;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String downloadUrl;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String issueTrackerUrl;
 
     @JsonPOJOBuilder(withPrefix = "")

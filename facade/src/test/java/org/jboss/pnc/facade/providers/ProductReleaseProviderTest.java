@@ -110,8 +110,7 @@ public class ProductReleaseProviderTest extends AbstractProviderTest<ProductRele
         org.jboss.pnc.dto.ProductRelease releaseDTO = createNewProductReleaseDTO("9.9.9.GA", entityId++);
 
         // then
-        assertThatThrownBy(() -> provider.store(releaseDTO))
-                .isInstanceOf(InvalidEntityException.class);
+        assertThatThrownBy(() -> provider.store(releaseDTO)).isInstanceOf(InvalidEntityException.class);
     }
 
     @Test
@@ -164,17 +163,18 @@ public class ProductReleaseProviderTest extends AbstractProviderTest<ProductRele
     public void testGetProductReleasesForProductVersion() {
 
         Page<org.jboss.pnc.dto.ProductRelease> page = provider.getProductReleasesForProductVersion(
-                0, 10, null, null, milestoneMock.getProductVersion().getId().toString());
+                0,
+                10,
+                null,
+                null,
+                milestoneMock.getProductVersion().getId().toString());
 
         assertThat(page.getContent().size()).isGreaterThanOrEqualTo(1);
     }
 
     private ProductMilestone prepareNewProductMilestone() {
 
-        Product product = Product.Builder.newBuilder()
-                .id(entityId++)
-                .name(UUID.randomUUID().toString())
-                .build();
+        Product product = Product.Builder.newBuilder().id(entityId++).name(UUID.randomUUID().toString()).build();
 
         ProductVersion productVersion = ProductVersion.Builder.newBuilder()
                 .id(entityId++)
@@ -213,8 +213,7 @@ public class ProductReleaseProviderTest extends AbstractProviderTest<ProductRele
         when(productVersionRepository.queryById(milestone.getProductVersion().getId()))
                 .thenReturn(milestone.getProductVersion());
 
-        when(productMilestoneRepository.queryById(milestone.getId()))
-                .thenReturn(milestone);
+        when(productMilestoneRepository.queryById(milestone.getId())).thenReturn(milestone);
 
         ProductMilestoneRef ref = productMilestoneMapper.toRef(milestone);
         ProductVersionRef productVersionRef = productVersionMapper.toRef(milestone.getProductVersion());

@@ -34,7 +34,7 @@ public class SpringDataRSQLPredicateProducer implements RSQLPredicateProducer {
     @Override
     public <T extends GenericEntity<? extends Number>> Predicate<T> getPredicate(Class<T> selectingClass, String rsql) {
         try {
-            if(rsql == null || rsql.isEmpty()) {
+            if (rsql == null || rsql.isEmpty()) {
                 return new EmptyRSQLPredicate();
             }
             return new RSQLNodeTravellerPredicate<>(selectingClass, rsql).getEntityPredicate();
@@ -44,10 +44,9 @@ public class SpringDataRSQLPredicateProducer implements RSQLPredicateProducer {
     }
 
     @Override
-    public <T> java.util.function.Predicate<T> getStreamPredicate(
-            Class<T> selectingClass, String rsql) {
+    public <T> java.util.function.Predicate<T> getStreamPredicate(Class<T> selectingClass, String rsql) {
         try {
-            if(rsql == null || rsql.isEmpty()) {
+            if (rsql == null || rsql.isEmpty()) {
                 return x -> true;
             }
             return new RSQLNodeTravellerPredicate<>(selectingClass, rsql).getStreamPredicate();

@@ -32,7 +32,8 @@ import java.util.Set;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Stateless
-public class TargetRepositoryRepositoryImpl extends AbstractRepository<TargetRepository, Integer> implements TargetRepositoryRepository {
+public class TargetRepositoryRepositoryImpl extends AbstractRepository<TargetRepository, Integer>
+        implements TargetRepositoryRepository {
 
     /**
      * @deprecated Created for CDI.

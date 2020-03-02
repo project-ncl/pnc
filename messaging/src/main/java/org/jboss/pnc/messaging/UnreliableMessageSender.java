@@ -37,8 +37,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Message sender does not guarantee message delivery to MQ.
- * Unsent messages are logged as errors.
+ * Message sender does not guarantee message delivery to MQ. Unsent messages are logged as errors.
  *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -77,12 +76,7 @@ public class UnreliableMessageSender extends DefaultMessageSender implements Mes
         RejectedExecutionHandler handler = (r, executor) -> {
             logUnsent(r);
         };
-        executor = new ThreadPoolExecutor(1,
-                1,
-                0L,
-                TimeUnit.SECONDS,
-                workQueue,
-                handler);
+        executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, workQueue, handler);
 
         executor.execute(() -> {
             super.init();

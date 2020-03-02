@@ -32,13 +32,13 @@ import static org.jboss.pnc.spi.datastore.predicates.ProjectPredicates.withProje
 
 @PermitAll
 @Stateless
-public class ProjectProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.model.Project, Project, ProjectRef> implements ProjectProvider {
+public class ProjectProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.model.Project, Project, ProjectRef>
+        implements ProjectProvider {
 
     @Inject
     public ProjectProviderImpl(ProjectRepository repository, ProjectMapper mapper) {
         super(repository, mapper, org.jboss.pnc.model.Project.class);
     }
-
 
     @Override
     protected void validateBeforeSaving(Project projectRest) {
@@ -55,6 +55,7 @@ public class ProjectProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.mod
 
     /**
      * Not allowed to delete a project
+     * 
      * @param id
      *
      * @throws UnsupportedOperationException
@@ -65,8 +66,7 @@ public class ProjectProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.mod
     }
 
     @SuppressWarnings("unchecked")
-    private void validateIfNotConflicted(Project projectRest)
-            throws ConflictedEntryException {
+    private void validateIfNotConflicted(Project projectRest) throws ConflictedEntryException {
 
         org.jboss.pnc.model.Project project = repository.queryByPredicates(withProjectName(projectRest.getName()));
 
@@ -76,7 +76,7 @@ public class ProjectProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.mod
             projectId = Integer.valueOf(projectRest.getId());
         }
 
-        //don't validate against myself
+        // don't validate against myself
         if (project != null && !project.getId().equals(projectId)) {
 
             throw new ConflictedEntryException(

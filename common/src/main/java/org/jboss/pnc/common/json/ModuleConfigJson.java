@@ -30,7 +30,7 @@ public class ModuleConfigJson {
 
     public String name;
     public List<AbstractModuleGroup> configs;
-    
+
     @JsonCreator
     public ModuleConfigJson(@JsonProperty("name") String name) {
         this.name = name;
@@ -40,7 +40,7 @@ public class ModuleConfigJson {
     public void setConfigs(List<AbstractModuleGroup> configs) {
         this.configs = configs;
     }
-    
+
     public void addConfig(AbstractModuleGroup moduleConfig) {
         configs.add(moduleConfig);
     }
@@ -53,5 +53,5 @@ public class ModuleConfigJson {
     public String toString() {
         return "ModuleConfigJson [name=" + name + ", configs=" + configs + "]";
     }
-    
+
 }

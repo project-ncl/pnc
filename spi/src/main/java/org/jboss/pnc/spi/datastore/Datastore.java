@@ -36,7 +36,6 @@ import java.util.Set;
  */
 public interface Datastore {
 
-
     /**
      * Check a list of artifacts if any of them was already built
      *
@@ -54,7 +53,10 @@ public interface Datastore {
      * @return The updated BuildRecord
      * @throws DatastoreException Thrown if database is unable to process the request.
      */
-    BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, List<Artifact> builtArtifacts, List<Artifact> dependencies) throws DatastoreException;
+    BuildRecord storeCompletedBuild(
+            BuildRecord.Builder buildRecordBuilder,
+            List<Artifact> builtArtifacts,
+            List<Artifact> dependencies) throws DatastoreException;
 
     BuildRecord storeRecordForNoRebuild(BuildRecord buildRecord);
 
@@ -108,14 +110,16 @@ public interface Datastore {
     BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId);
 
     /**
-     * Check if a build configuration should be rebuilt (if some of its dependencies were rebuild or configuration was modified)
+     * Check if a build configuration should be rebuilt (if some of its dependencies were rebuild or configuration was
+     * modified)
      *
      * @param buildConfigurationAudited
      * @param checkImplicitDependencies when true check also automatically captured dependencies.
      * @param temporaryBuild true if requested build is going to be temporary
      * @return
      */
-    boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited,
+    boolean requiresRebuild(
+            BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
             Set<Integer> processedDependenciesCache);

@@ -112,10 +112,7 @@ public class RepositorySessionMock implements RepositorySession {
     }
 
     private Artifact getArtifact(int i) {
-        return Artifact.Builder.newBuilder()
-            .id(i)
-            .identifier(ArtifactBuilder.IDENTIFIER_PREFIX + i)
-            .build();
+        return Artifact.Builder.newBuilder().id(i).identifier(ArtifactBuilder.IDENTIFIER_PREFIX + i).build();
     }
 
     @Override

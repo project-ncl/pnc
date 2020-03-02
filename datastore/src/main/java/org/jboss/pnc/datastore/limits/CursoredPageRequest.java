@@ -1,4 +1,5 @@
 package org.jboss.pnc.datastore.limits;
+
 /**
  * JBoss, Home of Professional Open Source.
  * Copyright 2014-2019 Red Hat, Inc., and individual contributors
@@ -20,8 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 /**
- * Pageable implementation that supports cursored (offset / limit based) pagination rather than
- * the index / size based.
+ * Pageable implementation that supports cursored (offset / limit based) pagination rather than the index / size based.
  *
  * @author Alex Creasy
  */
@@ -39,7 +39,6 @@ public class CursoredPageRequest implements Pageable {
         if (limit < 1) {
             throw new IllegalArgumentException("Limit must not be less than one!");
         }
-
 
         this.offset = offset;
         this.limit = limit;
@@ -96,13 +95,17 @@ public class CursoredPageRequest implements Pageable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         CursoredPageRequest that = (CursoredPageRequest) o;
 
-        if (offset != that.offset) return false;
-        if (limit != that.limit) return false;
+        if (offset != that.offset)
+            return false;
+        if (limit != that.limit)
+            return false;
         return sort != null ? sort.equals(that.sort) : that.sort == null;
 
     }
@@ -117,10 +120,6 @@ public class CursoredPageRequest implements Pageable {
 
     @Override
     public String toString() {
-        return "CursoredPageRequest{" +
-                "offset=" + offset +
-                ", limit=" + limit +
-                ", sort=" + sort +
-                '}';
+        return "CursoredPageRequest{" + "offset=" + offset + ", limit=" + limit + ", sort=" + sort + '}';
     }
 }

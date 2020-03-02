@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.rest.configuration;
 
-
 /**
  * Constants for Swagger documentation API.
  *
@@ -64,10 +63,9 @@ public interface SwaggerConstants {
     public static final String QUERY_DESCRIPTION = "RSQL Query";
     public static final String QUERY_QUERY_PARAM = "q";
 
-    public static final String SEARCH_DESCRIPTION = "Since this endpoint does not support queries, " +
-            "fulltext search is hard-coded for some predefined fields (record id, configuration name) " +
-            "and performed using this argument. " +
-            "Empty string leaves all data unfiltered.";
+    public static final String SEARCH_DESCRIPTION = "Since this endpoint does not support queries, "
+            + "fulltext search is hard-coded for some predefined fields (record id, configuration name) "
+            + "and performed using this argument. " + "Empty string leaves all data unfiltered.";
     public static final String SEARCH_QUERY_PARAM = "search-url";
     public static final String SEARCH_DEFAULT_VALUE = "";
 }

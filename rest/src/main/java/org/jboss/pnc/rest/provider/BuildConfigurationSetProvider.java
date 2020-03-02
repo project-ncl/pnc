@@ -69,9 +69,12 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     }
 
     @Inject
-    public BuildConfigurationSetProvider(BuildConfigurationSetRepository buildConfigurationSetRepository,
-            BuildConfigurationRepository buildConfigurationRepository, RSQLPredicateProducer rsqlPredicateProducer,
-            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
+    public BuildConfigurationSetProvider(
+            BuildConfigurationSetRepository buildConfigurationSetRepository,
+            BuildConfigurationRepository buildConfigurationRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer,
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository) {
         super(buildConfigurationSetRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
@@ -80,7 +83,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
     }
 
-    @Override //better error logging
+    @Override // better error logging
     public BuildConfigurationSetRest getSpecific(Integer id) {
         BuildConfigurationSet dbEntity = repository.queryById(id);
         try {
@@ -92,11 +95,14 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     }
 
     @Override
-    protected void validateBeforeSaving(BuildConfigurationSetRest buildConfigurationSetRest) throws RestValidationException {
+    protected void validateBeforeSaving(BuildConfigurationSetRest buildConfigurationSetRest)
+            throws RestValidationException {
         BuildConfigurationSet buildConfigurationSetFromDB = repository
                 .queryByPredicates(withName(buildConfigurationSetRest.getName()));
         if (buildConfigurationSetFromDB != null) {
-            throw new ConflictedEntryException("BuildConfigurationSet with this name already exists", BuildConfigurationSet.class,
+            throw new ConflictedEntryException(
+                    "BuildConfigurationSet with this name already exists",
+                    BuildConfigurationSet.class,
                     buildConfigurationSetFromDB.getId());
         }
     }
@@ -120,11 +126,10 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
     private BuildConfigurationSetRest getReconstructedArchivedBCS(BuildConfigurationSet buildConfigurationSet) {
         BuildConfigurationSetRest buildConfigurationSetRest = new BuildConfigurationSetRest(buildConfigurationSet);
         // get latest associated record
-        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.
-                queryByPredicates(BuildConfigSetRecordPredicates.newestWithBuildConfigSetID(buildConfigurationSet.getId()));
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryByPredicates(
+                BuildConfigSetRecordPredicates.newestWithBuildConfigSetID(buildConfigurationSet.getId()));
         // extract BSs from BCSRecord and add them to the set
-        List<Integer> buildConfigurationsIds = buildConfigSetRecord
-                .getBuildRecords()
+        List<Integer> buildConfigurationsIds = buildConfigSetRecord.getBuildRecords()
                 .stream()
                 .map(BuildRecord::getBuildConfigurationId)
                 .collect(Collectors.toList());
@@ -144,7 +149,7 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         };
     }
 
-    public void deleteOrArchive(Integer buildConfigurationSetId) throws RestValidationException{
+    public void deleteOrArchive(Integer buildConfigurationSetId) throws RestValidationException {
         if (hasLink(repository.queryById(buildConfigurationSetId))) {
             archive(buildConfigurationSetId);
         } else {
@@ -156,14 +161,14 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         return !buildConfigurationSet.getBuildConfigSetRecords().isEmpty();
     }
 
-    public void archive(Integer buildConfigurationSetId) throws RestValidationException{
-        ValidationBuilder.validateObject(WhenUpdating.class).validateAgainstRepository(repository, buildConfigurationSetId,
-            true);
+    public void archive(Integer buildConfigurationSetId) throws RestValidationException {
+        ValidationBuilder.validateObject(WhenUpdating.class)
+                .validateAgainstRepository(repository, buildConfigurationSetId, true);
         BuildConfigurationSet buildConfigurationSet = repository.queryById(buildConfigurationSetId);
         buildConfigurationSet.setArchived(true);
 
         // if a build group is archived, unlink the build group from the build configurations is associated with
-        for (BuildConfiguration bc: buildConfigurationSet.getBuildConfigurations()) {
+        for (BuildConfiguration bc : buildConfigurationSet.getBuildConfigurations()) {
             bc.removeBuildConfigurationSet(buildConfigurationSet);
             buildConfigurationRepository.save(bc);
             buildConfigurationSet.removeBuildConfiguration(bc);
@@ -172,7 +177,10 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         repository.save(buildConfigurationSet);
     }
 
-    public CollectionInfo<BuildConfigurationSetRest> getAllNonArchived(Integer pageIndex, Integer pageSize, String sortingRsql,
+    public CollectionInfo<BuildConfigurationSetRest> getAllNonArchived(
+            Integer pageIndex,
+            Integer pageSize,
+            String sortingRsql,
             String query) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, isNotArchived());
     }
@@ -184,8 +192,10 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
                 .validateCondition(buildConfigSet != null, "No build configuration set exists with id: " + configSetId)
                 .validateCondition(buildConfig != null, "No build configuration exists with id: " + configId);
         if (buildConfigSet.getBuildConfigurations().contains(buildConfig)) {
-            throw new ConflictedEntryException("BuildConfiguration is already in the BuildConfigurationSet",
-                    BuildConfigurationSet.class, configSetId);
+            throw new ConflictedEntryException(
+                    "BuildConfiguration is already in the BuildConfigurationSet",
+                    BuildConfigurationSet.class,
+                    configSetId);
         }
 
         buildConfigSet.addBuildConfiguration(buildConfig);
@@ -202,8 +212,8 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         repository.save(buildConfigSet);
     }
 
-    public void updateConfigurations(Integer configSetId, Collection<BuildConfigurationRest> buildConfigurationRests) throws
-            RestValidationException {
+    public void updateConfigurations(Integer configSetId, Collection<BuildConfigurationRest> buildConfigurationRests)
+            throws RestValidationException {
         BuildConfigurationSet buildConfigSet = repository.queryById(configSetId);
 
         if (buildConfigSet == null) {
@@ -225,22 +235,39 @@ public class BuildConfigurationSetProvider extends AbstractProvider<BuildConfigu
         repository.save(buildConfigSet);
     }
 
-    public CollectionInfo<BuildConfigurationSetRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
-            String rsql, Integer productVersionId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
-                BuildConfigurationSetPredicates.withProductVersionId(productVersionId),isNotArchived());
+    public CollectionInfo<BuildConfigurationSetRest> getAllForProductVersion(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String rsql,
+            Integer productVersionId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                rsql,
+                BuildConfigurationSetPredicates.withProductVersionId(productVersionId),
+                isNotArchived());
     }
 
-    public CollectionInfo<BuildConfigurationSetRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql,
-            String rsql, Integer buildConfigurationId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
-                BuildConfigurationSetPredicates.withBuildConfigurationId(buildConfigurationId),isNotArchived());
+    public CollectionInfo<BuildConfigurationSetRest> getAllForBuildConfiguration(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String rsql,
+            Integer buildConfigurationId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                rsql,
+                BuildConfigurationSetPredicates.withBuildConfigurationId(buildConfigurationId),
+                isNotArchived());
     }
 
     private List<BuildConfiguration> getBuildConfigurations(Integer id) {
-        return buildConfigurationRepository.queryWithPredicates(
-                BuildConfigurationPredicates.withBuildConfigurationSetId(id));
+        return buildConfigurationRepository
+                .queryWithPredicates(BuildConfigurationPredicates.withBuildConfigurationSetId(id));
     }
-
 
 }

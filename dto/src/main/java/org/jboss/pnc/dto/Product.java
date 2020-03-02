@@ -41,11 +41,18 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Product extends ProductRef {
 
-    @PatchSupport({ADD, REPLACE})
+    @PatchSupport({ ADD, REPLACE })
     private final Map<String, ProductVersionRef> productVersions;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Product(Map<String, ProductVersionRef> productVersions, String id, String name, String description, String abbreviation, String productCode, String pgmSystemName) {
+    private Product(
+            Map<String, ProductVersionRef> productVersions,
+            String id,
+            String name,
+            String description,
+            String abbreviation,
+            String productCode,
+            String pgmSystemName) {
         super(id, name, description, abbreviation, productCode, pgmSystemName);
         this.productVersions = productVersions;
     }

@@ -84,7 +84,8 @@ public class BuildRecordAttribute implements Serializable {
             this.key = key;
         }
 
-        @Override public boolean equals(Object o) {
+        @Override
+        public boolean equals(Object o) {
             if (this == o)
                 return true;
             if (o == null || getClass() != o.getClass())
@@ -93,12 +94,14 @@ public class BuildRecordAttribute implements Serializable {
             return buildRecordId.equals(that.buildRecordId) && key.equals(that.key);
         }
 
-        @Override public int hashCode() {
+        @Override
+        public int hashCode() {
             return Objects.hash(buildRecordId, key);
         }
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o)
             return true;
         if (o == null || getClass() != o.getClass())
@@ -107,7 +110,8 @@ public class BuildRecordAttribute implements Serializable {
         return buildRecordId.equals(that.buildRecordId) && key.equals(that.key);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(buildRecordId, key);
     }
 }

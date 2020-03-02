@@ -53,7 +53,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private int cancelConnectTimeout;
     private int cancelSocketTimeout;
 
-    public BpmModuleConfig(@JsonProperty("username") String username,
+    public BpmModuleConfig(
+            @JsonProperty("username") String username,
             @JsonProperty("password") String password,
             @JsonProperty("bpmInstanceUrl") String bpmInstanceUrl,
             @JsonProperty("deploymentId") String deploymentId,
@@ -70,8 +71,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("versionAdjust") String versionAdjust,
             @JsonProperty("cancelConnectionRequestTimeout") Integer cancelConnectionRequestTimeout,
             @JsonProperty("cancelConnectTimeout") Integer cancelConnectTimeout,
-            @JsonProperty("cancelSocketTimeout") Integer cancelSocketTimeout)
-            throws MalformedURLException {
+            @JsonProperty("cancelSocketTimeout") Integer cancelSocketTimeout) throws MalformedURLException {
         this.username = username;
         this.password = password;
         this.deploymentId = deploymentId;
@@ -88,17 +88,17 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.communityBuild = communityBuild;
         this.versionAdjust = versionAdjust;
         if (cancelConnectionRequestTimeout == null) {
-            this.cancelConnectionRequestTimeout = 5000; //default to 5 sec
+            this.cancelConnectionRequestTimeout = 5000; // default to 5 sec
         } else {
             this.cancelConnectionRequestTimeout = cancelConnectionRequestTimeout;
         }
         if (cancelConnectTimeout == null) {
-            this.cancelConnectTimeout = 5000; //default to 5 sec
+            this.cancelConnectTimeout = 5000; // default to 5 sec
         } else {
             this.cancelConnectTimeout = cancelConnectTimeout;
         }
         if (cancelSocketTimeout == null) {
-            this.cancelSocketTimeout = 5000; //default to 5 sec
+            this.cancelSocketTimeout = 5000; // default to 5 sec
         } else {
             this.cancelSocketTimeout = cancelSocketTimeout;
         }
@@ -186,25 +186,16 @@ public class BpmModuleConfig extends AbstractModuleConfig {
 
     @Override
     public String toString() {
-        return "BpmModuleConfig{" +
-                "username='" + username + '\'' +
-                ", bpmInstanceUrl='" + bpmInstanceUrl + '\'' +
-                ", pncBaseUrl='" + pncBaseUrl + '\'' +
-                ", jenkinsBaseUrl='" + jenkinsBaseUrl + '\'' +
-                ", aproxBaseUrl='" + aproxBaseUrl + '\'' +
-                ", repourBaseUrl='" + repourBaseUrl + '\'' +
-                ", daBaseUrl='" + daBaseUrl + '\'' +
-                ", deploymentId='" + deploymentId + '\'' +
-                ", bcCreationProcessId='" + bcCreationProcessId + '\'' +
-                ", componentBuildProcessId='" + componentBuildProcessId + '\'' +
-                ", releaseProcessId='" + releaseProcessId + '\'' +
-                ", causewayBaseUrl='" + causewayBaseUrl + '\'' +
-                ", communityBuild='" + communityBuild + '\'' +
-                ", versionAdjust='" + versionAdjust + '\'' +
-                ", cancelConnectionRequestTimeout='" + cancelConnectionRequestTimeout + '\'' +
-                ", cancelConnectTimeout='" + cancelConnectTimeout + '\'' +
-                ", cancelSocketTimeout='" + cancelSocketTimeout + '\'' +
-                '}';
+        return "BpmModuleConfig{" + "username='" + username + '\'' + ", bpmInstanceUrl='" + bpmInstanceUrl + '\''
+                + ", pncBaseUrl='" + pncBaseUrl + '\'' + ", jenkinsBaseUrl='" + jenkinsBaseUrl + '\''
+                + ", aproxBaseUrl='" + aproxBaseUrl + '\'' + ", repourBaseUrl='" + repourBaseUrl + '\''
+                + ", daBaseUrl='" + daBaseUrl + '\'' + ", deploymentId='" + deploymentId + '\''
+                + ", bcCreationProcessId='" + bcCreationProcessId + '\'' + ", componentBuildProcessId='"
+                + componentBuildProcessId + '\'' + ", releaseProcessId='" + releaseProcessId + '\''
+                + ", causewayBaseUrl='" + causewayBaseUrl + '\'' + ", communityBuild='" + communityBuild + '\''
+                + ", versionAdjust='" + versionAdjust + '\'' + ", cancelConnectionRequestTimeout='"
+                + cancelConnectionRequestTimeout + '\'' + ", cancelConnectTimeout='" + cancelConnectTimeout + '\''
+                + ", cancelSocketTimeout='" + cancelSocketTimeout + '\'' + '}';
     }
 
 }

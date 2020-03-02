@@ -33,8 +33,7 @@ public class Sha256 {
         md = MessageDigest.getInstance("SHA-256");
     }
 
-    public static String digest(String message)
-            throws NoSuchAlgorithmException, IOException {
+    public static String digest(String message) throws NoSuchAlgorithmException, IOException {
         return CheckSum.calculateDigest(message, "SHA-256");
     }
 
@@ -46,7 +45,5 @@ public class Sha256 {
         byte[] digest = md.digest();
         return CheckSum.format(digest);
     }
-
-
 
 }

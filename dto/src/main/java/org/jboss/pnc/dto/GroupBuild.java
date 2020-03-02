@@ -46,7 +46,15 @@ public class GroupBuild extends GroupBuildRef {
     private final ProductVersionRef productVersion;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private GroupBuild(GroupConfigurationRef groupConfig, User user, ProductVersionRef productVersion, String id, Instant startTime, Instant endTime, BuildStatus status, Boolean temporaryBuild) {
+    private GroupBuild(
+            GroupConfigurationRef groupConfig,
+            User user,
+            ProductVersionRef productVersion,
+            String id,
+            Instant startTime,
+            Instant endTime,
+            BuildStatus status,
+            Boolean temporaryBuild) {
         super(id, startTime, endTime, status, temporaryBuild);
         this.groupConfig = groupConfig;
         this.user = user;

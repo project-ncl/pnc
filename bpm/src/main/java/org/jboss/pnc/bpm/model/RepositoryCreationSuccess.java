@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.bpm.model;
 
-
 import lombok.Data;
 
 /**

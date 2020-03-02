@@ -60,13 +60,15 @@ public class BuildResult {
     @Getter
     private final Optional<RepourResult> repourResult;
 
-    public BuildResult(CompletionStatus completionStatus,
+    public BuildResult(
+            CompletionStatus completionStatus,
             Optional<ProcessException> processException,
             String processLog,
             Optional<BuildExecutionConfiguration> buildExecutionConfiguration,
             Optional<BuildDriverResult> buildDriverResult,
             Optional<RepositoryManagerResult> repositoryManagerResult,
-            Optional<EnvironmentDriverResult> environmentDriverResult, Optional<RepourResult> repourResult) {
+            Optional<EnvironmentDriverResult> environmentDriverResult,
+            Optional<RepourResult> repourResult) {
         this.completionStatus = completionStatus;
         this.processException = processException;
         this.processLog = processLog;

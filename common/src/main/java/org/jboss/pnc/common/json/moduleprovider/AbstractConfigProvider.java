@@ -30,8 +30,8 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
  *
  * @param <T> module config
  */
-public abstract class AbstractConfigProvider <T extends AbstractModuleConfig> implements ConfigProvider<T>{
-    
+public abstract class AbstractConfigProvider<T extends AbstractModuleConfig> implements ConfigProvider<T> {
+
     private List<ProviderNameType<T>> moduleConfigs = new ArrayList<>();
     private Class<T> ctype;
 
@@ -44,7 +44,7 @@ public abstract class AbstractConfigProvider <T extends AbstractModuleConfig> im
     public List<ProviderNameType<T>> getModuleConfigs() {
         return moduleConfigs;
     }
-    
+
     public void addModuleConfig(ProviderNameType<T> providerNameType) {
         this.moduleConfigs.add(providerNameType);
     }
@@ -52,7 +52,7 @@ public abstract class AbstractConfigProvider <T extends AbstractModuleConfig> im
     public Class<T> getType() {
         return ctype;
     }
-    
+
     protected void setType(Class<T> ctype) {
         this.ctype = ctype;
     }

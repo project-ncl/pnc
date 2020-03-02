@@ -84,7 +84,7 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private BuildTriggerer buildTriggerer;
-    
+
     @Context
     private HttpServletRequest httpServletRequest;
 
@@ -100,13 +100,14 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     }
 
     @Inject
-    public BuildConfigurationSetEndpoint(BuildConfigurationSetProvider buildConfigurationSetProvider,
-                                         BuildTriggerer buildTriggerer,
-                                         BuildConfigurationProvider buildConfigurationProvider,
-                                         BuildRecordProvider buildRecordProvider,
-                                         BuildConfigSetRecordProvider buildConfigSetRecordProvider,
-                                         Datastore datastore,
-                                         EndpointAuthenticationProvider endpointAuthProvider) {
+    public BuildConfigurationSetEndpoint(
+            BuildConfigurationSetProvider buildConfigurationSetProvider,
+            BuildTriggerer buildTriggerer,
+            BuildConfigurationProvider buildConfigurationProvider,
+            BuildRecordProvider buildRecordProvider,
+            BuildConfigSetRecordProvider buildConfigSetRecordProvider,
+            Datastore datastore,
+            EndpointAuthenticationProvider endpointAuthProvider) {
         super(buildConfigurationSetProvider);
         this.buildConfigurationSetProvider = buildConfigurationSetProvider;
         this.buildTriggerer = buildTriggerer;
@@ -118,7 +119,8 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q) {
@@ -134,29 +136,28 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
 
     @GET
     @Path("/{id}")
-    public Response getSpecific(
-            @PathParam("id") Integer id) {
+    public Response getSpecific(@PathParam("id") Integer id) {
         return super.getSpecific(id);
     }
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Integer id,
-            @NotNull BuildConfigurationSetRest buildConfigurationSetRest) throws RestValidationException {
+    public Response update(@PathParam("id") Integer id, @NotNull BuildConfigurationSetRest buildConfigurationSetRest)
+            throws RestValidationException {
         return super.update(id, buildConfigurationSetRest);
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@PathParam("id") Integer id)
-            throws RestValidationException {
+    public Response deleteSpecific(@PathParam("id") Integer id) throws RestValidationException {
         buildConfigurationSetProvider.deleteOrArchive(id);
         return Response.ok().build();
     }
 
     @GET
     @Path("/{id}/build-configurations")
-    public Response getConfigurations(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getConfigurations(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
@@ -167,7 +168,8 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
 
     @PUT
     @Path("/{id}/build-configurations")
-    public Response updateConfigurations(@PathParam("id") Integer id,
+    public Response updateConfigurations(
+            @PathParam("id") Integer id,
             List<BuildConfigurationRest> buildConfigurationRests) throws RestValidationException {
         buildConfigurationSetProvider.updateConfigurations(id, buildConfigurationRests);
         return Response.ok().build();
@@ -175,9 +177,8 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
 
     @POST
     @Path("/{id}/build-configurations")
-    public Response addConfiguration(
-            @PathParam("id") Integer id,
-            BuildConfigurationRest buildConfig) throws RestValidationException {
+    public Response addConfiguration(@PathParam("id") Integer id, BuildConfigurationRest buildConfig)
+            throws RestValidationException {
         if (buildConfig == null || buildConfig.getId() == null) {
             throw new EmptyEntityException("No valid build config included in request to add config to set id: " + id);
         }
@@ -187,10 +188,8 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
 
     @DELETE
     @Path("/{id}/build-configurations/{configId}")
-    public Response removeConfiguration(
-            @PathParam("id") Integer id,
-            @PathParam("configId") Integer configId) throws
-            RestValidationException {
+    public Response removeConfiguration(@PathParam("id") Integer id, @PathParam("configId") Integer configId)
+            throws RestValidationException {
         buildConfigurationSetProvider.removeConfiguration(id, configId);
         return fromEmpty();
     }
@@ -216,12 +215,23 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
             @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             @QueryParam("rebuildMode") RebuildMode rebuildMode,
-            @Context UriInfo uriInfo)
-            throws CoreException, MalformedURLException, InvalidEntityException {
-        logger.info("Executing build configuration set: [id: {}, temporaryBuild: {}, forceRebuild: {}, timestampAlignment: {}, rebuildMode: {}.]",
-                id, temporaryBuild, forceRebuild, timestampAlignment, rebuildMode);
+            @Context UriInfo uriInfo) throws CoreException, MalformedURLException, InvalidEntityException {
+        logger.info(
+                "Executing build configuration set: [id: {}, temporaryBuild: {}, forceRebuild: {}, timestampAlignment: {}, rebuildMode: {}.]",
+                id,
+                temporaryBuild,
+                forceRebuild,
+                timestampAlignment,
+                rebuildMode);
         rebuildMode = ParameterBackCompatibility.getRebuildMode(forceRebuild, rebuildMode);
-        return triggerBuild(Optional.empty(), Optional.of(id), callbackUrl, temporaryBuild, rebuildMode, timestampAlignment, uriInfo);
+        return triggerBuild(
+                Optional.empty(),
+                Optional.of(id),
+                callbackUrl,
+                temporaryBuild,
+                rebuildMode,
+                timestampAlignment,
+                uriInfo);
     }
 
     @POST
@@ -235,14 +245,25 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
             @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             BuildConfigurationSetWithAuditedBCsRest buildConfigurationAuditedRest,
             @QueryParam("rebuildMode") RebuildMode rebuildMode,
-            @Context UriInfo uriInfo)
-            throws CoreException, MalformedURLException, InvalidEntityException {
-        logger.info("Executing build configuration set with build configurations in specific values: " +
-                "[BuildConfigurationSetAuditedRest: {}, temporaryBuild: {}, forceRebuild: {}, timestampAlignment: {}, rebuildMode: {}.]",
-                buildConfigurationAuditedRest, temporaryBuild, forceRebuild, timestampAlignment, rebuildMode);
+            @Context UriInfo uriInfo) throws CoreException, MalformedURLException, InvalidEntityException {
+        logger.info(
+                "Executing build configuration set with build configurations in specific values: "
+                        + "[BuildConfigurationSetAuditedRest: {}, temporaryBuild: {}, forceRebuild: {}, timestampAlignment: {}, rebuildMode: {}.]",
+                buildConfigurationAuditedRest,
+                temporaryBuild,
+                forceRebuild,
+                timestampAlignment,
+                rebuildMode);
 
         rebuildMode = ParameterBackCompatibility.getRebuildMode(forceRebuild, rebuildMode);
-        return triggerBuild(Optional.of(buildConfigurationAuditedRest), Optional.empty(), callbackUrl, temporaryBuild, rebuildMode, timestampAlignment, uriInfo);
+        return triggerBuild(
+                Optional.of(buildConfigurationAuditedRest),
+                Optional.empty(),
+                callbackUrl,
+                temporaryBuild,
+                rebuildMode,
+                timestampAlignment,
+                uriInfo);
     }
 
     private Response triggerBuild(
@@ -259,36 +280,49 @@ public class BuildConfigurationSetEndpoint extends AbstractEndpoint<BuildConfigu
         BuildConfigurationEndpoint.checkBuildOptionsValidity(buildOptions);
 
         BuildConfigurationSetTriggerResult result;
-        if(buildConfigurationSetId.isPresent()) {
+        if (buildConfigurationSetId.isPresent()) {
             if (callbackUrl != null && !callbackUrl.isEmpty()) {
-                result = buildTriggerer.triggerBuildConfigurationSet(buildConfigurationSetId.get(), currentUser, buildOptions, new URL(callbackUrl));
+                result = buildTriggerer.triggerBuildConfigurationSet(
+                        buildConfigurationSetId.get(),
+                        currentUser,
+                        buildOptions,
+                        new URL(callbackUrl));
             } else {
-                result = buildTriggerer.triggerBuildConfigurationSet(buildConfigurationSetId.get(), currentUser, buildOptions);
+                result = buildTriggerer
+                        .triggerBuildConfigurationSet(buildConfigurationSetId.get(), currentUser, buildOptions);
             }
-        }
-        else {
+        } else {
             if (callbackUrl != null && !callbackUrl.isEmpty()) {
-                result = buildTriggerer.triggerBuildConfigurationSet(buildConfigurationAuditedRest.get(), currentUser, buildOptions, new URL(callbackUrl));
+                result = buildTriggerer.triggerBuildConfigurationSet(
+                        buildConfigurationAuditedRest.get(),
+                        currentUser,
+                        buildOptions,
+                        new URL(callbackUrl));
             } else {
-                result = buildTriggerer.triggerBuildConfigurationSet(buildConfigurationAuditedRest.get(), currentUser, buildOptions);
+                result = buildTriggerer
+                        .triggerBuildConfigurationSet(buildConfigurationAuditedRest.get(), currentUser, buildOptions);
             }
         }
 
-        logger.info("Started build BuildConfigurationSetAuditedRest: {}. Build Tasks: {}",
+        logger.info(
+                "Started build BuildConfigurationSetAuditedRest: {}. Build Tasks: {}",
                 buildConfigurationAuditedRest,
-                result.getBuildTasks().stream().map(bt -> Integer.toString(bt.getId())).collect(
-                        Collectors.joining()));
+                result.getBuildTasks().stream().map(bt -> Integer.toString(bt.getId())).collect(Collectors.joining()));
 
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
         URI uri = uriBuilder.build(result.getBuildRecordSetId());
-        return Response.ok(uri).header("location", uri).entity(new Singleton<>(buildConfigSetRecordProvider.getSpecific(result.getBuildRecordSetId()))).build();
+        return Response.ok(uri)
+                .header("location", uri)
+                .entity(new Singleton<>(buildConfigSetRecordProvider.getSpecific(result.getBuildRecordSetId())))
+                .build();
     }
 
     private User getCurrentUser() throws InvalidEntityException {
         User currentUser = endpointAuthProvider.getCurrentUser(httpServletRequest);
         if (currentUser == null) {
-            throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
-                    + " user must be initialized through /users/getLoggedUser");
+            throw new InvalidEntityException(
+                    "No such user exists to trigger builds. Before triggering builds"
+                            + " user must be initialized through /users/getLoggedUser");
         }
         return currentUser;
     }

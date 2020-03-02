@@ -44,27 +44,36 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductVersion extends ProductVersionRef {
 
-    @PatchSupport({REPLACE})
-    @RefHasId(groups = {WhenCreatingNew.class})
+    @PatchSupport({ REPLACE })
+    @RefHasId(groups = { WhenCreatingNew.class })
     private final ProductRef product;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     private final ProductMilestoneRef currentProductMilestone;
 
-    @PatchSupport({ADD, REPLACE})
+    @PatchSupport({ ADD, REPLACE })
     private final Map<String, ProductMilestoneRef> productMilestones;
 
-    @PatchSupport({ADD, REPLACE})
+    @PatchSupport({ ADD, REPLACE })
     private final Map<String, ProductReleaseRef> productReleases;
 
-    @PatchSupport({ADD, REPLACE})
+    @PatchSupport({ ADD, REPLACE })
     private final Map<String, GroupConfigurationRef> groupConfigs;
 
-    @PatchSupport({ADD, REPLACE})
+    @PatchSupport({ ADD, REPLACE })
     private final Map<String, BuildConfigurationRef> buildConfigs;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private ProductVersion(ProductRef product, ProductMilestoneRef currentProductMilestone, Map<String, ProductMilestoneRef> productMilestones, Map<String, ProductReleaseRef> productReleases, Map<String, GroupConfigurationRef> groupConfigs, Map<String, BuildConfigurationRef> buildConfigs, String id, String version, Map<String, String> attributes) {
+    private ProductVersion(
+            ProductRef product,
+            ProductMilestoneRef currentProductMilestone,
+            Map<String, ProductMilestoneRef> productMilestones,
+            Map<String, ProductReleaseRef> productReleases,
+            Map<String, GroupConfigurationRef> groupConfigs,
+            Map<String, BuildConfigurationRef> buildConfigs,
+            String id,
+            String version,
+            Map<String, String> attributes) {
         super(id, version, attributes);
         this.product = product;
         this.currentProductMilestone = currentProductMilestone;

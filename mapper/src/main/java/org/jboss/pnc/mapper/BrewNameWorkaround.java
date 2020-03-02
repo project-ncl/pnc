@@ -28,6 +28,7 @@ import java.util.Map;
 
 /**
  * Workaround for NCL-4889.
+ * 
  * @author jbrazdil
  */
 public class BrewNameWorkaround {

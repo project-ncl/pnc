@@ -75,8 +75,9 @@ public class BuildExecutionCancellationTest extends BuildExecutionBase {
         return BuildExecutorDeployments.deployment(BuildExecutorDeployments.Options.BLOCKED_BUILD_DRIVER);
     }
 
-    @Test(timeout=3000)
-    public void testBuild() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException, ConfigurationParseException {
+    @Test(timeout = 3000)
+    public void testBuild() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException,
+            ConfigurationParseException {
         BuildConfiguration buildConfiguration = configurationBuilder.build(1, "c1-java");
         Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
         ObjectWrapper<BuildResult> buildExecutionResultWrapper = new ObjectWrapper<>();
@@ -86,8 +87,7 @@ public class BuildExecutionCancellationTest extends BuildExecutionBase {
                 buildDriverFactory,
                 environmentDriverFactory,
                 new Configuration(),
-                null
-        );
+                null);
 
         Consumer<BuildExecutionStatusChangedEvent> cancel = (e) -> {
             if (BuildExecutionStatus.BUILD_WAITING.equals(e.getNewStatus())) {
@@ -103,27 +103,20 @@ public class BuildExecutionCancellationTest extends BuildExecutionBase {
             }
         };
 
-        runBuild(
-                buildConfiguration,
-                statusChangedEvents,
-                buildExecutionResultWrapper,
-                cancel,
-                executor
-                );
+        runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, cancel, executor);
 
         List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();
         expectedStatuses.add(BuildExecutionStatus.CANCELLED);
 
-        //check build statuses
+        // check build statuses
         checkBuildStatuses(statusChangedEvents, expectedStatuses);
 
-        //check results
+        // check results
         BuildResult buildResult = buildExecutionResultWrapper.get();
 
         BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
 
         Assert.assertEquals(BuildStatus.CANCELLED, buildDriverResult.getBuildStatus());
-
 
     }
 

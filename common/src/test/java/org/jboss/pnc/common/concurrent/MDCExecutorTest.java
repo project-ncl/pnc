@@ -51,8 +51,8 @@ public class MDCExecutorTest {
         Runnable taskNoContext = () -> {
             logger.info("no-context");
         };
-        //each new thread in the pool uses calling thread as a parent
-        //run first task to have a main thread as a parent thread
+        // each new thread in the pool uses calling thread as a parent
+        // run first task to have a main thread as a parent thread
         executorService.submit(taskNoContext);
 
         Runnable taskHasContext = () -> {
@@ -91,7 +91,6 @@ public class MDCExecutorTest {
             MDC.setContextMap(map);
             logger.info("T2 out");
         };
-
 
         Future<?> submit = executorServiceDefault.submit(taskSetContext);
         Future<?> submit2 = executorServiceDefault.submit(taskSetUpdateContext);

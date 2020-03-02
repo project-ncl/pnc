@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.facade.providers;
 
-
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -75,7 +74,6 @@ public class ProjectProviderTest extends AbstractProviderTest<Project> {
         fillRepository(projects);
     }
 
-
     @Test
     public void testStoreNewProjectWithoutId() {
 
@@ -103,8 +101,7 @@ public class ProjectProviderTest extends AbstractProviderTest<Project> {
                 .build();
 
         // then: can't store new project with id already set
-        assertThatThrownBy(() -> provider.store(projectDTO))
-                .isInstanceOf(InvalidEntityException.class);
+        assertThatThrownBy(() -> provider.store(projectDTO)).isInstanceOf(InvalidEntityException.class);
     }
 
     @Test
@@ -115,13 +112,10 @@ public class ProjectProviderTest extends AbstractProviderTest<Project> {
         when(repository.queryByPredicates(any(Predicate.class))).thenAnswer(env -> projectMock);
 
         // when
-        org.jboss.pnc.dto.Project projectDTO = org.jboss.pnc.dto.Project.builder()
-                .name(projectMock.getName())
-                .build();
+        org.jboss.pnc.dto.Project projectDTO = org.jboss.pnc.dto.Project.builder().name(projectMock.getName()).build();
 
         // then
-        assertThatThrownBy(() -> provider.store(projectDTO))
-                .isInstanceOf(ConflictedEntryException.class);
+        assertThatThrownBy(() -> provider.store(projectDTO)).isInstanceOf(ConflictedEntryException.class);
     }
 
     @Test
@@ -171,8 +165,7 @@ public class ProjectProviderTest extends AbstractProviderTest<Project> {
         Page<org.jboss.pnc.dto.Project> all = provider.getAll(0, 10, null, null);
 
         // then
-        assertThat(all.getContent())
-                .hasSize(5);
+        assertThat(all.getContent()).hasSize(5);
     }
 
     @Test
@@ -194,11 +187,7 @@ public class ProjectProviderTest extends AbstractProviderTest<Project> {
     }
 
     private Project prepareNewProject(String name) {
-        return Project.Builder.newBuilder()
-                .id(entityId++)
-                .name(name)
-                .description("Happy little project")
-                .build();
+        return Project.Builder.newBuilder().id(entityId++).name(name).description("Happy little project").build();
     }
 
 }

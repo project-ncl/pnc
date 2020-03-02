@@ -66,8 +66,8 @@ public class BuildDriverFactory {
     @PostConstruct
     public void initConfiguration() throws ConfigurationParseException {
         try {
-            String driverId = configuration
-                    .getModuleConfig(new PncConfigProvider<>(SystemConfig.class)).getBuildDriverId();
+            String driverId = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class))
+                    .getBuildDriverId();
             if (!StringUtils.isEmpty(driverId)) {
                 configurationPredicate = buildDriver -> driverId.equals(buildDriver.getDriverId());
             }
@@ -78,19 +78,18 @@ public class BuildDriverFactory {
     }
 
     public BuildDriver getBuildDriver() throws ExecutorException {
-        Optional<BuildDriver> match = StreamSupport
-                .stream(availableDrivers.spliterator(), false)
+        Optional<BuildDriver> match = StreamSupport.stream(availableDrivers.spliterator(), false)
                 .filter(configurationPredicate)
                 .findFirst();
 
-        return match.
-                orElseThrow(() -> new ExecutorException("No valid build driver available."
-                        + " Available drivers: " + availableDriverIds()));
+        return match.orElseThrow(
+                () -> new ExecutorException(
+                        "No valid build driver available." + " Available drivers: " + availableDriverIds()));
     }
 
     private String availableDriverIds() {
         List<String> ids = new ArrayList<>();
-        for(BuildDriver driver : availableDrivers) {
+        for (BuildDriver driver : availableDrivers) {
             ids.add(driver.getDriverId());
         }
         return ids.toString();

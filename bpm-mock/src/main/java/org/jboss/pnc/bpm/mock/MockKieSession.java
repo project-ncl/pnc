@@ -46,9 +46,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/26/16
- * Time: 1:25 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/26/16 Time: 1:25 PM
  */
 @SuppressWarnings("WeakerAccess")
 public class MockKieSession implements KieSession {
@@ -67,12 +65,12 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void dispose() {
-      
+
     }
 
     @Override
     public void destroy() {
-      
+
     }
 
     @Override
@@ -82,7 +80,7 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void setGlobal(String s, Object o) {
-      
+
     }
 
     @Override
@@ -112,12 +110,12 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void registerChannel(String s, Channel channel) {
-      
+
     }
 
     @Override
     public void unregisterChannel(String s) {
-      
+
     }
 
     @Override
@@ -137,12 +135,12 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void addEventListener(ProcessEventListener processEventListener) {
-      
+
     }
 
     @Override
     public void removeEventListener(ProcessEventListener processEventListener) {
-      
+
     }
 
     @Override
@@ -152,12 +150,12 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void addEventListener(RuleRuntimeEventListener ruleRuntimeEventListener) {
-      
+
     }
 
     @Override
     public void removeEventListener(RuleRuntimeEventListener ruleRuntimeEventListener) {
-      
+
     }
 
     @Override
@@ -167,12 +165,12 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void addEventListener(AgendaEventListener agendaEventListener) {
-      
+
     }
 
     @Override
     public void removeEventListener(AgendaEventListener agendaEventListener) {
-      
+
     }
 
     @Override
@@ -207,12 +205,12 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void signalEvent(String s, Object o) {
-      
+
     }
 
     @Override
     public void signalEvent(String s, Object o, long l) {
-      
+
     }
 
     @Override
@@ -232,7 +230,7 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void abortProcessInstance(long l) {
-      
+
     }
 
     @Override
@@ -242,7 +240,7 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void halt() {
-      
+
     }
 
     @Override
@@ -282,17 +280,17 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void retract(FactHandle factHandle) {
-      
+
     }
 
     @Override
     public void delete(FactHandle factHandle) {
-      
+
     }
 
     @Override
     public void update(FactHandle factHandle, Object o) {
-      
+
     }
 
     @Override
@@ -352,12 +350,12 @@ public class MockKieSession implements KieSession {
 
     @Override
     public void fireUntilHalt() {
-      
+
     }
 
     @Override
     public void fireUntilHalt(AgendaFilter agendaFilter) {
-      
+
     }
 
     public void onStartProcess(BiFunction<String, Map, ProcessInstance> onStartProcess) {

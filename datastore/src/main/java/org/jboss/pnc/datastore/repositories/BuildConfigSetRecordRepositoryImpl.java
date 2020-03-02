@@ -30,10 +30,11 @@ import java.util.Date;
 import java.util.List;
 
 @Stateless
-public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<BuildConfigSetRecord, Integer> implements
-        BuildConfigSetRecordRepository {
+public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<BuildConfigSetRecord, Integer>
+        implements BuildConfigSetRecordRepository {
 
     EntityManager manager;
+
     /**
      * @deprecated Created for CDI.
      */
@@ -43,7 +44,9 @@ public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<Build
     }
 
     @Inject
-    public BuildConfigSetRecordRepositoryImpl(BuildConfigSetRecordSpringRepository buildConfigSetRecordSpringRepository, EntityManager manager) {
+    public BuildConfigSetRecordRepositoryImpl(
+            BuildConfigSetRecordSpringRepository buildConfigSetRecordSpringRepository,
+            EntityManager manager) {
         super(buildConfigSetRecordSpringRepository, buildConfigSetRecordSpringRepository);
         this.manager = manager;
     }
@@ -52,7 +55,6 @@ public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<Build
     public List<BuildConfigSetRecord> findTemporaryBuildConfigSetRecordsOlderThan(Date date) {
         return queryWithPredicates(
                 BuildConfigSetRecordPredicates.temporaryBuild(),
-                BuildConfigSetRecordPredicates.buildFinishedBefore(date)
-        );
+                BuildConfigSetRecordPredicates.buildFinishedBefore(date));
     }
 }

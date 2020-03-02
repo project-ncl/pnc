@@ -27,7 +27,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 @Stateless
-public class GenericSettingRepositoryImpl extends AbstractRepository<GenericSetting, Integer> implements GenericSettingRepository {
+public class GenericSettingRepositoryImpl extends AbstractRepository<GenericSetting, Integer>
+        implements GenericSettingRepository {
 
     /**
      * @deprecated Created for CDI.

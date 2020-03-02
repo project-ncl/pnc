@@ -16,7 +16,6 @@
  * limitations under the License.
  */
 
-
 package org.jboss.pnc.rest.swagger.response;
 
 import org.jboss.pnc.rest.restmodel.ProductReleaseRest;

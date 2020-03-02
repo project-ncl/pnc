@@ -27,11 +27,8 @@ import lombok.NonNull;
  * @author Honza Brázdil <janinko.g@gmail.com>
  */
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
-        property = "@artifactType")
-@JsonSubTypes({
-        @JsonSubTypes.Type(NpmBuiltArtifact.class),
-        @JsonSubTypes.Type(MavenBuiltArtifact.class)})
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "@artifactType")
+@JsonSubTypes({ @JsonSubTypes.Type(NpmBuiltArtifact.class), @JsonSubTypes.Type(MavenBuiltArtifact.class) })
 public class BuiltArtifact {
     private final int id;
     @NonNull
@@ -46,7 +43,14 @@ public class BuiltArtifact {
     private final String repositoryPath;
     private final int size;
 
-    public BuiltArtifact(int id, String filename, String architecture, String md5, String artifactPath, String repositoryPath, int size) {
+    public BuiltArtifact(
+            int id,
+            String filename,
+            String architecture,
+            String md5,
+            String artifactPath,
+            String repositoryPath,
+            int size) {
         this.id = id;
         this.filename = filename;
         this.architecture = architecture;

@@ -37,8 +37,11 @@ public class BuildConfigSetRecordProvider extends AbstractProvider<BuildConfigSe
     }
 
     @Inject
-    public BuildConfigSetRecordProvider(BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-            RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
+    public BuildConfigSetRecordProvider(
+            BuildConfigSetRecordRepository buildConfigSetRecordRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer) {
         super(buildConfigSetRecordRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 
@@ -51,10 +54,18 @@ public class BuildConfigSetRecordProvider extends AbstractProvider<BuildConfigSe
     protected Function<? super BuildConfigSetRecordRest, ? extends BuildConfigSetRecord> toDBModel() {
         throw new UnsupportedOperationException("Not supported by this provider");
     }
-    
-    public CollectionInfo<BuildConfigSetRecordRest> getAllForBuildConfigSet(int pageIndex, int pageSize, String sortingRsql,
-            String rsql, Integer buildConfigSetId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, rsql,
+
+    public CollectionInfo<BuildConfigSetRecordRest> getAllForBuildConfigSet(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String rsql,
+            Integer buildConfigSetId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                rsql,
                 BuildConfigSetRecordPredicates.withBuildConfigSetId(buildConfigSetId));
     }
 }

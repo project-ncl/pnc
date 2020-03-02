@@ -37,14 +37,15 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
     protected EntityManager entityManager;
 
     protected JpaRepository<T, ID> springRepository;
-    
-    protected JpaSpecificationExecutor<T> springSpecificationsExecutor;
 
+    protected JpaSpecificationExecutor<T> springSpecificationsExecutor;
 
     public AbstractRepository() {
     }
 
-    public AbstractRepository(JpaRepository<T, ID> springRepository, JpaSpecificationExecutor<T> springSpecificationsExecutor) {
+    public AbstractRepository(
+            JpaRepository<T, ID> springRepository,
+            JpaSpecificationExecutor<T> springSpecificationsExecutor) {
         this.springRepository = springRepository;
         this.springSpecificationsExecutor = springSpecificationsExecutor;
     }
@@ -61,10 +62,9 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
 
     @Override
     public void flushAndRefresh(T entity) {
-                springRepository.flush();
-                entityManager.refresh(entity);
-           }
-
+        springRepository.flush();
+        entityManager.refresh(entity);
+    }
 
     @Override
     public List<T> queryAll() {
@@ -89,13 +89,13 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
     @Override
     public int count(Predicate<T>... predicates) {
         long countAsLong = springSpecificationsExecutor.count(SpecificationsMapper.map(predicates));
-        return (int)countAsLong;
+        return (int) countAsLong;
     }
 
     @Override
     public int count(Collection<Predicate<T>> andPredicates, Collection<Predicate<T>> orPredicates) {
         long countAsLong = springSpecificationsExecutor.count(SpecificationsMapper.map(andPredicates, orPredicates));
-        return (int)countAsLong;
+        return (int) countAsLong;
     }
 
     @Override
@@ -105,8 +105,9 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
 
     @Override
     public List<T> queryWithPredicates(PageInfo pageInfo, SortInfo sortInfo, Predicate<T>... predicates) {
-        return springSpecificationsExecutor.findAll(SpecificationsMapper.map(predicates), PageableMapper.map(pageInfo, sortInfo)).getContent();
+        return springSpecificationsExecutor
+                .findAll(SpecificationsMapper.map(predicates), PageableMapper.map(pageInfo, sortInfo))
+                .getContent();
     }
-
 
 }

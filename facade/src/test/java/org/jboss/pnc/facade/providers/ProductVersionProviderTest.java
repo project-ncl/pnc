@@ -80,11 +80,11 @@ public class ProductVersionProviderTest extends AbstractProviderTest<ProductVers
     @Before
     public void fill() {
         List<ProductVersion> versions = new ArrayList<>();
-        versions.add(prepareProductVersion("1.0",2,
-                prepareProductMilestone(
-                        1,
-                        Date.from(Instant.now().plus(1L, ChronoUnit.DAYS)))
-        ));
+        versions.add(
+                prepareProductVersion(
+                        "1.0",
+                        2,
+                        prepareProductMilestone(1, Date.from(Instant.now().plus(1L, ChronoUnit.DAYS)))));
         versions.add(prepareProductVersion("3.0", 2));
         versions.add(pv);
         fillRepository(versions);
@@ -103,9 +103,12 @@ public class ProductVersionProviderTest extends AbstractProviderTest<ProductVers
     public void testGetAll() {
         Page<org.jboss.pnc.dto.ProductVersion> all = provider.getAll(0, 10, null, null);
 
-        assertThat(all.getContent())
-                .hasSize(3)
-                .haveExactly(1, new Condition<>(version -> version.getVersion().equals(pv.getVersion()), "ProductVersion present"));
+        assertThat(all.getContent()).hasSize(3)
+                .haveExactly(
+                        1,
+                        new Condition<>(
+                                version -> version.getVersion().equals(pv.getVersion()),
+                                "ProductVersion present"));
     }
 
     @Test
@@ -146,7 +149,7 @@ public class ProductVersionProviderTest extends AbstractProviderTest<ProductVers
 
         assertThat(productVersion.getVersion()).isNotEqualTo(pv.getVersion());
 
-        provider.update(productVersion.getId(),productVersion);
+        provider.update(productVersion.getId(), productVersion);
 
         org.jboss.pnc.dto.ProductVersion updated = provider.getSpecific(productVersion.getId());
         assertThat(updated).isNotNull();
@@ -157,9 +160,9 @@ public class ProductVersionProviderTest extends AbstractProviderTest<ProductVers
     public void testShouldThrowWhenUpdatingWithClosedMilestone() {
         String newVersion = "19.0";
         org.jboss.pnc.dto.ProductVersion withClosedMilestone = provider.getSpecific("2");
-        org.jboss.pnc.dto.ProductVersion updated =  withClosedMilestone.toBuilder().version(newVersion).build();
+        org.jboss.pnc.dto.ProductVersion updated = withClosedMilestone.toBuilder().version(newVersion).build();
 
-        assertThatThrownBy(() -> provider.update(withClosedMilestone.getId(),updated))
+        assertThatThrownBy(() -> provider.update(withClosedMilestone.getId(), updated))
                 .isInstanceOf(InvalidEntityException.class);
     }
 
@@ -171,8 +174,6 @@ public class ProductVersionProviderTest extends AbstractProviderTest<ProductVers
                 .productMilestones(new HashSet<>(Arrays.asList(milestones)))
                 .build();
     }
-
-
 
     private Product prepareProduct(int id, String abbreviation) {
         return Product.Builder.newBuilder().id(id).abbreviation(abbreviation).build();

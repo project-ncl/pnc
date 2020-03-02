@@ -52,7 +52,7 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
  * @param <DTO> The full DTO entity type
  * @param <REF> The reference DTO entity type
  */
-@PermitAll //required to allow all non explicitly restricted operations in EJB that use other restrictions
+@PermitAll // required to allow all non explicitly restricted operations in EJB that use other restrictions
 public abstract class AbstractProvider<ID extends Serializable, DB extends GenericEntity<ID>, DTO extends REF, REF extends DTOEntity>
         implements Provider<ID, DB, DTO, REF> {
 
@@ -105,17 +105,20 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
     }
 
     @Override
-    public Page<DTO> queryForCollection(int pageIndex, int pageSize, String sortingRsql, String query,
+    public Page<DTO> queryForCollection(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
             Predicate<DB>... predicates) {
         Predicate<DB> rsqlPredicate = rsqlPredicateProducer.getCriteriaPredicate(type, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
         SortInfo sortInfo = rsqlPredicateProducer.getSortInfo(type, sortingRsql);
-        List<DB> collection = repository.queryWithPredicates(pageInfo, sortInfo, ObjectArrays.concat(rsqlPredicate, predicates));
+        List<DB> collection = repository
+                .queryWithPredicates(pageInfo, sortInfo, ObjectArrays.concat(rsqlPredicate, predicates));
         int totalHits = repository.count(ObjectArrays.concat(rsqlPredicate, predicates));
         int totalPages = (totalHits + pageSize - 1) / pageSize;
-        List<DTO> content = nullableStreamOf(collection)
-                .map(mapper::toDTO)
-                .collect(Collectors.toList());
+        List<DTO> content = nullableStreamOf(collection).map(mapper::toDTO).collect(Collectors.toList());
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, content);
     }
 
@@ -123,7 +126,8 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
 
     protected void validateBeforeSaving(DTO restEntity) {
         ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class)
-                .validateNotEmptyArgument().validateAnnotations();
+                .validateNotEmptyArgument()
+                .validateAnnotations();
     }
 
     protected abstract void validateBeforeDeleting(String id);

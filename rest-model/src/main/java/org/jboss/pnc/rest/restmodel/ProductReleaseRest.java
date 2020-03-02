@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.enums.SupportLevel;
@@ -51,7 +50,6 @@ public class ProductReleaseRest implements GenericRestEntity<Integer> {
 
     private Integer productMilestoneId;
 
-    
     private SupportLevel supportLevel;
 
     public ProductReleaseRest() {
@@ -146,7 +144,8 @@ public class ProductReleaseRest implements GenericRestEntity<Integer> {
                 .issueTrackerUrl(issueTrackerUrl)
                 .supportLevel(supportLevel);
 
-        performIfNotNull(productMilestoneId,
+        performIfNotNull(
+                productMilestoneId,
                 () -> builder.productMilestone(ProductMilestone.Builder.newBuilder().id(productMilestoneId).build()));
 
         return builder;

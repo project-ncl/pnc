@@ -72,8 +72,7 @@ public class ProjectEndpointTest {
 
         String id = project.getId();
 
-        ProjectPatchBuilder builder = new ProjectPatchBuilder()
-                .replaceDescription(newDescription)
+        ProjectPatchBuilder builder = new ProjectPatchBuilder().replaceDescription(newDescription)
                 .replaceProjectUrl(newUrl);
 
         Project updated = client.patch(id, builder);
@@ -82,8 +81,7 @@ public class ProjectEndpointTest {
         assertThat(updated.getProjectUrl()).isEqualTo(newUrl);
 
         String newDescription2 = "Testing patch support 2";
-        ProjectPatchBuilder builder2 = new ProjectPatchBuilder()
-                .replaceDescription(newDescription2);
+        ProjectPatchBuilder builder2 = new ProjectPatchBuilder().replaceDescription(newDescription2);
 
         Project updated2 = client.patch(id, builder2.getJsonPatch(), Project.class);
         assertThat(updated2.getDescription()).isEqualTo(newDescription2);
@@ -92,7 +90,7 @@ public class ProjectEndpointTest {
     @Test
     public void testUpdate() throws Exception {
 
-        //given
+        // given
         Project createProject = Project.builder()
                 .projectUrl("https://github.com/entity-ncl/pnc")
                 .issueTrackerUrl("https://github.com/entity-ncl/pnc/issues")
@@ -102,7 +100,7 @@ public class ProjectEndpointTest {
 
         Project projectReturned = client.createNew(createProject);
 
-        //given
+        // given
         String newDescription = "Amazing project hhhhhhh " + UUID.randomUUID().toString();
 
         Project project = Project.builder()
@@ -113,7 +111,7 @@ public class ProjectEndpointTest {
                 .id(projectReturned.getId())
                 .build();
 
-        //when
+        // when
         client.update(projectReturned.getId(), project);
 
         // then: everything else should be the same, minus description
@@ -128,7 +126,7 @@ public class ProjectEndpointTest {
 
     @Test
     public void shouldInsertNewProject() throws Exception {
-        //given
+        // given
         Project original = Project.builder()
                 .projectUrl("https://github.com/entity-ncl/pnc")
                 .issueTrackerUrl("https://github.com/entity-ncl/pnc/issues")
@@ -162,9 +160,7 @@ public class ProjectEndpointTest {
     public void shouldFailBecauseThereIsProjectWithTheSameName() throws ClientException {
 
         // given
-        Project project = Project.builder()
-                .name("Scotch on a yacht: " + UUID.randomUUID().toString())
-                .build();
+        Project project = Project.builder().name("Scotch on a yacht: " + UUID.randomUUID().toString()).build();
 
         Project created = client.createNew(project);
 
@@ -184,9 +180,7 @@ public class ProjectEndpointTest {
         Project existingProject = client.getSpecific("100");
         Map<String, BuildConfigurationRef> buildConfigRefs = existingProject.getBuildConfigs();
 
-        Project original = Project.builder()
-                .name("New name new me: " + UUID.randomUUID().toString())
-                .build();
+        Project original = Project.builder().name("New name new me: " + UUID.randomUUID().toString()).build();
 
         Project projectReturned = client.createNew(original);
         Project projectUpdateRequest = Project.builder()

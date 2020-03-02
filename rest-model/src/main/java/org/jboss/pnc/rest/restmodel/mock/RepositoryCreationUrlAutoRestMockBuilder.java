@@ -47,9 +47,7 @@ public class RepositoryCreationUrlAutoRestMockBuilder {
 
         buildConfiguration.setName(buildConfigurationName);
 
-        BuildEnvironment buildEnvironment = BuildEnvironment.Builder.newBuilder()
-                .id(1)
-                .build();
+        BuildEnvironment buildEnvironment = BuildEnvironment.Builder.newBuilder().id(1).build();
         buildConfiguration.setBuildType(BuildType.MVN);
         buildConfiguration.setEnvironment(new BuildEnvironmentRest(buildEnvironment));
 
@@ -57,7 +55,6 @@ public class RepositoryCreationUrlAutoRestMockBuilder {
         projectRest.setId(1);
         buildConfiguration.setProject(projectRest);
         buildConfiguration.setBuildScript(script);
-
 
         return new RepositoryCreationUrlAutoRest(scmUrl, preBuildSyncEnabled, buildConfiguration);
 

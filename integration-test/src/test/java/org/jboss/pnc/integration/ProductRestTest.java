@@ -40,9 +40,7 @@ import java.net.URISyntaxException;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/23/16
- * Time: 2:13 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/23/16 Time: 2:13 PM
  */
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -60,7 +58,7 @@ public class ProductRestTest extends AbstractTest {
 
     @Before
     public void before() {
-        if(productRestClient == null) {
+        if (productRestClient == null) {
             productRestClient = new ProductRestClient();
         }
     }

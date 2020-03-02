@@ -62,7 +62,8 @@ public class ConfigurationTest {
 
     @Test
     public void isEnvDriverEnabled() throws CoreException, ConfigurationParseException {
-        OpenshiftEnvironmentDriverModuleConfig openShiftConfig = configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
+        OpenshiftEnvironmentDriverModuleConfig openShiftConfig = configuration
+                .getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
 
         Assert.assertTrue("Environment driver disabled.", !openShiftConfig.isDisabled());
     }

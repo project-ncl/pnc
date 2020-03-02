@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
  *
  * @author Alex Creasy
  */
-@JsonIgnoreProperties({ "@module-config"})
+@JsonIgnoreProperties({ "@module-config" })
 public class OpenshiftBuildAgentConfig extends AbstractModuleConfig {
 
     public static final String MODULE_NAME = "openshift-build-agent";

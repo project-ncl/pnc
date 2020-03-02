@@ -27,24 +27,21 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class TargetRepositoryRepositoryMock  extends RepositoryMock<TargetRepository> implements TargetRepositoryRepository {
+public class TargetRepositoryRepositoryMock extends RepositoryMock<TargetRepository>
+        implements TargetRepositoryRepository {
 
     @Override
     public TargetRepository queryByIdentifierAndPath(String identifier, String repositoryPath) {
         return data.stream()
-                .filter(
-                        tr -> tr.getIdentifier().equals(identifier)
-                        && tr.getRepositoryPath().equals(repositoryPath)
-                )
-                .findAny().orElse(null);
+                .filter(tr -> tr.getIdentifier().equals(identifier) && tr.getRepositoryPath().equals(repositoryPath))
+                .findAny()
+                .orElse(null);
     }
 
     @Override
     public List<TargetRepository> queryByIdentifiersAndPaths(Set<TargetRepository.IdentifierPath> identifiersAndPaths) {
         return data.stream()
-                .filter(
-                        tr -> identifiersAndPaths.contains(tr.getIdentifierPath())
-                )
+                .filter(tr -> identifiersAndPaths.contains(tr.getIdentifierPath()))
                 .collect(Collectors.toList());
     }
 }

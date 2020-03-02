@@ -45,8 +45,7 @@ public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
             @JsonProperty("livenessProbeFrequencyMillis") Long livenessProbeFrequencyMillis,
             @JsonProperty("livenessFailTimeoutMillis") Long livenessFailTimeoutMillis,
             @JsonProperty("fileTransferConnectTimeout") Integer fileTransferConnectTimeout,
-            @JsonProperty("fileTransferReadTimeout") Integer fileTransferReadTimeout
-            ) {
+            @JsonProperty("fileTransferReadTimeout") Integer fileTransferReadTimeout) {
         if (internalCancelTimeoutMillis != null) {
             this.internalCancelTimeoutMillis = internalCancelTimeoutMillis;
         }
@@ -66,8 +65,6 @@ public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
 
     @Override
     public String toString() {
-        return "TermdBuildDriverModuleConfig {" +
-                "internalCancelTimeoutMillis=" + internalCancelTimeoutMillis +
-                "}";
+        return "TermdBuildDriverModuleConfig {" + "internalCancelTimeoutMillis=" + internalCancelTimeoutMillis + "}";
     }
 }

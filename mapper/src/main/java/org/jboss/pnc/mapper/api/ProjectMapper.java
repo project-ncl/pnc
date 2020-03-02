@@ -28,8 +28,7 @@ import org.mapstruct.Mapping;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class,
-        uses = {MapSetMapper.class})
+@Mapper(config = MapperCentralConfig.class, uses = { MapSetMapper.class })
 public interface ProjectMapper extends EntityMapper<Integer, Project, org.jboss.pnc.dto.Project, ProjectRef> {
 
     @Override
@@ -47,7 +46,7 @@ public interface ProjectMapper extends EntityMapper<Integer, Project, org.jboss.
     }
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"buildConfigurations"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "buildConfigurations" })
     ProjectRef toRef(Project dbEntity);
 
     @Override

@@ -29,7 +29,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class BuildConfigurationRSQLMapper extends AbstractRSQLMapper<Integer, BuildConfiguration>{
+public class BuildConfigurationRSQLMapper extends AbstractRSQLMapper<Integer, BuildConfiguration> {
 
     public BuildConfigurationRSQLMapper() {
         super(BuildConfiguration.class);
@@ -38,26 +38,40 @@ public class BuildConfigurationRSQLMapper extends AbstractRSQLMapper<Integer, Bu
     @Override
     protected SingularAttribute<BuildConfiguration, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            case "project": return BuildConfiguration_.project;
-            case "scmRepository": return BuildConfiguration_.repositoryConfiguration;
-            case "environment": return BuildConfiguration_.buildEnvironment;
-            case "productVersion": return BuildConfiguration_.productVersion;
-            default: return null;
+            case "project":
+                return BuildConfiguration_.project;
+            case "scmRepository":
+                return BuildConfiguration_.repositoryConfiguration;
+            case "environment":
+                return BuildConfiguration_.buildEnvironment;
+            case "productVersion":
+                return BuildConfiguration_.productVersion;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<BuildConfiguration, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return BuildConfiguration_.id;
-            case "name": return BuildConfiguration_.name;
-            case "description": return BuildConfiguration_.description;
-            case "buildScript": return BuildConfiguration_.buildScript;
-            case "scmRevision": return BuildConfiguration_.scmRevision;
-            case "creationTime": return BuildConfiguration_.creationTime;
-            case "modificationTime": return BuildConfiguration_.lastModificationTime;
-            case "buildType": return BuildConfiguration_.buildType;
-            default: return null;
+            case "id":
+                return BuildConfiguration_.id;
+            case "name":
+                return BuildConfiguration_.name;
+            case "description":
+                return BuildConfiguration_.description;
+            case "buildScript":
+                return BuildConfiguration_.buildScript;
+            case "scmRevision":
+                return BuildConfiguration_.scmRevision;
+            case "creationTime":
+                return BuildConfiguration_.creationTime;
+            case "modificationTime":
+                return BuildConfiguration_.lastModificationTime;
+            case "buildType":
+                return BuildConfiguration_.buildType;
+            default:
+                return null;
         }
     }
 }

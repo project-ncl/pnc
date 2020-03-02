@@ -41,14 +41,19 @@ public class ProductReleaseProviderImpl
         super(repository, mapper, org.jboss.pnc.model.ProductRelease.class);
     }
 
-
     @Override
-    public Page<ProductRelease> getProductReleasesForProductVersion(int pageIndex,
-                                                                    int pageSize,
-                                                                    String sortingRsql,
-                                                                    String query,
-                                                                    String productVersionId) {
+    public Page<ProductRelease> getProductReleasesForProductVersion(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String productVersionId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(Integer.valueOf(productVersionId)));
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withProductVersionId(Integer.valueOf(productVersionId)));
     }
 }

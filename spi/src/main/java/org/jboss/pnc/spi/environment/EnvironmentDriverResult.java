@@ -53,17 +53,12 @@ public class EnvironmentDriverResult implements Serializable {
 
     @Override
     public String toString() {
-        return "EnvironmentDriverResult{" +
-                "completionStatus=" + completionStatus +
-                ", log='" + log + '\'' +
-                ", sshCredentials=" + sshCredentials +
-                '}';
+        return "EnvironmentDriverResult{" + "completionStatus=" + completionStatus + ", log='" + log + '\''
+                + ", sshCredentials=" + sshCredentials + '}';
     }
 
     public String toStringLimited() {
-        return "EnvironmentDriverResult{" +
-                "completionStatus=" + completionStatus +
-                ", sshCredentials=" + sshCredentials +
-                '}';
+        return "EnvironmentDriverResult{" + "completionStatus=" + completionStatus + ", sshCredentials="
+                + sshCredentials + '}';
     }
 }

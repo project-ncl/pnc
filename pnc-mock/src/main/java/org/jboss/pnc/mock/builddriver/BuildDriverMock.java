@@ -59,7 +59,10 @@ public class BuildDriverMock extends BuildDriverBase implements BuildDriver {
         };
     }
 
-    protected void complete(BuildExecutionSession buildExecutionSession, final RunningEnvironment runningEnvironment, Consumer<CompletedBuild> onComplete) throws InterruptedException {
+    protected void complete(
+            BuildExecutionSession buildExecutionSession,
+            final RunningEnvironment runningEnvironment,
+            Consumer<CompletedBuild> onComplete) throws InterruptedException {
         Thread.sleep(RandomUtils.randInt(100, 300));
         setBuildStatus(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript());
 

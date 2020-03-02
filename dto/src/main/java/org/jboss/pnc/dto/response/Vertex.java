@@ -39,5 +39,6 @@ public class Vertex<T> {
     private final T data;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class Builder<T> {}
+    public static class Builder<T> {
+    }
 }

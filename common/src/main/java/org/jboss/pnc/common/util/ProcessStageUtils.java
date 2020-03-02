@@ -39,7 +39,7 @@ public class ProcessStageUtils {
     private static void logProcessStage(String processStage, Step step, String message) {
 
         try (MDC.MDCCloseable a = MDC.putCloseable(MDC_PROCESS_STAGE_NAME, processStage);
-             MDC.MDCCloseable b = MDC.putCloseable(MDC_PROCESS_STAGE_STEP, step.toString())) {
+                MDC.MDCCloseable b = MDC.putCloseable(MDC_PROCESS_STAGE_STEP, step.toString())) {
 
             log.info("{}", message);
         }

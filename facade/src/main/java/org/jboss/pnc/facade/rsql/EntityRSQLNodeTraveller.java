@@ -52,7 +52,8 @@ import cz.jirutka.rsql.parser.ast.RSQLOperators;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNodeTraveller<javax.persistence.criteria.Predicate> {
+class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
+        extends RSQLNodeTraveller<javax.persistence.criteria.Predicate> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -60,7 +61,10 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNod
     private final CriteriaBuilder cb;
     private final BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath;
 
-    public EntityRSQLNodeTraveller(Root<DB> root, CriteriaBuilder cb, BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath) {
+    public EntityRSQLNodeTraveller(
+            Root<DB> root,
+            CriteriaBuilder cb,
+            BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath) {
         this.root = root;
         this.cb = cb;
         this.toPath = toPath;
@@ -172,10 +176,14 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNod
                 OffsetDateTime offsetDateTime = OffsetDateTime.parse(argument, timeFormatter);
                 return (T) Date.from(Instant.from(offsetDateTime));
             } catch (DateTimeParseException ex) {
-                throw new RSQLException("The datetime must be in the ISO-8601 format with timezone, e.g. 1970-01-01T00:00:00Z, was " + argument, ex);
+                throw new RSQLException(
+                        "The datetime must be in the ISO-8601 format with timezone, e.g. 1970-01-01T00:00:00Z, was "
+                                + argument,
+                        ex);
             }
         } else {
-            throw new UnsupportedOperationException("The target type " + javaType + " is not known to the type converter.");
+            throw new UnsupportedOperationException(
+                    "The target type " + javaType + " is not known to the type converter.");
         }
     }
 

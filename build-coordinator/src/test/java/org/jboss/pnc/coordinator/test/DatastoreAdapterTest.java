@@ -61,17 +61,17 @@ public class DatastoreAdapterTest {
 
     @Test
     public void shouldStoreRepositoryManagerSuccessResult() throws DatastoreException {
-        //given
+        // given
         DatastoreMock datastore = new DatastoreMock();
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
         BuildStatus buildStatus = BuildStatus.SUCCESS;
         CompletionStatus completionStatus = CompletionStatus.SUCCESS;
 
-        //when
+        // when
         storeResult(datastoreAdapter, buildStatus, completionStatus);
 
-        //then
+        // then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
         Assert.assertEquals(1, buildRecords.size());
         BuildRecord buildRecord = buildRecords.get(0);
@@ -83,17 +83,17 @@ public class DatastoreAdapterTest {
 
     @Test
     public void shouldStoreRepositoryManagerError() throws DatastoreException {
-        //given
+        // given
         DatastoreMock datastore = new DatastoreMock();
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
         BuildStatus buildStatus = BuildStatus.SUCCESS;
         CompletionStatus completionStatus = CompletionStatus.FAILED;
 
-        //when
+        // when
         storeResult(datastoreAdapter, buildStatus, completionStatus);
 
-        //then
+        // then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
         Assert.assertEquals(1, buildRecords.size());
         BuildRecord buildRecord = buildRecords.get(0);
@@ -105,14 +105,14 @@ public class DatastoreAdapterTest {
 
     @Test
     public void shouldStoreNoRequiredRebuild() throws DatastoreException {
-        //given
+        // given
         DatastoreMock datastore = new DatastoreMock();
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
-        //when
+        // when
         datastoreAdapter.storeRecordForNoRebuild(mockBuildTask());
 
-        //then
+        // then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
         Assert.assertEquals(1, buildRecords.size());
         BuildRecord buildRecord = buildRecords.get(0);
@@ -122,16 +122,14 @@ public class DatastoreAdapterTest {
 
     @Test
     public void shouldStoreRepourResult() throws DatastoreException {
-        //given
+        // given
         DatastoreMock datastore = new DatastoreMock();
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
         RepourResult repourResult = RepourResultMock.mock();
 
-        //when
-        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
-                .name("Configuration.")
-                .build();
+        // when
+        BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder().name("Configuration.").build();
 
         BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
                 .buildConfiguration(buildConfiguration)
@@ -152,7 +150,7 @@ public class DatastoreAdapterTest {
 
         datastoreAdapter.storeResult(buildTask, buildResult);
 
-        //then
+        // then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
         Assert.assertEquals(1, buildRecords.size());
         BuildRecord buildRecord = buildRecords.get(0);
@@ -163,7 +161,10 @@ public class DatastoreAdapterTest {
         Assert.assertEquals(repourResult.getLog(), buildRecord.getRepourLog());
     }
 
-    private void storeResult(DatastoreAdapter datastoreAdapter, BuildStatus buildStatus, CompletionStatus completionStatus) throws DatastoreException {
+    private void storeResult(
+            DatastoreAdapter datastoreAdapter,
+            BuildStatus buildStatus,
+            CompletionStatus completionStatus) throws DatastoreException {
         BuildDriverResult buildDriverResult = mock(BuildDriverResult.class);
         when(buildDriverResult.getBuildStatus()).thenReturn(buildStatus);
         when(buildDriverResult.getBuildLog()).thenReturn(BUILD_LOG);
@@ -171,7 +172,6 @@ public class DatastoreAdapterTest {
         RepositoryManagerResult repositoryManagerResult = mock(RepositoryManagerResult.class);
         when(repositoryManagerResult.getCompletionStatus()).thenReturn(completionStatus);
         when(repositoryManagerResult.getLog()).thenReturn(REPOSITORY_MANAGER_LOG);
-
 
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
 
@@ -205,8 +205,7 @@ public class DatastoreAdapterTest {
                 new Date(),
                 null,
                 "context-id",
-                Optional.empty()
-        );
+                Optional.empty());
 
         buildTask.setStatus(BuildCoordinationStatus.DONE);
         return buildTask;

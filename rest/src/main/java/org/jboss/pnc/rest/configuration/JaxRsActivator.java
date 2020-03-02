@@ -74,7 +74,7 @@ public class JaxRsActivator extends Application {
         return resources;
     }
 
-    private void configureCors () {
+    private void configureCors() {
         CorsFilter corsFilter = new CorsFilter();
         corsFilter.getAllowedOrigins().add("*");
         corsFilter.setAllowedMethods("OPTIONS, GET, POST, DELETE, PUT, PATCH");

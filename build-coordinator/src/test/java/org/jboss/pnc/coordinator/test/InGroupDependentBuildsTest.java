@@ -37,13 +37,10 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
- * configC depends on configB, which in turn depends on configA.
- * configD depends on configA and configB
- * configE doesn't have dependencies
+ * configC depends on configB, which in turn depends on configA. configD depends on configA and configB configE doesn't
+ * have dependencies
  *
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/14/16
- * Time: 12:09 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/14/16 Time: 12:09 PM
  */
 public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
 
@@ -68,7 +65,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
         configSet = configSet(configA, configB, configC, configD, configE);
 
         buildConfigurationRepository = spy(new BuildConfigurationRepositoryMock());
-        when(buildConfigurationRepository.queryWithPredicates(any())).thenReturn(new ArrayList<>(configSet.getBuildConfigurations()));
+        when(buildConfigurationRepository.queryWithPredicates(any()))
+                .thenReturn(new ArrayList<>(configSet.getBuildConfigurations()));
 
         super.initialize();
 
@@ -95,7 +93,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldCreateTaskForNonDependentBuiltWithRebuildAll() throws CoreException, TimeoutException, InterruptedException {
+    public void shouldCreateTaskForNonDependentBuiltWithRebuildAll()
+            throws CoreException, TimeoutException, InterruptedException {
         insertNewBuildRecords(configE);
         build(configSet, RebuildMode.FORCE);
 
@@ -137,6 +136,6 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
 
         waitForEmptyBuildQueue();
 
-        expectBuilt(configB,configC,configD);
+        expectBuilt(configB, configC, configD);
     }
 }

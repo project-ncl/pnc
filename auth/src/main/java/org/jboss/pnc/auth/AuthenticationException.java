@@ -23,9 +23,7 @@ package org.jboss.pnc.auth;
  * It will result in 500 status code for requests.
  *
  *
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 3/23/16
- * Time: 12:32 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 3/23/16 Time: 12:32 PM
  */
 public class AuthenticationException extends RuntimeException {
     public AuthenticationException(String message, Throwable cause) {

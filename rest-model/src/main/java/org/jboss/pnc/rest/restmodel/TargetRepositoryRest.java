@@ -61,24 +61,24 @@ public class TargetRepositoryRest implements GenericEntity<Integer> {
      * Flag that the repository is temporary.
      */
     @Getter
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
     private Boolean temporaryRepo;
 
     @Getter
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
     private String identifier;
 
     @Getter
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
-    
+    @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
+
     private RepositoryType repositoryType;
 
     @Getter
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
     private String repositoryPath;
 
     @Getter
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
     private Set<Integer> artifactIds = new HashSet<>();
 
     public TargetRepositoryRest(TargetRepository targetRepository) {
@@ -96,13 +96,10 @@ public class TargetRepositoryRest implements GenericEntity<Integer> {
                 .identifier(identifier)
                 .repositoryType(repositoryType)
                 .repositoryPath(repositoryPath)
-                .artifacts(artifactIds.stream()
-                        .map(id -> {
-                            Artifact artifact = Artifact.Builder.newBuilder()
-                                    .id(id)
-                                    .build();
-                            return artifact;
-                        }).collect(Collectors.toSet()));
+                .artifacts(artifactIds.stream().map(id -> {
+                    Artifact artifact = Artifact.Builder.newBuilder().id(id).build();
+                    return artifact;
+                }).collect(Collectors.toSet()));
     }
 
     @JsonPOJOBuilder(withPrefix = "")

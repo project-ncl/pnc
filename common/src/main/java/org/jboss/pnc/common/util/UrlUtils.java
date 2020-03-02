@@ -28,8 +28,7 @@ public final class UrlUtils {
     private UrlUtils() {
     }
 
-    public static String buildUrl(final String baseUrl, final String... parts)
-            throws MalformedURLException {
+    public static String buildUrl(final String baseUrl, final String... parts) throws MalformedURLException {
         return buildUrl(baseUrl, null, parts);
     }
 
@@ -46,8 +45,7 @@ public final class UrlUtils {
         }
 
         for (String part : parts) {
-            if (part == null || part.trim()
-                    .length() < 1) {
+            if (part == null || part.trim().length() < 1) {
                 continue;
             }
 
@@ -72,9 +70,7 @@ public final class UrlUtils {
                     urlBuilder.append("&");
                 }
 
-                urlBuilder.append(param.getKey())
-                        .append("=")
-                        .append(param.getValue());
+                urlBuilder.append(param.getKey()).append("=").append(param.getValue());
             }
         }
 
@@ -84,8 +80,7 @@ public final class UrlUtils {
     public static Map<String, String> getQueryMap(String query) {
         String[] params = query.split("&");
         Map<String, String> map = new HashMap<>();
-        for (String param : params)
-        {
+        for (String param : params) {
             String name = param.split("=")[0];
             String value = param.split("=")[1];
             map.put(name, value);
@@ -94,14 +89,14 @@ public final class UrlUtils {
     }
 
     public static String keepHostAndPathOnly(String url) {
-        //workaround to properly parse url. Without schema and available port, URI.create fails to parse
+        // workaround to properly parse url. Without schema and available port, URI.create fails to parse
         if (!url.contains("://")) {
             url = "http://" + url;
         }
 
-        //if the url ends with slash, delete it
+        // if the url ends with slash, delete it
         if (url.endsWith("/")) {
-            url = url.substring(0, url.length()-1);
+            url = url.substring(0, url.length() - 1);
         }
 
         URI uri = URI.create(url);
@@ -111,7 +106,7 @@ public final class UrlUtils {
     }
 
     public static String stripProtocolAndPort(String url) {
-        //workaround to properly parse url. Without schema and available port, URI.create fails to parse
+        // workaround to properly parse url. Without schema and available port, URI.create fails to parse
         if (!url.contains("://")) {
             url = "http://" + url;
         }
@@ -137,7 +132,7 @@ public final class UrlUtils {
     }
 
     public static String stripProtocol(String url) {
-        //workaround to properly parse url. Without schema and available port, URI.create fails to parse
+        // workaround to properly parse url. Without schema and available port, URI.create fails to parse
         if (!url.contains("://")) {
             url = "http://" + url;
         }
@@ -162,6 +157,7 @@ public final class UrlUtils {
             fragmentAppend = "#" + fragment;
         }
 
-        return (userInfo == null ? "" : userInfo + "@") + (host == null ? "" : host) + (port == -1 ? "" : ":" + port) + (path == null ? "" : path) + queryAppend + fragmentAppend;
+        return (userInfo == null ? "" : userInfo + "@") + (host == null ? "" : host) + (port == -1 ? "" : ":" + port)
+                + (path == null ? "" : path) + queryAppend + fragmentAppend;
     }
 }

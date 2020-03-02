@@ -54,13 +54,12 @@ public class Producers {
     SequenceHandlerRepository sequenceHandlerRepository = new SequenceHandlerRepositoryMock();
 
     RepositoryConfiguration repositoryConfiguration() {
-        RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder
-                .newBuilder()
+        RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl(randomAlphabetic(20))
                 .build();
         repositoryConfigurationRepository.save(repositoryConfiguration);
 
-        return  repositoryConfiguration;
+        return repositoryConfiguration;
     }
 
     BuildEnvironment buildEnv() {

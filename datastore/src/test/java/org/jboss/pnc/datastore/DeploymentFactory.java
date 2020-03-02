@@ -46,11 +46,20 @@ public class DeploymentFactory {
 
         logger.info("Deployment datastoreJar: {}", datastoreJar.toString(true));
 
-        File[] dependencies = Maven.resolver().loadPomFromFile("pom.xml")
-                .importDependencies(ScopeType.RUNTIME, ScopeType.COMPILE, ScopeType.TEST, ScopeType.IMPORT, ScopeType.SYSTEM).resolve()
-                .withTransitivity().asFile();
+        File[] dependencies = Maven.resolver()
+                .loadPomFromFile("pom.xml")
+                .importDependencies(
+                        ScopeType.RUNTIME,
+                        ScopeType.COMPILE,
+                        ScopeType.TEST,
+                        ScopeType.IMPORT,
+                        ScopeType.SYSTEM)
+                .resolve()
+                .withTransitivity()
+                .asFile();
 
-        //remove "model-<version>.jar" from the archive and add it as "model.jar" so we can reference it in the test-persistence.xml
+        // remove "model-<version>.jar" from the archive and add it as "model.jar" so we can reference it in the
+        // test-persistence.xml
         ObjectWrapper<File> modelJarWrapper = new ObjectWrapper();
         List<File> dependenciesFiltered = Arrays.stream(dependencies)
                 .filter(jar -> extractModelJar(jar, modelJarWrapper))

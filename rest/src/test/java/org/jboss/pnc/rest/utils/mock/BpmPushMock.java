@@ -63,9 +63,7 @@ public class BpmPushMock extends BpmMock {
     }
 
     public Response getPushesFor(int milestoneId) {
-        List<Push> pushes = this.pushes.stream()
-                .filter(p -> p.milestoneId == milestoneId)
-                .collect(Collectors.toList());
+        List<Push> pushes = this.pushes.stream().filter(p -> p.milestoneId == milestoneId).collect(Collectors.toList());
         return Response.ok(new PushList(pushes)).build();
     }
 

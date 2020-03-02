@@ -21,11 +21,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * A thread factory that names threads. <p>
+ * A thread factory that names threads.
+ * <p>
  *
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/18/16
- * Time: 8:18 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/18/16 Time: 8:18 AM
  */
 public class NamedThreadFactory implements ThreadFactory {
     private static final AtomicInteger poolNumber = new AtomicInteger(0);

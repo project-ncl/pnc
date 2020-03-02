@@ -24,9 +24,7 @@ import lombok.NoArgsConstructor;
 import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 12/6/16
- * Time: 2:32 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/6/16 Time: 2:32 PM
  */
 @AllArgsConstructor
 @NoArgsConstructor

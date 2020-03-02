@@ -24,15 +24,17 @@ import java.io.Serializable;
 
 /**
  * Mappers that converts database entity to DTO entities and vice versa.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  * @param <DB> The database entity type
  * @param <DTO> The full DTO entity type
  * @param <REF> The reference DTO entity type
  */
-public interface EntityMapper<ID extends Serializable, DB extends GenericEntity<ID>, DTO extends REF, REF extends DTOEntity>{
+public interface EntityMapper<ID extends Serializable, DB extends GenericEntity<ID>, DTO extends REF, REF extends DTOEntity> {
 
     /**
      * Converts DTO entity to database entity.
+     * 
      * @param dtoEntity DTO entity to be converted.
      * @return Converted database entity.
      */
@@ -48,6 +50,7 @@ public interface EntityMapper<ID extends Serializable, DB extends GenericEntity<
 
     /**
      * Converts database entity to DTO entity.
+     * 
      * @param dbEntity database entity to be converted.
      * @return Converted DTO entity.
      */

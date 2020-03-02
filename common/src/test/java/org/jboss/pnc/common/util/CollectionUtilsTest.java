@@ -27,9 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 10/7/16
- * Time: 10:50 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 10/7/16 Time: 10:50 AM
  */
 public class CollectionUtilsTest {
     @Test
@@ -43,8 +41,7 @@ public class CollectionUtilsTest {
                 new ListContainer(),
                 new ListContainer(),
                 new ListContainer(),
-                new ListContainer()
-        );
+                new ListContainer());
         assertThat(hasCycle(list, this::extractChildren)).isFalse();
     }
 
@@ -115,7 +112,6 @@ public class CollectionUtilsTest {
         List<ListContainer> list = asList(a, b, c, d, e);
         assertThat(hasCycle(list, this::extractChildren)).isTrue();
     }
-
 
     private List<ListContainer> extractChildren(ListContainer container) {
         return container.children;

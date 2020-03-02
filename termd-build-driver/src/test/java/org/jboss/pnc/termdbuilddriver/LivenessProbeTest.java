@@ -55,15 +55,18 @@ public class LivenessProbeTest {
     SystemConfig systemConfig = mock(SystemConfig.class);
 
     @Test
-    public void shouldFailTheBuildWhenAgentIsNotResponding()
-            throws IOException, BuildAgentException, InterruptedException, BuildAgentClientException, BuildDriverException {
+    public void shouldFailTheBuildWhenAgentIsNotResponding() throws IOException, BuildAgentException,
+            InterruptedException, BuildAgentClientException, BuildDriverException {
 
         TermdBuildDriverModuleConfig buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
         doReturn(200L).when(buildDriverModuleConfig).getLivenessProbeFrequencyMillis();
         doReturn(500L).when(buildDriverModuleConfig).getLivenessFailTimeoutMillis();
 
         ClientMockFactory buildAgentClientMockFactory = new ClientMockFactory();
-        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, buildAgentClientMockFactory);
+        TermdBuildDriver driver = new TermdBuildDriver(
+                systemConfig,
+                buildDriverModuleConfig,
+                buildAgentClientMockFactory);
 
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
@@ -88,10 +91,10 @@ public class LivenessProbeTest {
             }
         };
 
-        //when
+        // when
         RunningBuild runningBuild = driver.startProjectBuild(buildExecution, runningEnvironment, onComplete, onError);
 
-        //then
+        // then
         Throwable throwable = result.poll(1, TimeUnit.SECONDS);
         Assert.assertNotNull("It should compelte with an exception.", throwable);
         Assert.assertEquals("Build Agent has gone away.", throwable.getMessage());

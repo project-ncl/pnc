@@ -117,8 +117,7 @@ public class BuildEndpointTest {
                 .build();
         BuildClient client = new BuildClient(largePageConfig);
 
-        assertThatThrownBy(() -> client.getAll(null, null))
-                .hasCauseInstanceOf(BadRequestException.class);
+        assertThatThrownBy(() -> client.getAll(null, null)).hasCauseInstanceOf(BadRequestException.class);
     }
 
     @Test
@@ -189,7 +188,7 @@ public class BuildEndpointTest {
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
 
         // Disable redirects so we can test the actual response
-        Field f =  ClientBase.class.getDeclaredField("client");
+        Field f = ClientBase.class.getDeclaredField("client");
         f.setAccessible(true);
         ResteasyClient reClient = (ResteasyClient) f.get(client);
         ApacheHttpClient43EngineWithRetry engine = (ApacheHttpClient43EngineWithRetry) reClient.httpEngine();
@@ -231,7 +230,8 @@ public class BuildEndpointTest {
         BuildConfigurationRevision bcRevision = client.getBuildConfigurationRevision(buildId);
 
         // then
-        assertThat(bcRevision.getDescription()).isEqualTo("Test build config for project newcastle"); // from DatabaseDataInitializer
+        assertThat(bcRevision.getDescription()).isEqualTo("Test build config for project newcastle"); // from
+                                                                                                      // DatabaseDataInitializer
     }
 
     @Test
@@ -260,19 +260,23 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFailToGetSshCredentialsForUserThatDidntTrigger() {
-        BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(
-                RestClientConfiguration.AuthenticateAs.USER2));
+        BuildClient client = new BuildClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER2));
 
-        assertThatThrownBy(() -> client.getSshCredentials(buildId))
-                .hasCauseInstanceOf(ForbiddenException.class); // 403 means not authorized
+        assertThatThrownBy(() -> client.getSshCredentials(buildId)).hasCauseInstanceOf(ForbiddenException.class); // 403
+                                                                                                                  // means
+                                                                                                                  // not
+                                                                                                                  // authorized
     }
 
     @Test
     public void shouldFailToGetSshCredentialsForAnonymous() {
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
 
-        assertThatThrownBy(() -> client.getSshCredentials(buildId))
-                .hasCauseInstanceOf(NotAuthorizedException.class); // 401 means not authenticated
+        assertThatThrownBy(() -> client.getSshCredentials(buildId)).hasCauseInstanceOf(NotAuthorizedException.class); // 401
+                                                                                                                      // means
+                                                                                                                      // not
+                                                                                                                      // authenticated
     }
 
     @Test
@@ -286,7 +290,8 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFailAsRegularUser() {
-        BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        BuildClient client = new BuildClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
 
         String buildRecordId = "1";
         assertThatThrownBy(() -> client.setBuiltArtifacts(buildRecordId, Collections.emptyList()))
@@ -301,7 +306,8 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldGetOldTemporaryBuild() {
-        BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
+        BuildClient client = new BuildClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
 
     }
 

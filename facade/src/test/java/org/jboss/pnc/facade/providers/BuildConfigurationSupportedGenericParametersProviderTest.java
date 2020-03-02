@@ -30,13 +30,14 @@ public class BuildConfigurationSupportedGenericParametersProviderTest {
     private BuildConfigurationSupportedGenericParametersProviderImpl bcSupportedGenericParameters;
 
     public BuildConfigurationSupportedGenericParametersProviderTest() throws FileNotFoundException, IOException {
-        bcSupportedGenericParameters =
-                new BuildConfigurationSupportedGenericParametersProviderImpl();
+        bcSupportedGenericParameters = new BuildConfigurationSupportedGenericParametersProviderImpl();
     }
 
     @Test
     public void testGetPMEParameter() {
-        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters()).anySatisfy(param -> ALIGNMENT_PARAMETERS.equals(param.getName()));
-        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters()).anySatisfy(parameter -> parameter.getDescription().startsWith("Additional"));
+        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters())
+                .anySatisfy(param -> ALIGNMENT_PARAMETERS.equals(param.getName()));
+        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters())
+                .anySatisfy(parameter -> parameter.getDescription().startsWith("Additional"));
     }
 }

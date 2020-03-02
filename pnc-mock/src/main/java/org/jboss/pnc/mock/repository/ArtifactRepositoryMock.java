@@ -23,9 +23,7 @@ import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import java.util.Set;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/22/16
- * Time: 12:05 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:05 PM
  */
 public class ArtifactRepositoryMock extends RepositoryMock<Artifact> implements ArtifactRepository {
 

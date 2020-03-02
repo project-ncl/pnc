@@ -58,7 +58,8 @@ public class BuildEnvironmentEndpoint extends AbstractEndpoint<BuildEnvironment,
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q) {
@@ -76,13 +77,14 @@ public class BuildEnvironmentEndpoint extends AbstractEndpoint<BuildEnvironment,
         return super.createNew(environmentRest, uriInfo);
     }
 
-    public Response update(@PathParam("id") Integer environmentId,
-            BuildEnvironmentRest environmentRest, @Context UriInfo uriInfo) throws RestValidationException {
+    public Response update(
+            @PathParam("id") Integer environmentId,
+            BuildEnvironmentRest environmentRest,
+            @Context UriInfo uriInfo) throws RestValidationException {
         return super.update(environmentId, environmentRest);
     }
 
-    public Response delete(@PathParam("id") Integer id)
-            throws RestValidationException {
+    public Response delete(@PathParam("id") Integer id) throws RestValidationException {
         return super.delete(id);
     }
 }

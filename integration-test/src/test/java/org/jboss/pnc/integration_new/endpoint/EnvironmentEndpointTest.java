@@ -53,7 +53,6 @@ public class EnvironmentEndpointTest {
     private static final Logger logger = LoggerFactory.getLogger(EnvironmentEndpointTest.class);
     private static String environmentId;
 
-
     @Deployment
     public static EnterpriseArchive deploy() {
         return Deployments.testEar();

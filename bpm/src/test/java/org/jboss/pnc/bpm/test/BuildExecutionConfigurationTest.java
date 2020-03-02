@@ -59,27 +59,52 @@ public class BuildExecutionConfigurationTest {
                 null,
                 new HashMap<>(),
                 false,
-                null
-        );
-        BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
+                null);
+        BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(
+                buildExecutionConfiguration);
 
         String buildExecutionConfigurationJson = buildExecutionConfigurationREST.toString();
         log.debug("Json : {}", buildExecutionConfigurationJson);
 
-        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = new BuildExecutionConfigurationRest(buildExecutionConfigurationJson);
-        BuildExecutionConfiguration buildExecutionConfigurationFromJson = buildExecutionConfigurationRestFromJson.toBuildExecutionConfiguration();
+        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = new BuildExecutionConfigurationRest(
+                buildExecutionConfigurationJson);
+        BuildExecutionConfiguration buildExecutionConfigurationFromJson = buildExecutionConfigurationRestFromJson
+                .toBuildExecutionConfiguration();
         String message = "Deserialized object does not match the original.";
 
         Assert.assertEquals(message, buildExecutionConfiguration.getId(), buildExecutionConfigurationFromJson.getId());
-        Assert.assertEquals(message, buildExecutionConfiguration.getBuildScript(), buildExecutionConfigurationFromJson.getBuildScript());
-        Assert.assertEquals(message, buildExecutionConfiguration.getName(), buildExecutionConfigurationFromJson.getName());
-        Assert.assertEquals(message, buildExecutionConfiguration.getScmRepoURL(), buildExecutionConfigurationFromJson.getScmRepoURL());
-        Assert.assertEquals(message, buildExecutionConfiguration.getScmRevision(), buildExecutionConfigurationFromJson.getScmRevision());
-        Assert.assertEquals(message, buildExecutionConfiguration.getScmTag(), buildExecutionConfigurationFromJson.getScmTag());
-        Assert.assertEquals(message, buildExecutionConfiguration.getOriginRepoURL(), buildExecutionConfigurationFromJson.getOriginRepoURL());
-        Assert.assertEquals(message, buildExecutionConfiguration.isPreBuildSyncEnabled(), buildExecutionConfigurationFromJson.isPreBuildSyncEnabled());
-        Assert.assertEquals(message, buildExecutionConfiguration.getUserId(), buildExecutionConfigurationFromJson.getUserId());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getBuildScript(),
+                buildExecutionConfigurationFromJson.getBuildScript());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getName(),
+                buildExecutionConfigurationFromJson.getName());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getScmRepoURL(),
+                buildExecutionConfigurationFromJson.getScmRepoURL());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getScmRevision(),
+                buildExecutionConfigurationFromJson.getScmRevision());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getScmTag(),
+                buildExecutionConfigurationFromJson.getScmTag());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getOriginRepoURL(),
+                buildExecutionConfigurationFromJson.getOriginRepoURL());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.isPreBuildSyncEnabled(),
+                buildExecutionConfigurationFromJson.isPreBuildSyncEnabled());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getUserId(),
+                buildExecutionConfigurationFromJson.getUserId());
     }
-
 
 }

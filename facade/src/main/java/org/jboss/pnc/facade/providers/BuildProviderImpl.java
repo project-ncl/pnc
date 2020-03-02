@@ -146,13 +146,20 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     private ResultMapper resultMapper;
 
     @Inject
-    public BuildProviderImpl(ArtifactRepository artifactRepository, BuildRecordRepository repository, BuildMapper mapper,
+    public BuildProviderImpl(
+            ArtifactRepository artifactRepository,
+            BuildRecordRepository repository,
+            BuildMapper mapper,
             BuildConfigurationRepository buildConfigurationRepository,
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-            Gerrit gerrit, BuildConfigurationRevisionMapper buildConfigurationRevisionMapper, BuildCoordinator buildCoordinator,
-            SortInfoProducer sortInfoProducer, UserService userService,
-            TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker, ResultMapper resultMapper) {
+            Gerrit gerrit,
+            BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
+            BuildCoordinator buildCoordinator,
+            SortInfoProducer sortInfoProducer,
+            UserService userService,
+            TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker,
+            ResultMapper resultMapper) {
         super(repository, mapper, BuildRecord.class);
 
         this.artifactRepository = artifactRepository;
@@ -196,7 +203,10 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         }
 
         try {
-            return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(Integer.valueOf(id), user.getLoginToken(), notifyOnBuildDeletionCompletion(callback));
+            return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(
+                    Integer.valueOf(id),
+                    user.getLoginToken(),
+                    notifyOnBuildDeletionCompletion(callback));
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
@@ -215,18 +225,28 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     }
 
     @Override
-    public Page<Build> getAllTemporaryOlderThanTimestamp(int pageIndex, int pageSize, String sort, String q,
+    public Page<Build> getAllTemporaryOlderThanTimestamp(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String q,
             long timestamp) {
-        return queryForCollection(pageIndex, pageSize, sort, q, temporaryBuild(), buildFinishedBefore(new Date(timestamp)));
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sort,
+                q,
+                temporaryBuild(),
+                buildFinishedBefore(new Date(timestamp)));
     }
 
     @Override
     public void addAttribute(String id, String key, String value) {
         BuildRecord buildRecord = getBuildRecord(id);
-        if(null == key){
+        if (null == key) {
             throw new IllegalArgumentException("Attribute key must not be null");
         }
-        if(!key.matches("[a-zA-Z_0-9]+")){
+        if (!key.matches("[a-zA-Z_0-9]+")) {
             throw new IllegalArgumentException("Attribute key must match [a-zA-Z_0-9]+");
         }
         switch (key) {
@@ -268,8 +288,8 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         if (buildRecord.getBuildConfigurationAudited() != null) {
             return buildConfigurationRevisionMapper.toDTO(buildRecord.getBuildConfigurationAudited());
         } else {
-            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
-                    .queryById(new IdRev(buildRecord.getBuildConfigurationId(), buildRecord.getBuildConfigurationRev()));
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(
+                    new IdRev(buildRecord.getBuildConfigurationId(), buildRecord.getBuildConfigurationRev()));
 
             return buildConfigurationRevisionMapper.toDTO(buildConfigurationAudited);
         }
@@ -291,15 +311,14 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         User user = null;
         try {
             user = userService.currentUser();
-        } catch(IllegalStateException e) {
-            //leaves user null
+        } catch (IllegalStateException e) {
+            // leaves user null
         }
-        if(!buildRecord.getUser().equals(user)) {
+        if (!buildRecord.getUser().equals(user)) {
             throw new EJBAccessException("Only user who executed the build is allowed to get the SSH credentials");
         }
 
-        return SSHCredentials
-                .builder()
+        return SSHCredentials.builder()
                 .command(buildRecord.getSshCommand())
                 .password(buildRecord.getSshPassword())
                 .build();
@@ -313,18 +332,18 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
 
     @Override
     public Page<Build> getBuilds(BuildPageInfo pageInfo) {
-        return getBuildList(pageInfo,  _t -> true, (_r, _q, cb) -> cb.conjunction());
+        return getBuildList(pageInfo, _t -> true, (_r, _q, cb) -> cb.conjunction());
     }
 
     @Override
     public Page<Build> getBuildsForMilestone(BuildPageInfo pageInfo, String milestoneId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(milestoneId).equals(t.getProductMilestone().getId());
+        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(milestoneId)
+                .equals(t.getProductMilestone().getId());
         return getBuildList(pageInfo, predicate, withPerformedInMilestone(Integer.valueOf(milestoneId)));
     }
 
     @Override
-    public Page<Build> getBuildsForProject(BuildPageInfo pageInfo,
-                                           String projectId) {
+    public Page<Build> getBuildsForProject(BuildPageInfo pageInfo, String projectId) {
         @SuppressWarnings("unchecked")
         Set<Integer> buildConfigIds = buildConfigurationRepository
                 .queryWithPredicates(withProjectId(Integer.valueOf(projectId)))
@@ -332,23 +351,45 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
                 .map(BuildConfiguration::getId)
                 .collect(Collectors.toSet());
 
-        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(projectId).equals(t.getBuildConfigurationAudited().getProject().getId());
+        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(projectId)
+                .equals(t.getBuildConfigurationAudited().getProject().getId());
         return getBuildList(pageInfo, predicate, withBuildConfigurationIds(buildConfigIds));
     }
 
     @Override
-    public Page<Build> getBuildsForArtifact(int pageIndex, int pageSize, String sortingRsql, String query, String artifactId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withArtifactProduced(Integer.valueOf(artifactId)));
+    public Page<Build> getBuildsForArtifact(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String artifactId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withArtifactProduced(Integer.valueOf(artifactId)));
     }
 
     @Override
-    public Page<Build> getDependantBuildsForArtifact(int pageIndex, int pageSize, String sortingRsql, String query, String artifactId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withArtifactDependency(Integer.valueOf(artifactId)));
+    public Page<Build> getDependantBuildsForArtifact(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String artifactId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withArtifactDependency(Integer.valueOf(artifactId)));
     }
 
     @Override
     public Page<Build> getBuildsForBuildConfiguration(BuildPageInfo pageInfo, String buildConfigurationId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(buildConfigurationId).equals(t.getBuildConfigurationAudited().getId());
+        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(buildConfigurationId)
+                .equals(t.getBuildConfigurationAudited().getId());
         return getBuildList(pageInfo, predicate, withBuildConfigurationId(Integer.valueOf(buildConfigurationId)));
     }
 
@@ -360,19 +401,26 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
 
     @Override
     public Page<Build> getBuildsForGroupConfiguration(BuildPageInfo pageInfo, String groupConfigurationId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask().getBuildConfigSetRecord().map(gc -> Integer.valueOf(groupConfigurationId).equals(gc.getBuildConfigurationSet().getId())).orElse(false);
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask()
+                .getBuildConfigSetRecord()
+                .map(gc -> Integer.valueOf(groupConfigurationId).equals(gc.getBuildConfigurationSet().getId()))
+                .orElse(false);
         return getBuildList(pageInfo, predicate, withBuildConfigSetId(Integer.valueOf(groupConfigurationId)));
     }
 
     @Override
     public Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, String groupBuildId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask().getBuildConfigSetRecord().map(gc -> Integer.valueOf(groupBuildId).equals(gc.getId())).orElse(false);
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildSetTask() != null && t.getBuildSetTask()
+                .getBuildConfigSetRecord()
+                .map(gc -> Integer.valueOf(groupBuildId).equals(gc.getId()))
+                .orElse(false);
         return getBuildList(pageInfo, predicate, withBuildConfigSetRecordId(Integer.valueOf(groupBuildId)));
     }
 
     @Override
     public Graph<Build> getBuildGraphForGroupBuild(String groupBuildId) {
-        org.jboss.util.graph.Graph<BuildTask> runningBuildTaskGraph = getRunningBuildGraphForGroupBuild(Integer.valueOf(groupBuildId));
+        org.jboss.util.graph.Graph<BuildTask> runningBuildTaskGraph = getRunningBuildGraphForGroupBuild(
+                Integer.valueOf(groupBuildId));
         org.jboss.util.graph.Graph<Build> runningBuildGraph = convertBuildTaskToBuildDto(runningBuildTaskGraph);
 
         GraphWithMetadata<Build, Integer> groupBuildGraph = getBuildConfigSetRecordGraph(Integer.valueOf(groupBuildId));
@@ -399,14 +447,13 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     org.jboss.util.graph.Graph<BuildTask> getRunningBuildGraphForGroupBuild(Integer groupBuildId) {
         List<BuildTask> buildTasks = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
                 .filter(Objects::nonNull)
-                .filter(t -> t.getBuildSetTask() != null
-                        && groupBuildId.equals(t.getBuildSetTask().getId()))
+                .filter(t -> t.getBuildSetTask() != null && groupBuildId.equals(t.getBuildSetTask().getId()))
                 .sorted((t1, t2) -> t1.getId() - t2.getId())
                 .collect(Collectors.toList());
 
         org.jboss.util.graph.Graph<BuildTask> buildGraph = new org.jboss.util.graph.Graph<>();
         for (BuildTask buildTask : buildTasks) {
-            //Adds buildTask and related tasks (dependencies and dependents) to the graph if they don't already exists
+            // Adds buildTask and related tasks (dependencies and dependents) to the graph if they don't already exists
             org.jboss.util.graph.Graph<BuildTask> dependencyGraph = getBuiltTaskDependencyGraph(buildTask.getId());
             GraphUtils.merge(buildGraph, dependencyGraph);
         }
@@ -418,8 +465,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         GraphBuilder<BuildTask> graphBuilder = new GraphBuilder<BuildTask>(
                 id -> Optional.ofNullable(getSubmittedBuild(id)),
                 bt -> bt.getDependencies().stream().map(BuildTask::getId).collect(Collectors.toList()),
-                bt -> bt.getDependants().stream().map(BuildTask::getId).collect(Collectors.toList())
-        );
+                bt -> bt.getDependants().stream().map(BuildTask::getId).collect(Collectors.toList()));
 
         Vertex<BuildTask> current = graphBuilder.buildDependencyGraph(graph, buildId);
         if (current != null) {
@@ -429,7 +475,8 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         return graph;
     }
 
-    private org.jboss.util.graph.Graph<Build> convertBuildTaskToBuildDto(org.jboss.util.graph.Graph<BuildTask> taskGraph) {
+    private org.jboss.util.graph.Graph<Build> convertBuildTaskToBuildDto(
+            org.jboss.util.graph.Graph<BuildTask> taskGraph) {
         org.jboss.util.graph.Graph<Build> buildGraph = new org.jboss.util.graph.Graph<>();
 
         for (Vertex<BuildTask> buildTaskVertex : taskGraph.getVerticies()) {
@@ -438,8 +485,8 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
             buildGraph.addVertex(buildRecordVertex);
         }
 
-        //create edges
-        for (Vertex<BuildTask> vertex: taskGraph.getVerticies()) {
+        // create edges
+        for (Vertex<BuildTask> vertex : taskGraph.getVerticies()) {
             for (Object o : vertex.getOutgoingEdges()) {
                 Edge<BuildTask> edge = (Edge<BuildTask>) o;
                 buildGraph.addEdge(
@@ -458,7 +505,11 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         for (BuildRecord buildRecord : buildConfigSetRecord.getBuildRecords()) {
             GraphWithMetadata<Build, Integer> dependencyGraph = getDependencyGraph(buildRecord.getId());
             GraphUtils.merge(buildGraph, dependencyGraph.getGraph());
-            logger.trace("Merged graph from buildRecordId {} to BuildConfigSetRecordGraph {}; Edges {},", buildRecord.getId(), buildGraph, buildGraph.getEdges());
+            logger.trace(
+                    "Merged graph from buildRecordId {} to BuildConfigSetRecordGraph {}; Edges {},",
+                    buildRecord.getId(),
+                    buildGraph,
+                    buildGraph.getEdges());
             missingBuildRecordId.addAll(dependencyGraph.getMissingNodeIds());
         }
         return new GraphWithMetadata<>(buildGraph, missingBuildRecordId);
@@ -475,9 +526,14 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
                 logger.warn("Cannot find build {}", buildId);
                 return null;
             } else {
-                GraphWithMetadata<BuildRecord, Integer> dependencyGraph = buildRecordRepository.getDependencyGraph(buildId);
+                GraphWithMetadata<BuildRecord, Integer> dependencyGraph = buildRecordRepository
+                        .getDependencyGraph(buildId);
                 org.jboss.util.graph.Graph<Build> buildGraph = convertBuildRecordToRest(dependencyGraph.getGraph());
-                logger.trace("Rest graph for buildRecordId {} {}; Graph edges {}.", buildId, buildGraph, buildGraph.getEdges());
+                logger.trace(
+                        "Rest graph for buildRecordId {} {}; Graph edges {}.",
+                        buildId,
+                        buildGraph,
+                        buildGraph.getEdges());
                 buildRecordGraph = new GraphWithMetadata<>(buildGraph, dependencyGraph.getMissingNodeIds());
             }
         } else {
@@ -497,14 +553,15 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
 
         for (Vertex<BuildRecord> buildRecordVertex : recordGraph.getVerticies()) {
             Build recordRest = mapper.toDTO(buildRecordVertex.getData());
-            Vertex<Build> buildRecordRestVertex = new NameUniqueVertex<>(recordRest.getId(),
-                    recordRest);
+            Vertex<Build> buildRecordRestVertex = new NameUniqueVertex<>(recordRest.getId(), recordRest);
             buildGraph.addVertex(buildRecordRestVertex);
         }
-        //create edges
+        // create edges
         for (Edge<BuildRecord> edge : recordGraph.getEdges()) {
-            buildGraph.addEdge(buildGraph.findVertexByName(edge.getFrom().getName()),
-                    buildGraph.findVertexByName(edge.getTo().getName()), edge.getCost());
+            buildGraph.addEdge(
+                    buildGraph.findVertexByName(edge.getFrom().getName()),
+                    buildGraph.findVertexByName(edge.getTo().getName()),
+                    edge.getCost());
         }
         return buildGraph;
     }
@@ -530,7 +587,10 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         } else {
 
             try {
-                return new URI(gerrit.generateDownloadUrlWithGerritGitweb(buildRecord.getScmRepoURL(), buildRecord.getScmRevision()));
+                return new URI(
+                        gerrit.generateDownloadUrlWithGerritGitweb(
+                                buildRecord.getScmRepoURL(),
+                                buildRecord.getScmRevision()));
             } catch (GerritException | URISyntaxException e) {
                 throw new RepositoryViolationException(e);
             }
@@ -539,6 +599,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
 
     /**
      * If a build record with the id is not found, EmptyEntityException is thrown
+     * 
      * @param id
      * @return BuildRecord
      * @throws EmptyEntityException if build record with associated id does not exist
@@ -554,9 +615,11 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     }
 
     private BuildTask getSubmittedBuild(Integer id) {
-        return buildCoordinator.getSubmittedBuildTasks().stream()
+        return buildCoordinator.getSubmittedBuildTasks()
+                .stream()
                 .filter(submittedBuild -> id.equals(submittedBuild.getId()))
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -587,10 +650,13 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
             String query,
             BuildStatus status,
             String search) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query,
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
                 BuildRecordPredicates.withStatus(status),
-                BuildRecordPredicates.withBuildLogContains(search)
-        );
+                BuildRecordPredicates.withBuildLogContains(search));
     }
 
     @RolesAllowed(SYSTEM_USER)
@@ -599,7 +665,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         Set<Integer> ids = artifactIds.stream().map(Integer::valueOf).collect(Collectors.toSet());
         List<Artifact> artifacts = artifactRepository.queryWithPredicates(withIds(ids));
 
-        if(ids.size() != artifacts.size()){
+        if (ids.size() != artifacts.size()) {
             artifacts.stream().map(Artifact::getId).forEach(ids::remove);
             throw new InvalidEntityException("Artifacts not found, missing ids: " + ids);
         }
@@ -607,16 +673,16 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         final Integer buildId = Integer.valueOf(id);
         BuildRecord buildRecord = repository.queryById(buildId);
         for (Artifact artifact : artifacts) {
-            if(artifact.getBuildRecord() != null && !buildId.equals(artifact.getBuildRecord().getId())){
-                throw new ConflictedEntryException("Artifact " + artifact.getId() + " is already marked as built by different build.",
-                        BuildRecord.class, artifact.getBuildRecord().getId().toString());
+            if (artifact.getBuildRecord() != null && !buildId.equals(artifact.getBuildRecord().getId())) {
+                throw new ConflictedEntryException(
+                        "Artifact " + artifact.getId() + " is already marked as built by different build.",
+                        BuildRecord.class,
+                        artifact.getBuildRecord().getId().toString());
             }
             artifact.setBuildRecord(buildRecord);
         }
         HashSet<Artifact> oldBuiltArtifacts = new HashSet<>(buildRecord.getBuiltArtifacts());
-        oldBuiltArtifacts.stream()
-                .filter(a -> !ids.contains(a.getId()))
-                .forEach(a -> a.setBuildRecord(null));
+        oldBuiltArtifacts.stream().filter(a -> !ids.contains(a.getId())).forEach(a -> a.setBuildRecord(null));
     }
 
     @RolesAllowed(SYSTEM_USER)
@@ -663,13 +729,18 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     }
 
     private DefaultPageInfo toPageInfo(BuildPageInfo buildPageInfo) {
-        return new DefaultPageInfo(buildPageInfo.getPageIndex() * buildPageInfo.getPageSize(), buildPageInfo.getPageSize());
+        return new DefaultPageInfo(
+                buildPageInfo.getPageIndex() * buildPageInfo.getPageSize(),
+                buildPageInfo.getPageSize());
     }
 
     /**
      * Returns the page of builds filtered by given BuildPageInfo parameters and predicate.
      */
-    private Page<Build> getBuildList(BuildPageInfo pageInfo, java.util.function.Predicate<BuildTask> predicate, Predicate<BuildRecord> dbPredicate) {
+    private Page<Build> getBuildList(
+            BuildPageInfo pageInfo,
+            java.util.function.Predicate<BuildTask> predicate,
+            Predicate<BuildRecord> dbPredicate) {
         if (pageInfo.isRunning()) {
             if (pageInfo.isLatest()) {
                 return getLatestRunningBuild(predicate);
@@ -689,8 +760,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
      * Returns the page of Latest Running build filtered by given predicate.
      */
     private Page<Build> getLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate) {
-        List<Build> build = readLatestRunningBuild(predicate)
-                .map(Collections::singletonList)
+        List<Build> build = readLatestRunningBuild(predicate).map(Collections::singletonList)
                 .orElse(Collections.emptyList());
         return new Page<>(0, 1, build.size(), build.size(), build);
     }
@@ -716,11 +786,13 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     /**
      * Returns the page of Latest build (running or finished) filtered by given predicate.
      */
-    private Page<Build> getLatestBuild(java.util.function.Predicate<BuildTask> predicate, Predicate<BuildRecord> dbPredicate) {
+    private Page<Build> getLatestBuild(
+            java.util.function.Predicate<BuildTask> predicate,
+            Predicate<BuildRecord> dbPredicate) {
         TreeSet<Build> sorted = new TreeSet<>(Comparator.comparing(Build::getSubmitTime).reversed());
         readLatestRunningBuild(predicate).ifPresent(sorted::add);
         readLatestFinishedBuild(dbPredicate).ifPresent(sorted::add);
-        if(sorted.size() > 1){
+        if (sorted.size() > 1) {
             sorted.pollLast();
         }
 
@@ -728,10 +800,12 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     }
 
     /**
-     * Returns the page of builds (running or finished) filtered by given BuildPageInfo and
-     * predicate.
+     * Returns the page of builds (running or finished) filtered by given BuildPageInfo and predicate.
      */
-    private Page<Build> getBuilds(BuildPageInfo pageInfo, java.util.function.Predicate<BuildTask> predicate, Predicate<BuildRecord> dbPredicate) {
+    private Page<Build> getBuilds(
+            BuildPageInfo pageInfo,
+            java.util.function.Predicate<BuildTask> predicate,
+            Predicate<BuildRecord> dbPredicate) {
         List<Build> runningBuilds = readRunningBuilds(pageInfo, predicate);
 
         int firstPossibleDBIndex = pageInfo.getPageIndex() * pageInfo.getPageSize() - runningBuilds.size();
@@ -747,10 +821,15 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         SortInfo sortInfo = rsqlPredicateProducer.getSortInfo(type, pageInfo.getSort());
         MergeIterator<Build> builds = new MergeIterator(
                 runningBuilds.iterator(),
-                new BuildIterator(firstPossibleDBIndex, lastPossibleDBIndex, pageInfo.getPageSize(), sortInfo, predicates),
-                comparing
-        );
-        List<Build> resultList = StreamSupport.stream(Spliterators.spliteratorUnknownSize(builds, Spliterator.ORDERED | Spliterator.SORTED), false)
+                new BuildIterator(
+                        firstPossibleDBIndex,
+                        lastPossibleDBIndex,
+                        pageInfo.getPageSize(),
+                        sortInfo,
+                        predicates),
+                comparing);
+        List<Build> resultList = StreamSupport
+                .stream(Spliterators.spliteratorUnknownSize(builds, Spliterator.ORDERED | Spliterator.SORTED), false)
                 .skip(toSkip)
                 .limit(pageInfo.getPageSize())
                 .collect(Collectors.toList());
@@ -767,9 +846,9 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
 
     private Predicate<BuildRecord>[] preparePredicates(Predicate<BuildRecord> dbPredicate, String query) {
         Predicate<BuildRecord>[] predicates;
-        if (StringUtils.isEmpty(query)){
+        if (StringUtils.isEmpty(query)) {
             predicates = new Predicate[1];
-        }else{
+        } else {
             predicates = new Predicate[2];
             predicates[1] = rsqlPredicateProducer.getCriteriaPredicate(BuildRecord.class, query);
         }
@@ -786,8 +865,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         if (!StringUtils.isEmpty(pageInfo.getSort())) {
             comparing = rsqlPredicateProducer.getComparator(pageInfo.getSort());
         }
-        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
-                .filter(t -> t != null)
+        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(t -> t != null)
                 .filter(predicate)
                 .map(buildMapper::fromBuildTask)
                 .filter(streamPredicate)
@@ -796,8 +874,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
     }
 
     private Optional<Build> readLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate) {
-        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
-                .filter(t -> t != null)
+        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(t -> t != null)
                 .filter(predicate)
                 .sorted(Comparator.comparing(BuildTask::getSubmitTime).reversed())
                 .findFirst()
@@ -822,7 +899,12 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         private final SortInfo sortInfo;
         private final Predicate<BuildRecord>[] predicates;
 
-        public BuildIterator(int firstIndex, int lastIndex, int pageSize, SortInfo sortInfo, Predicate<BuildRecord>... predicate) {
+        public BuildIterator(
+                int firstIndex,
+                int lastIndex,
+                int pageSize,
+                SortInfo sortInfo,
+                Predicate<BuildRecord>... predicate) {
             this.maxPageSize = pageSize > 10 ? pageSize : 10;
             this.firstIndex = firstIndex > 0 ? firstIndex : 0;
             this.lastIndex = lastIndex;
@@ -857,7 +939,8 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
                 size = maxPageSize;
             }
             PageInfo pageInfo = new DefaultPageInfo(firstIndex, size);
-            builds = ((BuildRecordRepository) BuildProviderImpl.this.repository).queryWithPredicatesUsingCursor(pageInfo, sortInfo, predicates);
+            builds = ((BuildRecordRepository) BuildProviderImpl.this.repository)
+                    .queryWithPredicatesUsingCursor(pageInfo, sortInfo, predicates);
             it = builds.iterator();
             if (builds.size() < size) {
                 firstIndex = lastIndex + 1;

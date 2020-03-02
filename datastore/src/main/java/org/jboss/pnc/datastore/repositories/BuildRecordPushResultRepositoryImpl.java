@@ -31,8 +31,7 @@ import java.util.List;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Stateless
-public class BuildRecordPushResultRepositoryImpl
-        extends AbstractRepository<BuildRecordPushResult, Integer>
+public class BuildRecordPushResultRepositoryImpl extends AbstractRepository<BuildRecordPushResult, Integer>
         implements BuildRecordPushResultRepository {
 
     @Inject
@@ -43,8 +42,7 @@ public class BuildRecordPushResultRepositoryImpl
     @Override
     public BuildRecordPushResult getLatestForBuildRecord(Integer buildRecordId) {
         List<BuildRecordPushResult> buildRecordPushResults = queryWithPredicates(
-                BuildRecordPushResultPredicates.forBuildRecordOrderByIdDesc(buildRecordId)
-        );
+                BuildRecordPushResultPredicates.forBuildRecordOrderByIdDesc(buildRecordId));
         if (buildRecordPushResults == null || buildRecordPushResults.size() == 0) {
             return null;
         } else {

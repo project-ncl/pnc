@@ -20,7 +20,7 @@ package org.jboss.pnc.common.json;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName(value = "global")
-public class GlobalModuleGroup extends AbstractModuleGroup{
+public class GlobalModuleGroup extends AbstractModuleGroup {
     private String aproxUrl;
     private String bpmUrl;
     private String pncUrl;
@@ -66,5 +66,5 @@ public class GlobalModuleGroup extends AbstractModuleGroup{
     public void setDaUrl(String daUrl) {
         this.daUrl = daUrl;
     }
-    
+
 }

@@ -26,8 +26,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 @Stateless
-public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVersion, Integer> implements
-        ProductVersionRepository {
+public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVersion, Integer>
+        implements ProductVersionRepository {
 
     /**
      * @deprecated Created for CDI.

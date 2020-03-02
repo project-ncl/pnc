@@ -39,7 +39,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     String getBuildScript();
 
-    String getName();  //used to be buildConfiguration.name
+    String getName(); // used to be buildConfiguration.name
 
     String getScmRepoURL();
 
@@ -82,9 +82,26 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             Map<String, String> genericParameters,
             boolean tempBuild,
             String tempBuildTimestamp) {
-        return build(id, buildContentId, userId, buildScript, name, scmRepoURL, scmRevision, scmTag, originRepoURL, preBuildSyncEnabled,
-                systemImageId, systemImageRepositoryUrl, systemImageType, buildType, podKeptAfterFailure, null, genericParameters,
-                tempBuild, tempBuildTimestamp);
+        return build(
+                id,
+                buildContentId,
+                userId,
+                buildScript,
+                name,
+                scmRepoURL,
+                scmRevision,
+                scmTag,
+                originRepoURL,
+                preBuildSyncEnabled,
+                systemImageId,
+                systemImageRepositoryUrl,
+                systemImageType,
+                buildType,
+                podKeptAfterFailure,
+                null,
+                genericParameters,
+                tempBuild,
+                tempBuildTimestamp);
     }
 
     static BuildExecutionConfiguration build(
@@ -114,8 +131,13 @@ public interface BuildExecutionConfiguration extends BuildExecution {
         } else {
             builtRepositories = new ArrayList<>(artifactRepositories.size());
             for (ArtifactRepository artifactRepository : artifactRepositories) {
-                builtRepositories.add(ArtifactRepository.build(artifactRepository.getId(), artifactRepository.getName(),
-                        artifactRepository.getUrl(), artifactRepository.getReleases(), artifactRepository.getSnapshots()));
+                builtRepositories.add(
+                        ArtifactRepository.build(
+                                artifactRepository.getId(),
+                                artifactRepository.getName(),
+                                artifactRepository.getUrl(),
+                                artifactRepository.getReleases(),
+                                artifactRepository.getSnapshots()));
             }
         }
 

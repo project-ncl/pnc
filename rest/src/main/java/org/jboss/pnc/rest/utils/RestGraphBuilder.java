@@ -50,10 +50,7 @@ public class RestGraphBuilder<T> {
         List<EdgeRest<T>> edges = new ArrayList<>();
 
         for (Vertex<T> vertex : graph.getVerticies()) {
-            VertexRest<T> vertexRest = new VertexRest<>(
-                    vertex.getName(),
-                    dataType.getName(),
-                    vertex.getData());
+            VertexRest<T> vertexRest = new VertexRest<>(vertex.getName(), dataType.getName(), vertex.getData());
             verticles.put(vertexRest.getName(), vertexRest);
         }
 

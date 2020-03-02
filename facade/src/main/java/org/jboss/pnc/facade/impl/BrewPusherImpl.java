@@ -67,7 +67,6 @@ public class BrewPusherImpl implements BrewPusher {
     @Inject
     private Configuration configuration;
 
-
     @Inject
     private BuildPushResultMapper buildPushResultMapper;
 
@@ -77,20 +76,16 @@ public class BrewPusherImpl implements BrewPusher {
     @Override
     public void pushGroup(int id, String tagPrefix) {
 
-        List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(
-                BuildRecordPredicates.withBuildConfigSetRecordId(id));
+        List<BuildRecord> buildRecords = buildRecordRepository
+                .queryWithPredicates(BuildRecordPredicates.withBuildConfigSetRecordId(id));
 
         Set<String> buildRecordsIds = buildRecords.stream()
                 .map(BuildRecord::getId)
                 .map(String::valueOf)
                 .collect(Collectors.toSet());
 
-        Set<Result> pushed = buildResultPushManager.push(
-                buildRecordsIds,
-                userService.currentUserToken(),
-                getCompleteCallbackUrl(),
-                tagPrefix,
-                false);
+        Set<Result> pushed = buildResultPushManager
+                .push(buildRecordsIds, userService.currentUserToken(), getCompleteCallbackUrl(), tagPrefix, false);
     }
 
     @Override
@@ -116,12 +111,13 @@ public class BrewPusherImpl implements BrewPusher {
         log.info("Push Results {}.", pushed.stream().map(Result::getId).collect(Collectors.joining(",")));
 
         List<BuildPushResult> pushedResponse = pushed.stream()
-                .map(r -> BuildPushResult.builder()
-                        .id(r.getId())
-                        .buildId(id)
-                        .status(r.getStatus())
-                        .log(r.getMessage())
-                        .build())
+                .map(
+                        r -> BuildPushResult.builder()
+                                .id(r.getId())
+                                .buildId(id)
+                                .status(r.getStatus())
+                                .log(r.getMessage())
+                                .build())
                 .collect(Collectors.toList());
 
         return pushedResponse.get(0);
@@ -135,7 +131,8 @@ public class BrewPusherImpl implements BrewPusher {
     @Override
     public BuildPushResult brewPushComplete(int buildId, BuildPushResult buildPushResult) throws ProcessException {
 
-        log.info("Received completion notification for BuildRecord.id: {}. Object received: {}.",
+        log.info(
+                "Received completion notification for BuildRecord.id: {}. Object received: {}.",
                 buildId,
                 buildPushResult);
 

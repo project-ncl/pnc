@@ -37,9 +37,7 @@ import static org.apache.commons.lang.RandomStringUtils.randomNumeric;
 import static org.jboss.pnc.common.util.RandomUtils.randInt;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/29/16
- * Time: 6:34 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/29/16 Time: 6:34 PM
  */
 public class MilestoneTestUtils {
 
@@ -71,14 +69,17 @@ public class MilestoneTestUtils {
         return milestone;
     }
 
-    public static class ProductMilestoneRepositoryMock extends RepositoryMock<ProductMilestone> implements ProductMilestoneRepository {}
-    public static class ProductMilestoneReleaseRepositoryMock extends RepositoryMock<ProductMilestoneRelease> implements ProductMilestoneReleaseRepository {
+    public static class ProductMilestoneRepositoryMock extends RepositoryMock<ProductMilestone>
+            implements ProductMilestoneRepository {
+    }
+
+    public static class ProductMilestoneReleaseRepositoryMock extends RepositoryMock<ProductMilestoneRelease>
+            implements ProductMilestoneReleaseRepository {
         @Override
         public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone) {
-            List<ProductMilestoneRelease> list =
-                    data.stream()
-                            .filter(r -> Objects.equals(r.getMilestone().getId(), milestone.getId()))
-                            .collect(Collectors.toList());
+            List<ProductMilestoneRelease> list = data.stream()
+                    .filter(r -> Objects.equals(r.getMilestone().getId(), milestone.getId()))
+                    .collect(Collectors.toList());
             int listSize = list.size();
             return listSize == 0 ? null : list.get(listSize - 1);
         }

@@ -34,7 +34,8 @@ public class BuildDriverResultRest implements BuildDriverResult {
     private BuildStatus buildStatus;
     Optional<String> outputChecksum;
 
-    public BuildDriverResultRest() {}
+    public BuildDriverResultRest() {
+    }
 
     public BuildDriverResultRest(BuildDriverResult buildDriverResult) {
         this.buildLog = buildDriverResult.getBuildLog();
@@ -67,15 +68,10 @@ public class BuildDriverResultRest implements BuildDriverResult {
 
     @Override
     public String toString() {
-        return "BuildDriverResultRest{" +
-                "buildLog='" + buildLog + '\'' +
-                ", buildStatus=" + buildStatus +
-                '}';
+        return "BuildDriverResultRest{" + "buildLog='" + buildLog + '\'' + ", buildStatus=" + buildStatus + '}';
     }
 
     public String toStringLimited() {
-        return "BuildDriverResultRest{" +
-                ", buildStatus=" + buildStatus +
-                '}';
+        return "BuildDriverResultRest{" + ", buildStatus=" + buildStatus + '}';
     }
 }

@@ -21,7 +21,5 @@ package org.jboss.pnc.enums;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public enum BPMTaskStatus {
-    STARTING,
-    STARTED,
-    COMPLETED
+    STARTING, STARTED, COMPLETED
 }

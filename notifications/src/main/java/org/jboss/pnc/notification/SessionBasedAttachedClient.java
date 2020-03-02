@@ -87,8 +87,8 @@ public class SessionBasedAttachedClient implements AttachedClient {
     @Override
     public boolean isSubscribed(String topic, String qualifier) {
         for (Subscription subscription : subscriptions) {
-            if (topic.equals(subscription.getTopic()) &&
-                    (subscription.getQualifier().equals("") || subscription.getQualifier().equals(qualifier))) {
+            if (topic.equals(subscription.getTopic())
+                    && (subscription.getQualifier().equals("") || subscription.getQualifier().equals(qualifier))) {
                 return true;
             }
         }

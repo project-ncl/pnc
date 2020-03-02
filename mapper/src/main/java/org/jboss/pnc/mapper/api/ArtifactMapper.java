@@ -36,7 +36,7 @@ public interface ArtifactMapper extends EntityMapper<Integer, Artifact, org.jbos
 
     @Override
     ArtifactRef toRef(Artifact dbEntity);
-    
+
     @Override
     Artifact toEntity(org.jboss.pnc.dto.Artifact dtoEntity);
 }

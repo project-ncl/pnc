@@ -77,7 +77,9 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
     }
 
     @Inject
-    public BuildEndpoint(BuildRecordProvider buildRecordProvider, EndpointAuthenticationProvider endpointAuthProvider,
+    public BuildEndpoint(
+            BuildRecordProvider buildRecordProvider,
+            EndpointAuthenticationProvider endpointAuthProvider,
             BuildTriggerer buildTriggerer) {
         super(buildRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
@@ -94,7 +96,14 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @QueryParam("orFindByBuildConfigurationName") String orFindByBuildConfigurationName,
             @QueryParam("andFindByBuildConfigurationName") String andFindByBuildConfigurationName) {
-        return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecords(pageIndex, pageSize, sort, orFindByBuildConfigurationName, andFindByBuildConfigurationName, q));
+        return fromCollection(
+                buildRecordProvider.getRunningAndCompletedBuildRecords(
+                        pageIndex,
+                        pageSize,
+                        sort,
+                        orFindByBuildConfigurationName,
+                        andFindByBuildConfigurationName,
+                        q));
     }
 
     @GET
@@ -102,7 +111,7 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
     public Response getSpecific(@PathParam("id") Integer id) {
         BuildRecordRest record = buildRecordProvider.getSpecific(id);
         if (record == null) {
-          record = buildRecordProvider.getSpecificRunning(id);
+            record = buildRecordProvider.getSpecificRunning(id);
         }
         return fromSingleton(record);
     }

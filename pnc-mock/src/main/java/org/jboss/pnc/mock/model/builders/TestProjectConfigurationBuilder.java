@@ -39,11 +39,11 @@ public class TestProjectConfigurationBuilder {
 
     BuildEnvironment javaBuildEnvironment = BuildEnvironment.Builder.newBuilder().build();
 
-    //TODO remove datastore dependency
+    // TODO remove datastore dependency
     @Inject
     DatastoreMock datastore;
 
-    @Deprecated //CDI workaround
+    @Deprecated // CDI workaround
     public TestProjectConfigurationBuilder() {
     }
 
@@ -88,16 +88,23 @@ public class TestProjectConfigurationBuilder {
 
     public BuildConfiguration buildConfigurationWithDependenciesThatFail(BuildConfigurationSet buildConfigurationSet) {
         BuildConfiguration buildConfiguration1 = build(1, "with-dependencies-1", buildConfigurationSet);
-        BuildConfiguration buildConfiguration2 = buildFailingConfiguration(2, "with-dependencies-2", buildConfigurationSet);
+        BuildConfiguration buildConfiguration2 = buildFailingConfiguration(
+                2,
+                "with-dependencies-2",
+                buildConfigurationSet);
 
         buildConfiguration1.addDependency(buildConfiguration2);
         return buildConfiguration1;
     }
 
-    public BuildConfiguration buildConfigurationWithTransitiveDependenciesThatFail(BuildConfigurationSet buildConfigurationSet) {
+    public BuildConfiguration buildConfigurationWithTransitiveDependenciesThatFail(
+            BuildConfigurationSet buildConfigurationSet) {
         BuildConfiguration buildConfiguration1 = build(1, "with-dependencies-1", buildConfigurationSet);
         BuildConfiguration buildConfiguration2 = build(2, "with-dependencies-2", buildConfigurationSet);
-        BuildConfiguration buildConfiguration3 = buildFailingConfiguration(3, "with-dependencies-3", buildConfigurationSet);
+        BuildConfiguration buildConfiguration3 = buildFailingConfiguration(
+                3,
+                "with-dependencies-3",
+                buildConfigurationSet);
 
         buildConfiguration1.addDependency(buildConfiguration2);
         buildConfiguration2.addDependency(buildConfiguration3);
@@ -108,7 +115,7 @@ public class TestProjectConfigurationBuilder {
         BuildConfiguration buildConfiguration1 = build(1, "with-dependency-1-on-2", buildConfigurationSet);
         BuildConfiguration buildConfiguration2 = build(2, "with-dependency-2-on-3", buildConfigurationSet);
         BuildConfiguration buildConfiguration3 = build(3, "not-dependent", buildConfigurationSet);
-        //CANCEL script means, that the build waits for 1 sec and then completes itself, gives time to cancel
+        // CANCEL script means, that the build waits for 1 sec and then completes itself, gives time to cancel
         buildConfiguration2.setBuildScript(CANCEL);
 
         buildConfiguration1.addDependency(buildConfiguration2);
@@ -125,10 +132,9 @@ public class TestProjectConfigurationBuilder {
         project.setId(id);
         project.setName(name);
 
-        RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder
-                .newBuilder()
+        RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
                 .id(id)
-                .internalUrl("github.com/"  + name)
+                .internalUrl("github.com/" + name)
                 .build();
 
         BuildConfiguration buildConfiguration = new BuildConfiguration();
@@ -151,20 +157,26 @@ public class TestProjectConfigurationBuilder {
         return buildConfiguration;
     }
 
-    public BuildConfiguration buildFailingConfiguration(int id, String name, BuildConfigurationSet buildConfigurationSet) {
-        BuildConfiguration buildConfiguration =  build(id, name, buildConfigurationSet);
+    public BuildConfiguration buildFailingConfiguration(
+            int id,
+            String name,
+            BuildConfigurationSet buildConfigurationSet) {
+        BuildConfiguration buildConfiguration = build(id, name, buildConfigurationSet);
         buildConfiguration.setBuildScript(FAIL);
         return buildConfiguration;
     }
 
-    public BuildConfiguration buildFailingWithDelayConfiguration(int id, String name, BuildConfigurationSet buildConfigurationSet) {
-        BuildConfiguration buildConfiguration =  build(id, name, buildConfigurationSet);
+    public BuildConfiguration buildFailingWithDelayConfiguration(
+            int id,
+            String name,
+            BuildConfigurationSet buildConfigurationSet) {
+        BuildConfiguration buildConfiguration = build(id, name, buildConfigurationSet);
         buildConfiguration.setBuildScript(FAIL_WITH_DELAY);
         return buildConfiguration;
     }
 
     public BuildConfiguration buildConfigurationToCancel(int id, String name) {
-        BuildConfiguration buildConfiguration =  build(id, name);
+        BuildConfiguration buildConfiguration = build(id, name);
         buildConfiguration.setBuildScript(CANCEL);
         return buildConfiguration;
     }
@@ -186,7 +198,7 @@ public class TestProjectConfigurationBuilder {
         return buildConfigurationSet;
     }
 
-    public BuildConfigurationSet buildConfigurationSetWithFailedDependencies(Integer configurationSetId){
+    public BuildConfigurationSet buildConfigurationSetWithFailedDependencies(Integer configurationSetId) {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName("test-build-configuration-failed-deps");
         buildConfigurationSet.setId(configurationSetId);
@@ -195,7 +207,7 @@ public class TestProjectConfigurationBuilder {
         return buildConfigurationSet;
     }
 
-    public BuildConfigurationSet buildConfigurationSetWithFailedDependenciesAndDelay(Integer configurationSetId){
+    public BuildConfigurationSet buildConfigurationSetWithFailedDependenciesAndDelay(Integer configurationSetId) {
         BuildConfigurationSet buildConfigurationSet = new BuildConfigurationSet();
         buildConfigurationSet.setName("test-build-configuration-failed-deps");
         buildConfigurationSet.setId(configurationSetId);

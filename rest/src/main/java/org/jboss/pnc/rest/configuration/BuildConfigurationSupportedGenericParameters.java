@@ -27,8 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
- * Provider of statically defined BuildConfiguration generic parameters,
- * that are known to the Orchestrator.
+ * Provider of statically defined BuildConfiguration generic parameters, that are known to the Orchestrator.
  * 
  * The parameters are set in the resources file
  * 
@@ -44,10 +43,8 @@ public class BuildConfigurationSupportedGenericParameters {
 
     public BuildConfigurationSupportedGenericParameters() throws FileNotFoundException, IOException {
         Properties props = new Properties();
-        props.load(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(
-                RESOURCES_FILE)));
-        props.forEach((key, value) -> supportedGenericParameters.put(key.toString(),
-                value.toString()));
+        props.load(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(RESOURCES_FILE)));
+        props.forEach((key, value) -> supportedGenericParameters.put(key.toString(), value.toString()));
     }
 
     public Map<String, String> getSupportedGenericParameters() {

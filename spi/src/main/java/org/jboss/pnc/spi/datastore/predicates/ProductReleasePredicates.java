@@ -34,7 +34,8 @@ public class ProductReleasePredicates {
 
     public static Predicate<ProductRelease> withProductVersionId(Integer productVersionId) {
         return (root, query, cb) -> {
-            Join<ProductMilestone, ProductVersion> productVersion = root.join(ProductRelease_.productMilestone).join(ProductMilestone_.productVersion);
+            Join<ProductMilestone, ProductVersion> productVersion = root.join(ProductRelease_.productMilestone)
+                    .join(ProductMilestone_.productVersion);
             return cb.equal(productVersion.get(ProductVersion_.id), productVersionId);
         };
     }

@@ -54,7 +54,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfiguration>{
+public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfiguration> {
 
     @Mock
     private BuildConfigurationRepository repository;
@@ -104,8 +104,7 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
     public void testGetAll() {
         Page<org.jboss.pnc.dto.BuildConfiguration> all = provider.getAll(0, 10, null, null);
 
-        assertThat(all.getContent())
-                .hasSize(5)
+        assertThat(all.getContent()).hasSize(5)
                 .haveExactly(1, new Condition<>(e -> e.getName().equals(bc.getName()), "BC Present"));
     }
 
@@ -136,17 +135,17 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
 
     }
 
-    //FIXME unignore after NCL-5114 is implemented
+    // FIXME unignore after NCL-5114 is implemented
     @Test
     @Ignore
     public void testDeleteWithArchival() {
-        //With
+        // With
         assertThat(bc.getActive()).isTrue();
 
-        //When
+        // When
         provider.delete(bc.getId().toString());
 
-        //Then
+        // Then
         org.jboss.pnc.dto.BuildConfiguration archived = provider.getSpecific(bc.getId().toString());
         assertThat(archived).isNotNull();
         assertThat(archived.isArchived()).isTrue();
@@ -154,31 +153,29 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
 
     @Test
     public void testAddDependency() {
-        //With
-        org.jboss.pnc.dto.BuildConfiguration dependency = provider.getSpecific("2"); //BC(name: "First!")
+        // With
+        org.jboss.pnc.dto.BuildConfiguration dependency = provider.getSpecific("2"); // BC(name: "First!")
         assertThat(dependency.getDependencies()).isNullOrEmpty();
 
-        //When
+        // When
         provider.addDependency(dependency.getId(), bc.getId().toString());
 
-        //Then
+        // Then
         org.jboss.pnc.dto.BuildConfiguration refreshed = provider.getSpecific(dependency.getId());
-        assertThat(refreshed.getDependencies())
-                .containsKey(bc.getId().toString());
+        assertThat(refreshed.getDependencies()).containsKey(bc.getId().toString());
     }
 
     @Test
     public void testRemoveDependency() {
-        //With
-        org.jboss.pnc.dto.BuildConfiguration dependency = provider.getSpecific("2"); //BC(name: "First!")
-        org.jboss.pnc.dto.BuildConfiguration dependant = provider.getSpecific("3"); //BC(name: "Second!!")
-        assertThat(dependant.getDependencies())
-                .containsKey(dependency.getId());
+        // With
+        org.jboss.pnc.dto.BuildConfiguration dependency = provider.getSpecific("2"); // BC(name: "First!")
+        org.jboss.pnc.dto.BuildConfiguration dependant = provider.getSpecific("3"); // BC(name: "Second!!")
+        assertThat(dependant.getDependencies()).containsKey(dependency.getId());
 
-        //When
+        // When
         provider.removeDependency(dependant.getId(), dependency.getId());
 
-        //Then
+        // Then
         org.jboss.pnc.dto.BuildConfiguration refreshed = provider.getSpecific(dependant.getId());
         assertThat(refreshed.getDependencies().values())
                 .doNotHave(new Condition<>(dependency::equals, "BC is equal to 'dependency' bc"));
@@ -186,28 +183,28 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
 
     @Test
     public void testClone() {
-        //When
+        // When
         org.jboss.pnc.dto.BuildConfiguration cloned = provider.clone(bc.getId().toString());
 
-        //Then
+        // Then
         org.jboss.pnc.dto.BuildConfiguration original = provider.getSpecific(bc.getId().toString());
         org.jboss.pnc.dto.BuildConfiguration clonedRefreshed = provider.getSpecific(cloned.getId());
 
         assertThat(clonedRefreshed)
-                .isEqualToIgnoringGivenFields(original,"id", "name", "creationTime", "modificationTime");
+                .isEqualToIgnoringGivenFields(original, "id", "name", "creationTime", "modificationTime");
     }
 
     @Test
     public void testGetRevision() {
-        //With
+        // With
         final Integer revision = 1;
         BuildConfigurationAudited bca = BuildConfigurationAudited.fromBuildConfiguration(bc, revision);
         when(buildConfigurationAuditedRepository.queryById(new IdRev(bc.getId(), revision))).thenReturn(bca);
 
-        //When
+        // When
         BuildConfigurationRevision bcr = provider.getRevision(bc.getId().toString(), revision);
 
-        //Then
+        // Then
         assertThat(bcr).isNotNull();
         assertThat(bcr.getId()).isEqualTo(bc.getId().toString());
         assertThat(bcr.getRev()).isEqualTo(revision);
@@ -219,24 +216,28 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
 
     @Test
     public void testRestoreRevision() {
-        //With
+        // With
         final Integer revision = 1;
         final String restoredName = "Old guy";
         BuildConfigurationAudited bca = BuildConfigurationAudited.fromBuildConfiguration(bc, revision);
         bca.setName(restoredName);
         when(buildConfigurationAuditedRepository.queryById(new IdRev(bc.getId(), revision))).thenReturn(bca);
 
-        //When
-        provider.restoreRevision(bc.getId().toString(),revision);
+        // When
+        provider.restoreRevision(bc.getId().toString(), revision);
 
-        //Then
+        // Then
         org.jboss.pnc.dto.BuildConfiguration restored = provider.getSpecific(bc.getId().toString());
         assertThat(restored).isNotNull();
-        assertThat(restored.getName())
-                .isEqualTo(restoredName);
+        assertThat(restored.getName()).isEqualTo(restoredName);
     }
 
-    private BuildConfiguration prepareBuildConfig(String name, int repoId, int projId, int envId, BuildConfiguration... dependencies) {
+    private BuildConfiguration prepareBuildConfig(
+            String name,
+            int repoId,
+            int projId,
+            int envId,
+            BuildConfiguration... dependencies) {
         return BuildConfiguration.Builder.newBuilder()
                 .id(entityId++)
                 .name(name)

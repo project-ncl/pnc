@@ -54,18 +54,23 @@ public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
     protected Indy indy;
 
     @Before
-    public void before() throws Exception
-    {
+    public void before() throws Exception {
         indy = driver.getIndy(accessToken);
 
         // create a remote repo pointing at our server fixture's 'repo/test' directory.
-        indy.stores().create(new RemoteRepository(MAVEN_PKG_KEY, STORE, server.formatUrl(STORE)), "Creating test remote repo",
-                RemoteRepository.class);
+        indy.stores()
+                .create(
+                        new RemoteRepository(MAVEN_PKG_KEY, STORE, server.formatUrl(STORE)),
+                        "Creating test remote repo",
+                        RemoteRepository.class);
 
         StoreKey publicKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC_GROUP_ID);
         StoreKey pncBuildsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, PNC_BUILDS);
         StoreKey sharedImportsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID);
-        StoreKey commonConstituentsKey = new StoreKey(MAVEN_PKG_KEY, StoreType.group, COMMON_BUILD_GROUP_CONSTITUENTS_GROUP);
+        StoreKey commonConstituentsKey = new StoreKey(
+                MAVEN_PKG_KEY,
+                StoreType.group,
+                COMMON_BUILD_GROUP_CONSTITUENTS_GROUP);
         StoreKey remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, STORE);
 
         createHostedIfMissing(pncBuildsKey, false, true);
@@ -74,7 +79,8 @@ public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
         createOrUpdateGroup(commonConstituentsKey, pncBuildsKey, sharedImportsKey, publicKey);
     }
 
-    private void createHostedIfMissing(StoreKey hostedKey, boolean allowSnapshots, boolean allowReleases) throws IndyClientException {
+    private void createHostedIfMissing(StoreKey hostedKey, boolean allowSnapshots, boolean allowReleases)
+            throws IndyClientException {
         if (!indy.stores().exists(hostedKey)) {
             HostedRepository hosted = new HostedRepository(hostedKey.getPackageType(), hostedKey.getName());
             hosted.setAllowSnapshots(allowSnapshots);

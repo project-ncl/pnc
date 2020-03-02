@@ -26,7 +26,8 @@ import org.jboss.pnc.model.GenericEntity;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractAuditRepository<Entity extends GenericEntity<ID>, ID extends Number> implements AuditRepository<Entity, ID> {
+public abstract class AbstractAuditRepository<Entity extends GenericEntity<ID>, ID extends Number>
+        implements AuditRepository<Entity, ID> {
 
     protected AuditReader auditReader;
     protected Class<Entity> entityClass;

@@ -28,16 +28,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/25/16
- * Time: 7:34 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/25/16 Time: 7:34 AM
  */
 @Data
 public class MilestoneReleaseResultRest extends BpmEvent {
     private Integer milestoneId;
     private ReleaseStatus releaseStatus;
     private String errorMessage;
-
 
     private List<BuildImportResultRest> builds = new ArrayList<>();
 
@@ -48,12 +45,10 @@ public class MilestoneReleaseResultRest extends BpmEvent {
 
     @JsonIgnore
     public boolean isSuccessful() {
-        return !builds.isEmpty()
-                && allBuildsSuccessful();
+        return !builds.isEmpty() && allBuildsSuccessful();
     }
 
     private boolean allBuildsSuccessful() {
         return builds.stream().allMatch(r -> r.getStatus() == BuildImportStatus.SUCCESSFUL);
     }
 }
-

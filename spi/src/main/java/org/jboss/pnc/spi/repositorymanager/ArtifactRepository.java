@@ -29,13 +29,7 @@ public interface ArtifactRepository {
 
     Boolean getSnapshots();
 
-
-    static ArtifactRepository build(
-            String id,
-            String name,
-            String url,
-            Boolean releases,
-            Boolean snapshots) {
+    static ArtifactRepository build(String id, String name, String url, Boolean releases, Boolean snapshots) {
 
         return new ArtifactRepository() {
 

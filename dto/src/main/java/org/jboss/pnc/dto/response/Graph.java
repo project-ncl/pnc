@@ -42,5 +42,6 @@ public class Graph<T> {
     private final Map<String, String> metadata;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class Builder<T> {}
+    public static class Builder<T> {
+    }
 }

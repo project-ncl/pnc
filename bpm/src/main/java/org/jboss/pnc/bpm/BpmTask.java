@@ -40,12 +40,9 @@ import java.util.function.Consumer;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Parent type of all BPM tasks. Task is a representation of
- * BPM process execution, keeps track of the remote process instance
- * and handles notifications.
- * Class implements Comparable based on the taskId,
- * so they can be sorted at REST endpoint.
- * BPM tasks do not have to be thread safe.
+ * Parent type of all BPM tasks. Task is a representation of BPM process execution, keeps track of the remote process
+ * instance and handles notifications. Class implements Comparable based on the taskId, so they can be sorted at REST
+ * endpoint. BPM tasks do not have to be thread safe.
  *
  * @author Jakub Senko
  */
@@ -90,20 +87,15 @@ public abstract class BpmTask implements Comparable<BpmTask> {
     }
 
     /**
-     * Get the name of the BPM process for this task.
-     * Warning: The process MUST be asynchronous so it
-     * does not block BPM manager.
+     * Get the name of the BPM process for this task. Warning: The process MUST be asynchronous so it does not block BPM
+     * manager.
      */
     protected abstract String getProcessId();
 
     /**
-     * Provide parameters to the BPM process.
-     * The JSON representation of this map will be available
-     * in the BPM process as "processParameters" variable.
-     * Some parameters, such as "taskId" are automatically added,
-     * not into the "processParameters" variable, but 'one level higher'
-     * and directly accessible
-     * from process variables.
+     * Provide parameters to the BPM process. The JSON representation of this map will be available in the BPM process
+     * as "processParameters" variable. Some parameters, such as "taskId" are automatically added, not into the
+     * "processParameters" variable, but 'one level higher' and directly accessible from process variables.
      *
      * @return a map of process parameters
      * @throws CoreException
@@ -140,21 +132,24 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         consumers.add(listener);
     }
 
-
     public <T extends BpmEvent> void notify(BpmEventType eventType, T data) {
         List<Consumer<?>> listeners = this.listeners.computeIfAbsent(eventType, (k) -> new ArrayList<>());
-        log.debug("will notify bpm listeners for eventType: {}, matching listeners: {}, all listeners: {}", eventType, listeners, this.listeners);
-        listeners.forEach(listener -> {
-            // Cast is OK because there is no unchecked method declaration to put wrong types
-            ((Consumer<T>) listener).accept(data);
-        });
+        log.debug(
+                "will notify bpm listeners for eventType: {}, matching listeners: {}, all listeners: {}",
+                eventType,
+                listeners,
+                this.listeners);
+        listeners.forEach(
+                listener -> {
+                    // Cast is OK because there is no unchecked method declaration to put wrong types
+                    ((Consumer<T>) listener).accept(data);
+                });
         events.add(data);
     }
 
     /**
-     * Extend process parameters from the task with additional useful information,
-     * such as pncBaseUrl and taskId, needed for notifications.
-     * Before use, taskId MUST be assigned.
+     * Extend process parameters from the task with additional useful information, such as pncBaseUrl and taskId, needed
+     * for notifications. Before use, taskId MUST be assigned.
      *
      * @throws CoreException
      */
@@ -165,11 +160,10 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         try {
             actualParameters.put("processParameters", MAPPER.writeValueAsString(processParameters));
         } catch (JsonProcessingException e) {
-            throw new CoreException("Could not serialize process processParameters '" +
-                    processParameters + "'.", e);
+            throw new CoreException("Could not serialize process processParameters '" + processParameters + "'.", e);
         }
 
-        //global not process related parameters
+        // global not process related parameters
         actualParameters.put("taskId", taskId);
         actualParameters.put("usersAuthToken", accessToken);
         MDCUtils.getUserId().ifPresent(v -> {
@@ -199,14 +193,8 @@ public abstract class BpmTask implements Comparable<BpmTask> {
 
     @Override
     public String toString() {
-        return "BpmTask{" +
-                "taskId=" + taskId +
-                ", processInstanceId=" + processInstanceId +
-                ", events=" + events +
-                ", processName='" + processName + '\'' +
-                ", config=" + config +
-                ", listeners=" + listeners +
-                ", accessToken='***'" +
-                '}';
+        return "BpmTask{" + "taskId=" + taskId + ", processInstanceId=" + processInstanceId + ", events=" + events
+                + ", processName='" + processName + '\'' + ", config=" + config + ", listeners=" + listeners
+                + ", accessToken='***'" + '}';
     }
 }

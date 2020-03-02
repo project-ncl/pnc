@@ -35,9 +35,11 @@ import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.getIdForType;
  */
 public class RoleOperations {
 
-    public static class LIST_OF_ROLES extends ArrayList<RoleRepresentation>{}
+    public static class LIST_OF_ROLES extends ArrayList<RoleRepresentation> {
+    }
 
-    public static class LIST_OF_NODES extends ArrayList<ObjectNode>{}
+    public static class LIST_OF_NODES extends ArrayList<ObjectNode> {
+    }
 
     public static String getIdFromRoleName(String adminRoot, String realm, String auth, String rname) {
         return getIdForType(adminRoot, realm, auth, "roles", "name", rname);
@@ -84,7 +86,12 @@ public class RoleOperations {
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static ObjectNode getClientRole(String rootUrl, String realm, String idOfClient, String rolename, String auth) {
+    public static ObjectNode getClientRole(
+            String rootUrl,
+            String realm,
+            String idOfClient,
+            String rolename,
+            String auth) {
         String resourceUrl = composeResourceUrl(rootUrl, realm, "clients/" + idOfClient + "/roles/" + rolename);
         return doGetJSON(ObjectNode.class, resourceUrl, auth);
     }
@@ -94,63 +101,135 @@ public class RoleOperations {
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getRealmRolesForUserAsNodes(String rootUrl, String realm, String userid, String auth) {
+    public static List<ObjectNode> getRealmRolesForUserAsNodes(
+            String rootUrl,
+            String realm,
+            String userid,
+            String auth) {
         String resourceUrl = composeResourceUrl(rootUrl, realm, "users/" + userid + "/role-mappings/realm");
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getCompositeRealmRolesForUserAsNodes(String rootUrl, String realm, String userid, String auth) {
+    public static List<ObjectNode> getCompositeRealmRolesForUserAsNodes(
+            String rootUrl,
+            String realm,
+            String userid,
+            String auth) {
         String resourceUrl = composeResourceUrl(rootUrl, realm, "users/" + userid + "/role-mappings/realm/composite");
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getAvailableRealmRolesForUserAsNodes(String rootUrl, String realm, String userid, String auth) {
+    public static List<ObjectNode> getAvailableRealmRolesForUserAsNodes(
+            String rootUrl,
+            String realm,
+            String userid,
+            String auth) {
         String resourceUrl = composeResourceUrl(rootUrl, realm, "users/" + userid + "/role-mappings/realm/available");
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getClientRolesForUserAsNodes(String rootUrl, String realm, String userid, String idOfClient, String auth) {
-        String resourceUrl = composeResourceUrl(rootUrl, realm, "users/" + userid + "/role-mappings/clients/" + idOfClient);
+    public static List<ObjectNode> getClientRolesForUserAsNodes(
+            String rootUrl,
+            String realm,
+            String userid,
+            String idOfClient,
+            String auth) {
+        String resourceUrl = composeResourceUrl(
+                rootUrl,
+                realm,
+                "users/" + userid + "/role-mappings/clients/" + idOfClient);
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getCompositeClientRolesForUserAsNodes(String rootUrl, String realm, String userid, String idOfClient, String auth) {
-        String resourceUrl = composeResourceUrl(rootUrl, realm, "users/" + userid + "/role-mappings/clients/" + idOfClient + "/composite");
+    public static List<ObjectNode> getCompositeClientRolesForUserAsNodes(
+            String rootUrl,
+            String realm,
+            String userid,
+            String idOfClient,
+            String auth) {
+        String resourceUrl = composeResourceUrl(
+                rootUrl,
+                realm,
+                "users/" + userid + "/role-mappings/clients/" + idOfClient + "/composite");
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getAvailableClientRolesForUserAsNodes(String rootUrl, String realm, String userid, String idOfClient, String auth) {
-        String resourceUrl = composeResourceUrl(rootUrl, realm, "users/" + userid + "/role-mappings/clients/" + idOfClient + "/available");
+    public static List<ObjectNode> getAvailableClientRolesForUserAsNodes(
+            String rootUrl,
+            String realm,
+            String userid,
+            String idOfClient,
+            String auth) {
+        String resourceUrl = composeResourceUrl(
+                rootUrl,
+                realm,
+                "users/" + userid + "/role-mappings/clients/" + idOfClient + "/available");
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getRealmRolesForGroupAsNodes(String rootUrl, String realm, String groupid, String auth) {
+    public static List<ObjectNode> getRealmRolesForGroupAsNodes(
+            String rootUrl,
+            String realm,
+            String groupid,
+            String auth) {
         String resourceUrl = composeResourceUrl(rootUrl, realm, "groups/" + groupid + "/role-mappings/realm");
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getCompositeRealmRolesForGroupAsNodes(String rootUrl, String realm, String groupid, String auth) {
+    public static List<ObjectNode> getCompositeRealmRolesForGroupAsNodes(
+            String rootUrl,
+            String realm,
+            String groupid,
+            String auth) {
         String resourceUrl = composeResourceUrl(rootUrl, realm, "groups/" + groupid + "/role-mappings/realm/composite");
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getAvailableRealmRolesForGroupAsNodes(String rootUrl, String realm, String groupid, String auth) {
+    public static List<ObjectNode> getAvailableRealmRolesForGroupAsNodes(
+            String rootUrl,
+            String realm,
+            String groupid,
+            String auth) {
         String resourceUrl = composeResourceUrl(rootUrl, realm, "groups/" + groupid + "/role-mappings/realm/available");
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getClientRolesForGroupAsNodes(String rootUrl, String realm, String groupid, String idOfClient, String auth) {
-        String resourceUrl = composeResourceUrl(rootUrl, realm, "groups/" + groupid + "/role-mappings/clients/" + idOfClient);
+    public static List<ObjectNode> getClientRolesForGroupAsNodes(
+            String rootUrl,
+            String realm,
+            String groupid,
+            String idOfClient,
+            String auth) {
+        String resourceUrl = composeResourceUrl(
+                rootUrl,
+                realm,
+                "groups/" + groupid + "/role-mappings/clients/" + idOfClient);
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getCompositeClientRolesForGroupAsNodes(String rootUrl, String realm, String groupid, String idOfClient, String auth) {
-        String resourceUrl = composeResourceUrl(rootUrl, realm, "groups/" + groupid + "/role-mappings/clients/" + idOfClient + "/composite");
+    public static List<ObjectNode> getCompositeClientRolesForGroupAsNodes(
+            String rootUrl,
+            String realm,
+            String groupid,
+            String idOfClient,
+            String auth) {
+        String resourceUrl = composeResourceUrl(
+                rootUrl,
+                realm,
+                "groups/" + groupid + "/role-mappings/clients/" + idOfClient + "/composite");
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 
-    public static List<ObjectNode> getAvailableClientRolesForGroupAsNodes(String rootUrl, String realm, String groupid, String idOfClient, String auth) {
-        String resourceUrl = composeResourceUrl(rootUrl, realm, "groups/" + groupid + "/role-mappings/clients/" + idOfClient + "/available");
+    public static List<ObjectNode> getAvailableClientRolesForGroupAsNodes(
+            String rootUrl,
+            String realm,
+            String groupid,
+            String idOfClient,
+            String auth) {
+        String resourceUrl = composeResourceUrl(
+                rootUrl,
+                realm,
+                "groups/" + groupid + "/role-mappings/clients/" + idOfClient + "/available");
         return doGetJSON(LIST_OF_NODES.class, resourceUrl, auth);
     }
 }

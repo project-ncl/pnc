@@ -70,8 +70,12 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution, String accessToken,
-            String serviceAccountToken, RepositoryType repositoryType, Map<String, String> genericParameters) throws RepositoryManagerException {
+    public RepositorySession createBuildRepository(
+            BuildExecution buildExecution,
+            String accessToken,
+            String serviceAccountToken,
+            RepositoryType repositoryType,
+            Map<String, String> genericParameters) throws RepositoryManagerException {
 
         RepositorySession repositoryConfiguration = new RepositorySessionMock();
         return repositoryConfiguration;
@@ -88,8 +92,11 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String pkgType, String toGroup, String accessToken)
-            throws RepositoryManagerException {
+    public RunningRepositoryPromotion promoteBuild(
+            BuildRecord buildRecord,
+            String pkgType,
+            String toGroup,
+            String accessToken) throws RepositoryManagerException {
         return new RunningRepositoryPromotionMock(promotionSuccess, promotionError);
     }
 

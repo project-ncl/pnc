@@ -38,20 +38,28 @@ public class ProductRSQLMapper extends AbstractRSQLMapper<Integer, Product> {
     @Override
     protected SingularAttribute<Product, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            default: return null;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<Product, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return Product_.id;
-            case "name": return Product_.name;
-            case "description": return Product_.description;
-            case "abbreviation": return Product_.abbreviation;
-            case "productCode": return Product_.productCode;
-            case "pgmSystemName": return Product_.pgmSystemName;
-            default: return null;
+            case "id":
+                return Product_.id;
+            case "name":
+                return Product_.name;
+            case "description":
+                return Product_.description;
+            case "abbreviation":
+                return Product_.abbreviation;
+            case "productCode":
+                return Product_.productCode;
+            case "pgmSystemName":
+                return Product_.pgmSystemName;
+            default:
+                return null;
         }
     }
 

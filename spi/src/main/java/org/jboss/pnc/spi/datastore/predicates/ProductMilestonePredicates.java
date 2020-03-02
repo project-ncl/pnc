@@ -40,7 +40,9 @@ public class ProductMilestonePredicates {
     public static Predicate<ProductMilestone> withProductVersionIdAndVersion(Integer productVersionId, String version) {
         return (root, query, cb) -> {
             Join<ProductMilestone, ProductVersion> productVersion = root.join(ProductMilestone_.productVersion);
-            return cb.and(cb.equal(productVersion.get(ProductVersion_.id), productVersionId), cb.equal(root.get(ProductMilestone_.version), version));
+            return cb.and(
+                    cb.equal(productVersion.get(ProductVersion_.id), productVersionId),
+                    cb.equal(root.get(ProductMilestone_.version), version));
         };
     }
 }

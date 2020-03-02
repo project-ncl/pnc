@@ -46,8 +46,10 @@ import org.hibernate.validator.constraints.Email;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(name = "UserTable", uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
-        @UniqueConstraint(name = "uk_user_username", columnNames = { "username" }) })
+@Table(
+        name = "UserTable",
+        uniqueConstraints = { @UniqueConstraint(name = "uk_user_email", columnNames = { "email" }),
+                @UniqueConstraint(name = "uk_user_username", columnNames = { "username" }) })
 public class User implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 8437525005838384722L;
@@ -62,25 +64,25 @@ public class User implements GenericEntity<Integer> {
 
     @Column(unique = true)
     @Email
-    @Size(max=255)
+    @Size(max = 255)
     private String email;
 
-    @Size(max=50)
+    @Size(max = 50)
     private String firstName;
 
-    @Size(max=50)
+    @Size(max = 50)
     private String lastName;
 
     /**
-     * OAUTH token, used to pass around. Property is set once user is authenticated,
-     * note that having a token doesn't necessary mean user is logged-in a token needs to be validated.
+     * OAUTH token, used to pass around. Property is set once user is authenticated, note that having a token doesn't
+     * necessary mean user is logged-in a token needs to be validated.
      */
     @Transient
     private String loginToken;
 
     @Column(unique = true)
     @NotNull
-    @Size(max=50)
+    @Size(max = 50)
     private String username;
 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -266,14 +268,8 @@ public class User implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", email='" + email + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", loginToken='" + loginToken + '\'' +
-                ", username='" + username + '\'' +
-                '}';
+        return "User{" + "id=" + id + ", email='" + email + '\'' + ", firstName='" + firstName + '\'' + ", lastName='"
+                + lastName + '\'' + ", loginToken='" + loginToken + '\'' + ", username='" + username + '\'' + '}';
     }
 
     public static class Builder {

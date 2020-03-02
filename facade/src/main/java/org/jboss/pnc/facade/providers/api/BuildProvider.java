@@ -73,18 +73,24 @@ public interface BuildProvider extends Provider<Integer, org.jboss.pnc.model.Bui
 
     Page<Build> getBuildsForArtifact(int pageIndex, int pageSize, String sortingRsql, String query, String artifactId);
 
-    Page<Build> getDependantBuildsForArtifact(int pageIndex, int pageSize, String sortingRsql, String query, String artifactId);
+    Page<Build> getDependantBuildsForArtifact(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String artifactId);
 
     Graph<Build> getBuildGraphForGroupBuild(String id);
 
     Graph<Build> getDependencyGraph(String id);
 
-    Page<Build> getAllByStatusAndLogContaining(int pageIndex,
-                                               int pageSize,
-                                               String sortingRsql,
-                                               String query,
-                                               BuildStatus status,
-                                               String search);
+    Page<Build> getAllByStatusAndLogContaining(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            BuildStatus status,
+            String search);
 
     void setBuiltArtifacts(String id, List<String> artifactIds);
 

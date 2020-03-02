@@ -18,9 +18,7 @@
 package org.jboss.pnc.bpm.model.causeway;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/25/16
- * Time: 2:22 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/25/16 Time: 2:22 PM
  */
 public enum BuildImportStatus {
     /**

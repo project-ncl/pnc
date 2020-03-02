@@ -55,25 +55,21 @@ public class ClientTest {
         AtomicInteger requestsReceived = new AtomicInteger(0);
         AtomicReference<String> headerReceived = new AtomicReference<>();
 
-        Undertow server = Undertow.builder()
-                .addHttpListener(8080, "localhost")
-                .setHandler(new HttpHandler() {
-                    @Override
-                    public void handleRequest(final HttpServerExchange exchange) throws Exception {
-                        requestsReceived.incrementAndGet();
-                        String headerName = MDCUtils.getMDCToHeaderMappings().get(MDCUtils.REQUEST_CONTEXT_KEY);
-                        HeaderValues strings = exchange.getRequestHeaders().get(headerName);
-                        if (strings != null) {
-                            headerReceived.set(strings.getFirst());
-                        }
-                        exchange.getConnection().close();
-                    }
-                }).build();
+        Undertow server = Undertow.builder().addHttpListener(8080, "localhost").setHandler(new HttpHandler() {
+            @Override
+            public void handleRequest(final HttpServerExchange exchange) throws Exception {
+                requestsReceived.incrementAndGet();
+                String headerName = MDCUtils.getMDCToHeaderMappings().get(MDCUtils.REQUEST_CONTEXT_KEY);
+                HeaderValues strings = exchange.getRequestHeaders().get(headerName);
+                if (strings != null) {
+                    headerReceived.set(strings.getFirst());
+                }
+                exchange.getConnection().close();
+            }
+        }).build();
         server.start();
 
-        Configuration configuration = getBasicConfiguration(8080)
-                .addDefaultMdcToHeadersMappings()
-                .build();
+        Configuration configuration = getBasicConfiguration(8080).addDefaultMdcToHeadersMappings().build();
 
         ProjectClient projectClient = new ProjectClient(configuration);
 
@@ -82,7 +78,7 @@ public class ClientTest {
         try {
             projectClient.getSpecific("1");
         } catch (javax.ws.rs.ProcessingException | ClientException e) {
-            //expected
+            // expected
         }
 
         Assert.assertTrue(requestsReceived.intValue() > 2);
@@ -95,8 +91,7 @@ public class ClientTest {
         final TokenGenerator tokenGenerator = new TokenGenerator();
 
         // given
-        Configuration configuration = getBasicConfiguration(8081)
-                .bearerTokenSupplier(() -> tokenGenerator.getToken())
+        Configuration configuration = getBasicConfiguration(8081).bearerTokenSupplier(() -> tokenGenerator.getToken())
                 .build();
 
         // when
@@ -111,14 +106,12 @@ public class ClientTest {
         final TokenGenerator tokenGenerator = new TokenGenerator();
 
         // given
-        Configuration configuration = getBasicConfiguration(8081)
-                .bearerTokenSupplier(() -> tokenGenerator.getToken())
+        Configuration configuration = getBasicConfiguration(8081).bearerTokenSupplier(() -> tokenGenerator.getToken())
                 .build();
 
-        wireMockServer.stubFor(get(urlMatching(".*")).willReturn(aResponse()
-                .withStatus(401)
-                .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-        ));
+        wireMockServer.stubFor(
+                get(urlMatching(".*")).willReturn(
+                        aResponse().withStatus(401).withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)));
 
         BuildClient buildClient = new BuildClient(configuration);
 
@@ -135,10 +128,7 @@ public class ClientTest {
     }
 
     private Configuration.ConfigurationBuilder getBasicConfiguration(int port) {
-        return Configuration.builder()
-                .protocol("http")
-                .host("localhost")
-                .port(port);
+        return Configuration.builder().protocol("http").host("localhost").port(port);
     }
 
     private class TokenGenerator {

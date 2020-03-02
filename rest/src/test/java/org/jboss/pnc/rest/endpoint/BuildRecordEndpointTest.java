@@ -85,9 +85,14 @@ public class BuildRecordEndpointTest {
         MockitoAnnotations.initMocks(this);
 
         this.artifactProvider = mock(ArtifactProvider.class);
-        when(artifactProvider.getBuiltArtifactsForBuildRecord(DEF_PAGE_INDEX, DEF_PAGE_SIZE, null, null,
-                BUILD_RECORD_NOT_VALID_ID)).thenReturn(new CollectionInfo<>(DEF_PAGE_INDEX, DEF_PAGE_SIZE, 0,
-                        Collections.emptyList()));
+        when(
+                artifactProvider.getBuiltArtifactsForBuildRecord(
+                        DEF_PAGE_INDEX,
+                        DEF_PAGE_SIZE,
+                        null,
+                        null,
+                        BUILD_RECORD_NOT_VALID_ID)).thenReturn(
+                                new CollectionInfo<>(DEF_PAGE_INDEX, DEF_PAGE_SIZE, 0, Collections.emptyList()));
 
         endpoint = new BuildRecordEndpoint(
                 buildRecordProvider,
@@ -128,9 +133,9 @@ public class BuildRecordEndpointTest {
 
     @Test
     public void shouldReturnNoContentWhenBuildRecordDoesntExists() {
-        assertThat(endpoint.getBuiltArtifacts(BUILD_RECORD_NOT_VALID_ID,
-                DEF_PAGE_INDEX, DEF_PAGE_SIZE, null, null).getStatus())
-        .isEqualTo(204);
+        assertThat(
+                endpoint.getBuiltArtifacts(BUILD_RECORD_NOT_VALID_ID, DEF_PAGE_INDEX, DEF_PAGE_SIZE, null, null)
+                        .getStatus()).isEqualTo(204);
     }
 
     private void endpointReturnsLog(int logId, String logContent) {
@@ -164,7 +169,9 @@ public class BuildRecordEndpointTest {
                 false,
                 null);
 
-        BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(buildExecutionConfiguration, null);
+        BuildExecutionSession buildExecutionSession = new DefaultBuildExecutionSession(
+                buildExecutionConfiguration,
+                null);
         when(buildExecutor.getRunningExecution(buildExecutionTaskId)).thenReturn(buildExecutionSession);
     }
 

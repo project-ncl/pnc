@@ -18,8 +18,8 @@
 package org.jboss.pnc.model.utils;
 
 /**
- * Component that contains the rules for generating various content ID's which are used to uniquely associate content stored in
- * external services with builds, build-sets, products, etc.
+ * Component that contains the rules for generating various content ID's which are used to uniquely associate content
+ * stored in external services with builds, build-sets, products, etc.
  */
 public class ContentIdentityManager {
 

@@ -42,13 +42,13 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDepe
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
+
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @PermitAll
 @Stateless
-public class ArtifactProviderImpl
-        extends AbstractIntIdProvider<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
+public class ArtifactProviderImpl extends AbstractIntIdProvider<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
         implements ArtifactProvider {
 
     private static Logger logger = LoggerFactory.getLogger(ArtifactProviderImpl.class);
@@ -68,11 +68,23 @@ public class ArtifactProviderImpl
         this.targetRepositoryRepository = targetRepositoryRepository;
     }
 
-
     @Override
-    public Page<org.jboss.pnc.dto.Artifact> getAll(int pageIndex, int pageSize, String sortingRsql, String query,
-            Optional<String> sha256, Optional<String> md5, Optional<String> sha1) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withSha256(sha256), withMd5(md5),withSha1(sha1));
+    public Page<org.jboss.pnc.dto.Artifact> getAll(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Optional<String> sha256,
+            Optional<String> md5,
+            Optional<String> sha1) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withSha256(sha256),
+                withMd5(md5),
+                withSha1(sha1));
     }
 
     @Override
@@ -83,7 +95,8 @@ public class ArtifactProviderImpl
 
     @Override
     @RolesAllowed(SYSTEM_USER)
-    public org.jboss.pnc.dto.Artifact update(String id, org.jboss.pnc.dto.Artifact restEntity) throws DTOValidationException {
+    public org.jboss.pnc.dto.Artifact update(String id, org.jboss.pnc.dto.Artifact restEntity)
+            throws DTOValidationException {
         return super.update(id, restEntity);
     }
 
@@ -94,21 +107,28 @@ public class ArtifactProviderImpl
     }
 
     @Override
-    public Page<org.jboss.pnc.dto.Artifact> getBuiltArtifactsForBuild(int pageIndex,
-                                                                      int pageSize,
-                                                                      String sortingRsql,
-                                                                      String query,
-                                                                      String buildId) {
+    public Page<org.jboss.pnc.dto.Artifact> getBuiltArtifactsForBuild(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String buildId) {
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(Integer.valueOf(buildId)));
     }
 
     @Override
-    public Page<org.jboss.pnc.dto.Artifact> getDependantArtifactsForBuild(int pageIndex,
-                                                                          int pageSize,
-                                                                          String sortingRsql,
-                                                                          String query,
-                                                                          String buildId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordId(Integer.valueOf(buildId)));
+    public Page<org.jboss.pnc.dto.Artifact> getDependantArtifactsForBuild(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String buildId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withDependantBuildRecordId(Integer.valueOf(buildId)));
     }
 }

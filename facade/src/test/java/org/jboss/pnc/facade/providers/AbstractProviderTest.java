@@ -77,13 +77,12 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
-
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  * @param <T> tested provider type
  */
-public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
+public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
     @Mock
     private Configuration configuration;
 
@@ -152,12 +151,20 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
     protected final List<T> repositoryList = new ArrayList<>();
 
     @Before
-    public void injectMappers() throws ReflectiveOperationException, IllegalArgumentException{
-        injectMethod("targetRepositoryMapper", artifactMapper, targetRepositoryMapper, AbstractArtifactMapperImpl.class);
+    public void injectMappers() throws ReflectiveOperationException, IllegalArgumentException {
+        injectMethod(
+                "targetRepositoryMapper",
+                artifactMapper,
+                targetRepositoryMapper,
+                AbstractArtifactMapperImpl.class);
         injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
         injectMethod("config", artifactMapper, configuration, AbstractArtifactMapper.class);
 
-        injectMethod("buildConfigurationRevisionMapper", buildMapper, buildConfigurationRevisionMapper, BuildMapperImpl.class);
+        injectMethod(
+                "buildConfigurationRevisionMapper",
+                buildMapper,
+                buildConfigurationRevisionMapper,
+                BuildMapperImpl.class);
         injectMethod("environmentMapper", buildMapper, environmentMapper, BuildMapperImpl.class);
         injectMethod("groupBuildMapper", buildMapper, groupBuildMapper, BuildMapperImpl.class);
         injectMethod("projectMapper", buildMapper, projectMapper, BuildMapperImpl.class);
@@ -166,35 +173,87 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         injectMethod("userMapper", buildMapper, userMapper, BuildMapperImpl.class);
         injectMethod("buildBCRevisionFetcher", buildMapper, buildBCRevisionFetcher, BuildMapperImpl.class);
 
-        injectMethod("environmentMapper", buildConfigurationMapper, environmentMapper, BuildConfigurationMapperImpl.class);
+        injectMethod(
+                "environmentMapper",
+                buildConfigurationMapper,
+                environmentMapper,
+                BuildConfigurationMapperImpl.class);
         injectMethod("mapSetMapper", buildConfigurationMapper, mapSetMapper, BuildConfigurationMapperImpl.class);
-        injectMethod("productVersionMapper", buildConfigurationMapper, productVersionMapper, BuildConfigurationMapperImpl.class);
+        injectMethod(
+                "productVersionMapper",
+                buildConfigurationMapper,
+                productVersionMapper,
+                BuildConfigurationMapperImpl.class);
         injectMethod("projectMapper", buildConfigurationMapper, projectMapper, BuildConfigurationMapperImpl.class);
-        injectMethod("sCMRepositoryMapper", buildConfigurationMapper, sCMRepositoryMapper, BuildConfigurationMapperImpl.class);
+        injectMethod(
+                "sCMRepositoryMapper",
+                buildConfigurationMapper,
+                sCMRepositoryMapper,
+                BuildConfigurationMapperImpl.class);
 
-        injectMethod("environmentMapper", buildConfigurationRevisionMapper, environmentMapper, BuildConfigurationRevisionMapperImpl.class);
-        injectMethod("projectMapper", buildConfigurationRevisionMapper, projectMapper, BuildConfigurationRevisionMapperImpl.class);
-        injectMethod("sCMRepositoryMapper", buildConfigurationRevisionMapper, sCMRepositoryMapper, BuildConfigurationRevisionMapperImpl.class);
+        injectMethod(
+                "environmentMapper",
+                buildConfigurationRevisionMapper,
+                environmentMapper,
+                BuildConfigurationRevisionMapperImpl.class);
+        injectMethod(
+                "projectMapper",
+                buildConfigurationRevisionMapper,
+                projectMapper,
+                BuildConfigurationRevisionMapperImpl.class);
+        injectMethod(
+                "sCMRepositoryMapper",
+                buildConfigurationRevisionMapper,
+                sCMRepositoryMapper,
+                BuildConfigurationRevisionMapperImpl.class);
 
-        injectMethod("productMilestoneMapper", productVersionMapper, productMilestoneMapper, ProductVersionMapperImpl.class);
+        injectMethod(
+                "productMilestoneMapper",
+                productVersionMapper,
+                productMilestoneMapper,
+                ProductVersionMapperImpl.class);
         injectMethod("mapSetMapper", productVersionMapper, mapSetMapper, ProductVersionMapperImpl.class);
         injectMethod("productMapper", productVersionMapper, productMapper, ProductVersionMapperImpl.class);
 
-        injectMethod("productMilestoneMapper", productReleaseMapper, productMilestoneMapper, ProductReleaseMapperImpl.class);
-        injectMethod("productVersionMapper", productReleaseMapper, productVersionMapper, ProductReleaseMapperImpl.class);
+        injectMethod(
+                "productMilestoneMapper",
+                productReleaseMapper,
+                productMilestoneMapper,
+                ProductReleaseMapperImpl.class);
+        injectMethod(
+                "productVersionMapper",
+                productReleaseMapper,
+                productVersionMapper,
+                ProductReleaseMapperImpl.class);
 
         injectMethod("mapSetMapper", productMapper, mapSetMapper, ProductMapperImpl.class);
 
         injectMethod("mapSetMapper", projectMapper, mapSetMapper, ProjectMapperImpl.class);
 
-        injectMethod("productVersionMapper", productMilestoneMapper, productVersionMapper, ProductMilestoneMapperImpl.class);
-        injectMethod("productReleaseMapper", productMilestoneMapper, productReleaseMapper, ProductMilestoneMapperImpl.class);
+        injectMethod(
+                "productVersionMapper",
+                productMilestoneMapper,
+                productVersionMapper,
+                ProductMilestoneMapperImpl.class);
+        injectMethod(
+                "productReleaseMapper",
+                productMilestoneMapper,
+                productReleaseMapper,
+                ProductMilestoneMapperImpl.class);
 
         injectMethod("mapSetMapper", groupConfigurationMapper, mapSetMapper, GroupConfigurationMapperImpl.class);
-        injectMethod("productVersionMapper", groupConfigurationMapper, productVersionMapper, GroupConfigurationMapperImpl.class);
+        injectMethod(
+                "productVersionMapper",
+                groupConfigurationMapper,
+                productVersionMapper,
+                GroupConfigurationMapperImpl.class);
 
         injectMethod("userMapper", groupBuildMapper, userMapper, GroupBuildMapperImpl.class);
-        injectMethod("groupConfigurationMapper", groupBuildMapper, groupConfigurationMapper, GroupBuildMapperImpl.class);
+        injectMethod(
+                "groupConfigurationMapper",
+                groupBuildMapper,
+                groupConfigurationMapper,
+                GroupBuildMapperImpl.class);
         injectMethod("productVersionMapper", groupBuildMapper, productVersionMapper, GroupBuildMapperImpl.class);
 
         injectMethod("groupConfigurationMapper", mapSetMapper, groupConfigurationMapper, MapSetMapper.class);
@@ -218,7 +277,8 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         indyRepoDriverModuleConfig.setExternalRepositoryNpmPath("http://url.com");
         indyRepoDriverModuleConfig.setInternalRepositoryMvnPath("http://url.com");
         indyRepoDriverModuleConfig.setInternalRepositoryNpmPath("http://url.com");
-        when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class))).thenReturn(indyRepoDriverModuleConfig);
+        when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class)))
+                .thenReturn(indyRepoDriverModuleConfig);
         when(pageInfoProducer.getPageInfo(anyInt(), anyInt())).thenAnswer(this::withPageInfo);
     }
 
@@ -244,24 +304,17 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         });
         when(repository().queryById(anyInt())).thenAnswer(inv -> {
             Integer id = inv.getArgument(0);
-            return repositoryList.stream()
-                    .filter(a -> id.equals(a.getId()))
-                    .findFirst()
-                    .orElse(null);
+            return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
         });
         doAnswer(inv -> {
             Integer id = inv.getArgument(0);
-            T object = repositoryList.stream()
-                    .filter(a -> id.equals(a.getId()))
-                    .findFirst()
-                    .orElse(null);
+            T object = repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
             repositoryList.remove(object);
             return null;
         }).when(repository()).delete(anyInt());
     }
 
-
-    protected void fillRepository(Collection<T> entities){
+    protected void fillRepository(Collection<T> entities) {
         repositoryList.addAll(entities);
     }
 
@@ -281,7 +334,8 @@ public abstract class AbstractProviderTest <T extends GenericEntity<Integer>>{
         };
     }
 
-    private void injectMethod(String fieldName, Object to, Object what, Class clazz) throws NoSuchFieldException, IllegalAccessException {
+    private void injectMethod(String fieldName, Object to, Object what, Class clazz)
+            throws NoSuchFieldException, IllegalAccessException {
         Field f = clazz.getDeclaredField(fieldName);
         f.setAccessible(true);
         f.set(to, what);

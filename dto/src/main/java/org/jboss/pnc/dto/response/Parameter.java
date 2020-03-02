@@ -25,6 +25,7 @@ import lombok.Data;
 
 /**
  * Generic parameter for build configs.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data

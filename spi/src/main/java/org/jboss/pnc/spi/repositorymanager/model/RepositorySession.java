@@ -36,11 +36,9 @@ public interface RepositorySession {
      * Process any uncaptured imports of input artifacts (dependencies, etc.) and return the result containing
      * dependencies and build output.
      *
-     * @param liveBuild
-     *            flag if the build is live, i.e. if post-build actions should be performed
+     * @param liveBuild flag if the build is live, i.e. if post-build actions should be performed
      * @return The result of extracting the build artifacts
-     * @throws RepositoryManagerException
-     *             if there is a problem extracting build artifacts
+     * @throws RepositoryManagerException if there is a problem extracting build artifacts
      */
     RepositoryManagerResult extractBuildArtifacts(boolean liveBuild) throws RepositoryManagerException;
 

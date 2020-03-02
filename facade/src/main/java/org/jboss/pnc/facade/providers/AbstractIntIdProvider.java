@@ -39,15 +39,17 @@ import javax.annotation.security.PermitAll;
  * @param <DTO> The full DTO entity type
  * @param <REF> The reference DTO entity type
  */
-@PermitAll //required to allow all non explicitly restricted operations in EJB that use other restrictions
-//TODO ID Converter ?
+@PermitAll // required to allow all non explicitly restricted operations in EJB that use other restrictions
+// TODO ID Converter ?
 public abstract class AbstractIntIdProvider<DB extends GenericEntity<Integer>, DTO extends REF, REF extends DTOEntity>
-        extends AbstractProvider<Integer, DB, DTO, REF>
-        implements Provider<Integer, DB, DTO, REF> {
+        extends AbstractProvider<Integer, DB, DTO, REF> implements Provider<Integer, DB, DTO, REF> {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractIntIdProvider.class);
 
-    public AbstractIntIdProvider(Repository<DB, Integer> repository, EntityMapper<Integer, DB, DTO, REF> mapper, Class<DB> type) {
+    public AbstractIntIdProvider(
+            Repository<DB, Integer> repository,
+            EntityMapper<Integer, DB, DTO, REF> mapper,
+            Class<DB> type) {
         super(repository, mapper, type);
     }
 

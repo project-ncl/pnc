@@ -87,9 +87,10 @@ public class ProductMilestoneProviderImpl
     private EntityManager em;
 
     @Inject
-    public ProductMilestoneProviderImpl(ProductMilestoneRepository repository,
-                                        ProductMilestoneMapper mapper,
-                                        ProductMilestoneReleaseManager releaseManager) {
+    public ProductMilestoneProviderImpl(
+            ProductMilestoneRepository repository,
+            ProductMilestoneMapper mapper,
+            ProductMilestoneReleaseManager releaseManager) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductMilestone.class);
 
@@ -137,8 +138,9 @@ public class ProductMilestoneProviderImpl
             throws ConflictedEntryException, InvalidEntityException {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class).validateConflict(() -> {
             org.jboss.pnc.model.ProductMilestone milestoneFromDB = repository.queryByPredicates(
-                    withProductVersionIdAndVersion(Integer.valueOf(restEntity.getProductVersion().getId()), restEntity.getVersion())
-            );
+                    withProductVersionIdAndVersion(
+                            Integer.valueOf(restEntity.getProductVersion().getId()),
+                            restEntity.getVersion()));
 
             Integer restEntityId = null;
 
@@ -171,7 +173,7 @@ public class ProductMilestoneProviderImpl
                 repository.save(milestoneInDb);
             }
 
-            if(releaseManager.noReleaseInProgress(milestoneInDb)) {
+            if (releaseManager.noReleaseInProgress(milestoneInDb)) {
                 log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
                 releaseManager.startRelease(milestoneInDb, userService.currentUserToken());
             }
@@ -179,8 +181,7 @@ public class ProductMilestoneProviderImpl
     }
 
     @Override
-    public void cancelMilestoneCloseProcess(String id)
-            throws RepositoryViolationException, EmptyEntityException {
+    public void cancelMilestoneCloseProcess(String id) throws RepositoryViolationException, EmptyEntityException {
 
         org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
 
@@ -193,9 +194,10 @@ public class ProductMilestoneProviderImpl
 
         } else {
 
-            if(releaseManager.noReleaseInProgress(milestoneInDb)) {
+            if (releaseManager.noReleaseInProgress(milestoneInDb)) {
 
-                log.debug("Milestone's 'end date' set and no release in progress! Cannot run cancel process for given id");
+                log.debug(
+                        "Milestone's 'end date' set and no release in progress! Cannot run cancel process for given id");
                 throw new EmptyEntityException("No running cancel process for given id.");
 
             } else {
@@ -205,15 +207,20 @@ public class ProductMilestoneProviderImpl
         }
     }
 
-
     @Override
-    public Page<ProductMilestone> getProductMilestonesForProductVersion(int pageIndex,
-                                                                        int pageSize,
-                                                                        String sortingRsql,
-                                                                        String query,
-                                                                        String productVersionId) {
+    public Page<ProductMilestone> getProductMilestonesForProductVersion(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String productVersionId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(Integer.valueOf(productVersionId)));
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withProductVersionId(Integer.valueOf(productVersionId)));
     }
 
     @Override
@@ -226,7 +233,7 @@ public class ProductMilestoneProviderImpl
         Set<Integer> milestoneIds = new HashSet<>(dependencyOf);
         builtIn.ifPresent(milestoneIds::add);
         milestoneIds.remove(null); // some builds are not in a milestone and so it gives us null
-        if(milestoneIds.isEmpty()){
+        if (milestoneIds.isEmpty()) {
             return new Page<>();
         }
 
@@ -240,10 +247,7 @@ public class ProductMilestoneProviderImpl
                 .map(m -> mapTupleToMilestoneInfo(m, builtIn))
                 .collect(Collectors.toList());
 
-        return new Page<>(pageIndex,
-                pageSize,
-                milestoneIds.size(),
-                milestones);
+        return new Page<>(pageIndex, pageSize, milestoneIds.size(), milestones);
     }
 
     private CriteriaQuery<Tuple> milestoneInfoQuery(CriteriaBuilder cb, Set<Integer> milestoneIds) {
@@ -264,11 +268,10 @@ public class ProductMilestoneProviderImpl
                 release.get(ProductRelease_.id),
                 release.get(ProductRelease_.version),
                 release.get(ProductRelease_.releaseDate));
-        query.where(cb.and(
-                cb.equal(release.get(ProductRelease_.productMilestone), milestone)),
+        query.where(
+                cb.and(cb.equal(release.get(ProductRelease_.productMilestone), milestone)),
                 milestone.get(ProductMilestone_.id).in(milestoneIds));
-        query.orderBy(cb.desc(milestone.get(ProductMilestone_.endDate)),
-                cb.desc(milestone.get(ProductMilestone_.id)));
+        query.orderBy(cb.desc(milestone.get(ProductMilestone_.endDate)), cb.desc(milestone.get(ProductMilestone_.id)));
         return query;
     }
 
@@ -290,7 +293,7 @@ public class ProductMilestoneProviderImpl
     }
 
     private static Instant toInstant(Object object) {
-        if(object== null)
+        if (object == null)
             return null;
         return ((Date) object).toInstant();
     }
@@ -300,11 +303,12 @@ public class ProductMilestoneProviderImpl
 
         Root<Artifact> artifact = buildQuery.from(Artifact.class);
         buildQuery.where(cb.equal(artifact.get(Artifact_.id), Integer.valueOf(id)));
-        buildQuery.select(artifact.get(Artifact_.buildRecord).get(BuildRecord_.productMilestone).get(ProductMilestone_.id));
+        buildQuery.select(
+                artifact.get(Artifact_.buildRecord).get(BuildRecord_.productMilestone).get(ProductMilestone_.id));
         buildQuery.distinct(true);
 
         List<Integer> resultList = em.createQuery(buildQuery).getResultList();
-        
+
         return resultList.stream().findFirst();
     }
 

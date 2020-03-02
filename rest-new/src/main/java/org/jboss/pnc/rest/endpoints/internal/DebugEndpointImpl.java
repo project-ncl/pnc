@@ -59,8 +59,8 @@ public class DebugEndpointImpl implements DebugEndpoint {
             throw new ServiceUnavailableException();
         } else {
             if (type != null && type.equals("status")) {
-                buildStatusChangedEventNotifier.fire(new DefaultBuildStatusChangedEvent(
-                        newBuild(),BuildStatus.CANCELLED, BuildStatus.CANCELLED));
+                buildStatusChangedEventNotifier.fire(
+                        new DefaultBuildStatusChangedEvent(newBuild(), BuildStatus.CANCELLED, BuildStatus.CANCELLED));
             } else {
                 messageSender.get().sendToTopic("Test Message.");
             }

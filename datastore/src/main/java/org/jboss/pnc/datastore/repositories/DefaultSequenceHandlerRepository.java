@@ -112,7 +112,8 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
                 PreparedStatement preparedStatement = null;
                 ResultSet resultSet = null;
                 try {
-                    preparedStatement = connection.prepareStatement(dialect.getCreateSequenceStrings(sequenceName, 1, 1)[0]);
+                    preparedStatement = connection
+                            .prepareStatement(dialect.getCreateSequenceStrings(sequenceName, 1, 1)[0]);
                     preparedStatement.execute();
                 } catch (SQLException e) {
                     throw e;
@@ -133,10 +134,8 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
         sessionFactory.getCurrentSession().doWork(work);
     }
 
-    public DatabaseMetaDataDialectResolutionInfoAdapter getResolutionInfo(Connection connection)
-            throws SQLException {
-        return new DatabaseMetaDataDialectResolutionInfoAdapter(
-                            connection.getMetaData());
+    public DatabaseMetaDataDialectResolutionInfoAdapter getResolutionInfo(Connection connection) throws SQLException {
+        return new DatabaseMetaDataDialectResolutionInfoAdapter(connection.getMetaData());
     }
 
     @Override
@@ -151,8 +150,8 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
                 try {
                     preparedStatement = connection.prepareStatement(dialect.getQuerySequencesString());
                     resultSet = preparedStatement.executeQuery();
-                    while(resultSet.next()) {
-                        if(sequenceName.equals(resultSet.getString(1))) {
+                    while (resultSet.next()) {
+                        if (sequenceName.equals(resultSet.getString(1))) {
                             return true;
                         }
                     }

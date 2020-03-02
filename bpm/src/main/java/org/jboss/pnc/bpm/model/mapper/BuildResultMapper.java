@@ -44,7 +44,8 @@ public class BuildResultMapper {
     public BuildResult toEntity(BuildResultRest buildResultRest) {
         RepositoryManagerResult repositoryManagerResult = null;
         if (buildResultRest.getRepositoryManagerResult() != null) {
-            repositoryManagerResult = repositoryManagerResultMapper.toEntity(buildResultRest.getRepositoryManagerResult());
+            repositoryManagerResult = repositoryManagerResultMapper
+                    .toEntity(buildResultRest.getRepositoryManagerResult());
         }
 
         return new BuildResult(
@@ -96,7 +97,14 @@ public class BuildResultMapper {
 
         RepourResult repourResult = buildResult.getRepourResult().orElse(null);
 
-        return new BuildResultRest(completionStatus, processException, processLog, buildExecutionConfiguration,
-                buildDriverResult, repositoryManagerResult, environmentDriverResult, repourResult);
+        return new BuildResultRest(
+                completionStatus,
+                processException,
+                processLog,
+                buildExecutionConfiguration,
+                buildDriverResult,
+                repositoryManagerResult,
+                environmentDriverResult,
+                repourResult);
     }
 }

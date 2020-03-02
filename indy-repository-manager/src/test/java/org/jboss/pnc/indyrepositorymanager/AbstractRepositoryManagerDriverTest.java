@@ -68,7 +68,7 @@ public class AbstractRepositoryManagerDriverTest {
 
     @Before
     public void setup() throws Exception {
-        MDC.put("dummy", "non"); //workaround for NPE in Indy 1.6.2 client
+        MDC.put("dummy", "non"); // workaround for NPE in Indy 1.6.2 client
         fixture = newServerFixture();
 
         Properties sysprops = System.getProperties();
@@ -99,15 +99,13 @@ public class AbstractRepositoryManagerDriverTest {
         moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();
-        PncConfigProvider<IndyRepoDriverModuleConfig> pncProvider =
-                new PncConfigProvider<>(IndyRepoDriverModuleConfig.class);
+        PncConfigProvider<IndyRepoDriverModuleConfig> pncProvider = new PncConfigProvider<>(
+                IndyRepoDriverModuleConfig.class);
         pncProvider.registerProvider(mapper);
         mapper.writeValue(configFile, moduleConfigJson);
 
         sysprops.setProperty(CONFIG_SYSPROP, configFile.getAbsolutePath());
         System.setProperties(sysprops);
-
-
 
         fixture.start();
 
@@ -145,71 +143,60 @@ public class AbstractRepositoryManagerDriverTest {
         }
     }
 
-    protected final CoreServerFixture newServerFixture()
-            throws Exception
-    {
-        final CoreServerFixture fixture = new CoreServerFixture( temp );
+    protected final CoreServerFixture newServerFixture() throws Exception {
+        final CoreServerFixture fixture = new CoreServerFixture(temp);
 
-        etcDir = new File( fixture.getBootOptions().getHomeDir(), "etc/indy" );
-        dataDir = new File( fixture.getBootOptions().getHomeDir(), "var/lib/indy/data" );
+        etcDir = new File(fixture.getBootOptions().getHomeDir(), "etc/indy");
+        dataDir = new File(fixture.getBootOptions().getHomeDir(), "var/lib/indy/data");
 
-        initBaseTestConfig( fixture );
-        initTestConfig( fixture );
-        initTestData( fixture );
+        initBaseTestConfig(fixture);
+        initTestConfig(fixture);
+        initTestData(fixture);
 
         return fixture;
     }
 
-    protected void initTestConfig( CoreServerFixture fixture )
-            throws IOException
-    {
+    protected void initTestConfig(CoreServerFixture fixture) throws IOException {
     }
 
-    protected void initTestData( CoreServerFixture fixture )
-            throws IOException
-    {
+    protected void initTestData(CoreServerFixture fixture) throws IOException {
     }
 
-    protected final void initBaseTestConfig( CoreServerFixture fixture )
-            throws IOException
-    {
-        writeConfigFile( "conf.d/scheduler.conf", "[scheduler]\nenabled=false" );
-        writeConfigFile( "conf.d/threadpools.conf", "[threadpools]\nenabled=false" );
+    protected final void initBaseTestConfig(CoreServerFixture fixture) throws IOException {
+        writeConfigFile("conf.d/scheduler.conf", "[scheduler]\nenabled=false");
+        writeConfigFile("conf.d/threadpools.conf", "[threadpools]\nenabled=false");
     }
 
-    protected String readTestResource( String resource )
-            throws IOException
-    {
+    protected String readTestResource(String resource) throws IOException {
         return IOUtils.toString(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource));
     }
 
-    protected void writeConfigFile( String confPath, String contents )
-            throws IOException
-    {
-        File confFile = new File( etcDir, confPath );
+    protected void writeConfigFile(String confPath, String contents) throws IOException {
+        File confFile = new File(etcDir, confPath);
         Logger logger = LoggerFactory.getLogger(getClass());
-        logger.info( "Writing configuration to: {}\n\n{}\n\n", confFile, contents );
+        logger.info("Writing configuration to: {}\n\n{}\n\n", confFile, contents);
 
-        confFile.getParentFile().mkdirs();
-
-        FileUtils.write( confFile, contents );
-    }
-
-    protected void writeDataFile( String path, String contents )
-            throws IOException
-    {
-        File confFile = new File( dataDir, path );
-
-        Logger logger = LoggerFactory.getLogger(getClass());
-        logger.info( "Writing data file to: {}\n\n{}\n\n", confFile, contents );
         confFile.getParentFile().mkdirs();
 
         FileUtils.write(confFile, contents);
     }
+
+    protected void writeDataFile(String path, String contents) throws IOException {
+        File confFile = new File(dataDir, path);
+
+        Logger logger = LoggerFactory.getLogger(getClass());
+        logger.info("Writing data file to: {}\n\n{}\n\n", confFile, contents);
+        confFile.getParentFile().mkdirs();
+
+        FileUtils.write(confFile, contents);
+    }
+
     protected void assertGroupConstituents(Group buildGroup, StoreKey... constituents) {
         List<StoreKey> groupConstituents = buildGroup.getConstituents();
         for (int i = 0; i < constituents.length; i++) {
-            assertThat("Group constituency too small to contain all the expected members.", groupConstituents.size() > i,
+            assertThat(
+                    "Group constituency too small to contain all the expected members.",
+                    groupConstituents.size() > i,
                     equalTo(true));
 
             StoreKey expected = constituents[i];

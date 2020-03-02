@@ -36,7 +36,6 @@ public class BuildMaintenanceEndpointImpl implements BuildMaintenanceEndpoint {
     @Inject
     private RepositoryManager repositoryManager;
 
-
     @Override
     public Response collectRepoManagerResult(Integer id) {
         logger.info("Getting repository manager result for build record id {}.", id);

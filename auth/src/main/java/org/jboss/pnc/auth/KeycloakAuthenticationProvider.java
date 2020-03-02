@@ -24,9 +24,8 @@ import javax.enterprise.context.Dependent;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * This class provides access to authenticated user info. In case no authentication
- * is configured or there are problems with authentication the default demo-user is
- * returned instead
+ * This class provides access to authenticated user info. In case no authentication is configured or there are problems
+ * with authentication the default demo-user is returned instead
  *
  * @author pslegr
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

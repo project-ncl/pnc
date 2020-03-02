@@ -37,15 +37,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Notification about change in Build.
- *   
+ * 
  * <pre>
- * Job: {@link JobNotificationType#BUILD}
- * Notification type: {@code BUILD_STATUS_CHANGED}
- * Progress:
- *     {@link JobNotificationProgress#PENDING} - build is new or waiting for dependencies
- *     {@link JobNotificationProgress#IN_PROGRESS} - build is not in a final state
- *     {@link JobNotificationProgress#FINISHED} - build is in final state
- * Message: no
+ * Job: {@link JobNotificationType#BUILD} Notification type: {@code BUILD_STATUS_CHANGED} Progress:
+ * {@link JobNotificationProgress#PENDING} - build is new or waiting for dependencies
+ * {@link JobNotificationProgress#IN_PROGRESS} - build is not in a final state {@link JobNotificationProgress#FINISHED}
+ * - build is in final state Message: no
+ * 
  * <pre>
  * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -66,14 +64,16 @@ public class BuildChangedNotification extends Notification {
     private final Build build;
 
     @JsonCreator
-    public BuildChangedNotification(@JsonProperty("oldStatus") BuildStatus oldStatus, @JsonProperty("build") Build build) {
+    public BuildChangedNotification(
+            @JsonProperty("oldStatus") BuildStatus oldStatus,
+            @JsonProperty("build") Build build) {
         super(BUILD, BUILD_STATUS_CHANGED, getProgress(build.getStatus()), getProgress(oldStatus));
         this.oldStatus = oldStatus;
         this.build = build;
     }
 
     public static JobNotificationProgress getProgress(BuildStatus status) {
-        if(status == null){
+        if (status == null) {
             return null;
         }
         if (status == WAITING_FOR_DEPENDENCIES || status == NEW) {

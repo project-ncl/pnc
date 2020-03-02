@@ -79,7 +79,6 @@ public class BuildExecutionTest extends BuildExecutionBase {
         return BuildExecutorDeployments.deployment();
     }
 
-
     @Test
     public void testBuild() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException {
         BuildConfiguration buildConfiguration = configurationBuilder.build(1, "c1-java");
@@ -90,29 +89,32 @@ public class BuildExecutionTest extends BuildExecutionBase {
 
         List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesSuccess();
 
-        //check build statuses
+        // check build statuses
         checkBuildStatuses(statusChangedEvents, expectedStatuses);
 
-        //check results
+        // check results
         BuildResult buildResult = buildExecutionResultWrapper.get();
 
-        //check results: logs
+        // check results: logs
         BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
         String buildLog = buildDriverResult.getBuildLog();
         Assert.assertTrue("Invalid build log.", buildLog.contains("Finished: SUCCESS"));
 
-        //check results: artifacts
+        // check results: artifacts
         RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
         Assert.assertTrue("Missing build artifacts.", repositoryManagerResult.getBuiltArtifacts().size() > 0);
         Assert.assertTrue("Missing build dependencies.", repositoryManagerResult.getDependencies().size() > 0);
 
         Artifact artifact = repositoryManagerResult.getBuiltArtifacts().iterator().next();
-        Assert.assertTrue("Invalid built artifact in the result.", artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));
+        Assert.assertTrue(
+                "Invalid built artifact in the result.",
+                artifact.getIdentifier().startsWith(ArtifactBuilder.IDENTIFIER_PREFIX));
 
     }
 
     @Test
-    public void buildShouldFail() throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException {
+    public void buildShouldFail()
+            throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException {
         BuildConfiguration buildConfiguration = configurationBuilder.buildFailingConfiguration(2, "failed-build", null);
         Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
         ObjectWrapper<BuildResult> buildExecutionResultWrapper = new ObjectWrapper<>();
@@ -122,19 +124,22 @@ public class BuildExecutionTest extends BuildExecutionBase {
         List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();
         expectedStatuses.add(DONE_WITH_ERRORS);
 
-        //check build statuses
+        // check build statuses
         checkBuildStatuses(statusChangedEvents, expectedStatuses);
     }
 
     @Test
     public void shouldNotContinueBuildOnMavenError() throws ExecutorException, InterruptedException, TimeoutException {
-        BuildConfiguration buildConfiguration = configurationBuilder.buildFailingConfiguration(3, "build-failed-on-maven", null);
+        BuildConfiguration buildConfiguration = configurationBuilder
+                .buildFailingConfiguration(3, "build-failed-on-maven", null);
         Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
         ObjectWrapper<BuildResult> buildExecutionResultWrapper = new ObjectWrapper<>();
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper);
 
-        checkBuildStatuses(statusChangedEvents, Arrays.asList(DONE_WITH_ERRORS, BUILD_ENV_DESTROYED, BUILD_ENV_DESTROYING));
+        checkBuildStatuses(
+                statusChangedEvents,
+                Arrays.asList(DONE_WITH_ERRORS, BUILD_ENV_DESTROYED, BUILD_ENV_DESTROYING));
 
         assertNoState(statusChangedEvents, BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER);
     }

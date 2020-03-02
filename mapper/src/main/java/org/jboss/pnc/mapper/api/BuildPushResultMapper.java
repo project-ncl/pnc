@@ -26,16 +26,16 @@ import org.mapstruct.Mapping;
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = {BuildMapper.IDMapper.class})
+@Mapper(config = MapperCentralConfig.class, uses = { BuildMapper.IDMapper.class })
 public interface BuildPushResultMapper {
 
     @Mapping(target = "buildId", source = "buildRecord")
     @Mapping(target = "artifactImportErrors", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"tagPrefix"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "tagPrefix" })
     BuildPushResult toDTO(BuildRecordPushResult db);
 
     @Mapping(target = "buildRecord", source = "buildId")
     @Mapping(target = "tagPrefix", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"artifactImportErrors"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "artifactImportErrors" })
     BuildRecordPushResult toEntity(BuildPushResult dto);
 }

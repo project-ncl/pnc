@@ -44,5 +44,4 @@ public class KeycloakServiceClientTest {
         Assertions.assertThat(authToken).isNotEmpty();
     }
 
-
 }

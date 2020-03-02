@@ -38,18 +38,24 @@ public class RepositoryConfigurationRSQLMapper extends AbstractRSQLMapper<Intege
     @Override
     protected SingularAttribute<RepositoryConfiguration, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            default: return null;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<RepositoryConfiguration, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return RepositoryConfiguration_.id;
-            case "internalUrl": return RepositoryConfiguration_.internalUrl;
-            case "externalUrl": return RepositoryConfiguration_.externalUrl;
-            case "preBuildSyncEnabled": return RepositoryConfiguration_.preBuildSyncEnabled;
-            default: return null;
+            case "id":
+                return RepositoryConfiguration_.id;
+            case "internalUrl":
+                return RepositoryConfiguration_.internalUrl;
+            case "externalUrl":
+                return RepositoryConfiguration_.externalUrl;
+            case "preBuildSyncEnabled":
+                return RepositoryConfiguration_.preBuildSyncEnabled;
+            default:
+                return null;
         }
     }
 

@@ -75,7 +75,8 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
     private final Logger logger = LoggerFactory.getLogger(BuildConfigurationProvider.class);
 
-    private static final Pattern REPOSITORY_NAME_PATTERN = Pattern.compile("(\\/[\\w\\.:\\~_-]+)+(\\.git)(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$");
+    private static final Pattern REPOSITORY_NAME_PATTERN = Pattern
+            .compile("(\\/[\\w\\.:\\~_-]+)+(\\.git)(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$");
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
@@ -88,13 +89,16 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     private ScmModuleConfig moduleConfig;
 
     @Inject
-    public BuildConfigurationProvider(BuildConfigurationRepository buildConfigurationRepository,
-                                      BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
-                                      BuildConfigurationSetRepository buildConfigurationSetRepository,
-                                      RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
-                                      ProductVersionRepository productVersionRepository,
-                                      SequenceHandlerRepository sequenceHandlerRepository,
-                                      Configuration configuration) throws ConfigurationParseException {
+    public BuildConfigurationProvider(
+            BuildConfigurationRepository buildConfigurationRepository,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+            BuildConfigurationSetRepository buildConfigurationSetRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer,
+            ProductVersionRepository productVersionRepository,
+            SequenceHandlerRepository sequenceHandlerRepository,
+            Configuration configuration) throws ConfigurationParseException {
         super(buildConfigurationRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigurationSetRepository = buildConfigurationSetRepository;
@@ -115,30 +119,61 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         return super.store(restEntity, false);
     }
 
-    public CollectionInfo<BuildConfigurationRest> getAllNonArchived(Integer pageIndex, Integer pageSize, String sortingRsql,
+    public CollectionInfo<BuildConfigurationRest> getAllNonArchived(
+            Integer pageIndex,
+            Integer pageSize,
+            String sortingRsql,
             String query) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, isNotArchived());
     }
 
-    public CollectionInfo<BuildConfigurationRest> getAllForProject(Integer pageIndex, Integer pageSize, String sortingRsql,
-            String query, Integer projectId) {
+    public CollectionInfo<BuildConfigurationRest> getAllForProject(
+            Integer pageIndex,
+            Integer pageSize,
+            String sortingRsql,
+            String query,
+            Integer projectId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(projectId), isNotArchived());
     }
 
-    public CollectionInfo<BuildConfigurationRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql,
-            String query, Integer productId) {
+    public CollectionInfo<BuildConfigurationRest> getAllForProduct(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Integer productId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(productId), isNotArchived());
     }
 
-    public CollectionInfo<BuildConfigurationRest> getAllForProductAndProductVersion(int pageIndex, int pageSize,
-            String sortingRsql, String query, Integer productId, Integer versionId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId), isNotArchived());
+    public CollectionInfo<BuildConfigurationRest> getAllForProductAndProductVersion(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Integer productId,
+            Integer versionId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withProductVersionId(versionId),
+                isNotArchived());
     }
 
-    public CollectionInfo<BuildConfigurationRest> getAllForBuildConfigurationSet(int pageIndex, int pageSize,
-            String sortingRsql, String query, Integer buildConfigurationSetId) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query,
-                withBuildConfigurationSetId(buildConfigurationSetId), isNotArchived());
+    public CollectionInfo<BuildConfigurationRest> getAllForBuildConfigurationSet(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Integer buildConfigurationSetId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withBuildConfigurationSetId(buildConfigurationSetId),
+                isNotArchived());
     }
 
     @Override
@@ -156,12 +191,15 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         validateDependencies(buildConfigurationRest.getId(), buildConfigurationRest.getDependencyIds());
     }
 
-    private void validateRepositoryConfigurationId(RepositoryConfigurationRest repositoryConfiguration) throws InvalidEntityException {
+    private void validateRepositoryConfigurationId(RepositoryConfigurationRest repositoryConfiguration)
+            throws InvalidEntityException {
         if (repositoryConfiguration == null || repositoryConfiguration.getId() == null)
-            throw new InvalidEntityException("RepositoryConfiguration entity has to be created before creating a new BuildConfiguration.");
+            throw new InvalidEntityException(
+                    "RepositoryConfiguration entity has to be created before creating a new BuildConfiguration.");
     }
 
-    private void validateDependencies(Integer buildConfigId, Set<Integer> dependenciesIds) throws InvalidEntityException {
+    private void validateDependencies(Integer buildConfigId, Set<Integer> dependenciesIds)
+            throws InvalidEntityException {
         if (dependenciesIds == null || dependenciesIds.isEmpty()) {
             return;
         }
@@ -169,26 +207,33 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         BuildConfiguration buildConfig = repository.queryById(buildConfigId);
         for (Integer dependencyId : dependenciesIds) {
 
-            ValidationBuilder.validateObject(buildConfig, WhenUpdating.class).validateCondition(
-                    !buildConfig.getId().equals(dependencyId), "A build configuration cannot depend on itself");
+            ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
+                    .validateCondition(
+                            !buildConfig.getId().equals(dependencyId),
+                            "A build configuration cannot depend on itself");
 
             BuildConfiguration dependency = repository.queryById(dependencyId);
             ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
-                    .validateCondition(!dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : "
-                            + buildConfig.getId() + " to: " + dependencyId + " because it would introduce a cyclic dependency");
+                    .validateCondition(
+                            !dependency.getAllDependencies().contains(buildConfig),
+                            "Cannot add dependency from : " + buildConfig.getId() + " to: " + dependencyId
+                                    + " because it would introduce a cyclic dependency");
         }
     }
 
     private void validateIfItsNotConflicted(BuildConfigurationRest buildConfigurationRest)
             throws ConflictedEntryException, InvalidEntityException {
         ValidationBuilder.validateObject(buildConfigurationRest, WhenUpdating.class).validateConflict(() -> {
-            BuildConfiguration buildConfigurationFromDB =
-                    repository.queryByPredicates(withName(buildConfigurationRest.getName()), isNotArchived());
+            BuildConfiguration buildConfigurationFromDB = repository
+                    .queryByPredicates(withName(buildConfigurationRest.getName()), isNotArchived());
 
             // don't validate against myself
-            if (buildConfigurationFromDB != null && !buildConfigurationFromDB.getId().equals(buildConfigurationRest.getId())) {
-                return new ConflictedEntryValidator.ConflictedEntryValidationError(buildConfigurationFromDB.getId(),
-                        BuildConfiguration.class, "Build configuration with the same name already exists");
+            if (buildConfigurationFromDB != null
+                    && !buildConfigurationFromDB.getId().equals(buildConfigurationRest.getId())) {
+                return new ConflictedEntryValidator.ConflictedEntryValidationError(
+                        buildConfigurationFromDB.getId(),
+                        BuildConfiguration.class,
+                        "Build configuration with the same name already exists");
             }
             return null;
         });
@@ -224,15 +269,15 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         };
     }
 
-    public void archive(Integer buildConfigurationId)  throws RestValidationException {
-        ValidationBuilder.validateObject(WhenUpdating.class).validateAgainstRepository(repository, buildConfigurationId,
-                true);
+    public void archive(Integer buildConfigurationId) throws RestValidationException {
+        ValidationBuilder.validateObject(WhenUpdating.class)
+                .validateAgainstRepository(repository, buildConfigurationId, true);
         BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
         buildConfiguration.setArchived(true);
 
         // if a build configuration is archived, unlink the build configuration from the build configuration sets it
         // is associated with
-        for (BuildConfigurationSet bcs: buildConfiguration.getBuildConfigurationSets()) {
+        for (BuildConfigurationSet bcs : buildConfiguration.getBuildConfigurationSets()) {
             bcs.removeBuildConfiguration(buildConfiguration);
             buildConfigurationSetRepository.save(bcs);
         }
@@ -241,7 +286,8 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     }
 
     public Integer clone(Integer buildConfigurationId) throws RestValidationException {
-        ValidationBuilder.validateObject(WhenCreatingNew.class).validateAgainstRepository(repository, buildConfigurationId, true);
+        ValidationBuilder.validateObject(WhenCreatingNew.class)
+                .validateAgainstRepository(repository, buildConfigurationId, true);
         BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
         BuildConfiguration clonedBuildConfiguration = buildConfiguration.clone();
         Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
@@ -259,8 +305,10 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
                 .validateCondition(dependency != null, "No dependency build config exists with id: " + dependencyId)
                 .validateCondition(!configId.equals(dependencyId), "A build configuration cannot depend on itself")
-                .validateCondition(!dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : "
-                        + configId + " to: " + dependencyId + " because it would introduce a cyclic dependency");
+                .validateCondition(
+                        !dependency.getAllDependencies().contains(buildConfig),
+                        "Cannot add dependency from : " + configId + " to: " + dependencyId
+                                + " because it would introduce a cyclic dependency");
         System.out.println("didn't throw any validation errors");
         buildConfig.addDependency(dependency);
         repository.save(buildConfig);
@@ -279,7 +327,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     public void setProductVersion(Integer configId, Integer productVersionId) throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
-                .validateCondition(buildConfig!=null, "No build config exists with id: " + configId);
+                .validateCondition(buildConfig != null, "No build config exists with id: " + configId);
         ProductVersion productVersion = null;
         if (productVersionId != null) {
             productVersion = productVersionRepository.queryById(productVersionId);
@@ -288,15 +336,22 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         repository.save(buildConfig);
     }
 
-    public CollectionInfo<BuildConfigurationRest> getDependencies(int pageIndex, int pageSize, String sortingRsql, String query,
+    public CollectionInfo<BuildConfigurationRest> getDependencies(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
             Integer configId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantConfiguration(configId));
     }
 
     public CollectionInfo<BuildConfigurationAuditedRest> getRevisions(int pageIndex, int pageSize, Integer id) {
-        List<BuildConfigurationAudited> auditedBuildConfigs = buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(id);
-        return nullableStreamOf(auditedBuildConfigs).map(buildConfigurationAuditedToRestModel()).skip(pageIndex * pageSize)
-                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, auditedBuildConfigs.size()));
+        List<BuildConfigurationAudited> auditedBuildConfigs = buildConfigurationAuditedRepository
+                .findAllByIdOrderByRevDesc(id);
+        return nullableStreamOf(auditedBuildConfigs).map(buildConfigurationAuditedToRestModel())
+                .skip(pageIndex * pageSize)
+                .limit(pageSize)
+                .collect(new CollectionInfoCollector<>(pageIndex, pageSize, auditedBuildConfigs.size()));
     }
 
     public BuildConfigurationAuditedRest getRevision(Integer id, Integer rev) {
@@ -308,7 +363,8 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         return new BuildConfigurationAuditedRest(auditedBuildConfig);
     }
 
-    public Optional<BuildConfigurationAuditedRest> getLatestAuditedMatchingBCRest(BuildConfigurationRest buildConfigurationRest) {
+    public Optional<BuildConfigurationAuditedRest> getLatestAuditedMatchingBCRest(
+            BuildConfigurationRest buildConfigurationRest) {
         return buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(buildConfigurationRest.getId())
                 .stream()
                 .filter(bca -> equalValues(bca, buildConfigurationRest))
@@ -334,26 +390,26 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     }
 
     private boolean equalValues(BuildConfigurationAudited audited, BuildConfigurationRest rest) {
-        return audited.getName().equals(rest.getName()) &&
-                equalsWithNull(audited.getBuildScript(), rest.getBuildScript()) &&
-                equalsId(audited.getRepositoryConfiguration(), rest.getRepositoryConfiguration()) &&
-                equalsWithNull(audited.getScmRevision(), rest.getScmRevision()) &&
-                equalsWithNull(audited.getDescription(), rest.getDescription()) &&
-                equalsId(audited.getProject(), rest.getProject()) &&
-                equalsId(audited.getBuildEnvironment(), rest.getEnvironment()) &&
-                audited.getGenericParameters().equals(rest.getGenericParameters());
+        return audited.getName().equals(rest.getName())
+                && equalsWithNull(audited.getBuildScript(), rest.getBuildScript())
+                && equalsId(audited.getRepositoryConfiguration(), rest.getRepositoryConfiguration())
+                && equalsWithNull(audited.getScmRevision(), rest.getScmRevision())
+                && equalsWithNull(audited.getDescription(), rest.getDescription())
+                && equalsId(audited.getProject(), rest.getProject())
+                && equalsId(audited.getBuildEnvironment(), rest.getEnvironment())
+                && audited.getGenericParameters().equals(rest.getGenericParameters());
     }
 
     private boolean equalsWithNull(Object o1, Object o2) {
-        if(o1 == null) {
+        if (o1 == null) {
             return o2 == null;
         } else {
             return o1.equals(o2);
         }
     }
 
-    private boolean equalsId(GenericEntity<Integer> dbEntity,  GenericRestEntity<Integer> restEntity) {
-        if(dbEntity == null || restEntity == null){
+    private boolean equalsId(GenericEntity<Integer> dbEntity, GenericRestEntity<Integer> restEntity) {
+        if (dbEntity == null || restEntity == null) {
             return Objects.equals(dbEntity.getId(), restEntity.getId());
         }
         return dbEntity.getId().equals(restEntity.getId());

@@ -25,27 +25,26 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 3/12/16
- * Time: 5:01 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 3/12/16 Time: 5:01 PM
  */
-public class ScmUrlValidator implements ConstraintValidator<ScmUrl, String>{
+public class ScmUrlValidator implements ConstraintValidator<ScmUrl, String> {
 
     @Override
-    public void initialize(ScmUrl constraintAnnotation) {}
+    public void initialize(ScmUrl constraintAnnotation) {
+    }
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         return isValid(value);
     }
 
-
     /******************************************************
      * STATIC:
      ******************************************************/
     private static final char USERNAME_INDICATOR = '@';
     private static final Pattern USERNAME_PATTERN = Pattern.compile("[\\.\\-_%\\w]+", Pattern.UNICODE_CHARACTER_CLASS);
-    private static final UrlValidator validator = new UrlValidator(new String[]{"http", "https", "git", "ssh", "git+ssh"});
+    private static final UrlValidator validator = new UrlValidator(
+            new String[] { "http", "https", "git", "ssh", "git+ssh" });
 
     public static boolean isValid(String url) {
         if (url == null || "".equals(url)) {
@@ -79,13 +78,12 @@ public class ScmUrlValidator implements ConstraintValidator<ScmUrl, String>{
     private static boolean isValidUsername(String username) {
         username = username.replaceFirst("" + USERNAME_INDICATOR, "");
         String[] usernameParts = username.split(":");
-        return Stream.of(usernameParts)
-                .allMatch(p -> USERNAME_PATTERN.matcher(p).matches());
+        return Stream.of(usernameParts).allMatch(p -> USERNAME_PATTERN.matcher(p).matches());
     }
 
     /**
-     * Returns a String with username.
-     * '@' character or whatever indicator of it being username is included in the returned value
+     * Returns a String with username. '@' character or whatever indicator of it being username is included in the
+     * returned value
      *
      * @param url url to extract username from
      * @return username if username is specified in the url, null otherwise

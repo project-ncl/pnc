@@ -36,7 +36,10 @@ public class BuildRecordPushRestClient extends AbstractRestClient<ResultRest[]> 
     }
 
     public RestResponse<ResultRest[]> complete(BuildRecordPushResultRest pushResultRest) {
-        return post(BUILD_RECORD_PUSH_REST_ENDPOINT + pushResultRest.getBuildRecordId() + "/complete/", pushResultRest, false);
+        return post(
+                BUILD_RECORD_PUSH_REST_ENDPOINT + pushResultRest.getBuildRecordId() + "/complete/",
+                pushResultRest,
+                false);
     }
 
     public BuildRecordPushResultRest getStatus(Integer buildRecordId) {

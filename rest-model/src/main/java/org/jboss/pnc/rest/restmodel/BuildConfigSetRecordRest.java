@@ -75,17 +75,22 @@ public class BuildConfigSetRecordRest implements GenericRestEntity<Integer> {
         this.id = buildConfigSetRecord.getId();
         this.startTime = buildConfigSetRecord.getStartTime();
         this.endTime = buildConfigSetRecord.getEndTime();
-        performIfNotNull(buildConfigSetRecord.getBuildConfigurationSet(),
+        performIfNotNull(
+                buildConfigSetRecord.getBuildConfigurationSet(),
                 () -> buildConfigurationSetId = buildConfigSetRecord.getBuildConfigurationSet().getId());
-        performIfNotNull(buildConfigSetRecord.getBuildConfigurationSet(),
+        performIfNotNull(
+                buildConfigSetRecord.getBuildConfigurationSet(),
                 () -> buildConfigurationSetName = buildConfigSetRecord.getBuildConfigurationSet().getName());
         performIfNotNull(buildConfigSetRecord.getUser(), () -> userId = buildConfigSetRecord.getUser().getId());
         performIfNotNull(buildConfigSetRecord.getUser(), () -> username = buildConfigSetRecord.getUser().getUsername());
-        performIfNotNull(buildConfigSetRecord.getProductVersion(),
+        performIfNotNull(
+                buildConfigSetRecord.getProductVersion(),
                 () -> productVersionId = buildConfigSetRecord.getProductVersion().getId());
         this.status = buildConfigSetRecord.getStatus();
         requireNonNull(buildConfigSetRecord.getBuildRecords());
-        this.buildRecordIds = buildConfigSetRecord.getBuildRecords().stream().map(BuildRecord::getId)
+        this.buildRecordIds = buildConfigSetRecord.getBuildRecords()
+                .stream()
+                .map(BuildRecord::getId)
                 .collect(Collectors.toSet());
         this.temporaryBuild = buildConfigSetRecord.isTemporaryBuild();
     }

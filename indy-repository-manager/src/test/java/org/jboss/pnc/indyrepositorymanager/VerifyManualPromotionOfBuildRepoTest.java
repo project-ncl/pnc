@@ -58,7 +58,12 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractImportTest {
 
         // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession session = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
 
         String pkgType = MAVEN_PKG_KEY;
 

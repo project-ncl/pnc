@@ -20,9 +20,7 @@ package org.jboss.pnc.enums;
 import org.jboss.pnc.enums.MilestoneReleaseStatus;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/26/16
- * Time: 2:39 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/26/16 Time: 2:39 PM
  */
 public enum ReleaseStatus {
     SUCCESS(MilestoneReleaseStatus.SUCCEEDED),
@@ -30,7 +28,6 @@ public enum ReleaseStatus {
     SET_UP_ERROR(MilestoneReleaseStatus.SYSTEM_ERROR);
 
     private final MilestoneReleaseStatus milestoneReleaseStatus;
-
 
     ReleaseStatus(MilestoneReleaseStatus milestoneReleaseStatus) {
         this.milestoneReleaseStatus = milestoneReleaseStatus;

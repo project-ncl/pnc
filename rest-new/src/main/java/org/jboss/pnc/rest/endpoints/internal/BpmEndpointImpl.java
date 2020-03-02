@@ -35,7 +35,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-
 public class BpmEndpointImpl implements BpmEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BpmEndpointImpl.class);
@@ -58,8 +57,9 @@ public class BpmEndpointImpl implements BpmEndpoint {
             node = JsonOutputConverterMapper.getMapper().readTree(content);
 
         } catch (IOException e) {
-            throw new RuntimeException("Could not get JSON from request data. " +
-                    "Verify it is not empty and in the correct format.", e);
+            throw new RuntimeException(
+                    "Could not get JSON from request data. " + "Verify it is not empty and in the correct format.",
+                    e);
         }
 
         if (!node.has("eventType")) {
@@ -73,8 +73,10 @@ public class BpmEndpointImpl implements BpmEndpoint {
         try {
             notification = JsonOutputConverterMapper.getMapper().readValue(node.traverse(), eventType.getType());
         } catch (IOException e) {
-            throw new RuntimeException("Could not deserialize JSON request for event type '" + eventTypeName + "' " +
-                    " into '" + eventType.getType() + "'. JSON value: " + content, e);
+            throw new RuntimeException(
+                    "Could not deserialize JSON request for event type '" + eventTypeName + "' " + " into '"
+                            + eventType.getType() + "'. JSON value: " + content,
+                    e);
         }
 
         logger.debug("Received notification {} for BPM task with id {}.", notification, taskId);
@@ -84,7 +86,7 @@ public class BpmEndpointImpl implements BpmEndpoint {
     private String readContent(InputStream inputStream) throws IOException {
 
         try (InputStreamReader streamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-             BufferedReader reader = new BufferedReader(streamReader)) {
+                BufferedReader reader = new BufferedReader(streamReader)) {
 
             StringBuilder result = new StringBuilder();
             String line;

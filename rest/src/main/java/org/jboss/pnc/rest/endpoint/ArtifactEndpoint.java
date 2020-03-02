@@ -52,7 +52,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PA
 @Path("/artifacts")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class ArtifactEndpoint extends AbstractEndpoint<Artifact,ArtifactRest> {
+public class ArtifactEndpoint extends AbstractEndpoint<Artifact, ArtifactRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpoint.class);
 
@@ -68,21 +68,28 @@ public class ArtifactEndpoint extends AbstractEndpoint<Artifact,ArtifactRest> {
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @QueryParam("sha256") String sha256,
             @QueryParam("md5") String md5,
             @QueryParam("sha1") String sha1) {
-        return fromCollection(artifactProvider.getAll(pageIndex, pageSize, sort, q, Optional.ofNullable(sha256),
-                Optional.ofNullable(md5), Optional.ofNullable(sha1)));
+        return fromCollection(
+                artifactProvider.getAll(
+                        pageIndex,
+                        pageSize,
+                        sort,
+                        q,
+                        Optional.ofNullable(sha256),
+                        Optional.ofNullable(md5),
+                        Optional.ofNullable(sha1)));
     }
 
     @GET
     @Path("/{id}")
-    public Response getSpecific(
-            @PathParam("id") Integer id) {
+    public Response getSpecific(@PathParam("id") Integer id) {
         return super.getSpecific(id);
     }
 }

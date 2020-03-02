@@ -41,16 +41,16 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
 
     @Inject
     private ProductVersionProvider productVersionProvider;
-    
+
     @Inject
     private BuildConfigurationProvider buildConfigurationProvider;
-    
+
     @Inject
     private GroupConfigurationProvider groupConfigurationProvider;
-    
+
     @Inject
     private ProductMilestoneProvider productMilestoneProvider;
-    
+
     @Inject
     private ProductReleaseProvider productReleaseProvider;
 

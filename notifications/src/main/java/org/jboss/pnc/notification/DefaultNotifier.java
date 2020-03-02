@@ -103,8 +103,8 @@ public class DefaultNotifier implements Notifier {
             buildSchedulerId = "does-not-match";
         }
 
-        if (BpmBuildScheduler.schedulerId.equals(buildSchedulerId) &&
-                !bpmManagerInstance.isUnsatisfied() && !bpmManagerInstance.isAmbiguous()) {
+        if (BpmBuildScheduler.schedulerId.equals(buildSchedulerId) && !bpmManagerInstance.isUnsatisfied()
+                && !bpmManagerInstance.isAmbiguous()) {
             bpmManager = Optional.of(bpmManagerInstance.get());
         } else {
             bpmManager = Optional.empty();
@@ -128,9 +128,7 @@ public class DefaultNotifier implements Notifier {
 
     @Override
     public Optional<AttachedClient> getAttachedClient(String sessionId) {
-        return attachedClients.stream()
-                .filter(client -> client.getSessionId().equals(sessionId))
-                .findAny();
+        return attachedClients.stream().filter(client -> client.getSessionId().equals(sessionId)).findAny();
     }
 
     @Override
@@ -140,7 +138,7 @@ public class DefaultNotifier implements Notifier {
 
     @Override
     public void sendMessage(Object message) {
-        for (AttachedClient client : attachedClients ) {
+        for (AttachedClient client : attachedClients) {
             if (client.isEnabled()) {
                 try {
                     client.sendMessage(message, messageCallback);
@@ -155,7 +153,8 @@ public class DefaultNotifier implements Notifier {
     @Override
     public void onBpmProcessClientSubscribe(AttachedClient client, String messagesId) {
         if (bpmManager.isPresent()) {
-            Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager.get(), Integer.valueOf(messagesId));
+            Optional<BpmTask> maybeTask = BpmBuildTask
+                    .getBpmTaskByBuildTaskId(bpmManager.get(), Integer.valueOf(messagesId));
             if (maybeTask.isPresent()) {
                 BpmTask bpmTask = maybeTask.get();
                 Optional<BpmEvent> maybeLastEvent = bpmTask.getEvents().stream().reduce((first, second) -> second);
@@ -178,7 +177,7 @@ public class DefaultNotifier implements Notifier {
     }
 
     public void cleanUp() {
-        for (AttachedClient client : attachedClients ) {
+        for (AttachedClient client : attachedClients) {
             if (!client.isEnabled()) {
                 detachClient(client);
             }
@@ -193,7 +192,10 @@ public class DefaultNotifier implements Notifier {
 
     public void collectBuildStatusChangedEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
         logger.trace("Observed new status changed event {}.", buildStatusChangedEvent);
-        sendMessage(new BuildChangedNotification(buildStatusChangedEvent.getOldStatus(), buildStatusChangedEvent.getBuild()));
+        sendMessage(
+                new BuildChangedNotification(
+                        buildStatusChangedEvent.getOldStatus(),
+                        buildStatusChangedEvent.getBuild()));
         logger.trace("Status changed event processed {}.", buildStatusChangedEvent);
     }
 

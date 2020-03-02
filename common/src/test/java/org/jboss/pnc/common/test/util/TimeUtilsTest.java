@@ -39,12 +39,12 @@ public class TimeUtilsTest {
     @Test
     public void generateTimestampValidTest() {
         // given
-        Date date = new Date(1512050025464L); //Nov 30, 2017 1:53:45 PM (2017-11-30-13:53:45) UTC (464 milliseconds)
+        Date date = new Date(1512050025464L); // Nov 30, 2017 1:53:45 PM (2017-11-30-13:53:45) UTC (464 milliseconds)
 
-        //when
+        // when
         String timestamp = TimeUtils.generateTimestamp(true, date);
 
-        //then
+        // then
         assertEquals("t20171130-135345-464", timestamp);
     }
 
@@ -52,7 +52,7 @@ public class TimeUtilsTest {
     public void generateCorrectTimeStampFormatForSingleDigitDates() {
         // given
         // test that TimeUtils appends an extra '0' when month, day, or time is a single digit
-        Date date = new Date(1501722185009L); //Aug 03, 2017 1:03:05 AM (2017-08-03-01:03:05) UTC (9 milliseconds)
+        Date date = new Date(1501722185009L); // Aug 03, 2017 1:03:05 AM (2017-08-03-01:03:05) UTC (9 milliseconds)
 
         // when
         String timestamp = TimeUtils.generateTimestamp(true, date);
@@ -66,10 +66,10 @@ public class TimeUtilsTest {
         // given
         Date now = new Date();
 
-        //when
+        // when
         Date date = TimeUtils.getDateXDaysAgo(14);
 
-        //then
+        // then
         assertTrue(date.before(now));
     }
 }

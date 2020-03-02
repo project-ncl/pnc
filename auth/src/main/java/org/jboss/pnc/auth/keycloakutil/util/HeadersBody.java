@@ -31,7 +31,6 @@ public class HeadersBody {
     private Headers headers;
     private InputStream body;
 
-
     public HeadersBody(Headers headers) {
         this.headers = headers;
     }
@@ -50,7 +49,7 @@ public class HeadersBody {
     }
 
     public String readBodyString() {
-        byte [] buffer = readBodyBytes();
+        byte[] buffer = readBodyBytes();
         return new String(buffer, Charset.forName(getContentCharset()));
     }
 

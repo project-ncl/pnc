@@ -26,7 +26,6 @@ import javax.inject.Inject;
 
 import org.jboss.pnc.enums.RepositoryType;
 
-
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  */

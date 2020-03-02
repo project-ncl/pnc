@@ -30,8 +30,9 @@ import org.mapstruct.Mapping;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class, MapSetMapper.class})
-public interface GroupConfigurationMapper extends EntityMapper<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
+@Mapper(config = MapperCentralConfig.class, uses = { ProductVersionMapper.class, MapSetMapper.class })
+public interface GroupConfigurationMapper
+        extends EntityMapper<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
 
     @Override
     default BuildConfigurationSet toIDEntity(GroupConfigurationRef dtoEntity) {
@@ -51,13 +52,16 @@ public interface GroupConfigurationMapper extends EntityMapper<Integer, BuildCon
     BuildConfigurationSet toEntity(GroupConfiguration dtoEntity);
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"productVersion", "buildConfigurations",
-        "buildConfigSetRecords", "archived", "active", "currentProductMilestone"})
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "productVersion", "buildConfigurations", "buildConfigSetRecords",
+                    "archived", "active", "currentProductMilestone" })
     GroupConfigurationRef toRef(BuildConfigurationSet dbEntity);
 
     @Override
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "buildConfigs", source = "buildConfigurations")
-    @BeanMapping(ignoreUnmappedSourceProperties = {"buildConfigSetRecords", "active", "currentProductMilestone", "archived"})
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "buildConfigSetRecords", "active", "currentProductMilestone",
+                    "archived" })
     GroupConfiguration toDTO(BuildConfigurationSet dbEntity);
 }

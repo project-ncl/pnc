@@ -57,7 +57,8 @@ public class CustomSequenceConfiguration {
                 logger.info("Dropping sequence {} ...", sequenceName);
                 sequenceHandlerRepository.dropSequence(sequenceName);
             } catch (Exception e) {
-                logger.debug("Error encountered when dropping sequence {} in 'create' or 'create-drop' schema phase. This can be safely ignored, as is due to db schema and/or sequence not yet existing.",
+                logger.debug(
+                        "Error encountered when dropping sequence {} in 'create' or 'create-drop' schema phase. This can be safely ignored, as is due to db schema and/or sequence not yet existing.",
                         sequenceName);
             }
 
@@ -77,7 +78,8 @@ public class CustomSequenceConfiguration {
                 logger.info("Updating sequence {} ...", sequenceName);
                 sequenceHandlerRepository.createSequence(sequenceName);
             } catch (Exception e) {
-                logger.debug("Error encountered when creating sequence {} in 'update' schema phase. This can be safely ignored, as is due to sequence already existing.",
+                logger.debug(
+                        "Error encountered when creating sequence {} in 'update' schema phase. This can be safely ignored, as is due to sequence already existing.",
                         sequenceName);
             }
 

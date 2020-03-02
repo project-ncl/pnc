@@ -33,20 +33,24 @@ public class TargetRepositoryPredicates {
     public static Predicate<TargetRepository> byIdentifierAndPath(String identifier, String repositoryPath) {
         return (root, query, cb) -> cb.and(
                 cb.equal(root.get(TargetRepository_.identifier), identifier),
-                cb.equal(root.get(TargetRepository_.repositoryPath), repositoryPath)
-                );
+                cb.equal(root.get(TargetRepository_.repositoryPath), repositoryPath));
     }
 
-    public static Predicate<TargetRepository> withIdentifierAndPathIn(Set<TargetRepository.IdentifierPath> identifierAndPaths) {
+    public static Predicate<TargetRepository> withIdentifierAndPathIn(
+            Set<TargetRepository.IdentifierPath> identifierAndPaths) {
         Set<String> identifiers = identifierAndPaths.stream().map(ip -> ip.getIdentifier()).collect(Collectors.toSet());
-        Set<String> identifierAndPathStrings = identifierAndPaths.stream().map(ip -> ip.toString()).collect(Collectors.toSet());
+        Set<String> identifierAndPathStrings = identifierAndPaths.stream()
+                .map(ip -> ip.toString())
+                .collect(Collectors.toSet());
         return (root, query, cb) -> {
-            Expression<String> concatPart = cb.concat(root.get(TargetRepository_.identifier), TargetRepository.IdentifierPath.TO_STRING_DELIMITER);
+            Expression<String> concatPart = cb.concat(
+                    root.get(TargetRepository_.identifier),
+                    TargetRepository.IdentifierPath.TO_STRING_DELIMITER);
             Expression<String> concat = cb.concat(concatPart, root.get(TargetRepository_.repositoryPath));
             return cb.and(
-                    root.get(TargetRepository_.identifier).in(identifiers), //optimization: don't concatenate all the entries
-                    concat.in(identifierAndPathStrings)
-            );
+                    root.get(TargetRepository_.identifier).in(identifiers), // optimization: don't concatenate all the
+                                                                            // entries
+                    concat.in(identifierAndPathStrings));
         };
     }
 }

@@ -30,7 +30,7 @@ import java.util.Map;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 public class SwaggerGraphs {
-    public class BuildsGraph extends Graph<Build>{
+    public class BuildsGraph extends Graph<Build> {
 
         public BuildsGraph(Map<String, Vertex<Build>> vertices, List<Edge<Build>> edges, Map<String, String> metadata) {
             super(vertices, edges, metadata);

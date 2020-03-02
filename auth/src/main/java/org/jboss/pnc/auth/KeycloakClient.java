@@ -36,11 +36,23 @@ import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.urlencode;
  */
 class KeycloakClient {
 
-    static AccessTokenResponse getAuthTokensBySecret(String server, String realm, String clientId, String secret, boolean sslRequired) {
+    static AccessTokenResponse getAuthTokensBySecret(
+            String server,
+            String realm,
+            String clientId,
+            String secret,
+            boolean sslRequired) {
         return getAuthTokensBySecret(server, realm, null, null, clientId, secret, sslRequired);
     }
 
-    static AccessTokenResponse getAuthTokensBySecret(String server, String realm, String user, String password, String clientId, String secret, boolean sslRequired) {
+    static AccessTokenResponse getAuthTokensBySecret(
+            String server,
+            String realm,
+            String user,
+            String password,
+            String clientId,
+            String secret,
+            boolean sslRequired) {
         StringBuilder body = new StringBuilder();
         try {
             if (user != null) {
@@ -48,17 +60,24 @@ class KeycloakClient {
                     throw new RuntimeException("No password specified");
                 }
 
-                body.append("client_id=").append(urlencode(clientId))
+                body.append("client_id=")
+                        .append(urlencode(clientId))
                         .append("&grant_type=password")
-                        .append("&username=").append(urlencode(user))
-                        .append("&password=").append(urlencode(password));
+                        .append("&username=")
+                        .append(urlencode(user))
+                        .append("&password=")
+                        .append(urlencode(password));
             } else {
                 body.append("grant_type=client_credentials");
             }
 
             setSslRequired(sslRequired);
-            InputStream result = doPost(server + "/realms/" + realm + "/protocol/openid-connect/token",
-                    APPLICATION_FORM_URL_ENCODED, APPLICATION_JSON, body.toString(), BasicAuthHelper.createHeader(clientId, secret));
+            InputStream result = doPost(
+                    server + "/realms/" + realm + "/protocol/openid-connect/token",
+                    APPLICATION_FORM_URL_ENCODED,
+                    APPLICATION_JSON,
+                    body.toString(),
+                    BasicAuthHelper.createHeader(clientId, secret));
             return JsonSerialization.readValue(result, AccessTokenResponse.class);
 
         } catch (UnsupportedEncodingException e) {

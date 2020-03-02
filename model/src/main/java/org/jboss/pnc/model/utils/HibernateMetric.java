@@ -54,8 +54,14 @@ public class HibernateMetric implements Serializable {
 
     @Override
     public String toString() {
-        return new StringBuilder().append("[name=").append(name).append(",description=").append(description).append(",value=")
-                .append(value).append(']').toString();
+        return new StringBuilder().append("[name=")
+                .append(name)
+                .append(",description=")
+                .append(description)
+                .append(",value=")
+                .append(value)
+                .append(']')
+                .toString();
     }
 
     @Override

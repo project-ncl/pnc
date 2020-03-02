@@ -60,7 +60,8 @@ public class ClientMockFactory implements ClientFactory {
         return new FileTranser() {
 
             @Override
-            public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) throws TransferException {
+            public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri)
+                    throws TransferException {
                 return new StringBuffer();
             }
 

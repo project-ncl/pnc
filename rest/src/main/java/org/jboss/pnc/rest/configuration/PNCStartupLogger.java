@@ -54,7 +54,8 @@ public class PNCStartupLogger implements ServletContextListener, ServletContaine
     private String getManifestInformation() {
         String result = "";
         try {
-            final Enumeration<URL> resources = PNCStartupLogger.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
+            final Enumeration<URL> resources = PNCStartupLogger.class.getClassLoader()
+                    .getResources("META-INF/MANIFEST.MF");
 
             while (resources.hasMoreElements()) {
                 final URL jarUrl = resources.nextElement();

@@ -62,22 +62,11 @@ public class TermdServer {
     public static void startServer(String host, int port, String bindPath, Optional<Path> logFolder)
             throws InterruptedException, BuildAgentException {
         try {
-            IoLoggerName[] primaryLoggers = {IoLoggerName.FILE};
-            Options options = new Options(
-                    host,
-                    port,
-                    bindPath,
-                    true,
-                    false
-            );
+            IoLoggerName[] primaryLoggers = { IoLoggerName.FILE };
+            Options options = new Options(host, port, bindPath, true, false);
             Map<String, String> mdcMap = new HashMap<>();
             mdcMap.put("ctx", RandomUtils.randString(6));
-            buildAgent = new BuildAgentServer(
-                    logFolder,
-                    Optional.empty(),
-                    primaryLoggers,
-                    options,
-                    mdcMap);
+            buildAgent = new BuildAgentServer(logFolder, Optional.empty(), primaryLoggers, options, mdcMap);
             log.info("Server started.");
         } catch (BuildAgentException e) {
             throw new RuntimeException("Cannot start build agent.", e);

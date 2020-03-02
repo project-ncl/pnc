@@ -33,9 +33,11 @@ public class DefaultCausewayClientTest {
         // given
         ClassLoader classLoader = getClass().getClassLoader();
         String originalJsonMessage = FileUtils.readFileToString(
-                new File(classLoader.getResource("bodyJsonMessage.json").getFile()), Charset.forName("UTF-8"));
+                new File(classLoader.getResource("bodyJsonMessage.json").getFile()),
+                Charset.forName("UTF-8"));
         String expectedSecuredJson = FileUtils.readFileToString(
-                new File(classLoader.getResource("bodyJsonMessageSecure.json").getFile()), Charset.forName("UTF-8"));
+                new File(classLoader.getResource("bodyJsonMessageSecure.json").getFile()),
+                Charset.forName("UTF-8"));
 
         // when
         String securedJson = new DefaultCausewayClient().secureBodyLog(originalJsonMessage);

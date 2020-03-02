@@ -42,29 +42,29 @@ public interface RepositoryManager {
      * @return The new repository session
      * @throws RepositoryManagerException If there is a problem creating the repository
      */
-    RepositorySession createBuildRepository(BuildExecution buildExecution,
-                                            String accessToken,
-                                            String serviceAccountToken,
-                                            RepositoryType repositoryType,
-                                            Map<String,String> genericParameters) throws RepositoryManagerException;
+    RepositorySession createBuildRepository(
+            BuildExecution buildExecution,
+            String accessToken,
+            String serviceAccountToken,
+            RepositoryType repositoryType,
+            Map<String, String> genericParameters) throws RepositoryManagerException;
 
     /**
-     * Collects processed repository manager result for a previously finished build for any repair work needed.
-     * This reads the tracking report and collects the downloads and uploads the same way as they are collected
-     * at the end of a successful build.
+     * Collects processed repository manager result for a previously finished build for any repair work needed. This
+     * reads the tracking report and collects the downloads and uploads the same way as they are collected at the end of
+     * a successful build.
      *
      * @param buildContentId string identifier of the build
      * @param tempBuild flag if this is a temporary build
      * @return repository manager result
-     * @throws RepositoryManagerException
-     *             in case of an error when collecting the build artifacts and dependencies
+     * @throws RepositoryManagerException in case of an error when collecting the build artifacts and dependencies
      */
     RepositoryManagerResult collectRepoManagerResult(Integer id) throws RepositoryManagerException;
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the
-     * repository group with the given ID.
-     * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryPromotion} instance.
+     * repository group with the given ID. Note that the operation won't start until monitoring starts for the returned
+     * {@link RunningRepositoryPromotion} instance.
      *
      * @param buildRecord The build output to promote
      * @param pakageType package type key used by repository manager
@@ -74,13 +74,16 @@ public interface RepositoryManager {
      *
      * @throws RepositoryManagerException If there is a problem promoting the build
      */
-    RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String pakageType, String toGroup,
+    RunningRepositoryPromotion promoteBuild(
+            BuildRecord buildRecord,
+            String pakageType,
+            String toGroup,
             String accessToken) throws RepositoryManagerException;
 
     /**
-     * Used to purge the artifacts that were output from a given build (including the specific hosted repository which was used
-     * for that build).
-     * Note that the operation won't start until monitoring starts for the returned {@link RunningRepositoryDeletion} instance.
+     * Used to purge the artifacts that were output from a given build (including the specific hosted repository which
+     * was used for that build). Note that the operation won't start until monitoring starts for the returned
+     * {@link RunningRepositoryDeletion} instance.
      *
      * @param buildRecord The build whose artifacts/repositories should be removed
      * @param pakageType package type key used by repository manager

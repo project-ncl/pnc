@@ -45,8 +45,8 @@ public class ExtraDependencyRepositoriesTest extends AbstractImportTest {
 
     @Test
     public void shouldExtractReposFromString() {
-        Map<String, String> genericParams = createGenericParamsMap("http://central.maven.org/maven2/\n" +
-                "https://maven.repository.redhat.com/ga/");
+        Map<String, String> genericParams = createGenericParamsMap(
+                "http://central.maven.org/maven2/\n" + "https://maven.repository.redhat.com/ga/");
 
         List<ArtifactRepository> repos = driver.extractExtraRepositoriesFromGenericParameters(genericParams);
         assertEquals(2, repos.size());
@@ -70,16 +70,17 @@ public class ExtraDependencyRepositoriesTest extends AbstractImportTest {
         Map<String, String> genericParams = createGenericParamsMap("http://test.com/maven/");
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession repositorySession = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, genericParams);
+        RepositorySession repositorySession = driver
+                .createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, genericParams);
         assertNotNull(repositorySession);
 
-        StoreKey buildGroupKey = new StoreKey(MavenPackageTypeDescriptor.MAVEN_PKG_KEY, StoreType.group, repositorySession.getBuildRepositoryId());
+        StoreKey buildGroupKey = new StoreKey(
+                MavenPackageTypeDescriptor.MAVEN_PKG_KEY,
+                StoreType.group,
+                repositorySession.getBuildRepositoryId());
         Group buildGroup = indy.stores().load(buildGroupKey, Group.class);
 
-        long hits = buildGroup.getConstituents()
-                .stream()
-                .filter((key) -> REPO_NAME.equals(key.getName()))
-                .count();
+        long hits = buildGroup.getConstituents().stream().filter((key) -> REPO_NAME.equals(key.getName())).count();
 
         assertEquals(1, hits);
     }

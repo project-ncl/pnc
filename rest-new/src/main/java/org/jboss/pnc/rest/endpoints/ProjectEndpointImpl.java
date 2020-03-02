@@ -39,10 +39,10 @@ public class ProjectEndpointImpl implements ProjectEndpoint {
 
     @Inject
     private ProjectProvider projectProvider;
-    
+
     @Inject
     private BuildConfigurationProvider buildConfigurationProvider;
-    
+
     @Inject
     private BuildProvider buildProvider;
 

@@ -22,12 +22,8 @@ import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import java.util.HashMap;
 import java.util.Map;
 
-
-
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/22/16
- * Time: 2:20 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 2:20 PM
  */
 public class SequenceHandlerRepositoryMock implements SequenceHandlerRepository {
     private final Map<String, Long> sequences = new HashMap<>();

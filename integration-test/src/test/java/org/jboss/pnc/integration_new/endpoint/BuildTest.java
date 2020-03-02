@@ -75,8 +75,6 @@ public class BuildTest {
 
     private BuildClient buildClient = new BuildClient(asUser());
 
-
-
     @Deployment
     public static EnterpriseArchive deploy() {
         final EnterpriseArchive ear = Deployments.testEarForInContainerTest(BuildTest.class);
@@ -87,19 +85,14 @@ public class BuildTest {
         return ear;
     }
 
-
     @Test
     public void shouldTriggerBuildAndFinishWithoutProblems() throws ClientException {
-        //with
+        // with
         BuildConfiguration buildConfiguration = buildConfigurationClient.getAll().iterator().next();
 
-        //when
+        // when
         Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), getPersistentParameters(true));
-        assertThat(build)
-                .isNotNull()
-                .extracting("id")
-                    .isNotNull()
-                    .isNotEqualTo("");
+        assertThat(build).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
 
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, null), 15, TimeUnit.SECONDS);
@@ -107,31 +100,30 @@ public class BuildTest {
 
     @Test
     public void shouldTriggerBuildSetAndFinishWithoutProblems() throws ClientException {
-        //given
+        // given
         GroupConfiguration buildConfigurationSet = groupConfigurationClient.getAll().iterator().next();
 
-        //when
+        // when
         GroupBuildParameters groupBuildParameters = new GroupBuildParameters();
         groupBuildParameters.setRebuildMode(RebuildMode.FORCE);
 
-        GroupBuild groupBuild = groupConfigurationClient
-                .trigger(buildConfigurationSet.getId(),
-                        groupBuildParameters,
-                        GroupBuildRequest.builder().buildConfigurationRevisions(new ArrayList<>()).build());
-        assertThat(groupBuild)
-                .isNotNull()
-                .extracting("id")
-                .isNotNull()
-                .isNotEqualTo("");
-        //then
+        GroupBuild groupBuild = groupConfigurationClient.trigger(
+                buildConfigurationSet.getId(),
+                groupBuildParameters,
+                GroupBuildRequest.builder().buildConfigurationRevisions(new ArrayList<>()).build());
+        assertThat(groupBuild).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
+        // then
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED);
-        ResponseUtils.waitSynchronouslyFor(() -> groupBuildToFinish(groupBuild.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
+        ResponseUtils.waitSynchronouslyFor(
+                () -> groupBuildToFinish(groupBuild.getId(), isIn, isNotIn),
+                15,
+                TimeUnit.SECONDS);
     }
 
     @Test
     public void shouldTriggerBuildSetWithBCInRevisionAndFinishWithoutProblems() throws ClientException {
-        //given
+        // given
         GroupConfiguration groupConfiguration = groupConfigurationClient.getAll().iterator().next();
         assertThat(groupConfiguration.getBuildConfigs()).isNotEmpty();
 
@@ -144,40 +136,41 @@ public class BuildTest {
         buildConfigurationRevisions.add(buildConfigurationRevision);
 
         GroupBuildRequest buildConfigurationSetWithAuditedBCsRest = GroupBuildRequest.builder()
-                .buildConfigurationRevisions(buildConfigurationRevisions).build();
+                .buildConfigurationRevisions(buildConfigurationRevisions)
+                .build();
         GroupBuildParameters groupBuildParameters = new GroupBuildParameters();
         groupBuildParameters.setRebuildMode(RebuildMode.FORCE);
 
-        //when
-        GroupBuild groupBuild = groupConfigurationClient.trigger(groupConfiguration.getId(), groupBuildParameters, buildConfigurationSetWithAuditedBCsRest);
-        //then
-        assertThat(groupBuild)
-                .isNotNull()
-                .extracting("id")
-                    .isNotNull()
-                    .isNotEqualTo("");
+        // when
+        GroupBuild groupBuild = groupConfigurationClient
+                .trigger(groupConfiguration.getId(), groupBuildParameters, buildConfigurationSetWithAuditedBCsRest);
+        // then
+        assertThat(groupBuild).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
 
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED);
-        ResponseUtils.waitSynchronouslyFor(() -> groupBuildToFinish(groupBuild.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
+        ResponseUtils.waitSynchronouslyFor(
+                () -> groupBuildToFinish(groupBuild.getId(), isIn, isNotIn),
+                15,
+                TimeUnit.SECONDS);
     }
 
     @Test
     public void shouldBuildTemporaryBuildAndNotAssignItToMilestone() throws ClientException {
-        // BC pnc-1.0.0.DR1 is assigned to a product version containing an active product milestone see DatabaseDataInitializer#initiliazeProjectProductData
-        BuildConfiguration buildConfiguration = buildConfigurationClient.getAll(Optional.empty(),Optional.of("name==pnc-1.0.0.DR1")).iterator().next();
+        // BC pnc-1.0.0.DR1 is assigned to a product version containing an active product milestone see
+        // DatabaseDataInitializer#initiliazeProjectProductData
+        BuildConfiguration buildConfiguration = buildConfigurationClient
+                .getAll(Optional.empty(), Optional.of("name==pnc-1.0.0.DR1"))
+                .iterator()
+                .next();
 
-        //when
+        // when
 
         Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), getTemporaryParameters(true));
 
-        //then
+        // then
 
-        assertThat(build)
-                .isNotNull()
-                .extracting("id")
-                    .isNotNull()
-                    .isNotEqualTo("");
+        assertThat(build).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
 
         ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId()), 15, TimeUnit.SECONDS);
 
@@ -187,59 +180,90 @@ public class BuildTest {
 
     @Test
     public void shouldTriggerPersistentWithoutForceAfterTemporaryOnTheSameRev() throws ClientException {
-        BuildConfiguration buildConfiguration = buildConfigurationClient.getAll(Optional.empty(),Optional.of("name==maven-plugin-test")).iterator().next();
+        BuildConfiguration buildConfiguration = buildConfigurationClient
+                .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
+                .iterator()
+                .next();
 
-        BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder().description("Random Description to be able to trigger build again so that temporary build will be first on this revision").build();
-        buildConfigurationClient.update(updatedConfiguration.getId(),updatedConfiguration);
+        BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder()
+                .description(
+                        "Random Description to be able to trigger build again so that temporary build will be first on this revision")
+                .build();
+        buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
 
         Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), getTemporaryParameters());
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, isNotIn) , 15, TimeUnit.SECONDS);
+        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
 
-        Build afterTempPersistentBuild = buildConfigurationClient.trigger(buildConfiguration.getId(), getPersistentParameters());
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(afterTempPersistentBuild.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
+        Build afterTempPersistentBuild = buildConfigurationClient
+                .trigger(buildConfiguration.getId(), getPersistentParameters());
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildToFinish(afterTempPersistentBuild.getId(), isIn, isNotIn),
+                15,
+                TimeUnit.SECONDS);
     }
 
-    //NCL-5192
-    //Replicates NCL-5192 through explicit dependency instead of implicit
+    // NCL-5192
+    // Replicates NCL-5192 through explicit dependency instead of implicit
     @Test
     public void dontRebuildTemporaryBuildWhenThereIsNewerPersistentOnSameRev() throws ClientException {
-        BuildConfiguration parent = buildConfigurationClient.getAll(Optional.empty(),Optional.of("name==pnc-build-agent-0.4")).iterator().next();
-        BuildConfiguration dependency = buildConfigurationClient.getAll(Optional.empty(),Optional.of("name==termd")).iterator().next();
+        BuildConfiguration parent = buildConfigurationClient
+                .getAll(Optional.empty(), Optional.of("name==pnc-build-agent-0.4"))
+                .iterator()
+                .next();
+        BuildConfiguration dependency = buildConfigurationClient.getAll(Optional.empty(), Optional.of("name==termd"))
+                .iterator()
+                .next();
 
-        BuildConfiguration updatedParent = parent.toBuilder().description("Random Description to be able to trigger build again so that temporary build will be first on this revision").build();
-        buildConfigurationClient.update(updatedParent.getId(),updatedParent);
+        BuildConfiguration updatedParent = parent.toBuilder()
+                .description(
+                        "Random Description to be able to trigger build again so that temporary build will be first on this revision")
+                .build();
+        buildConfigurationClient.update(updatedParent.getId(), updatedParent);
 
-        BuildConfiguration updatedDependency = dependency.toBuilder().description("Random Description so it rebuilds").build();
-        buildConfigurationClient.update(updatedDependency.getId(),updatedDependency);
+        BuildConfiguration updatedDependency = dependency.toBuilder()
+                .description("Random Description so it rebuilds")
+                .build();
+        buildConfigurationClient.update(updatedDependency.getId(), updatedDependency);
 
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
 
-        //Build temporary builds (parent and dependency) on new revision
+        // Build temporary builds (parent and dependency) on new revision
         Build temporaryBuild = buildConfigurationClient.trigger(parent.getId(), getTemporaryParameters());
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(temporaryBuild.getId(), isIn, isNotIn) , 15, TimeUnit.SECONDS);
+        ResponseUtils
+                .waitSynchronouslyFor(() -> buildToFinish(temporaryBuild.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
 
-        //Build persistent build of dependency on the same revision
-        Build dependencyPersistentBuild = buildConfigurationClient.trigger(dependency.getId(), getPersistentParameters());
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(dependencyPersistentBuild.getId(), isIn, isNotIn) , 15, TimeUnit.SECONDS);
+        // Build persistent build of dependency on the same revision
+        Build dependencyPersistentBuild = buildConfigurationClient
+                .trigger(dependency.getId(), getPersistentParameters());
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildToFinish(dependencyPersistentBuild.getId(), isIn, isNotIn),
+                15,
+                TimeUnit.SECONDS);
 
-        //Build temporary build of parent and check it gets REJECTED even if it's dependency has newer record
-        //(in this case temp build should ignore persistent one)
+        // Build temporary build of parent and check it gets REJECTED even if it's dependency has newer record
+        // (in this case temp build should ignore persistent one)
         Build finalRecord = buildConfigurationClient.trigger(parent.getId(), getTemporaryParameters());
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(finalRecord.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null) , 15, TimeUnit.SECONDS);
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildToFinish(finalRecord.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
+                15,
+                TimeUnit.SECONDS);
     }
 
     private BuildParameters getTemporaryParameters() {
         return getBuildParameters(true, false);
     }
+
     private BuildParameters getPersistentParameters() {
         return getBuildParameters(false, false);
     }
+
     private BuildParameters getTemporaryParameters(boolean force) {
         return getBuildParameters(true, force);
     }
+
     private BuildParameters getPersistentParameters(boolean force) {
         return getBuildParameters(false, force);
     }
@@ -249,23 +273,40 @@ public class BuildTest {
 
         buildParameters.setTemporaryBuild(temporary);
         buildParameters.setBuildDependencies(true);
-        if (force) buildParameters.setRebuildMode(RebuildMode.FORCE);
+        if (force)
+            buildParameters.setRebuildMode(RebuildMode.FORCE);
 
         return buildParameters;
     }
 
     @Test
     public void shouldRejectAfterBuildingTwoTempBuildsOnSameRevision() throws ClientException {
-        BuildConfiguration buildConfiguration = buildConfigurationClient.getAll(Optional.empty(),Optional.of("name==maven-plugin-test")).iterator().next();
+        BuildConfiguration buildConfiguration = buildConfigurationClient
+                .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
+                .iterator()
+                .next();
 
-        BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder().description("Random Description to be able to trigger build again so that temporary build will be first on this revision").build();
-        buildConfigurationClient.update(updatedConfiguration.getId(),updatedConfiguration);
+        BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder()
+                .description(
+                        "Random Description to be able to trigger build again so that temporary build will be first on this revision")
+                .build();
+        buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
 
         Build temporaryBuild = buildConfigurationClient.trigger(updatedConfiguration.getId(), getTemporaryParameters());
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(temporaryBuild.getId(), EnumSet.of(BuildStatus.SUCCESS), null) , 15, TimeUnit.SECONDS);
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildToFinish(temporaryBuild.getId(), EnumSet.of(BuildStatus.SUCCESS), null),
+                15,
+                TimeUnit.SECONDS);
 
-        Build secondTempBuild = buildConfigurationClient.trigger(updatedConfiguration.getId(), getTemporaryParameters());
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(secondTempBuild.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), EnumSet.of(BuildStatus.SUCCESS, BuildStatus.REJECTED)) , 15, TimeUnit.SECONDS);
+        Build secondTempBuild = buildConfigurationClient
+                .trigger(updatedConfiguration.getId(), getTemporaryParameters());
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildToFinish(
+                        secondTempBuild.getId(),
+                        EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED),
+                        EnumSet.of(BuildStatus.SUCCESS, BuildStatus.REJECTED)),
+                15,
+                TimeUnit.SECONDS);
     }
 
     private Boolean buildToFinish(String id) {
@@ -283,22 +324,27 @@ public class BuildTest {
             build = buildClient.getSpecific(buildId);
             assertThat(build).isNotNull();
             logger.debug("Gotten build with status: {}", build.getStatus());
-            if (!build.getStatus().isFinal()) return false;
+            if (!build.getStatus().isFinal())
+                return false;
         } catch (RemoteResourceNotFoundException e) {
             fail(String.format("Build with id:{} not present", buildId), e);
         } catch (ClientException e) {
-            fail("Client has failed in an unexpected way.",e);
+            fail("Client has failed in an unexpected way.", e);
         }
         assertThat(build).isNotNull();
         assertThat(build.getStatus()).isNotNull();
-        if (isIn != null && !isIn.isEmpty()) assertThat(build.getStatus()).isIn(isIn);
-        if (isNotIn != null && !isNotIn.isEmpty()) assertThat(build.getStatus()).isNotIn(isNotIn);
+        if (isIn != null && !isIn.isEmpty())
+            assertThat(build.getStatus()).isIn(isIn);
+        if (isNotIn != null && !isNotIn.isEmpty())
+            assertThat(build.getStatus()).isNotIn(isNotIn);
         return true;
     }
 
     private Boolean groupBuildToFinish(String groupBuildId, EnumSet<BuildStatus> isIn, EnumSet<BuildStatus> isNotIn) {
-        if (isIn == null) isIn = EnumSet.noneOf(BuildStatus.class);
-        if (isNotIn == null) isNotIn = EnumSet.noneOf(BuildStatus.class);
+        if (isIn == null)
+            isIn = EnumSet.noneOf(BuildStatus.class);
+        if (isNotIn == null)
+            isNotIn = EnumSet.noneOf(BuildStatus.class);
 
         GroupBuild build = null;
         logger.debug("Waiting for build {} to finish", groupBuildId);
@@ -306,15 +352,14 @@ public class BuildTest {
             build = groupBuildClient.getSpecific(groupBuildId);
             assertThat(build).isNotNull();
             logger.debug("Gotten build with status: {}", build.getStatus());
-            if (!build.getStatus().isFinal()) return false;
+            if (!build.getStatus().isFinal())
+                return false;
         } catch (RemoteResourceNotFoundException e) {
-            fail(String.format("Group Build with id:%s not present", groupBuildId),e);
+            fail(String.format("Group Build with id:%s not present", groupBuildId), e);
         } catch (ClientException e) {
-            fail("Client has failed in an unexpected way.",e);
+            fail("Client has failed in an unexpected way.", e);
         }
-        assertThat(build.getStatus())
-                .isNotIn(isNotIn)
-                .isIn(isIn);
+        assertThat(build.getStatus()).isNotIn(isNotIn).isIn(isIn);
         return true;
     }
 }

@@ -45,11 +45,11 @@ public class MDCUtils {
                 buildTaskContext.getBuildContentId(),
                 buildTaskContext.isTemporaryBuild(),
                 buildTaskContext.getTemporaryBuildExpireDate(),
-                buildTaskContext.getUserId()
-        );
+                buildTaskContext.getUserId());
     }
 
-    public static void addBuildContext(String processContext,
+    public static void addBuildContext(
+            String processContext,
             Boolean temporaryBuild,
             Instant temporaryBuildExpireDate,
             String userId) {

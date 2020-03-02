@@ -66,29 +66,58 @@ public class RSQLNodeTravellerPredicate<Entity> {
     private final static ComparisonOperator LIKE = new ComparisonOperator("=like=");
     private final static ComparisonOperator IS_NULL = new ComparisonOperator("=isnull=");
 
-
     public RSQLNodeTravellerPredicate(Class<Entity> entityClass, String rsql) throws RSQLParserException {
         operations.put(RSQLOperators.EQUAL, new AbstractTransformer<Entity>() {
             @Override
-            Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments) {
+            Predicate transform(
+                    Root<Entity> r,
+                    Path<?> selectedPath,
+                    CriteriaBuilder cb,
+                    String operand,
+                    List<Object> convertedArguments) {
                 return cb.equal(selectedPath, convertedArguments.get(0));
             }
         });
 
         operations.put(RSQLOperators.NOT_EQUAL, new AbstractTransformer<Entity>() {
             @Override
-            Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments) {
+            Predicate transform(
+                    Root<Entity> r,
+                    Path<?> selectedPath,
+                    CriteriaBuilder cb,
+                    String operand,
+                    List<Object> convertedArguments) {
                 return cb.notEqual(selectedPath, convertedArguments.get(0));
             }
         });
 
-        operations.put(RSQLOperators.GREATER_THAN, (r, cb, clazz, operand, arguments) -> cb.greaterThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
-        operations.put(RSQLOperators.GREATER_THAN_OR_EQUAL, (r, cb, clazz, operand, arguments) -> cb.greaterThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
-        operations.put(RSQLOperators.LESS_THAN, (r, cb, clazz, operand, arguments) -> cb.lessThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
-        operations.put(RSQLOperators.LESS_THAN_OR_EQUAL, (r, cb, clazz, operand, arguments) -> cb.lessThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
-        operations.put(RSQLOperators.IN, (r, cb, clazz, operand, arguments) -> selectWithOperand(r, operand, clazz).in(arguments));
-        operations.put(RSQLOperators.NOT_IN, (r, cb, clazz, operand, arguments) -> cb.not(selectWithOperand(r, operand, clazz).in(arguments)));
-        operations.put(LIKE, (r, cb, clazz, operand, arguments) -> cb.like(cb.lower((Path) selectWithOperand(r, operand, clazz)), preprocessLikeOperatorArgument(arguments.get(0).toLowerCase())));
+        operations.put(
+                RSQLOperators.GREATER_THAN,
+                (r, cb, clazz, operand, arguments) -> cb
+                        .greaterThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(
+                RSQLOperators.GREATER_THAN_OR_EQUAL,
+                (r, cb, clazz, operand, arguments) -> cb
+                        .greaterThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(
+                RSQLOperators.LESS_THAN,
+                (r, cb, clazz, operand, arguments) -> cb
+                        .lessThan((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(
+                RSQLOperators.LESS_THAN_OR_EQUAL,
+                (r, cb, clazz, operand, arguments) -> cb
+                        .lessThanOrEqualTo((Path) selectWithOperand(r, operand, clazz), arguments.get(0)));
+        operations.put(
+                RSQLOperators.IN,
+                (r, cb, clazz, operand, arguments) -> selectWithOperand(r, operand, clazz).in(arguments));
+        operations.put(
+                RSQLOperators.NOT_IN,
+                (r, cb, clazz, operand, arguments) -> cb.not(selectWithOperand(r, operand, clazz).in(arguments)));
+        operations.put(
+                LIKE,
+                (r, cb, clazz, operand, arguments) -> cb.like(
+                        cb.lower((Path) selectWithOperand(r, operand, clazz)),
+                        preprocessLikeOperatorArgument(arguments.get(0).toLowerCase())));
         operations.put(IS_NULL, (r, cb, clazz, operand, arguments) -> {
             if (Boolean.parseBoolean(arguments.get(0))) {
                 return cb.isNull(selectWithOperand(r, operand, clazz));
@@ -133,14 +162,14 @@ public class RSQLNodeTravellerPredicate<Entity> {
                         Predicate pCombined = cb.and(p1, p2);
                         while (iterator.hasNext()) {
                             Predicate pNext = visit(iterator.next());
-                            pCombined =  cb.and(pCombined, pNext);
+                            pCombined = cb.and(pCombined, pNext);
                         }
                         return pCombined;
                     } else if (node instanceof OrNode) {
                         Predicate pCombined = cb.or(p1, p2);
                         while (iterator.hasNext()) {
                             Predicate pNext = visit(iterator.next());
-                            pCombined =  cb.or(pCombined, pNext);
+                            pCombined = cb.or(pCombined, pNext);
                         }
                         return pCombined;
                     } else {
@@ -252,6 +281,6 @@ public class RSQLNodeTravellerPredicate<Entity> {
     }
 
     private String preprocessLikeOperatorArgument(String argument) {
-        return argument.replaceAll("\\?","_").replaceAll("\\*", "%");
+        return argument.replaceAll("\\?", "_").replaceAll("\\*", "%");
     }
 }

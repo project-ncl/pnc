@@ -62,7 +62,7 @@ public class BuildSetTask {
      * @param buildOptions Build parameters
      */
     private BuildSetTask(
-            BuildConfigSetRecord buildConfigSetRecord, //TODO decouple datastore entity
+            BuildConfigSetRecord buildConfigSetRecord, // TODO decouple datastore entity
             BuildOptions buildOptions) {
         this.buildConfigSetRecord = Optional.ofNullable(buildConfigSetRecord);
         this.buildOptions = buildOptions;
@@ -78,14 +78,14 @@ public class BuildSetTask {
      */
     public void taskStatusUpdatedToFinalState() {
         // If any of the build tasks have failed or all are complete, then the build set is done
-        if(buildTasks.stream().anyMatch(bt -> bt.getStatus().equals(BuildCoordinationStatus.CANCELLED))) {
+        if (buildTasks.stream().anyMatch(bt -> bt.getStatus().equals(BuildCoordinationStatus.CANCELLED))) {
             log.debug("Marking build set as CANCELLED as one or more tasks were cancelled. BuildSetTask: {}", this);
             if (log.isDebugEnabled()) {
                 logTasksStatus(buildTasks);
             }
             buildConfigSetRecord.ifPresent(r -> r.setStatus(BuildStatus.CANCELLED));
             finishBuildSetTask();
-        } else if(buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
+        } else if (buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
             log.debug("Marking build set as FAILED as one or more tasks failed. BuildSetTask: {}", this);
             if (log.isDebugEnabled()) {
                 logTasksStatus(buildTasks);
@@ -109,7 +109,9 @@ public class BuildSetTask {
     }
 
     private void logTasksStatus(Set<BuildTask> buildTasks) {
-        String taskStatuses = buildTasks.stream().map(bt -> "TaskId " + bt.getId() + ":" + bt.getStatus()).collect(Collectors.joining("; "));
+        String taskStatuses = buildTasks.stream()
+                .map(bt -> "TaskId " + bt.getId() + ":" + bt.getStatus())
+                .collect(Collectors.joining("; "));
         log.debug("Tasks statuses: {}", taskStatuses);
     }
 
@@ -148,7 +150,10 @@ public class BuildSetTask {
      * @return The build task with the matching configuration, or null if there is none
      */
     public BuildTask getBuildTask(BuildConfigurationAudited buildConfigurationAudited) {
-        return buildTasks.stream().filter((bt) -> bt.getBuildConfigurationAudited().equals(buildConfigurationAudited)).findFirst().orElse(null);
+        return buildTasks.stream()
+                .filter((bt) -> bt.getBuildConfigurationAudited().equals(buildConfigurationAudited))
+                .findFirst()
+                .orElse(null);
     }
 
     public Integer getId() {
@@ -160,11 +165,12 @@ public class BuildSetTask {
     }
 
     public static class Builder {
-        private BuildConfigSetRecord buildConfigSetRecord; //TODO decouple datastore entity
+        private BuildConfigSetRecord buildConfigSetRecord; // TODO decouple datastore entity
         private BuildOptions buildOptions;
         private Date startTime;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public static Builder newBuilder() {
             return new Builder();
@@ -175,6 +181,7 @@ public class BuildSetTask {
             this.startTime(buildConfigSetRecord.getStartTime());
             return this;
         }
+
         public Builder buildOptions(BuildOptions buildOptions) {
             this.buildOptions = buildOptions;
             return this;
@@ -193,19 +200,12 @@ public class BuildSetTask {
     }
 
     public boolean isFinished() {
-        return this
-                .getBuildTasks()
-                .stream()
-                .allMatch(t -> t.getStatus().isCompleted());
+        return this.getBuildTasks().stream().allMatch(t -> t.getStatus().isCompleted());
     }
 
     @Override
     public String toString() {
-        return "BuildSetTask{" +
-                "status=" + status +
-                ", statusDescription='" + statusDescription + '\'' +
-                ", submitTime=" + getStartTime() +
-                ", buildTasks=" + buildTasks +
-                '}';
+        return "BuildSetTask{" + "status=" + status + ", statusDescription='" + statusDescription + '\''
+                + ", submitTime=" + getStartTime() + ", buildTasks=" + buildTasks + '}';
     }
 }

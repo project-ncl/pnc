@@ -22,11 +22,10 @@ import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 12/1/16
- * Time: 3:27 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/1/16 Time: 3:27 PM
  */
-public class ProductMilestoneReleaseRepositoryMock extends RepositoryMock<ProductMilestoneRelease> implements ProductMilestoneReleaseRepository {
+public class ProductMilestoneReleaseRepositoryMock extends RepositoryMock<ProductMilestoneRelease>
+        implements ProductMilestoneReleaseRepository {
     @Override
     public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone) {
         return null;

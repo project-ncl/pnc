@@ -42,7 +42,11 @@ public abstract class DTOValidationException extends RuntimeException {
         super(cause);
     }
 
-    public DTOValidationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public DTOValidationException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

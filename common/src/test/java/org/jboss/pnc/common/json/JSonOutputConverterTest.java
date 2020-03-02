@@ -26,7 +26,7 @@ public class JSonOutputConverterTest {
 
     @Test
     public void shouldConvertProperObject() throws Exception {
-        //given
+        // given
         class SampleObject {
 
             String sampleField;
@@ -43,16 +43,16 @@ public class JSonOutputConverterTest {
         SampleObject objectToConvert = new SampleObject();
         objectToConvert.sampleField = "test";
 
-        //when
+        // when
         String convertedSting = JsonOutputConverterMapper.apply(objectToConvert);
 
-        //than
+        // than
         assertThat(convertedSting).isEqualTo("{\"sampleField\":\"test\"}");
     }
 
     @Test
     public void shouldFailWhenThereAreNoProperties() throws Exception {
-        //given
+        // given
         class SampleObject {
             String sampleField;
         }
@@ -60,7 +60,7 @@ public class JSonOutputConverterTest {
         SampleObject objectToConvert = new SampleObject();
         objectToConvert.sampleField = "test";
 
-        //when//then
+        // when//then
         try {
             JsonOutputConverterMapper.apply(objectToConvert);
             fail();
@@ -70,16 +70,16 @@ public class JSonOutputConverterTest {
 
     @Test
     public void shouldNotFailWhenPassingNull() throws Exception {
-        //when
+        // when
         String convertedString = JsonOutputConverterMapper.apply(null);
 
-        //then
+        // then
         assertThat(convertedString).isEqualTo("{}");
     }
 
     @Test
     public void shouldNotRenderNulls() throws Exception {
-        //given
+        // given
         class SampleObject {
 
             String sampleField;
@@ -105,10 +105,10 @@ public class JSonOutputConverterTest {
         SampleObject sampleObject = new SampleObject();
         sampleObject.sampleField = "test";
 
-        //when
+        // when
         String convertedString = JsonOutputConverterMapper.apply(sampleObject);
 
-        //then
+        // then
         assertThat(convertedString).isEqualTo("{\"sampleField\":\"test\"}");
     }
 }

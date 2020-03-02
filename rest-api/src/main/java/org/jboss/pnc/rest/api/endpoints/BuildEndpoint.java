@@ -85,222 +85,297 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
-public interface BuildEndpoint{
+public interface BuildEndpoint {
     static final String B_ID = "ID of the build";
     static final String BUILD_STATUS = "Status of the build";
 
-    @Operation(summary = "Gets all builds.",
+    @Operation(
+            summary = "Gets all builds.",
             description = "Query by attribute: when the attributes are specified only the completed builds are searched. "
                     + "The query format is: attribute=KEY:VALUE&attribute=KEY2:VALUE2 "
                     + "which translates to 'where KEY=VALUE AND KEY2=VALUE2' "
                     + "To search for the records without certain key the key must be prefixed with '!': attribute=!KEY",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    Page<Build> getAll(@Valid @BeanParam PageParameters pageParams,
+    Page<Build> getAll(
+            @Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters filterParams,
             @QueryParam("attribute") List<String> attributes);
 
-    @Operation(summary = "Gets specific build.",
+    @Operation(
+            summary = "Gets specific build.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = Build.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Build.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}")
     Build getSpecific(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Delete a specific temporary build.",
+    @Operation(
+            summary = "Delete a specific temporary build.",
             description = "Operation is async. Once completed, a callback can be sent with a JSON body containing information "
                     + "about the operation completion using object org.jboss.pnc.dto.DeleteOperationResult",
-            responses = {
-                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}")
-    void delete(@Parameter(description = B_ID) @PathParam("id") String id,
-                @Parameter(description = "Optional Callback URL") @QueryParam("callback") String callback);
+    void delete(
+            @Parameter(description = B_ID) @PathParam("id") String id,
+            @Parameter(description = "Optional Callback URL") @QueryParam("callback") String callback);
 
-    @Operation(summary = "Updates an existing build.",
-            responses = {
-                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+    @Operation(
+            summary = "Updates an existing build.",
+            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = CONFLICTED_CODE,
+                            description = CONFLICTED_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}")
     void update(@Parameter(description = B_ID) @PathParam("id") String id, @NotNull Build build);
 
-    @Operation(summary = "Gets artifacts built in a specific build.",
+    @Operation(
+            summary = "Gets artifacts built in a specific build.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/artifacts/built")
     Page<Artifact> getBuiltArtifacts(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
-    @Operation(summary= "[role:admin] Set built artifacts on the BuildRecord. Note that operation replaces existing collection!",
+    @Operation(
+            summary = "[role:admin] Set built artifacts on the BuildRecord. Note that operation replaces existing collection!",
             tags = "internal",
             responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}/artifacts/built")
-    void setBuiltArtifacts(@Parameter(description = B_ID) @PathParam("id") String id,
-                      @Parameter(description = "List of artifact ids") List<String> artifactIds);
+    void setBuiltArtifacts(
+            @Parameter(description = B_ID) @PathParam("id") String id,
+            @Parameter(description = "List of artifact ids") List<String> artifactIds);
 
-    @Operation(summary = "Gets dependency artifacts for specific build.",
+    @Operation(
+            summary = "Gets dependency artifacts for specific build.",
             responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/artifacts/dependencies")
     Page<Artifact> getDependencyArtifacts(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
-    @Operation(summary= "[role:admin] Set dependent artifacts on the BuildRecord. Note that operation replaces existing collection!",
+    @Operation(
+            summary = "[role:admin] Set dependent artifacts on the BuildRecord. Note that operation replaces existing collection!",
             tags = "internal",
             responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}/artifacts/dependencies")
-    void setDependentArtifacts(@Parameter(description = B_ID) @PathParam("id") String id,
+    void setDependentArtifacts(
+            @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = "List of artifact ids") List<String> artifactIds);
 
-    @Operation(summary = "Redirects to the SCM archive link",
+    @Operation(
+            summary = "Redirects to the SCM archive link",
             responses = {
                     @ApiResponse(responseCode = MOVED_TEMPORARILY_CODE, description = MOVED_TEMPORARILY_DESCRIPTION),
-                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION)
-    })
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION) })
     @GET
     @Path("/{id}/scm-archive")
     Response getInternalScmArchiveLink(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Add attribute to a specific build.",
-            responses = {
-                @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+    @Operation(
+            summary = "Add attribute to a specific build.",
+            responses = { @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/attributes")
     void addAttribute(
             @Parameter(description = B_ID) @PathParam("id") String id,
-            @Parameter(description = "Attribute key. The key must match '[a-zA-Z_0-9]+'.", required = true) @QueryParam("key") String key,
+            @Parameter(
+                    description = "Attribute key. The key must match '[a-zA-Z_0-9]+'.",
+                    required = true) @QueryParam("key") String key,
             @Parameter(description = "Attribute value", required = true) @QueryParam("value") String value);
 
-    @Operation(summary = "Remove attribute from a specific build.",
-            responses = {
-                @ApiResponse(responseCode = ENTITY_DELETED_CODE, description = ENTITY_DELETED_DESCRIPTION),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+    @Operation(
+            summary = "Remove attribute from a specific build.",
+            responses = { @ApiResponse(responseCode = ENTITY_DELETED_CODE, description = ENTITY_DELETED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @DELETE
     @Path("/{id}/attributes")
     void removeAttribute(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = "Attribute key", required = true) @QueryParam("key") String key);
 
-    @Operation(summary = "Get Brew push result for specific build.",
+    @Operation(
+            summary = "Get Brew push result for specific build.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/brew-push")
     BuildPushResult getPushResult(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Push build to Brew.",
+    @Operation(
+            summary = "Push build to Brew.",
             responses = {
-                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPushResultPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = ACCEPTED_CODE,
+                            description = ACCEPTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPushResultPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = CONFLICTED_CODE,
+                            description = CONFLICTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
     BuildPushResult push(@Parameter(description = B_ID) @PathParam("id") String id, BuildPushRequest buildPushRequest);
 
-    @Operation(summary = "Cancels push of build to Brew.",
-            responses = {
-                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = "Can not find any Brew push in progress."),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+    @Operation(
+            summary = "Cancels push of build to Brew.",
+            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = NOT_FOUND_CODE,
+                            description = "Can not find any Brew push in progress."),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @DELETE
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
     void cancelPush(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Notifies that the Brew push finished.",
+    @Operation(
+            summary = "Notifies that the Brew push finished.",
             tags = "Internal",
             responses = {
-                @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = ENTITY_CREATED_CODE,
+                            description = ENTITY_CREATED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = CONFLICTED_CODE,
+                            description = CONFLICTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/brew-push/complete")
@@ -308,93 +383,123 @@ public interface BuildEndpoint{
             @Parameter(description = B_ID) @PathParam("id") String id,
             BuildPushResult buildPushResult);
 
-    @Operation(summary = "Gets the build config revision for specific build.",
+    @Operation(
+            summary = "Gets the build config revision for specific build.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildConfigurationRevision.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildConfigurationRevision.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/build-config-revision")
     BuildConfigurationRevision getBuildConfigurationRevision(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Cancel running build.",
-            responses = {
-                @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+    @Operation(
+            summary = "Cancel running build.",
+            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/cancel")
     void cancel(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Gets dependency graph for a build.",
+    @Operation(
+            summary = "Gets dependency graph for a build.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = BuildsGraph.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildsGraph.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/dependency-graph")
     Graph<Build> getDependencyGraph(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Gets alignment logs for specific build.",
+    @Operation(
+            summary = "Gets alignment logs for specific build.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = String.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = String.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/logs/align")
     @Produces(MediaType.TEXT_PLAIN)
     StreamingOutput getAlignLogs(@Parameter(description = B_ID) @PathParam("id") String id);
 
-
-    @Operation(summary = "Gets build logs for specific build.",
+    @Operation(
+            summary = "Gets build logs for specific build.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = String.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = String.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/logs/build")
     @Produces(MediaType.TEXT_PLAIN)
     StreamingOutput getBuildLogs(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Gets ssh credentials to log into the build pod.",
+    @Operation(
+            summary = "Gets ssh credentials to log into the build pod.",
             description = "This GET requests require authentication",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SSHCredentials.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = SSHCredentials.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    @Path("/ssh-credentials/{id}") // TODO: Check that we can change to /{id}/ssh-credentials and keep auth: ("The path for the endpoint is not restful to be able to authenticate this GET request only.")
+    @Path("/ssh-credentials/{id}") // TODO: Check that we can change to /{id}/ssh-credentials and keep auth: ("The path
+                                   // for the endpoint is not restful to be able to authenticate this GET request
+                                   // only.")
     SSHCredentials getSshCredentials(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    @Operation(summary = "Gets the Build Records produced from the BuildConfiguration by name.",
+    @Operation(
+            summary = "Gets the Build Records produced from the BuildConfiguration by name.",
             responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = BuildPage.class))),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/with-status-and-log")
     Page<Build> getAllByStatusAndLogContaining(

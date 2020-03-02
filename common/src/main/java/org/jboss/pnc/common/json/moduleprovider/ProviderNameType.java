@@ -25,10 +25,10 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
  * @param <T> module config
  */
 public class ProviderNameType<T extends AbstractModuleConfig> {
-    
+
     private Class<T> type;
     private String typeName;
-    
+
     public ProviderNameType(Class<T> type, String typeName) {
         super();
         this.type = type;

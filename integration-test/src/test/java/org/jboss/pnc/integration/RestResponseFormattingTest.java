@@ -71,38 +71,58 @@ public class RestResponseFormattingTest extends AbstractTest {
 
     @Test
     public void shouldReturnErrorInJsonFormat() {
-        String response = given().header("Accept", "application/json").contentType(ContentType.JSON).port(getHttpPort()).expect()
+        String response = given().header("Accept", "application/json")
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .expect()
                 .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
                 .body("errorMessage", IsEqual.equalTo("Test exception."))
-                .when().get("/pnc-rest/rest/test/throw").asString();
+                .when()
+                .get("/pnc-rest/rest/test/throw")
+                .asString();
         logger.info(response);
 
     }
 
     @Test
     public void shouldReturnInJsonAndStatus404() {
-        String response = given().header("Accept", "application/json").contentType(ContentType.JSON).port(getHttpPort()).expect()
+        String response = given().header("Accept", "application/json")
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .expect()
                 .statusCode(Response.Status.NOT_FOUND.getStatusCode())
                 .body("errorType", IsEqual.equalTo("NotFoundException"))
-                .when().get("/pnc-rest/rest/test/does-not-exists").asString();
+                .when()
+                .get("/pnc-rest/rest/test/does-not-exists")
+                .asString();
         logger.info(response);
     }
 
     @Test
     public void shouldReturnInJsonAndStatusNoContent() {
-        String response = given().header("Accept", "application/json").contentType(ContentType.JSON).port(getHttpPort()).expect()
+        String response = given().header("Accept", "application/json")
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .expect()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode())
-                .when().get("/pnc-rest/rest/test/nocontent").asString();
+                .when()
+                .get("/pnc-rest/rest/test/nocontent")
+                .asString();
         logger.info(response);
     }
 
     @Test
-    @Ignore //TODO enable once we updated to EAP7. Test fails, the problem seems to be in the backend
+    @Ignore // TODO enable once we updated to EAP7. Test fails, the problem seems to be in the backend
     public void shouldReturnStatusUnauthorizedAndHeader() {
-        String response = given().header("Accept", "application/json").contentType(ContentType.JSON).port(getHttpPort()).expect()
+        String response = given().header("Accept", "application/json")
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .expect()
                 .statusCode(Response.Status.UNAUTHORIZED.getStatusCode())
                 .header("WWW-Authenticate", IsEqual.equalTo("Bearer realm=\"test\""))
-                .when().get("/pnc-rest/rest/test/unathorized").asString();
+                .when()
+                .get("/pnc-rest/rest/test/unathorized")
+                .asString();
         logger.info(response);
     }
 

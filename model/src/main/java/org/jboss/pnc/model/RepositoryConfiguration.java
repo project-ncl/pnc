@@ -47,11 +47,16 @@ import org.jboss.pnc.common.util.UrlUtils;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(uniqueConstraints = {@UniqueConstraint(name = "uk_repositoryconfiguration_externalurl", columnNames = {"externalurl"}),
-        @UniqueConstraint(name = "uk_repositoryconfiguration_externalurlnormalized", columnNames = {"externalurlnormalized"}),
-        @UniqueConstraint(name = "uk_repositoryconfiguration_internalurl", columnNames = {"internalurl"}),
-        @UniqueConstraint(name = "uk_repositoryconfiguration_internalurlnormalized", columnNames = {"internalurlnormalized"})
-})
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_repositoryconfiguration_externalurl", columnNames = { "externalurl" }),
+                @UniqueConstraint(
+                        name = "uk_repositoryconfiguration_externalurlnormalized",
+                        columnNames = { "externalurlnormalized" }),
+                @UniqueConstraint(name = "uk_repositoryconfiguration_internalurl", columnNames = { "internalurl" }),
+                @UniqueConstraint(
+                        name = "uk_repositoryconfiguration_internalurlnormalized",
+                        columnNames = { "internalurlnormalized" }) })
 public class RepositoryConfiguration implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 4248038054068607536L;
@@ -70,7 +75,8 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
 
     private void setNormalizedUrls() {
         internalUrlNormalized = StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(internalUrl), ".git");
-        externalUrlNormalized = externalUrl == null ? null : StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(externalUrl), ".git");
+        externalUrlNormalized = externalUrl == null ? null
+                : StringUtils.stripSuffix(UrlUtils.keepHostAndPathOnly(externalUrl), ".git");
     }
 
     @Id
@@ -79,8 +85,8 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
     private Integer id;
 
     /**
-     * URL to the internal SCM repository, which is the main repository used for the builds.
-     * New commits can be added to this repository, during the pre-build steps of the build process.
+     * URL to the internal SCM repository, which is the main repository used for the builds. New commits can be added to
+     * this repository, during the pre-build steps of the build process.
      */
     @Size(max = 255)
     @Column(unique = true, nullable = false, updatable = false)
@@ -179,8 +185,10 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof RepositoryConfiguration)) return false;
+        if (this == o)
+            return true;
+        if (!(o instanceof RepositoryConfiguration))
+            return false;
 
         RepositoryConfiguration that = (RepositoryConfiguration) o;
 
@@ -194,15 +202,10 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "RepositoryConfiguration{" +
-                "id=" + id +
-                ", internalUrl='" + internalUrl + '\'' +
-                ", internalUrlNormalized='" + internalUrlNormalized + '\'' +
-                ", externalUrl='" + externalUrl + '\'' +
-                ", externalUrlNormalized='" + externalUrlNormalized + '\'' +
-                ", preBuildSyncEnabled=" + preBuildSyncEnabled +
-                ", buildConfigurations=" + buildConfigurations +
-                '}';
+        return "RepositoryConfiguration{" + "id=" + id + ", internalUrl='" + internalUrl + '\''
+                + ", internalUrlNormalized='" + internalUrlNormalized + '\'' + ", externalUrl='" + externalUrl + '\''
+                + ", externalUrlNormalized='" + externalUrlNormalized + '\'' + ", preBuildSyncEnabled="
+                + preBuildSyncEnabled + ", buildConfigurations=" + buildConfigurations + '}';
     }
 
     public static class Builder {

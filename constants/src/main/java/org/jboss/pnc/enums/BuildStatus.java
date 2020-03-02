@@ -40,8 +40,8 @@ public enum BuildStatus {
     FAILED(FINISHED, false),
 
     /**
-     * A build has been requested (possibly via dependencies) but no actual build happened as it was
-     * not required (no updates).
+     * A build has been requested (possibly via dependencies) but no actual build happened as it was not required (no
+     * updates).
      */
     NO_REBUILD_REQUIRED(FINISHED, true),
 
@@ -107,15 +107,16 @@ public enum BuildStatus {
 
     @Deprecated
     public static BuildStatus fromBuildCoordinationStatus(BuildCoordinationStatus buildCoordinationStatus) {
-        BuildCoordinationStatus[] success = {BuildCoordinationStatus.DONE};
-        BuildCoordinationStatus[] failed = {BuildCoordinationStatus.DONE_WITH_ERRORS};
-        BuildCoordinationStatus[] cancelled = {BuildCoordinationStatus.CANCELLED};
-        BuildCoordinationStatus[] newBuild = {BuildCoordinationStatus.NEW};
-        BuildCoordinationStatus[] building = {BuildCoordinationStatus.ENQUEUED, BuildCoordinationStatus.BUILDING, BuildCoordinationStatus.BUILD_COMPLETED};
-        BuildCoordinationStatus[] waitingForDependencies = {BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES};
-        BuildCoordinationStatus[] notRequired = {BuildCoordinationStatus.REJECTED_ALREADY_BUILT};
-        BuildCoordinationStatus[] rejected = {BuildCoordinationStatus.REJECTED};
-        BuildCoordinationStatus[] rejectedFailedDependencies = {BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES};
+        BuildCoordinationStatus[] success = { BuildCoordinationStatus.DONE };
+        BuildCoordinationStatus[] failed = { BuildCoordinationStatus.DONE_WITH_ERRORS };
+        BuildCoordinationStatus[] cancelled = { BuildCoordinationStatus.CANCELLED };
+        BuildCoordinationStatus[] newBuild = { BuildCoordinationStatus.NEW };
+        BuildCoordinationStatus[] building = { BuildCoordinationStatus.ENQUEUED, BuildCoordinationStatus.BUILDING,
+                BuildCoordinationStatus.BUILD_COMPLETED };
+        BuildCoordinationStatus[] waitingForDependencies = { BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES };
+        BuildCoordinationStatus[] notRequired = { BuildCoordinationStatus.REJECTED_ALREADY_BUILT };
+        BuildCoordinationStatus[] rejected = { BuildCoordinationStatus.REJECTED };
+        BuildCoordinationStatus[] rejectedFailedDependencies = { BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES };
 
         if (Arrays.asList(success).contains(buildCoordinationStatus)) {
             return SUCCESS;

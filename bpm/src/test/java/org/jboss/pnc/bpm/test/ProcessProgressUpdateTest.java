@@ -36,15 +36,18 @@ public class ProcessProgressUpdateTest {
 
     @Test
     public void serializeAndDeserialize() throws IOException {
-        ProcessProgressUpdate processProgressUpdate = new ProcessProgressUpdate("repour",
+        ProcessProgressUpdate processProgressUpdate = new ProcessProgressUpdate(
+                "repour",
                 BPMTaskStatus.STARTED,
                 "ws://repour/ws-endpoint");
         String serialized = JsonOutputConverterMapper.apply(processProgressUpdate);
         log.info("Serialized:" + serialized);
 
-        ProcessProgressUpdate processProgressUpdateDeserialized = JsonOutputConverterMapper.readValue(serialized,
-                ProcessProgressUpdate.class);
+        ProcessProgressUpdate processProgressUpdateDeserialized = JsonOutputConverterMapper
+                .readValue(serialized, ProcessProgressUpdate.class);
 
-        Assert.assertEquals(processProgressUpdate.getDetailedNotificationsEndpointUrl(), processProgressUpdateDeserialized.getDetailedNotificationsEndpointUrl());
+        Assert.assertEquals(
+                processProgressUpdate.getDetailedNotificationsEndpointUrl(),
+                processProgressUpdateDeserialized.getDetailedNotificationsEndpointUrl());
     }
 }

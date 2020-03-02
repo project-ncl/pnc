@@ -38,37 +38,37 @@ public class MessageSenderProviderTest {
 
     @Test
     public void shouldGetMessageSender() throws MessagingConfigurationException {
-        //given
+        // given
         Instance<MessageSender> messageSenders = getMessageSenders();
         SystemConfig systemConfig = Mockito.mock(SystemConfig.class);
         Mockito.when(systemConfig.getMessageSenderId()).thenReturn(MessageSender2.class.getName());
 
-        //when
+        // when
         MessageSenderProvider messageSenderProvider = new MessageSenderProvider(messageSenders, systemConfig);
 
-        //expect
+        // expect
         Optional<MessageSender> selectedMessageSender = messageSenderProvider.getMessageSender();
         Assert.assertTrue(selectedMessageSender.isPresent());
         Assert.assertEquals(MessageSender2.class.getName(), selectedMessageSender.get().getMessageSenderId());
-        Assert.assertTrue(((AbstractMessageSender)selectedMessageSender.get()).initialized);
+        Assert.assertTrue(((AbstractMessageSender) selectedMessageSender.get()).initialized);
     }
 
     @Test
     public void shouldNotGetMessageSenderWithInvalidId() {
-        //given
+        // given
         Instance<MessageSender> messageSenders = getMessageSenders();
         SystemConfig systemConfig = Mockito.mock(SystemConfig.class);
         Mockito.when(systemConfig.getMessageSenderId()).thenReturn("invalidId");
 
         Exception exception = null;
-        //when
+        // when
         try {
             new MessageSenderProvider(messageSenders, systemConfig);
         } catch (MessagingConfigurationException e) {
             exception = e;
         }
 
-        //expect
+        // expect
         Assert.assertTrue(exception instanceof MessagingConfigurationException);
     }
 

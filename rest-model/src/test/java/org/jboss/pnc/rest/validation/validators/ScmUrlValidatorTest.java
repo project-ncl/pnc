@@ -26,41 +26,26 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 3/9/16
- * Time: 1:51 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 3/9/16 Time: 1:51 PM
  */
 public class ScmUrlValidatorTest {
 
-
-    String[] validUrls = new String[]{
-            "git@github.com:michalszynkiewicz/dev-utils",
+    String[] validUrls = new String[] { "git@github.com:michalszynkiewicz/dev-utils",
             "github.com:michalszynkiewicz/dev-utils",
 
             "ssh://michal.szynkiewicz@github.com/michalszynkiewicz/dev-utils",
             "ssh://michal.szynkiewicz:passw4%20rd@github.com/michalszynkiewicz/dev-utils",
-            "ssh://git@github.com:22/infinispan/infinispan",
-            "ssh://github.com/michalszynkiewicz/dev-utils",
+            "ssh://git@github.com:22/infinispan/infinispan", "ssh://github.com/michalszynkiewicz/dev-utils",
 
-            "https://github.com/project-ncl/pnc",
-            "https://github.com:443/project-ncl/pnc",
+            "https://github.com/project-ncl/pnc", "https://github.com:443/project-ncl/pnc",
 
-            "http://github.com/project-ncl/pnc",
-            "http://github.com:80/michalszynkiewicz/dev-utils",
+            "http://github.com/project-ncl/pnc", "http://github.com:80/michalszynkiewicz/dev-utils",
 
-            "git://github.com/infinispan/infinispan",
-            "git://github.com:9418/infinispan/infinispan"
-    };
+            "git://github.com/infinispan/infinispan", "git://github.com:9418/infinispan/infinispan" };
 
-    String[] invalidUrls = new String[]{
-            "github. com:michalszynkiewicz/dev-utils",
-            "very invalid",
-            ":O",
-            "funny://url.git",
-            "https:/github.com/project-ncl/pnc",
-            "htts://github.com:443/project-ncl/pnc",
-            "http//github.com/project-ncl/pnc",
-            "giit://github.com/infinispan/infinispan",
+    String[] invalidUrls = new String[] { "github. com:michalszynkiewicz/dev-utils", "very invalid", ":O",
+            "funny://url.git", "https:/github.com/project-ncl/pnc", "htts://github.com:443/project-ncl/pnc",
+            "http//github.com/project-ncl/pnc", "giit://github.com/infinispan/infinispan",
             "git//github.com:9418/infinispan/infinispan",
             "ssh://mi chalszynkiewicz@github.com/michalszynkiewicz/dev-utils",
 
@@ -69,14 +54,12 @@ public class ScmUrlValidatorTest {
     @Test
     public void shouldAcceptValidUrls() {
         for (final String validUrl : validUrls) {
-            Stream.of("", ".git").forEach(
-                    suffix -> {
-                        String url = validUrl + suffix;
-                        assertTrue("Valid url found invalid: " + validUrl, isValid(validUrl));
-                        url = url.replace("github.com", "192.30.252.131");
-                        assertTrue("Valid url found invalid: " + validUrl, isValid(validUrl));
-                    }
-            );
+            Stream.of("", ".git").forEach(suffix -> {
+                String url = validUrl + suffix;
+                assertTrue("Valid url found invalid: " + validUrl, isValid(validUrl));
+                url = url.replace("github.com", "192.30.252.131");
+                assertTrue("Valid url found invalid: " + validUrl, isValid(validUrl));
+            });
         }
     }
 

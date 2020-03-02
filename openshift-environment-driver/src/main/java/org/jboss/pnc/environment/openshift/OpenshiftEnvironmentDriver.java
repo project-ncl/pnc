@@ -56,7 +56,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
 
     public static List<SystemImageType> compatibleImageTypes = Arrays.asList(SystemImageType.DOCKER_IMAGE);
 
-    //TODO configurable:
+    // TODO configurable:
     private ExecutorService executor;
 
     private OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig;
@@ -65,7 +65,7 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
     private PollingMonitor pollingMonitor;
     private MetricsConfiguration metricsConfig;
 
-    @Deprecated //CDI workaround
+    @Deprecated // CDI workaround
     public OpenshiftEnvironmentDriver() {
     }
 
@@ -89,10 +89,13 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
         if (executorThreadPoolSizeStr != null) {
             executorThreadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
         }
-        executor = MDCExecutors.newFixedThreadPool(executorThreadPoolSize, new NamedThreadFactory("openshift-environment-driver"));
+        executor = MDCExecutors
+                .newFixedThreadPool(executorThreadPoolSize, new NamedThreadFactory("openshift-environment-driver"));
         this.metricsConfig = metricsConfig;
 
-        logger.info("Is OpenShift environment driver disabled: {}", openshiftEnvironmentDriverModuleConfig.isDisabled());
+        logger.info(
+                "Is OpenShift environment driver disabled: {}",
+                openshiftEnvironmentDriverModuleConfig.isDisabled());
     }
 
     @Override
@@ -107,8 +110,11 @@ public class OpenshiftEnvironmentDriver implements EnvironmentDriver {
             Map<String, String> parameters) throws EnvironmentDriverException {
 
         if (!canRunImageType(systemImageType))
-            throw new UnsupportedOperationException("OpenshiftEnvironmentDriver currently provides support only for the following system image types:" + compatibleImageTypes);
-        String buildImageId = StringUtils.addEndingSlash(systemImageRepositoryUrl) + StringUtils.stripTrailingSlash(systemImageId);
+            throw new UnsupportedOperationException(
+                    "OpenshiftEnvironmentDriver currently provides support only for the following system image types:"
+                            + compatibleImageTypes);
+        String buildImageId = StringUtils.addEndingSlash(systemImageRepositoryUrl)
+                + StringUtils.stripTrailingSlash(systemImageId);
         return new OpenshiftStartedEnvironment(
                 executor,
                 openshiftBuildAgentConfig,

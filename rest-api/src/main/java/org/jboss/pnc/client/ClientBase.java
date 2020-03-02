@@ -71,14 +71,14 @@ public abstract class ClientBase<T> {
 
         this.configuration = configuration;
 
-        ResteasyClientBuilder clientBuilder = (ResteasyClientBuilder)ClientBuilder.newBuilder();
-        client = clientBuilder
-                .httpEngine(engine)
-                .build();
+        ResteasyClientBuilder clientBuilder = (ResteasyClientBuilder) ClientBuilder.newBuilder();
+        client = clientBuilder.httpEngine(engine).build();
         client.register(ResteasyJackson2ProviderWithDateISO8601.class);
         client.register(new MdcToHeadersFilter(configuration.getMdcToHeadersMappings()));
         client.register(RequestLoggingFilter.class);
-        target = client.target(configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort() + BASE_PATH);
+        target = client.target(
+                configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort()
+                        + BASE_PATH);
         Configuration.BasicAuth basicAuth = configuration.getBasicAuth();
 
         if (basicAuth != null) {
@@ -141,24 +141,22 @@ public abstract class ClientBase<T> {
 
         WebTarget webTarget = target.path(interfacePath + methodPath).resolveTemplate("id", id);
 
-        return webTarget.request()
-                .build(HttpMethod.GET)
-                .invoke(InputStream.class);
+        return webTarget.request().build(HttpMethod.GET).invoke(InputStream.class);
     }
 
     public <S> S patch(String id, PatchBase patchBase) throws PatchBuilderException {
         String jsonPatch = patchBase.getJsonPatch();
-        return patch(id, jsonPatch, (Class<S>)patchBase.getClazz());
+        return patch(id, jsonPatch, (Class<S>) patchBase.getClazz());
     }
 
-    protected ErrorResponse readErrorResponse(WebApplicationException ex){
+    protected ErrorResponse readErrorResponse(WebApplicationException ex) {
         Response response = ex.getResponse();
-        if(response.hasEntity()){
-            try{
+        if (response.hasEntity()) {
+            try {
                 return response.readEntity(ErrorResponse.class);
-            }catch(ProcessingException | IllegalStateException e){
+            } catch (ProcessingException | IllegalStateException e) {
                 logger.debug("Can't map response to ErrorResponse.", e);
-            }catch(RuntimeException e){
+            } catch (RuntimeException e) {
                 logger.warn("Unexpected exception when trying to read ErrorResponse.", e);
             }
         }

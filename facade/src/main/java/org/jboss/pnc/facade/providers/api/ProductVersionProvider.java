@@ -21,11 +21,13 @@ import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
 
-public interface ProductVersionProvider extends Provider<Integer, org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef> {
+public interface ProductVersionProvider
+        extends Provider<Integer, org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef> {
 
-    Page<ProductVersion> getAllForProduct(int pageIndex,
-                                          int pageSize,
-                                          String sortingRsql,
-                                          String query,
-                                          String productId);
+    Page<ProductVersion> getAllForProduct(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String productId);
 }

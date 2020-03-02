@@ -54,19 +54,13 @@ public class RepourResult implements Serializable {
 
     @Override
     public String toString() {
-        return "RepourResult{" +
-                "completionStatus=" + completionStatus +
-                ", log='" + log + '\'' +
-                ", executionRootName='" + executionRootName + '\'' +
-                ", executionRootVersion='" + executionRootVersion + '\'' +
-                '}';
+        return "RepourResult{" + "completionStatus=" + completionStatus + ", log='" + log + '\''
+                + ", executionRootName='" + executionRootName + '\'' + ", executionRootVersion='" + executionRootVersion
+                + '\'' + '}';
     }
 
     public String toStringLimited() {
-        return "RepourResult{" +
-                "completionStatus=" + completionStatus +
-                ", executionRootName='" + executionRootName + '\'' +
-                ", executionRootVersion='" + executionRootVersion + '\'' +
-                '}';
+        return "RepourResult{" + "completionStatus=" + completionStatus + ", executionRootName='" + executionRootName
+                + '\'' + ", executionRootVersion='" + executionRootVersion + '\'' + '}';
     }
 }

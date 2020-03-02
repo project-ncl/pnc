@@ -31,11 +31,9 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/29/16
- * Time: 7:03 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/29/16 Time: 7:03 AM
  */
-@SuppressWarnings({"WeakerAccess", "unchecked"})
+@SuppressWarnings({ "WeakerAccess", "unchecked" })
 public class RepositoryMock<EntityType extends GenericEntity<Integer>> implements Repository<EntityType, Integer> {
     private final AtomicInteger idSequence = new AtomicInteger(0);
     protected final List<EntityType> data = new ArrayList<>();
@@ -63,7 +61,10 @@ public class RepositoryMock<EntityType extends GenericEntity<Integer>> implement
     }
 
     @Override
-    public List<EntityType> queryWithPredicates(PageInfo pageInfo, SortInfo sortInfo, Predicate<EntityType>... predicates) {
+    public List<EntityType> queryWithPredicates(
+            PageInfo pageInfo,
+            SortInfo sortInfo,
+            Predicate<EntityType>... predicates) {
         return Collections.emptyList();
     }
 
@@ -88,9 +89,7 @@ public class RepositoryMock<EntityType extends GenericEntity<Integer>> implement
     }
 
     private Optional<EntityType> getOptionalById(Integer id) {
-        return data.stream()
-                .filter(m -> id.equals(m.getId()))
-                .findAny();
+        return data.stream().filter(m -> id.equals(m.getId())).findAny();
     }
 
     @Override

@@ -66,7 +66,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -77,7 +76,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private static final String POD_USERNAME = "worker";
     private static final String POD_USER_PASSWD = "workerUserPassword";
     private static final String OSE_API_VERSION = "v1";
-    private static final Pattern SECURE_LOG_PATTERN = Pattern.compile("\"name\":\\s*\"accessToken\",\\s*\"value\":\\s*\"\\p{Print}+\"");
+    private static final Pattern SECURE_LOG_PATTERN = Pattern
+            .compile("\"name\":\\s*\"accessToken\",\\s*\"value\":\\s*\"\\p{Print}+\"");
 
     private static final String METRICS_POD_STARTED_KEY = "openshift-environment-driver.started.pod";
     private static final String METRICS_POD_STARTED_ATTEMPTED_KEY = METRICS_POD_STARTED_KEY + ".attempts";
@@ -93,12 +93,14 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     /**
      * From: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
      *
-     * ErrImagePull and ImagePullBackOff added to that list. The pod.getStatus() call will return the *reason* of failure,
-     * and if the reason is not available, then it'll return the regular status (as mentioned in the link)
+     * ErrImagePull and ImagePullBackOff added to that list. The pod.getStatus() call will return the *reason* of
+     * failure, and if the reason is not available, then it'll return the regular status (as mentioned in the link)
      *
-     * For pod creation, the failure reason we expect when docker registry is not behaving is 'ErrImagePull' or 'ImagePullBackOff'
+     * For pod creation, the failure reason we expect when docker registry is not behaving is 'ErrImagePull' or
+     * 'ImagePullBackOff'
      */
-    private static final String[] POD_FAILED_STATUSES = {"Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull", "ImagePullBackOff"};
+    private static final String[] POD_FAILED_STATUSES = { "Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull",
+            "ImagePullBackOff" };
 
     /**
      * Parameter specifying override for the builder pod memory size.
@@ -191,9 +193,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 && !StringUtils.isEmpty(environmentConfiguration.getProxyPort());
 
         environmetVariables.put("image", imageId);
-        environmetVariables.put("firewallAllowedDestinations", environmentConfiguration.getFirewallAllowedDestinations());
+        environmetVariables
+                .put("firewallAllowedDestinations", environmentConfiguration.getFirewallAllowedDestinations());
         // This property sent as Json
-        environmetVariables.put("allowedHttpOutgoingDestinations", toEscapedJsonString(environmentConfiguration.getAllowedHttpOutgoingDestinations()));
+        environmetVariables.put(
+                "allowedHttpOutgoingDestinations",
+                toEscapedJsonString(environmentConfiguration.getAllowedHttpOutgoingDestinations()));
         environmetVariables.put("isHttpActive", proxyActive.toString().toLowerCase());
         environmetVariables.put("proxyServer", environmentConfiguration.getProxyServer());
         environmetVariables.put("proxyPort", environmentConfiguration.getProxyPort());
@@ -216,10 +221,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private void createEnvironment() {
-        String randString = RandomUtils.randString(6);//note the 24 char limit
+        String randString = RandomUtils.randString(6);// note the 24 char limit
         buildAgentContextPath = "pnc-ba-" + randString;
 
-        //variables specific to to this pod (retry)
+        // variables specific to to this pod (retry)
         environmetVariables.put("pod-name", "pnc-ba-pod-" + randString);
         environmetVariables.put("service-name", "pnc-ba-service-" + randString);
         environmetVariables.put("ssh-service-name", "pnc-ba-ssh-" + randString);
@@ -230,8 +235,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         initDebug();
 
         ModelNode podConfigurationNode = createModelNode(
-                Configurations.getContentAsString(Resource.PNC_BUILDER_POD, openshiftBuildAgentConfig), environmetVariables);
-        pod = new Pod(podConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
+                Configurations.getContentAsString(Resource.PNC_BUILDER_POD, openshiftBuildAgentConfig),
+                environmetVariables);
+        pod = new Pod(
+                podConfigurationNode,
+                client,
+                ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
         pod.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createPod = () -> {
             try {
@@ -246,7 +255,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         ModelNode serviceConfigurationNode = createModelNode(
                 Configurations.getContentAsString(Resource.PNC_BUILDER_SERVICE, openshiftBuildAgentConfig),
                 environmetVariables);
-        service = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
+        service = new Service(
+                serviceConfigurationNode,
+                client,
+                ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
         service.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createService = () -> {
             try {
@@ -262,7 +274,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             ModelNode routeConfigurationNode = createModelNode(
                     Configurations.getContentAsString(Resource.PNC_BUILDER_ROUTE, openshiftBuildAgentConfig),
                     environmetVariables);
-            route = new Route(routeConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE));
+            route = new Route(
+                    routeConfigurationNode,
+                    client,
+                    ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE));
             route.setNamespace(environmentConfiguration.getPncNamespace());
             Runnable createRoute = () -> {
                 try {
@@ -281,14 +296,19 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_ATTEMPTED_KEY));
     }
 
-    private String builderPodMemory(OpenshiftEnvironmentDriverModuleConfig environmentConfiguration1, Map<String, String> parameters) {
+    private String builderPodMemory(
+            OpenshiftEnvironmentDriverModuleConfig environmentConfiguration1,
+            Map<String, String> parameters) {
         double builderPodMemory = environmentConfiguration1.getBuilderPodMemory();
         String builderPodMemoryOverride = parameters.get(BUILDER_POD_MEMORY);
         if (builderPodMemoryOverride != null) {
             try {
                 builderPodMemory = Double.parseDouble(builderPodMemoryOverride);
             } catch (NumberFormatException ex) {
-                throw new IllegalArgumentException("Failed to parse memory size '" + builderPodMemoryOverride + "' from " + BUILDER_POD_MEMORY + " parameter.", ex);
+                throw new IllegalArgumentException(
+                        "Failed to parse memory size '" + builderPodMemoryOverride + "' from " + BUILDER_POD_MEMORY
+                                + " parameter.",
+                        ex);
             }
             logger.info("Using override for builder pod memory size: " + builderPodMemoryOverride);
         }
@@ -296,10 +316,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     static String secureLog(String message) {
-        return SECURE_LOG_PATTERN
-                .matcher(message)
-                .replaceAll("\"name\": \"accessToken\",\n" +
-                        "            \"value\": \"***\"");
+        return SECURE_LOG_PATTERN.matcher(message)
+                .replaceAll("\"name\": \"accessToken\",\n" + "            \"value\": \"***\"");
     }
 
     private void initDebug() {
@@ -338,7 +356,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_RETRY_KEY));
 
         // since deletion runs in an executor, it might run *after* the createEnvironment() is finished.
-        // createEnvironment()  will overwrite the Openshift object fields. So we need to capture the existing
+        // createEnvironment() will overwrite the Openshift object fields. So we need to capture the existing
         // openshift objects to delete before they get overwritten by createEnvironment()
         Route routeToDestroy = route;
         Service serviceToDestroy = service;
@@ -348,7 +366,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         executor.submit(() -> {
             try {
                 logger.debug("Destroying old build environment");
-                destroyEnvironment(routeToDestroy, serviceToDestroy, sshServiceToDestroy, podToDestroy,true);
+                destroyEnvironment(routeToDestroy, serviceToDestroy, sshServiceToDestroy, podToDestroy, true);
             } catch (Exception ex) {
                 logger.error("Error deleting previous environment", ex);
             }
@@ -359,27 +377,20 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         // restart the process again
         monitorInitialization(onComplete, onError, retries - 1);
-        // at this point the running task running this is finished. New ones are created to monitor pod /service/route creation
+        // at this point the running task running this is finished. New ones are created to monitor pod /service/route
+        // creation
     }
 
     /**
-     * Call stack:
-     *   monitorInitialization:
-     *       -> setup monitors, track them and return
+     * Call stack: monitorInitialization: -> setup monitors, track them and return
      *
-     * -> pollingMonitor.monitor(<pod>) [in background]
-     *    -> Success: signal via executing onComplete consumer
-     *                finish
-     *    -> Failure: call retryPod consumer
-     *       -> if retries == 0: call onError consumer. no more retries
-     *       -> else: cancel and clear monitors,
-     *                delete existing build environment (if any),
-     *                recreate build environment,
-     *                call monitorInitialization again with retries decremented
-     *                finish
+     * -> pollingMonitor.monitor(<pod>) [in background] -> Success: signal via executing onComplete consumer finish ->
+     * Failure: call retryPod consumer -> if retries == 0: call onError consumer. no more retries -> else: cancel and
+     * clear monitors, delete existing build environment (if any), recreate build environment, call
+     * monitorInitialization again with retries decremented finish
      *
-     *  While the call stack may appear recursive, it's not in fact recursive due to the fact that we are using RunningTask
-     *  to figure out if the pod / route /service are online or not and they run in the background
+     * While the call stack may appear recursive, it's not in fact recursive due to the fact that we are using
+     * RunningTask to figure out if the pod / route /service are online or not and they run in the background
      */
     @Override
     public void monitorInitialization(Consumer<RunningEnvironment> onComplete, Consumer<Exception> onError) {
@@ -393,7 +404,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      * @param onError
      * @param retries
      */
-    private void monitorInitialization(Consumer<RunningEnvironment> onComplete, Consumer<Exception> onError, int retries) {
+    private void monitorInitialization(
+            Consumer<RunningEnvironment> onComplete,
+            Consumer<Exception> onError,
+            int retries) {
         URL buildAgentUrl;
         try {
             buildAgentUrl = new URL(getInternalEndpointUrl());
@@ -404,31 +418,25 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         cancelHook = () -> onComplete.accept(null);
 
-        CompletableFuture<Void> podFuture = creatingPod.thenComposeAsync(
-                nul -> {
-                    CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isPodRunning());
-                    addFuture(monitor);
-                    return monitor;
-                }, executor
-        );
+        CompletableFuture<Void> podFuture = creatingPod.thenComposeAsync(nul -> {
+            CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isPodRunning());
+            addFuture(monitor);
+            return monitor;
+        }, executor);
 
-        CompletableFuture<Void> serviceFuture = creatingService.thenComposeAsync(
-                nul -> {
-                    CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isServiceRunning());
-                    addFuture(monitor);
-                    return monitor;
-                }, executor
-        );
+        CompletableFuture<Void> serviceFuture = creatingService.thenComposeAsync(nul -> {
+            CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isServiceRunning());
+            addFuture(monitor);
+            return monitor;
+        }, executor);
 
         CompletableFuture<Void> routeFuture;
         if (creatingRoute.isPresent()) {
-            routeFuture = creatingRoute.get().thenComposeAsync(
-                nul -> {
-                    CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isRouteRunning());
-                    addFuture(monitor);
-                    return monitor;
-                }, executor
-            );
+            routeFuture = creatingRoute.get().thenComposeAsync(nul -> {
+                CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isRouteRunning());
+                addFuture(monitor);
+                return monitor;
+            }, executor);
         } else {
             routeFuture = CompletableFuture.completedFuture(null);
         }
@@ -439,41 +447,48 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             return null;
         });
 
-        CancellableCompletableFuture<Void> isBuildAgentUpFuture = pollingMonitor.monitor(() -> isServletAvailable(buildAgentUrl));
+        CancellableCompletableFuture<Void> isBuildAgentUpFuture = pollingMonitor
+                .monitor(() -> isServletAvailable(buildAgentUrl));
         addFuture(isBuildAgentUpFuture);
 
-        CompletableFuture<RunningEnvironment> runningEnvironmentFuture = CompletableFuture.allOf(podFuture, serviceFuture, routeFuture)
+        CompletableFuture<RunningEnvironment> runningEnvironmentFuture = CompletableFuture
+                .allOf(podFuture, serviceFuture, routeFuture)
                 .thenApplyAsync(nul -> isBuildAgentUpFuture)
-                .thenApplyAsync(nul -> RunningEnvironment.createInstance(
-                        pod.getName(),
-                        Integer.parseInt(environmentConfiguration.getContainerPort()),
-                        route.getHost(),
-                        getPublicEndpointUrl(),
-                        getInternalEndpointUrl(),
-                        repositorySession,
-                        Paths.get(environmentConfiguration.getWorkingDirectory()),
-                        this::destroyEnvironment,
-                        debugData
-                ), executor);
+                .thenApplyAsync(
+                        nul -> RunningEnvironment.createInstance(
+                                pod.getName(),
+                                Integer.parseInt(environmentConfiguration.getContainerPort()),
+                                route.getHost(),
+                                getPublicEndpointUrl(),
+                                getInternalEndpointUrl(),
+                                repositorySession,
+                                Paths.get(environmentConfiguration.getWorkingDirectory()),
+                                this::destroyEnvironment,
+                                debugData),
+                        executor);
 
         CompletableFuture.anyOf(runningEnvironmentFuture, openshiftDefinitionsError)
-            .handle((runningEnvironment, throwable) -> {
-                if (throwable != null) {
-                    cancelAndClearMonitors();
-                    // no more retries, execute the onError consumer
-                    if (retries == 0) {
-                        onError.accept(new Exception(throwable));
+                .handle((runningEnvironment, throwable) -> {
+                    if (throwable != null) {
+                        cancelAndClearMonitors();
+                        // no more retries, execute the onError consumer
+                        if (retries == 0) {
+                            onError.accept(new Exception(throwable));
+                        } else {
+                            logger.error("Creating build environment failed! Retrying...", throwable);
+                            retryEnvironment(onComplete, onError, retries);
+                        }
                     } else {
-                        logger.error("Creating build environment failed! Retrying...", throwable);
-                        retryEnvironment(onComplete, onError, retries);
+                        logger.info(
+                                "Environment successfully initialized. Pod [{}]; Service [{}].",
+                                pod.getName(),
+                                service.getName());
+                        onComplete.accept((RunningEnvironment) runningEnvironment); // openshiftDefinitionsError
+                                                                                    // completes only with error
                     }
-                } else {
-                    logger.info("Environment successfully initialized. Pod [{}]; Service [{}].", pod.getName(), service.getName());
-                    onComplete.accept((RunningEnvironment) runningEnvironment); //openshiftDefinitionsError completes only with error
-                }
-                gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_SUCCESS_KEY));
-                return null;
-            });
+                    gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_SUCCESS_KEY));
+                    return null;
+                });
 
         logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
     }
@@ -498,19 +513,21 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private String getPublicEndpointUrl() {
         if (createRoute) {
-            return "http://" + route.getHost() + "" + route.getPath() + "/" + environmentConfiguration.getBuildAgentBindPath();
+            return "http://" + route.getHost() + "" + route.getPath() + "/"
+                    + environmentConfiguration.getBuildAgentBindPath();
         } else {
             return getInternalEndpointUrl();
         }
     }
 
     private String getInternalEndpointUrl() {
-        return "http://" + service.getClusterIP() + "/" + buildAgentContextPath + "/" + environmentConfiguration.getBuildAgentBindPath();
+        return "http://" + service.getClusterIP() + "/" + buildAgentContextPath + "/"
+                + environmentConfiguration.getBuildAgentBindPath();
     }
 
     /**
-     * Check if pod is in running state.
-     * If pod is in one of the failure statuses (as specified in POD_FAILED_STATUSES, PodFailedStartException is thrown
+     * Check if pod is in running state. If pod is in one of the failure statuses (as specified in POD_FAILED_STATUSES,
+     * PodFailedStartException is thrown
      *
      * @return boolean: is pod running?
      */
@@ -586,8 +603,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         destroyEnvironment(route, service, sshService, pod, false);
     }
 
-    private void destroyEnvironment(Route routeLocal, Service serviceLocal, Service sshServiceLocal,
-            Pod podLocal, boolean force) {
+    private void destroyEnvironment(
+            Route routeLocal,
+            Service serviceLocal,
+            Service sshServiceLocal,
+            Pod podLocal,
+            boolean force) {
 
         if (!debugData.isDebugEnabled() || force) {
             if (!environmentConfiguration.getKeepBuildAgentInstance()) {
@@ -623,19 +644,28 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      * @return port, to which ssh is forwarded
      */
     private Integer startSshService() {
-        ModelNode serviceConfigurationNode = createModelNode(Configurations.getContentAsString(Resource.PNC_BUILDER_SSH_SERVICE,
-                openshiftBuildAgentConfig), environmetVariables);
-        sshService = new Service(serviceConfigurationNode, client, ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
+        ModelNode serviceConfigurationNode = createModelNode(
+                Configurations.getContentAsString(Resource.PNC_BUILDER_SSH_SERVICE, openshiftBuildAgentConfig),
+                environmetVariables);
+        sshService = new Service(
+                serviceConfigurationNode,
+                client,
+                ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
         sshService.setNamespace(environmentConfiguration.getPncNamespace());
         try {
             Service resultService = client.create(this.sshService, sshService.getNamespace());
             return resultService.getNode()
                     .get("spec")
-                    .get("ports").asList()
+                    .get("ports")
+                    .asList()
                     .stream()
                     .filter(m -> m.get("name").asString().equals(SSH_SERVICE_PORT_NAME))
-                    .findAny().orElseThrow(() -> new RuntimeException("No ssh service in response! Service data: " + describeService(resultService)))
-                    .get("nodePort").asInt();
+                    .findAny()
+                    .orElseThrow(
+                            () -> new RuntimeException(
+                                    "No ssh service in response! Service data: " + describeService(resultService)))
+                    .get("nodePort")
+                    .asInt();
         } catch (Throwable e) {
             logger.error("Cannot create service.", e);
             return null;
@@ -643,13 +673,12 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     }
 
     private String describeService(Service resultService) {
-        if (resultService == null) return null;
+        if (resultService == null)
+            return null;
 
         ModelNode node = resultService.getNode();
-        return "Service[" +
-                "name = " + resultService.getName() +
-                ", node= '" + (node == null ? null : node.toJSONString(false)) +
-                "]";
+        return "Service[" + "name = " + resultService.getName() + ", node= '"
+                + (node == null ? null : node.toJSONString(false)) + "]";
     }
 
     private boolean connectToPingUrl(URL url) throws IOException {
@@ -667,11 +696,11 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         return responseCode == 200;
     }
 
-
     /**
      * Return an escaped string of the JSON representation of the object
      *
      * By 'escaped', it means that strings like '"' are escaped to '\"'
+     * 
      * @param object object to marshall
      * @return Escaped Json String
      */
@@ -680,7 +709,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         JsonStringEncoder jsonStringEncoder = JsonStringEncoder.getInstance();
         try {
             return new String(jsonStringEncoder.quoteAsString(mapper.writeValueAsString(object)));
-        } catch(JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             logger.error("Could not parse object: " + object, e);
             throw new RuntimeException(e);
         }

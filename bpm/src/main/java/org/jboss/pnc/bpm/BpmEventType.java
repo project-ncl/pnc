@@ -29,19 +29,21 @@ import org.jboss.pnc.bpm.model.ProcessProgressUpdate;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Types of events that BPM process can send notifications about to PNC.
- * Each type contains two pieces of data - string identifier
- * and type of the received notification. This data is used
- * in deserialization inside BPM REST endpoint, for example.
+ * Types of events that BPM process can send notifications about to PNC. Each type contains two pieces of data - string
+ * identifier and type of the received notification. This data is used in deserialization inside BPM REST endpoint, for
+ * example.
  *
  * @author Jakub Senko
  */
 @ToString
-public enum BpmEventType { //TODO merge with org.jboss.pnc.spi.notifications.model.EventType ?
+public enum BpmEventType { // TODO merge with org.jboss.pnc.spi.notifications.model.EventType ?
     // <T extends BpmNotificationRest>
     PROCESS_PROGRESS_UPDATE(ProcessProgressUpdate.class),
     DEBUG(BpmStringMapNotificationRest.class),
-    BREW_IMPORT_SUCCESS(MilestoneReleaseResultRest.class), //TODO remove SUCCESS|ERROR from the event types ?
+    BREW_IMPORT_SUCCESS(MilestoneReleaseResultRest.class), // TODO remove
+                                                           // SUCCESS|ERROR
+                                                           // from the
+                                                           // event types ?
     BREW_IMPORT_ERROR(BpmStringMapNotificationRest.class),
     BUILD_COMPLETE(BuildResultRest.class),
     RC_REPO_CREATION_SUCCESS(BpmStringMapNotificationRest.class),
@@ -49,7 +51,7 @@ public enum BpmEventType { //TODO merge with org.jboss.pnc.spi.notifications.mod
     RC_REPO_CLONE_SUCCESS(BpmStringMapNotificationRest.class),
     RC_REPO_CLONE_ERROR(BpmStringMapNotificationRest.class),
 
-    //notification for bpm task completion
+    // notification for bpm task completion
     RC_CREATION_SUCCESS(RepositoryCreationSuccess.class),
     RC_CREATION_ERROR(BpmStringMapNotificationRest.class),
     BCC_CONFIG_SET_ADDITION_SUCCESS(BpmStringMapNotificationRest.class),
@@ -58,8 +60,7 @@ public enum BpmEventType { //TODO merge with org.jboss.pnc.spi.notifications.mod
     private final Class<? extends BpmEvent> type;
 
     /**
-     * @param type Type of the class containing event data received from the process.
-     *             Usually named *Rest.
+     * @param type Type of the class containing event data received from the process. Usually named *Rest.
      */
     BpmEventType(Class<? extends BpmEvent> type) {
         requireNonNull(type);

@@ -70,7 +70,7 @@ public class GroupConfigurationProviderImpl
     @Override
     public GroupConfiguration getSpecific(String id) {
         BuildConfigurationSet dbEntity = repository.queryById(Integer.valueOf(id));
-        if(dbEntity.isArchived()){
+        if (dbEntity.isArchived()) {
             return null;
         }
         return mapper.toDTO(dbEntity);
@@ -97,39 +97,53 @@ public class GroupConfigurationProviderImpl
 
     @Override
     public GroupConfiguration store(GroupConfiguration restEntity) throws DTOValidationException {
-        ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class)
-                .validateConflict(
-                        () -> {
-                            List<BuildConfigurationSet> groupConfigurations = repository.queryWithPredicates(withName(restEntity.getName()));
-                            if (groupConfigurations.size() > 0) {
-                                BuildConfigurationSet conflicted = groupConfigurations.get(0);
-                                return new ConflictedEntryValidator.ConflictedEntryValidationError
-                                        (conflicted.getId(),BuildConfigurationSet.class, "Group Configuration with the same name already exist");
-                            }
-                            return null;
-                        }
-                );
+        ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class).validateConflict(() -> {
+            List<BuildConfigurationSet> groupConfigurations = repository
+                    .queryWithPredicates(withName(restEntity.getName()));
+            if (groupConfigurations.size() > 0) {
+                BuildConfigurationSet conflicted = groupConfigurations.get(0);
+                return new ConflictedEntryValidator.ConflictedEntryValidationError(
+                        conflicted.getId(),
+                        BuildConfigurationSet.class,
+                        "Group Configuration with the same name already exist");
+            }
+            return null;
+        });
         return super.store(restEntity);
     }
 
     @Override
-    public Page<GroupConfiguration> getGroupConfigurationsForProductVersion(int pageIndex,
-                                                                            int pageSize,
-                                                                            String sortingRsql,
-                                                                            String query,
-                                                                            String productVersionId) {
+    public Page<GroupConfiguration> getGroupConfigurationsForProductVersion(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String productVersionId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(Integer.valueOf(productVersionId)), isNotArchived());
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withProductVersionId(Integer.valueOf(productVersionId)),
+                isNotArchived());
     }
 
     @Override
-    public Page<GroupConfiguration> getGroupConfigurationsForBuildConfiguration(int pageIndex,
-                                                                                int pageSize,
-                                                                                String sortingRsql,
-                                                                                String query,
-                                                                                String bcId) {
+    public Page<GroupConfiguration> getGroupConfigurationsForBuildConfiguration(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String bcId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(Integer.valueOf(bcId)), isNotArchived());
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withBuildConfigurationId(Integer.valueOf(bcId)),
+                isNotArchived());
     }
 
     private boolean hasLink(BuildConfigurationSet buildConfigurationSet) {
@@ -143,7 +157,7 @@ public class GroupConfigurationProviderImpl
         buildConfigurationSet.setArchived(true);
 
         // if a build group is archived, unlink the build group from the build configurations is associated with
-        for (BuildConfiguration bc: buildConfigurationSet.getBuildConfigurations()) {
+        for (BuildConfiguration bc : buildConfigurationSet.getBuildConfigurations()) {
             bc.removeBuildConfigurationSet(buildConfigurationSet);
             buildConfigurationRepository.save(bc);
             buildConfigurationSet.removeBuildConfiguration(bc);

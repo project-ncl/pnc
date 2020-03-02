@@ -47,9 +47,11 @@ public class ProductReleaseRSQLMapper extends AbstractRSQLMapper<Integer, Produc
     public Path<?> toPath(From<?, ProductRelease> from, RSQLSelectorPath selector) {
         switch (selector.getElement()) {
             case "productVersion":
-                return pvm.toPath(from.join(ProductRelease_.productMilestone)
-                        .join(ProductMilestone_.productVersion), selector.next());
-            default: return super.toPath(from, selector);
+                return pvm.toPath(
+                        from.join(ProductRelease_.productMilestone).join(ProductMilestone_.productVersion),
+                        selector.next());
+            default:
+                return super.toPath(from, selector);
         }
     }
 
@@ -57,30 +59,40 @@ public class ProductReleaseRSQLMapper extends AbstractRSQLMapper<Integer, Produc
     public String toPath(RSQLSelectorPath selector) {
         switch (selector.getElement()) {
             case "productVersion":
-                return ProductRelease_.productMilestone.getName() + '.'
-                        + ProductMilestone_.productVersion + '.' + pvm.toPath(selector);
-            default: return super.toPath(selector);
+                return ProductRelease_.productMilestone.getName() + '.' + ProductMilestone_.productVersion + '.'
+                        + pvm.toPath(selector);
+            default:
+                return super.toPath(selector);
         }
     }
 
     @Override
     protected SingularAttribute<ProductRelease, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            case "productMilestone": return ProductRelease_.productMilestone;
-            default: return null;
+            case "productMilestone":
+                return ProductRelease_.productMilestone;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<ProductRelease, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return ProductRelease_.id;
-            case "version": return ProductRelease_.version;
-            case "supportLevel": return ProductRelease_.supportLevel;
-            case "releaseDate": return ProductRelease_.releaseDate;
-            case "downloadUrl": return ProductRelease_.downloadUrl;
-            case "issueTrackerUrl": return ProductRelease_.issueTrackerUrl;
-            default: return null;
+            case "id":
+                return ProductRelease_.id;
+            case "version":
+                return ProductRelease_.version;
+            case "supportLevel":
+                return ProductRelease_.supportLevel;
+            case "releaseDate":
+                return ProductRelease_.releaseDate;
+            case "downloadUrl":
+                return ProductRelease_.downloadUrl;
+            case "issueTrackerUrl":
+                return ProductRelease_.issueTrackerUrl;
+            default:
+                return null;
         }
     }
 

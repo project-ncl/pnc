@@ -36,10 +36,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
+
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/22/16
- * Time: 12:04 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:04 PM
  */
 public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> implements BuildRecordRepository {
     @Override
@@ -54,12 +53,19 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates) {
+    public List<BuildRecord> queryWithPredicatesUsingCursor(
+            PageInfo pageInfo,
+            SortInfo sortInfo,
+            Predicate<BuildRecord>... predicates) {
         return null;
     }
 
     @Override
-    public List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, List<Predicate<BuildRecord>> andPredicates, List<Predicate<BuildRecord>> orPredicates) {
+    public List<BuildRecord> queryWithPredicatesUsingCursor(
+            PageInfo pageInfo,
+            SortInfo sortInfo,
+            List<Predicate<BuildRecord>> andPredicates,
+            List<Predicate<BuildRecord>> orPredicates) {
         return null;
     }
 
@@ -69,13 +75,17 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
         return getLatestSuccessfulBuildRecord(configurationId, buildRecords, temporaryBuild);
     }
 
-    public static BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, List<BuildRecord> buildRecords, boolean temporaryBuild) {
+    public static BuildRecord getLatestSuccessfulBuildRecord(
+            Integer configurationId,
+            List<BuildRecord> buildRecords,
+            boolean temporaryBuild) {
         return buildRecords.stream()
                 .filter(br -> br.getBuildConfigurationId().equals(configurationId))
                 .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
-                .filter(br -> !(temporaryBuild==false && br.isTemporaryBuild()))
+                .filter(br -> !(temporaryBuild == false && br.isTemporaryBuild()))
                 .sorted(Comparator.comparing(BuildRecord::getId).reversed())
-                .findFirst().orElse(null);
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -100,10 +110,14 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
         return getLatestSuccessfulBuildRecord(buildConfigurationAuditedIdRev, data);
     }
 
-    public static BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, List<BuildRecord> buildRecords) {
+    public static BuildRecord getLatestSuccessfulBuildRecord(
+            IdRev buildConfigurationAuditedIdRev,
+            List<BuildRecord> buildRecords) {
         Optional<BuildRecord> first = buildRecords.stream()
                 .filter(buildRecord -> buildRecord.getStatus().equals(BuildStatus.SUCCESS))
-                .filter(buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev().equals(buildConfigurationAuditedIdRev))
+                .filter(
+                        buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev()
+                                .equals(buildConfigurationAuditedIdRev))
                 .sorted(Comparator.comparing(BuildRecord::getId).reversed())
                 .findFirst();
         return first.orElse(null);
@@ -122,16 +136,13 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
     @Override
     public Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId) {
 
-        return data.stream()
-                .filter(buildRecord -> {
-                    Set<Integer> builtArtifactsId =
-                    ofNullableCollection(buildRecord.getBuiltArtifacts())
-                    .stream()
+        return data.stream().filter(buildRecord -> {
+            Set<Integer> builtArtifactsId = ofNullableCollection(buildRecord.getBuiltArtifacts()).stream()
                     .map(Artifact::getId)
                     .collect(Collectors.toSet());
 
-                    // Get the build records which have any built artifact ids corresponding to a list of dependencies
-                    return !Collections.disjoint(artifactsId, builtArtifactsId);
-                }).collect(Collectors.toSet());
+            // Get the build records which have any built artifact ids corresponding to a list of dependencies
+            return !Collections.disjoint(artifactsId, builtArtifactsId);
+        }).collect(Collectors.toSet());
     }
 }

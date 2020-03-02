@@ -46,14 +46,22 @@ public class EnvironmentRSQLMapper extends AbstractRSQLMapper<Integer, BuildEnvi
     @Override
     protected SingularAttribute<BuildEnvironment, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return BuildEnvironment_.id;
-            case "name": return BuildEnvironment_.name;
-            case "description": return BuildEnvironment_.description;
-            case "systemImageRepositoryUrl": return BuildEnvironment_.systemImageRepositoryUrl;
-            case "systemImageId": return BuildEnvironment_.systemImageId;
-            case "systemImageType": return BuildEnvironment_.systemImageType;
-            case "deprecated": return BuildEnvironment_.deprecated;
-            default: return null;
+            case "id":
+                return BuildEnvironment_.id;
+            case "name":
+                return BuildEnvironment_.name;
+            case "description":
+                return BuildEnvironment_.description;
+            case "systemImageRepositoryUrl":
+                return BuildEnvironment_.systemImageRepositoryUrl;
+            case "systemImageId":
+                return BuildEnvironment_.systemImageId;
+            case "systemImageType":
+                return BuildEnvironment_.systemImageType;
+            case "deprecated":
+                return BuildEnvironment_.deprecated;
+            default:
+                return null;
         }
     }
 

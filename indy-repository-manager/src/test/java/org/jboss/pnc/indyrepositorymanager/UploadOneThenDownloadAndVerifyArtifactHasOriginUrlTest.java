@@ -43,17 +43,21 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
-    extends AbstractImportTest
-{
+public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest extends AbstractImportTest {
 
-    private static final Logger log = LoggerFactory.getLogger(UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest.class);
+    private static final Logger log = LoggerFactory
+            .getLogger(UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest.class);
 
     @Test
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession rc = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
 
         assertThat(rc, notNullValue());
 
@@ -87,7 +91,8 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest
         assertThat(builtArtifacts.size(), equalTo(1));
 
         Artifact builtArtifact = builtArtifacts.get(0);
-        assertThat(builtArtifact + " doesn't match pom ref: " + artifactRef,
+        assertThat(
+                builtArtifact + " doesn't match pom ref: " + artifactRef,
                 artifactRef.equals(builtArtifact.getIdentifier()),
                 equalTo(true));
 

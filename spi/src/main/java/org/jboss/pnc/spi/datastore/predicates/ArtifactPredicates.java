@@ -61,17 +61,18 @@ public class ArtifactPredicates {
     }
 
     public static Predicate<Artifact> withIdentifierAndMd5(String identifier, String md5) {
-        return (root, query, cb) -> cb.and(cb.equal(root.get(Artifact_.identifier), identifier),
-                cb.equal(root.get(Artifact_.md5), md5));
+        return (root, query, cb) -> cb
+                .and(cb.equal(root.get(Artifact_.identifier), identifier), cb.equal(root.get(Artifact_.md5), md5));
     }
 
     public static Predicate<Artifact> withIdentifierAndSha1(String identifier, String sha1) {
-        return (root, query, cb) -> cb.and(cb.equal(root.get(Artifact_.identifier), identifier),
-                cb.equal(root.get(Artifact_.sha1), sha1));
+        return (root, query, cb) -> cb
+                .and(cb.equal(root.get(Artifact_.identifier), identifier), cb.equal(root.get(Artifact_.sha1), sha1));
     }
 
     public static Predicate<Artifact> withIdentifierAndSha256(String identifier, String sha256) {
-        return (root, query, cb) -> cb.and(cb.equal(root.get(Artifact_.identifier), identifier),
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get(Artifact_.identifier), identifier),
                 cb.equal(root.get(Artifact_.sha256), sha256));
     }
 
@@ -80,8 +81,8 @@ public class ArtifactPredicates {
     }
 
     public static Predicate<Artifact> withSha256InAndBuilt(Set<String> sha256s) {
-        return (root, query, cb) -> cb.and(root.get(Artifact_.buildRecord).isNotNull(),
-                root.get(Artifact_.sha256).in(sha256s));
+        return (root, query, cb) -> cb
+                .and(root.get(Artifact_.buildRecord).isNotNull(), root.get(Artifact_.sha256).in(sha256s));
     }
 
     public static Predicate<Artifact> withIds(Set<Integer> ids) {
@@ -93,7 +94,8 @@ public class ArtifactPredicates {
     }
 
     public static Predicate<Artifact> withSha256(Optional<String> sha256) {
-        return ((root, query, cb) -> sha256.isPresent() ? cb.equal(root.get(Artifact_.sha256), sha256.get()) : cb.and());
+        return ((root, query, cb) -> sha256.isPresent() ? cb.equal(root.get(Artifact_.sha256), sha256.get())
+                : cb.and());
     }
 
     public static Predicate<Artifact> withMd5(Optional<String> md5) {

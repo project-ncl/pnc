@@ -60,9 +60,7 @@ import org.jboss.pnc.enums.BuildPushStatus;
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/31/16
- * Time: 8:42 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/31/16 Time: 8:42 AM
  */
 @Stateless
 public class ProductMilestoneReleaseManager {
@@ -124,7 +122,8 @@ public class ProductMilestoneReleaseManager {
             bpmManager.cancelTask(milestoneReleaseTask.get());
         }
 
-        ProductMilestoneRelease milestoneRelease = productMilestoneReleaseRepository.findLatestByMilestone(milestoneInDb);
+        ProductMilestoneRelease milestoneRelease = productMilestoneReleaseRepository
+                .findLatestByMilestone(milestoneInDb);
         milestoneRelease.setStatus(MilestoneReleaseStatus.CANCELED);
         productMilestoneReleaseRepository.save(milestoneRelease);
     }
@@ -135,15 +134,21 @@ public class ProductMilestoneReleaseManager {
         return latestRelease == null || latestRelease.getStatus() != MilestoneReleaseStatus.IN_PROGRESS;
     }
 
-    private <T extends BpmEvent> ProductMilestoneRelease triggerRelease(ProductMilestone milestone, String accessToken) {
+    private <T extends BpmEvent> ProductMilestoneRelease triggerRelease(
+            ProductMilestone milestone,
+            String accessToken) {
         ProductMilestoneRelease release = new ProductMilestoneRelease();
         release.setStartingDate(new Date());
         release.setMilestone(milestone);
         try {
             MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone, accessToken);
             Integer id = milestone.getId();
-            releaseTask.<MilestoneReleaseResultRest>addListener(BpmEventType.BREW_IMPORT_SUCCESS, r -> onSuccessfulPush(id, r));
-            releaseTask.<BpmStringMapNotificationRest>addListener(BpmEventType.BREW_IMPORT_ERROR, r -> onFailedPush(milestone.getId(), r));
+            releaseTask.<MilestoneReleaseResultRest> addListener(
+                    BpmEventType.BREW_IMPORT_SUCCESS,
+                    r -> onSuccessfulPush(id, r));
+            releaseTask.<BpmStringMapNotificationRest> addListener(
+                    BpmEventType.BREW_IMPORT_ERROR,
+                    r -> onFailedPush(milestone.getId(), r));
             release.setStatus(MilestoneReleaseStatus.IN_PROGRESS);
             bpmManager.startTask(releaseTask);
             release.setLog("Brew push task started\n");
@@ -209,7 +214,6 @@ public class ProductMilestoneReleaseManager {
 
         String combinedLog = ArtifactImportError.combineMessages(buildRest.getErrorMessage(), buildRest.getErrors());
 
-
         BuildPushStatus status;
         try {
             status = convertStatus(buildRest.getStatus());
@@ -224,7 +228,7 @@ public class ProductMilestoneReleaseManager {
                 .log(combinedLog)
                 .brewBuildId(buildRest.getBrewBuildId())
                 .brewBuildUrl(buildRest.getBrewBuildUrl())
-                .tagPrefix("") //TODO tag!
+                .tagPrefix("") // TODO tag!
                 .build();
         buildRecordPushResultRepository.save(buildRecordPush);
     }
@@ -275,18 +279,22 @@ public class ProductMilestoneReleaseManager {
     private void describeBuildImport(StringBuilder stringBuilder, BuildImportResultRest buildImport) {
         Integer buildRecordId = buildImport.getBuildRecordId();
         BuildRecord record = orNull(buildRecordId, buildRecordRepository::queryById);
-        BuildConfigurationAudited buildConfiguration = orNull(record, BuildRecord::getBuildConfigurationAudited); //TODO fix audited entity usage
+        BuildConfigurationAudited buildConfiguration = orNull(record, BuildRecord::getBuildConfigurationAudited); // TODO
+                                                                                                                  // fix
+                                                                                                                  // audited
+                                                                                                                  // entity
+                                                                                                                  // usage
         stringBuilder.append("\n-------------------------------------------------------------------------\n");
-        String buildMessage =
-                String.format("%s [buildRecordId: %d, built from %s revision %s tag %s] import %s. Brew build id: %d, Brew build url: %s\n",
-                        orNull(buildConfiguration, BuildConfigurationAudited::getName),
-                        orNull(record, BuildRecord::getId),
-                        orNull(record, BuildRecord::getScmRepoURL),
-                        orNull(record, BuildRecord::getScmRevision),
-                        orNull(record, BuildRecord::getScmTag),
-                        buildImport.getStatus(),
-                        buildImport.getBrewBuildId(),
-                        buildImport.getBrewBuildUrl());
+        String buildMessage = String.format(
+                "%s [buildRecordId: %d, built from %s revision %s tag %s] import %s. Brew build id: %d, Brew build url: %s\n",
+                orNull(buildConfiguration, BuildConfigurationAudited::getName),
+                orNull(record, BuildRecord::getId),
+                orNull(record, BuildRecord::getScmRepoURL),
+                orNull(record, BuildRecord::getScmRevision),
+                orNull(record, BuildRecord::getScmTag),
+                buildImport.getStatus(),
+                buildImport.getBrewBuildId(),
+                buildImport.getBrewBuildUrl());
         stringBuilder.append(buildMessage);
         if (buildImport.getStatus() != BuildImportStatus.SUCCESSFUL) {
             stringBuilder.append("Error message: ").append(buildImport.getErrorMessage());
@@ -303,11 +311,11 @@ public class ProductMilestoneReleaseManager {
         Artifact artifact = artifactRepository.queryById(Integer.valueOf(artifactId));
 
         stringBuilder.append(
-                String.format("Failed to import %s [artifactId:%s]. Error message: %s\n",
+                String.format(
+                        "Failed to import %s [artifactId:%s]. Error message: %s\n",
                         orNull(artifact, Artifact::getIdentifier),
                         artifactId,
-                        e.getErrorMessage())
-        );
+                        e.getErrorMessage()));
     }
 
     /**
@@ -318,8 +326,8 @@ public class ProductMilestoneReleaseManager {
     private void removeCurrentFlagFromMilestone(ProductMilestone milestone) {
         ProductVersion productVersion = milestone.getProductVersion();
 
-        if (productVersion.getCurrentProductMilestone() != null &&
-                productVersion.getCurrentProductMilestone().getId().equals(milestone.getId())) {
+        if (productVersion.getCurrentProductMilestone() != null
+                && productVersion.getCurrentProductMilestone().getId().equals(milestone.getId())) {
 
             productVersion.setCurrentProductMilestone(null);
             productVersionRepository.save(productVersion);

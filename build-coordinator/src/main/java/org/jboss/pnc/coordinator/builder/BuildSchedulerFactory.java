@@ -45,22 +45,26 @@ public class BuildSchedulerFactory {
 
     private BuildScheduler configuredBuildScheduler;
 
-    @Deprecated //CDI workaround
+    @Deprecated // CDI workaround
     public BuildSchedulerFactory() {
     }
 
     @Inject
-    public BuildSchedulerFactory(Instance<BuildScheduler> availableSchedulers, Configuration configuration) throws CoreException {
+    public BuildSchedulerFactory(Instance<BuildScheduler> availableSchedulers, Configuration configuration)
+            throws CoreException {
         AtomicReference<String> schedulerId = new AtomicReference<>(null);
         try {
-            schedulerId.set(configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)).getBuildSchedulerId());
+            schedulerId.set(
+                    configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)).getBuildSchedulerId());
         } catch (ConfigurationParseException e) {
             logger.warn("Unable parse config. Using default scheduler");
             schedulerId.set(DEFAULT_SCHEDULER_ID);
         }
         availableSchedulers.forEach(scheduler -> setMatchingScheduler(scheduler, schedulerId.get()));
         if (configuredBuildScheduler == null) {
-            throw new CoreException("Cannot get BuildScheduler, check configurations and make sure a scheduler with configured id is available for injection. configured id: " + schedulerId);
+            throw new CoreException(
+                    "Cannot get BuildScheduler, check configurations and make sure a scheduler with configured id is available for injection. configured id: "
+                            + schedulerId);
         }
     }
 

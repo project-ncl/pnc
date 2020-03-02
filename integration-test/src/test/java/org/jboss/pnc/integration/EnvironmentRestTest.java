@@ -59,7 +59,7 @@ public class EnvironmentRestTest extends AbstractTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static Integer environmentId;
-    
+
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
@@ -77,18 +77,23 @@ public class EnvironmentRestTest extends AbstractTest {
     @Test
     @InSequence(0)
     public void shouldCreateNewEnvironment() throws Exception {
-        //given
+        // given
         String environment = toJson(exampleEnvironment());
 
-        //when
-        Response response = given()
-                .headers(testHeaders)
-                .body(environment).contentType(ContentType.JSON).port(getHttpPort())
-                .header("Content-Type", "application/json; charset=UTF-8").when().post(EnvironmentRestClient.ENVIRONMENT_REST_ENDPOINT);
+        // when
+        Response response = given().headers(testHeaders)
+                .body(environment)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .when()
+                .post(EnvironmentRestClient.ENVIRONMENT_REST_ENDPOINT);
         environmentId = ResponseUtils.getIdFromLocationHeader(response);
 
-        //then
-        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/environments\\/\\d+");
+        // then
+        ResponseAssertion.assertThat(response)
+                .hasStatus(201)
+                .hasLocationMatches(".*\\/pnc-rest\\/rest\\/environments\\/\\d+");
         assertThat(environmentId).isNotNull();
     }
 
@@ -96,24 +101,28 @@ public class EnvironmentRestTest extends AbstractTest {
     @Test
     @InSequence(1)
     public void shouldUpdateEnvironment() throws Exception {
-        //given
+        // given
         BuildEnvironmentRest environmentModified = exampleEnvironment();
         environmentModified.setSystemImageType(SystemImageType.DOCKER_IMAGE);
 
-        //when
-        Response putResponse = given()
-                .headers(testHeaders)
-                .body(toJson(environmentModified)).contentType(ContentType.JSON).port(getHttpPort()).when()
+        // when
+        Response putResponse = given().headers(testHeaders)
+                .body(toJson(environmentModified))
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .put(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
 
-        Response getResponse = given()
-                .headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response getResponse = given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
 
-        BuildEnvironmentRest noLoremIpsum = getResponse.jsonPath().getObject(AbstractRestClient.CONTENT, BuildEnvironmentRest.class);
+        BuildEnvironmentRest noLoremIpsum = getResponse.jsonPath()
+                .getObject(AbstractRestClient.CONTENT, BuildEnvironmentRest.class);
 
-        //then
+        // then
         ResponseAssertion.assertThat(putResponse).hasStatus(200);
         ResponseAssertion.assertThat(getResponse).hasStatus(200);
         assertThat(noLoremIpsum.getSystemImageType()).isEqualTo(SystemImageType.DOCKER_IMAGE);
@@ -123,17 +132,19 @@ public class EnvironmentRestTest extends AbstractTest {
     @Test
     @InSequence(2)
     public void shouldDeleteEnvironment() throws Exception {
-        //when
-        Response deleteResponse = given()
-                .headers(testHeaders).port(getHttpPort()).when()
+        // when
+        Response deleteResponse = given().headers(testHeaders)
+                .port(getHttpPort())
+                .when()
                 .delete(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
 
-        Response getResponse = given()
-                .headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response getResponse = given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
 
-        //then
+        // then
         ResponseAssertion.assertThat(deleteResponse).hasStatus(200);
         ResponseAssertion.assertThat(getResponse).hasStatus(404);
     }
@@ -141,19 +152,18 @@ public class EnvironmentRestTest extends AbstractTest {
     @Test
     @InSequence(3)
     public void shouldQueryForEnvironment() {
-        //given
+        // given
         EnvironmentRestClient client = new EnvironmentRestClient();
 
-        //when
+        // when
         RestResponse<List<BuildEnvironmentRest>> allNonDeprecated = client.all(true, 0, 50, "deprecated==false", "");
-        //then
+        // then
         BuildEnvironmentRest nonDeprecatedEnv = allNonDeprecated.getValue().get(0);
         Assertions.assertThat(nonDeprecatedEnv.isDeprecated()).isFalse();
 
-
-        //when
+        // when
         RestResponse<List<BuildEnvironmentRest>> allDeprecated = client.all(true, 0, 50, "deprecated==true", "");
-        //then
+        // then
         BuildEnvironmentRest deprecatedEnv = allDeprecated.getValue().get(0);
         Assertions.assertThat(deprecatedEnv.isDeprecated()).isTrue();
     }

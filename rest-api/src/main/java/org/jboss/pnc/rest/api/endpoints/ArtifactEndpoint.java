@@ -73,15 +73,21 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface ArtifactEndpoint {
     static final String A_ID = "ID of the artifact";
 
-    @Operation(summary = "Gets all artifacts.",
+    @Operation(
+            summary = "Gets all artifacts.",
             responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     Page<Artifact> getAll(
             @Valid @BeanParam PageParameters pageParams,
@@ -89,74 +95,100 @@ public interface ArtifactEndpoint {
             @Parameter(description = "Filter by md5 of the artifact") @QueryParam("md5") String md5,
             @Parameter(description = "Filter by sha1 of the artifact") @QueryParam("sha1") String sha1);
 
-    @Operation(summary = "Gets a specific build config.",
+    @Operation(
+            summary = "Gets a specific build config.",
             responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = Artifact.class))),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}")
-    Artifact getSpecific(
-            @Parameter(description = "ID of the Artifact") @PathParam("id") String id);
+    Artifact getSpecific(@Parameter(description = "ID of the Artifact") @PathParam("id") String id);
 
-
-    @Operation(summary = "[role:admin] Creates a new Artifact",
+    @Operation(
+            summary = "[role:admin] Creates a new Artifact",
             tags = "internal",
             responses = {
-                    @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = ENTITY_CREATED_CODE,
+                            description = ENTITY_CREATED_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = Artifact.class))),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = CONFLICTED_CODE,
+                            description = CONFLICTED_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.CREATED)
     Artifact create(@NotNull Artifact artifactRest);
 
-    @Operation(summary = "[role:admin] Updates an existing Artifact",
+    @Operation(
+            summary = "[role:admin] Updates an existing Artifact",
             tags = "internal",
-            responses = {
-                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
-                    @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
+            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = CONFLICTED_CODE, description = CONFLICTED_DESCRIPTION,
+                    @ApiResponse(
+                            responseCode = CONFLICTED_CODE,
+                            description = CONFLICTED_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            })
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}")
     void update(@PathParam("id") String id, @NotNull Artifact artifact);
 
-    @Operation(summary = "Gets the build(s) that depends on this artifact.",
+    @Operation(
+            summary = "Gets the build(s) that depends on this artifact.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SwaggerPages.BuildPage.class))),
-                @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = SwaggerPages.BuildPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/dependant-builds")
     Page<Build> getDependantBuilds(
             @Parameter(description = A_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams);
 
-    @Operation(summary = "Gets the milestones that produced or consumed this artifact.",
+    @Operation(
+            summary = "Gets the milestones that produced or consumed this artifact.",
             responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = SwaggerPages.MilestoneInfoPage.class))),
-                @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(
+                                    schema = @Schema(implementation = SwaggerPages.MilestoneInfoPage.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/milestones")
     Page<MilestoneInfo> getMilestonesInfo(

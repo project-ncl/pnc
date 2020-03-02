@@ -47,7 +47,7 @@ public class DefaultCausewayClient implements CausewayClient {
     private String buildPushEndpoint;
     private String untagEndpoint;
 
-    @Deprecated //CDI workaround
+    @Deprecated // CDI workaround
     public DefaultCausewayClient() {
     }
 
@@ -63,7 +63,7 @@ public class DefaultCausewayClient implements CausewayClient {
         HttpResponse response;
         try {
             logger.info("Making POST request to {}.", url);
-            if(logger.isDebugEnabled())
+            if (logger.isDebugEnabled())
                 logger.debug("Request body {}.", secureBodyLog(jsonMessage));
 
             Request request = Request.Post(url)
@@ -112,6 +112,5 @@ public class DefaultCausewayClient implements CausewayClient {
     String secureBodyLog(String jsonMessage) {
         return jsonMessage.replaceAll("Bearer \\p{Print}+?\"", "Bearer ***\"");
     }
-
 
 }

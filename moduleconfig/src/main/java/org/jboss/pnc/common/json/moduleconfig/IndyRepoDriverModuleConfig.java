@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @ToString
-public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
+public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
     public static final String MODULE_NAME = "indy-repo-driver";
 
@@ -45,9 +45,9 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
     private String baseUrl;
 
     /**
-     * Comma-separated lists of repository name patterns to use when considering whether a remote repository
-     * represents an internal build (from a trusted build system, for instance). The structure contains a list of
-     * patterns for every supported package type.
+     * Comma-separated lists of repository name patterns to use when considering whether a remote repository represents
+     * an internal build (from a trusted build system, for instance). The structure contains a list of patterns for
+     * every supported package type.
      */
     @JsonProperty("internal-repo-patterns")
     private InternalRepoPatterns internalRepoPatterns;
@@ -115,7 +115,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
     @JsonProperty(required = false)
     private String tempBuildPromotionGroup = "temporary-builds";
 
-    public IndyRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl){
+    public IndyRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl) {
         this.baseUrl = baseUrl;
     }
 
@@ -175,7 +175,6 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
         this.externalRepositoryNpmPath = externalRepositoryNpmPath;
     }
 
-
     @ToString
     public static class InternalRepoPatterns {
 
@@ -196,6 +195,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
 
         /**
          * Gets the list of Maven strings.
+         * 
          * @return the list of Maven strings or empty list if no value is set (never {@code null})
          */
         public List<String> getMaven() {
@@ -204,6 +204,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
 
         /**
          * Adds extra members to the list of Maven strings.
+         * 
          * @param addition added strings
          */
         public void addMaven(List<String> addition) {
@@ -222,6 +223,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
 
         /**
          * Gets the list of NPM strings.
+         * 
          * @return the list of NPM strings or empty list if no value is set (never {@code null})
          */
         public List<String> getNpm() {
@@ -230,6 +232,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
 
         /**
          * Adds extra members to the list of NPM strings.
+         * 
          * @param addition added strings
          */
         public void addNpm(List<String> addition) {
@@ -244,6 +247,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
 
         /**
          * Gets the list of Generic-http strings.
+         * 
          * @return the list of Generic-http strings or empty list if no value is set (never {@code null})
          */
         public List<String> getGeneric() {
@@ -252,6 +256,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
 
         /**
          * Adds extra members to the list of Generic-http strings.
+         * 
          * @param addition added strings
          */
         public void addGeneric(List<String> addition) {
@@ -265,7 +270,6 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
         }
 
     }
-
 
     public static class PatternsList {
 
@@ -315,7 +319,6 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
         @JsonIgnore
         private PatternsList shared;
 
-
         @JsonProperty("maven")
         public void setMaven(List<String> strPatterns) {
             maven = new PatternsList(strPatterns);
@@ -352,6 +355,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig{
 
         /**
          * Gets the list of ignored path patterns shared among all package types.
+         * 
          * @return the list of shared strings or empty list if no value is set (never {@code null})
          */
         @JsonIgnore

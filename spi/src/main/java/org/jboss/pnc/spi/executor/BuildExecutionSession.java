@@ -65,12 +65,11 @@ public interface BuildExecutionSession {
 
     boolean hasFailed();
 
-//    BuildResult getBuildResult();
+    // BuildResult getBuildResult();
 
     RunningEnvironment getRunningEnvironment();
 
     void setRunningEnvironment(RunningEnvironment runningEnvironment);
-
 
     void setBuildDriverResult(BuildDriverResult buildDriverResult);
 

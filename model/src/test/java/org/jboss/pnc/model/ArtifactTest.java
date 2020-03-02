@@ -57,9 +57,7 @@ public class ArtifactTest extends AbstractModelTest {
     @Test
     public void shouldProhibitDeletionOfNonTemporaryArtifact() {
         // given
-        Artifact artifact = prepareArtifactBuilder()
-                .artifactQuality(ArtifactQuality.NEW)
-                .build();
+        Artifact artifact = prepareArtifactBuilder().artifactQuality(ArtifactQuality.NEW).build();
 
         em.getTransaction().begin();
         em.persist(artifact);
@@ -83,9 +81,7 @@ public class ArtifactTest extends AbstractModelTest {
     @Test
     public void shouldAllowDeletionOfTemporaryArtifact() {
         // given
-        Artifact artifact = prepareArtifactBuilder()
-                .artifactQuality(ArtifactQuality.TEMPORARY)
-                .build();
+        Artifact artifact = prepareArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).build();
 
         em.getTransaction().begin();
         em.persist(artifact);
@@ -104,8 +100,8 @@ public class ArtifactTest extends AbstractModelTest {
     }
 
     @Test
-    public void shouldAllowDeletionOfDeletedQualityArtifacts(){
-        //given
+    public void shouldAllowDeletionOfDeletedQualityArtifacts() {
+        // given
         Artifact artifact = prepareArtifactBuilder().artifactQuality(ArtifactQuality.DELETED).build();
 
         em.getTransaction().begin();
@@ -114,12 +110,12 @@ public class ArtifactTest extends AbstractModelTest {
         int artifactId = artifact.getId();
         assertTrue(artifact.getId() != 0);
 
-        //when
+        // when
         em.getTransaction().begin();
         em.remove(artifact);
         em.getTransaction().commit();
 
-        //then
+        // then
         assertTrue(em.find(Artifact.class, artifactId) == null);
     }
 

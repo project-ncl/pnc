@@ -30,9 +30,9 @@ import java.util.Comparator;
 public interface RSQLProducer {
 
     /**
-     * Creates a Criteria API predicate from RSQL query for DB search. It uses toPath function to
-     * map RSQL selector to Criteria API Path. The predicate can throw a runtime exception when used
-     * if the query is bad.
+     * Creates a Criteria API predicate from RSQL query for DB search. It uses toPath function to map RSQL selector to
+     * Criteria API Path. The predicate can throw a runtime exception when used if the query is bad.
+     * 
      * @param <DB> Type of the entity.
      * @param type Entity type.
      * @param rsql The query RSQL.
@@ -41,8 +41,9 @@ public interface RSQLProducer {
     <DB extends GenericEntity<?>> Predicate<DB> getCriteriaPredicate(Class<DB> type, String rsql);
 
     /**
-     * Creates a predicate from RSQL query for stream search. The predicate can throw a runtime
-     * exception when used if the query is bad.
+     * Creates a predicate from RSQL query for stream search. The predicate can throw a runtime exception when used if
+     * the query is bad.
+     * 
      * @param <DTO> Type of the entity.
      * @param rsql The query RSQL.
      * @return Predicate representing the RSQL query.

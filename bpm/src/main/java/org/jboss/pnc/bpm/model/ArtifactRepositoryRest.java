@@ -30,7 +30,6 @@ import java.io.IOException;
 @XmlRootElement(name = "artifactRepository")
 public class ArtifactRepositoryRest implements ArtifactRepository {
 
-
     private String id;
 
     private String name;
@@ -41,12 +40,13 @@ public class ArtifactRepositoryRest implements ArtifactRepository {
 
     private Boolean snapshots;
 
-
-    public ArtifactRepositoryRest() {}
+    public ArtifactRepositoryRest() {
+    }
 
     public ArtifactRepositoryRest(String serialized) throws IOException {
-        ObjectMapper mapper = new ObjectMapper(); //TODO replace with JsonOutputConverterMapper
-        ArtifactRepositoryRest artifactRepositoryRestFromJson = mapper.readValue(serialized, ArtifactRepositoryRest.class);
+        ObjectMapper mapper = new ObjectMapper(); // TODO replace with JsonOutputConverterMapper
+        ArtifactRepositoryRest artifactRepositoryRestFromJson = mapper
+                .readValue(serialized, ArtifactRepositoryRest.class);
         ArtifactRepository artifactRepository = artifactRepositoryRestFromJson.toArtifactRepository();
 
         init(artifactRepository);
@@ -65,15 +65,8 @@ public class ArtifactRepositoryRest implements ArtifactRepository {
     }
 
     public ArtifactRepository toArtifactRepository() {
-        return ArtifactRepository.build(
-                id,
-                name,
-                url,
-                releases,
-                snapshots
-        );
+        return ArtifactRepository.build(id, name, url, releases, snapshots);
     }
-
 
     @Override
     public String getId() {
@@ -124,6 +117,5 @@ public class ArtifactRepositoryRest implements ArtifactRepository {
     public String toString() {
         return JsonOutputConverterMapper.apply(this);
     }
-
 
 }

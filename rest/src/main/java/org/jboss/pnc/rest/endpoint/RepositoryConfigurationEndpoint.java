@@ -56,10 +56,10 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PA
 @Path("/repository-configurations")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class RepositoryConfigurationEndpoint extends AbstractEndpoint<RepositoryConfiguration, RepositoryConfigurationRest> {
+public class RepositoryConfigurationEndpoint
+        extends AbstractEndpoint<RepositoryConfiguration, RepositoryConfigurationRest> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
 
     private RepositoryConfigurationProvider repositoryConfigurationProvider;
 
@@ -73,10 +73,11 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-                           @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-                           @QueryParam(SORTING_QUERY_PARAM) String sort,
-                           @QueryParam(QUERY_QUERY_PARAM) String q) {
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q) {
         return fromCollection(repositoryConfigurationProvider.getAll(pageIndex, pageSize, sort, q));
     }
 
@@ -89,22 +90,22 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
 
     @GET
     @Path("/{id}")
-    public Response getSpecific(
-            @PathParam("id") Integer id) {
+    public Response getSpecific(@PathParam("id") Integer id) {
         return super.getSpecific(id);
     }
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Integer id,
-                           RepositoryConfigurationRest repositoryConfigurationRest) throws RestValidationException {
+    public Response update(@PathParam("id") Integer id, RepositoryConfigurationRest repositoryConfigurationRest)
+            throws RestValidationException {
         repositoryConfigurationRest.validate();
         return super.update(id, repositoryConfigurationRest);
     }
 
     @GET
     @Path("/search-by-scm-url")
-    public Response search(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response search(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(SEARCH_QUERY_PARAM) String scmUrl) {
@@ -113,10 +114,11 @@ public class RepositoryConfigurationEndpoint extends AbstractEndpoint<Repository
 
     @GET
     @Path("/match-by-scm-url")
-    public Response match(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-                           @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-                           @QueryParam(SORTING_QUERY_PARAM) String sort,
-                           @QueryParam(SEARCH_QUERY_PARAM) String scmUrl) {
+    public Response match(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(SEARCH_QUERY_PARAM) String scmUrl) {
         return fromCollection(repositoryConfigurationProvider.matchByScmUrl(pageIndex, pageSize, sort, scmUrl));
     }
 

@@ -79,8 +79,14 @@ public class BuildConfigurationEndpointTest {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        bcEndpoint = new BuildConfigurationEndpoint(bcProvider, null, null, null, null,
-                authProvider, supportedGenericParameters);
+        bcEndpoint = new BuildConfigurationEndpoint(
+                bcProvider,
+                null,
+                null,
+                null,
+                null,
+                authProvider,
+                supportedGenericParameters);
 
         User user = mock(User.class);
         when(user.getId()).thenReturn(CURRENT_USER);
@@ -92,7 +98,7 @@ public class BuildConfigurationEndpointTest {
         // given
         final String KEY = "KEY";
         final String VALUE = "VALUE";
-        
+
         Map<String, String> genericParams = new HashMap<>();
         genericParams.put(KEY, VALUE);
         BuildConfiguration bcGiven = BuildConfiguration.Builder.newBuilder()
@@ -103,7 +109,6 @@ public class BuildConfigurationEndpointTest {
 
         // when
         Response response = bcEndpoint.getSpecific(1);
-        
 
         // then
         assertThat(response.getStatus()).isEqualTo(200);
@@ -124,15 +129,16 @@ public class BuildConfigurationEndpointTest {
         // then
         assertThat(response.getStatus()).isEqualTo(200);
 
-        Map<String, String> supportedParameters = (Map<String, String>) bcEndpoint
-                .getSupportedGenericParameters().getEntity();
+        Map<String, String> supportedParameters = (Map<String, String>) bcEndpoint.getSupportedGenericParameters()
+                .getEntity();
 
         assertThat(supportedParameters).containsKey(CUSTOM_PME_PARAMETERS);
         assertThat(supportedParameters.get(CUSTOM_PME_PARAMETERS)).startsWith("Additional");
     }
 
     @Test(expected = InvalidEntityException.class)
-    public void invalidBuildOptionsRejectedTest() throws InvalidEntityException, MalformedURLException, CoreException, BuildConflictException {
+    public void invalidBuildOptionsRejectedTest()
+            throws InvalidEntityException, MalformedURLException, CoreException, BuildConflictException {
         // when
         bcEndpoint.trigger(1, null, false, false, false, false, true, null, null);
     }

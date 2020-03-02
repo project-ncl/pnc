@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.ROLLBACK)
 @Category(ContainerTest.class)
-public class ProjectRestClientMappingTest{
+public class ProjectRestClientMappingTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -74,9 +74,9 @@ public class ProjectRestClientMappingTest{
         configurationId = buildConfiguration.getId();
     }
 
-   @Test
-   public void shouldRemapProjectRestToProject() {
-        //given
+    @Test
+    public void shouldRemapProjectRestToProject() {
+        // given
         ProjectRest projectRest = new ProjectRest();
         projectRest.setId(1);
         projectRest.setConfigurationIds(Arrays.asList(2));
@@ -85,13 +85,14 @@ public class ProjectRestClientMappingTest{
         projectRest.setName("name");
         projectRest.setProjectUrl("projectUrl");
 
-        //when
+        // when
         Project project = projectRest.toDBEntityBuilder().build();
-        List<Integer> buildConfigurationIds = project.getBuildConfigurations().stream()
+        List<Integer> buildConfigurationIds = project.getBuildConfigurations()
+                .stream()
                 .map(buildConfiguration -> buildConfiguration.getId())
                 .collect(Collectors.toList());
 
-        //then
+        // then
         assertThat(project.getId()).isEqualTo(1);
         assertThat(project.getDescription()).isEqualTo("description");
         assertThat(project.getIssueTrackerUrl()).isEqualTo("issueTracker");

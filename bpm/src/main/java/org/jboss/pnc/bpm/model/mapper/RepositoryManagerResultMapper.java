@@ -36,8 +36,14 @@ public class RepositoryManagerResultMapper {
     private ArtifactMapper artifactMapper;
 
     public RepositoryManagerResultRest toDTO(RepositoryManagerResult entity) {
-        List<Artifact> builtArtifacts = entity.getBuiltArtifacts().stream().map(artifact -> artifactMapper.toDTO(artifact)).collect(Collectors.toList());
-        List<Artifact> dependencies = entity.getDependencies().stream().map(artifact -> artifactMapper.toDTO(artifact)).collect(Collectors.toList());
+        List<Artifact> builtArtifacts = entity.getBuiltArtifacts()
+                .stream()
+                .map(artifact -> artifactMapper.toDTO(artifact))
+                .collect(Collectors.toList());
+        List<Artifact> dependencies = entity.getDependencies()
+                .stream()
+                .map(artifact -> artifactMapper.toDTO(artifact))
+                .collect(Collectors.toList());
         String buildContentId = entity.getBuildContentId();
         String log = entity.getLog();
         CompletionStatus completionStatus = entity.getCompletionStatus();
@@ -45,8 +51,14 @@ public class RepositoryManagerResultMapper {
     }
 
     public RepositoryManagerResult toEntity(RepositoryManagerResultRest dto) {
-        List<org.jboss.pnc.model.Artifact> builtArtifacts = dto.getBuiltArtifacts().stream().map(artifactRest -> artifactMapper.toEntity(artifactRest)).collect(Collectors.toList());
-        List<org.jboss.pnc.model.Artifact> dependencies = dto.getDependencies().stream().map(artifactRest -> artifactMapper.toEntity(artifactRest)).collect(Collectors.toList());
+        List<org.jboss.pnc.model.Artifact> builtArtifacts = dto.getBuiltArtifacts()
+                .stream()
+                .map(artifactRest -> artifactMapper.toEntity(artifactRest))
+                .collect(Collectors.toList());
+        List<org.jboss.pnc.model.Artifact> dependencies = dto.getDependencies()
+                .stream()
+                .map(artifactRest -> artifactMapper.toEntity(artifactRest))
+                .collect(Collectors.toList());
         String buildContentId = dto.getBuildContentId();
         String log = dto.getLog();
         CompletionStatus completionStatus = dto.getCompletionStatus();

@@ -18,8 +18,7 @@
 package org.jboss.pnc.dto;
 
 /**
- * A base interface for all DTO entities
- * to allow generic implementation of some standard operations
+ * A base interface for all DTO entities to allow generic implementation of some standard operations
  */
 public interface DTOEntity {
 

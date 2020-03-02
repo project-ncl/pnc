@@ -28,13 +28,13 @@ import org.junit.BeforeClass;
 public class AbstractModuleConfigTest {
 
     private static String backupConfigPath;
-    
+
     @BeforeClass
     public static void setUpTestConfigPath() {
         backupConfigPath = System.getProperty("pnc-config-file");
         System.setProperty("pnc-config-file", "testConfig.json");
     }
-    
+
     @AfterClass
     public static void restoreConfigPath() {
         if (backupConfigPath != null)

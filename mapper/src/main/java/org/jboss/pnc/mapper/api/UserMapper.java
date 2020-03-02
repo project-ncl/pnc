@@ -30,11 +30,11 @@ import org.mapstruct.Mapping;
 public interface UserMapper extends EntityMapper<Integer, User, org.jboss.pnc.dto.User, org.jboss.pnc.dto.User> {
 
     @Override
-    @Mapping(target="email", ignore = true)
-    @Mapping(target="firstName", ignore = true)
-    @Mapping(target="lastName", ignore = true)
-    @Mapping(target="loginToken", ignore = true)
-    @Mapping(target="buildRecords", ignore = true)
+    @Mapping(target = "email", ignore = true)
+    @Mapping(target = "firstName", ignore = true)
+    @Mapping(target = "lastName", ignore = true)
+    @Mapping(target = "loginToken", ignore = true)
+    @Mapping(target = "buildRecords", ignore = true)
     User toEntity(org.jboss.pnc.dto.User dtoEntity);
 
     @Override
@@ -50,12 +50,12 @@ public interface UserMapper extends EntityMapper<Integer, User, org.jboss.pnc.dt
 
     @Override
     @Reference
-    default org.jboss.pnc.dto.User toRef(User dbEntity){
+    default org.jboss.pnc.dto.User toRef(User dbEntity) {
         return toDTO(dbEntity);
     }
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"email", "firstName", "lastName", "loginToken", "buildRecords"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "email", "firstName", "lastName", "loginToken", "buildRecords" })
     org.jboss.pnc.dto.User toDTO(User dbEntity);
 
 }

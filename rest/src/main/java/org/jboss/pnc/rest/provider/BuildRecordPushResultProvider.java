@@ -27,7 +27,7 @@ import java.util.function.Function;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Stateless
-public class BuildRecordPushResultProvider extends AbstractProvider<BuildRecordPushResult, BuildRecordPushResultRest>{
+public class BuildRecordPushResultProvider extends AbstractProvider<BuildRecordPushResult, BuildRecordPushResultRest> {
 
     @Override
     protected Function<? super BuildRecordPushResult, ? extends BuildRecordPushResultRest> toRESTModel() {

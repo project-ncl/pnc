@@ -39,7 +39,7 @@ public class ApacheHttpClient43EngineWithRetry extends ApacheHttpClient43Engine 
         logger.info("Bootstrapping http engine with request retry handler...");
         final HttpClientBuilder builder = HttpClientBuilder.create();
         RequestConfig.Builder requestBuilder = RequestConfig.custom();
-        if(defaultProxy != null) {
+        if (defaultProxy != null) {
             requestBuilder.setProxy(defaultProxy);
         }
         builder.disableContentCompression();

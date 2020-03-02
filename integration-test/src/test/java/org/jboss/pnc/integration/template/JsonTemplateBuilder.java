@@ -39,7 +39,9 @@ public class JsonTemplateBuilder {
 
     public static JsonTemplateBuilder fromResource(String resourceName) throws IOException {
         JsonTemplateBuilder jsonTemplateBuilder = new JsonTemplateBuilder();
-        jsonTemplateBuilder.template = IoUtils.readFileOrResource(resourceName, resourceName + ".json",
+        jsonTemplateBuilder.template = IoUtils.readFileOrResource(
+                resourceName,
+                resourceName + ".json",
                 MethodHandles.lookup().lookupClass().getClassLoader());
         return jsonTemplateBuilder;
     }

@@ -74,12 +74,13 @@ public class WebSocketsNotificationTest {
     @Inject
     Notifier notifier;
 
-    @Deployment(name="WebSocketsNotificationTest")
+    @Deployment(name = "WebSocketsNotificationTest")
     public static EnterpriseArchive deploy() {
         return Deployments.testEarForInContainerTest(
                 Collections.singletonList(NotificationsEndpoint.class.getPackage()),
                 Collections.singletonList(BuildMock.class.getPackage()),
-                WebSocketsNotificationTest.class, NotificationCollector.class);
+                WebSocketsNotificationTest.class,
+                NotificationCollector.class);
     }
 
     @Test
@@ -106,12 +107,13 @@ public class WebSocketsNotificationTest {
                 build.getStatus());
 
         String buildString = JsonOutputConverterMapper.apply(build);
-        String expectedJsonResponse = "{\"oldStatus\":\"NEW\",\"build\":" + buildString + ",\"job\":\"BUILD\",\"notificationType\":\"BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldProgress\":\"PENDING\"}";
+        String expectedJsonResponse = "{\"oldStatus\":\"NEW\",\"build\":" + buildString
+                + ",\"job\":\"BUILD\",\"notificationType\":\"BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldProgress\":\"PENDING\"}";
 
-        //when
+        // when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
 
-        //then
+        // then
         Wait.forCondition(() -> isReceived(expectedJsonResponse), 15, ChronoUnit.SECONDS);
     }
 
@@ -129,14 +131,18 @@ public class WebSocketsNotificationTest {
                 .build();
 
         BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(
-                BuildSetStatus.NEW, BuildSetStatus.DONE, groupBuild, "description");
+                BuildSetStatus.NEW,
+                BuildSetStatus.DONE,
+                groupBuild,
+                "description");
         String groupBuildString = JsonOutputConverterMapper.apply(groupBuild);
-        String expectedJsonResponse = "{\"groupBuild\":" + groupBuildString + ",\"job\":\"GROUP_BUILD\",\"notificationType\":\"GROUP_BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldProgress\":\"IN_PROGRESS\"}";
+        String expectedJsonResponse = "{\"groupBuild\":" + groupBuildString
+                + ",\"job\":\"GROUP_BUILD\",\"notificationType\":\"GROUP_BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldProgress\":\"IN_PROGRESS\"}";
 
-        //when
+        // when
         buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);
 
-        //then
+        // then
         Wait.forCondition(() -> isReceived(expectedJsonResponse), 15, ChronoUnit.SECONDS);
     }
 
@@ -153,8 +159,8 @@ public class WebSocketsNotificationTest {
 
     private void awaitFor(Supplier<Boolean> condition, int timeMs) {
         long waitUntil = System.currentTimeMillis() + timeMs;
-        while(System.currentTimeMillis() < waitUntil) {
-            if(condition.get()) {
+        while (System.currentTimeMillis() < waitUntil) {
+            if (condition.get()) {
                 return;
             }
             Thread.currentThread().yield();

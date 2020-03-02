@@ -31,16 +31,19 @@ import javax.inject.Inject;
 import java.util.function.Function;
 
 @Stateless
-public class ProductMilestoneReleaseProvider extends AbstractProvider<ProductMilestoneRelease, ProductMilestoneReleaseRest> {
+public class ProductMilestoneReleaseProvider
+        extends AbstractProvider<ProductMilestoneRelease, ProductMilestoneReleaseRest> {
 
     private ProductMilestoneRepository milestoneRepository;
     private ProductMilestoneReleaseRepository releaseRepository;
 
     @Inject
-    public ProductMilestoneReleaseProvider(ProductMilestoneReleaseRepository releaseRepository,
-                                           ProductMilestoneRepository milestoneRepository,
-                                           RSQLPredicateProducer rsqlPredicateProducer,
-                                           SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
+    public ProductMilestoneReleaseProvider(
+            ProductMilestoneReleaseRepository releaseRepository,
+            ProductMilestoneRepository milestoneRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer) {
         super(releaseRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.releaseRepository = releaseRepository;
         this.milestoneRepository = milestoneRepository;

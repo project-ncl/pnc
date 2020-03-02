@@ -45,10 +45,10 @@ public class GraphUtils {
         List<Edge<T>> edges = target.getEdges();
         for (Edge newEdge : toMerge.getEdges()) {
             Optional<Edge<T>> any = edges.stream()
-                    .filter(existing ->
-                            existing.getFrom().getName().equals(newEdge.getFrom().getName())
-                             && existing.getTo().getName().equals(newEdge.getTo().getName())
-                    ).findAny();
+                    .filter(
+                            existing -> existing.getFrom().getName().equals(newEdge.getFrom().getName())
+                                    && existing.getTo().getName().equals(newEdge.getTo().getName()))
+                    .findAny();
             if (!any.isPresent()) {
                 edges.add(newEdge);
             }

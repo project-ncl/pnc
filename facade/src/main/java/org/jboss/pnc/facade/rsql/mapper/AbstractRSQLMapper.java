@@ -32,7 +32,8 @@ import java.io.Serializable;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends GenericEntity<ID>> implements RSQLMapper<ID, DB> {
+public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends GenericEntity<ID>>
+        implements RSQLMapper<ID, DB> {
 
     @Inject
     private UniversalRSQLMapper mapper;
@@ -60,7 +61,10 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
         throw new RSQLException("Unknown RSQL selector " + name + " for type " + type);
     }
 
-    protected <X extends GenericEntity<Integer>> Path<?> mapEntity(From<?, DB> from, SingularAttribute<DB, X> entity, RSQLSelectorPath selector) {
+    protected <X extends GenericEntity<Integer>> Path<?> mapEntity(
+            From<?, DB> from,
+            SingularAttribute<DB, X> entity,
+            RSQLSelectorPath selector) {
         Class<X> bindableJavaType = entity.getBindableJavaType();
         From<DB, X> join = from.join(entity);
         return mapper.toPath(bindableJavaType, join, selector);

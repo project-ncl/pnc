@@ -36,8 +36,7 @@ public enum RepositoryType {
      */
     COCOA_POD,
     /**
-     * Generic HTTP proxy that captures artifacts with an unsupported, or no specific, repository
-     * type.
+     * Generic HTTP proxy that captures artifacts with an unsupported, or no specific, repository type.
      */
     GENERIC_PROXY
 

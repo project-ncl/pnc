@@ -36,9 +36,7 @@ import java.util.concurrent.TimeoutException;
  *
  *
  * <br>
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 11/30/16
- * Time: 3:57 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 11/30/16 Time: 3:57 PM
  */
 public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
 
@@ -56,7 +54,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         c = config("c", d, g);
         b = config("b", d, e, f);
         a = config("a", b, c);
-        all = new BuildConfiguration[]{h, g, f, e, d, c, b, a};
+        all = new BuildConfiguration[] { h, g, f, e, d, c, b, a };
         insertNewBuildRecords(all);
 
         makeResult(g).dependOn(h);

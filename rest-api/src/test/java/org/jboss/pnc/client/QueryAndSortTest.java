@@ -29,7 +29,8 @@ public class QueryAndSortTest {
 
     @Test
     public void testShouldCompile() throws Exception {
-        if (true) return; //test never run, only to make sure the client classes are properly generated
+        if (true)
+            return; // test never run, only to make sure the client classes are properly generated
 
         Configuration configuration = Configuration.builder().build();
         ProjectClient projectClient = new ProjectClient(configuration);

@@ -54,11 +54,12 @@ public class ProductVersionProviderImpl
     private SystemConfig systemConfig;
 
     @Inject
-    public ProductVersionProviderImpl(ProductVersionRepository repository,
-                                      ProductVersionMapper mapper,
-                                      ProductRepository productRepository,
-                                      BuildConfigurationSetRepository groupConfigRepository,
-                                      SystemConfig systemConfig) {
+    public ProductVersionProviderImpl(
+            ProductVersionRepository repository,
+            ProductVersionMapper mapper,
+            ProductRepository productRepository,
+            BuildConfigurationSetRepository groupConfigRepository,
+            SystemConfig systemConfig) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductVersion.class);
 
@@ -74,9 +75,10 @@ public class ProductVersionProviderImpl
 
         Product product = productRepository.queryById(Integer.valueOf(restEntity.getProduct().getId()));
 
-        productVersionRestDb.generateBrewTagPrefix(product.getAbbreviation(),
-                                                   restEntity.getVersion(),
-                                                   systemConfig.getBrewTagPattern());
+        productVersionRestDb.generateBrewTagPrefix(
+                product.getAbbreviation(),
+                restEntity.getVersion(),
+                systemConfig.getBrewTagPattern());
 
         org.jboss.pnc.model.ProductVersion productVersion = repository.save(productVersionRestDb);
         repository.flushAndRefresh(productVersion);
@@ -95,7 +97,8 @@ public class ProductVersionProviderImpl
         boolean changingVersion = !current.getVersion().equals(restEntity.getVersion());
 
         if (changingVersion && hasClosedMilestone) {
-            throw new InvalidEntityException("Cannot change version id due to having closed milestone. Product version id: " + id);
+            throw new InvalidEntityException(
+                    "Cannot change version id due to having closed milestone. Product version id: " + id);
         }
 
         updateGroupConfigs(current, restEntity.getGroupConfigs());
@@ -111,7 +114,8 @@ public class ProductVersionProviderImpl
         Product product = productRepository.queryById(Integer.valueOf(restEntity.getProduct().getId()));
 
         if (product == null) {
-            throw new InvalidEntityException("Product with id: " + restEntity.getProduct().getId() + " does not exist.");
+            throw new InvalidEntityException(
+                    "Product with id: " + restEntity.getProduct().getId() + " does not exist.");
         }
     }
 
@@ -126,8 +130,8 @@ public class ProductVersionProviderImpl
                     throw new InvalidEntityException("Group config with id: " + groupConfigId + " does not exist.");
                 }
                 if (set.getProductVersion() != null && !set.getProductVersion().getId().toString().equals(id)) {
-                    throw new ConflictedEntryException("Group config with id: "
-                            + groupConfigId + " already belongs to different product version.",
+                    throw new ConflictedEntryException(
+                            "Group config with id: " + groupConfigId + " already belongs to different product version.",
                             org.jboss.pnc.model.ProductVersion.class,
                             set.getProductVersion().getId().toString());
                 }
@@ -136,18 +140,19 @@ public class ProductVersionProviderImpl
     }
 
     @Override
-    public Page<ProductVersion> getAllForProduct(int pageIndex,
-                                                 int pageSize,
-                                                 String sortingRsql,
-                                                 String query,
-                                                 String productId){
+    public Page<ProductVersion> getAllForProduct(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String productId) {
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(Integer.valueOf(productId)));
     }
 
     private void updateGroupConfigs(ProductVersion current, Map<String, GroupConfigurationRef> buildConfigs) {
         Set<String> newIds;
-        if(buildConfigs == null){
+        if (buildConfigs == null) {
             newIds = Collections.emptySet();
         } else {
             newIds = new HashSet<>(buildConfigs.keySet());
@@ -170,4 +175,3 @@ public class ProductVersionProviderImpl
         }
     }
 }
-

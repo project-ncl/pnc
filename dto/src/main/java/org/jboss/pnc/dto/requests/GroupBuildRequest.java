@@ -38,5 +38,6 @@ public class GroupBuildRequest {
     private final List<BuildConfigurationRevisionRef> buildConfigurationRevisions;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class Builder{}
+    public static class Builder {
+    }
 }

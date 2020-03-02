@@ -19,6 +19,7 @@ package org.jboss.pnc.enums;
 
 /**
  * Enum describing job progress in notifications.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 public enum JobNotificationProgress {

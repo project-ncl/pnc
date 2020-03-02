@@ -24,15 +24,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * Message
- * {
- *   message-type: 'process-updates',
- *   message: {
- *     action: 'subscribe|unsubscribe',
- *     topic: 'component-build',
- *     id: 123
- *   }
- * }
+ * Message { message-type: 'process-updates', message: { action: 'subscribe|unsubscribe', topic: 'component-build', id:
+ * 123 } }
  *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -40,7 +33,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 @Getter
-public class ProgressUpdatesRequest { //TODO use generic name for all type of subscription based notifications
+public class ProgressUpdatesRequest { // TODO use generic name for all type of subscription based notifications
 
     private Action action;
 

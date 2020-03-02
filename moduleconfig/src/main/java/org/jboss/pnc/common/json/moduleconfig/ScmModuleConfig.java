@@ -22,9 +22,7 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 12/6/16
- * Time: 12:47 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/6/16 Time: 12:47 PM
  */
 public class ScmModuleConfig extends AbstractModuleConfig {
 

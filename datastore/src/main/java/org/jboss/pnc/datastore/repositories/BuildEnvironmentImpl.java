@@ -26,7 +26,8 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 @Stateless
-public class BuildEnvironmentImpl extends AbstractRepository<BuildEnvironment, Integer> implements BuildEnvironmentRepository {
+public class BuildEnvironmentImpl extends AbstractRepository<BuildEnvironment, Integer>
+        implements BuildEnvironmentRepository {
 
     /**
      * @deprecated Created for CDI.

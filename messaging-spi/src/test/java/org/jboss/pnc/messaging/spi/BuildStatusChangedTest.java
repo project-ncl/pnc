@@ -42,7 +42,7 @@ public class BuildStatusChangedTest {
 
     @Test
     public void shouldSerializeObject() throws IOException {
-        //given
+        // given
 
         Build build = getBuild();
 
@@ -53,13 +53,13 @@ public class BuildStatusChangedTest {
                 .build(build)
                 .buildMe();
 
-        //when
+        // when
         String serialized = buildStatusChanged.toJson();
         logger.info("Serialized: {}", serialized);
 
         BuildStatusChanged deserialized = JsonOutputConverterMapper.readValue(serialized, BuildStatusChanged.class);
 
-        //then
+        // then
         Assertions.assertThat(deserialized).isEqualToComparingFieldByField(buildStatusChanged);
 
     }
@@ -90,10 +90,7 @@ public class BuildStatusChangedTest {
                 .deprecated(true)
                 .build();
 
-        User user = User.builder()
-                .id("1")
-                .username("user")
-                .build();
+        User user = User.builder().id("1").username("user").build();
         BuildConfigurationRevisionRef buildConfigurationRevisionRef = BuildConfigurationRevisionRef.refBuilder()
                 .id("1")
                 .rev(1)

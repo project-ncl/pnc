@@ -97,7 +97,8 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q) {
@@ -112,13 +113,13 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @PathParam("versionId") Integer versionId) {
-        return fromCollection(productMilestoneProvider.getAllForProductVersion(pageIndex, pageSize, sort, q, versionId));
+        return fromCollection(
+                productMilestoneProvider.getAllForProductVersion(pageIndex, pageSize, sort, q, versionId));
     }
 
     @GET
     @Path("/{id}")
-    public Response getSpecific(
-            @PathParam("id") Integer id) {
+    public Response getSpecific(@PathParam("id") Integer id) {
         return super.getSpecific(id);
     }
 
@@ -161,9 +162,8 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
 
     @POST
     @Path("/{id}/close-milestone-cancel")
-    public Response cancelMilestoneClose(
-            @PathParam("id") Integer id,
-            @Context HttpServletRequest httpServletRequest) throws RestValidationException {
+    public Response cancelMilestoneClose(@PathParam("id") Integer id, @Context HttpServletRequest httpServletRequest)
+            throws RestValidationException {
 
         productMilestoneProvider.cancelMilestoneCloseProcess(id);
         return Response.ok().build();
@@ -171,21 +171,24 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
 
     @GET
     @Path("/{id}/distributed-artifacts")
-    public Response getDistributedArtifacts(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
-                                      @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
-                                      @QueryParam(SORTING_QUERY_PARAM) String sort,
-                                      @QueryParam(QUERY_QUERY_PARAM) String q,
-                                      @PathParam("id") Integer id) {
-        return fromCollection(artifactProvider.queryForCollection(pageIndex, pageSize, sort, q, withDistributedInProductMilestone(id)));
+    public Response getDistributedArtifacts(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+            @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
+            @QueryParam(SORTING_QUERY_PARAM) String sort,
+            @QueryParam(QUERY_QUERY_PARAM) String q,
+            @PathParam("id") Integer id) {
+        return fromCollection(
+                artifactProvider
+                        .queryForCollection(pageIndex, pageSize, sort, q, withDistributedInProductMilestone(id)));
     }
 
     @POST
     @Path("/{id}/distributed-artifacts/")
-    public Response addDistributedArtifact(
-            @PathParam("id") Integer id,
-            ArtifactRest artifact) throws RestValidationException {
+    public Response addDistributedArtifact(@PathParam("id") Integer id, ArtifactRest artifact)
+            throws RestValidationException {
         if (artifact == null || artifact.getId() == null) {
-            throw new EmptyEntityException("No valid artifact included in request to add artifact to product milestone id: " + id);
+            throw new EmptyEntityException(
+                    "No valid artifact included in request to add artifact to product milestone id: " + id);
         }
         productMilestoneProvider.addDistributedArtifact(id, artifact.getId());
         return fromEmpty();
@@ -193,10 +196,8 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
 
     @DELETE
     @Path("/{id}/distributed-artifacts/{artifactId}")
-    public Response removeDistributedArtifact(
-            @PathParam("id") Integer id,
-            @PathParam("artifactId") Integer artifactId) throws
-            RestValidationException {
+    public Response removeDistributedArtifact(@PathParam("id") Integer id, @PathParam("artifactId") Integer artifactId)
+            throws RestValidationException {
         productMilestoneProvider.removeDistributedArtifact(id, artifactId);
         return fromEmpty();
     }
@@ -209,32 +210,40 @@ public class ProductMilestoneEndpoint extends AbstractEndpoint<ProductMilestone,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q) {
-        return fromCollection(buildRecordProvider.queryForCollection(pageIndex, pageSize, sort, q, withPerformedInMilestone(id)));
+        return fromCollection(
+                buildRecordProvider.queryForCollection(pageIndex, pageSize, sort, q, withPerformedInMilestone(id)));
     }
 
     @GET
     @Path("/{id}/distributed-builds")
-    public Response getDistributedBuilds (
+    public Response getDistributedBuilds(
             @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @PathParam("id") Integer milestoneId) {
-        return fromCollection(buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(pageIndex, pageSize, sort, q, milestoneId));
+        return fromCollection(
+                buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(
+                        pageIndex,
+                        pageSize,
+                        sort,
+                        q,
+                        milestoneId));
     }
 
     @GET
     @Path("/{id}/releases/latest")
     public Response getLatestRelease(@PathParam("id") Integer milestoneId) {
-        //check if milestone exists
+        // check if milestone exists
         ProductMilestone productMilestone = milestoneRepository.queryById(milestoneId);
         if (productMilestone == null) {
-            //respond with NOT_FOUND if there is no milestone with milestoneId
+            // respond with NOT_FOUND if there is no milestone with milestoneId
             return Response.status(Response.Status.NOT_FOUND).entity(new Singleton(null)).build();
         }
 
-        //respond with NO_CONTENT if there are no releases in this milestone
-        ProductMilestoneReleaseRest productMilestoneReleaseRest = milestoneReleaseProvider.latestForMilestone(productMilestone);
+        // respond with NO_CONTENT if there are no releases in this milestone
+        ProductMilestoneReleaseRest productMilestoneReleaseRest = milestoneReleaseProvider
+                .latestForMilestone(productMilestone);
         if (productMilestoneReleaseRest == null) {
             return Response.status(Response.Status.NO_CONTENT).entity(new Singleton(null)).build();
         }

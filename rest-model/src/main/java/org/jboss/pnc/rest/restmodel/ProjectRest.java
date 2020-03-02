@@ -45,7 +45,6 @@ public class ProjectRest implements GenericRestEntity<Integer> {
 
     private String projectUrl;
 
-    
     private List<Integer> configurationIds;
 
     private Integer licenseId;
@@ -67,8 +66,9 @@ public class ProjectRest implements GenericRestEntity<Integer> {
         this.name = project.getName();
         this.issueTrackerUrl = project.getIssueTrackerUrl();
         this.projectUrl = project.getProjectUrl();
-        this.configurationIds = nullableStreamOf(project.getBuildConfigurations()).map(
-                buildConfiguration -> buildConfiguration.getId()).collect(Collectors.toList());
+        this.configurationIds = nullableStreamOf(project.getBuildConfigurations())
+                .map(buildConfiguration -> buildConfiguration.getId())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -197,9 +197,9 @@ public class ProjectRest implements GenericRestEntity<Integer> {
                 .issueTrackerUrl(issueTrackerUrl)
                 .projectUrl(projectUrl);
 
-
-        nullableStreamOf(configurationIds).forEach(configurationId ->
-                builder.buildConfiguration(BuildConfiguration.Builder.newBuilder().id(configurationId).build()));
+        nullableStreamOf(configurationIds).forEach(
+                configurationId -> builder
+                        .buildConfiguration(BuildConfiguration.Builder.newBuilder().id(configurationId).build()));
 
         return builder;
     }

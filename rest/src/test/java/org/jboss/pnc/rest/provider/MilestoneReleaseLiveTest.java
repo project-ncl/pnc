@@ -36,9 +36,7 @@ import static org.jboss.pnc.rest.provider.MilestoneTestUtils.prepareMilestone;
  *
  *
  *
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/25/16
- * Time: 3:21 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/25/16 Time: 3:21 PM
  */
 @Category({ DebugTest.class })
 public class MilestoneReleaseLiveTest extends AbstractMilestoneReleaseTest {
@@ -63,6 +61,7 @@ public class MilestoneReleaseLiveTest extends AbstractMilestoneReleaseTest {
         ProductMilestoneRelease release = releaseRepository.findLatestByMilestone(productMilestone);
         return assertThat(release.getLog());
     }
+
     private void triggerMilestoneRelease(ProductMilestone milestone) throws RestValidationException {
         ProductMilestoneRest restEntity = new ProductMilestoneRest(milestone);
         restEntity.setEndDate(new Date());

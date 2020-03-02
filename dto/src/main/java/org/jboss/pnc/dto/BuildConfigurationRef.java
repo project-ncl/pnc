@@ -49,19 +49,20 @@ public class BuildConfigurationRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     @NotNull(groups = WhenCreatingNew.class)
-    @Pattern(regexp = "^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?<!\\.git)$",
-            groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @Pattern(
+            regexp = "^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?<!\\.git)$",
+            groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String name;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String description;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String buildScript;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String scmRevision;
 
     protected final Instant creationTime;
@@ -70,8 +71,8 @@ public class BuildConfigurationRef implements DTOEntity {
 
     protected final boolean archived;
 
-    @PatchSupport({REPLACE})
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @PatchSupport({ REPLACE })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final BuildType buildType;
 
     @JsonPOJOBuilder(withPrefix = "")

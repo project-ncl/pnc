@@ -23,7 +23,9 @@ public class HttpDestinationConfig {
     private String url;
     private String allowedMethods;
 
-    public HttpDestinationConfig(@JsonProperty("url") String url, @JsonProperty("allowedMethods") String allowedMethods) {
+    public HttpDestinationConfig(
+            @JsonProperty("url") String url,
+            @JsonProperty("allowedMethods") String allowedMethods) {
         this.url = url;
         this.allowedMethods = allowedMethods;
     }
@@ -38,9 +40,6 @@ public class HttpDestinationConfig {
 
     @Override
     public String toString() {
-        return "HttpDestinationConfig{" +
-                "url='" + url + '\'' +
-                ", allowedMethods='" + allowedMethods + '\'' +
-                '}';
+        return "HttpDestinationConfig{" + "url='" + url + '\'' + ", allowedMethods='" + allowedMethods + '\'' + '}';
     }
 }

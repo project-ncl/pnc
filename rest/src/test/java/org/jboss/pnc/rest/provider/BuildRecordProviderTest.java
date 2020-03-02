@@ -77,7 +77,7 @@ public class BuildRecordProviderTest {
 
     @Test
     public void shouldGetGraphWithDependencies() {
-        //given
+        // given
         MockitoAnnotations.initMocks(this);
         List<BuildTask> submittedTasks = new ArrayList<>();
 
@@ -104,23 +104,24 @@ public class BuildRecordProviderTest {
 
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(submittedTasks);
 
-        //when
+        // when
         Graph<BuildTask> graph = buildRecordProvider.getRunningBCSetRecordGraph(1);
 
-        //then
+        // then
         Assertions.assertThat(graph.getVerticies().size()).isEqualTo(3);
-        Assertions.assertThat(graph.getVerticies().stream().map(Vertex::getName).collect(Collectors.toList())).containsExactly("1", "2", "3");
+        Assertions.assertThat(graph.getVerticies().stream().map(Vertex::getName).collect(Collectors.toList()))
+                .containsExactly("1", "2", "3");
     }
 
     @Test
     public void graphShouldContainRunningDependent() {
-        //given
+        // given
         MockitoAnnotations.initMocks(this);
         List<BuildTask> submittedTasks = new ArrayList<>();
 
-        BuildTask runningTask = Mockito.mock(BuildTask.class); //id = 1
-        BuildTask runningDependency = Mockito.mock(BuildTask.class); //id = 2
-        BuildRecord completedDependencyDependency = Mockito.mock(BuildRecord.class); //id = 3
+        BuildTask runningTask = Mockito.mock(BuildTask.class); // id = 1
+        BuildTask runningDependency = Mockito.mock(BuildTask.class); // id = 2
+        BuildRecord completedDependencyDependency = Mockito.mock(BuildRecord.class); // id = 3
 
         when(runningTask.getSubmitTime()).thenReturn(new Date());
         mockMethods(null, runningTask, 1);
@@ -130,9 +131,8 @@ public class BuildRecordProviderTest {
         when(runningDependency.getDependants()).thenReturn(asSet(runningTask));
 
         when(completedDependencyDependency.getId()).thenReturn(3);
-        when(completedDependencyDependency.getDependentBuildRecordIds()).thenReturn(new Integer[]{2});
-        when(completedDependencyDependency.getDependencyBuildRecordIds()).thenReturn(new Integer[]{});
-
+        when(completedDependencyDependency.getDependentBuildRecordIds()).thenReturn(new Integer[] { 2 });
+        when(completedDependencyDependency.getDependencyBuildRecordIds()).thenReturn(new Integer[] {});
 
         BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder().build();
         BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
@@ -149,24 +149,41 @@ public class BuildRecordProviderTest {
         submittedTasks.add(runningDependency);
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(submittedTasks);
 
-        //bad dependency, it should be refactored
+        // bad dependency, it should be refactored
         BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
                 2,
                 "",
-                null, null, null, null, null, null, null,
-                true, null, null, null, null,
-                false, null, null, true, null
-        );
-        BuildExecutionSessionMock executionSession = new BuildExecutionSessionMock(buildExecutionConfiguration, (v) -> {});
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                true,
+                null,
+                null,
+                null,
+                null,
+                false,
+                null,
+                null,
+                true,
+                null);
+        BuildExecutionSessionMock executionSession = new BuildExecutionSessionMock(
+                buildExecutionConfiguration,
+                (v) -> {});
         executionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP, false);
         when(buildExecutor.getRunningExecution(anyInt())).thenReturn(executionSession);
 
-        //when
+        // when
         GraphWithMetadata<BuildRecordRest, Integer> graph = buildRecordProvider.getDependencyGraph(3);
 
-        //then
+        // then
         Assertions.assertThat(graph.getGraph().getVerticies().size()).isEqualTo(3);
-        Assertions.assertThat(graph.getGraph().getVerticies().stream().map(Vertex::getName).collect(Collectors.toList())).containsExactlyInAnyOrder("1", "2", "3");
+        Assertions
+                .assertThat(graph.getGraph().getVerticies().stream().map(Vertex::getName).collect(Collectors.toList()))
+                .containsExactlyInAnyOrder("1", "2", "3");
         Assertions.assertThat(graph.getMissingNodeIds().isEmpty());
 
         Assertions.assertThat(graph.getGraph().getEdges().size()).isEqualTo(2);
@@ -178,7 +195,7 @@ public class BuildRecordProviderTest {
         when(task.getBuildSetTask()).thenReturn(buildSetTask);
 
         BuildConfigurationAudited bca = Mockito.mock(BuildConfigurationAudited.class);
-        when(bca.getIdRev()).thenReturn(new IdRev(0,0));
+        when(bca.getIdRev()).thenReturn(new IdRev(0, 0));
         when(task.getBuildConfigurationAudited()).thenReturn(bca);
     }
 

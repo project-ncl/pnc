@@ -29,7 +29,10 @@ import org.mapstruct.Mapping;
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = {ProductVersionMapper.class, GroupConfigurationMapper.class, BuildMapper.IDMapper.class, UserMapper.class})
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { ProductVersionMapper.class, GroupConfigurationMapper.class, BuildMapper.IDMapper.class,
+                UserMapper.class })
 public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
 
     @Override
@@ -53,12 +56,14 @@ public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRe
     @Mapping(target = "groupConfig", source = "buildConfigurationSet", resultType = GroupConfigurationRef.class)
     @Mapping(target = "user", qualifiedBy = Reference.class)
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"attributes", "buildRecords"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "attributes", "buildRecords" })
     GroupBuild toDTO(BuildConfigSetRecord dbEntity);
 
     @Override
-    //Workaround for NCL-4228
+    // Workaround for NCL-4228
     @Reference
-    @BeanMapping(ignoreUnmappedSourceProperties = {"attributes", "buildRecords", "buildConfigurationSet", "user", "productVersion"})
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "attributes", "buildRecords", "buildConfigurationSet", "user",
+                    "productVersion" })
     GroupBuildRef toRef(BuildConfigSetRecord dbEntity);
 }

@@ -132,13 +132,10 @@ public class JaxRsActivatorNew extends Application {
 
     private void configureSwagger() {
         OpenAPI oas = new OpenAPI();
-        Info info = new Info()
-                .title("PNC")
+        Info info = new Info().title("PNC")
                 .description("PNC build system")
                 .termsOfService("http://swagger.io/terms/")
-                .license(new License()
-                        .name("Apache 2.0")
-                        .url("http://www.apache.org/licenses/LICENSE-2.0.html"));
+                .license(new License().name("Apache 2.0").url("http://www.apache.org/licenses/LICENSE-2.0.html"));
         oas.info(info);
         oas.addServersItem(new Server().url("/pnc-rest-new"));
 
@@ -153,8 +150,7 @@ public class JaxRsActivatorNew extends Application {
         SwaggerConfiguration oasConfig = new SwaggerConfiguration().openAPI(oas);
 
         try {
-            new JaxrsOpenApiContextBuilder()
-                    .servletConfig(servletConfig)
+            new JaxrsOpenApiContextBuilder().servletConfig(servletConfig)
                     .application(this)
                     .openApiConfiguration(oasConfig)
                     .buildContext(true);
@@ -166,14 +162,13 @@ public class JaxRsActivatorNew extends Application {
     private SecurityScheme getAuthScheme() {
         try {
             final KeycloakClientConfig keycloakConfig = systemConfig.getKeycloakServiceAccountConfig();
-            if(keycloakConfig == null || StringUtils.isEmpty(keycloakConfig.getAuthServerUrl())){
+            if (keycloakConfig == null || StringUtils.isEmpty(keycloakConfig.getAuthServerUrl())) {
                 return null;
             }
             URI keycloakURL = new URI(keycloakConfig.getAuthServerUrl() + "/")
                     .resolve("realms/" + keycloakConfig.getRealm() + "/protocol/openid-connect/auth");
 
-            final OAuthFlow implicitFlow = new OAuthFlow()
-                    .authorizationUrl(keycloakURL.toString());
+            final OAuthFlow implicitFlow = new OAuthFlow().authorizationUrl(keycloakURL.toString());
 
             SecurityScheme scheme = new SecurityScheme();
             scheme.type(SecurityScheme.Type.OAUTH2)

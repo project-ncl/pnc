@@ -22,9 +22,9 @@ package org.jboss.pnc.spi.repositorymanager;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public enum RepositoryManagerStatus {
-    SUCCESS (false),
+    SUCCESS(false),
 
-    VALIDATION_ERROR (true);
+    VALIDATION_ERROR(true);
 
     private boolean hasFailed;
 

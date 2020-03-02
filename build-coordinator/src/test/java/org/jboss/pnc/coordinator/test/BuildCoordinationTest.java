@@ -101,11 +101,12 @@ public class BuildCoordinationTest {
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
+        BuildSetTask buildSetTask = buildCoordinator
+                .build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
         Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
 
-        //check the result
+        // check the result
         Assert.assertEquals(BuildSetStatus.DONE, lastBuildSetStatus.get());
         Optional<BuildConfigSetRecord> maybeSetRecord = buildSetTask.getBuildConfigSetRecord();
         assertThat(maybeSetRecord.isPresent()).isTrue();
@@ -114,7 +115,8 @@ public class BuildCoordinationTest {
     }
 
     @Test
-    public void buildConfigSetRecordShouldBeMarkedSuccessWhenAllBuildsAreSuccess() throws CoreException, TimeoutException, InterruptedException {
+    public void buildConfigSetRecordShouldBeMarkedSuccessWhenAllBuildsAreSuccess()
+            throws CoreException, TimeoutException, InterruptedException {
         BuildConfigurationSet buildConfigurationSet = TestEntitiesFactory.newBuildConfigurationSet();
         testProjectConfigurationBuilder.buildConfigurationWithDependencies(buildConfigurationSet);
 
@@ -122,11 +124,12 @@ public class BuildCoordinationTest {
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
+        BuildSetTask buildSetTask = buildCoordinator
+                .build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
         Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
 
-        //check the result
+        // check the result
         Assert.assertEquals(BuildSetStatus.DONE, lastBuildSetStatus.get());
         Optional<BuildConfigSetRecord> maybeSetRecord = buildSetTask.getBuildConfigSetRecord();
         assertThat(maybeSetRecord.isPresent()).isTrue();
@@ -135,7 +138,8 @@ public class BuildCoordinationTest {
     }
 
     @Test
-    public void buildConfigSetRecordShouldBeMarkedFailedOnFailure() throws CoreException, TimeoutException, InterruptedException {
+    public void buildConfigSetRecordShouldBeMarkedFailedOnFailure()
+            throws CoreException, TimeoutException, InterruptedException {
         BuildConfigurationSet buildConfigurationSet = TestEntitiesFactory.newBuildConfigurationSet();
         testProjectConfigurationBuilder.buildConfigurationWithDependenciesThatFail(buildConfigurationSet);
 
@@ -143,11 +147,12 @@ public class BuildCoordinationTest {
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
+        BuildSetTask buildSetTask = buildCoordinator
+                .build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
         Wait.forCondition(lastBuildSetStatus::isSet, 5, ChronoUnit.SECONDS);
 
-        //check the result
+        // check the result
         Assert.assertEquals(BuildSetStatus.DONE, lastBuildSetStatus.get());
         datastoreMock.getBuildConfigSetRecordById(buildConfigurationSet.getId());
 
@@ -155,20 +160,24 @@ public class BuildCoordinationTest {
         assertThat(maybeSetRecord.isPresent()).isTrue();
         Assert.assertEquals(BuildStatus.FAILED, maybeSetRecord.get().getStatus());
         Collection<BuildStatus> statuses = getBuildStatuses();
-        Assert.assertTrue(statuses.contains(BuildStatus.REJECTED_FAILED_DEPENDENCIES)); //dependent build failed with system error
+        Assert.assertTrue(statuses.contains(BuildStatus.REJECTED_FAILED_DEPENDENCIES)); // dependent build failed with
+                                                                                        // system error
         Assert.assertFalse(statuses.contains(BuildStatus.SYSTEM_ERROR));
         assertEmptyQueue();
     }
 
     @Test
-    public void buildSetTaskCallbacksShouldBeCalled() throws DatastoreException, TimeoutException, InterruptedException, CoreException {
+    public void buildSetTaskCallbacksShouldBeCalled()
+            throws DatastoreException, TimeoutException, InterruptedException, CoreException {
         BuildConfigurationSet buildConfigurationSet = TestEntitiesFactory.newBuildConfigurationSet();
         testProjectConfigurationBuilder.buildConfigurationWithDependencies(buildConfigurationSet);
 
         Set<BuildSetStatusChangedEvent> buildSetStatusChangedEvents = new HashSet<>();
         Consumer<BuildSetStatusChangedEvent> statusChangeEventConsumer = buildSetStatusChangedEvents::add;
 
-        BuildSetCallBack buildSetCallBack = new BuildSetCallBack(buildConfigurationSet.getId(), statusChangeEventConsumer);
+        BuildSetCallBack buildSetCallBack = new BuildSetCallBack(
+                buildConfigurationSet.getId(),
+                statusChangeEventConsumer);
         log.info("Subscribing new listener for buildSetTask.id {}.", buildSetCallBack.getBuildSetConfigurationId());
         buildSetStatusNotifications.subscribe(buildSetCallBack);
 
@@ -178,8 +187,16 @@ public class BuildCoordinationTest {
         buildOptions.setRebuildMode(RebuildMode.FORCE);
         buildCoordinator.build(buildConfigurationSet, TestEntitiesFactory.newUser(), buildOptions);
 
-        Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.NEW), 2000, ChronoUnit.MILLIS, () -> "Did not receive status update to NEW for task set. Received: " + buildSetStatusChangedEvents);
-        Wait.forCondition(() -> contains(buildSetStatusChangedEvents, BuildSetStatus.DONE), 2000, ChronoUnit.MILLIS, () -> "Did not receive status update to DONE for task set. Received: " + buildSetStatusChangedEvents);
+        Wait.forCondition(
+                () -> contains(buildSetStatusChangedEvents, BuildSetStatus.NEW),
+                2000,
+                ChronoUnit.MILLIS,
+                () -> "Did not receive status update to NEW for task set. Received: " + buildSetStatusChangedEvents);
+        Wait.forCondition(
+                () -> contains(buildSetStatusChangedEvents, BuildSetStatus.DONE),
+                2000,
+                ChronoUnit.MILLIS,
+                () -> "Did not receive status update to DONE for task set. Received: " + buildSetStatusChangedEvents);
         assertEmptyQueue();
     }
 
@@ -192,13 +209,12 @@ public class BuildCoordinationTest {
     }
 
     private boolean contains(Set<BuildSetStatusChangedEvent> buildSetStatusChangedEvents, BuildSetStatus status) {
-        return buildSetStatusChangedEvents.stream().anyMatch((buildSetStatusChangedEvent) -> buildSetStatusChangedEvent.getNewStatus().equals(status));
+        return buildSetStatusChangedEvents.stream()
+                .anyMatch((buildSetStatusChangedEvent) -> buildSetStatusChangedEvent.getNewStatus().equals(status));
     }
 
     private Collection<BuildStatus> getBuildStatuses() {
-        return datastoreMock.getBuildRecords().stream()
-                .map(BuildRecord::getStatus)
-                .collect(Collectors.toSet());
+        return datastoreMock.getBuildRecords().stream().map(BuildRecord::getStatus).collect(Collectors.toSet());
     }
 
     private ObjectWrapper<BuildSetStatus> registerCallback(BuildConfigurationSet buildConfigurationSet) {

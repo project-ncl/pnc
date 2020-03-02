@@ -77,8 +77,6 @@ public class ProductVersionRestTest {
     private BuildConfigurationSetRest buildConfigurationSetRest2;
     private BuildConfigurationSetRest buildConfigurationSetRest3;
 
-
-
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
@@ -88,19 +86,19 @@ public class ProductVersionRestTest {
 
     @Before
     public void before() {
-        if(productVersionRestClient == null) {
+        if (productVersionRestClient == null) {
             productVersionRestClient = new ProductVersionRestClient();
         }
-        if(buildConfigurationSetRestClient == null) {
+        if (buildConfigurationSetRestClient == null) {
             buildConfigurationSetRestClient = new BuildConfigurationSetRestClient();
         }
-        if(productVersionRestClient == null) {
+        if (productVersionRestClient == null) {
             productVersionRestClient = new ProductVersionRestClient();
         }
-        if(productRestClient == null) {
+        if (productRestClient == null) {
             productRestClient = new ProductRestClient();
         }
-        if(productMilestoneRestClient == null) {
+        if (productMilestoneRestClient == null) {
             productMilestoneRestClient = new ProductMilestoneRestClient();
         }
 
@@ -128,16 +126,17 @@ public class ProductVersionRestTest {
             productVersionRestWithClosedMilestone = new ProductVersionRest();
             productVersionRestWithClosedMilestone.setVersion("1.0");
             productVersionRestWithClosedMilestone.setProductId(productRest2.getId());
-            productVersionRestWithClosedMilestone = productVersionRestClient.createNew(productVersionRestWithClosedMilestone).getValue();
+            productVersionRestWithClosedMilestone = productVersionRestClient
+                    .createNew(productVersionRestWithClosedMilestone)
+                    .getValue();
 
             ProductMilestoneRest milestoneRest = new ProductMilestoneRest();
             milestoneRest.setVersion("1.0.0.GA");
-            milestoneRest.setEndDate(Date.from(LocalDateTime.now()
-                    .atZone(ZoneId.systemDefault()).toInstant()));
-            milestoneRest.setPlannedEndDate(Date.from(LocalDateTime.now().plusDays(1L)
-                    .atZone(ZoneId.systemDefault()).toInstant()));
-            milestoneRest.setStartingDate(Date.from(LocalDateTime.now().minusDays(1L)
-                    .atZone(ZoneId.systemDefault()).toInstant()));
+            milestoneRest.setEndDate(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+            milestoneRest.setPlannedEndDate(
+                    Date.from(LocalDateTime.now().plusDays(1L).atZone(ZoneId.systemDefault()).toInstant()));
+            milestoneRest.setStartingDate(
+                    Date.from(LocalDateTime.now().minusDays(1L).atZone(ZoneId.systemDefault()).toInstant()));
             milestoneRest.setProductVersionId(productVersionRestWithClosedMilestone.getId());
             productMilestoneRestClient.createNew(milestoneRest);
         }
@@ -166,11 +165,11 @@ public class ProductVersionRestTest {
 
     @Test
     public void shouldGetSpecificProductVersion() throws Exception {
-        //when
+        // when
         int productVersionId = productVersionRestClient.firstNotNull().getValue().getId();
         RestResponse<ProductVersionRest> clientResponse = productVersionRestClient.get(productVersionId);
 
-        //then
+        // then
         assertThat(clientResponse.hasValue()).isEqualTo(true);
     }
 
@@ -189,95 +188,96 @@ public class ProductVersionRestTest {
 
     @Test
     public void shouldCreateNewProductVersion() throws Exception {
-        //given
+        // given
         int productId = productVersionRestClient.firstNotNull().getValue().getProductId();
-        
+
         ProductVersionRest productVersion = new ProductVersionRest();
         productVersion.setProductId(productId);
         productVersion.setVersion("99.0");
 
-        //when
+        // when
         RestResponse<ProductVersionRest> clientResponse = productVersionRestClient.createNew(productVersion);
 
-        //then
+        // then
         assertThat(clientResponse.hasValue()).isEqualTo(true);
         assertThat(clientResponse.getValue().getId()).isNotNegative();
     }
-    
 
     @Test
     public void shouldGenerateBrewTagWhenCreatingProductVersion() throws Exception {
-        //given
+        // given
         int productVersionId = productVersionRestClient.firstNotNull().getValue().getProductId();
         ProductRest product = productRestClient.get(productVersionId).getValue();
-        
+
         ProductVersionRest productVersion = new ProductVersionRest();
         productVersion.setProductId(productVersionId);
         productVersion.setVersion("98.0");
 
-        //when
+        // when
         RestResponse<ProductVersionRest> clientResponse = productVersionRestClient.createNew(productVersion);
 
-        //then
+        // then
         assertTrue(clientResponse.hasValue());
-        assertEquals(product.getAbbreviation().toLowerCase() + "-98.0" + "-pnc",
+        assertEquals(
+                product.getAbbreviation().toLowerCase() + "-98.0" + "-pnc",
                 clientResponse.getValue().getAttributes().get(Attributes.BREW_TAG_PREFIX));
     }
 
     @Test
     public void shouldUpdateProductVersion() throws Exception {
-        //given
+        // given
         ProductVersionRest productVersionRest = productVersionRestClient.firstNotNull().getValue();
         productVersionRest.setVersion("100.0");
 
-        //when
-        RestResponse<ProductVersionRest> updateResponse = productVersionRestClient.update(productVersionRest.getId(),
-                productVersionRest);
+        // when
+        RestResponse<ProductVersionRest> updateResponse = productVersionRestClient
+                .update(productVersionRest.getId(), productVersionRest);
 
-        //then
+        // then
         assertThat(updateResponse.hasValue()).isEqualTo(true);
         assertThat(updateResponse.getValue().getVersion()).isEqualTo("100.0");
     }
 
     @Test
     public void shouldUpdateBuildConfigurationSets() {
-        //given
+        // given
         List<BuildConfigurationSetRest> buildConfigurationSetRests = new LinkedList<>();
         buildConfigurationSetRests.add(buildConfigurationSetRest3);
 
-        //when
-        RestResponse<List<BuildConfigurationSetRest>> response  = productVersionRestClient.updateBuildConfigurationSets(
-                productVersionRest1.getId(), buildConfigurationSetRests);
+        // when
+        RestResponse<List<BuildConfigurationSetRest>> response = productVersionRestClient
+                .updateBuildConfigurationSets(productVersionRest1.getId(), buildConfigurationSetRests);
 
-        //then
+        // then
         assertThat(response.getValue().stream().map(BuildConfigurationSetRest::getId).collect(Collectors.toList()))
                 .containsOnly(buildConfigurationSetRest3.getId());
     }
 
     @Test
     public void shouldNotUpdateWithClosedMilestone() {
-        //given
+        // given
         productVersionRestWithClosedMilestone.setVersion("2.0");
 
-        //when
-        RestResponse<ProductVersionRest> response = productVersionRestClient.update(productVersionRestWithClosedMilestone.getId(),productVersionRestWithClosedMilestone, false);
+        // when
+        RestResponse<ProductVersionRest> response = productVersionRestClient
+                .update(productVersionRestWithClosedMilestone.getId(), productVersionRestWithClosedMilestone, false);
 
-        //then
+        // then
         assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(400);
     }
 
     @Test
     public void shouldNotUpdateBuildConfigurationSetsWhenOneIsAlreadyAsssociatedWithAnotherProductVersion() {
 
-        //given
+        // given
         List<BuildConfigurationSetRest> buildConfigurationSetRests = new LinkedList<>();
         buildConfigurationSetRests.add(buildConfigurationSetRest2);
 
-        //when
-        RestResponse<List<BuildConfigurationSetRest>> response  = productVersionRestClient.updateBuildConfigurationSets(
-                productVersionRest1.getId(), buildConfigurationSetRests, false);
+        // when
+        RestResponse<List<BuildConfigurationSetRest>> response = productVersionRestClient
+                .updateBuildConfigurationSets(productVersionRest1.getId(), buildConfigurationSetRests, false);
 
-        //then
+        // then
         assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(409);
         assertThat(response.getValue().stream().map(BuildConfigurationSetRest::getId).collect(Collectors.toList()))
                 .containsOnly(buildConfigurationSetRest1.getId());
@@ -285,20 +285,20 @@ public class ProductVersionRestTest {
 
     @Test
     public void shouldNotUpdateBuildConfigurationSetsWithNonExistantBuildConfigurationSet() {
-        //given
+        // given
         List<BuildConfigurationSetRest> buildConfigurationSetRests = new LinkedList<>();
-        buildConfigurationSetRests.add(new BuildConfigurationSetRest(BuildConfigurationSet.Builder.newBuilder().id(600).name("i-dont-exist").build()));
+        buildConfigurationSetRests.add(
+                new BuildConfigurationSetRest(
+                        BuildConfigurationSet.Builder.newBuilder().id(600).name("i-dont-exist").build()));
 
+        // when
+        RestResponse<List<BuildConfigurationSetRest>> response = productVersionRestClient
+                .updateBuildConfigurationSets(productVersionRest1.getId(), buildConfigurationSetRests, false);
 
-        //when
-        RestResponse<List<BuildConfigurationSetRest>> response  = productVersionRestClient.updateBuildConfigurationSets(
-                productVersionRest1.getId(), buildConfigurationSetRests, false);
-
-        //then
+        // then
         assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(400);
         assertThat(response.getValue().stream().map(BuildConfigurationSetRest::getId).collect(Collectors.toList()))
                 .containsOnly(buildConfigurationSetRest1.getId());
     }
-
 
 }

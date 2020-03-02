@@ -112,10 +112,10 @@ public class CancelledBuildByBpmTest {
     @Spy
     private ProjectMapper projectMapper;
 
-    @Test (timeout = 5_000)
+    @Test(timeout = 5_000)
     public void buildSingleProjectTestCase() throws Exception {
 
-        //given
+        // given
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
 
@@ -150,7 +150,8 @@ public class CancelledBuildByBpmTest {
 
         coordinator.build(
                 configurationBuilder.buildConfigurationToCancel(1, "c1-bpm"),
-                MockUser.newTestUser(1), new BuildOptions());
+                MockUser.newTestUser(1),
+                new BuildOptions());
 
         waitForStatus(receivedStatuses, BuildStatus.BUILDING);
 
@@ -158,13 +159,12 @@ public class CancelledBuildByBpmTest {
         BuildResultRest result = new BuildResultRest();
         result.setCompletionStatus(CompletionStatus.CANCELLED);
 
-        //when
+        // when
         bpmTask.notify(BUILD_COMPLETE, result);
 
         waitForStatus(receivedStatuses, BuildStatus.CANCELLED);
 
-
-        //expect
+        // expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
 
         Assert.assertEquals("Too many build records in datastore: " + buildRecords, 1, buildRecords.size());
@@ -177,9 +177,7 @@ public class CancelledBuildByBpmTest {
         Assert.assertEquals(BuildStatus.CANCELLED, buildRecord.getStatus());
     }
 
-    private void waitForStatus(
-            BlockingQueue<BuildStatusChangedEvent> receivedStatuses,
-            BuildStatus status)
+    private void waitForStatus(BlockingQueue<BuildStatusChangedEvent> receivedStatuses, BuildStatus status)
             throws InterruptedException, TimeoutException {
         BuildStatusChangedEvent statusChangedEvent = receivedStatuses.poll(1, TimeUnit.SECONDS);
         if (statusChangedEvent == null) {
@@ -195,8 +193,8 @@ public class CancelledBuildByBpmTest {
 
         BpmBuildScheduler buildScheduler;
 
-
-        public BuildSchedulerFactory(Consumer<BpmTask> onTaskStarted) throws CoreException, ConfigurationParseException {
+        public BuildSchedulerFactory(Consumer<BpmTask> onTaskStarted)
+                throws CoreException, ConfigurationParseException {
             BpmMock manager = new BpmMock();
             manager.setOnTaskStarted(onTaskStarted);
             buildScheduler = new BpmBuildScheduler(manager, buildResultMapper);
@@ -207,7 +205,6 @@ public class CancelledBuildByBpmTest {
             return buildScheduler;
         }
     }
-
 
     private SystemConfig createConfiguration() {
         return new SystemConfig(
@@ -245,8 +242,7 @@ public class CancelledBuildByBpmTest {
         }
 
         @Override
-        public <U extends BuildStatusChangedEvent> CompletionStage<U> fireAsync(U event,
-                NotificationOptions options) {
+        public <U extends BuildStatusChangedEvent> CompletionStage<U> fireAsync(U event, NotificationOptions options) {
             return null;
         }
 

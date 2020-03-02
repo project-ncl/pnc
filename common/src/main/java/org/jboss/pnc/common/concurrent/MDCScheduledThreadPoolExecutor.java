@@ -52,18 +52,12 @@ public class MDCScheduledThreadPoolExecutor extends MDCThreadPoolExecutor implem
     }
 
     @Override
-    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
-            long initialDelay,
-            long period,
-            TimeUnit unit) {
+    public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
         return scheduledThreadPoolExecutor.scheduleAtFixedRate(MDCWrappers.wrap(command), initialDelay, period, unit);
     }
 
     @Override
-    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
-            long initialDelay,
-            long delay,
-            TimeUnit unit) {
+    public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
         return scheduledThreadPoolExecutor.scheduleWithFixedDelay(MDCWrappers.wrap(command), initialDelay, delay, unit);
     }
 }

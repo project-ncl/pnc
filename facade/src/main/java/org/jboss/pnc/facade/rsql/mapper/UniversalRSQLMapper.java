@@ -36,17 +36,17 @@ public class UniversalRSQLMapper {
     @Inject
     private Instance<RSQLMapper<?, ?>> mappers;
 
-    public <DB extends GenericEntity<?>> Path<?> toPath(Class<DB> type, From<?, DB> from, RSQLSelectorPath selector){
+    public <DB extends GenericEntity<?>> Path<?> toPath(Class<DB> type, From<?, DB> from, RSQLSelectorPath selector) {
         return mapper(type).toPath(from, selector);
     }
 
-    public <DB extends GenericEntity<?>> String toPath(Class<DB> type, RSQLSelectorPath selector){
+    public <DB extends GenericEntity<?>> String toPath(Class<DB> type, RSQLSelectorPath selector) {
         return mapper(type).toPath(selector);
     }
 
-    private <DB extends GenericEntity<?>> RSQLMapper<?, DB> mapper(Class<DB> type){
+    private <DB extends GenericEntity<?>> RSQLMapper<?, DB> mapper(Class<DB> type) {
         for (RSQLMapper<?, ?> mapper : mappers) {
-            if(mapper.type() == type){
+            if (mapper.type() == type) {
                 return (RSQLMapper<?, DB>) mapper;
             }
         }

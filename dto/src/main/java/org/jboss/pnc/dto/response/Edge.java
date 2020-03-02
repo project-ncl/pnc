@@ -39,5 +39,6 @@ public class Edge<T> {
     private final int cost;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class Builder<T> {}
+    public static class Builder<T> {
+    }
 }

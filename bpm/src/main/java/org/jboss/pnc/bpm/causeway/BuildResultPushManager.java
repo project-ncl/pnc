@@ -96,15 +96,20 @@ public class BuildResultPushManager {
 
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
 
-    @Deprecated //required by EJB
+    @Deprecated // required by EJB
     public BuildResultPushManager() {
     }
 
     @Inject
-    public BuildResultPushManager(BuildConfigurationRepository buildConfigurationRepository,
-            BuildRecordRepository buildRecordRepository, BuildRecordPushResultRepository buildRecordPushResultRepository,
-            BuildPushResultMapper mapper, InProgress inProgress,
-            Event<BuildPushResult> buildPushResultEvent, ArtifactRepository artifactRepository, CausewayClient causewayClient) {
+    public BuildResultPushManager(
+            BuildConfigurationRepository buildConfigurationRepository,
+            BuildRecordRepository buildRecordRepository,
+            BuildRecordPushResultRepository buildRecordPushResultRepository,
+            BuildPushResultMapper mapper,
+            InProgress inProgress,
+            Event<BuildPushResult> buildPushResultEvent,
+            ArtifactRepository artifactRepository,
+            CausewayClient causewayClient) {
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
@@ -121,14 +126,14 @@ public class BuildResultPushManager {
      * @param authToken
      * @param callBackUrlTemplate %s in the template will be replaced with BuildRecord.id
      * @param tagPrefix
-     * @param reimport Wherather the build should be reimported with new revision number if it
-     * already exists in Brew
+     * @param reimport Wherather the build should be reimported with new revision number if it already exists in Brew
      * @return
      */
     public Set<Result> push(
             Set<String> buildRecordIds,
             String authToken,
-            String callBackUrlTemplate, String tagPrefix,
+            String callBackUrlTemplate,
+            String tagPrefix,
             boolean reimport) {
 
         Set<Result> result = new HashSet<>();
@@ -148,7 +153,8 @@ public class BuildResultPushManager {
             Set<Result> result,
             String buildRecordId) {
         logger.debug("Preparing push to causeway Build.id {}.", buildRecordId);
-        //check is the status is NO_REBUILD_REQUIRED, if it is replace with the last BuildRecord with status SUCCESS for the same idRev.
+        // check is the status is NO_REBUILD_REQUIRED, if it is replace with the last BuildRecord with status SUCCESS
+        // for the same idRev.
         BuildRecord buildRecord = buildRecordRepository.queryById(Integer.valueOf(buildRecordId));
         Integer pushBuildRecordId = null;
         if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
@@ -157,8 +163,10 @@ public class BuildResultPushManager {
             if (buildRecord != null) {
                 pushBuildRecordId = buildRecord.getId();
             } else {
-                logger.warn("Trying to push a BuildRecord.id: {} with status NO_REBUILD_REQUIRED and there is no successful result for the configuration.idRev: {}.",
-                        buildRecordId, idRev);
+                logger.warn(
+                        "Trying to push a BuildRecord.id: {} with status NO_REBUILD_REQUIRED and there is no successful result for the configuration.idRev: {}.",
+                        buildRecordId,
+                        idRev);
             }
         } else {
             pushBuildRecordId = Integer.valueOf(buildRecordId);
@@ -174,14 +182,22 @@ public class BuildResultPushManager {
         }
     }
 
-    private Result pushToCauseway(String authToken, Integer buildRecordId, String callBackUrl, String tagPrefix, boolean reimport) {
+    private Result pushToCauseway(
+            String authToken,
+            Integer buildRecordId,
+            String callBackUrl,
+            String tagPrefix,
+            boolean reimport) {
         logger.info("Pushing to causeway BR.id: {}", buildRecordId);
         boolean successfullyPushed = false;
         String message = "Failed to push to Causeway.";
 
         if (!inProgress.add(buildRecordId, tagPrefix)) {
             logger.warn("Push for BR.id {} already running.", buildRecordId);
-            return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, "A push for this buildRecord is already running.");
+            return new Result(
+                    buildRecordId.toString(),
+                    BuildPushStatus.REJECTED,
+                    "A push for this buildRecord is already running.");
         }
         try {
             BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(buildRecordId);
@@ -192,11 +208,17 @@ public class BuildResultPushManager {
                 logger.warn("Not pushing record id: " + buildRecordId + " because it is a failed build.");
                 message = "Cannot push failed build.";
             } else if (hasBadArtifactQuality(buildRecord.getBuiltArtifacts())) {
-                logger.warn("Not pushing record id: " + buildRecordId + " because it contains artifacts of insufficient quality: BLACKLISTED/DELETED.");
+                logger.warn(
+                        "Not pushing record id: " + buildRecordId
+                                + " because it contains artifacts of insufficient quality: BLACKLISTED/DELETED.");
                 message = "Build contains artifacts of insufficient quality: BLACKLISTED/DELETED.";
-            }
-            else {
-                BuildImportRequest buildImportRequest = createCausewayPushRequest(buildRecord, tagPrefix, callBackUrl, authToken, reimport);
+            } else {
+                BuildImportRequest buildImportRequest = createCausewayPushRequest(
+                        buildRecord,
+                        tagPrefix,
+                        callBackUrl,
+                        authToken,
+                        reimport);
                 successfullyPushed = causewayClient.importBuild(buildImportRequest, authToken);
             }
         } catch (RuntimeException ex) {
@@ -224,16 +246,20 @@ public class BuildResultPushManager {
 
         BuildRoot buildRoot = new BuildRoot(
                 "DOCKER_IMAGE",
-                "x86_64", //TODO set based on env, some env has native build tools
+                "x86_64", // TODO set based on env, some env has native build tools
                 "rhel",
                 "x86_64",
-                buildEnvironment.getAttributes()
-        );
+                buildEnvironment.getAttributes());
 
-        List<Artifact> builtArtifactEntities = artifactRepository.queryWithPredicates(ArtifactPredicates.withBuildRecordId(buildRecord.getId()));
-        List<Artifact> dependencyEntities = artifactRepository.queryWithPredicates(ArtifactPredicates.withDependantBuildRecordId(buildRecord.getId()));
+        List<Artifact> builtArtifactEntities = artifactRepository
+                .queryWithPredicates(ArtifactPredicates.withBuildRecordId(buildRecord.getId()));
+        List<Artifact> dependencyEntities = artifactRepository
+                .queryWithPredicates(ArtifactPredicates.withDependantBuildRecordId(buildRecord.getId()));
 
-        logger.debug("Preparing BuildImportRequest containing {} built artifacts and {} dependencies.", builtArtifactEntities.size(), dependencyEntities.size());
+        logger.debug(
+                "Preparing BuildImportRequest containing {} built artifacts and {} dependencies.",
+                builtArtifactEntities.size(),
+                dependencyEntities.size());
 
         BuildType buildType = buildRecord.getBuildConfigurationAudited().getBuildType();
 
@@ -253,17 +279,36 @@ public class BuildResultPushManager {
             executionRootName = buildRecord.getExecutionRootName();
         }
 
-        Build build = getBuild(buildRecord, tagPrefix, buildRoot, dependencies, builtArtifacts, executionRootName, buildType);
+        Build build = getBuild(
+                buildRecord,
+                tagPrefix,
+                buildRoot,
+                dependencies,
+                builtArtifacts,
+                executionRootName,
+                buildType);
 
         return new BuildImportRequest(callbackTarget, build, reimport);
     }
 
-    private Build getBuild(BuildRecord buildRecord, String tagPrefix, BuildRoot buildRoot, Set<Dependency> dependencies,
-            Set<BuiltArtifact> builtArtifacts, String executionRootName, BuildType buildType) {
+    private Build getBuild(
+            BuildRecord buildRecord,
+            String tagPrefix,
+            BuildRoot buildRoot,
+            Set<Dependency> dependencies,
+            Set<BuiltArtifact> builtArtifacts,
+            String executionRootName,
+            BuildType buildType) {
         switch (buildType) {
             case MVN:
             case GRADLE:
-                return getMavenBuild(buildRecord, tagPrefix, buildRoot, dependencies, builtArtifacts, executionRootName);
+                return getMavenBuild(
+                        buildRecord,
+                        tagPrefix,
+                        buildRoot,
+                        dependencies,
+                        builtArtifacts,
+                        executionRootName);
             case NPM:
                 return getNpmBuild(buildRecord, tagPrefix, buildRoot, dependencies, builtArtifacts, executionRootName);
             default:
@@ -271,11 +316,14 @@ public class BuildResultPushManager {
         }
     }
 
-    private Build getMavenBuild(BuildRecord buildRecord, String tagPrefix, BuildRoot buildRoot, Set<Dependency> dependencies,
-            Set<BuiltArtifact> builtArtifacts, String executionRootName) {
-        Gav rootGav = buildRootToGAV(
-                executionRootName,
-                buildRecord.getExecutionRootVersion());
+    private Build getMavenBuild(
+            BuildRecord buildRecord,
+            String tagPrefix,
+            BuildRoot buildRoot,
+            Set<Dependency> dependencies,
+            Set<BuiltArtifact> builtArtifacts,
+            String executionRootName) {
+        Gav rootGav = buildRootToGAV(executionRootName, buildRecord.getExecutionRootVersion());
         Set<Logfile> logs = new HashSet<>();
 
         addLogs(buildRecord, logs);
@@ -298,12 +346,16 @@ public class BuildResultPushManager {
                 logs,
                 dependencies,
                 builtArtifacts,
-                tagPrefix
-        );
+                tagPrefix);
     }
 
-    private Build getNpmBuild(BuildRecord buildRecord, String tagPrefix, BuildRoot buildRoot, Set<Dependency> dependencies,
-            Set<BuiltArtifact> builtArtifacts, String executionRootName) {
+    private Build getNpmBuild(
+            BuildRecord buildRecord,
+            String tagPrefix,
+            BuildRoot buildRoot,
+            Set<Dependency> dependencies,
+            Set<BuiltArtifact> builtArtifacts,
+            String executionRootName) {
         NpmPackageRef nv = new NpmPackageRef(executionRootName, buildRecord.getExecutionRootVersion());
         Set<Logfile> logs = new HashSet<>();
 
@@ -326,22 +378,31 @@ public class BuildResultPushManager {
                 logs,
                 dependencies,
                 builtArtifacts,
-                tagPrefix
-        );
+                tagPrefix);
     }
 
     private void addLogs(BuildRecord buildRecord, Set<Logfile> logs) {
         if (buildRecord.getBuildLogSize() != null && buildRecord.getBuildLogSize() > 0) {
-            logs.add(new Logfile("build.log", getBuildLogPath(buildRecord.getId()), buildRecord.getBuildLogSize(), buildRecord.getBuildLogMd5()));
+            logs.add(
+                    new Logfile(
+                            "build.log",
+                            getBuildLogPath(buildRecord.getId()),
+                            buildRecord.getBuildLogSize(),
+                            buildRecord.getBuildLogMd5()));
         } else {
             logger.warn("Missing build log for BR.id: {}.", buildRecord.getId());
         }
         if (buildRecord.getRepourLogSize() != null && buildRecord.getRepourLogSize() > 0) {
-            logs.add(new Logfile("repour.log", getRepourLogPath(buildRecord.getId()), buildRecord.getRepourLogSize(), buildRecord.getRepourLogMd5()));
+            logs.add(
+                    new Logfile(
+                            "repour.log",
+                            getRepourLogPath(buildRecord.getId()),
+                            buildRecord.getRepourLogSize(),
+                            buildRecord.getRepourLogMd5()));
         } else {
             logger.warn("Missing repour log for BR.id: {}.", buildRecord.getId());
         }
-        //TODO respond with error if logs are missing
+        // TODO respond with error if logs are missing
     }
 
     private String getRepourLogPath(Integer id) {
@@ -359,7 +420,8 @@ public class BuildResultPushManager {
 
         String[] splittedName = executionRootName.split(":");
         if (splittedName.length != 2) {
-            throw new IllegalArgumentException("Execution root '" + executionRootName + "' doesn't seem to be maven G:A.");
+            throw new IllegalArgumentException(
+                    "Execution root '" + executionRootName + "' doesn't seem to be maven G:A.");
         }
         return new Gav(splittedName[0], splittedName[1], executionRootVersion);
     }
@@ -388,8 +450,7 @@ public class BuildResultPushManager {
                     artifact.getMd5(),
                     artifact.getDeployPath(),
                     artifact.getTargetRepository().getRepositoryPath(),
-                    artifact.getSize().intValue()
-            );
+                    artifact.getSize().intValue());
         }).collect(Collectors.toSet());
     }
 
@@ -406,30 +467,24 @@ public class BuildResultPushManager {
                     artifact.getMd5(),
                     artifact.getDeployPath(),
                     artifact.getTargetRepository().getRepositoryPath(),
-                    artifact.getSize().intValue()
-            );
+                    artifact.getSize().intValue());
         }).collect(Collectors.toSet());
     }
 
     private Set<Dependency> collectDependencies(Collection<Artifact> dependencies) {
         return dependencies.stream()
-                .map(artifact -> new Dependency(
-                artifact.getFilename(),
-                artifact.getMd5(),
-                artifact.getSize())
-                )
+                .map(artifact -> new Dependency(artifact.getFilename(), artifact.getMd5(), artifact.getSize()))
                 .collect(Collectors.toSet());
     }
 
-    private boolean hasBadArtifactQuality(Collection<Artifact> builtArtifacts){
+    private boolean hasBadArtifactQuality(Collection<Artifact> builtArtifacts) {
         EnumSet<ArtifactQuality> badQuality = EnumSet.of(DELETED, BLACKLISTED);
-        return builtArtifacts.stream()
-                .map(Artifact::getArtifactQuality)
-                .anyMatch(badQuality::contains);
+        return builtArtifacts.stream().map(Artifact::getArtifactQuality).anyMatch(badQuality::contains);
     }
 
-    public Integer complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) throws ProcessException {
-        //accept only listed elements otherwise a new request might be wrongly completed from response of an older one
+    public Integer complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult)
+            throws ProcessException {
+        // accept only listed elements otherwise a new request might be wrongly completed from response of an older one
         String completedTag = inProgress.remove(buildRecordId);
         if (completedTag == null) {
             throw new ProcessException("Did not find the referenced element.");

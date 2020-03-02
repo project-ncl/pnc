@@ -47,7 +47,8 @@ public class DemoDataInitializer {
     @Inject
     DatabaseDataInitializer dbDataInitializer;
 
-    @Inject ProjectRepository projectRepository;
+    @Inject
+    ProjectRepository projectRepository;
 
     @PostConstruct
     public void initialize() {

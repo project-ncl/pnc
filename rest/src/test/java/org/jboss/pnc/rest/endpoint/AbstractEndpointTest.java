@@ -34,37 +34,37 @@ public class AbstractEndpointTest extends AbstractEndpoint<BuildConfiguration, B
 
     @Test
     public void shouldReturn404OnEmptySingleton() throws Exception {
-        //when
+        // when
         Response response = fromSingleton(null);
 
-        //then
+        // then
         assertThat(response.getStatus()).isEqualTo(404);
     }
 
     @Test
     public void shouldReturn200OnNonEmptySingleton() throws Exception {
-        //when
+        // when
         Response response = fromSingleton(new Object());
 
-        //then
+        // then
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
     @Test
     public void shouldReturn204OnEmptyCollection() throws Exception {
-        //when
+        // when
         Response response = fromCollection(new CollectionInfo<>(0, 0, 0, Collections.emptyList()));
 
-        //then
+        // then
         assertThat(response.getStatus()).isEqualTo(204);
     }
 
     @Test
     public void shouldReturn200OnNonEmptyCollection() throws Exception {
-        //when
+        // when
         Response response = fromCollection(new CollectionInfo<>(0, 0, 0, Arrays.asList(new Object())));
 
-        //then
+        // then
         assertThat(response.getStatus()).isEqualTo(200);
     }
 

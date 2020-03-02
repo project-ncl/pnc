@@ -39,9 +39,7 @@ import javax.ws.rs.core.Response;
 import java.util.Optional;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 1/25/17
- * Time: 2:25 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 1/25/17 Time: 2:25 PM
  */
 @Hidden
 @Path("/debug")
@@ -58,7 +56,6 @@ public class DebugEndpoint {
     @Inject
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
 
-
     @GET
     @Path("/build-queue")
     public Response getBuildQueueInfo() {
@@ -67,22 +64,21 @@ public class DebugEndpoint {
     }
 
     /**
-     *  curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message
-     *  curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message?type=status
+     * curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message curl -v -X POST
+     * http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message?type=status
      */
     @POST
     @Path("/mq-send-dummy-message")
     public Response sendDummyMessageToQueue(@QueryParam("type") String type) {
         Optional<MessageSender> messageSender = messageSenderProvider.getMessageSender();
         if (!messageSender.isPresent()) {
-            return Response
-                    .status(Response.Status.SERVICE_UNAVAILABLE)
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
                     .entity("Message sender is not available to inject.")
                     .build();
         } else {
             if (type != null && type.equals("status")) {
-                buildStatusChangedEventNotifier.fire(new DefaultBuildStatusChangedEvent(
-                        newBuild(),BuildStatus.CANCELLED, BuildStatus.CANCELLED));
+                buildStatusChangedEventNotifier.fire(
+                        new DefaultBuildStatusChangedEvent(newBuild(), BuildStatus.CANCELLED, BuildStatus.CANCELLED));
             } else {
                 messageSender.get().sendToTopic("Test Message.");
             }
@@ -98,6 +94,5 @@ public class DebugEndpoint {
                 .temporaryBuild(true)
                 .build();
     }
-
 
 }

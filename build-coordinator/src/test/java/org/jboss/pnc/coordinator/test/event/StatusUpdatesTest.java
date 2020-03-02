@@ -106,12 +106,15 @@ public class StatusUpdatesTest {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
+        return BuildCoordinatorDeployments.deployment(
+                BuildCoordinatorDeployments.Options.WITH_DATASTORE,
+                BuildCoordinatorDeployments.Options.WITH_BPM);
     }
 
     @Test
     @InSequence(10)
-    public void buildSetStatusShouldUpdateWhenAllBuildStatusChangeToCompletedState() throws DatastoreException, InterruptedException, CoreException {
+    public void buildSetStatusShouldUpdateWhenAllBuildStatusChangeToCompletedState()
+            throws DatastoreException, InterruptedException, CoreException {
         ObjectWrapper<BuildSetStatusChangedEvent> receivedBuildSetStatusChangedEvent = new ObjectWrapper<>();
         Consumer<BuildSetStatusChangedEvent> statusUpdateListener = (event) -> {
             receivedBuildSetStatusChangedEvent.set(event);
@@ -119,7 +122,8 @@ public class StatusUpdatesTest {
         testCDIBuildSetStatusChangedReceiver.addBuildSetStatusChangedEventListener(statusUpdateListener);
 
         User user = User.Builder.newBuilder().id(1).username("test-user-1").build();
-        Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {}).getBuildTasks();
+        Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {})
+                .getBuildTasks();
         buildTasks.forEach((bt) -> {
             buildCoordinator.updateBuildTaskStatus(bt, BuildCoordinationStatus.DONE);
             buildCoordinator.completeBuild(bt, createBuildResult());
@@ -134,7 +138,8 @@ public class StatusUpdatesTest {
     @InSequence(30)
     public void BuildTaskCallbacksShouldBeCalled() throws DatastoreException, CoreException {
         User user = User.Builder.newBuilder().id(3).username("test-user-3").build();
-        Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {}).getBuildTasks();
+        Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {})
+                .getBuildTasks();
         Set<Integer> tasksIds = buildTasks.stream().map((BuildTask::getId)).collect(Collectors.toSet());
 
         Set<Integer> receivedUpdatesForId = new HashSet<>();
@@ -155,21 +160,24 @@ public class StatusUpdatesTest {
         });
     }
 
-    private BuildSetTask initializeBuildTaskSet(TestProjectConfigurationBuilder configurationBuilder, User user, Consumer<BuildConfigSetRecord> onBuildSetTaskCompleted) throws DatastoreException, CoreException {
+    private BuildSetTask initializeBuildTaskSet(
+            TestProjectConfigurationBuilder configurationBuilder,
+            User user,
+            Consumer<BuildConfigSetRecord> onBuildSetTaskCompleted) throws DatastoreException, CoreException {
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSet(1);
         return createBuildSetTask(buildConfigurationSet, user);
     }
 
-    private BuildSetTask initializeBuildTaskSet(TestProjectConfigurationBuilder configurationBuilder, Consumer<BuildConfigSetRecord> onBuildSetTaskCompleted) throws DatastoreException, CoreException {
+    private BuildSetTask initializeBuildTaskSet(
+            TestProjectConfigurationBuilder configurationBuilder,
+            Consumer<BuildConfigSetRecord> onBuildSetTaskCompleted) throws DatastoreException, CoreException {
         User user = User.Builder.newBuilder().id(1).username("test-user").build();
         return initializeBuildTaskSet(configurationBuilder, user, onBuildSetTaskCompleted);
     }
 
-    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user) throws CoreException {
-        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(
-                datastoreAdapter,
-                1L
-        );
+    public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user)
+            throws CoreException {
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, 1L);
         AtomicInteger atomicInteger = new AtomicInteger(1);
 
         BuildOptions buildOptions = new BuildOptions();
@@ -179,10 +187,8 @@ public class StatusUpdatesTest {
                 user,
                 buildOptions,
                 () -> atomicInteger.getAndIncrement(),
-                buildQueue.getUnfinishedTasks()
-                );
+                buildQueue.getUnfinishedTasks());
     }
-
 
     /**
      * use Wait.forCondition
@@ -200,7 +206,10 @@ public class StatusUpdatesTest {
     }
 
     private BuildResult createBuildResult() {
-        IndyRepositoryManagerResult repoManagerResult = new IndyRepositoryManagerResult(Collections.emptyList(), Collections.emptyList(), RandomStringUtils.randomNumeric(4));
+        IndyRepositoryManagerResult repoManagerResult = new IndyRepositoryManagerResult(
+                Collections.emptyList(),
+                Collections.emptyList(),
+                RandomStringUtils.randomNumeric(4));
         BuildDriverResult driverResult = new BuildDriverResult() {
             @Override
             public String getBuildLog() {

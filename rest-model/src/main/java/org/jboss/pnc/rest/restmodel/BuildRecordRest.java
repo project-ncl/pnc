@@ -52,7 +52,6 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     private Date endTime;
 
-
     private BuildCoordinationStatus status;
 
     private Integer buildConfigurationId;
@@ -92,7 +91,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
     private Boolean temporaryBuild;
 
     /**
-     * The IDs of the build record sets which represent the builds performed for a milestone to which this build record belongs
+     * The IDs of the build record sets which represent the builds performed for a milestone to which this build record
+     * belongs
      */
     private Integer productMilestoneId;
 
@@ -137,16 +137,21 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildConfigurationId = buildRecord.getBuildConfigurationId();
         this.buildConfigurationRev = buildRecord.getBuildConfigurationRev();
 
-        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
+        performIfNotNull(
+                buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationName = buildRecord.getBuildConfigurationAudited().getName());
-        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
+        performIfNotNull(
+                buildRecord.getBuildConfigurationAudited(),
                 () -> projectId = buildRecord.getBuildConfigurationAudited().getProject().getId());
-        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
+        performIfNotNull(
+                buildRecord.getBuildConfigurationAudited(),
                 () -> projectName = buildRecord.getBuildConfigurationAudited().getProject().getName());
 
         performIfNotNull(buildRecord.getUser(), () -> userId = buildRecord.getUser().getId());
         performIfNotNull(buildRecord.getUser(), () -> username = buildRecord.getUser().getUsername());
-        performIfNotNull(buildRecord.getBuildEnvironment(), () -> buildEnvironmentId = buildRecord.getBuildEnvironment().getId());
+        performIfNotNull(
+                buildRecord.getBuildEnvironment(),
+                () -> buildEnvironmentId = buildRecord.getBuildEnvironment().getId());
         this.status = BuildCoordinationStatus.fromBuildStatus(buildRecord.getStatus());
         if (buildRecord.getBuildConfigSetRecord() != null) {
             this.buildConfigSetRecordId = buildRecord.getBuildConfigSetRecord().getId();
@@ -155,9 +160,12 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildContentId = buildRecord.getBuildContentId();
         this.temporaryBuild = buildRecord.isTemporaryBuild();
 
-        performIfNotNull(buildRecord.getProductMilestone(), () -> productMilestoneId = buildRecord.getProductMilestone().getId());
+        performIfNotNull(
+                buildRecord.getProductMilestone(),
+                () -> productMilestoneId = buildRecord.getProductMilestone().getId());
         performIfNotNull(buildRecord.getUser(), () -> user = new UserRest(buildRecord.getUser()));
-        performIfNotNull(buildRecord.getBuildConfigurationAudited(),
+        performIfNotNull(
+                buildRecord.getBuildConfigurationAudited(),
                 () -> buildConfigurationAudited = new BuildConfigurationAuditedRest(
                         buildRecord.getBuildConfigurationAudited()));
 
@@ -170,7 +178,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
     public BuildRecordRest(
             BuildExecutionSession buildExecutionSession,
-            Date submitTime, UserRest user,
+            Date submitTime,
+            UserRest user,
             BuildConfigurationAuditedRest buildConfigurationAudited,
             Integer[] dependencyBuildRecordIds,
             Integer[] dependentBuildRecordIds) {
@@ -180,7 +189,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.endTime = buildExecutionSession.getEndTime();
         BuildExecutionConfiguration buildExecutionConfig = buildExecutionSession.getBuildExecutionConfiguration();
 
-        //TODO Why masking i.e. BUILD_WAITING status with BUILDING ?
+        // TODO Why masking i.e. BUILD_WAITING status with BUILDING ?
         this.status = BuildCoordinationStatus.fromBuildExecutionStatus(buildExecutionSession.getStatus());
         buildExecutionSession.getLiveLogsUri().ifPresent(logsUri -> setLiveLogsUri(logsUri.toString()));
 
@@ -199,7 +208,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
 
         this.buildConfigurationId = buildConfigurationAudited.getId();
         this.projectId = buildConfigurationAudited.getProjectId();
-        performIfNotNull(buildConfigurationAudited.getProject(),
+        performIfNotNull(
+                buildConfigurationAudited.getProject(),
                 () -> this.projectName = buildConfigurationAudited.getProject().getName());
 
         this.temporaryBuild = buildExecutionConfig.isTempBuild();
@@ -236,7 +246,8 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.projectId = buildConfigurationAudited.getProjectId();
         this.temporaryBuild = temporaryBuild;
 
-        performIfNotNull(buildConfigurationAudited.getProject(),
+        performIfNotNull(
+                buildConfigurationAudited.getProject(),
                 () -> this.projectName = buildConfigurationAudited.getProject().getName());
 
         this.dependencyBuildRecordIds = dependencyBuildRecordIds;

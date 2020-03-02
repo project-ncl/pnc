@@ -78,8 +78,12 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
     }
 
     @Inject
-    public ArtifactProvider(ArtifactRepository artifactRepository, RSQLPredicateProducer rsqlPredicateProducer,
-            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer, BuildRecordRepository buildRecordRepository,
+    public ArtifactProvider(
+            ArtifactRepository artifactRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer,
+            BuildRecordRepository buildRecordRepository,
             Configuration configuration) {
         super(artifactRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.buildRecordRepository = buildRecordRepository;
@@ -95,7 +99,11 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
      * @deprecated is uses in-memory sort and order
      */
     @Deprecated
-    public CollectionInfo<ArtifactRest> getAllForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
+    public CollectionInfo<ArtifactRest> getAllForBuildRecord(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
             int buildRecordId) {
         BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
 
@@ -103,8 +111,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         fullArtifactList.addAll(buildRecord.getBuiltArtifacts());
         fullArtifactList.addAll(buildRecord.getDependencies());
 
-        return filterAndSort(pageIndex, pageSize, sortingRsql, query,
-                ArtifactRest.class, fullArtifactList);
+        return filterAndSort(pageIndex, pageSize, sortingRsql, query, ArtifactRest.class, fullArtifactList);
     }
 
     /**
@@ -112,25 +119,40 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
      *
      * @return Returns requested artifacts or empty collection if BuildRecord with the specified ID doesn't exists
      */
-    public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
+    public CollectionInfo<ArtifactRest> getBuiltArtifactsForBuildRecord(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
             int buildRecordId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(buildRecordId));
     }
 
     @Deprecated
-    private <DTO, Model> CollectionInfo<ArtifactRest> filterAndSort(int pageIndex, int pageSize, String sortingRsql, String query,
-                                                       Class<ArtifactRest> selectingClass, Set<Artifact> artifacts) {
+    private <DTO, Model> CollectionInfo<ArtifactRest> filterAndSort(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Class<ArtifactRest> selectingClass,
+            Set<Artifact> artifacts) {
         Predicate<ArtifactRest> queryPredicate = rsqlPredicateProducer.getStreamPredicate(selectingClass, query);
         SortInfo sortInfo = sortInfoProducer.getSortInfo(sortingRsql);
 
         Stream<ArtifactRest> filteredStream = nullableStreamOf(artifacts)
                 .map(artifact -> new ArtifactRest(artifact, getDeployUrl(artifact), getPublicUrl(artifact)))
-                .filter(queryPredicate).sorted(sortInfo.getComparator());
+                .filter(queryPredicate)
+                .sorted(sortInfo.getComparator());
         List<ArtifactRest> filteredList = filteredStream.collect(Collectors.toList());
 
         return filteredList.stream()
                 .skip(pageIndex * pageSize)
-                .limit(pageSize).collect(new CollectionInfoCollector<>(pageIndex, pageSize, (filteredList.size() + pageSize -1)/pageSize));
+                .limit(pageSize)
+                .collect(
+                        new CollectionInfoCollector<>(
+                                pageIndex,
+                                pageSize,
+                                (filteredList.size() + pageSize - 1) / pageSize));
     }
 
     private String getDeployUrl(Artifact artifact) {
@@ -141,11 +163,13 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             } else {
                 try {
                     if (repositoryType == MAVEN) {
-                        return UrlUtils.buildUrl(moduleConfig.getInternalRepositoryMvnPath(),
+                        return UrlUtils.buildUrl(
+                                moduleConfig.getInternalRepositoryMvnPath(),
                                 artifact.getTargetRepository().getRepositoryPath(),
                                 artifact.getDeployPath());
                     } else {
-                        return UrlUtils.buildUrl(moduleConfig.getInternalRepositoryNpmPath(),
+                        return UrlUtils.buildUrl(
+                                moduleConfig.getInternalRepositoryNpmPath(),
                                 artifact.getTargetRepository().getRepositoryPath(),
                                 artifact.getDeployPath());
                     }
@@ -170,15 +194,18 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
             } else {
                 try {
                     if ((repositoryType == MAVEN) || (repositoryType == GENERIC_PROXY)) {
-                        result = UrlUtils.buildUrl(moduleConfig.getExternalRepositoryMvnPath(),
+                        result = UrlUtils.buildUrl(
+                                moduleConfig.getExternalRepositoryMvnPath(),
                                 artifact.getTargetRepository().getRepositoryPath(),
                                 artifact.getDeployPath());
                     } else if (repositoryType == NPM) {
-                        result = UrlUtils.buildUrl(moduleConfig.getExternalRepositoryNpmPath(),
+                        result = UrlUtils.buildUrl(
+                                moduleConfig.getExternalRepositoryNpmPath(),
                                 artifact.getTargetRepository().getRepositoryPath(),
                                 artifact.getDeployPath());
                     } else {
-                        logger.error("Unknown repository type {}. Cannot construct public artifact URL.",
+                        logger.error(
+                                "Unknown repository type {}. Cannot construct public artifact URL.",
                                 repositoryType);
                         result = null;
                     }
@@ -193,15 +220,31 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         return result;
     }
 
-    public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecord(int pageIndex, int pageSize, String sortingRsql, String query,
+    public CollectionInfo<ArtifactRest> getDependencyArtifactsForBuildRecord(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
             int buildRecordId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withDependantBuildRecordId(buildRecordId));
     }
 
-    public CollectionInfo<ArtifactRest> getAll(int pageIndex, int pageSize, String sortingRsql, String query,
-            Optional<String> sha256, Optional<String> md5, Optional<String> sha1) {
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withSha256(sha256),
-                withMd5(md5),withSha1(sha1));
+    public CollectionInfo<ArtifactRest> getAll(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Optional<String> sha256,
+            Optional<String> md5,
+            Optional<String> sha1) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withSha256(sha256),
+                withMd5(md5),
+                withSha1(sha1));
     }
 
     @Override

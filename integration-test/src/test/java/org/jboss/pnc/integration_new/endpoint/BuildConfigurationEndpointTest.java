@@ -207,7 +207,8 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration dto = client.getSpecific(configurationId);
 
         assertThat(dto.getScmRevision()).isEqualTo("*/v0.2"); // from DatabaseDataInitializer
-        assertThat(dto.getDescription()).isEqualTo("Test build config for project newcastle"); // from DatabaseDataInitializer
+        assertThat(dto.getDescription()).isEqualTo("Test build config for project newcastle"); // from
+                                                                                               // DatabaseDataInitializer
     }
 
     /**
@@ -263,8 +264,7 @@ public class BuildConfigurationEndpointTest {
         String id = buildConfiguration.getId();
 
         Map<String, String> addElements = Collections.singletonMap("newKey", "newValue");
-        BuildConfigurationPatchBuilder builder = new BuildConfigurationPatchBuilder()
-                .replaceDescription(newDescription)
+        BuildConfigurationPatchBuilder builder = new BuildConfigurationPatchBuilder().replaceDescription(newDescription)
                 .addParameters(addElements);
         BuildConfiguration updated = client.patch(id, builder);
 
@@ -284,9 +284,7 @@ public class BuildConfigurationEndpointTest {
 
         RemoteCollection<Build> all = client.getBuilds(configurationId, null);
 
-        assertThat(all)
-                .hasSize(2)
-                .allMatch(b -> configurationId.equals(b.getBuildConfigRevision().getId()));
+        assertThat(all).hasSize(2).allMatch(b -> configurationId.equals(b.getBuildConfigRevision().getId()));
     }
 
     @Test
@@ -311,8 +309,18 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration retrivedParent = client.getSpecific(configuration4Id);
         assertThat(retrivedParent.getDependencies()).containsKey(configurationId);
         assertThat(retrivedParent.getDependencies()).doesNotContainKey(clone.getId());
-        assertThat(clone).isEqualToIgnoringGivenFields(original, "id", "name", "groupConfigs", "creationTime", "modificationTime", "modificationTime", "productVersion");
-        assertThat(retrieved).isEqualToIgnoringGivenFields(clone, "modificationTime"); // close of transaction changes the modification time - WONTFIX
+        assertThat(clone).isEqualToIgnoringGivenFields(
+                original,
+                "id",
+                "name",
+                "groupConfigs",
+                "creationTime",
+                "modificationTime",
+                "modificationTime",
+                "productVersion");
+        assertThat(retrieved).isEqualToIgnoringGivenFields(clone, "modificationTime"); // close of transaction changes
+                                                                                       // the modification time -
+                                                                                       // WONTFIX
     }
 
     @Test
@@ -321,9 +329,7 @@ public class BuildConfigurationEndpointTest {
 
         RemoteCollection<GroupConfiguration> all = client.getGroupConfigs(configurationId);
 
-        assertThat(all)
-                .hasSize(1)
-                .allMatch(gc -> gc.getBuildConfigs().containsKey(configurationId));
+        assertThat(all).hasSize(1).allMatch(gc -> gc.getBuildConfigs().containsKey(configurationId));
     }
 
     @Test
@@ -333,8 +339,7 @@ public class BuildConfigurationEndpointTest {
 
         RemoteCollection<BuildConfiguration> all = client.getDependencies(configuration3Id);
 
-        assertThat(all)
-                .hasSize(2);
+        assertThat(all).hasSize(2);
     }
 
     @Test
@@ -342,20 +347,22 @@ public class BuildConfigurationEndpointTest {
     public void testAddDependency() throws ClientException {
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         // given
-        BuildConfiguration newDependency = createBuildConfigurationAndValidateResults(projectId,
-                environmentId, repositoryConfigurationId, "dep-"+UUID.randomUUID(), PARAMETER_KEY);
+        BuildConfiguration newDependency = createBuildConfigurationAndValidateResults(
+                projectId,
+                environmentId,
+                repositoryConfigurationId,
+                "dep-" + UUID.randomUUID(),
+                PARAMETER_KEY);
         BuildConfiguration parent = client.getSpecific(configuration3Id);
         Map<String, BuildConfigurationRef> oldDependencies = parent.getDependencies();
-        assertThat(oldDependencies)
-                .doesNotContainKey(newDependency.getId());
+        assertThat(oldDependencies).doesNotContainKey(newDependency.getId());
 
         // when
         client.addDependency(parent.getId(), newDependency);
 
-        //then
+        // then
         RemoteCollection<BuildConfiguration> all = client.getDependencies(parent.getId());
-        assertThat(all)
-                .extracting(DTOEntity::getId)
+        assertThat(all).extracting(DTOEntity::getId)
                 .containsAll(oldDependencies.keySet().stream().collect(Collectors.toList()))
                 .contains(newDependency.getId());
     }
@@ -373,11 +380,10 @@ public class BuildConfigurationEndpointTest {
         // when
         client.removeDependency(parent.getId(), toDelete.getId());
 
-        //then
+        // then
         RemoteCollection<BuildConfiguration> all = client.getDependencies(parent.getId());
         oldDependencies.remove(toDelete.getId());
-        assertThat(all)
-                .extracting(DTOEntity::getId)
+        assertThat(all).extracting(DTOEntity::getId)
                 .doesNotContain(toDelete.getId())
                 .containsAll(oldDependencies.keySet().stream().collect(Collectors.toList()));
     }
@@ -388,8 +394,7 @@ public class BuildConfigurationEndpointTest {
 
         RemoteCollection<BuildConfigurationRevision> revisions = client.getRevisions(configurationId);
 
-        assertThat(revisions)
-                .anySatisfy(config -> assertThat(config.getId()).isEqualTo(configurationId));
+        assertThat(revisions).anySatisfy(config -> assertThat(config.getId()).isEqualTo(configurationId));
     }
 
     @Test
@@ -432,15 +437,17 @@ public class BuildConfigurationEndpointTest {
 
         // given latest revision
         BuildConfigurationRevision originalRev = it.next();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             BuildConfigurationRevision candidate = it.next();
-            if(candidate.getRev() > originalRev.getRev()){
+            if (candidate.getRev() > originalRev.getRev()) {
                 originalRev = candidate;
             }
         }
 
         // when
-        BuildConfiguration toUpdate = original.toBuilder().description("shouldRestoreBuildConfigurationRevision Updated").build();
+        BuildConfiguration toUpdate = original.toBuilder()
+                .description("shouldRestoreBuildConfigurationRevision Updated")
+                .build();
         client.update(configurationId, toUpdate);
         BuildConfiguration updated = client.getSpecific(configurationId);
         assertThat(updated.getDescription()).isNotEqualTo(original.getDescription());
@@ -460,19 +467,21 @@ public class BuildConfigurationEndpointTest {
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
         Set<Parameter> all = client.getSupportedParameters();
 
-        assertThat(all)
-                .haveExactly(1, new Condition<>(
+        assertThat(all).haveExactly(
+                1,
+                new Condition<>(
                         p -> p.getName().equals("ALIGNMENT_PARAMETERS")
-                        && p.getDescription().startsWith("Additional parameters, which will be "),
+                                && p.getDescription().startsWith("Additional parameters, which will be "),
                         "has PME parameter"))
-                .size().isGreaterThanOrEqualTo(4);
+                .size()
+                .isGreaterThanOrEqualTo(4);
     }
 
     @Test
     public void testGetBuildTypeDefaultAlignmentParameters() throws RemoteResourceException {
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
 
-        for (BuildType buildType: BuildType.values()){
+        for (BuildType buildType : BuildType.values()) {
             Optional<String> params = client.getBuildTypeDefaultAlignmentParameters(buildType.name());
             assertThat(params).isPresent();
             assertThat(!params.get().isEmpty());

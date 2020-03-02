@@ -24,9 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The audited record of a build configuration. Each change to the build configuration table is recorded in the audit table.
- * This class serves to access the data of a specific version of a build configuration.
- * Keep in mind that it is not managed by JPA and needs to be filled manually.
+ * The audited record of a build configuration. Each change to the build configuration table is recorded in the audit
+ * table. This class serves to access the data of a specific version of a build configuration. Keep in mind that it is
+ * not managed by JPA and needs to be filled manually.
  *
  */
 public class BuildConfigurationAudited implements GenericEntity<Integer> {
@@ -258,7 +258,9 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
 
     }
 
-    public static BuildConfigurationAudited fromBuildConfiguration(BuildConfiguration buildConfiguration, Integer revision) {
+    public static BuildConfigurationAudited fromBuildConfiguration(
+            BuildConfiguration buildConfiguration,
+            Integer revision) {
         BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
                 .buildConfiguration(buildConfiguration)
                 .rev(revision)
@@ -266,7 +268,5 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
 
         return buildConfigurationAudited;
     }
-
-
 
 }

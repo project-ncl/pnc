@@ -45,15 +45,19 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GroupConfiguration extends GroupConfigurationRef {
 
-    @PatchSupport({REPLACE})
-    @RefHasId(groups = {WhenCreatingNew.class, WhenUpdating.class}, optional = true)
+    @PatchSupport({ REPLACE })
+    @RefHasId(groups = { WhenCreatingNew.class, WhenUpdating.class }, optional = true)
     private final ProductVersionRef productVersion;
 
-    @PatchSupport({ADD, REPLACE})
+    @PatchSupport({ ADD, REPLACE })
     private final Map<String, BuildConfigurationRef> buildConfigs;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    GroupConfiguration(ProductVersionRef productVersion, Map<String, BuildConfigurationRef> buildConfigs, String id, String name) {
+    GroupConfiguration(
+            ProductVersionRef productVersion,
+            Map<String, BuildConfigurationRef> buildConfigs,
+            String id,
+            String name) {
         super(id, name);
         this.productVersion = productVersion;
         this.buildConfigs = buildConfigs;

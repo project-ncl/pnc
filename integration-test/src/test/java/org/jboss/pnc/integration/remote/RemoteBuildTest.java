@@ -63,14 +63,9 @@ public class RemoteBuildTest {
     @Before
     public void before() {
 
-        ConnectionInfo connectionInfo = ConnectionInfo.builder()
-                .bearerToken(BEARER_TOKEN)
-                .host(HOST)
-                .port(80)
-                .build();
+        ConnectionInfo connectionInfo = ConnectionInfo.builder().bearerToken(BEARER_TOKEN).host(HOST).port(80).build();
         buildConfigurationRestClient = new BuildConfigurationRestClient(connectionInfo);
     }
-
 
     @Test
     public void runMultipleBuilds() throws Exception {
@@ -79,7 +74,9 @@ public class RemoteBuildTest {
             try {
                 BuildChangedNotification notification = mapper.readValue(message, BuildChangedNotification.class);
                 if (notification.getBuild().getStatus().completedSuccessfully()) {
-                    notifyCompleted(Integer.valueOf(notification.getBuild().getBuildConfigRevision().getId()), notification.getBuild().getStatus());
+                    notifyCompleted(
+                            Integer.valueOf(notification.getBuild().getBuildConfigRevision().getId()),
+                            notification.getBuild().getStatus());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -105,13 +102,9 @@ public class RemoteBuildTest {
         Map<String, String> genericParameters = new HashMap<>();
         genericParameters.put("CUSTOM_PME_PARAMETERS", "-Dmanipulation.disable=true");
 
-        String buildScript =
-                "set +x\n"
-                        + "for i in {1..100}; do\n"
-                        + "    echo $i \"- 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\"\n"
-                        + "done\n"
-                        + "echo \"Need to rest for a while ...\"\n"
-                        + "sleep 30";
+        String buildScript = "set +x\n" + "for i in {1..100}; do\n"
+                + "    echo $i \"- 0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789\"\n"
+                + "done\n" + "echo \"Need to rest for a while ...\"\n" + "sleep 30";
 
         BuildConfigurationRest buildConfiguration = getOrCreateBuildConfiguration(
                 buildConfigurationName,
@@ -120,11 +113,11 @@ public class RemoteBuildTest {
                 genericParameters,
                 8,
                 9,
-                3
-        );
+                3);
 
         BuildOptions options = new BuildOptions(false, false, false, false, RebuildMode.FORCE);
-        RestResponse<BuildRecordRest> triggered = buildConfigurationRestClient.trigger(buildConfiguration.getId(), options);
+        RestResponse<BuildRecordRest> triggered = buildConfigurationRestClient
+                .trigger(buildConfiguration.getId(), options);
         return buildConfiguration.getId();
     }
 
@@ -141,7 +134,9 @@ public class RemoteBuildTest {
 
         if (!existing.hasValue()) {
             Project project = Project.Builder.newBuilder().id(projectId).build();
-            RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder().id(repositoryConfigurationId).build();
+            RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+                    .id(repositoryConfigurationId)
+                    .build();
             BuildEnvironment buildEnvironment = BuildEnvironment.Builder.newBuilder().id(buildEnvironmentId).build();
             BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder()
                     .name(buildConfigurationName)

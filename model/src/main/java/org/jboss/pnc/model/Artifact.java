@@ -51,27 +51,25 @@ import org.jboss.pnc.enums.ArtifactQuality;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  *
- * Class that maps the artifacts created and/or used by the builds of the projects.
- * The "type" indicates the genesis of the artifact, whether it has been imported from
- * external repositories, or built internally.
+ * Class that maps the artifacts created and/or used by the builds of the projects. The "type" indicates the genesis of
+ * the artifact, whether it has been imported from external repositories, or built internally.
  *
- * The repoType indicated the type of repository which is used to distributed the artifact.
- * The repoType repo indicates the format for the identifier field.
+ * The repoType indicated the type of repository which is used to distributed the artifact. The repoType repo indicates
+ * the format for the identifier field.
  *
  */
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
-    uniqueConstraints = @UniqueConstraint(name="uk_artifact_name", columnNames = { "identifier", "sha256", "targetRepository_id"}),
-    indexes = {
-        @Index(name="idx_artifact_targetRepository", columnList = "targetRepository_id"),
-        @Index(name="idx_artifact_identifier", columnList = "identifier"),
-        @Index(name="idx_artifact_md5", columnList = "md5"),
-        @Index(name="idx_artifact_sha1", columnList = "sha1"),
-        @Index(name="idx_artifact_sha256", columnList = "sha256")
-    }
-)
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_artifact_name",
+                columnNames = { "identifier", "sha256", "targetRepository_id" }),
+        indexes = { @Index(name = "idx_artifact_targetRepository", columnList = "targetRepository_id"),
+                @Index(name = "idx_artifact_identifier", columnList = "identifier"),
+                @Index(name = "idx_artifact_md5", columnList = "md5"),
+                @Index(name = "idx_artifact_sha1", columnList = "sha1"),
+                @Index(name = "idx_artifact_sha256", columnList = "sha256") })
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
@@ -84,49 +82,49 @@ public class Artifact implements GenericEntity<Integer> {
     private Integer id;
 
     /**
-     * Contains a string which uniquely identifies the artifact in a repository.
-     * For example, for a maven artifact this is the GATVC (groupId:artifactId:type:version[:qualifier]
-     * The format of the identifier string is determined by the repoType
+     * Contains a string which uniquely identifies the artifact in a repository. For example, for a maven artifact this
+     * is the GATVC (groupId:artifactId:type:version[:qualifier] The format of the identifier string is determined by
+     * the repoType
      */
     @NotNull
-    @Size(max=1024)
+    @Size(max = 1024)
     private String identifier;
 
     @NotNull
-    @Size(max=32)
+    @Size(max = 32)
     private String md5;
 
     @NotNull
-    @Size(max=40)
+    @Size(max = 40)
     private String sha1;
 
     @NotNull
-    @Size(max=64)
+    @Size(max = 64)
     private String sha256;
 
     private Long size;
 
     @NotNull
-    @Enumerated(EnumType.STRING) //TODO store as set, to keep history
+    @Enumerated(EnumType.STRING) // TODO store as set, to keep history
     private ArtifactQuality artifactQuality;
 
     /**
-     * The type of repository which hosts this artifact (Maven, NPM, etc).  This field determines
-     * the format of the identifier string.
+     * The type of repository which hosts this artifact (Maven, NPM, etc). This field determines the format of the
+     * identifier string.
      */
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_targetRepository"))
     @NotNull
     @ManyToOne(cascade = CascadeType.REFRESH)
     private TargetRepository targetRepository;
 
-    @Size(max=255)
+    @Size(max = 255)
     private String filename;
 
     /**
      * Path to repository where the artifact file is available.
      */
-    @Size(max=500)
-    @Column(length=500)
+    @Size(max = 500)
+    @Column(length = 500)
     private String deployPath;
 
     /**
@@ -137,8 +135,8 @@ public class Artifact implements GenericEntity<Integer> {
     private BuildRecord buildRecord;
 
     /**
-     * The list of builds which depend on this artifact.
-     * For example, if the build downloaded this artifact as a Maven dependency.
+     * The list of builds which depend on this artifact. For example, if the build downloaded this artifact as a Maven
+     * dependency.
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "dependencies")
@@ -147,8 +145,8 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The location from which this artifact was originally downloaded for import
      */
-    @Size(max=500)
-    @Column(unique=false, length=500)
+    @Size(max = 500)
+    @Column(unique = false, length = 500)
     private String originUrl;
 
     /**
@@ -168,12 +166,10 @@ public class Artifact implements GenericEntity<Integer> {
         return new IdentifierSha256(identifier, sha256);
     }
 
-
     /**
      * Try to use the {@link Artifact.Builder} instead.
      *
-     * Basic no-arg constructor.  Initializes the buildRecords and dependantBuildRecords to
-     * empty set.
+     * Basic no-arg constructor. Initializes the buildRecords and dependantBuildRecords to empty set.
      */
     Artifact() {
         dependantBuildRecords = new HashSet<>();
@@ -182,8 +178,9 @@ public class Artifact implements GenericEntity<Integer> {
 
     @PreRemove
     public void preRemove() {
-        if(artifactQuality != ArtifactQuality.TEMPORARY && artifactQuality != ArtifactQuality.DELETED) {
-            throw new PersistenceException("The non-temporary artifacts cannot be deleted! Only deletion of temporary artifacts is supported ");
+        if (artifactQuality != ArtifactQuality.TEMPORARY && artifactQuality != ArtifactQuality.DELETED) {
+            throw new PersistenceException(
+                    "The non-temporary artifacts cannot be deleted! Only deletion of temporary artifacts is supported ");
         }
     }
 
@@ -210,8 +207,8 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * Gets the identifier.
      *
-     * The identifier should contain different logic depending on the artifact type: i.e Maven should contain the GAV, NPM and
-     * CocoaPOD should be identified differently
+     * The identifier should contain different logic depending on the artifact type: i.e Maven should contain the GAV,
+     * NPM and CocoaPOD should be identified differently
      *
      * @return the identifier
      */
@@ -262,13 +259,16 @@ public class Artifact implements GenericEntity<Integer> {
 
     /**
      * Check if this artifact has an associated build record
+     * 
      * @return true if there is a build record for this artifact, false otherwise
      */
     public boolean isBuilt() {
         return buildRecord != null;
     }
 
-    /** Check if this artifact was imported from a remote URL
+    /**
+     * Check if this artifact was imported from a remote URL
+     * 
      * @return true if there is an originUrl
      */
     public boolean isImported() {
@@ -399,13 +399,17 @@ public class Artifact implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality
-                + ", " + targetRepository.toString() + "]";
+        return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality + ", "
+                + targetRepository.toString() + "]";
     }
 
     public String getDescriptiveString() {
-        return String.format("Identifier=%s, Sha256=%s, Target repository=%s, Deploy path=%s, Quality=%s",
-                identifier, sha256, targetRepository.getId(), deployPath,
+        return String.format(
+                "Identifier=%s, Sha256=%s, Target repository=%s, Deploy path=%s, Quality=%s",
+                identifier,
+                sha256,
+                targetRepository.getId(),
+                deployPath,
                 artifactQuality);
 
     }
@@ -418,11 +422,9 @@ public class Artifact implements GenericEntity<Integer> {
         if (identifier == null || md5 == null || sha1 == null || sha256 == null) {
             return this == obj;
         }
-        Artifact compare = (Artifact)obj;
-        return identifier.equals(compare.getIdentifier())
-                && md5.equals(compare.getMd5())
-                && sha1.equals(compare.getSha1())
-                && sha256.equals(compare.getSha256());
+        Artifact compare = (Artifact) obj;
+        return identifier.equals(compare.getIdentifier()) && md5.equals(compare.getMd5())
+                && sha1.equals(compare.getSha1()) && sha256.equals(compare.getSha256());
     }
 
     public static Builder builder() {

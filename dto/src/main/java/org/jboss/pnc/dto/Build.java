@@ -52,7 +52,7 @@ public class Build extends BuildRef {
 
     private final Environment environment;
 
-    @PatchSupport({ADD, REMOVE, REPLACE})
+    @PatchSupport({ ADD, REMOVE, REPLACE })
     private final Map<String, String> attributes;
 
     private final User user;
@@ -64,13 +64,40 @@ public class Build extends BuildRef {
     private final GroupBuildRef groupBuild;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Build(ProjectRef project, SCMRepository scmRepository, Environment environment, Map<String, String> attributes,
-            User user, BuildConfigurationRevisionRef buildConfigRevision,
-            String id, Instant submitTime, Instant startTime, Instant endTime,
-            BuildProgress progress, BuildStatus status, String buildContentId,
-            Boolean temporaryBuild, String scmUrl, String scmRevision, String scmTag,
-            GroupBuildRef groupBuild, ProductMilestoneRef productMilestone, String buildOutputChecksum) {
-        super(id, submitTime, startTime, endTime, progress, status, buildContentId, temporaryBuild, scmUrl, scmRevision, scmTag, buildOutputChecksum);
+    private Build(
+            ProjectRef project,
+            SCMRepository scmRepository,
+            Environment environment,
+            Map<String, String> attributes,
+            User user,
+            BuildConfigurationRevisionRef buildConfigRevision,
+            String id,
+            Instant submitTime,
+            Instant startTime,
+            Instant endTime,
+            BuildProgress progress,
+            BuildStatus status,
+            String buildContentId,
+            Boolean temporaryBuild,
+            String scmUrl,
+            String scmRevision,
+            String scmTag,
+            GroupBuildRef groupBuild,
+            ProductMilestoneRef productMilestone,
+            String buildOutputChecksum) {
+        super(
+                id,
+                submitTime,
+                startTime,
+                endTime,
+                progress,
+                status,
+                buildContentId,
+                temporaryBuild,
+                scmUrl,
+                scmRevision,
+                scmTag,
+                buildOutputChecksum);
         this.project = project;
         this.scmRepository = scmRepository;
         this.environment = environment;

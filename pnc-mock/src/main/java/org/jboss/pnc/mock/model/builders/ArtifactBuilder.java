@@ -42,7 +42,8 @@ public class ArtifactBuilder {
                 .sha256("sha256-fake-ABCDABCD" + id)
                 .size(12342L)
                 .deployPath("http://myrepo.com/org/jboss/mock/artifactFile" + id + ".jar")
-                .targetRepository(mockTargetRepository("builds-untested")) // using TargetRepository from demo data to avoid NCL-5474
+                .targetRepository(mockTargetRepository("builds-untested")) // using TargetRepository from demo data to
+                                                                           // avoid NCL-5474
                 .filename("artifactFile" + id + ".jar");
     }
 
@@ -57,8 +58,7 @@ public class ArtifactBuilder {
      * Create an artifact with an import date and origin url
      */
     public static Artifact mockImportedArtifact(int id) {
-        return getArtifactBuilder(id)
-                .importDate(Date.from(Instant.now()))
+        return getArtifactBuilder(id).importDate(Date.from(Instant.now()))
                 .originUrl("http://central.maven.org/org/jboss/mock/artifactFile" + id + ".jar")
                 .build();
     }

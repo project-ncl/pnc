@@ -58,7 +58,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     private Date endTime;
     private BuildDriverResult buildDriverResult;
     private RepositoryManagerResult repositoryManagerResult;
-    //keep record of first received failed status
+    // keep record of first received failed status
     private BuildExecutionStatus failedReasonStatus;
 
     private boolean cancelRequested = false;
@@ -67,8 +67,9 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     private String accessToken;
 
-    public DefaultBuildExecutionSession(BuildExecutionConfiguration buildExecutionConfiguration,
-                                        Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
+    public DefaultBuildExecutionSession(
+            BuildExecutionConfiguration buildExecutionConfiguration,
+            Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
         liveLogsUri = Optional.empty();
         this.buildExecutionConfiguration = buildExecutionConfiguration;
         this.onBuildExecutionStatusChangedEvent = onBuildExecutionStatusChangedEvent;
@@ -108,7 +109,9 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     public void setStatus(BuildExecutionStatus status, boolean isFinal) {
         if (status.hasFailed() && failedReasonStatus == null) {
             if (status.equals(DONE_WITH_ERRORS) && executorException == null) {
-                setException(new ExecutorException("FailedReasonStatus or executorException must be set before final DONE_WITH_ERRORS."));
+                setException(
+                        new ExecutorException(
+                                "FailedReasonStatus or executorException must be set before final DONE_WITH_ERRORS."));
             }
             log.debug("Setting status {} as failed reason for session {}.", status, getId());
             failedReasonStatus = status;
@@ -178,14 +181,14 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         log.debug("Returning result of task {}.", getId());
 
         return new BuildResult(
-                    completionStatus,
-                    Optional.ofNullable(processException),
-                    "",
-                    Optional.ofNullable(buildExecutionConfiguration),
-                    Optional.ofNullable(buildDriverResult),
-                    Optional.ofNullable(repositoryManagerResult),
-                    Optional.ofNullable(environmentDriverResult),
-                    Optional.empty());
+                completionStatus,
+                Optional.ofNullable(processException),
+                "",
+                Optional.ofNullable(buildExecutionConfiguration),
+                Optional.ofNullable(buildDriverResult),
+                Optional.ofNullable(repositoryManagerResult),
+                Optional.ofNullable(environmentDriverResult),
+                Optional.empty());
     }
 
     @Override
@@ -216,7 +219,10 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
 
     @Override
     public boolean hasFailed() {
-        log.debug("Has failed ? executorException: {} || failedReasonStatus: {}", executorException == null ? "" : executorException.getMessage(), failedReasonStatus );
+        log.debug(
+                "Has failed ? executorException: {} || failedReasonStatus: {}",
+                executorException == null ? "" : executorException.getMessage(),
+                failedReasonStatus);
         return executorException != null || failedReasonStatus != null;
     }
 

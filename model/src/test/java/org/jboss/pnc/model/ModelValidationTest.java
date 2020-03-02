@@ -62,7 +62,9 @@ public class ModelValidationTest extends AbstractModelTest {
         Assert.assertTrue(productVersionViolations.size() == 1);
 
         // Test product milestone versions
-        ProductMilestone milestone = ProductMilestone.Builder.newBuilder().productVersion(productVersion).version("1.0.0.ER1")
+        ProductMilestone milestone = ProductMilestone.Builder.newBuilder()
+                .productVersion(productVersion)
+                .version("1.0.0.ER1")
                 .build();
         Set<ConstraintViolation<ProductMilestone>> milestoneVersionViolations = validator.validate(milestone);
         Assert.assertTrue(milestoneVersionViolations.size() == 0);
@@ -80,7 +82,10 @@ public class ModelValidationTest extends AbstractModelTest {
         Assert.assertTrue(milestoneVersionViolations.size() == 1);
 
         // Test product release versions
-        ProductRelease release = ProductRelease.Builder.newBuilder().productMilestone(milestone).version("1.0.0.GA").build();
+        ProductRelease release = ProductRelease.Builder.newBuilder()
+                .productMilestone(milestone)
+                .version("1.0.0.GA")
+                .build();
         Set<ConstraintViolation<ProductRelease>> releaseVersionViolations = validator.validate(release);
         Assert.assertTrue(releaseVersionViolations.size() == 0);
 
@@ -138,7 +143,8 @@ public class ModelValidationTest extends AbstractModelTest {
     @Test
     public void testProductVersionStringValidationFailureOnCommit() throws Exception {
 
-        ProductVersion productVersion1 = ProductVersion.Builder.newBuilder().product(Product.Builder.newBuilder().id(1).build())
+        ProductVersion productVersion1 = ProductVersion.Builder.newBuilder()
+                .product(Product.Builder.newBuilder().id(1).build())
                 .version("foo") // Invalid version string
                 .build();
 

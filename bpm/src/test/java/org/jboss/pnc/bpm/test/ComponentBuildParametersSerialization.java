@@ -41,16 +41,16 @@ public class ComponentBuildParametersSerialization {
     public void shouldSerializeParameters() throws JsonProcessingException {
 
         BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfigurationMock.mock();
-        BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
+        BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(
+                buildExecutionConfiguration);
         ComponentBuildParameters processParameters = new ComponentBuildParameters(
-            "http://pncBaseUrl",
-            "http://aproxBaseUrl",
-            "http://repourBaseUrl",
-            "http://daBaseUrl",
-            false,
-            true,
-            buildExecutionConfigurationRest
-        );
+                "http://pncBaseUrl",
+                "http://aproxBaseUrl",
+                "http://repourBaseUrl",
+                "http://daBaseUrl",
+                false,
+                true,
+                buildExecutionConfigurationRest);
 
         String string = MAPPER.writeValueAsString(processParameters);
         log.debug("Serialized: {}", string);

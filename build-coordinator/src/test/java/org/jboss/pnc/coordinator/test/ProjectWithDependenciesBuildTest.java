@@ -63,7 +63,9 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive jar = BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
+        JavaArchive jar = BuildCoordinatorDeployments.deployment(
+                BuildCoordinatorDeployments.Options.WITH_DATASTORE,
+                BuildCoordinatorDeployments.Options.WITH_BPM);
         jar.addClass(TestCDIBuildSetStatusChangedReceiver.class);
         jar.addClass(TestCDIBuildStatusChangedReceiver.class);
         jar.addClass(DatastoreMock.class);
@@ -74,20 +76,22 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
     @Test
     public void buildProjectTestCase() throws Exception {
         clearSemaphores();
-        //given
+        // given
         testCDIBuildSetStatusChangedReceiver.addBuildSetStatusChangedEventListener(this::collectEvent);
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
 
-        //when
+        // when
         BuildCoordinatorBeans coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock);
         buildProjects(configurationBuilder.buildConfigurationSet(BUILD_SET_ID), coordinator.coordinator);
 
-        //expect
+        // expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
-        log.trace("Found build records: {}", buildRecords.stream()
-                .map(br -> "Br.id: " + br.getId() + ", " + br.getBuildConfigurationAudited().getId().toString())
-                .collect(Collectors.joining("; ")));
+        log.trace(
+                "Found build records: {}",
+                buildRecords.stream()
+                        .map(br -> "Br.id: " + br.getId() + ", " + br.getBuildConfigurationAudited().getId().toString())
+                        .collect(Collectors.joining("; ")));
         Assert.assertEquals("Wrong datastore results count.", 5, buildRecords.size());
 
         BuildRecord buildRecord = buildRecords.get(0);
@@ -104,7 +108,11 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
         String events = eventsReceived.stream().map(Object::toString).collect(Collectors.joining("; "));
         Assert.assertEquals("Invalid number of received events. Received events: " + events, 2, eventsReceived.size());
-        Wait.forCondition(coordinator.queue::isEmpty, 1, ChronoUnit.SECONDS, "Not empty build queue: " + coordinator.queue);
+        Wait.forCondition(
+                coordinator.queue::isEmpty,
+                1,
+                ChronoUnit.SECONDS,
+                "Not empty build queue: " + coordinator.queue);
     }
 
     private void collectEvent(BuildSetStatusChangedEvent buildSetStatusChangedEvent) {

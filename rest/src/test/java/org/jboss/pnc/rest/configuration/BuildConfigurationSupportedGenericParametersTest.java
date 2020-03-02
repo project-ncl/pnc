@@ -32,18 +32,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BuildConfigurationSupportedGenericParametersTest {
 
     private static final String CUSTOM_PME_PARAMETERS = "CUSTOM_PME_PARAMETERS";
-    
+
     private BuildConfigurationSupportedGenericParameters bcSupportedGenericParameters;
 
-    public BuildConfigurationSupportedGenericParametersTest() throws FileNotFoundException,
-            IOException {
-        bcSupportedGenericParameters =
-                new BuildConfigurationSupportedGenericParameters();
+    public BuildConfigurationSupportedGenericParametersTest() throws FileNotFoundException, IOException {
+        bcSupportedGenericParameters = new BuildConfigurationSupportedGenericParameters();
     }
 
     @Test
     public void testGetPMEParameter() {
         assertThat(bcSupportedGenericParameters.getSupportedGenericParameters()).containsKey(CUSTOM_PME_PARAMETERS);
-        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters().get(CUSTOM_PME_PARAMETERS)).startsWith("Additional");
+        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters().get(CUSTOM_PME_PARAMETERS))
+                .startsWith("Additional");
     }
 }

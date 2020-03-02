@@ -18,9 +18,7 @@
 package org.jboss.pnc.enums;
 
 public enum ResultStatus {
-    SUCCESS(true),
-    FAILED(false),
-    SYSTEM_ERROR(false);
+    SUCCESS(true), FAILED(false), SYSTEM_ERROR(false);
 
     private boolean success;
 

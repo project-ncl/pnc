@@ -67,15 +67,30 @@ public class ProductMilestoneRestTest extends AbstractTest {
     public void prepareProductIdAndProductVersionId() {
         if (productId == null) {
             given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productId = Integer.valueOf(value)));
+                    .contentType(ContentType.JSON)
+                    .port(getHttpPort())
+                    .when()
+                    .get(PRODUCT_REST_ENDPOINT)
+                    .then()
+                    .statusCode(200)
+                    .body(
+                            JsonMatcher.containsJsonAttribute(
+                                    FIRST_CONTENT_ID,
+                                    value -> productId = Integer.valueOf(value)));
         }
 
         if (productVersionId == null) {
             given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-                    .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId)).then().statusCode(200)
-                    .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productVersionId = Integer.valueOf(value)));
+                    .contentType(ContentType.JSON)
+                    .port(getHttpPort())
+                    .when()
+                    .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId))
+                    .then()
+                    .statusCode(200)
+                    .body(
+                            JsonMatcher.containsJsonAttribute(
+                                    FIRST_CONTENT_ID,
+                                    value -> productVersionId = Integer.valueOf(value)));
         }
     }
 
@@ -83,17 +98,28 @@ public class ProductMilestoneRestTest extends AbstractTest {
     @InSequence(2)
     public void prepareProductMilestoneId() {
         given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_MILESTONE_REST_ENDPOINT)
-                .then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productMilestoneId = Integer.valueOf(value)));
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(PRODUCT_MILESTONE_REST_ENDPOINT)
+                .then()
+                .statusCode(200)
+                .body(
+                        JsonMatcher.containsJsonAttribute(
+                                FIRST_CONTENT_ID,
+                                value -> productMilestoneId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(3)
     public void shouldGetSpecificProductMilestone() {
         given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, productMilestoneId)).then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, productMilestoneId))
+                .then()
+                .statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
@@ -104,15 +130,20 @@ public class ProductMilestoneRestTest extends AbstractTest {
         productMilestoneTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
 
         Response response = given().headers(testHeaders)
-                .body(productMilestoneTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .body(productMilestoneTemplate.fillTemplate())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .post(PRODUCT_MILESTONE_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
         String location = response.getHeader("Location");
         logger.info("Found location in Response header: " + location);
 
-        newProductMilestoneId = Integer.valueOf(location.substring(location.lastIndexOf(PRODUCT_MILESTONE_REST_ENDPOINT)
-                + PRODUCT_MILESTONE_REST_ENDPOINT.length()));
+        newProductMilestoneId = Integer.valueOf(
+                location.substring(
+                        location.lastIndexOf(PRODUCT_MILESTONE_REST_ENDPOINT)
+                                + PRODUCT_MILESTONE_REST_ENDPOINT.length()));
         logger.info("Created id of product milestone: " + newProductMilestoneId);
     }
 
@@ -123,7 +154,10 @@ public class ProductMilestoneRestTest extends AbstractTest {
         productMilestoneTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
 
         Response response = given().headers(testHeaders)
-                .body(productMilestoneTemplate.fillTemplate()).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .body(productMilestoneTemplate.fillTemplate())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .post(PRODUCT_MILESTONE_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(409);
     }
@@ -135,25 +169,37 @@ public class ProductMilestoneRestTest extends AbstractTest {
         logger.info("### newProductMilestoneId: " + newProductMilestoneId);
 
         Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
         Assertions.assertThat(response.body().jsonPath().getInt(CONTENT_ID)).isEqualTo(newProductMilestoneId);
         Assertions.assertThat(response.body().jsonPath().getString("content.version ")).isEqualTo("1.0.0.ER1");
 
-        ProductMilestoneRest content = response.body().jsonPath().getObject(AbstractRestClient.CONTENT, ProductMilestoneRest.class);
+        ProductMilestoneRest content = response.body()
+                .jsonPath()
+                .getObject(AbstractRestClient.CONTENT, ProductMilestoneRest.class);
 
         logger.info("### rawJson (before transformation): " + content);
         content.setVersion("1.0.1.ER1");
         logger.info("### rawJson (after transformation): " + content);
 
-        given().headers(testHeaders).body(JsonUtils.toJson(content))
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId)).then().statusCode(200);
+        given().headers(testHeaders)
+                .body(JsonUtils.toJson(content))
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .put(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId))
+                .then()
+                .statusCode(200);
 
         // Reading updated resource
-        Response updateResponse = given().headers(testHeaders).contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response updateResponse = given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(PRODUCT_MILESTONE_SPECIFIC_REST_ENDPOINT, newProductMilestoneId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
@@ -166,15 +212,20 @@ public class ProductMilestoneRestTest extends AbstractTest {
     @InSequence(7)
     public void shouldGetAllProductMilestoneOfProductVersion() {
         given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId)).then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(PRODUCT_MILESTONE_PRODUCTVERSION_REST_ENDPOINT, productVersionId))
+                .then()
+                .statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
     @Test
     public void shouldFailToCreateMilestoneWithMalformedVersion() throws IOException {
         // given
-        JsonTemplateBuilder productMilestoneTemplate = JsonTemplateBuilder.fromResource("productMilestoneGeneric_template");
+        JsonTemplateBuilder productMilestoneTemplate = JsonTemplateBuilder
+                .fromResource("productMilestoneGeneric_template");
         productMilestoneTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
         productMilestoneTemplate.addValue("_milestoneVersion", String.valueOf("1.0-ER1"));
 
@@ -183,11 +234,11 @@ public class ProductMilestoneRestTest extends AbstractTest {
                 .body(productMilestoneTemplate.fillTemplate())
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
-                .when().post(PRODUCT_MILESTONE_REST_ENDPOINT);
+                .when()
+                .post(PRODUCT_MILESTONE_REST_ENDPOINT);
         Assertions.assertThat(response1.statusCode()).isEqualTo(400);
         response1.body().print();
-        Assertions.assertThat(response1.body().jsonPath().getString("details.field"))
-                .isEqualTo("version");
+        Assertions.assertThat(response1.body().jsonPath().getString("details.field")).isEqualTo("version");
     }
 
 }

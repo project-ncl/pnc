@@ -64,25 +64,29 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldNotStartParentBuildWhenDependencyIsRunning() throws CoreException, TimeoutException, InterruptedException {
+    public void shouldNotStartParentBuildWhenDependencyIsRunning()
+            throws CoreException, TimeoutException, InterruptedException {
 
-        //start dependency
+        // start dependency
         build(configDependency);
         Wait.forCondition(() -> buildScheduler.isBuilding(configDependency.getId()), 3, ChronoUnit.SECONDS);
 
-        //start parent while dependency is running
+        // start parent while dependency is running
         build(configParent);
 
-        //parent should wait for dependency to complete
+        // parent should wait for dependency to complete
         BuildTask parentBuildTask = getSubmittedBuildTaskByConfigurationId(configParent.getId()).get();
         assertThat(parentBuildTask.getStatus()).isEqualTo(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
 
-        //complete the dependency
+        // complete the dependency
         BuildTask dependencyBuildTask = getScheduledBuildTaskByConfigurationId(configDependency.getId()).get();
         buildScheduler.completeBuild(dependencyBuildTask.getId());
 
-        //check if parent has started
-        Wait.forCondition(() -> buildScheduler.isBuilding(parentBuildTask.getBuildConfigurationAudited().getId()), 3, ChronoUnit.SECONDS);
+        // check if parent has started
+        Wait.forCondition(
+                () -> buildScheduler.isBuilding(parentBuildTask.getBuildConfigurationAudited().getId()),
+                3,
+                ChronoUnit.SECONDS);
 
         buildScheduler.completeBuild(parentBuildTask.getId());
 
@@ -92,7 +96,8 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
     }
 
     private Optional<BuildTask> getSubmittedBuildTaskByConfigurationId(Integer buildConfigurationId) {
-        return coordinator.getSubmittedBuildTasks().stream()
+        return coordinator.getSubmittedBuildTasks()
+                .stream()
                 .filter(bt -> bt.getBuildConfigurationAudited().getId().equals(buildConfigurationId))
                 .findAny();
     }
@@ -109,7 +114,8 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
         Map<Integer, Consumer<BuildResult>> scheduledTasks = new HashMap();
 
         @Override
-        public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException, ExecutorException {
+        public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete)
+                throws CoreException, ExecutorException {
             builtTasks.add(buildTask);
             scheduledTasks.put(buildTask.getId(), onComplete);
         }
@@ -144,6 +150,5 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
             return false;
         }
     }
-
 
 }

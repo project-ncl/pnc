@@ -29,8 +29,7 @@ public class AlignmentConfig extends AbstractModuleConfig {
      */
     private Map<String, String> alignmentParameters;
 
-    public AlignmentConfig(
-            @JsonProperty("alignmentParameters") Map<String, String> alignmentParameters) {
+    public AlignmentConfig(@JsonProperty("alignmentParameters") Map<String, String> alignmentParameters) {
         this.alignmentParameters = alignmentParameters;
     }
 

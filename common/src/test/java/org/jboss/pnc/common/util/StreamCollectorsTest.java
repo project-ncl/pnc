@@ -28,9 +28,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/15/16
- * Time: 1:37 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/15/16 Time: 1:37 PM
  */
 public class StreamCollectorsTest {
 
@@ -57,7 +55,7 @@ public class StreamCollectorsTest {
 
     @Test
     public void shouldFlattenNoList() {
-        List<String> actual = Stream.<List<String>>of().collect(StreamCollectors.toFlatList());
+        List<String> actual = Stream.<List<String>> of().collect(StreamCollectors.toFlatList());
 
         assertThat(actual).isNotNull().isEmpty();
     }

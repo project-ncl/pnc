@@ -38,17 +38,22 @@ public class GroupConfigurationRSQLMapper extends AbstractRSQLMapper<Integer, Bu
     @Override
     protected SingularAttribute<BuildConfigurationSet, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            case "productVersion": return BuildConfigurationSet_.productVersion;
-            default: return null;
+            case "productVersion":
+                return BuildConfigurationSet_.productVersion;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<BuildConfigurationSet, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return BuildConfigurationSet_.id;
-            case "name": return BuildConfigurationSet_.name;
-            default: return null;
+            case "id":
+                return BuildConfigurationSet_.id;
+            case "name":
+                return BuildConfigurationSet_.name;
+            default:
+                return null;
         }
     }
 

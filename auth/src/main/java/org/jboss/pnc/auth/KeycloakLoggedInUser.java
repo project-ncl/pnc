@@ -39,8 +39,9 @@ public class KeycloakLoggedInUser implements LoggedInUser {
 
     public KeycloakLoggedInUser(HttpServletRequest httpServletRequest) {
         try {
-            KeycloakSecurityContext keycloakSecurityContext = (KeycloakSecurityContext) httpServletRequest.getAttribute(KeycloakSecurityContext.class.getName());
-            if(keycloakSecurityContext == null) {
+            KeycloakSecurityContext keycloakSecurityContext = (KeycloakSecurityContext) httpServletRequest
+                    .getAttribute(KeycloakSecurityContext.class.getName());
+            if (keycloakSecurityContext == null) {
                 handleAuthenticationProblem("KeycloakSecurityContext not available in the HttpServletRequest.");
             } else {
                 this.auth = keycloakSecurityContext.getToken();
@@ -88,9 +89,9 @@ public class KeycloakLoggedInUser implements LoggedInUser {
 
     @Override
     public String toString() {
-        return "KeycloakLoggedInUser [auth=" + auth + ", getEmail()=" + getEmail() + ", getUserName()="
-                + getUserName() + ", getFirstName()=" + getFirstName() + ", getLastName()=" + getLastName() + ", getRole()="
-                + getRole() + ", getTokenString()=***]";
+        return "KeycloakLoggedInUser [auth=" + auth + ", getEmail()=" + getEmail() + ", getUserName()=" + getUserName()
+                + ", getFirstName()=" + getFirstName() + ", getLastName()=" + getLastName() + ", getRole()=" + getRole()
+                + ", getTokenString()=***]";
     }
 
     private void handleAuthenticationProblem(String warning) {

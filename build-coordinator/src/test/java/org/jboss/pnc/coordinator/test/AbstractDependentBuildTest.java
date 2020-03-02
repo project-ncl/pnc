@@ -98,9 +98,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/16/16
- * Time: 1:19 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/16/16 Time: 1:19 PM
  */
 @SuppressWarnings("deprecation")
 public abstract class AbstractDependentBuildTest {
@@ -170,15 +168,17 @@ public abstract class AbstractDependentBuildTest {
                 new BuildConfigSetRecordRepositoryMock(),
                 new UserRepositoryMock(),
                 sequenceHandlerRepositoryMock,
-                targetRepositoryRepository
-        );
+                targetRepositoryRepository);
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
         if (buildSchedulerFactory == null) {
             buildSchedulerFactory = new MockBuildSchedulerFactory();
         }
 
-        coordinator = new DefaultBuildCoordinator(datastoreAdapter, mock(Event.class), mock(Event.class),
+        coordinator = new DefaultBuildCoordinator(
+                datastoreAdapter,
+                mock(Event.class),
+                mock(Event.class),
                 buildSchedulerFactory,
                 buildQueue,
                 systemConfig,
@@ -187,7 +187,6 @@ public abstract class AbstractDependentBuildTest {
         buildQueue.initSemaphore();
         coordinator.start();
     }
-
 
     protected void insertNewBuildRecords(BuildConfiguration... configs) {
         Stream.of(configs).forEach(c -> insertNewBuildRecord(c));
@@ -202,10 +201,11 @@ public abstract class AbstractDependentBuildTest {
         buildRecordRepository.save(buildRecord(config));
     }
 
-
     protected BuildRecord buildRecord(BuildConfiguration config) {
-        BuildConfigurationAudited configurationAudited =
-                buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(config.getId()).iterator().next();
+        BuildConfigurationAudited configurationAudited = buildConfigurationAuditedRepository
+                .findAllByIdOrderByRevDesc(config.getId())
+                .iterator()
+                .next();
         return BuildRecord.Builder.newBuilder()
                 .id(buildRecordIdSequence.getAndIncrement())
                 .status(BuildStatus.SUCCESS)
@@ -225,20 +225,15 @@ public abstract class AbstractDependentBuildTest {
 
     protected BuildConfiguration buildConfig(String name, BuildConfiguration... dependencies) {
         int id = configIdSequence.getAndIncrement();
-        Project project = Project.Builder.newBuilder()
-                .id(1)
-                .name("Mock project")
-                .build();
-
-
+        Project project = Project.Builder.newBuilder().id(1).name("Mock project").build();
 
         BuildConfiguration config = BuildConfiguration.Builder.newBuilder()
-                        .id(id)
-                        .name(name)
-                        .project(project)
-                        .repositoryConfiguration(RepositoryConfigurationMock.newTestRepository())
-                        .buildEnvironment(BuildEnvironmentMock.newTest())
-                        .build();
+                .id(id)
+                .name(name)
+                .project(project)
+                .repositoryConfiguration(RepositoryConfigurationMock.newTestRepository())
+                .buildEnvironment(BuildEnvironmentMock.newTest())
+                .build();
         Stream.of(dependencies).forEach(config::addDependency);
         return config;
     }
@@ -265,9 +260,7 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected void modifyConfigurations(BuildConfiguration... configurations) {
-        Stream.of(configurations).forEach(
-                c -> buildConfigurationAuditedRepository.save(auditedConfig(c))
-        );
+        Stream.of(configurations).forEach(c -> buildConfigurationAuditedRepository.save(auditedConfig(c)));
     }
 
     private BuildConfigurationAudited auditedConfig(BuildConfiguration config) {
@@ -298,9 +291,7 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected BuildTask getBuildTaskById(Integer taskId) {
-        Optional<BuildTask> buildTask = builtTasks.stream()
-                .filter(bt -> bt.getId() == taskId)
-                .findAny();
+        Optional<BuildTask> buildTask = builtTasks.stream().filter(bt -> bt.getId() == taskId).findAny();
         if (buildTask.isPresent()) {
             return buildTask.get();
         } else {
@@ -329,8 +320,8 @@ public abstract class AbstractDependentBuildTest {
 
     protected void waitForEmptyBuildQueue() throws InterruptedException, TimeoutException {
         Supplier<String> errorMessage = () -> {
-            return "Tired waiting for BuildQueue to be empty."
-                + "There are still tasks in the queue: " + buildQueue.getUnfinishedTasks();
+            return "Tired waiting for BuildQueue to be empty." + "There are still tasks in the queue: "
+                    + buildQueue.getUnfinishedTasks();
         };
         Wait.forCondition(() -> buildQueue.isEmpty(), 10, ChronoUnit.SECONDS, errorMessage);
     }
@@ -345,7 +336,8 @@ public abstract class AbstractDependentBuildTest {
     private class MockBuildScheduler implements BuildScheduler {
 
         @Override
-        public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException, ExecutorException {
+        public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete)
+                throws CoreException, ExecutorException {
             builtTasks.add(buildTask);
             BuildResult result = buildResult();
             onComplete.accept(result);
@@ -418,11 +410,11 @@ public abstract class AbstractDependentBuildTest {
                     .id(artifactsIdSequence.incrementAndGet())
                     .buildRecord(record)
                     .build();
-            try{
+            try {
                 Field field = BuildRecord.class.getDeclaredField("builtArtifacts");
                 field.setAccessible(true);
                 ((Set<Artifact>) field.get(record)).add(artifact);
-            } catch (ReflectiveOperationException  ex) {
+            } catch (ReflectiveOperationException ex) {
                 throw new RuntimeException(ex);
             }
             return artifact;

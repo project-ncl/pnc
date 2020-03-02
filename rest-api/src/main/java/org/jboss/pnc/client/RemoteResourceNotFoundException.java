@@ -17,7 +17,9 @@
  */
 package org.jboss.pnc.client;
 
-import javax.ws.rs.ClientErrorException; /**
+import javax.ws.rs.ClientErrorException;
+
+/**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class RemoteResourceNotFoundException extends RemoteResourceException {

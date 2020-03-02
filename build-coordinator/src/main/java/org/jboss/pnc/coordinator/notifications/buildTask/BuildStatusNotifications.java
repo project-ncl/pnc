@@ -52,17 +52,22 @@ public class BuildStatusNotifications {
     public void observeEvent(@Observes BuildStatusChangedEvent event) {
         log.debug("Observed new status changed event {}.", event);
         BuildStatusChangedEvent buildStatusChangedEvent = event; // Avoid CDI runtime issue issue NCL-1505
-        Predicate<BuildCallBack> filterSubscribersMatchingTaskId =
-                (callBackUrl) -> callBackUrl.getBuildTaskId().equals(Integer.valueOf(buildStatusChangedEvent.getBuild().getId()));
+        Predicate<BuildCallBack> filterSubscribersMatchingTaskId = (callBackUrl) -> callBackUrl.getBuildTaskId()
+                .equals(Integer.valueOf(buildStatusChangedEvent.getBuild().getId()));
 
-        Set<BuildCallBack> matchingTasks = subscribers.stream().filter(filterSubscribersMatchingTaskId).collect(Collectors.toSet());
+        Set<BuildCallBack> matchingTasks = subscribers.stream()
+                .filter(filterSubscribersMatchingTaskId)
+                .collect(Collectors.toSet());
 
-        matchingTasks.forEach((buildCallBack) -> removeListenersOfCompletedTasks(buildCallBack, buildStatusChangedEvent));
+        matchingTasks
+                .forEach((buildCallBack) -> removeListenersOfCompletedTasks(buildCallBack, buildStatusChangedEvent));
         matchingTasks.forEach((buildCallBack) -> buildCallBack.callback(buildStatusChangedEvent));
         log.debug("Status changed event processed {}.", event);
     }
 
-    private void removeListenersOfCompletedTasks(BuildCallBack buildCallBack, BuildStatusChangedEvent buildStatusChangedEvent) {
+    private void removeListenersOfCompletedTasks(
+            BuildCallBack buildCallBack,
+            BuildStatusChangedEvent buildStatusChangedEvent) {
         if (buildStatusChangedEvent.getNewStatus().isFinal()) {
             log.debug("Subscribing new status update listener {}.", buildCallBack);
             subscribers.remove(buildCallBack);

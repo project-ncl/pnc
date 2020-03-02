@@ -31,7 +31,7 @@ public class JavaUtilPredicateTest {
 
     @Test
     public void shouldSelectProperInstance() throws Exception {
-        //given
+        // given
         List<TestClass> testedList = new ArrayList<>();
         String rsql = "field==test";
 
@@ -41,16 +41,16 @@ public class JavaUtilPredicateTest {
 
         RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
 
-        //when
+        // when
         Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
 
-        //then
+        // then
         Assertions.assertThat(numberOfInstances).isEqualTo(1);
     }
 
     @Test
     public void shouldSelectInstancesBasedOnTwoFields() throws Exception {
-        //given
+        // given
         List<TestClass> testedList = new ArrayList<>();
         String rsql = "field==a,field==b";
 
@@ -60,16 +60,16 @@ public class JavaUtilPredicateTest {
 
         RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
 
-        //when
+        // when
         Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
 
-        //then
+        // then
         Assertions.assertThat(numberOfInstances).isEqualTo(2);
     }
 
     @Test
     public void shouldGetValueBasedOnLikeExpression() throws Exception {
-        //given
+        // given
         List<TestClass> testedList = new ArrayList<>();
         String rsql = "field=like=te%";
 
@@ -79,10 +79,10 @@ public class JavaUtilPredicateTest {
 
         RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
 
-        //when
+        // when
         Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
 
-        //then
+        // then
         Assertions.assertThat(numberOfInstances).isEqualTo(2);
     }
 
@@ -117,7 +117,7 @@ public class JavaUtilPredicateTest {
 
         RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
 
-        //when
+        // when
         Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
 
         Assertions.assertThat(numberOfInstances).isEqualTo(1);
@@ -127,7 +127,7 @@ public class JavaUtilPredicateTest {
     public void shouldSelectItemsUsingInOperator() throws Exception {
         // given
         List<TestClass> testedList = new ArrayList<>();
-        String rsql="id=in=(2,3)";
+        String rsql = "id=in=(2,3)";
 
         TestClass testClass1 = new TestClass("Class 1", 1);
         TestClass testClass2 = new TestClass("Class 2", 2);
@@ -139,10 +139,10 @@ public class JavaUtilPredicateTest {
 
         RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
 
-        //when
+        // when
         Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
 
-        //then
+        // then
         Assertions.assertThat(numberOfInstances).isEqualTo(2);
     }
 
@@ -150,7 +150,7 @@ public class JavaUtilPredicateTest {
     public void shouldSelectItemsUsingOutOperator() throws Exception {
         // given
         List<TestClass> testedList = new ArrayList<>();
-        String rsql="id=out=(2,3)";
+        String rsql = "id=out=(2,3)";
 
         TestClass testClass1 = new TestClass("Class 1", 1);
         TestClass testClass2 = new TestClass("Class 2", 2);
@@ -162,16 +162,16 @@ public class JavaUtilPredicateTest {
 
         RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
 
-        //when
+        // when
         Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
 
-        //then
+        // then
         Assertions.assertThat(numberOfInstances).isEqualTo(1);
     }
 
     @Test
     public void shouldCompareValue() throws Exception {
-        //given
+        // given
         List<TestClass> testedList = new ArrayList<>();
         String rsql = "id>2";
 
@@ -180,19 +180,19 @@ public class JavaUtilPredicateTest {
 
         RSQLNodeTravellerPredicate rsqlNodeTravellerPredicate = new RSQLNodeTravellerPredicate(TestClass.class, rsql);
 
-        //when
+        // when
         Long numberOfInstances = testedList.stream().filter(rsqlNodeTravellerPredicate.getStreamPredicate()).count();
 
-        //then
+        // then
         Assertions.assertThat(numberOfInstances).isEqualTo(1);
     }
 
     @Test(expected = RSQLParserException.class)
     public void shouldThrowExceptionOnIncorrectSyntax() throws Exception {
-        //given
+        // given
         String rsql = "error";
 
-        //when //then
+        // when //then
         new RSQLNodeTravellerPredicate(TestClass.class, rsql);
     }
 

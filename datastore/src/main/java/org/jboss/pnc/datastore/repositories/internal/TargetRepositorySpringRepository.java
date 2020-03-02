@@ -27,6 +27,7 @@ import javax.enterprise.context.Dependent;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Dependent
-public interface TargetRepositorySpringRepository  extends JpaRepository<TargetRepository, Integer>, JpaSpecificationExecutor<TargetRepository> {
+public interface TargetRepositorySpringRepository
+        extends JpaRepository<TargetRepository, Integer>, JpaSpecificationExecutor<TargetRepository> {
 
 }

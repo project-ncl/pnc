@@ -28,7 +28,6 @@ import org.mapstruct.ReportingPolicy;
         unmappedSourcePolicy = ReportingPolicy.WARN,
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         implementationPackage = "org.jboss.pnc.mapper",
-        componentModel = "cdi"
-)
+        componentModel = "cdi")
 public interface MapperCentralConfig {
 }

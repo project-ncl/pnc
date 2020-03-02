@@ -35,7 +35,7 @@ import lombok.NonNull;
 @JsonDeserialize(builder = Logfile.LogfileBuilder.class)
 @AllArgsConstructor
 public class Logfile {
-    
+
     @NonNull
     private final String filename;
     @NonNull
@@ -43,7 +43,7 @@ public class Logfile {
     private final int size;
     @NonNull
     private final String md5;
-    
+
     @JsonPOJOBuilder(withPrefix = "")
     public static class LogfileBuilder {
 

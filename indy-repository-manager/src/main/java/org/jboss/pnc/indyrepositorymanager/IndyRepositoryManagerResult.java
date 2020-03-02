@@ -40,7 +40,10 @@ public class IndyRepositoryManagerResult implements RepositoryManagerResult {
      * @deprecated Use constructor with status and log parameter
      */
     @Deprecated
-    public IndyRepositoryManagerResult(List<Artifact> builtArtifacts, List<Artifact> dependencies, String buildContentId) {
+    public IndyRepositoryManagerResult(
+            List<Artifact> builtArtifacts,
+            List<Artifact> dependencies,
+            String buildContentId) {
         this.builtArtifacts = builtArtifacts;
         this.dependencies = dependencies;
         this.buildContentId = buildContentId;

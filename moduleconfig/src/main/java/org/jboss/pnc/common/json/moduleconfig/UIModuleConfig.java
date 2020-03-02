@@ -30,7 +30,7 @@ import java.util.Map;
  *
  * @author Alex Creasy
  */
-@JsonIgnoreProperties({ "@module-config"})
+@JsonIgnoreProperties({ "@module-config" })
 public class UIModuleConfig extends AbstractModuleConfig {
 
     public static final String MODULE_NAME = "ui";
@@ -62,7 +62,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
         this.pncNotificationsUrl = pncNotificationsUrl;
         this.daUrl = daUrl;
         this.userGuideUrl = userGuideUrl;
-        this.ssoTokenLifespan = StringUtils.parseInt(ssoTokenLifespan, 86400000); //default to 24h
+        this.ssoTokenLifespan = StringUtils.parseInt(ssoTokenLifespan, 86400000); // default to 24h
         this.keycloak = keycloak;
         this.grafana = grafana;
         this.bifrostUrl = bifrostUrl;
@@ -120,7 +120,6 @@ public class UIModuleConfig extends AbstractModuleConfig {
         return keycloak;
     }
 
-
     /**
      * @return A map of grafana URLs to widgets embedded in the UI Dashboard
      */
@@ -139,17 +138,10 @@ public class UIModuleConfig extends AbstractModuleConfig {
 
     @Override
     public String toString() {
-        return "UIModuleConfig{" +
-                "pncUrl='" + pncUrl + '\'' +
-                ", pncRestUrl='" + pncRestUrl + '\'' +
-                ", pncNotificationsUrl='" + pncNotificationsUrl + '\'' +
-                ", daUrl='" + daUrl + '\'' +
-                ", userGuideUrl='" + userGuideUrl + '\'' +
-                ", ssoTokenLifespan=" + ssoTokenLifespan +
-                ", keycloak=" + keycloak +
-                ", grafana=" + grafana +
-                ", bifrostUrl=" + bifrostUrl +
-                ", kafkaStoreUrl=" + kafkaStoreUrl +
-                '}';
+        return "UIModuleConfig{" + "pncUrl='" + pncUrl + '\'' + ", pncRestUrl='" + pncRestUrl + '\''
+                + ", pncNotificationsUrl='" + pncNotificationsUrl + '\'' + ", daUrl='" + daUrl + '\''
+                + ", userGuideUrl='" + userGuideUrl + '\'' + ", ssoTokenLifespan=" + ssoTokenLifespan + ", keycloak="
+                + keycloak + ", grafana=" + grafana + ", bifrostUrl=" + bifrostUrl + ", kafkaStoreUrl=" + kafkaStoreUrl
+                + '}';
     }
 }

@@ -48,7 +48,11 @@ public class RepositoriesTest {
 
         // given
         Assert.assertNotNull(productRepository);
-        Product product = Product.Builder.newBuilder().name("Test Product").description("Test").abbreviation("TP").build();
+        Product product = Product.Builder.newBuilder()
+                .name("Test Product")
+                .description("Test")
+                .abbreviation("TP")
+                .build();
 
         // when
         product = productRepository.save(product);

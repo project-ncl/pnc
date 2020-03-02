@@ -33,9 +33,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/25/16
- * Time: 3:29 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/25/16 Time: 3:29 PM
  */
 @SuppressWarnings("WeakerAccess")
 public class BpmMock extends BpmManager {
@@ -79,7 +77,6 @@ public class BpmMock extends BpmManager {
     public void setUp() throws CoreException {
         super.init();
     }
-
 
     public static class ProcessInstanceMock implements ProcessInstance {
 

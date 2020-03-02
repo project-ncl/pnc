@@ -63,7 +63,7 @@ import static org.mockito.Mockito.when;
 @SuppressWarnings("ALL")
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
-public class BuildsRestTest  {
+public class BuildsRestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -89,11 +89,14 @@ public class BuildsRestTest  {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive war = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
-        war.addAsWebInfResource(new StringAsset(
-                Descriptors.create(BeansDescriptor.class).
-                        getOrCreateAlternatives().
-                        clazz(BuildCoordinatorMock.class.
-                                getName()).up().exportAsString()), "beans.xml");
+        war.addAsWebInfResource(
+                new StringAsset(
+                        Descriptors.create(BeansDescriptor.class)
+                                .getOrCreateAlternatives()
+                                .clazz(BuildCoordinatorMock.class.getName())
+                                .up()
+                                .exportAsString()),
+                "beans.xml");
         war.addClass(BuildsRestTest.class);
         war.addClass(BuildCoordinatorMock.class);
         war.addClass(AuthUtils.class);
@@ -104,7 +107,7 @@ public class BuildsRestTest  {
 
     @Before
     public void before() {
-        if(buildRestClient == null) {
+        if (buildRestClient == null) {
             buildRestClient = new BuildRestClient();
         }
         buildCoordinatorMock.clearActiveTasks();
@@ -113,8 +116,7 @@ public class BuildsRestTest  {
     @Test
     @InSequence(-1)
     public void sanityTests() throws Exception {
-        assertThat(buildRecordProvider.getAll(0, 99, "", "").getContent())
-                .hasSize(4)
+        assertThat(buildRecordProvider.getAll(0, 99, "", "").getContent()).hasSize(4)
                 .overridingErrorMessage("2 BuildRecords are expected in DB before running this test");
 
         assertThat(buildCoordinatorMock).isNotNull();
@@ -126,88 +128,91 @@ public class BuildsRestTest  {
 
     @Test
     public void shouldGetAllArchivedBuildRecords() throws Exception {
-        //given
+        // given
         buildCoordinatorMock.addActiveTask(mockBuildTask());
         buildCoordinatorMock.addActiveTask(mockBuildTask());
 
-        //when
+        // when
         RestResponse<List<BuildRecordRest>> all = buildRestClient.all();
 
-        //then
+        // then
         assertThat(all.getValue()).hasSize(6);
     }
 
     @Test
     public void shouldSortResults() throws Exception {
-        //given
+        // given
         String sort = "=desc=id";
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
 
-        //when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, null, sort).getValue().stream()
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, null, sort)
+                .getValue()
+                .stream()
                 .map(value -> value.getId())
                 .collect(Collectors.toList());
 
-        //then
+        // then
         assertThat(sorted).containsExactly(99, 4, 3, 2, 1);
 
     }
 
     @Test
     public void shouldFilterResults() throws Exception {
-        //given
+        // given
         String rsql = "id==1";
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
 
-        //when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream()
+        // when
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null)
+                .getValue()
+                .stream()
                 .map(value -> value.getId())
                 .collect(Collectors.toList());
 
-        //then
+        // then
         assertThat(sorted).containsExactly(1);
     }
 
     @Test
     public void shouldSupportPaging() throws Exception {
-        //given
+        // given
         String sort = "=desc=id";
 
         buildCoordinatorMock.addActiveTask(mockBuildTask());
 
-        //when
+        // when
         List<BuildRecordRest> firstPage = buildRestClient.all(true, 0, 1, null, sort).getValue();
         List<BuildRecordRest> secondPage = buildRestClient.all(true, 1, 1, null, sort).getValue();
         List<BuildRecordRest> thirdPage = buildRestClient.all(true, 2, 1, null, sort).getValue();
 
-
-        //then
+        // then
         assertThat(firstPage).hasSize(1);
         assertThat(secondPage).hasSize(1);
-        assertThat(thirdPage).hasSize(1);  // Added to ensure running and finished records interleave correctly.
+        assertThat(thirdPage).hasSize(1); // Added to ensure running and finished records interleave correctly.
 
     }
 
     @Test
     public void shouldBeAbleToReachAllBuildsWhenPaging() throws Exception {
-        //given
+        // given
         String sort = "=desc=id";
 
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
 
-        //when
+        // when
         List<BuildRecordRest> firstPage = buildRestClient.all(true, 0, 1, null, sort).getValue();
         List<BuildRecordRest> secondPage = buildRestClient.all(true, 1, 1, null, sort).getValue();
         List<BuildRecordRest> thirdPage = buildRestClient.all(true, 2, 1, null, sort).getValue();
         List<BuildRecordRest> fourthPage = buildRestClient.all(true, 3, 1, null, sort).getValue();
         List<BuildRecordRest> fifthPage = buildRestClient.all(true, 4, 1, null, sort).getValue();
 
-        //then
+        // then
         assertThat(firstPage.get(0).getId()).isEqualTo(99);
         assertThat(secondPage.get(0).getId()).isEqualTo(4);
         assertThat(thirdPage.get(0).getId()).isEqualTo(3);
@@ -223,9 +228,13 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockBuildTask());
 
         // When
-        int totalPages = buildRestClient.all(true, 0, 1, null, sort).getRestCallResponse().getBody().jsonPath().getInt("totalPages");
+        int totalPages = buildRestClient.all(true, 0, 1, null, sort)
+                .getRestCallResponse()
+                .getBody()
+                .jsonPath()
+                .getInt("totalPages");
 
-        //then
+        // then
         assertThat(totalPages).isEqualTo(5);
     }
 
@@ -238,7 +247,10 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null)
+                .getValue()
+                .stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
@@ -254,7 +266,10 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null)
+                .getValue()
+                .stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
@@ -270,11 +285,14 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null).getValue().stream().map(value -> value.getId())
+        List<Integer> sorted = buildRestClient.all(true, 0, 50, rsql, null)
+                .getValue()
+                .stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
-        assertThat(sorted).containsExactly(1, 2, 99); //1,2=completed(from demo data); 99=running mock
+        assertThat(sorted).containsExactly(1, 2, 99); // 1,2=completed(from demo data); 99=running mock
     }
 
     @Test
@@ -285,7 +303,9 @@ public class BuildsRestTest  {
 
         // when
         List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, null, null, "termd")
-                .getValue().stream().map(value -> value.getId())
+                .getValue()
+                .stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
@@ -299,8 +319,11 @@ public class BuildsRestTest  {
         buildCoordinatorMock.addActiveTask(mockedTask);
 
         // when
-        List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, null, null, "does-not-exists-1.5.1")
-                .getValue().stream().map(value -> value.getId())
+        List<Integer> sorted = buildRestClient
+                .findAndByBuildConfigurationName(true, 0, 50, null, null, "does-not-exists-1.5.1")
+                .getValue()
+                .stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
@@ -316,22 +339,25 @@ public class BuildsRestTest  {
 
         // when
         List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, rsql, null, "termd")
-                .getValue().stream().map(value -> value.getId())
+                .getValue()
+                .stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
         assertThat(sorted).hasSize(2);
     }
 
-
     @Test
     public void shouldFilterByBuildConfigurationNameFromDatabase() throws Exception {
         // given
-        //1 BC with name termd is in database inserted with demo-data
+        // 1 BC with name termd is in database inserted with demo-data
 
         // when
         List<Integer> sorted = buildRestClient.findOrByBuildConfigurationName(true, 0, 50, null, null, "termd")
-                .getValue().stream().map(value -> value.getId())
+                .getValue()
+                .stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
@@ -344,11 +370,14 @@ public class BuildsRestTest  {
         String rsql = "user.username==test-username";
         BuildTask mockedTask = mockBuildTask();
         buildCoordinatorMock.addActiveTask(mockedTask);
-        //1 BC with name jboss-modules-1.5.0 is in database inserted with demo-data, 1 build task started as test-username is mocked
+        // 1 BC with name jboss-modules-1.5.0 is in database inserted with demo-data, 1 build task started as
+        // test-username is mocked
 
         // when
         List<Integer> sorted = buildRestClient.findOrByBuildConfigurationName(true, 0, 50, rsql, null, "termd")
-                .getValue().stream().map(value -> value.getId())
+                .getValue()
+                .stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
@@ -364,7 +393,9 @@ public class BuildsRestTest  {
 
         // when
         List<Integer> sorted = buildRestClient.findAndByBuildConfigurationName(true, 0, 50, rsql, null, "termd")
-                .getValue().stream().map(value -> value.getId())
+                .getValue()
+                .stream()
+                .map(value -> value.getId())
                 .collect(Collectors.toList());
 
         // then
@@ -381,11 +412,10 @@ public class BuildsRestTest  {
 
         // when
         List<BuildRecordRest> buildRecords = buildRestClient.all(true, 0, 50, rsql, null).getValue();
-        List<Integer> sorted = buildRecords.stream().map(value -> value.getId())
-                .collect(Collectors.toList());
+        List<Integer> sorted = buildRecords.stream().map(value -> value.getId()).collect(Collectors.toList());
 
         // then
-        assertThat(sorted).containsExactly(99); //99=running mock
+        assertThat(sorted).containsExactly(99); // 99=running mock
         BuildRecordRest buildRecordRest = buildRecords.get(0);
         assertThat(buildRecordRest.getBuildConfigurationAudited().getGenericParameters())
                 .contains(MapEntry.entry("KEY", "VALUE"));

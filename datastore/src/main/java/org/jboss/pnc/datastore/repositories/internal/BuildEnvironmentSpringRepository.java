@@ -24,7 +24,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import javax.enterprise.context.Dependent;
 
 @Dependent
-public interface BuildEnvironmentSpringRepository extends JpaRepository<BuildEnvironment, Integer>,
-        JpaSpecificationExecutor<BuildEnvironment> {
+public interface BuildEnvironmentSpringRepository
+        extends JpaRepository<BuildEnvironment, Integer>, JpaSpecificationExecutor<BuildEnvironment> {
 
 }

@@ -44,10 +44,10 @@ import java.util.Date;
 import static org.jboss.pnc.constants.Patterns.PRODUCT_RELEASE_VERSION;
 
 /**
- * Represents a released version of a product. For example, a Beta, GA, or SP release. Each release is associated with a product
- * version (many releases for one version), and each release is associated with a single milestone (one to one). For example,
- * product version 1.0 could have three milestones (1.0.0.Build1, 1.0.0.Build2, and 1.0.0.Build3) and two releases (1.0.0.Beta1
- * which was promoted from 1.0.0.Build1 and 1.0.0.GA which was promoted from 1.0.0.Build3).
+ * Represents a released version of a product. For example, a Beta, GA, or SP release. Each release is associated with a
+ * product version (many releases for one version), and each release is associated with a single milestone (one to one).
+ * For example, product version 1.0 could have three milestones (1.0.0.Build1, 1.0.0.Build2, and 1.0.0.Build3) and two
+ * releases (1.0.0.Beta1 which was promoted from 1.0.0.Build1 and 1.0.0.GA which was promoted from 1.0.0.Build3).
  */
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -65,12 +65,14 @@ public class ProductRelease implements GenericEntity<Integer> {
     private Integer id;
 
     /**
-     * Contains the milestone version string.  This consists of a major, minor, and micro
-     * numeric version followed by an alphanumeric qualifier.  For example "1.0.0.ER1".
+     * Contains the milestone version string. This consists of a major, minor, and micro numeric version followed by an
+     * alphanumeric qualifier. For example "1.0.0.ER1".
      */
-    @Pattern(message="The version should consist of three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp=PRODUCT_RELEASE_VERSION)
+    @Pattern(
+            message = "The version should consist of three numeric parts and one alphanumeric qualifier each separated by a dot",
+            regexp = PRODUCT_RELEASE_VERSION)
     @NotNull
-    @Size(max=50)
+    @Size(max = 50)
     private String version;
 
     @Enumerated(EnumType.STRING)
@@ -78,13 +80,13 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     private Date releaseDate;
 
-    @Size(max=255)
+    @Size(max = 255)
     private String downloadUrl;
 
     /**
      * Issue tracker URL containing the set of issues fixed in this release
      */
-    @Size(max=255)
+    @Size(max = 255)
     private String issueTrackerUrl;
 
     @NotNull
@@ -115,8 +117,7 @@ public class ProductRelease implements GenericEntity<Integer> {
     }
 
     /**
-     * The product version entity associated with this release.  The association is via
-     * the product milestone.
+     * The product version entity associated with this release. The association is via the product milestone.
      * 
      * @return the product version entity associated with the linked product milestone.
      */
@@ -186,7 +187,6 @@ public class ProductRelease implements GenericEntity<Integer> {
     public String toString() {
         return "ProductRelease [id=" + id + ", version=" + version + "]";
     }
-
 
     public static class Builder {
 

@@ -22,13 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @JsonTypeName(value = "pnc")
-public class PNCModuleGroup extends AbstractModuleGroup{
+public class PNCModuleGroup extends AbstractModuleGroup {
     public List<AbstractModuleConfig> configs = new ArrayList<>();
 
     public void setConfigs(List<AbstractModuleConfig> configs) {
         this.configs = configs;
     }
-    
+
     public void addConfig(AbstractModuleConfig moduleConfig) {
         configs.add(moduleConfig);
     }
@@ -36,5 +36,5 @@ public class PNCModuleGroup extends AbstractModuleGroup{
     public List<AbstractModuleConfig> getConfigs() {
         return configs;
     }
-    
+
 }

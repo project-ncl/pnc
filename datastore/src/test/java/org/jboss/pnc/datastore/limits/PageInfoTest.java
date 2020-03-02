@@ -28,46 +28,45 @@ public class PageInfoTest {
 
     @Test
     public void shouldReturnCustomLimits() throws Exception {
-        //given
+        // given
         int size = 12;
         int offset = 13;
 
-        //when
+        // when
         PageInfo testedLimits = defaultPageInfoProducer.getPageInfo(offset, size);
 
-        //then
+        // then
         assertThat(testedLimits.getPageOffset()).isEqualTo(13);
         assertThat(testedLimits.getPageSize()).isEqualTo(12);
     }
 
-
     @Test(expected = IllegalArgumentException.class)
     public void shouldRejectNegativeSize() throws Exception {
-        //given
+        // given
         int size = -12;
         int offset = 0;
 
-        //when
+        // when
         defaultPageInfoProducer.getPageInfo(offset, size);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRejectNegativeOffset() throws Exception {
-        //given
+        // given
         int size = 1;
         int offset = -112;
 
-        //when
+        // when
         defaultPageInfoProducer.getPageInfo(offset, size);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRejectZeroSize() throws Exception {
-        //given
+        // given
         int size = 0;
         int offset = 0;
 
-        //when
+        // when
         defaultPageInfoProducer.getPageInfo(offset, size);
     }
 

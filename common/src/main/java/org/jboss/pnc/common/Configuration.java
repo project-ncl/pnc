@@ -45,17 +45,16 @@ import java.util.Map;
 public class Configuration {
 
     private static final Logger log = LoggerFactory.getLogger(Configuration.class);
-    
+
     public static final String CONFIG_SYSPROP = "pnc-config-file";
 
     private final String CONFIG_STRING;
-    
+
     private Map<Class<?>, AbstractModuleConfig> configCache = new HashMap<>();
-    
+
     private GlobalModuleGroup globalConfig;
 
     private ConfigurationJSONParser configurationJsonParser = new ConfigurationJSONParser();
-
 
     /**
      *
@@ -71,7 +70,7 @@ public class Configuration {
             throw new ConfigurationParseException("Config could not be parsed.", e);
         }
     }
-    
+
     /**
      * Reads configuration for module
      *
@@ -81,28 +80,29 @@ public class Configuration {
      * @throws ConfigurationParseException Thrown if configuration file couldn't be loaded or parsed
      */
     @SuppressWarnings("unchecked")
-    public <T extends AbstractModuleConfig> T getModuleConfig(ConfigProvider<T> provider) throws ConfigurationParseException {
+    public <T extends AbstractModuleConfig> T getModuleConfig(ConfigProvider<T> provider)
+            throws ConfigurationParseException {
         Class<T> moduleClass = provider.getType();
-        if(configCache.containsKey(moduleClass))
+        if (configCache.containsKey(moduleClass))
             return (T) configCache.get(moduleClass);
-        
-        synchronized(this) {
-            if(configCache.containsKey(moduleClass)) {
+
+        synchronized (this) {
+            if (configCache.containsKey(moduleClass)) {
                 return (T) configCache.get(moduleClass);
             }
 
-            T config = configurationJsonParser.parseJSONPNCConfig(CONFIG_STRING,  provider);
+            T config = configurationJsonParser.parseJSONPNCConfig(CONFIG_STRING, provider);
             configCache.put(moduleClass, config);
             return config;
         }
     }
 
-    public GlobalModuleGroup getGlobalConfig() throws ConfigurationParseException{
-        if(globalConfig != null)
+    public GlobalModuleGroup getGlobalConfig() throws ConfigurationParseException {
+        if (globalConfig != null)
             return globalConfig;
 
-        synchronized(this){
-            if(globalConfig != null) {
+        synchronized (this) {
+            if (globalConfig != null) {
                 return globalConfig;
             }
 
@@ -113,18 +113,18 @@ public class Configuration {
 
     private InputStream getConfigStream() throws IOException {
         String configFileName = System.getProperty(CONFIG_SYSPROP);
-        if (configFileName == null) 
+        if (configFileName == null)
             configFileName = "pnc-config.json";
         log.info("Loading configuration from file: " + configFileName);
 
-        //Try to open stream from full path
-        File file = new File(configFileName); 
-        if (file.exists()) 
+        // Try to open stream from full path
+        File file = new File(configFileName);
+        if (file.exists())
             return new FileInputStream(file);
-            
-        //Try to open stream using classloader
+
+        // Try to open stream using classloader
         final InputStream inStream = getClass().getClassLoader().getResourceAsStream(configFileName);
-        if (inStream != null) 
+        if (inStream != null)
             return inStream;
 
         throw new FileNotFoundException("Missing project config file.");

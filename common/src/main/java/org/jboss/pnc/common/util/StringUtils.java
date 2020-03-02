@@ -39,9 +39,8 @@ import java.util.stream.Collectors;
 public class StringUtils {
 
     /**
-     * Replace environment variables in string.
-     * Environment variables are expected in format ${env.ENV_PROPERTY},
-     * where "env" is static prefix and ENV_PROPERTY is name of environment property.
+     * Replace environment variables in string. Environment variables are expected in format ${env.ENV_PROPERTY}, where
+     * "env" is static prefix and ENV_PROPERTY is name of environment property.
      *
      * @param configString String with environment variables
      * @return String with replaced environment variables
@@ -53,7 +52,7 @@ public class StringUtils {
             properties.put("env." + entry.getKey(), entry.getValue());
         }
         String replaced = StringPropertyReplacer.replaceProperties(configString, properties);
-        //remove env placeholders that were not replaced with values
+        // remove env placeholders that were not replaced with values
         return replaced.replaceAll("\\$\\{env\\..+\\}", "");
     }
 
@@ -61,11 +60,11 @@ public class StringUtils {
      * Check if the given string is null or contains only whitespace characters.
      *
      * @param string String to check for non-whitespace characters
-     * @return boolean True if the string is null, empty, or contains only whitespace (empty when trimmed).
-     * Otherwise return false.
+     * @return boolean True if the string is null, empty, or contains only whitespace (empty when trimmed). Otherwise
+     *         return false.
      */
     public static boolean isEmpty(String string) {
-        if (string == null ) {
+        if (string == null) {
             return true;
         }
         return string.trim().isEmpty();
@@ -167,10 +166,14 @@ public class StringUtils {
         }
     }
 
-    public static void readStream(InputStream inputStream, Charset charset, ArrayDeque<String> lines, int maxMessageSize, Consumer<String> droppedLinesConsumer) throws
-            IOException {
+    public static void readStream(
+            InputStream inputStream,
+            Charset charset,
+            ArrayDeque<String> lines,
+            int maxMessageSize,
+            Consumer<String> droppedLinesConsumer) throws IOException {
         InputStreamReader inputStreamReader = new InputStreamReader(inputStream, charset);
-        BufferedReader reader=new BufferedReader(inputStreamReader);
+        BufferedReader reader = new BufferedReader(inputStreamReader);
 
         int messageSize = 0;
         while (true) {
@@ -192,6 +195,7 @@ public class StringUtils {
 
     /**
      * Parse comma separated string to Integer array.
+     * 
      * @return An empty array when the string parameter is empty or null.
      */
     public static Integer[] deserializeInt(String string) {
@@ -200,19 +204,20 @@ public class StringUtils {
         }
         return Arrays.stream(string.split(","))
                 .filter(s -> !s.equals(""))
-                .map(Integer::parseInt).toArray(Integer[]::new);
+                .map(Integer::parseInt)
+                .toArray(Integer[]::new);
     }
 
     /**
      * Serialize Integer array to comma separated string.
+     * 
      * @return An empty string when the Integer array parameter is empty or null.
      */
     public static String serializeInt(Integer[] integers) {
         if (integers == null) {
             return "";
         }
-        return Arrays.stream(integers)
-                .map(i -> Integer.toString(i)).collect(Collectors.joining(","));
+        return Arrays.stream(integers).map(i -> Integer.toString(i)).collect(Collectors.joining(","));
     }
 
     public static Integer parseInt(String s, int defaultValue) {
@@ -238,8 +243,8 @@ public class StringUtils {
         return new String(c);
     }
 
-    public static String nullIfBlank(String string){
-        if(string == null || string.trim().isEmpty()){
+    public static String nullIfBlank(String string) {
+        if (string == null || string.trim().isEmpty()) {
             return null;
         }
         return string;

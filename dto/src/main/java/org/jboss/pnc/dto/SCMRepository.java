@@ -48,15 +48,15 @@ public class SCMRepository implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
-    @NotBlank(groups = {WhenUpdating.class, WhenCreatingNew.class})
-    @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @NotBlank(groups = { WhenUpdating.class, WhenCreatingNew.class })
+    @SCMUrl(groups = { WhenUpdating.class, WhenCreatingNew.class })
     protected final String internalUrl;
 
-    @PatchSupport({REPLACE})
-    @SCMUrl(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @PatchSupport({ REPLACE })
+    @SCMUrl(groups = { WhenUpdating.class, WhenCreatingNew.class })
     protected final String externalUrl;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final Boolean preBuildSyncEnabled;
 
     @JsonPOJOBuilder(withPrefix = "")

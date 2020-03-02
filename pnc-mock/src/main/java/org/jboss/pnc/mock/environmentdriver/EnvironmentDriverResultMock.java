@@ -32,10 +32,7 @@ public class EnvironmentDriverResultMock {
         return new EnvironmentDriverResult(
                 CompletionStatus.SUCCESS,
                 "Environment driver log.",
-                Optional.of(
-                        new SshCredentials("command", "password")
-                )
-        );
+                Optional.of(new SshCredentials("command", "password")));
     }
 
 }

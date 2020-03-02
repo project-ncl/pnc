@@ -38,23 +38,34 @@ public class ProductMilestoneRSQLMapper extends AbstractRSQLMapper<Integer, Prod
     @Override
     protected SingularAttribute<ProductMilestone, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            case "productVersion": return ProductMilestone_.productVersion;
-            case "productRelease": return ProductMilestone_.productRelease;
-            default: return null;
+            case "productVersion":
+                return ProductMilestone_.productVersion;
+            case "productRelease":
+                return ProductMilestone_.productRelease;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<ProductMilestone, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return ProductMilestone_.id;
-            case "version": return ProductMilestone_.version;
-            case "endDate": return ProductMilestone_.endDate;
-            case "startingDate": return ProductMilestone_.startingDate;
-            case "plannedEndDate": return ProductMilestone_.plannedEndDate;
-            case "downloadUrl": return ProductMilestone_.downloadUrl;
-            case "issueTrackerUrl": return ProductMilestone_.issueTrackerUrl;
-            default: return null;
+            case "id":
+                return ProductMilestone_.id;
+            case "version":
+                return ProductMilestone_.version;
+            case "endDate":
+                return ProductMilestone_.endDate;
+            case "startingDate":
+                return ProductMilestone_.startingDate;
+            case "plannedEndDate":
+                return ProductMilestone_.plannedEndDate;
+            case "downloadUrl":
+                return ProductMilestone_.downloadUrl;
+            case "issueTrackerUrl":
+                return ProductMilestone_.issueTrackerUrl;
+            default:
+                return null;
         }
     }
 

@@ -33,9 +33,7 @@ import lombok.NoArgsConstructor;
  * </p>
  *
  *
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/25/16
- * Time: 11:41 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/25/16 Time: 11:41 AM
  */
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)

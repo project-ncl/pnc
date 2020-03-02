@@ -36,15 +36,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class BuildDriverFactoryTest {
-    
+
     private static String backupConfigPath;
-    
+
     @BeforeClass
     public static void setUpTestConfigPath() {
         backupConfigPath = System.getProperty("pnc-config-file");
         System.setProperty("pnc-config-file", "testConfig.json");
     }
-    
+
     @AfterClass
     public static void restoreConfigPath() {
         if (backupConfigPath != null)
@@ -52,11 +52,10 @@ public class BuildDriverFactoryTest {
         else
             System.getProperties().remove("pnc-config-file");
     }
-    
 
     @Test(expected = ExecutorException.class)
     public void shouldSkipDriversWhichAreNotMentionedInConfiguration() throws Exception {
-        //given
+        // given
         ProperDriver testedBuildDriver = new ProperDriver();
         TestInstance<BuildDriver> allDrivers = new TestInstance<>(testedBuildDriver);
 
@@ -64,13 +63,13 @@ public class BuildDriverFactoryTest {
         BuildDriverFactory factory = new BuildDriverFactory(allDrivers, configuration);
         factory.initConfiguration();
 
-        //when
+        // when
         factory.getBuildDriver();
     }
 
     @Test
     public void shouldPickProperDriver() throws Exception {
-        //given
+        // given
         ProperDriver testedBuildDriver = new ProperDriver();
         TestInstance<BuildDriver> allDrivers = new TestInstance<>(testedBuildDriver);
 
@@ -78,10 +77,10 @@ public class BuildDriverFactoryTest {
 
         BuildDriverFactory factory = new BuildDriverFactory(allDrivers, configuration);
 
-        //when
+        // when
         BuildDriver buildDriver = factory.getBuildDriver();
 
-        //then
+        // then
         assertThat(buildDriver).isEqualTo(testedBuildDriver);
     }
 
@@ -118,6 +117,5 @@ public class BuildDriverFactoryTest {
             return null;
         }
     }
-
 
 }

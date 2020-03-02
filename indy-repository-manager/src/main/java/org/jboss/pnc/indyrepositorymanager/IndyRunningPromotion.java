@@ -55,7 +55,10 @@ public class IndyRunningPromotion implements RunningRepositoryPromotion {
         try {
             StoreKey fromKey = new StoreKey(pakageType, fromType, fromId);
             if (!indy.stores().exists(fromKey)) {
-                throw new RepositoryManagerException("No such %s repository: %s", fromType.singularEndpointName(), fromId);
+                throw new RepositoryManagerException(
+                        "No such %s repository: %s",
+                        fromType.singularEndpointName(),
+                        fromId);
             }
 
             StoreKey toKey = new StoreKey(pakageType, StoreType.group, toId);
@@ -66,8 +69,11 @@ public class IndyRunningPromotion implements RunningRepositoryPromotion {
 
             recordSetGroup.addConstituent(fromKey);
 
-            boolean result = indy.stores().update(recordSetGroup,
-                    "Promoting " + fromType.singularEndpointName() + " repository : " + fromId + " to group: " + toId);
+            boolean result = indy.stores()
+                    .update(
+                            recordSetGroup,
+                            "Promoting " + fromType.singularEndpointName() + " repository : " + fromId + " to group: "
+                                    + toId);
 
             onComplete.accept(new IndyCompletedPromotion(result));
 

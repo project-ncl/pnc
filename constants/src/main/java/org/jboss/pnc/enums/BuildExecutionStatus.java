@@ -19,12 +19,12 @@
 package org.jboss.pnc.enums;
 
 /**
- * Represents the status of the task in the execution "sub-process".
- * The status represent the runtime state and task completion status.
- * Status is not meant to be stored to the datastore. For storing the results, see {@link org.jboss.pnc.enums.BuildStatus}
+ * Represents the status of the task in the execution "sub-process". The status represent the runtime state and task
+ * completion status. Status is not meant to be stored to the datastore. For storing the results, see
+ * {@link org.jboss.pnc.enums.BuildStatus}
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-22.
-*/
+ */
 public enum BuildExecutionStatus {
     NEW,
 
@@ -49,18 +49,18 @@ public enum BuildExecutionStatus {
     BUILD_ENV_DESTROYED,
     FINALIZING_EXECUTION,
 
-    /** Last build status which is set
-     *  after sending the response and
-     *  just before dropping from list of running builds.
-     *  Used to signal via callback that the build is going to be dropped from queue.
+    /**
+     * Last build status which is set after sending the response and just before dropping from list of running builds.
+     * Used to signal via callback that the build is going to be dropped from queue.
      */
     DONE(true),
 
     /**
-     * Missing configuration, un-satisfied dependencies, dependencies failed to build.
-     * Rejected can be set before adding to the list of running builds or before dropping form list of running builds.
+     * Missing configuration, un-satisfied dependencies, dependencies failed to build. Rejected can be set before adding
+     * to the list of running builds or before dropping form list of running builds.
      *
-     * @deprecated executor is not dealing with rejections, rejection can be done only at coordination stage. Once the task reaches executor, the executor will try to complete the task.
+     * @deprecated executor is not dealing with rejections, rejection can be done only at coordination stage. Once the
+     *             task reaches executor, the executor will try to complete the task.
      */
     @Deprecated
     REJECTED(true, true),

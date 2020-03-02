@@ -66,7 +66,10 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
     public AbstractProvider() {
     }
 
-    public AbstractProvider(Repository<DBEntity, Integer> repository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer,
+    public AbstractProvider(
+            Repository<DBEntity, Integer> repository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
             PageInfoProducer pageInfoProducer) {
         this.repository = repository;
         this.rsqlPredicateProducer = rsqlPredicateProducer;
@@ -78,7 +81,11 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, null);
     }
 
-    public CollectionInfo<RESTEntity> queryForCollection(int pageIndex, int pageSize, String sortingRsql, String query,
+    public CollectionInfo<RESTEntity> queryForCollection(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
             Predicate<DBEntity>... predicates) {
         Predicate<DBEntity> rsqlPredicate = rsqlPredicateProducer.getPredicate(getDBEntityClass(), query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
@@ -86,16 +93,16 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
 
         List<DBEntity> collection;
         int totalPages;
-        if(predicates == null) {
+        if (predicates == null) {
             collection = repository.queryWithPredicates(pageInfo, sortInfo, rsqlPredicate);
             totalPages = (repository.count(rsqlPredicate) + pageSize - 1) / pageSize;
         } else {
-            collection = repository.queryWithPredicates(pageInfo, sortInfo, ObjectArrays.concat(rsqlPredicate, predicates));
+            collection = repository
+                    .queryWithPredicates(pageInfo, sortInfo, ObjectArrays.concat(rsqlPredicate, predicates));
             totalPages = (repository.count(ObjectArrays.concat(rsqlPredicate, predicates)) + pageSize - 1) / pageSize;
         }
 
-        return nullableStreamOf(collection)
-                .map(toRESTModel())
+        return nullableStreamOf(collection).map(toRESTModel())
                 .collect(new CollectionInfoCollector<>(pageIndex, pageSize, totalPages));
     }
 
@@ -140,7 +147,8 @@ public abstract class AbstractProvider<DBEntity extends GenericEntity<Integer>, 
 
     protected void validateBeforeSaving(RESTEntity restEntity) throws RestValidationException {
         ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class)
-                .validateNotEmptyArgument().validateAnnotations();
+                .validateNotEmptyArgument()
+                .validateAnnotations();
     }
 
     protected void validateBeforeDeleting(Integer id) throws RestValidationException {

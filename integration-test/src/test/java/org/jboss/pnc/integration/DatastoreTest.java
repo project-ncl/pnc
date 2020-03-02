@@ -58,9 +58,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * End to end scenario test for auditing entities.
- * <i>Note that Hibernate Envers works on persisted entities so we need to put each test step in a
- * separate method and commit the transaction using Arquillian JTA integration</i>
+ * End to end scenario test for auditing entities. <i>Note that Hibernate Envers works on persisted entities so we need
+ * to put each test step in a separate method and commit the transaction using Arquillian JTA integration</i>
  */
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.COMMIT)
@@ -120,14 +119,20 @@ public class DatastoreTest {
     public void prepareDataForAuditTest() throws Exception {
         Product product = Product.Builder.newBuilder().name("test").abbreviation("tt").build();
         product = productRepository.save(product);
-        ProductVersion productVersion = ProductVersion.Builder.newBuilder().version("1.0").product(product)
+        ProductVersion productVersion = ProductVersion.Builder.newBuilder()
+                .version("1.0")
+                .product(product)
                 .generateBrewTagPrefix(product.getAbbreviation(), "1.0", "${product_short_name}-${product_version}-pnc")
                 .build();
-        BuildEnvironment environment = BuildEnvironment.Builder.newBuilder().name("DatastoreTest Test Environment")
-                .systemImageType(SystemImageType.DOCKER_IMAGE).systemImageId("92387492739").build();
+        BuildEnvironment environment = BuildEnvironment.Builder.newBuilder()
+                .name("DatastoreTest Test Environment")
+                .systemImageType(SystemImageType.DOCKER_IMAGE)
+                .systemImageId("92387492739")
+                .build();
         Project project = Project.Builder.newBuilder().name("test").build();
         RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
-                .internalUrl(BuildConfigurationRestTest.VALID_INTERNAL_REPO).build();
+                .internalUrl(BuildConfigurationRestTest.VALID_INTERNAL_REPO)
+                .build();
 
         environment = environmentRepository.save(environment);
         productVersion = productVersionRepository.save(productVersion);
@@ -137,7 +142,8 @@ public class DatastoreTest {
         BuildConfiguration testedConfiguration = BuildConfiguration.Builder.newBuilder()
                 .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
                 .buildEnvironment(environment)
-                .name(ORIGINAL_NAME).project(project)
+                .name(ORIGINAL_NAME)
+                .project(project)
                 .repositoryConfiguration(repositoryConfiguration)
                 .build();
 
@@ -159,15 +165,15 @@ public class DatastoreTest {
 
     @Test
     public void shouldCreateAuditedBuildConfigurationWhenUpdating() throws Exception {
-        //given
+        // given
         BuildConfiguration testedConfiguration = buildConfigurationRepository.queryById(testedConfigurationId);
 
-        //when
+        // when
         List<Revision<BuildConfiguration, Integer>> revisions = auditedBuildConfigurationRepository.getAllRevisions();
         // -1 is the current entity, -2 is the last modification
         Revision<BuildConfiguration, Integer> lastModification = revisions.get(revisions.size() - 2);
 
-        //than
+        // than
         assertThat(lastModification.getId()).isEqualTo(testedConfiguration.getId());
         assertThat(lastModification.getAuditedEntity().getName()).isEqualTo("original name");
     }

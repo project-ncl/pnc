@@ -27,12 +27,11 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/30/16
- * Time: 1:50 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 1:50 PM
  */
 @Stateless
-public class ProductMilestoneReleaseRepositoryImpl extends AbstractRepository<ProductMilestoneRelease, Integer> implements ProductMilestoneReleaseRepository {
+public class ProductMilestoneReleaseRepositoryImpl extends AbstractRepository<ProductMilestoneRelease, Integer>
+        implements ProductMilestoneReleaseRepository {
 
     private ProductMilestoneReleaseSpringRepository repository;
 
@@ -49,7 +48,6 @@ public class ProductMilestoneReleaseRepositoryImpl extends AbstractRepository<Pr
         super(springRepository, springRepository);
         this.repository = springRepository;
     }
-
 
     @Override
     public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone) {

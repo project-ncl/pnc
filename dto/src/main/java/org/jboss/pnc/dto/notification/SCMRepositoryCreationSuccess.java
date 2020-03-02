@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.dto.notification;
 
-
 import lombok.Data;
 
 import org.jboss.pnc.dto.SCMRepository;
@@ -32,15 +31,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 
-
 /**
  * Notification about created SCM Repository.
- *   
+ * 
  * <pre>
- * Job: {@link JobNotificationType#SCM_REPOSITORY_CREATION}
- * Notification type: {@code SCMR_CREATION_SUCCESS}
- * Progress:{@link JobNotificationProgress#FINISHED}
- * Message: no
+ * Job: {@link JobNotificationType#SCM_REPOSITORY_CREATION} Notification type: {@code SCMR_CREATION_SUCCESS}
+ * Progress:{@link JobNotificationProgress#FINISHED} Message: no
+ * 
  * <pre>
  * For notification about failure see {@link RepositoryCreationFailure}.
  * 
@@ -55,11 +52,12 @@ public class SCMRepositoryCreationSuccess extends Notification {
      * The created SCM Repository.
      */
     private final SCMRepository scmRepository;
-    
+
     private final String taskId;
 
     @JsonCreator
-    public SCMRepositoryCreationSuccess(@JsonProperty("scmRepository") SCMRepository scmRepository,
+    public SCMRepositoryCreationSuccess(
+            @JsonProperty("scmRepository") SCMRepository scmRepository,
             @JsonProperty("taskId") String taskId) {
         super(SCM_REPOSITORY_CREATION, BC_CREATION_SUCCESS, FINISHED, IN_PROGRESS);
         this.scmRepository = scmRepository;

@@ -50,7 +50,6 @@ public class BuildExecutionConfigurationMock {
                 null,
                 new HashMap<>(),
                 false,
-                null
-        );
+                null);
     }
 }

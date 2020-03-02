@@ -28,8 +28,8 @@ import javax.inject.Inject;
 import java.util.List;
 
 @Stateless
-public class BuildConfigurationSetRepositoryImpl extends AbstractRepository<BuildConfigurationSet, Integer> implements
-        BuildConfigurationSetRepository {
+public class BuildConfigurationSetRepositoryImpl extends AbstractRepository<BuildConfigurationSet, Integer>
+        implements BuildConfigurationSetRepository {
 
     /**
      * @deprecated Created for CDI.
@@ -40,7 +40,8 @@ public class BuildConfigurationSetRepositoryImpl extends AbstractRepository<Buil
     }
 
     @Inject
-    public BuildConfigurationSetRepositoryImpl(BuildConfigurationSetSpringRepository buildConfigurationSetSpringRepository) {
+    public BuildConfigurationSetRepositoryImpl(
+            BuildConfigurationSetSpringRepository buildConfigurationSetSpringRepository) {
         super(buildConfigurationSetSpringRepository, buildConfigurationSetSpringRepository);
     }
 

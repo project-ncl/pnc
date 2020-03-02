@@ -41,7 +41,9 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
+        return BuildCoordinatorDeployments.deployment(
+                BuildCoordinatorDeployments.Options.WITH_DATASTORE,
+                BuildCoordinatorDeployments.Options.WITH_BPM);
     }
 
     private static final Logger log = Logger.getLogger(MultipleProjectsBuildTest.class.getName());
@@ -57,12 +59,14 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
         long startTime = System.currentTimeMillis();
 
         List<Runnable> list = new ArrayList<>();
-        for (int i = 0; i < N_PROJECTS; i++) { //create N project configurations
+        for (int i = 0; i < N_PROJECTS; i++) { // create N project configurations
             Integer id = i;
             list.add(() -> {
                 try {
-                    //noinspection deprecation
-                    buildProject(configurationBuilder.build(id, "c" + id + "-java"), buildCoordinatorFactory.createBuildCoordinator(datastore).coordinator);
+                    // noinspection deprecation
+                    buildProject(
+                            configurationBuilder.build(id, "c" + id + "-java"),
+                            buildCoordinatorFactory.createBuildCoordinator(datastore).coordinator);
                     clearSemaphores();
                 } catch (Exception e) {
                     throw new AssertionError(e);
@@ -85,9 +89,9 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
             }
         };
 
-//        List<Thread> threads = list.stream().map(runInNewThread).collect(Collectors.toList());
-//        threads.forEach(waitToComplete);
-        list.forEach(Runnable::run); //TODO re-enable parallel builds
+        // List<Thread> threads = list.stream().map(runInNewThread).collect(Collectors.toList());
+        // threads.forEach(waitToComplete);
+        list.forEach(Runnable::run); // TODO re-enable parallel builds
 
         log.info("Completed multiple projects build test in " + (System.currentTimeMillis() - startTime) + "ms.");
     }
@@ -105,6 +109,5 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
         assertArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertArtifactsPresent(buildRecord.getDependencies());
     }
-
 
 }

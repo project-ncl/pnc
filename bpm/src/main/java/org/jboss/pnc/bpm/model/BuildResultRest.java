@@ -91,16 +91,15 @@ public class BuildResultRest extends BpmEvent implements Serializable {
 
     @Override
     public String toString() {
-        return "BuildResultRest{" +
-                "completionStatus=" + completionStatus +
-                ", processException=" + processException +
-                ", processLog='" + StringUtils.trim(processLog, 100) + '\'' +
-                ", buildExecutionConfiguration=" + buildExecutionConfiguration +
-                ", buildDriverResult=" + (buildDriverResult == null ? null : buildDriverResult.toStringLimited()) +
-                ", repositoryManagerResult=" + (repositoryManagerResult == null ? null : repositoryManagerResult.toStringLimited()) +
-                ", environmentDriverResult=" + (environmentDriverResult == null ? null : environmentDriverResult.toStringLimited()) +
-                ", repourResult=" + (repourResult == null ? null : repourResult.toStringLimited()) +
-                '}';
+        return "BuildResultRest{" + "completionStatus=" + completionStatus + ", processException=" + processException
+                + ", processLog='" + StringUtils.trim(processLog, 100) + '\'' + ", buildExecutionConfiguration="
+                + buildExecutionConfiguration + ", buildDriverResult="
+                + (buildDriverResult == null ? null : buildDriverResult.toStringLimited())
+                + ", repositoryManagerResult="
+                + (repositoryManagerResult == null ? null : repositoryManagerResult.toStringLimited())
+                + ", environmentDriverResult="
+                + (environmentDriverResult == null ? null : environmentDriverResult.toStringLimited())
+                + ", repourResult=" + (repourResult == null ? null : repourResult.toStringLimited()) + '}';
     }
 
     public String toFullLogString() {

@@ -46,8 +46,7 @@ public class EnvironmentDriverWithFailedContainerInitializationMock implements E
             DebugData debugData,
             String accessToken,
             boolean tempBuild,
-            Map<String, String> parameters)
-            throws EnvironmentDriverException {
+            Map<String, String> parameters) throws EnvironmentDriverException {
 
         return new StartedEnvironment() {
 

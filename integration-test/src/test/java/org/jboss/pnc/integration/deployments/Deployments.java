@@ -149,7 +149,9 @@ public class Deployments {
         addTestApplicaitonXml(ear);
 
         if (arquillianDeploymentFactory.isCreateArchiveCopy()) {
-            arquillianDeploymentFactory.writeArchiveToFile(ear, new File("target", ArquillianDeploymentFactory.INTEGRATION_TEST_MODULE_DIR + ".ear"));
+            arquillianDeploymentFactory.writeArchiveToFile(
+                    ear,
+                    new File("target", ArquillianDeploymentFactory.INTEGRATION_TEST_MODULE_DIR + ".ear"));
         }
 
         addKeycloakServiceClientMock(ear);
@@ -171,7 +173,7 @@ public class Deployments {
             newManifest.getMainAttributes().putValue("Dependencies", dependencies + ", jdk.unsupported");
             try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
                 newManifest.write(bos);
-                String manifestContent = new String( bos.toByteArray(), StandardCharsets.UTF_8);
+                String manifestContent = new String(bos.toByteArray(), StandardCharsets.UTF_8);
                 ear.addAsManifestResource(new StringAsset(manifestContent), "MANIFEST.MF");
             } catch (IOException e) {
                 throw new RuntimeException("Cannot write MANIFEST.MF", e);
@@ -183,6 +185,7 @@ public class Deployments {
 
     /**
      * Use application.xml without messaging module.
+     * 
      * @param ear
      */
     private static void addTestApplicaitonXml(EnterpriseArchive ear) {
@@ -200,7 +203,7 @@ public class Deployments {
     }
 
     private static boolean useTargetBuilds() {
-        return System.getProperty("useTargetBuilds")!=null;
+        return System.getProperty("useTargetBuilds") != null;
     }
 
     private static void setTestableWar(EnterpriseArchive ear) {
@@ -212,23 +215,21 @@ public class Deployments {
     }
 
     private static void addEar(Archive<?> webArchive, PomEquippedResolveStage mavenResolver) {
-        File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:ear-package:ear:?").withoutTransitivity().asFile();
+        File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:ear-package:ear:?")
+                .withoutTransitivity()
+                .asFile();
 
-        Arrays.stream(manuallyAddedLibs).forEach(
-            lib ->
-            {
-                webArchive.merge(
-                        ShrinkWrap.create(ZipImporter.class)
-                                .importFrom(lib, (path) -> include(path))
-                                .as(GenericArchive.class)
-                );
-            }
-        );
+        Arrays.stream(manuallyAddedLibs).forEach(lib -> {
+            webArchive.merge(
+                    ShrinkWrap.create(ZipImporter.class)
+                            .importFrom(lib, (path) -> include(path))
+                            .as(GenericArchive.class));
+        });
     }
 
     private static boolean include(ArchivePath archivePath) {
         String path = archivePath.get();
-        //do not include messaging, at least until it is updated to the same version as provided by EAP (JMS 2)
+        // do not include messaging, at least until it is updated to the same version as provided by EAP (JMS 2)
         boolean matches = path.matches(".*messaging\\.jar");
         if (!matches) {
             matches = path.matches(".*application\\.xml");
@@ -238,12 +239,16 @@ public class Deployments {
         return !matches;
     }
 
-    private static void addTestCommonWithTransitives(EnterpriseArchive webArchive, PomEquippedResolveStage mavenResolver) {
+    private static void addTestCommonWithTransitives(
+            EnterpriseArchive webArchive,
+            PomEquippedResolveStage mavenResolver) {
         File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:test-common").withTransitivity().asFile();
         webArchive.addAsLibraries(manuallyAddedLibs);
     }
 
-    private static void addTestCommonWithoutTransitives(EnterpriseArchive webArchive, PomEquippedResolveStage mavenResolver) {
+    private static void addTestCommonWithoutTransitives(
+            EnterpriseArchive webArchive,
+            PomEquippedResolveStage mavenResolver) {
         File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:test-common").withoutTransitivity().asFile();
         webArchive.addAsLibraries(manuallyAddedLibs);
     }
@@ -303,7 +308,7 @@ public class Deployments {
         }
 
         private File findArchiveFileInModuleTarget(String moduleDir, String archiveName) {
-            File earProjectBuildDir = new File(createModuleDir(moduleDir),TARGET_DIR);
+            File earProjectBuildDir = new File(createModuleDir(moduleDir), TARGET_DIR);
             return new File(earProjectBuildDir, archiveName);
         }
 
@@ -335,7 +340,7 @@ public class Deployments {
             };
             // add libraries to ear and remove them from jar file
             Map<ArchivePath, Node> content = war.getContent(filter);
-            for(Map.Entry<ArchivePath, Node> item : content.entrySet()) {
+            for (Map.Entry<ArchivePath, Node> item : content.entrySet()) {
                 Asset asset = item.getValue().getAsset();
                 if (asset != null) {
                     ArchivePath archivePath = item.getKey();
@@ -354,8 +359,8 @@ public class Deployments {
             if (!isProjectTopLevelDir(projectTopLevelDir)) {
                 projectTopLevelDir = projectTopLevelDir.getParentFile();
                 if (!isProjectTopLevelDir(projectTopLevelDir)) {
-                    throw new IllegalStateException("Can not find project top level directory from "
-                            + projectTopLevelDir.getAbsolutePath());
+                    throw new IllegalStateException(
+                            "Can not find project top level directory from " + projectTopLevelDir.getAbsolutePath());
                 }
             }
             return projectTopLevelDir;
@@ -374,28 +379,28 @@ public class Deployments {
             archive.as(ZipExporter.class).exportTo(file, true);
         }
 
-        // copied from org.jboss.shrinkwrap.api.ArchiveFactory.createFromZipFile(final Class<T> type, final File archiveFile) -
+        // copied from org.jboss.shrinkwrap.api.ArchiveFactory.createFromZipFile(final Class<T> type, final File
+        // archiveFile) -
         // added parameter archiveName
         /**
-         * Creates a new archive of the specified type as imported from the specified {@link File}. The file is expected to
-         * be encoded as ZIP (ie. JAR/WAR/EAR). The name of the archive will be set to {@link File#getName()}. The archive
-         * will be be backed by the {@link org.jboss.shrinkwrap.api.Configuration} specific to this {@link org.jboss.shrinkwrap.api.ArchiveFactory}.
+         * Creates a new archive of the specified type as imported from the specified {@link File}. The file is expected
+         * to be encoded as ZIP (ie. JAR/WAR/EAR). The name of the archive will be set to {@link File#getName()}. The
+         * archive will be be backed by the {@link org.jboss.shrinkwrap.api.Configuration} specific to this
+         * {@link org.jboss.shrinkwrap.api.ArchiveFactory}.
          *
-         * @param type
-         *            The type of the archive e.g. {@link org.jboss.shrinkwrap.api.spec.WebArchive}
-         * @param archiveFile
-         *            the archiveFile to use
-         * @param archiveName
-         *            the name of created archive
+         * @param type The type of the archive e.g. {@link org.jboss.shrinkwrap.api.spec.WebArchive}
+         * @param archiveFile the archiveFile to use
+         * @param archiveName the name of created archive
          * @return An {@link Assignable} view
-         * @throws IllegalArgumentException
-         *             If either argument is not supplied, if the specified {@link File} does not exist, or is not a valid
-         *             ZIP file
-         * @throws org.jboss.shrinkwrap.api.importer.ArchiveImportException
-         *             If an error occurred during the import process
+         * @throws IllegalArgumentException If either argument is not supplied, if the specified {@link File} does not
+         *         exist, or is not a valid ZIP file
+         * @throws org.jboss.shrinkwrap.api.importer.ArchiveImportException If an error occurred during the import
+         *         process
          */
-        public <T extends Assignable> T createFromZipFile(final Class<T> type, final File archiveFile,
-                                                          String archiveName) throws IllegalArgumentException, ArchiveImportException {
+        public <T extends Assignable> T createFromZipFile(
+                final Class<T> type,
+                final File archiveFile,
+                String archiveName) throws IllegalArgumentException, ArchiveImportException {
             // Precondition checks
             if (type == null) {
                 throw new IllegalArgumentException("Type must be specified");
@@ -404,12 +409,11 @@ public class Deployments {
                 throw new IllegalArgumentException("File must be specified");
             }
             if (!archiveFile.exists()) {
-                throw new IllegalArgumentException("File for import does not exist: "
-                        + archiveFile.getAbsolutePath());
+                throw new IllegalArgumentException("File for import does not exist: " + archiveFile.getAbsolutePath());
             }
             if (archiveFile.isDirectory()) {
-                throw new IllegalArgumentException("File for import must not be a directory: "
-                        + archiveFile.getAbsolutePath());
+                throw new IllegalArgumentException(
+                        "File for import must not be a directory: " + archiveFile.getAbsolutePath());
             }
 
             // Construct ZipFile
@@ -417,16 +421,16 @@ public class Deployments {
             try {
                 zipFile = new ZipFile(archiveFile);
             } catch (final ZipException ze) {
-                throw new IllegalArgumentException("Does not appear to be a valid ZIP file: "
-                        + archiveFile.getAbsolutePath());
+                throw new IllegalArgumentException(
+                        "Does not appear to be a valid ZIP file: " + archiveFile.getAbsolutePath());
             } catch (final IOException ioe) {
-                throw new RuntimeException("I/O Error in importing new archive from ZIP: "
-                        + archiveFile.getAbsolutePath(), ioe);
+                throw new RuntimeException(
+                        "I/O Error in importing new archive from ZIP: " + archiveFile.getAbsolutePath(),
+                        ioe);
             }
 
             // Import
-            return ShrinkWrap.create(type, archiveName).as(ZipImporter.class).importFrom(zipFile)
-                    .as(type);
+            return ShrinkWrap.create(type, archiveName).as(ZipImporter.class).importFrom(zipFile).as(type);
 
         }
     }

@@ -87,12 +87,13 @@ public class RSQLTest {
 
     @Before
     public void before() {
-        if(!isInitialized.getAndSet(true)) {
+        if (!isInitialized.getAndSet(true)) {
             userRepository.save(User.Builder.newBuilder().username("Abacki").email("a@rh.com").build());
             userRepository.save(User.Builder.newBuilder().username("Babacki").email("b@rh.com").build());
             userRepository.save(User.Builder.newBuilder().username("Cabacki").email("c@rh.com").build());
 
-            buildConfigurationSetRepository.save(BuildConfigurationSet.Builder.newBuilder().name("test-unassociated-build-group").build());
+            buildConfigurationSetRepository
+                    .save(BuildConfigurationSet.Builder.newBuilder().name("test-unassociated-build-group").build());
         }
     }
 
@@ -104,7 +105,7 @@ public class RSQLTest {
         // when
         List<User> users = selectUsers(rsqlQuery);
 
-        //then
+        // then
         assertThat(users).hasSize(1);
     }
 
@@ -116,7 +117,7 @@ public class RSQLTest {
         // when
         List<User> users = selectUsers(rsqlQuery);
 
-        //then
+        // then
         assertThat(users).isEmpty();
     }
 
@@ -128,7 +129,7 @@ public class RSQLTest {
         // when
         List<User> users = selectUsers(rsqlQuery);
 
-        //then
+        // then
         assertThat(users).hasSize(1);
     }
 
@@ -140,7 +141,7 @@ public class RSQLTest {
         // when
         List<User> users = selectUsers(rsqlQuery);
 
-        //then
+        // then
         assertThat(users).isEmpty();
     }
 
@@ -154,7 +155,7 @@ public class RSQLTest {
         // when
         List<User> users = sortUsers(pageSize, pageNumber, sortingQuery);
 
-        //then
+        // then
         assertThat(users).hasSize(1);
     }
 
@@ -169,41 +170,26 @@ public class RSQLTest {
         List<User> users = sortUsers(pageSize, pageNumber, sortingQuery);
         List<String> sortedUsers = nullableStreamOf(users).map(user -> user.getUsername()).collect(Collectors.toList());
 
-        //then
+        // then
         assertThat(sortedUsers).containsExactly("demo-user", "pnc-admin", "Abacki", "Babacki", "Cabacki");
     }
 
     @Test
     public void shouldFilterUsersBasedOnLikeOperator() {
-        String[] queries = new String[] {
-                "username=like=%aba%",
-                "username=like=%Aba%",
-                "username=like=*aba*",
-                "username=like=aba%",
-                "username=like=aba*",
-                "username=like=%babac%",
-                "username=like=%cab%",
-                "username=like=_abacki",
-                "username=like=?abacki"
-        };
+        String[] queries = new String[] { "username=like=%aba%", "username=like=%Aba%", "username=like=*aba*",
+                "username=like=aba%", "username=like=aba*", "username=like=%babac%", "username=like=%cab%",
+                "username=like=_abacki", "username=like=?abacki" };
         String[][] results = new String[][] { // must be sorted lexicographically
-                {"Abacki", "Babacki", "Cabacki"},
-                {"Abacki", "Babacki", "Cabacki"},
-                {"Abacki", "Babacki", "Cabacki"},
-                {"Abacki"},
-                {"Abacki"},
-                {"Babacki"},
-                {"Cabacki"},
-                {"Babacki", "Cabacki"},
-                {"Babacki", "Cabacki"}
-        };
+                { "Abacki", "Babacki", "Cabacki" }, { "Abacki", "Babacki", "Cabacki" },
+                { "Abacki", "Babacki", "Cabacki" }, { "Abacki" }, { "Abacki" }, { "Babacki" }, { "Cabacki" },
+                { "Babacki", "Cabacki" }, { "Babacki", "Cabacki" } };
         IntStream.range(0, queries.length)
-                .forEach(i -> assertThat(
-                        selectUsers(queries[i]).stream()
-                                .map(User::getUsername)
-                                .sorted(String::compareTo)
-                                .collect(Collectors.toList())
-                ).containsExactly(results[i]));
+                .forEach(
+                        i -> assertThat(
+                                selectUsers(queries[i]).stream()
+                                        .map(User::getUsername)
+                                        .sorted(String::compareTo)
+                                        .collect(Collectors.toList())).containsExactly(results[i]));
     }
 
     @Test
@@ -255,8 +241,10 @@ public class RSQLTest {
     }
 
     private List<BuildConfigurationSet> selectBuildConfigurationSets(String rsqlQuery) {
-        Predicate<BuildConfigurationSet> rsqlPredicate = rsqlPredicateProducer.getPredicate(BuildConfigurationSet.class, rsqlQuery);
-        return nullableStreamOf(buildConfigurationSetRepository.queryWithPredicates(rsqlPredicate)).collect(Collectors.toList());
+        Predicate<BuildConfigurationSet> rsqlPredicate = rsqlPredicateProducer
+                .getPredicate(BuildConfigurationSet.class, rsqlQuery);
+        return nullableStreamOf(buildConfigurationSetRepository.queryWithPredicates(rsqlPredicate))
+                .collect(Collectors.toList());
     }
 
     private List<User> selectUsers(String rsqlQuery) {

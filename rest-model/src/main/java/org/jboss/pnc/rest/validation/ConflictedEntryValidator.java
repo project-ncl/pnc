@@ -33,7 +33,9 @@ public interface ConflictedEntryValidator {
         private final Class<? extends GenericEntity<?>> conflictedEntity;
         private final String message;
 
-        public ConflictedEntryValidationError(Integer conflictedRecordId, Class<? extends GenericEntity<?>> conflictedEntity,
+        public ConflictedEntryValidationError(
+                Integer conflictedRecordId,
+                Class<? extends GenericEntity<?>> conflictedEntity,
                 String message) {
             this.conflictedRecordId = conflictedRecordId;
             this.conflictedEntity = conflictedEntity;

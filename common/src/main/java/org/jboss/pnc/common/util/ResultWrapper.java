@@ -18,9 +18,8 @@
 package org.jboss.pnc.common.util;
 
 /**
- * Simple wrapper class which contains a result and an exception.
- * This can be useful for example when performing asynchronous operations
- * which do not immediately return, but could throw an exception.
+ * Simple wrapper class which contains a result and an exception. This can be useful for example when performing
+ * asynchronous operations which do not immediately return, but could throw an exception.
  * 
  * @param <R> The result of the operation
  * @param <E> The exception (if any) thrown during the operation.

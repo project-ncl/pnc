@@ -53,12 +53,12 @@ public class Environment implements DTOEntity {
 
     private final String systemImageRepositoryUrl;
 
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String systemImageId;
 
     private final Map<String, String> attributes;
 
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final SystemImageType systemImageType;
 
     private final boolean deprecated;

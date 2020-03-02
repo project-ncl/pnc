@@ -28,12 +28,12 @@ class ArgumentHelper {
     private static final BeanUtilsBean beanUtilsBean;
 
     static {
-        beanUtilsBean = new BeanUtilsBean(new ConvertUtilsBean(){
+        beanUtilsBean = new BeanUtilsBean(new ConvertUtilsBean() {
             @Override
             public Object convert(String value, Class clazz) {
-                if (clazz.isEnum()){
+                if (clazz.isEnum()) {
                     return Enum.valueOf(clazz, value);
-                }else{
+                } else {
                     return super.convert(value, clazz);
                 }
             }
@@ -43,7 +43,7 @@ class ArgumentHelper {
     public Object getConvertedType(Class<?> selectingClass, String path, String argumentAsString) {
         String[] fields = path.split("\\.");
         Class<?> currentClass = selectingClass;
-        for(String field : fields) {
+        for (String field : fields) {
             try {
                 currentClass = currentClass.getDeclaredField(field).getType();
             } catch (NoSuchFieldException e) {
@@ -54,7 +54,9 @@ class ArgumentHelper {
     }
 
     public List<Object> getConvertedType(Class<?> selectingClass, String path, List<String> arguments) {
-        return arguments.stream().map(argument -> this.getConvertedType(selectingClass, path, argument)).collect(Collectors.toList());
+        return arguments.stream()
+                .map(argument -> this.getConvertedType(selectingClass, path, argument))
+                .collect(Collectors.toList());
     }
 
 }

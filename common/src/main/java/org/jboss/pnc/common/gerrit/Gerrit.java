@@ -34,7 +34,6 @@ public class Gerrit {
     private static final String GERRIT_GITWEB_COMMIT_URL_TEMPLATE = "https://{0}/gerrit/gitweb?p={1};a=commit;h={2}";
     private static final String GERRIT_GITWEB_URL_TEMPLATE = "https://{0}/gerrit/gitweb?p={1};a=summary";
 
-
     /**
      * Generate a download url for a Gerrit snapshot using the gerrit url of the project and the ref
      *
@@ -44,14 +43,15 @@ public class Gerrit {
      * @return Download url
      * @throws GerritException thrown if the Gerrit Url is not valid
      */
-    public String generateDownloadUrlWithGerritGitweb(@NotNull String gerritUrl, @NotNull String ref) throws GerritException {
+    public String generateDownloadUrlWithGerritGitweb(@NotNull String gerritUrl, @NotNull String ref)
+            throws GerritException {
 
         return MessageFormat.format(GERRIT_DOWNLOAD_URL_TEMPLATE, getHost(gerritUrl), getProject(gerritUrl), ref);
     }
 
     /**
-     * Generate an https URL generated from the 'git clone' Gerrit url. If ref is specified, URL will point to it
-     * The url generated points to the git log based on the ref
+     * Generate an https URL generated from the 'git clone' Gerrit url. If ref is specified, URL will point to it The
+     * url generated points to the git log based on the ref
      *
      * Useful to list the repository's Gerrit gitweb if we don't know the ref
      *
@@ -74,9 +74,8 @@ public class Gerrit {
     }
 
     /**
-     * Generate an https URL generated from the 'git clone' Gerrit url.
-     * The url generated points to the specific commit based on the ref. If ref is a branch,
-     * it'll point to the latest commit
+     * Generate an https URL generated from the 'git clone' Gerrit url. The url generated points to the specific commit
+     * based on the ref. If ref is a branch, it'll point to the latest commit
      *
      * @param gerritUrl 'git clone' gerrit url. Can be http or git+ssh
      *
@@ -105,7 +104,7 @@ public class Gerrit {
     private String getProject(String gerritUrl) throws GerritException {
 
         URI uri = getURI(gerritUrl);
-        String project =  uri.getPath();
+        String project = uri.getPath();
 
         // remove the gerrit part in the path
         project = project.replaceFirst("/gerrit", "");

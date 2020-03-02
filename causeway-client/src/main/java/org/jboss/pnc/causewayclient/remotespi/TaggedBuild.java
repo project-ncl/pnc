@@ -35,8 +35,7 @@ public class TaggedBuild {
     private final int brewBuildId;
 
     @JsonCreator
-    public TaggedBuild(@JsonProperty("tagPrefix") String tagPrefix,
-            @JsonProperty("brewBuildId") int brewBuildId) {
+    public TaggedBuild(@JsonProperty("tagPrefix") String tagPrefix, @JsonProperty("brewBuildId") int brewBuildId) {
         this.tagPrefix = Objects.requireNonNull(tagPrefix, "Tag prefix must be specified.");
         this.brewBuildId = brewBuildId;
     }

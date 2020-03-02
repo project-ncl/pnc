@@ -42,9 +42,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/30/16
- * Time: 2:03 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 2:03 PM
  */
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -100,13 +98,16 @@ public class ProductMilestoneReleaseRepositoryImplTest {
     private ProductVersion createProductVersion() {
         final String version = randomNumeric(2) + "." + randomNumeric(2);
         final Product product = createProduct();
-                
+
         ProductVersion productVersion = ProductVersion.Builder.newBuilder()
                 .version(version)
                 .product(product)
-                .generateBrewTagPrefix(product.getAbbreviation(), version, "${product_short_name}-${product_version}-pnc")
+                .generateBrewTagPrefix(
+                        product.getAbbreviation(),
+                        version,
+                        "${product_short_name}-${product_version}-pnc")
                 .build();
-        
+
         productVersionRepository.save(productVersion);
         return productVersion;
     }

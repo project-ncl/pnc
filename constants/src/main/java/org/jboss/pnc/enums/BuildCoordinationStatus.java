@@ -20,12 +20,11 @@ package org.jboss.pnc.enums;
 import java.util.Arrays;
 
 /**
- * Represents the status of BuildTask in the coordinator.
- * Status is used in dependency resolution and external status update notification.
- * It is not mean to be used as status of DB entity.
+ * Represents the status of BuildTask in the coordinator. Status is used in dependency resolution and external status
+ * update notification. It is not mean to be used as status of DB entity.
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-22.
-*/
+ */
 public enum BuildCoordinationStatus {
     NEW,
 
@@ -37,16 +36,15 @@ public enum BuildCoordinationStatus {
 
     BUILD_COMPLETED,
 
-    /** Last build status which is set
-     *  after storing to db and
-     *  just before dropping from list of running builds.
-     *  Used to signal via callback that the build is going to be dropped from queue.
+    /**
+     * Last build status which is set after storing to db and just before dropping from list of running builds. Used to
+     * signal via callback that the build is going to be dropped from queue.
      */
     DONE(true),
 
     /**
-     * Missing configuration, un-satisfied dependencies.
-     * Rejected can be set before adding to the list of running builds or before dropping form list of running builds.
+     * Missing configuration, un-satisfied dependencies. Rejected can be set before adding to the list of running builds
+     * or before dropping form list of running builds.
      */
     REJECTED(true, true),
 
@@ -97,15 +95,15 @@ public enum BuildCoordinationStatus {
     @Deprecated
     public static BuildCoordinationStatus fromBuildStatus(BuildStatus buildStatus) { // TODO
 
-        BuildStatus[] done = {BuildStatus.SUCCESS};
-        BuildStatus[] doneWithErrors = {BuildStatus.FAILED};
-        BuildStatus[] rejected = {BuildStatus.REJECTED};
-        BuildStatus[] rejectedFailedDependencies = {BuildStatus.REJECTED_FAILED_DEPENDENCIES};
-        BuildStatus[] cancelled = {BuildStatus.CANCELLED};
-        BuildStatus[] newBuild = {BuildStatus.NEW};
-        BuildStatus[] building = {BuildStatus.BUILDING};
-        BuildStatus[] waitingForDependencies = {BuildStatus.WAITING_FOR_DEPENDENCIES};
-        BuildStatus[] notRequired = {BuildStatus.NO_REBUILD_REQUIRED};
+        BuildStatus[] done = { BuildStatus.SUCCESS };
+        BuildStatus[] doneWithErrors = { BuildStatus.FAILED };
+        BuildStatus[] rejected = { BuildStatus.REJECTED };
+        BuildStatus[] rejectedFailedDependencies = { BuildStatus.REJECTED_FAILED_DEPENDENCIES };
+        BuildStatus[] cancelled = { BuildStatus.CANCELLED };
+        BuildStatus[] newBuild = { BuildStatus.NEW };
+        BuildStatus[] building = { BuildStatus.BUILDING };
+        BuildStatus[] waitingForDependencies = { BuildStatus.WAITING_FOR_DEPENDENCIES };
+        BuildStatus[] notRequired = { BuildStatus.NO_REBUILD_REQUIRED };
 
         if (Arrays.asList(done).contains(buildStatus)) {
             return DONE;
