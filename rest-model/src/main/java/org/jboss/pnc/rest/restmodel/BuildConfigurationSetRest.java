@@ -57,7 +57,9 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
     public BuildConfigurationSetRest(BuildConfigurationSet buildConfigurationSet) {
         this.id = buildConfigurationSet.getId();
         this.name = buildConfigurationSet.getName();
-        performIfNotNull(buildConfigurationSet.getProductVersion(), () ->this.productVersionId = buildConfigurationSet.getProductVersion().getId());
+        performIfNotNull(
+                buildConfigurationSet.getProductVersion(),
+                () -> this.productVersionId = buildConfigurationSet.getProductVersion().getId());
         buildConfigurationSet.getBuildConfigurations().forEach(bc -> buildConfigurationIds.add(bc.getId()));
         this.archived = buildConfigurationSet.isArchived();
     }
@@ -109,7 +111,10 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
     }
 
     public void addBuildConfigurations(Collection<BuildConfigurationRest> buildConfigurationRestCollection) {
-        buildConfigurationIds.addAll(buildConfigurationRestCollection.stream().map(BuildConfigurationRest::getId).collect(Collectors.toList()));
+        buildConfigurationIds.addAll(
+                buildConfigurationRestCollection.stream()
+                        .map(BuildConfigurationRest::getId)
+                        .collect(Collectors.toList()));
     }
 
     public BuildConfigurationSet.Builder toDBEntityBuilder() {
@@ -118,10 +123,13 @@ public class BuildConfigurationSetRest implements GenericRestEntity<Integer> {
                 .name(name)
                 .archived(archived);
 
-        performIfNotNull(productVersionId, () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
+        performIfNotNull(
+                productVersionId,
+                () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
 
         nullableStreamOf(buildConfigurationIds).forEach(buildConfigurationId -> {
-            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(buildConfigurationId);
+            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder()
+                    .id(buildConfigurationId);
             builder.buildConfiguration(buildConfigurationBuilder.build());
         });
         return builder;

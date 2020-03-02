@@ -37,27 +37,42 @@ public class ArtifactRSQLMapper extends AbstractRSQLMapper<Integer, Artifact> {
     @Override
     protected SingularAttribute<Artifact, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            case "targetRepository": return Artifact_.targetRepository;
-            default: return null;
+            case "targetRepository":
+                return Artifact_.targetRepository;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<Artifact, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return Artifact_.id;
-            case "identifier": return Artifact_.identifier;
-            case "md5": return Artifact_.md5;
-            case "sha1": return Artifact_.sha1;
-            case "sha256": return Artifact_.sha256;
-            case "filename": return Artifact_.filename;
-            case "deployPath": return Artifact_.deployPath;
-            case "originUrl": return Artifact_.originUrl;
-            case "size": return Artifact_.size;
-            case "importDate": return Artifact_.importDate;
-            case "artifactQuality": return Artifact_.artifactQuality;
-            case "targetRepository": return Artifact_.targetRepository;
-            default: return null;
+            case "id":
+                return Artifact_.id;
+            case "identifier":
+                return Artifact_.identifier;
+            case "md5":
+                return Artifact_.md5;
+            case "sha1":
+                return Artifact_.sha1;
+            case "sha256":
+                return Artifact_.sha256;
+            case "filename":
+                return Artifact_.filename;
+            case "deployPath":
+                return Artifact_.deployPath;
+            case "originUrl":
+                return Artifact_.originUrl;
+            case "size":
+                return Artifact_.size;
+            case "importDate":
+                return Artifact_.importDate;
+            case "artifactQuality":
+                return Artifact_.artifactQuality;
+            case "targetRepository":
+                return Artifact_.targetRepository;
+            default:
+                return null;
         }
     }
 }

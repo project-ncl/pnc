@@ -34,4 +34,3 @@ public interface CacheProvider {
 
     void clearAllCache();
 }
-

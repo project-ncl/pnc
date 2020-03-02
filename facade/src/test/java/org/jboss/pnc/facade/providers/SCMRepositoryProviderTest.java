@@ -66,10 +66,14 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
     private SCMRepositoryProviderImpl provider;
 
     private RepositoryConfiguration mock = createNewRepositoryConfiguration(
-            "http://external.sh", "git+ssh://internal.sh", true);
+            "http://external.sh",
+            "git+ssh://internal.sh",
+            true);
 
     private RepositoryConfiguration mockSecond = createNewRepositoryConfiguration(
-            "http://external2.sh", "git+ssh://internale.sh", false);
+            "http://external2.sh",
+            "git+ssh://internale.sh",
+            false);
 
     @Before
     public void setup() {
@@ -79,10 +83,11 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
         list.add(mock);
         list.add(mockSecond);
 
-        list.add(createNewRepositoryConfiguration(
-                "https://" + UUID.randomUUID().toString() +".ca",
-                "git+ssh://" + UUID.randomUUID().toString() + ".eu",
-                true));
+        list.add(
+                createNewRepositoryConfiguration(
+                        "https://" + UUID.randomUUID().toString() + ".ca",
+                        "git+ssh://" + UUID.randomUUID().toString() + ".eu",
+                        true));
 
         fillRepository(list);
     }
@@ -101,7 +106,7 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
     public void testStoreNewRepositoryWithoutId() {
         // when
         SCMRepository toCreate = createNewSCMRepository(
-                "https://" + UUID.randomUUID().toString() +".ca",
+                "https://" + UUID.randomUUID().toString() + ".ca",
                 "git+ssh://" + UUID.randomUUID().toString() + ".eu",
                 true,
                 null);
@@ -121,14 +126,13 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
 
         // when
         SCMRepository toCreate = createNewSCMRepository(
-                "https://" + UUID.randomUUID().toString() +".ca",
+                "https://" + UUID.randomUUID().toString() + ".ca",
                 "git+ssh://" + UUID.randomUUID().toString() + ".eu",
                 true,
                 Integer.toString(entityId++));
 
         // then
-        assertThatThrownBy(() -> provider.store(toCreate))
-                .isInstanceOf(InvalidEntityException.class);
+        assertThatThrownBy(() -> provider.store(toCreate)).isInstanceOf(InvalidEntityException.class);
     }
 
     @Test
@@ -136,23 +140,25 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
 
         // when
         SCMRepository toCreate = createNewSCMRepository(
-                "https://" + UUID.randomUUID().toString() +".ca",
+                "https://" + UUID.randomUUID().toString() + ".ca",
                 "noway" + UUID.randomUUID().toString(),
                 true,
                 null);
 
         // then
-        assertThatThrownBy(() -> provider.store(toCreate))
-                .isInstanceOf(InvalidEntityException.class);
+        assertThatThrownBy(() -> provider.store(toCreate)).isInstanceOf(InvalidEntityException.class);
     }
 
     @Test
     public void testUpdate() {
 
         // when
-        boolean newPreSync = ! mock.isPreBuildSyncEnabled();
-        SCMRepository toUpdate =
-                createNewSCMRepository(mock.getExternalUrl(), mock.getInternalUrl(), newPreSync, mock.getId().toString());
+        boolean newPreSync = !mock.isPreBuildSyncEnabled();
+        SCMRepository toUpdate = createNewSCMRepository(
+                mock.getExternalUrl(),
+                mock.getInternalUrl(),
+                newPreSync,
+                mock.getId().toString());
 
         provider.update(toUpdate.getId(), toUpdate);
         SCMRepository updated = provider.getSpecific(toUpdate.getId());
@@ -168,12 +174,11 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
     public void testUpdateWithUpdatedInternalUrlShouldFail() {
 
         // when
-        SCMRepository toUpdate =
-                createNewSCMRepository(
-                        mock.getExternalUrl(),
-                        mock.getInternalUrl() + "ssss",
-                        mock.isPreBuildSyncEnabled(),
-                        mock.getId().toString());
+        SCMRepository toUpdate = createNewSCMRepository(
+                mock.getExternalUrl(),
+                mock.getInternalUrl() + "ssss",
+                mock.isPreBuildSyncEnabled(),
+                mock.getId().toString());
 
         // then
         assertThatThrownBy(() -> provider.update(toUpdate.getId(), toUpdate))
@@ -208,11 +213,11 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
     public void testCreateSCMRepository() throws ConfigurationParseException {
 
         // when
-        when (configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
+        when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
 
-        RepositoryCreationResponse response =
-                provider.createSCMRepository("http://github.com/project-ncl/cleaner.git", true);
+        RepositoryCreationResponse response = provider
+                .createSCMRepository("http://github.com/project-ncl/cleaner.git", true);
 
         // then
         verify(notifier, times(1)).sendMessage(any());
@@ -227,7 +232,7 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
     public void testCreateSCMRepositoryWithWrongUrlShouldFail() throws ConfigurationParseException {
 
         // when
-        when (configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
+        when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
 
         // then
@@ -239,8 +244,7 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
     public void testCreateSCMRepositoryEmptyUrlShouldFail() {
 
         // when, then
-        assertThatThrownBy(() -> provider.createSCMRepository("", true))
-                .isInstanceOf(InvalidEntityException.class);
+        assertThatThrownBy(() -> provider.createSCMRepository("", true)).isInstanceOf(InvalidEntityException.class);
     }
 
     @Test
@@ -261,14 +265,14 @@ public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryCo
         // I can't really test the search predicates here since repository is mocked. But I can test the other code path
 
         // when
-        Page<SCMRepository> pageMatch = provider.getAllWithMatchAndSearchUrl(0, 10, null,
-                null, mock.getExternalUrl(), null);
+        Page<SCMRepository> pageMatch = provider
+                .getAllWithMatchAndSearchUrl(0, 10, null, null, mock.getExternalUrl(), null);
 
-        Page<SCMRepository> pageSearch = provider.getAllWithMatchAndSearchUrl(0, 10, null,
-                null, null, mock.getInternalUrl());
+        Page<SCMRepository> pageSearch = provider
+                .getAllWithMatchAndSearchUrl(0, 10, null, null, null, mock.getInternalUrl());
 
-        Page<SCMRepository> pageMatchAndSearch = provider.getAllWithMatchAndSearchUrl(0, 10, null,
-                null, mockSecond.getInternalUrl(), mock.getExternalUrl());
+        Page<SCMRepository> pageMatchAndSearch = provider
+                .getAllWithMatchAndSearchUrl(0, 10, null, null, mockSecond.getInternalUrl(), mock.getExternalUrl());
 
         // then
         assertThat(pageMatch.getContent()).isNotNull();

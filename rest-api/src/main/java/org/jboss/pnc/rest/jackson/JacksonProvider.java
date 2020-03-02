@@ -28,8 +28,8 @@ import javax.ws.rs.ext.ContextResolver;
 import javax.ws.rs.ext.Provider;
 
 @Provider
-@Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON_PATCH_JSON})
-@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON_PATCH_JSON})
+@Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON_PATCH_JSON })
+@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON_PATCH_JSON })
 public class JacksonProvider implements ContextResolver<ObjectMapper> {
     private ObjectMapper objectMapper;
 
@@ -40,7 +40,6 @@ public class JacksonProvider implements ContextResolver<ObjectMapper> {
         // write dates in ISO8601 format
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
-
 
     public ObjectMapper getContext(Class<?> objectType) {
         return objectMapper;

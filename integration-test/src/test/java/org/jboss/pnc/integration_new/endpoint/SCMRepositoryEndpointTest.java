@@ -67,13 +67,20 @@ public class SCMRepositoryEndpointTest {
 
     @Test
     public void testGetBuildConfigurationForARepository() throws ClientException {
-        BuildConfigurationClient buildConfigurationClient = new BuildConfigurationClient(RestClientConfiguration.getConfiguration(USER));
-        SCMRepository scmRepository = repositoryClient.getAll(null,null).iterator().next();
+        BuildConfigurationClient buildConfigurationClient = new BuildConfigurationClient(
+                RestClientConfiguration.getConfiguration(USER));
+        SCMRepository scmRepository = repositoryClient.getAll(null, null).iterator().next();
 
         Iterator<BuildConfiguration> allConfigsIterator = buildConfigurationClient.getAll().iterator();
 
-        BuildConfiguration buildConfiguration1 = allConfigsIterator.next().toBuilder().scmRepository(scmRepository).build();
-        BuildConfiguration buildConfiguration2 = allConfigsIterator.next().toBuilder().scmRepository(scmRepository).build();
+        BuildConfiguration buildConfiguration1 = allConfigsIterator.next()
+                .toBuilder()
+                .scmRepository(scmRepository)
+                .build();
+        BuildConfiguration buildConfiguration2 = allConfigsIterator.next()
+                .toBuilder()
+                .scmRepository(scmRepository)
+                .build();
 
         buildConfigurationClient.update(buildConfiguration1.getId(), buildConfiguration1);
         buildConfigurationClient.update(buildConfiguration2.getId(), buildConfiguration2);
@@ -81,13 +88,13 @@ public class SCMRepositoryEndpointTest {
         RemoteCollection<BuildConfiguration> buildConfigs = repositoryClient.getBuildsConfigs(scmRepository.getId());
 
         assertThat(buildConfigs).usingElementComparatorIgnoringFields("modificationTime")
-                .contains(buildConfiguration1,buildConfiguration2)
+                .contains(buildConfiguration1, buildConfiguration2)
                 .allSatisfy((bc -> scmRepository.equals(bc.getScmRepository())));
     }
 
     @Test
     public void shouldCreateNewWithInternalUrl() throws ClientException {
-        //With
+        // With
         SCMRepository repository = SCMRepository.builder()
                 .internalUrl("ssh://git@github.com:22/newUser/newRepo.git")
                 .preBuildSyncEnabled(false)
@@ -97,10 +104,10 @@ public class SCMRepositoryEndpointTest {
                 .scmUrl(repository.getInternalUrl())
                 .preBuildSyncEnabled(repository.getPreBuildSyncEnabled())
                 .build();
-        //When
+        // When
         RepositoryCreationResponse response = repositoryClient.createNew(request);
 
-        //Then
+        // Then
         assertThat(response).isNotNull();
         assertThat(response.getRepository().getId()).isNotNull();
 
@@ -120,10 +127,11 @@ public class SCMRepositoryEndpointTest {
                 .preBuildSyncEnabled(repository.getPreBuildSyncEnabled())
                 .build();
 
-        assertThatThrownBy(() -> repositoryClient.createNew(request))
-                .hasCauseInstanceOf(ClientErrorException.class)
-                .has(new Condition<Throwable>((e -> ((ClientErrorException) e.getCause()).getResponse().getStatus() == 409),
-                        "Has Cause with conflicted status code 409"));
+        assertThatThrownBy(() -> repositoryClient.createNew(request)).hasCauseInstanceOf(ClientErrorException.class)
+                .has(
+                        new Condition<Throwable>(
+                                (e -> ((ClientErrorException) e.getCause()).getResponse().getStatus() == 409),
+                                "Has Cause with conflicted status code 409"));
 
     }
 
@@ -139,32 +147,33 @@ public class SCMRepositoryEndpointTest {
                 .preBuildSyncEnabled(repository.getPreBuildSyncEnabled())
                 .build();
 
-        assertThatThrownBy(() -> repositoryClient.createNew(request))
-                .hasCauseInstanceOf(BadRequestException.class);
+        assertThatThrownBy(() -> repositoryClient.createNew(request)).hasCauseInstanceOf(BadRequestException.class);
     }
 
     @Test
     public void shouldUpdate() throws ClientException {
-        //with
-        SCMRepository scmRepository = repositoryClient.getAll(null,null).iterator().next();
-        SCMRepository toUpdate = scmRepository.toBuilder().externalUrl("http://newUrl.com/newproject/project.git").build();
+        // with
+        SCMRepository scmRepository = repositoryClient.getAll(null, null).iterator().next();
+        SCMRepository toUpdate = scmRepository.toBuilder()
+                .externalUrl("http://newUrl.com/newproject/project.git")
+                .build();
 
-        //when
+        // when
         repositoryClient.update(scmRepository.getId(), toUpdate);
 
-        //then
+        // then
         SCMRepository refreshed = repositoryClient.getSpecific(toUpdate.getId());
         assertThat(refreshed).isEqualToComparingFieldByField(toUpdate);
     }
 
     @Test
     public void shouldNotAllowUpdatingInternalUrl() throws ClientException {
-        //then
+        // then
         final String validInternalUrl = "http://git@github.com:22/project-ncl/pnc22.git";
-        SCMRepository scmRepository = repositoryClient.getAll(null,null).iterator().next();
+        SCMRepository scmRepository = repositoryClient.getAll(null, null).iterator().next();
         SCMRepository toUpdate = scmRepository.toBuilder().internalUrl(validInternalUrl).build();
 
-        //when/then
+        // when/then
         assertThatThrownBy(() -> repositoryClient.update(toUpdate.getId(), toUpdate))
                 .hasCauseInstanceOf(BadRequestException.class);
     }
@@ -176,17 +185,14 @@ public class SCMRepositoryEndpointTest {
         final String requestUrl2 = "ssh://github.com:22/project-ncl/pnc.git";
         final String requestUrl3 = "github.com/project-ncl/pnc";
 
-        assertThat(repositoryClient.getAll(requestUrl1, null))
-                .containsExactly(repository);
-        assertThat(repositoryClient.getAll(requestUrl2, null))
-                .containsExactly(repository);
-        assertThat(repositoryClient.getAll(requestUrl3, null))
-                .containsExactly(repository);
+        assertThat(repositoryClient.getAll(requestUrl1, null)).containsExactly(repository);
+        assertThat(repositoryClient.getAll(requestUrl2, null)).containsExactly(repository);
+        assertThat(repositoryClient.getAll(requestUrl3, null)).containsExactly(repository);
     }
 
     @Test
     public void shouldNotMatchPartialExternalRepositoryUrl() throws ClientException {
-        //similar to RC:100 in DatabaseDataInitializer
+        // similar to RC:100 in DatabaseDataInitializer
         final String requestUrl1 = "https://github.com";
         final String requestUrl2 = "ssh://github.com/project-ncl";
 
@@ -196,19 +202,18 @@ public class SCMRepositoryEndpointTest {
 
     @Test
     public void testGetBuildConfigs() throws RemoteResourceException {
-        //when
+        // when
         RemoteCollection<BuildConfiguration> bcs = repositoryClient.getBuildsConfigs("100");
 
-        //then
-        assertThat(bcs)
-                .hasSize(1)
+        // then
+        assertThat(bcs).hasSize(1)
                 .are(new Condition<>(buildConfiguration -> buildConfiguration.getId().equals("1"), "Is BC with id 1"));
     }
 
     @Test
     public void testGetBuildConfigsWithInvalidId() {
-        //when/then
-        assertThatThrownBy(()-> repositoryClient.getBuildsConfigs("45645644"))
+        // when/then
+        assertThatThrownBy(() -> repositoryClient.getBuildsConfigs("45645644"))
                 .hasCauseInstanceOf(BadRequestException.class);
     }
 }

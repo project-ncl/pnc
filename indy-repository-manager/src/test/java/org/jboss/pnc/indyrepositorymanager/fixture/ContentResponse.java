@@ -19,8 +19,7 @@ package org.jboss.pnc.indyrepositorymanager.fixture;
 
 import java.io.InputStream;
 
-public final class ContentResponse
-{
+public final class ContentResponse {
     private final int code;
 
     private final InputStream bodyStream;
@@ -31,8 +30,7 @@ public final class ContentResponse
 
     private final String method;
 
-    ContentResponse( final String method, final String path, final int code, final String body )
-    {
+    ContentResponse(final String method, final String path, final int code, final String body) {
         this.method = method;
         this.path = path;
         this.code = code;
@@ -40,8 +38,7 @@ public final class ContentResponse
         this.bodyStream = null;
     }
 
-    ContentResponse( final String method, final String path, final int code, final InputStream bodyStream )
-    {
+    ContentResponse(final String method, final String path, final int code, final InputStream bodyStream) {
         this.method = method;
         this.path = path;
         this.code = code;
@@ -49,34 +46,28 @@ public final class ContentResponse
         this.bodyStream = bodyStream;
     }
 
-    public String method()
-    {
+    public String method() {
         return method;
     }
 
-    public String path()
-    {
+    public String path() {
         return path;
     }
 
-    public int code()
-    {
+    public int code() {
         return code;
     }
 
-    public String body()
-    {
+    public String body() {
         return body;
     }
 
-    public InputStream bodyStream()
-    {
+    public InputStream bodyStream() {
         return bodyStream;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Expect (" + method + " " + path + "), and respond with code:" + code() + ", body:\n" + body();
     }
 }

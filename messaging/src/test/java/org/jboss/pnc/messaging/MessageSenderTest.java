@@ -60,7 +60,6 @@ public class MessageSenderTest extends BaseMessageSenderTest {
         messageSender.init();
     }
 
-
     @Test
     public void shouldSendMessage() throws InterruptedException {
         String message = "TEST-MESSAGE";

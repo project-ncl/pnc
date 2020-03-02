@@ -73,21 +73,22 @@ public class BuildTriggerer {
 
     private SystemConfig systemConfig;
 
-    @Deprecated //not meant for usage its only to make CDI happy
+    @Deprecated // not meant for usage its only to make CDI happy
     public BuildTriggerer() {
     }
 
     @Inject
-    public BuildTriggerer(final BuildCoordinator buildCoordinator,
-                          final BuildConfigurationRepository buildConfigurationRepository,
-                          final BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
-                          final BuildConfigurationSetRepository buildConfigurationSetRepository,
-                          BuildSetStatusNotifications buildSetStatusNotifications,
-                          BuildStatusNotifications buildStatusNotifications,
-                          BpmNotifier bpmNotifier,
-                          HibernateLazyInitializer hibernateLazyInitializer,
-                          SortInfoProducer sortInfoProducer,
-                          SystemConfig systemConfig) {
+    public BuildTriggerer(
+            final BuildCoordinator buildCoordinator,
+            final BuildConfigurationRepository buildConfigurationRepository,
+            final BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+            final BuildConfigurationSetRepository buildConfigurationSetRepository,
+            BuildSetStatusNotifications buildSetStatusNotifications,
+            BuildStatusNotifications buildStatusNotifications,
+            BpmNotifier bpmNotifier,
+            HibernateLazyInitializer hibernateLazyInitializer,
+            SortInfoProducer sortInfoProducer,
+            SystemConfig systemConfig) {
         this.buildCoordinator = buildCoordinator;
         this.buildConfigurationRepository = buildConfigurationRepository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
@@ -100,52 +101,71 @@ public class BuildTriggerer {
         this.systemConfig = systemConfig;
     }
 
-    public int triggerBuild(final Integer buildConfigurationId,
-                            Optional<Integer> buildConfigurationRevision,
-                            User currentUser,
-                            BuildOptions buildOptions,
-                            URL callBackUrl)
-            throws BuildConflictException, CoreException {
+    public int triggerBuild(
+            final Integer buildConfigurationId,
+            Optional<Integer> buildConfigurationRevision,
+            User currentUser,
+            BuildOptions buildOptions,
+            URL callBackUrl) throws BuildConflictException, CoreException {
 
-        BuildConfigurationSetTriggerResult result = doTriggerBuild(buildConfigurationId, buildConfigurationRevision, currentUser, buildOptions);
+        BuildConfigurationSetTriggerResult result = doTriggerBuild(
+                buildConfigurationId,
+                buildConfigurationRevision,
+                currentUser,
+                buildOptions);
         return selectBuildRecordIdOf(result.getBuildTasks(), buildConfigurationId);
     }
 
-    private int selectBuildRecordIdOf(Collection<BuildTask> buildTasks, Integer buildConfigurationId) throws CoreException {
+    private int selectBuildRecordIdOf(Collection<BuildTask> buildTasks, Integer buildConfigurationId)
+            throws CoreException {
         Optional<BuildTask> maybeTask = buildTasks.stream()
-                .filter(t -> t.getBuildConfigurationAudited().getBuildConfiguration().getId().equals(buildConfigurationId))
+                .filter(
+                        t -> t.getBuildConfigurationAudited()
+                                .getBuildConfiguration()
+                                .getId()
+                                .equals(buildConfigurationId))
                 .findAny();
         return maybeTask.map(BuildTask::getId)
                 .orElseThrow(() -> new CoreException("No build id for the triggered configuration"));
     }
 
-    public int triggerBuild(final Integer configurationId,
-                            Optional<Integer> buildConfigurationRevision,
-                            User currentUser,
-                            BuildOptions buildOptions)
-            throws BuildConflictException, CoreException {
-        BuildConfigurationSetTriggerResult result =
-                doTriggerBuild(configurationId, buildConfigurationRevision, currentUser, buildOptions);
+    public int triggerBuild(
+            final Integer configurationId,
+            Optional<Integer> buildConfigurationRevision,
+            User currentUser,
+            BuildOptions buildOptions) throws BuildConflictException, CoreException {
+        BuildConfigurationSetTriggerResult result = doTriggerBuild(
+                configurationId,
+                buildConfigurationRevision,
+                currentUser,
+                buildOptions);
         return selectBuildRecordIdOf(result.getBuildTasks(), configurationId);
     }
 
-    private BuildConfigurationSetTriggerResult doTriggerBuild(final Integer buildConfigurationId,
-                                                              Optional<Integer> buildConfigurationRevision,
-                                                              User currentUser,
-                                                              BuildOptions buildOptions)
-            throws BuildConflictException, CoreException {
+    private BuildConfigurationSetTriggerResult doTriggerBuild(
+            final Integer buildConfigurationId,
+            Optional<Integer> buildConfigurationRevision,
+            User currentUser,
+            BuildOptions buildOptions) throws BuildConflictException, CoreException {
         BuildSetTask buildSetTask;
-        if(buildConfigurationRevision.isPresent()) {
-            final BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(buildConfigurationId, buildConfigurationRevision.get()));
-            Preconditions.checkArgument(buildConfigurationAudited != null, "Can't find Build Configuration with id=" + buildConfigurationId + ", rev=" + buildConfigurationRevision.get());
+        if (buildConfigurationRevision.isPresent()) {
+            final BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
+                    .queryById(new IdRev(buildConfigurationId, buildConfigurationRevision.get()));
+            Preconditions.checkArgument(
+                    buildConfigurationAudited != null,
+                    "Can't find Build Configuration with id=" + buildConfigurationId + ", rev="
+                            + buildConfigurationRevision.get());
 
             buildSetTask = buildCoordinator.build(
-                    hibernateLazyInitializer.initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited),
+                    hibernateLazyInitializer
+                            .initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited),
                     currentUser,
                     buildOptions);
         } else {
             final BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationId);
-            Preconditions.checkArgument(buildConfiguration != null, "Can't find Build Configuration with id=" + buildConfigurationId);
+            Preconditions.checkArgument(
+                    buildConfiguration != null,
+                    "Can't find Build Configuration with id=" + buildConfigurationId);
 
             buildSetTask = buildCoordinator.build(
                     hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(buildConfiguration),
@@ -164,20 +184,23 @@ public class BuildTriggerer {
             final Integer buildConfigurationSetId,
             User currentUser,
             BuildOptions buildOptions,
-            URL callBackUrl)
-            throws CoreException {
+            URL callBackUrl) throws CoreException {
 
-        BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetId, currentUser, buildOptions);
+        BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(
+                buildConfigurationSetId,
+                currentUser,
+                buildOptions);
         return result;
     }
 
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(
             final Integer buildConfigurationSetId,
             User currentUser,
-            BuildOptions buildOptions)
-            throws CoreException {
-        final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
-        Preconditions.checkArgument(buildConfigurationSet != null,
+            BuildOptions buildOptions) throws CoreException {
+        final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository
+                .queryById(buildConfigurationSetId);
+        Preconditions.checkArgument(
+                buildConfigurationSet != null,
                 "Can't find configuration with given id=" + buildConfigurationSetId);
 
         BuildSetTask buildSetTask = buildCoordinator.build(
@@ -192,48 +215,62 @@ public class BuildTriggerer {
             BuildConfigurationSetWithAuditedBCsRest buildConfigurationSetAuditedRest,
             User currentUser,
             BuildOptions buildOptions,
-            URL callBackUrl)
-            throws CoreException, InvalidEntityException {
+            URL callBackUrl) throws CoreException, InvalidEntityException {
 
-        BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(buildConfigurationSetAuditedRest, currentUser, buildOptions);
+        BuildConfigurationSetTriggerResult result = triggerBuildConfigurationSet(
+                buildConfigurationSetAuditedRest,
+                currentUser,
+                buildOptions);
         return result;
     }
 
     public BuildConfigurationSetTriggerResult triggerBuildConfigurationSet(
             BuildConfigurationSetWithAuditedBCsRest buildConfigurationSetAuditedRest,
             User currentUser,
-            BuildOptions buildOptions)
-            throws CoreException, InvalidEntityException {
-        final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetAuditedRest.getId());
-        Preconditions.checkArgument(buildConfigurationSet != null,
+            BuildOptions buildOptions) throws CoreException, InvalidEntityException {
+        final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository
+                .queryById(buildConfigurationSetAuditedRest.getId());
+        Preconditions.checkArgument(
+                buildConfigurationSet != null,
                 "Can't find configuration with given id=" + buildConfigurationSetAuditedRest.getId());
 
         BuildSetTask buildSetTask = buildCoordinator.build(
                 hibernateLazyInitializer.initializeBuildConfigurationSetBeforeTriggeringIt(buildConfigurationSet),
-                loadAuditedsFromDB(buildConfigurationSet, buildConfigurationSetAuditedRest.getBuildConfigurationAuditeds()),
+                loadAuditedsFromDB(
+                        buildConfigurationSet,
+                        buildConfigurationSetAuditedRest.getBuildConfigurationAuditeds()),
                 currentUser,
                 buildOptions);
 
         return BuildConfigurationSetTriggerResult.fromBuildSetTask(buildSetTask);
     }
 
-    private Map<Integer, BuildConfigurationAudited> loadAuditedsFromDB(BuildConfigurationSet buildConfigurationSet,
+    private Map<Integer, BuildConfigurationAudited> loadAuditedsFromDB(
+            BuildConfigurationSet buildConfigurationSet,
             List<BuildConfigurationAuditedRest> buildConfigurationAuditedRests) throws InvalidEntityException {
         Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap = new HashMap<>();
 
-        for (BuildConfigurationAuditedRest  bc : buildConfigurationAuditedRests) {
-            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(bc.getId(), bc.getRev()));
-            Preconditions.checkArgument(buildConfigurationAudited != null, "Can't find Build Configuration with id=" + bc.getId() + ", rev=" + bc.getRev());
-            buildConfigurationAudited = hibernateLazyInitializer.initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited);
+        for (BuildConfigurationAuditedRest bc : buildConfigurationAuditedRests) {
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
+                    .queryById(new IdRev(bc.getId(), bc.getRev()));
+            Preconditions.checkArgument(
+                    buildConfigurationAudited != null,
+                    "Can't find Build Configuration with id=" + bc.getId() + ", rev=" + bc.getRev());
+            buildConfigurationAudited = hibernateLazyInitializer
+                    .initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited);
 
-            if (! buildConfigurationSet.getBuildConfigurations().contains(buildConfigurationAudited.getBuildConfiguration())) {
-                throw new InvalidEntityException("BuildConfigurationSet " + buildConfigurationSet + " doesn't contain this BuildConfigurationAudited entity " + buildConfigurationAudited);
+            if (!buildConfigurationSet.getBuildConfigurations()
+                    .contains(buildConfigurationAudited.getBuildConfiguration())) {
+                throw new InvalidEntityException(
+                        "BuildConfigurationSet " + buildConfigurationSet
+                                + " doesn't contain this BuildConfigurationAudited entity "
+                                + buildConfigurationAudited);
             }
 
             buildConfigurationAuditedsMap.put(buildConfigurationAudited.getId(), buildConfigurationAudited);
-         }
+        }
 
-         return buildConfigurationAuditedsMap;
+        return buildConfigurationAuditedsMap;
     }
 
     public Optional<BuildTaskContext> getMdcMeta(int buildTaskId) {

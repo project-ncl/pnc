@@ -31,10 +31,12 @@ import org.mapstruct.Mapping;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class,
-        uses = {ProjectMapper.class, ProductVersionMapper.class, EnvironmentMapper.class,
-            IDMapper.class, SCMRepositoryMapper.class, MapSetMapper.class})
-public interface BuildConfigurationMapper extends EntityMapper<Integer, BuildConfiguration, org.jboss.pnc.dto.BuildConfiguration, BuildConfigurationRef> {
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { ProjectMapper.class, ProductVersionMapper.class, EnvironmentMapper.class, IDMapper.class,
+                SCMRepositoryMapper.class, MapSetMapper.class })
+public interface BuildConfigurationMapper
+        extends EntityMapper<Integer, BuildConfiguration, org.jboss.pnc.dto.BuildConfiguration, BuildConfigurationRef> {
 
     @Override
     @Mapping(target = "id", expression = "java( java.lang.Integer.valueOf(dtoEntity.getId()) )")
@@ -62,12 +64,11 @@ public interface BuildConfigurationMapper extends EntityMapper<Integer, BuildCon
     @Override
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
-    @BeanMapping(ignoreUnmappedSourceProperties = {"repositoryConfiguration", "project",
-        "productVersion", "buildEnvironment", "buildConfigurationSets", "dependencies",
-        "indirectDependencies", "allDependencies", "dependants", "currentProductMilestone", "active",
-        "genericParameters"})
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "repositoryConfiguration", "project", "productVersion",
+                    "buildEnvironment", "buildConfigurationSets", "dependencies", "indirectDependencies",
+                    "allDependencies", "dependants", "currentProductMilestone", "active", "genericParameters" })
     BuildConfigurationRef toRef(BuildConfiguration dbEntity);
-
 
     @Override
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
@@ -79,8 +80,9 @@ public interface BuildConfigurationMapper extends EntityMapper<Integer, BuildCon
     @Mapping(target = "project", resultType = ProjectRef.class)
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "parameters", source = "genericParameters")
-    @BeanMapping(ignoreUnmappedSourceProperties = {"dependants", "active", "indirectDependencies",
-        "allDependencies", "currentProductMilestone"})
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "dependants", "active", "indirectDependencies", "allDependencies",
+                    "currentProductMilestone" })
     org.jboss.pnc.dto.BuildConfiguration toDTO(BuildConfiguration dbEntity);
 
     public static class IDMapper {

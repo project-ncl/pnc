@@ -69,18 +69,11 @@ class BuildExecutionBase {
     @Inject
     Configuration configuration;
 
-    BuildExecutionStatus[] baseBuildStatuses = {
-            BuildExecutionStatus.NEW,
-            BuildExecutionStatus.BUILD_ENV_SETTING_UP,
-            BuildExecutionStatus.BUILD_ENV_WAITING,
-            BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
-            BuildExecutionStatus.REPO_SETTING_UP,
-            BuildExecutionStatus.BUILD_SETTING_UP,
-            BuildExecutionStatus.BUILD_WAITING,
-            BuildExecutionStatus.BUILD_ENV_DESTROYING,
-            BuildExecutionStatus.BUILD_ENV_DESTROYED,
-            BuildExecutionStatus.FINALIZING_EXECUTION,
-    };
+    BuildExecutionStatus[] baseBuildStatuses = { BuildExecutionStatus.NEW, BuildExecutionStatus.BUILD_ENV_SETTING_UP,
+            BuildExecutionStatus.BUILD_ENV_WAITING, BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
+            BuildExecutionStatus.REPO_SETTING_UP, BuildExecutionStatus.BUILD_SETTING_UP,
+            BuildExecutionStatus.BUILD_WAITING, BuildExecutionStatus.BUILD_ENV_DESTROYING,
+            BuildExecutionStatus.BUILD_ENV_DESTROYED, BuildExecutionStatus.FINALIZING_EXECUTION, };
 
     protected List<BuildExecutionStatus> getBuildExecutionStatusesSuccess() {
         List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();
@@ -93,11 +86,16 @@ class BuildExecutionBase {
         return new ArrayList<>(Arrays.asList(baseBuildStatuses));
     }
 
-    protected void checkBuildStatuses(Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
+    protected void checkBuildStatuses(
+            Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
             List<BuildExecutionStatus> expectedStatuses) {
         expectedStatuses.forEach(expectedStatus -> {
             try {
-                Wait.forCondition(() -> contains(statusChangedEvents, expectedStatus), 1, ChronoUnit.SECONDS, "Did not receive expected status " + expectedStatus.toString());
+                Wait.forCondition(
+                        () -> contains(statusChangedEvents, expectedStatus),
+                        1,
+                        ChronoUnit.SECONDS,
+                        "Did not receive expected status " + expectedStatus.toString());
             } catch (Exception e) {
                 log.error("Error in tests execution.", e);
                 Assert.fail(e.getMessage());
@@ -119,8 +117,7 @@ class BuildExecutionBase {
                 buildDriverFactory,
                 environmentDriverFactory,
                 configuration,
-                null
-        );
+                null);
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, (e) -> {}, executor);
     }
@@ -176,7 +173,9 @@ class BuildExecutionBase {
             Set<BuildExecutionStatusChangedEvent> statusChangedEvents,
             List<BuildExecutionStatus> unexpectedStatuses) {
 
-        List<BuildExecutionStatus> statusReceived = statusChangedEvents.stream().map(e -> e.getNewStatus()).collect(Collectors.toList());
+        List<BuildExecutionStatus> statusReceived = statusChangedEvents.stream()
+                .map(e -> e.getNewStatus())
+                .collect(Collectors.toList());
 
         for (BuildExecutionStatusChangedEvent statusChangedEvent : statusChangedEvents) {
             BuildExecutionStatus status = statusChangedEvent.getNewStatus();

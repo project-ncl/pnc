@@ -27,4 +27,3 @@ import javax.enterprise.context.Dependent;
 public interface UserSpringRepository extends JpaRepository<User, Integer>, JpaSpecificationExecutor<User> {
 
 }
-

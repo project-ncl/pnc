@@ -46,18 +46,15 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Consumes(MediaType.APPLICATION_JSON)
 public interface BuildMaintenanceEndpoint {
 
-    @Operation(summary = "Gets repository manager result for a specific Build Record. It generates "
-            + "a successful result from tracking report even for builds that failed because of a system error "
-            + "with a sealed tracking record.",
-            responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+    @Operation(
+            summary = "Gets repository manager result for a specific Build Record. It generates "
+                    + "a successful result from tracking report even for builds that failed because of a system error "
+                    + "with a sealed tracking record.",
+            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
-                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION)
-    })
+                    @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION) })
     @GET
     @Path("/{id}/repository-manager-result")
-    public Response collectRepoManagerResult(
-            @Parameter(description = "Build record ID.")
-            @PathParam("id") Integer id);
+    public Response collectRepoManagerResult(@Parameter(description = "Build record ID.") @PathParam("id") Integer id);
 
 }

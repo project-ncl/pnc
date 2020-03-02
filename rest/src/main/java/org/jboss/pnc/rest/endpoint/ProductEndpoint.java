@@ -66,7 +66,8 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q) {
@@ -86,8 +87,10 @@ public class ProductEndpoint extends AbstractEndpoint<Product, ProductRest> {
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Integer productId,
-            @NotNull @Valid ProductRest productRest, @Context UriInfo uriInfo) throws RestValidationException {
+    public Response update(
+            @PathParam("id") Integer productId,
+            @NotNull @Valid ProductRest productRest,
+            @Context UriInfo uriInfo) throws RestValidationException {
         return super.update(productId, productRest);
     }
 

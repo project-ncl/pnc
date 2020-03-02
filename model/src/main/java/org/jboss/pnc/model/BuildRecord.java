@@ -69,23 +69,24 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  * <p>
- * This class contains the build result of a project configuration, and contains additional metadata, as the build script, the
- * starting and ending time of a build, the status of the build, the sources url used, the user that triggered the build, plus
- * all the Artifacts that were built and all the Artifacts that were used for the final build. It stores also the buildDriverID
- * that was used to run the build, the system Image where is was run in, and is mapped to a BuildRecordSet, that encapsulates
- * the set of buildRecord that compose a Product
+ * This class contains the build result of a project configuration, and contains additional metadata, as the build
+ * script, the starting and ending time of a build, the status of the build, the sources url used, the user that
+ * triggered the build, plus all the Artifacts that were built and all the Artifacts that were used for the final build.
+ * It stores also the buildDriverID that was used to run the build, the system Image where is was run in, and is mapped
+ * to a BuildRecordSet, that encapsulates the set of buildRecord that compose a Product
  */
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(indexes = {
-        @Index(name = "idx_buildrecord_user", columnList = "user_id"),
-        @Index(name = "idx_buildrecord_buildenvironment", columnList = "buildenvironment_id"),
-        @Index(name = "idx_buildrecord_buildconfigsetrecord", columnList = "buildconfigsetrecord_id"),
-        @Index(name = "idx_buildrecord_buildconfiguration", columnList = "buildconfiguration_id"),
-        @Index(name = "idx_buildrecord_buildconfiguration_aud", columnList= "buildconfiguration_id,buildconfiguration_rev"),
-        @Index(name = "idx_buildrecord_productmilestone", columnList = "productmilestone_id")
-})
+@Table(
+        indexes = { @Index(name = "idx_buildrecord_user", columnList = "user_id"),
+                @Index(name = "idx_buildrecord_buildenvironment", columnList = "buildenvironment_id"),
+                @Index(name = "idx_buildrecord_buildconfigsetrecord", columnList = "buildconfigsetrecord_id"),
+                @Index(name = "idx_buildrecord_buildconfiguration", columnList = "buildconfiguration_id"),
+                @Index(
+                        name = "idx_buildrecord_buildconfiguration_aud",
+                        columnList = "buildconfiguration_id,buildconfiguration_rev"),
+                @Index(name = "idx_buildrecord_productmilestone", columnList = "productmilestone_id") })
 public class BuildRecord implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -5472083609387609797L;
@@ -98,10 +99,9 @@ public class BuildRecord implements GenericEntity<Integer> {
     private Integer id;
 
     /**
-     * Contains the settings that were used at the time the build was executed.
-     * Hibernate envers identifies each audited record using the "id" of the
-     * original db record along with a revision number.  This can be used to
-     * re-run the build with the exact same settings used previously.
+     * Contains the settings that were used at the time the build was executed. Hibernate envers identifies each audited
+     * record using the "id" of the original db record along with a revision number. This can be used to re-run the
+     * build with the exact same settings used previously.
      */
     @Transient
     private BuildConfigurationAudited buildConfigurationAudited;
@@ -114,7 +114,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(name = "buildconfiguration_rev", updatable = false)
     private Integer buildConfigurationRev;
 
-    @Size(max=100)
+    @Size(max = 100)
     @Column(updatable = false)
     private String buildContentId;
 
@@ -126,21 +126,20 @@ public class BuildRecord implements GenericEntity<Integer> {
      * The time which the build was submitted to the system.
      */
     @NotNull
-    @Column(columnDefinition="timestamp with time zone", updatable = false)
+    @Column(columnDefinition = "timestamp with time zone", updatable = false)
     private Date submitTime;
 
     /**
-     * The time when the build execution started.  Note that it's possible for this to
-     * be null in the case of a system error before the build is started.
+     * The time when the build execution started. Note that it's possible for this to be null in the case of a system
+     * error before the build is started.
      */
-    @Column(columnDefinition="timestamp with time zone", updatable = false)
+    @Column(columnDefinition = "timestamp with time zone", updatable = false)
     private Date startTime;
 
     /**
-     * The time when the build completed.  Note that it's possible for this to be null
-     * if the build never finished.
+     * The time when the build completed. Note that it's possible for this to be null if the build never finished.
      */
-    @Column(columnDefinition="timestamp with time zone", updatable = false)
+    @Column(columnDefinition = "timestamp with time zone", updatable = false)
     private Date endTime;
 
     @NotNull
@@ -149,28 +148,27 @@ public class BuildRecord implements GenericEntity<Integer> {
     private User user;
 
     /**
-     * The scm repository URL used for executing the build.  Note, this can be different
-     * than the repository URL contained in the linked build configuration due to pre-build 
-     * processing tasks such as repository mirroring and automated build changes.
+     * The scm repository URL used for executing the build. Note, this can be different than the repository URL
+     * contained in the linked build configuration due to pre-build processing tasks such as repository mirroring and
+     * automated build changes.
      */
-    @Size(max=255)
+    @Size(max = 255)
     @Column(updatable = false)
     private String scmRepoURL;
 
     /**
-     * The scm revision used for build execution.  Note, this can be different than the
-     * revision submitted by the user due to automated build processing steps which modify
-     * the sources before executing the build.  This should always be an unmodifiable commit ID
-     * and should never be a tag or branch.
+     * The scm revision used for build execution. Note, this can be different than the revision submitted by the user
+     * due to automated build processing steps which modify the sources before executing the build. This should always
+     * be an unmodifiable commit ID and should never be a tag or branch.
      */
-    @Size(max=255)
+    @Size(max = 255)
     @Column(updatable = false)
     private String scmRevision;
 
     /**
      * The SCM revision in human readable form such as Git Tag.
      */
-    @Size(max=255)
+    @Size(max = 255)
     @Column(updatable = false)
     private String scmTag;
 
@@ -195,29 +193,26 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Enumerated(EnumType.STRING)
     private BuildStatus status;
 
-    @Size(max=150)
+    @Size(max = 150)
     @Column(updatable = false)
     private String sshCommand;
 
-    @Size(max=64)
+    @Size(max = 64)
     @Column(updatable = false)
     private String sshPassword;
 
     /**
-     * This is an identifier of the built project sources.
-     * In case of Maven, it is GA of the POM being built.
-     * This information comes from Repour/PME and has to be stored in the build record
-     * to be used in the release process.
+     * This is an identifier of the built project sources. In case of Maven, it is GA of the POM being built. This
+     * information comes from Repour/PME and has to be stored in the build record to be used in the release process.
      */
-    @Size(max=255)
+    @Size(max = 255)
     @Column(updatable = false)
     private String executionRootName;
 
     /**
-     * See {@link BuildRecord#executionRootName}.
-     * Contains corresponding version.
+     * See {@link BuildRecord#executionRootName}. Contains corresponding version.
      */
-    @Size(max=100)
+    @Size(max = 100)
     @Column(updatable = false)
     private String executionRootVersion;
 
@@ -234,28 +229,22 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany
-    @JoinTable(name = "build_record_artifact_dependencies_map", joinColumns = {
-            @JoinColumn(
-                name = "build_record_id",
-                referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_buildrecord")
-            )
-        },
-        inverseJoinColumns = {
-            @JoinColumn(
-                name = "dependency_artifact_id",
-                referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_dependency")
-            )
-        },
-        uniqueConstraints = @UniqueConstraint(
-            name = "uk_build_record_id_dependency_artifact_id",
-            columnNames = {"build_record_id", "dependency_artifact_id" }
-        ),
-        indexes = {
-            @Index(name = "idx_build_record_artifact_dependencies_map", columnList = "dependency_artifact_id")
-        }
-    )
+    @JoinTable(
+            name = "build_record_artifact_dependencies_map",
+            joinColumns = { @JoinColumn(
+                    name = "build_record_id",
+                    referencedColumnName = "id",
+                    foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_buildrecord")) },
+            inverseJoinColumns = { @JoinColumn(
+                    name = "dependency_artifact_id",
+                    referencedColumnName = "id",
+                    foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_dependency")) },
+            uniqueConstraints = @UniqueConstraint(
+                    name = "uk_build_record_id_dependency_artifact_id",
+                    columnNames = { "build_record_id", "dependency_artifact_id" }),
+            indexes = { @Index(
+                    name = "idx_build_record_artifact_dependencies_map",
+                    columnList = "dependency_artifact_id") })
     @Column(updatable = false)
     private Set<Artifact> dependencies;
 
@@ -270,25 +259,24 @@ public class BuildRecord implements GenericEntity<Integer> {
     private BuildEnvironment buildEnvironment;
 
     /**
-     * The product milestone for which this build was performed.  Even though the artifacts
-     * from this build may be included in multiple product milestones/releases, there
-     * should only be a single primary product milestone which originally produced this build.
+     * The product milestone for which this build was performed. Even though the artifacts from this build may be
+     * included in multiple product milestones/releases, there should only be a single primary product milestone which
+     * originally produced this build.
      */
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_productMilestone"), updatable = false)
     private ProductMilestone productMilestone;
 
     /**
-     * If this build was executed as part of a set, this will contain the link to the overall results of the set. Otherwise,
-     * this field will be null.
+     * If this build was executed as part of a set, this will contain the link to the overall results of the set.
+     * Otherwise, this field will be null.
      */
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_buildconfigsetrecord"), updatable = false)
     private BuildConfigSetRecord buildConfigSetRecord;
 
     /**
-     * Example attributes
-     * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
+     * Example attributes POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -316,16 +304,16 @@ public class BuildRecord implements GenericEntity<Integer> {
     private Set<BuildRecordPushResult> buildRecordPushResults;
 
     /**
-     * A collection of buildRecords that depends on this at time this is stored.
-     * Dependents are defined based on scheduled state.
+     * A collection of buildRecords that depends on this at time this is stored. Dependents are defined based on
+     * scheduled state.
      */
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String dependentBuildRecordIds;
 
     /**
-     * A collection of buildRecords that this depends on at time this is stored.
-     * Dependencies are defined based on scheduled state.
+     * A collection of buildRecords that this depends on at time this is stored. Dependencies are defined based on
+     * scheduled state.
      */
     @Lob
     @Type(type = "org.hibernate.type.TextType")
@@ -341,8 +329,9 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @PreRemove
     public void preRemove() {
-        if (this.temporaryBuild == false )
-            throw new PersistenceException("The non-temporary builds cannot be deleted! Only deletion of temporary builds is supported");
+        if (this.temporaryBuild == false)
+            throw new PersistenceException(
+                    "The non-temporary builds cannot be deleted! Only deletion of temporary builds is supported");
     }
 
     @PrePersist
@@ -386,8 +375,7 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * The time when the build execution was started.
-     * The build task wait time can be determined by the difference
+     * The time when the build execution was started. The build task wait time can be determined by the difference
      * between the startTime and the submitTime.
      *
      * @return the start time
@@ -401,9 +389,8 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * Get the time when the build finished.
-     * The build duration can be determined by the difference
-     * between the endTime and the startTime.
+     * Get the time when the build finished. The build duration can be determined by the difference between the endTime
+     * and the startTime.
      *
      * @return the end time
      */
@@ -577,8 +564,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     public void setBuildConfigurationId(Integer buildConfigurationId) {
         this.buildConfigurationId = buildConfigurationId;
-        if (buildConfigurationAudited != null
-                && !buildConfigurationId.equals(buildConfigurationAudited.getId())) {
+        if (buildConfigurationAudited != null && !buildConfigurationId.equals(buildConfigurationAudited.getId())) {
             buildConfigurationAudited = null;
             logger.warn("Removing transient BuildConfigurationAudited as its id does not match.");
         }
@@ -586,8 +572,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     public void setBuildConfigurationRev(Integer buildConfigurationRev) {
         this.buildConfigurationRev = buildConfigurationRev;
-        if (buildConfigurationAudited != null
-                && !buildConfigurationRev.equals(buildConfigurationAudited.getRev())) {
+        if (buildConfigurationAudited != null && !buildConfigurationRev.equals(buildConfigurationAudited.getRev())) {
             buildConfigurationAudited = null;
             logger.warn("Removing transient BuildConfigurationAudited as its revision does not match.");
         }
@@ -599,6 +584,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     /**
      * The product milestone for which this build was performed
+     * 
      * @return The product milestone
      */
     public ProductMilestone getProductMilestone() {
@@ -614,7 +600,8 @@ public class BuildRecord implements GenericEntity<Integer> {
     }
 
     /**
-     * @param buildContentId The identifier to use when accessing repository or other content stored via external services.
+     * @param buildContentId The identifier to use when accessing repository or other content stored via external
+     *        services.
      */
     public void setBuildContentId(String buildContentId) {
         this.buildContentId = buildContentId;
@@ -630,15 +617,17 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "BuildRecord [id=" + id + ", buildConfiguration=" + buildConfigurationAudited + ", status=" + status + "]";
+        return "BuildRecord [id=" + id + ", buildConfiguration=" + buildConfigurationAudited + ", status=" + status
+                + "]";
     }
 
     public Set<BuildRecordAttribute> getAttributes() {
         return attributes;
     }
 
-    public Map<String,String> getAttributesMap() {
-        return attributes.stream().collect(Collectors.toMap(BuildRecordAttribute::getKey, BuildRecordAttribute::getValue));
+    public Map<String, String> getAttributesMap() {
+        return attributes.stream()
+                .collect(Collectors.toMap(BuildRecordAttribute::getKey, BuildRecordAttribute::getValue));
     }
 
     public void setAttributes(Set<BuildRecordAttribute> attributes) {
@@ -826,8 +815,7 @@ public class BuildRecord implements GenericEntity<Integer> {
         } else if (buildConfigurationAuditedId != null || buildConfigurationAuditedRev != null) {
             // if audited has same idRev as manually set, then set the audited object
             if (buildConfigurationAuditedId.equals(buildConfigurationAudited.getId())
-                    && buildConfigurationAuditedRev.equals(buildConfigurationAudited.getRev()))
-            {
+                    && buildConfigurationAuditedRev.equals(buildConfigurationAudited.getRev())) {
                 buildRecord.buildConfigurationAudited = buildConfigurationAudited;
             } else {
                 logger.warn("Trying to set BuildConfigurationAudited with invalid idRev.");
@@ -907,10 +895,11 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         /**
          *
-         * @param sanitizeLogs required because PostgreSQL doesn't support storing NULL (\0x00) characters in text fields"
+         * @param sanitizeLogs required because PostgreSQL doesn't support storing NULL (\0x00) characters in text
+         *        fields"
          * @return
          */
-        public BuildRecord build(boolean sanitizeLogs ) {
+        public BuildRecord build(boolean sanitizeLogs) {
             BuildRecord buildRecord = new BuildRecord();
             buildRecord.setId(id);
             buildRecord.setBuildContentId(buildContentId);
@@ -958,12 +947,13 @@ public class BuildRecord implements GenericEntity<Integer> {
             }
             buildRecord.setTemporaryBuild(temporaryBuild);
 
-            if(!temporaryBuild) {
+            if (!temporaryBuild) {
                 buildRecord.setProductMilestone(productMilestone);
             }
 
             if (buildConfigurationAudited != null) {
-                setBuildConfigurationAuditedIfValid(buildRecord,
+                setBuildConfigurationAuditedIfValid(
+                        buildRecord,
                         buildConfigurationAuditedId,
                         buildConfigurationAuditedRev,
                         buildConfigurationAudited);
@@ -978,8 +968,10 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setDependentBuildRecordIds(dependentBuildRecordIds);
             buildRecord.setDependencyBuildRecordIds(dependencyBuildRecordIds);
 
-            Set<BuildRecordAttribute> buildRecordAttributes = attributes.entrySet().stream()
-                    .map(kv -> new BuildRecordAttribute(id, kv.getKey(), kv.getValue())).collect(Collectors.toSet());
+            Set<BuildRecordAttribute> buildRecordAttributes = attributes.entrySet()
+                    .stream()
+                    .map(kv -> new BuildRecordAttribute(id, kv.getKey(), kv.getValue()))
+                    .collect(Collectors.toSet());
             buildRecord.setAttributes(buildRecordAttributes);
 
             return buildRecord;

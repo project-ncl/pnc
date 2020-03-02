@@ -80,7 +80,8 @@ public class DatastoreAdapter {
         this.datastore = datastore;
     }
 
-    public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException {
+    public BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord)
+            throws DatastoreException {
         return datastore.saveBuildConfigSetRecord(buildConfigSetRecord);
     }
 
@@ -91,7 +92,8 @@ public class DatastoreAdapter {
      * @return The latest revision of the given build configuration
      */
     public BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigurationId) {
-        BuildConfigurationAudited buildConfigAudited = datastore.getLatestBuildConfigurationAudited(buildConfigurationId);
+        BuildConfigurationAudited buildConfigAudited = datastore
+                .getLatestBuildConfigurationAudited(buildConfigurationId);
         loadBuildConfigurations(buildConfigAudited);
         return buildConfigAudited;
     }
@@ -102,14 +104,17 @@ public class DatastoreAdapter {
      * @param buildConfigurationId The id of the config to check
      * @return The latest audited version of the build configuration with fetched dependency tree of the related BC
      */
-    public BuildConfigurationAudited getLatestBuildConfigurationAuditedInitializeBCDependencies(Integer buildConfigurationId) {
-        BuildConfigurationAudited buildConfigAudited = datastore.getLatestBuildConfigurationAuditedLoadBCDependencies(buildConfigurationId);
+    public BuildConfigurationAudited getLatestBuildConfigurationAuditedInitializeBCDependencies(
+            Integer buildConfigurationId) {
+        BuildConfigurationAudited buildConfigAudited = datastore
+                .getLatestBuildConfigurationAuditedLoadBCDependencies(buildConfigurationId);
         loadBuildConfigurations(buildConfigAudited);
         return buildConfigAudited;
     }
 
     /**
      * Fetch build configurations of project to be able access it outside transaction
+     * 
      * @param buildConfigAudited build config for which the build configurations are to be fetched
      */
     private void loadBuildConfigurations(BuildConfigurationAudited buildConfigAudited) {
@@ -138,9 +143,13 @@ public class DatastoreAdapter {
                 BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
                 buildRecordBuilder.appendLog(buildDriverResult.getBuildLog());
                 buildDriverResult.getOutputChecksum().ifPresent(sum -> buildRecordBuilder.buildOutputChecksum(sum));
-                buildRecordStatus = buildDriverResult.getBuildStatus(); //TODO buildRecord should use CompletionStatus
+                buildRecordStatus = buildDriverResult.getBuildStatus(); // TODO buildRecord should use CompletionStatus
             } else if (!buildResult.hasFailed()) {
-                return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildDriverResult."));
+                return storeResult(
+                        buildTask,
+                        Optional.of(buildResult),
+                        new BuildCoordinationException(
+                                "Trying to store success build with incomplete result. Missing BuildDriverResult."));
             }
 
             if (buildResult.getEnvironmentDriverResult().isPresent()) {
@@ -160,18 +169,27 @@ public class DatastoreAdapter {
 
                 buildRecordBuilder.appendLog(repositoryManagerResult.getLog());
                 if (repositoryManagerResult.getCompletionStatus().isFailed()) {
-                    buildRecordStatus = FAILED; //TODO, do not mix statuses
+                    buildRecordStatus = FAILED; // TODO, do not mix statuses
                 }
 
                 builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
                 Map<Artifact, String> builtConflicts = datastore.checkForBuiltArtifacts(builtArtifacts);
                 if (builtConflicts.size() > 0) {
-                    return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with invalid repository manager result. Conflicting artifact data found: " + builtConflicts.toString()));
+                    return storeResult(
+                            buildTask,
+                            Optional.of(buildResult),
+                            new BuildCoordinationException(
+                                    "Trying to store success build with invalid repository manager result. Conflicting artifact data found: "
+                                            + builtConflicts.toString()));
                 }
 
                 dependencies = repositoryManagerResult.getDependencies();
             } else if (!buildResult.hasFailed()) {
-                return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
+                return storeResult(
+                        buildTask,
+                        Optional.of(buildResult),
+                        new BuildCoordinationException(
+                                "Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
             }
 
             if (NEW.equals(buildRecordStatus)) {
@@ -193,7 +211,11 @@ public class DatastoreAdapter {
                 buildRecordBuilder.scmRevision(buildExecutionConfig.getScmRevision());
                 buildRecordBuilder.scmTag(buildExecutionConfig.getScmTag());
             } else if (!buildResult.hasFailed()) {
-                return storeResult(buildTask, Optional.of(buildResult), new BuildCoordinationException("Trying to store success build with incomplete result. Missing BuildExecutionConfiguration."));
+                return storeResult(
+                        buildTask,
+                        Optional.of(buildResult),
+                        new BuildCoordinationException(
+                                "Trying to store success build with incomplete result. Missing BuildExecutionConfiguration."));
             }
 
             log.debug("Storing results of buildTask [{}] to datastore.", buildTask.getId());
@@ -207,8 +229,7 @@ public class DatastoreAdapter {
     public BuildRecord storeRecordForNoRebuild(BuildTask buildTask) throws DatastoreException {
         try {
             log.debug("Storing record for non required rebuild of buildTask [{}] to datastore.", buildTask.getId());
-            BuildRecord buildRecord = initBuildRecordBuilder(buildTask)
-                    .status(BuildStatus.NO_REBUILD_REQUIRED)
+            BuildRecord buildRecord = initBuildRecordBuilder(buildTask).status(BuildStatus.NO_REBUILD_REQUIRED)
                     .appendLog("No rebuild was required.")
                     .buildContentId(buildTask.getContentId())
                     .build();
@@ -228,7 +249,8 @@ public class DatastoreAdapter {
      * @param e The error that occurred during the build process
      * @throws DatastoreException on failure to store data
      */
-    public BuildRecord storeResult(BuildTask buildTask, Optional<BuildResult> buildResult, Throwable e) throws DatastoreException {
+    public BuildRecord storeResult(BuildTask buildTask, Optional<BuildResult> buildResult, Throwable e)
+            throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
         buildRecordBuilder.status(SYSTEM_ERROR);
 
@@ -242,36 +264,32 @@ public class DatastoreAdapter {
                 buildRecordBuilder.repourLog(repourResult.getLog());
             });
 
-            result.getBuildDriverResult().ifPresent(
-                buildDriverResult -> {
-                    errorLog.append(buildDriverResult.getBuildLog());
-                    errorLog.append("\n---- End Build Log ----\n");
+            result.getBuildDriverResult().ifPresent(buildDriverResult -> {
+                errorLog.append(buildDriverResult.getBuildLog());
+                errorLog.append("\n---- End Build Log ----\n");
             });
 
-            result.getRepositoryManagerResult().ifPresent(
-                rmr -> {
-                    errorLog.append(rmr.getLog());
-                    errorLog.append("\n---- End Repository Manager Log ----\n");
-                    errorLog.append("\n---- Start Built Artifacts List ----\n");
-                    rmr.getBuiltArtifacts().forEach(b -> errorLog.append(b).append('\n'));
-                    errorLog.append("\n---- End Built Artifacts List ----\n");
+            result.getRepositoryManagerResult().ifPresent(rmr -> {
+                errorLog.append(rmr.getLog());
+                errorLog.append("\n---- End Repository Manager Log ----\n");
+                errorLog.append("\n---- Start Built Artifacts List ----\n");
+                rmr.getBuiltArtifacts().forEach(b -> errorLog.append(b).append('\n'));
+                errorLog.append("\n---- End Built Artifacts List ----\n");
             });
 
-            result.getEnvironmentDriverResult().ifPresent(
-                r -> {
-                    if (r.getLog() != null && !r.getLog().equals(""))
-                        errorLog.append(r.getLog());
-                    errorLog.append("\n---- End Environment Driver Log ----\n");
+            result.getEnvironmentDriverResult().ifPresent(r -> {
+                if (r.getLog() != null && !r.getLog().equals(""))
+                    errorLog.append(r.getLog());
+                errorLog.append("\n---- End Environment Driver Log ----\n");
             });
 
             // store scm information of failed build if present
-            result.getBuildExecutionConfiguration().ifPresent(
-                r -> {
-                    buildRecordBuilder.scmRepoURL(r.getScmRepoURL());
-                    buildRecordBuilder.scmRevision(r.getScmRevision());
-                    buildRecordBuilder.scmTag(r.getScmTag());
+            result.getBuildExecutionConfiguration().ifPresent(r -> {
+                buildRecordBuilder.scmRepoURL(r.getScmRepoURL());
+                buildRecordBuilder.scmRevision(r.getScmRevision());
+                buildRecordBuilder.scmTag(r.getScmTag());
 
-                });
+            });
         });
 
         errorLog.append("Build status: ").append(getBuildStatus(buildResult)).append("\n");
@@ -282,7 +300,7 @@ public class DatastoreAdapter {
         buildRecordBuilder.buildLog(errorLog.toString());
 
         userLog.error("Build status: {}.", getBuildStatus(buildResult));
-        log.debug("Storing ERROR result of buildTask.getBuildConfigurationAudited().getName() to datastore.",  e);
+        log.debug("Storing ERROR result of buildTask.getBuildConfigurationAudited().getName() to datastore.", e);
         return datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
     }
 
@@ -301,15 +319,16 @@ public class DatastoreAdapter {
 
         userLog.warn(buildTask.getStatusDescription());
 
-        log.debug("Storing REJECTED build of {} to datastore. Reason: {}", buildTask.getBuildConfigurationAudited().getName(), buildTask.getStatusDescription());
+        log.debug(
+                "Storing REJECTED build of {} to datastore. Reason: {}",
+                buildTask.getBuildConfigurationAudited().getName(),
+                buildTask.getStatusDescription());
         datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
     }
 
-
     /**
-     * Initialize a new BuildRecord.Builder based on the data contained in the BuildTask.
-     * Note, this must be done inside a transaction because it fetches the BuildRecordSet entities from
-     * the database.
+     * Initialize a new BuildRecord.Builder based on the data contained in the BuildTask. Note, this must be done inside
+     * a transaction because it fetches the BuildRecordSet entities from the database.
      *
      * @return The initialized build record builder
      */
@@ -331,11 +350,15 @@ public class DatastoreAdapter {
         builder.endTime(buildTask.getEndTime());
 
         if (buildTask.getBuildConfigSetRecordId() != null) {
-            BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());
+            BuildConfigSetRecord buildConfigSetRecord = datastore
+                    .getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());
             builder.buildConfigSetRecord(buildConfigSetRecord);
         }
 
-        List<Integer> dependencies = buildTask.getDependencies().stream().map(t -> t.getId()).collect(Collectors.toList());
+        List<Integer> dependencies = buildTask.getDependencies()
+                .stream()
+                .map(t -> t.getId())
+                .collect(Collectors.toList());
         builder.dependencyBuildRecordIds(dependencies.toArray(new Integer[dependencies.size()]));
 
         List<Integer> dependants = buildTask.getDependants().stream().map(t -> t.getId()).collect(Collectors.toList());
@@ -348,15 +371,21 @@ public class DatastoreAdapter {
         return datastore.getNextBuildRecordId();
     }
 
-    public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited,
+    public boolean requiresRebuild(
+            BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
             Set<Integer> processedDependenciesCache) {
-        return datastore.requiresRebuild(buildConfigurationAudited, checkImplicitDependencies, temporaryBuild, processedDependenciesCache);
+        return datastore.requiresRebuild(
+                buildConfigurationAudited,
+                checkImplicitDependencies,
+                temporaryBuild,
+                processedDependenciesCache);
     }
 
     public boolean requiresRebuild(BuildTask task, Set<Integer> processedDependenciesCache) {
-        return datastore.requiresRebuild(task.getBuildConfigurationAudited(),
+        return datastore.requiresRebuild(
+                task.getBuildConfigurationAudited(),
                 task.getBuildOptions().isImplicitDependenciesCheck(),
                 task.getBuildOptions().isTemporaryBuild(),
                 processedDependenciesCache);

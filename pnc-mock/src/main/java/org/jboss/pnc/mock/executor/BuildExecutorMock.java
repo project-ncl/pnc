@@ -53,39 +53,47 @@ public class BuildExecutorMock implements BuildExecutor {
 
     private final Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
 
-    private final ExecutorService executor = MDCExecutors.newFixedThreadPool(4, new NamedThreadFactory("build-executor-mock"));
+    private final ExecutorService executor = MDCExecutors
+            .newFixedThreadPool(4, new NamedThreadFactory("build-executor-mock"));
 
     private final Map<Integer, CompletableFuture<Integer>> runningFutures = new HashMap<>();
-//    @Deprecated //CDI workaround
-//    public BuildExecutorMock() {
-//    }
-//
-//    @Inject
-//    public BuildExecutorMock(RepositoryManagerFactory repositoryManagerFactory, BuildDriverFactory buildDriverFactory, EnvironmentDriverFactory environmentDriverFactory, Configuration configuration) {
-//
-//    }
+    // @Deprecated //CDI workaround
+    // public BuildExecutorMock() {
+    // }
+    //
+    // @Inject
+    // public BuildExecutorMock(RepositoryManagerFactory repositoryManagerFactory, BuildDriverFactory
+    // buildDriverFactory, EnvironmentDriverFactory environmentDriverFactory, Configuration configuration) {
+    //
+    // }
 
     @Override
     public BuildExecutionSession startBuilding(
             BuildExecutionConfiguration buildExecutionConfiguration,
             Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent,
-            String accessToken)
-            throws ExecutorException {
+            String accessToken) throws ExecutorException {
 
-        log.info("Starting mock build execution for buildExecutionConfiguration.id {}", buildExecutionConfiguration.getId());
+        log.info(
+                "Starting mock build execution for buildExecutionConfiguration.id {}",
+                buildExecutionConfiguration.getId());
 
-        BuildExecutionSession buildExecutionSession = new BuildExecutionSessionMock(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent);
+        BuildExecutionSession buildExecutionSession = new BuildExecutionSessionMock(
+                buildExecutionConfiguration,
+                onBuildExecutionStatusChangedEvent);
         buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
 
         runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
         Consumer<BuildExecutionStatus> onCompleteInternal = (buildStatus) -> {
-            log.debug("Removing buildExecutionConfiguration.id [" + buildExecutionConfiguration.getId() + "] form list of running tasks.");
+            log.debug(
+                    "Removing buildExecutionConfiguration.id [" + buildExecutionConfiguration.getId()
+                            + "] form list of running tasks.");
             runningExecutions.remove(buildExecutionConfiguration.getId());
             buildExecutionSession.setStatus(buildStatus);
         };
 
-        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> mockBuild(buildExecutionSession), executor)
-                                .handleAsync((buildPassed, e) -> complete(buildPassed, e, onCompleteInternal), executor);
+        CompletableFuture<Integer> future = CompletableFuture
+                .supplyAsync(() -> mockBuild(buildExecutionSession), executor)
+                .handleAsync((buildPassed, e) -> complete(buildPassed, e, onCompleteInternal), executor);
         runningFutures.put(buildExecutionConfiguration.getId(), future);
         return buildExecutionSession;
     }
@@ -108,12 +116,14 @@ public class BuildExecutorMock implements BuildExecutor {
         log.debug("Building {}.", buildExecutionSession.getId());
         BuildDriverResult driverResult;
         Boolean buildPassed;
-        if (TestProjectConfigurationBuilder.FAIL.equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
+        if (TestProjectConfigurationBuilder.FAIL
+                .equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
             log.debug("Marking build {} as Failed.", buildExecutionSession.getId());
             driverResult = BuildDriverResultMock.mockResult(BuildStatus.FAILED);
             buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR);
             buildPassed = false;
-        } else if (TestProjectConfigurationBuilder.FAIL_WITH_DELAY.equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
+        } else if (TestProjectConfigurationBuilder.FAIL_WITH_DELAY
+                .equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
             log.debug("Waiting for a while for a build {}.", buildExecutionSession.getId());
             try {
                 Thread.sleep(500);
@@ -123,7 +133,8 @@ public class BuildExecutorMock implements BuildExecutor {
             log.debug("Marking build {} as Failed.", buildExecutionSession.getId());
             driverResult = BuildDriverResultMock.mockResult(BuildStatus.FAILED);
             buildPassed = false;
-        } else if (TestProjectConfigurationBuilder.CANCEL.equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
+        } else if (TestProjectConfigurationBuilder.CANCEL
+                .equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
             log.debug("Waiting for a while for a build {} to be canceled.", buildExecutionSession.getId());
             try {
                 Thread.sleep(1000);

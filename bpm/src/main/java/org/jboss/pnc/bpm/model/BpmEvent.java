@@ -23,9 +23,8 @@ import lombok.ToString;
 import java.io.Serializable;
 
 /**
- * Parent class of all BPM notifications.
- * Subclasses are deserialized based on the {@link BpmEvent#eventType}
- * field, which must match one of the BpmEventType-s.
+ * Parent class of all BPM notifications. Subclasses are deserialized based on the {@link BpmEvent#eventType} field,
+ * which must match one of the BpmEventType-s.
  *
  * @author Jakub Senko
  */

@@ -38,19 +38,26 @@ public class ProjectRSQLMapper extends AbstractRSQLMapper<Integer, Project> {
     @Override
     protected SingularAttribute<Project, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            default: return null;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<Project, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return Project_.id;
-            case "name": return Project_.name;
-            case "description": return Project_.description;
-            case "issueTrackerUrl": return Project_.issueTrackerUrl;
-            case "projectUrl": return Project_.projectUrl;
-            default: return null;
+            case "id":
+                return Project_.id;
+            case "name":
+                return Project_.name;
+            case "description":
+                return Project_.description;
+            case "issueTrackerUrl":
+                return Project_.issueTrackerUrl;
+            case "projectUrl":
+                return Project_.projectUrl;
+            default:
+                return null;
         }
     }
 

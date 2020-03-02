@@ -61,10 +61,12 @@ public abstract class BuildDriverBase {
 
     protected abstract RunningBuild createRunningBuild(RunningEnvironment runningEnvironment);
 
-    abstract void complete(BuildExecutionSession buildExecutionSession, RunningEnvironment runningEnvironment,
+    abstract void complete(
+            BuildExecutionSession buildExecutionSession,
+            RunningEnvironment runningEnvironment,
             Consumer<CompletedBuild> onComplete) throws InterruptedException;
 
-    protected void setBuildStatus(String buildScript){
+    protected void setBuildStatus(String buildScript) {
         if (buildScript.equals(TestProjectConfigurationBuilder.FAIL)) {
             buildStatus = BuildStatus.FAILED;
         } else if (buildScript.equals(TestProjectConfigurationBuilder.CANCEL)) {

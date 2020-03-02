@@ -27,6 +27,6 @@ import javax.enterprise.context.Dependent;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Dependent
-public interface BuildRecordPushResultSpringRepository extends JpaRepository<BuildRecordPushResult, Integer>,
-        JpaSpecificationExecutor<BuildRecordPushResult> {
+public interface BuildRecordPushResultSpringRepository
+        extends JpaRepository<BuildRecordPushResult, Integer>, JpaSpecificationExecutor<BuildRecordPushResult> {
 }

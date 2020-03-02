@@ -64,9 +64,7 @@ import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutor
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 4/5/16
- * Time: 9:24 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 4/5/16 Time: 9:24 AM
  */
 @Ignore // Test needs to be rewritten. Now it relies on broken test set-up to end with system error.
 @RunWith(Arquillian.class)
@@ -87,7 +85,6 @@ public class SystemErrorTest extends AbstractTest {
 
     private static BuildConfigurationSetRestClient buildConfigurationSetRestClient;
     private static UserRestClient userRestClient;
-
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -116,10 +113,10 @@ public class SystemErrorTest extends AbstractTest {
 
     @Before
     public void before() {
-        if(buildConfigurationSetRestClient == null) {
+        if (buildConfigurationSetRestClient == null) {
             buildConfigurationSetRestClient = new BuildConfigurationSetRestClient();
         }
-        if(userRestClient == null) {
+        if (userRestClient == null) {
             userRestClient = new UserRestClient();
             userRestClient.createUser("admin");
             userRestClient.createUser("user");
@@ -130,21 +127,24 @@ public class SystemErrorTest extends AbstractTest {
     @InSequence(-1)
     @SuppressWarnings("unchecked")
     public void prepareBaseData() {
-        userRestClient.getLoggedUser(); //initialize user
+        userRestClient.getLoggedUser(); // initialize user
 
         // Need to get a product version and a build configuration from the database
-        authenticatedJsonCall()
-                .port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
+        authenticatedJsonCall().port(getHttpPort())
+                .when()
+                .get(PRODUCT_REST_ENDPOINT)
+                .then()
+                .statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productId = Integer.valueOf(value)));
 
-        Response responseProdVer = authenticatedJsonCall()
-                .port(getHttpPort()).when()
+        Response responseProdVer = authenticatedJsonCall().port(getHttpPort())
+                .when()
                 .get(String.format(PRODUCT_VERSION_REST_ENDPOINT, productId));
         ResponseAssertion.assertThat(responseProdVer).hasStatus(200);
         productVersionId = responseProdVer.body().jsonPath().getInt(FIRST_CONTENT_ID);
 
-        Response responseBuildConf = authenticatedJsonCall()
-                .port(getHttpPort()).when()
+        Response responseBuildConf = authenticatedJsonCall().port(getHttpPort())
+                .when()
                 .get(CONFIGURATION_REST_ENDPOINT);
         ResponseAssertion.assertThat(responseBuildConf).hasStatus(200);
         buildConfId = responseBuildConf.body().jsonPath().getInt(FIRST_CONTENT_ID);
@@ -153,17 +153,24 @@ public class SystemErrorTest extends AbstractTest {
     @Test
     @InSequence(1)
     public void testCreateNewBuildConfSet() throws IOException {
-        logger.info("Creating new Build Config Set. productId: {}, productVersionId: {}, buildConfId: {}.", productId, productVersionId, buildConfId);
+        logger.info(
+                "Creating new Build Config Set. productId: {}, productVersionId: {}, buildConfId: {}.",
+                productId,
+                productVersionId,
+                buildConfId);
         JsonTemplateBuilder buildConfSetTemplate = JsonTemplateBuilder.fromResource("buildConfigurationSet_template");
         buildConfSetTemplate.addValue("_name", BUILD_CONFIGURATION_SET_NAME);
         buildConfSetTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
         buildConfSetTemplate.addValue("_buildRecordIds", String.valueOf(buildConfId));
 
-        Response response = authenticatedJsonCall()
-                .body(buildConfSetTemplate.fillTemplate())
-                .port(getHttpPort()).when().post(BuildConfigurationSetRestClient.BUILD_CONFIGURATION_SET_REST_ENDPOINT);
+        Response response = authenticatedJsonCall().body(buildConfSetTemplate.fillTemplate())
+                .port(getHttpPort())
+                .when()
+                .post(BuildConfigurationSetRestClient.BUILD_CONFIGURATION_SET_REST_ENDPOINT);
 
-        ResponseAssertion.assertThat(response).hasStatus(201).hasLocationMatches(".*\\/pnc-rest\\/rest\\/build-configuration-sets\\/\\d+");
+        ResponseAssertion.assertThat(response)
+                .hasStatus(201)
+                .hasLocationMatches(".*\\/pnc-rest\\/rest\\/build-configuration-sets\\/\\d+");
 
         String location = response.getHeader("Location");
         newBuildConfSetId = Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));
@@ -188,10 +195,7 @@ public class SystemErrorTest extends AbstractTest {
     @Test
     @InSequence(3)
     public void shouldGetBuildData() throws Exception {
-        Wait.forCondition(
-                this::logHasCorrectFailedReason,
-                4, ChronoUnit.SECONDS
-        );
+        Wait.forCondition(this::logHasCorrectFailedReason, 4, ChronoUnit.SECONDS);
     }
 
     private boolean logHasCorrectFailedReason() {
@@ -200,12 +204,16 @@ public class SystemErrorTest extends AbstractTest {
             logger.trace("All build records: " + response.asString());
         }
 
-        if (logger.isTraceEnabled()) { //all build logs should be without errors
-            Response response = given().header("Accept", "text/plain").contentType(ContentType.JSON).get(String.format(BUILD_RECORD_LOG, buildTaskId));
+        if (logger.isTraceEnabled()) { // all build logs should be without errors
+            Response response = given().header("Accept", "text/plain")
+                    .contentType(ContentType.JSON)
+                    .get(String.format(BUILD_RECORD_LOG, buildTaskId));
             logger.trace("Build record log: " + response.asString());
         }
 
-        Response response = given().header("Accept", "application/json").contentType(ContentType.JSON).get("/pnc-rest/rest/build-records/" + buildTaskId);
+        Response response = given().header("Accept", "application/json")
+                .contentType(ContentType.JSON)
+                .get("/pnc-rest/rest/build-records/" + buildTaskId);
         logger.debug("Response string: " + response.asString());
         return response.getStatusCode() == 200
                 && response.getBody().jsonPath().getString("content.status").equals("SYSTEM_ERROR");

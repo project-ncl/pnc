@@ -70,7 +70,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @Context
     private HttpServletRequest httpServletRequest;
 
-    @Deprecated //CDI workaround
+    @Deprecated // CDI workaround
     public BuildRecordEndpoint() {
     }
 
@@ -108,8 +108,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     @Override
     @DELETE
     @Path("/{id}")
-    public Response delete(@PathParam("id") Integer id)
-            throws RepositoryViolationException {
+    public Response delete(@PathParam("id") Integer id) throws RepositoryViolationException {
 
         User currentUser = authProvider.getCurrentUser(httpServletRequest);
         boolean found;
@@ -160,7 +159,8 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
 
     @GET
     @Path("/{id}/built-artifacts")
-    public Response getBuiltArtifacts(@PathParam("id") Integer id,
+    public Response getBuiltArtifacts(
+            @PathParam("id") Integer id,
             @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
@@ -171,7 +171,8 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
 
     @GET
     @Path("/{id}/dependency-artifacts")
-    public Response getDependencyArtifacts(@PathParam("id") Integer id,
+    public Response getDependencyArtifacts(
+            @PathParam("id") Integer id,
             @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
@@ -180,8 +181,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     }
 
     /**
-     * @deprecated
-     * Use /build-configuration/{id}/build-records
+     * @deprecated Use /build-configuration/{id}/build-records
      */
     @Deprecated
     @GET
@@ -198,7 +198,8 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
 
     @GET
     @Path("/projects/{projectId}")
-    public Response getAllForProject(@QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+    public Response getAllForProject(
+            @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @QueryParam("sort") String sortingRsql,
             @PathParam("projectId") Integer projectId,
@@ -208,12 +209,14 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
 
     @GET
     @Path("/build-configuration-or-project-name/{name}")
-    public Response getAllForProject(@QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
+    public Response getAllForProject(
+            @QueryParam("pageIndex") @DefaultValue("0") int pageIndex,
             @DefaultValue("50") @QueryParam("pageSize") int pageSize,
             @QueryParam("sort") String sortingRsql,
             @PathParam("name") String name,
             @QueryParam("q") String rsql) {
-        return fromCollection(buildRecordProvider.getAllForConfigurationOrProjectName(pageIndex, pageSize, sortingRsql, rsql, name));
+        return fromCollection(
+                buildRecordProvider.getAllForConfigurationOrProjectName(pageIndex, pageSize, sortingRsql, rsql, name));
     }
 
     @GET
@@ -224,17 +227,17 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
 
     @POST
     @Path("/{id}/put-attribute")
-    public Response putAttribute(@PathParam("id") Integer id,
-                              @QueryParam("key") String key,
-                              @QueryParam("value") String value) {
+    public Response putAttribute(
+            @PathParam("id") Integer id,
+            @QueryParam("key") String key,
+            @QueryParam("value") String value) {
         buildRecordProvider.putAttribute(id, key, value);
         return Response.ok().build();
     }
 
     @DELETE
     @Path("/{id}/remove-attribute")
-    public Response removeAttribute(@PathParam("id") Integer id,
-                              @QueryParam("key") String key) {
+    public Response removeAttribute(@PathParam("id") Integer id, @QueryParam("key") String key) {
         buildRecordProvider.removeAttribute(id, key);
         return Response.ok().build();
     }
@@ -254,14 +257,13 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @QueryParam("key") String key,
             @QueryParam("value") String value) {
-        return fromCollection(buildRecordProvider.getByAttribute(pageIndex,pageSize,sort,q, key, value));
+        return fromCollection(buildRecordProvider.getByAttribute(pageIndex, pageSize, sort, q, key, value));
     }
 
     /**
-     * @deprecated
-     * Use /builds/{id}
+     * @deprecated Use /builds/{id}
      *
-     * Gets a BuildRecord which is completed or in running state
+     *             Gets a BuildRecord which is completed or in running state
      */
     @Deprecated
     @GET
@@ -270,7 +272,7 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
 
         Response resp = getSpecific(id);
         if (resp.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
-          resp = fromSingleton(buildRecordProvider.getSpecificRunning(id));
+            resp = fromSingleton(buildRecordProvider.getSpecificRunning(id));
         }
         return resp;
     }

@@ -38,18 +38,24 @@ public class ProductVersionRSQLMapper extends AbstractRSQLMapper<Integer, Produc
     @Override
     protected SingularAttribute<ProductVersion, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            case "product": return ProductVersion_.product;
-            case "currentProductMilestone": return ProductVersion_.currentProductMilestone;
-            default: return null;
+            case "product":
+                return ProductVersion_.product;
+            case "currentProductMilestone":
+                return ProductVersion_.currentProductMilestone;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<ProductVersion, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return ProductVersion_.id;
-            case "version": return ProductVersion_.version;
-            default: return null;
+            case "id":
+                return ProductVersion_.id;
+            case "version":
+                return ProductVersion_.version;
+            default:
+                return null;
         }
     }
 

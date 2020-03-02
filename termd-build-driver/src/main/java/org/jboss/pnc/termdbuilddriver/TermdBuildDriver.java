@@ -46,17 +46,17 @@ import java.util.function.Consumer;
 import static org.jboss.pnc.buildagent.api.Status.*;
 
 @ApplicationScoped
-public class TermdBuildDriver implements BuildDriver { //TODO rename class
+public class TermdBuildDriver implements BuildDriver { // TODO rename class
 
     public static final String DRIVER_ID = "termd-build-driver";
-    private static final int MAX_LOG_SIZE = 90 * 1024 * 1024; //90MB
+    private static final int MAX_LOG_SIZE = 90 * 1024 * 1024; // 90MB
 
     private static final Logger logger = LoggerFactory.getLogger(TermdBuildDriver.class);
 
     private final ClientFactory clientFactory;
 
-    //connect to build agent on internal or on public address
-    private boolean useInternalNetwork = true; //TODO configurable
+    // connect to build agent on internal or on public address
+    private boolean useInternalNetwork = true; // TODO configurable
 
     private Integer internalCancelTimeoutMillis;
     private long livenessProbeFrequency;
@@ -83,11 +83,12 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             threadPoolSize = Integer.parseInt(executorThreadPoolSizeStr);
         }
         internalCancelTimeoutMillis = termdBuildDriverModuleConfig.getInternalCancelTimeoutMillis();
-        livenessProbeFrequency  = termdBuildDriverModuleConfig.getLivenessProbeFrequencyMillis();
+        livenessProbeFrequency = termdBuildDriverModuleConfig.getLivenessProbeFrequencyMillis();
         livenessFailTimeout = termdBuildDriverModuleConfig.getLivenessFailTimeoutMillis();
 
         executor = MDCExecutors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("termd-build-driver"));
-        scheduledExecutorService = MDCExecutors.newScheduledThreadPool(1, new NamedThreadFactory("build-driver-liveness-cancel"));
+        scheduledExecutorService = MDCExecutors
+                .newScheduledThreadPool(1, new NamedThreadFactory("build-driver-liveness-cancel"));
     }
 
     @Override
@@ -111,7 +112,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             Consumer<Throwable> onError,
             Optional<Consumer<Status>> onStatusUpdate) throws BuildDriverException {
 
-        logger.info("[{}] Starting build for Build Execution Session {}",
+        logger.info(
+                "[{}] Starting build for Build Execution Session {}",
                 runningEnvironment.getId(),
                 buildExecutionSession.getId());
 
@@ -126,42 +128,37 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
         if (!termdRunningBuild.isCanceled()) {
             String terminalUrl = getBuildAgentUrl(runningEnvironment);
-            final RemoteInvocation remoteInvocation = new RemoteInvocation(
-                    clientFactory,
-                    terminalUrl,
-                    onStatusUpdate);
+            final RemoteInvocation remoteInvocation = new RemoteInvocation(clientFactory, terminalUrl, onStatusUpdate);
 
-            FileTranser fileTransfer = clientFactory.getFileTransfer(
-                    URI.create(getBuildAgentUrl(runningEnvironment)),
-                    MAX_LOG_SIZE);
+            FileTranser fileTransfer = clientFactory
+                    .getFileTransfer(URI.create(getBuildAgentUrl(runningEnvironment)), MAX_LOG_SIZE);
 
-            CompletableFuture<Void> prepareBuildFuture = CompletableFuture
-                    .supplyAsync(() -> {
-                            logger.debug("Uploading build script to build environment ...");
-                            return uploadTask(termdRunningBuild.getRunningEnvironment(), buildScript, fileTransfer);
-                        }, executor)
-                    .thenApplyAsync(scriptPath -> {
-                            logger.debug("Setting the script path ...");
-                            remoteInvocation.setScriptPath(scriptPath);
-                            return null;
-                        }, executor)
-                    .thenRunAsync(() -> {
-                            logger.debug("Invoking remote script ...");
-                            invokeRemoteScript(remoteInvocation);
-                        }, executor);
+            CompletableFuture<Void> prepareBuildFuture = CompletableFuture.supplyAsync(() -> {
+                logger.debug("Uploading build script to build environment ...");
+                return uploadTask(termdRunningBuild.getRunningEnvironment(), buildScript, fileTransfer);
+            }, executor).thenApplyAsync(scriptPath -> {
+                logger.debug("Setting the script path ...");
+                remoteInvocation.setScriptPath(scriptPath);
+                return null;
+            }, executor).thenRunAsync(() -> {
+                logger.debug("Invoking remote script ...");
+                invokeRemoteScript(remoteInvocation);
+            }, executor);
 
-            CompletableFuture<RemoteInvocationCompletion> buildLivenessFuture = prepareBuildFuture.thenComposeAsync(nul -> {
-                            logger.debug("Starting liveness monitor ...");
-                            return monitorBuildLiveness(remoteInvocation);
-                        }, executor);
+            CompletableFuture<RemoteInvocationCompletion> buildLivenessFuture = prepareBuildFuture
+                    .thenComposeAsync(nul -> {
+                        logger.debug("Starting liveness monitor ...");
+                        return monitorBuildLiveness(remoteInvocation);
+                    }, executor);
 
-            CompletableFuture<RemoteInvocationCompletion> buildCompletionFuture = prepareBuildFuture.thenComposeAsync(nul -> {
-                            logger.debug("Waiting fo remote script to complete...");
-                            return remoteInvocation.getCompletionNotifier();
-                        }, executor);
+            CompletableFuture<RemoteInvocationCompletion> buildCompletionFuture = prepareBuildFuture
+                    .thenComposeAsync(nul -> {
+                        logger.debug("Waiting fo remote script to complete...");
+                        return remoteInvocation.getCompletionNotifier();
+                    }, executor);
 
-            CompletableFuture<RemoteInvocationCompletion> optionallyEnableDebug = buildCompletionFuture.thenApplyAsync(
-                    remoteInvocationCompletion -> {
+            CompletableFuture<RemoteInvocationCompletion> optionallyEnableDebug = buildCompletionFuture
+                    .thenApplyAsync(remoteInvocationCompletion -> {
                         Status status = remoteInvocationCompletion.getStatus();
                         if (status.isFinal()) {
                             logger.debug("Script completionNotifier completed with status {}.", status);
@@ -178,16 +175,19 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             buildFuture.handle((result, exception) -> {
                 RemoteInvocationCompletion completion;
                 if (result != null) {
-                    //both of combined futures return the same type
+                    // both of combined futures return the same type
                     RemoteInvocationCompletion remoteInvocationCompletion = (RemoteInvocationCompletion) result;
                     if (remoteInvocationCompletion.getException() != null) {
-                        logger.warn("Completing build execution. Exception: {};", remoteInvocationCompletion.getException());
+                        logger.warn(
+                                "Completing build execution. Exception: {};",
+                                remoteInvocationCompletion.getException());
                     } else {
                         logger.debug("Completing build execution. Status: {};", remoteInvocationCompletion.getStatus());
                     }
                     completion = remoteInvocationCompletion;
-                } else if (exception != null && exception.getCause() instanceof java.util.concurrent.CancellationException){
-                    //canceled in non build operation (completableFuture cancel), non graceful completion
+                } else if (exception != null
+                        && exception.getCause() instanceof java.util.concurrent.CancellationException) {
+                    // canceled in non build operation (completableFuture cancel), non graceful completion
                     logger.warn("Completing build execution. Cancelled;");
                     completion = new RemoteInvocationCompletion(INTERRUPTED, Optional.empty());
                 } else {
@@ -203,12 +203,11 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             });
 
             termdRunningBuild.setCancelHook(() -> {
-                remoteInvocation.cancel(); //try to cancel remote execution
-                ScheduledFuture<?> forceCancel_ = scheduledExecutorService.schedule(
-                    () -> {
-                        logger.debug("Force cancelling build ...");
-                        prepareBuildFuture.cancel(true);
-                    }, internalCancelTimeoutMillis, TimeUnit.MILLISECONDS);
+                remoteInvocation.cancel(); // try to cancel remote execution
+                ScheduledFuture<?> forceCancel_ = scheduledExecutorService.schedule(() -> {
+                    logger.debug("Force cancelling build ...");
+                    prepareBuildFuture.cancel(true);
+                }, internalCancelTimeoutMillis, TimeUnit.MILLISECONDS);
                 remoteInvocation.addOnClose(() -> forceCancel_.cancel(false));
             });
         } else {
@@ -217,8 +216,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         return termdRunningBuild;
     }
 
-    private CompletionStage<RemoteInvocationCompletion> monitorBuildLiveness(
-            RemoteInvocation remoteInvocation) {
+    private CompletionStage<RemoteInvocationCompletion> monitorBuildLiveness(RemoteInvocation remoteInvocation) {
 
         CompletableFuture completableFuture = new CompletableFuture();
 
@@ -232,12 +230,14 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                 Long last = lastSuccess.get();
                 if (System.currentTimeMillis() - last > livenessFailTimeout) {
                     logger.warn("Liveness probe failed.");
-                    RemoteInvocationCompletion completion = new RemoteInvocationCompletion(new BuildDriverException("Build Agent has gone away."));
+                    RemoteInvocationCompletion completion = new RemoteInvocationCompletion(
+                            new BuildDriverException("Build Agent has gone away."));
                     completableFuture.complete(completion);
                 }
             }
         };
-        ScheduledFuture<?> livenessMonitor = scheduledExecutorService.scheduleWithFixedDelay(isAlive, livenessProbeFrequency, livenessProbeFrequency, TimeUnit.MILLISECONDS);
+        ScheduledFuture<?> livenessMonitor = scheduledExecutorService
+                .scheduleWithFixedDelay(isAlive, livenessProbeFrequency, livenessProbeFrequency, TimeUnit.MILLISECONDS);
         remoteInvocation.addOnClose(() -> livenessMonitor.cancel(false));
         return completableFuture;
     }
@@ -249,10 +249,9 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                     command,
                     Paths.get(runningEnvironment.getWorkingDirectory().toAbsolutePath().toString(), "run.sh"));
 
-            String scriptPath =
-                    runningEnvironment.getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
+            String scriptPath = runningEnvironment.getWorkingDirectory().toAbsolutePath().toString() + "/run.sh";
             return scriptPath;
-        } catch (Throwable e ) {
+        } catch (Throwable e) {
             logger.warn("Caught unhandled exception.", e);
             throw new RuntimeException("Unable to upload script.", e);
         }
@@ -273,8 +272,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
 
             String logsDirectory = runningEnvironment.getWorkingDirectory().toString();
 
-            URI logsUri = new URI(getBuildAgentUrl(runningEnvironment)).resolve(
-                    "servlet/download" + logsDirectory + "/console.log");
+            URI logsUri = new URI(getBuildAgentUrl(runningEnvironment))
+                    .resolve("servlet/download" + logsDirectory + "/console.log");
             transfer.downloadFileToStringBuilder(stringBuffer, logsUri);
 
             String prependMessage = "";
@@ -283,7 +282,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             if (!transfer.isFullyDownloaded()) {
                 prependMessage = "----- build log was cut, storing only last part -----\n";
                 if (buildStatus.completedSuccessfully()) {
-                    prependMessage = "----- build has completed successfully but it is marked as failed due to log overflow. Max log size is " + MAX_LOG_SIZE + " -----\n";
+                    prependMessage = "----- build has completed successfully but it is marked as failed due to log overflow. Max log size is "
+                            + MAX_LOG_SIZE + " -----\n";
                     buildStatus = BuildStatus.FAILED;
                 }
             }
@@ -308,7 +308,8 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
         }
     }
 
-    private void complete(TermdRunningBuild termdRunningBuild,
+    private void complete(
+            TermdRunningBuild termdRunningBuild,
             RemoteInvocationCompletion completion,
             FileTranser fileTransfer) {
 
@@ -318,10 +319,13 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             return;
         }
 
-        CompletedBuild completedBuild = collectResults(termdRunningBuild.getRunningEnvironment(), completion, fileTransfer);
+        CompletedBuild completedBuild = collectResults(
+                termdRunningBuild.getRunningEnvironment(),
+                completion,
+                fileTransfer);
         logger.debug("Command result {}", completedBuild);
 
-        if(completedBuild == null ) {
+        if (completedBuild == null) {
             termdRunningBuild.setBuildError(new BuildDriverException("Completed build should not be null."));
         } else {
             termdRunningBuild.setCompletedBuild(completedBuild);
@@ -331,10 +335,14 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
     private String prepareBuildScript(TermdRunningBuild termdRunningBuild, DebugData debugData) {
         StringBuilder buildScript = new StringBuilder();
 
-        String workingDirectory = termdRunningBuild.getRunningEnvironment().getWorkingDirectory().toAbsolutePath().toString();
+        String workingDirectory = termdRunningBuild.getRunningEnvironment()
+                .getWorkingDirectory()
+                .toAbsolutePath()
+                .toString();
         String name = termdRunningBuild.getName();
         if (debugData.isEnableDebugOnFailure()) {
-            String projectDirectory = (workingDirectory.endsWith("/") ? workingDirectory : workingDirectory + "/") + name;
+            String projectDirectory = (workingDirectory.endsWith("/") ? workingDirectory : workingDirectory + "/")
+                    + name;
             String enterProjectDirCommand = "echo 'cd " + projectDirectory + "' >> \"${HOME}/.bashrc\"";
             buildScript.append(enterProjectDirCommand).append("\n");
         }

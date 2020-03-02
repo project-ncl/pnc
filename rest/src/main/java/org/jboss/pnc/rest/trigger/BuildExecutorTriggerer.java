@@ -54,14 +54,15 @@ public class BuildExecutorTriggerer {
 
     private BpmNotifier bpmNotifier;
 
-    //TODO decouple executor
+    // TODO decouple executor
     @Deprecated
     BpmManager bpmManager;
 
     private SystemConfig systemConfig;
 
-    @Deprecated //CDI workaround
-    public BuildExecutorTriggerer() {}
+    @Deprecated // CDI workaround
+    public BuildExecutorTriggerer() {
+    }
 
     @Inject
     public BuildExecutorTriggerer(
@@ -79,23 +80,24 @@ public class BuildExecutorTriggerer {
     public BuildExecutionSession executeBuild(
             BuildExecutionConfiguration buildExecutionConfig,
             String callbackUrl,
-            String accessToken)
-            throws CoreException, ExecutorException {
+            String accessToken) throws CoreException, ExecutorException {
 
         Consumer<BuildExecutionStatusChangedEvent> onExecutionStatusChange = (statusChangedEvent) -> {
             log.debug("Received BuildExecutionStatusChangedEvent: " + statusChangedEvent);
 
             Optional<ProcessProgressUpdate> processProgressUpdate = toProcessProgressUpdate(statusChangedEvent);
             if (processProgressUpdate.isPresent()) {
-                //As there is a plan to split the Executor from Coordinator, the notification should be sent over http
-                //to the endpoint /bpm/tasks/{taskId}/notify
-                //bpmManager should be aupdated to accept notifications identified by buildTaskId
-                Optional<BpmTask> bpmTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager,
-                        statusChangedEvent.getBuildTaskId());
+                // As there is a plan to split the Executor from Coordinator, the notification should be sent over http
+                // to the endpoint /bpm/tasks/{taskId}/notify
+                // bpmManager should be aupdated to accept notifications identified by buildTaskId
+                Optional<BpmTask> bpmTask = BpmBuildTask
+                        .getBpmTaskByBuildTaskId(bpmManager, statusChangedEvent.getBuildTaskId());
                 if (bpmTask.isPresent()) {
                     bpmManager.notify(bpmTask.get().getTaskId(), processProgressUpdate.get());
                 } else {
-                    log.warn("There is no bpmTask for buildTask.id: " + statusChangedEvent.getBuildTaskId() + ". Skipping notification.");
+                    log.warn(
+                            "There is no bpmTask for buildTask.id: " + statusChangedEvent.getBuildTaskId()
+                                    + ". Skipping notification.");
                 }
 
             }
@@ -105,13 +107,14 @@ public class BuildExecutorTriggerer {
                 });
             }
         };
-        BuildExecutionSession buildExecutionSession =
-                buildExecutor.startBuilding(buildExecutionConfig, onExecutionStatusChange, accessToken);
+        BuildExecutionSession buildExecutionSession = buildExecutor
+                .startBuilding(buildExecutionConfig, onExecutionStatusChange, accessToken);
 
         return buildExecutionSession;
     }
 
-    private Optional<ProcessProgressUpdate> toProcessProgressUpdate(BuildExecutionStatusChangedEvent statusChangedEvent) {
+    private Optional<ProcessProgressUpdate> toProcessProgressUpdate(
+            BuildExecutionStatusChangedEvent statusChangedEvent) {
         BuildExecutionStatus status = statusChangedEvent.getNewStatus();
 
         String taskName = null;
@@ -130,7 +133,8 @@ public class BuildExecutorTriggerer {
             case BUILD_WAITING:
                 taskName = "Build";
                 bpmTaskStatus = BPMTaskStatus.STARTED;
-                BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(statusChangedEvent.getBuildTaskId());
+                BuildExecutionSession runningExecution = buildExecutor
+                        .getRunningExecution(statusChangedEvent.getBuildTaskId());
                 Optional<URI> liveLogsUri = runningExecution.getLiveLogsUri();
                 if (liveLogsUri.isPresent()) {
                     wsDetails = liveLogsUri.get().toString();
@@ -172,12 +176,14 @@ public class BuildExecutorTriggerer {
         if (runningExecution != null) {
             BuildExecutionConfiguration buildExecutionConfiguration = runningExecution.getBuildExecutionConfiguration();
             boolean temporaryBuild = buildExecutionConfiguration.isTempBuild();
-            return Optional.of(new BuildTaskContext(
-                    buildExecutionConfiguration.getBuildContentId(),
-                    buildExecutionConfiguration.getUserId(),
-                    temporaryBuild,
-                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild)
-            ));
+            return Optional.of(
+                    new BuildTaskContext(
+                            buildExecutionConfiguration.getBuildContentId(),
+                            buildExecutionConfiguration.getUserId(),
+                            temporaryBuild,
+                            ExpiresDate.getTemporaryBuildExpireDate(
+                                    systemConfig.getTemporaryBuildsLifeSpan(),
+                                    temporaryBuild)));
         } else {
             return Optional.empty();
         }

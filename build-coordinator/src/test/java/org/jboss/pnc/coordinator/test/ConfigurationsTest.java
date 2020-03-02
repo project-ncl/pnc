@@ -50,13 +50,16 @@ public class ConfigurationsTest extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
+        return BuildCoordinatorDeployments.deployment(
+                BuildCoordinatorDeployments.Options.WITH_DATASTORE,
+                BuildCoordinatorDeployments.Options.WITH_BPM);
     }
 
     @Inject
     BuildCoordinator buildCoordinator;
 
-    @Test(expected=PersistenceException.class) //TODO test is not run as expected exception is thrown configurationBuilder.build...
+    @Test(expected = PersistenceException.class) // TODO test is not run as expected exception is thrown
+                                                 // configurationBuilder.build...
     @InSequence(10)
     public void dependsOnItselfConfigurationTestCase() throws Exception {
 
@@ -72,13 +75,16 @@ public class ConfigurationsTest extends ProjectBuilder {
         assertThat(buildTasks).hasSize(1);
         BuildTask buildTask = buildTasks.iterator().next();
         Assert.assertEquals(BuildCoordinationStatus.REJECTED, buildTask.getStatus());
-        Assert.assertTrue("Invalid status description: " + buildTask.getStatusDescription(), buildTask.getStatusDescription().contains("itself"));
+        Assert.assertTrue(
+                "Invalid status description: " + buildTask.getStatusDescription(),
+                buildTask.getStatusDescription().contains("itself"));
     }
 
-    @Test(expected=PersistenceException.class) //TODO test is not run as expected exception is thrown configurationBuilder.build...
+    @Test(expected = PersistenceException.class) // TODO test is not run as expected exception is thrown
+                                                 // configurationBuilder.build...
     @InSequence(15)
     public void cycleConfigurationTestCase() throws Exception {
- 
+
         BuildConfigurationSet buildConfigurationSet = configurationBuilder.buildConfigurationSetWithCycleDependency();
 
         User user = User.Builder.newBuilder().id(1).build();
@@ -87,7 +93,9 @@ public class ConfigurationsTest extends ProjectBuilder {
         buildOptions.setRebuildMode(RebuildMode.FORCE);
         BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user, buildOptions);
         Assert.assertEquals(BuildSetStatus.REJECTED, buildSetTask.getStatus());
-        Assert.assertTrue("Invalid status description: " + buildSetTask.getStatusDescription(), buildSetTask.getStatusDescription().contains("Cycle dependencies found"));
+        Assert.assertTrue(
+                "Invalid status description: " + buildSetTask.getStatusDescription(),
+                buildSetTask.getStatusDescription().contains("Cycle dependencies found"));
     }
 
 }

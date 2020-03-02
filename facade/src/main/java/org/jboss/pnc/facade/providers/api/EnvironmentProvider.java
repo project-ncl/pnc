@@ -19,5 +19,6 @@ package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.Environment;
 
-public interface EnvironmentProvider extends Provider<Integer, org.jboss.pnc.model.BuildEnvironment, Environment, Environment> {
+public interface EnvironmentProvider
+        extends Provider<Integer, org.jboss.pnc.model.BuildEnvironment, Environment, Environment> {
 }

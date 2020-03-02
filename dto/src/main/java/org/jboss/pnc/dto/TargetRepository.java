@@ -43,16 +43,16 @@ public class TargetRepository implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
     protected final Boolean temporaryRepo;
 
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
     protected final String identifier;
 
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
     protected final RepositoryType repositoryType;
 
-    @NotNull(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
     protected final String repositoryPath;
 
     @JsonPOJOBuilder(withPrefix = "")

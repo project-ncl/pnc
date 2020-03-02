@@ -48,15 +48,17 @@ import org.jboss.pnc.constants.Patterns;
 
 /**
  * Represents a product milestone. A single product version, for example "1.0", can be associated with several product
- * milestones such as "1.0.0.build1", "1.0.0.build2", etc. A milestone represents the set of work (build records) that was
- * performed during a development cycle from the previous milestone until the end of the current milestone.
+ * milestones such as "1.0.0.build1", "1.0.0.build2", etc. A milestone represents the set of work (build records) that
+ * was performed during a development cycle from the previous milestone until the end of the current milestone.
  */
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name="uk_productmilestone_vers_prodversid", columnNames = {"version", "productVersion_id"}),
-       indexes = @Index(name = "idx_productmilestone_productversion", columnList = "productversion_id")
-)
+@Table(
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_productmilestone_vers_prodversid",
+                columnNames = { "version", "productVersion_id" }),
+        indexes = @Index(name = "idx_productmilestone_productversion", columnList = "productversion_id"))
 public class ProductMilestone implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
@@ -68,9 +70,11 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-    @Pattern(message="The version should consist of two or three numeric parts and one alphanumeric qualifier each separated by a dot" , regexp=Patterns.PRODUCT_MILESTONE_VERSION)
+    @Pattern(
+            message = "The version should consist of two or three numeric parts and one alphanumeric qualifier each separated by a dot",
+            regexp = Patterns.PRODUCT_MILESTONE_VERSION)
     @NotNull
-    @Size(max=50)
+    @Size(max = 50)
     private String version;
 
     /**
@@ -91,18 +95,18 @@ public class ProductMilestone implements GenericEntity<Integer> {
     /**
      * URL which can be used to download the product distribution
      */
-    @Size(max=255)
+    @Size(max = 255)
     private String downloadUrl;
 
     /**
      * Issue tracker URL containing the set of issues fixed in this milestone
      */
-    @Size(max=255)
+    @Size(max = 255)
     private String issueTrackerUrl;
 
     /**
-     * The product major.minor version associated with this milestone.  After
-     * initial creation of the milestone, the product version should never change.
+     * The product major.minor version associated with this milestone. After initial creation of the milestone, the
+     * product version should never change.
      */
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
@@ -113,45 +117,38 @@ public class ProductMilestone implements GenericEntity<Integer> {
     private ProductRelease productRelease;
 
     /**
-     * The builds which were executed/performed during this milestone build cycle. This includes
-     * failed builds and builds which produced artifacts which were later replaced by subsequent
-     * builds. The intent of this field is to track total effort of a milestone, so for example,
-     * failed builds consumed machine and human resources even though they were not delivered with
-     * the product distribution.
+     * The builds which were executed/performed during this milestone build cycle. This includes failed builds and
+     * builds which produced artifacts which were later replaced by subsequent builds. The intent of this field is to
+     * track total effort of a milestone, so for example, failed builds consumed machine and human resources even though
+     * they were not delivered with the product distribution.
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "productMilestone")
     private Set<BuildRecord> performedBuilds;
 
     /**
-     * Set of artifacts which were distributed in this product milestone.  At a minimum, this includes
-     * the runtime artifacts of a product.  Some additional artifacts could be included if they
-     * are supported  and could include some
+     * Set of artifacts which were distributed in this product milestone. At a minimum, this includes the runtime
+     * artifacts of a product. Some additional artifacts could be included if they are supported and could include some
      *
-     * The BuildRecordSets associated with a milestone should be created when the milestone
-     * is first created, and never updated after that.
+     * The BuildRecordSets associated with a milestone should be created when the milestone is first created, and never
+     * updated after that.
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany()
-    @JoinTable(name = "product_milestone_distributed_artifacts_map", joinColumns = {
-            @JoinColumn(
-                name = "product_milestone_id",
-                referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_product_milestone_distr_art_map_productmilestone")
-            )
-        },
-        inverseJoinColumns = {
-            @JoinColumn(
-                name = "artifact_id",
-                referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_product_milestone_distr_art_map_artifact")
-            )
-        },
-        indexes = {
-            @Index(name = "idx_product_milestone_distr_art_map_artifact", columnList = "artifact_id"),
-            @Index(name = "idx_product_milestone_distr_art_map_productmilestone", columnList = "product_milestone_id")
-        }
-    )
+    @JoinTable(
+            name = "product_milestone_distributed_artifacts_map",
+            joinColumns = { @JoinColumn(
+                    name = "product_milestone_id",
+                    referencedColumnName = "id",
+                    foreignKey = @ForeignKey(name = "fk_product_milestone_distr_art_map_productmilestone")) },
+            inverseJoinColumns = { @JoinColumn(
+                    name = "artifact_id",
+                    referencedColumnName = "id",
+                    foreignKey = @ForeignKey(name = "fk_product_milestone_distr_art_map_artifact")) },
+            indexes = { @Index(name = "idx_product_milestone_distr_art_map_artifact", columnList = "artifact_id"),
+                    @Index(
+                            name = "idx_product_milestone_distr_art_map_productmilestone",
+                            columnList = "product_milestone_id") })
     private Set<Artifact> distributedArtifacts;
 
     public ProductMilestone() {
@@ -270,7 +267,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
     }
 
     /**
-     * If this milestone was promoted to a release, this field will be set. Will be null if the milestone was not relesed.
+     * If this milestone was promoted to a release, this field will be set. Will be null if the milestone was not
+     * relesed.
      *
      * @return the product release or null
      */

@@ -22,8 +22,7 @@ import java.io.Serializable;
 import javax.persistence.Column;
 
 /**
- * This class represents the combination of an ID and table revision.
- * It is used as the primary key in audit tables.
+ * This class represents the combination of an ID and table revision. It is used as the primary key in audit tables.
  *
  */
 public class IdRev implements Serializable {
@@ -37,7 +36,7 @@ public class IdRev implements Serializable {
     public Integer rev;
 
     public IdRev() {
-        
+
     }
 
     public IdRev(Integer id, Integer rev) {

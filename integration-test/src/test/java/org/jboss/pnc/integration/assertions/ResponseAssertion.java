@@ -58,7 +58,9 @@ public class ResponseAssertion extends AbstractAssert<ResponseAssertion, Respons
 
     public ResponseAssertion hasJsonValueNotNullOrEmpty(String jsonKey) {
         String retrievedString = actual.body().jsonPath().getString(jsonKey);
-        assertFalse("Expected json node " + jsonKey + " not to be empty", retrievedString == null || retrievedString.isEmpty());
+        assertFalse(
+                "Expected json node " + jsonKey + " not to be empty",
+                retrievedString == null || retrievedString.isEmpty());
         return this;
     }
 }

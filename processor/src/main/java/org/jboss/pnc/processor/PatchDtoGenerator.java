@@ -52,7 +52,7 @@ import java.util.logging.Logger;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@SupportedAnnotationTypes({"org.jboss.pnc.processor.annotation.PatchSupport"})
+@SupportedAnnotationTypes({ "org.jboss.pnc.processor.annotation.PatchSupport" })
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class PatchDtoGenerator extends AbstractProcessor {
 
@@ -76,7 +76,7 @@ public class PatchDtoGenerator extends AbstractProcessor {
         Set<? extends Element> dtos = roundEnv.getElementsAnnotatedWith(PatchSupport.class);
         for (Element dto : dtos) {
             if (dto.getKind() == ElementKind.CLASS) {
-                generatePatchClass((TypeElement)dto);
+                generatePatchClass((TypeElement) dto);
             }
         }
         return true;
@@ -88,10 +88,10 @@ public class PatchDtoGenerator extends AbstractProcessor {
 
         List<MethodSpec> methods = new ArrayList<>();
 
-        //DTO fields
+        // DTO fields
         List<VariableElement> fields = ElementFilter.fieldsIn(dto.getEnclosedElements());
 
-        //Ref fields
+        // Ref fields
         Element dtoRef = ((DeclaredType) dto.getSuperclass()).asElement();
         fields.addAll(ElementFilter.fieldsIn(dtoRef.getEnclosedElements()));
 
@@ -118,35 +118,31 @@ public class PatchDtoGenerator extends AbstractProcessor {
 
         MethodSpec constructor = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
-                .addStatement("super(org.jboss.pnc.dto." +  dtoName + ".class)")
+                .addStatement("super(org.jboss.pnc.dto." + dtoName + ".class)")
                 .build();
 
         TypeSpec javaPatchClass = TypeSpec.classBuilder(patchBuilderClassName)
                 .addModifiers(Modifier.PUBLIC)
                 .addMethod(constructor)
                 .addMethods(methods)
-                .superclass(ParameterizedTypeName.get(
-                        ClassName.get("org.jboss.pnc.client.patch", "PatchBase"),
-                        ClassName.get("org.jboss.pnc.client.patch", patchBuilderClassName),
-                        TypeName.get(dto.asType())
-                ))
+                .superclass(
+                        ParameterizedTypeName.get(
+                                ClassName.get("org.jboss.pnc.client.patch", "PatchBase"),
+                                ClassName.get("org.jboss.pnc.client.patch", patchBuilderClassName),
+                                TypeName.get(dto.asType())))
                 .build();
 
-        JavaFile.builder("org.jboss.pnc.client.patch", javaPatchClass)
-                .build()
-                .writeTo(processingEnv.getFiler());
+        JavaFile.builder("org.jboss.pnc.client.patch", javaPatchClass).build().writeTo(processingEnv.getFiler());
     }
 
-    private void createAddMethod(
-            List<MethodSpec> methods,
-            VariableElement dtoField,
-            String patchBuilderClassName) {
+    private void createAddMethod(List<MethodSpec> methods, VariableElement dtoField, String patchBuilderClassName) {
 
         String fieldName = dtoField.getSimpleName().toString();
 
         String methodName = "add" + StringUtils.firstCharToUpperCase(fieldName);
         MethodSpec.Builder methodBuilder = beginMethod(methodName);
-        ParameterSpec parameterSpec = ParameterSpec.builder(ParameterizedTypeName.get(dtoField.asType()), "elements").build();
+        ParameterSpec parameterSpec = ParameterSpec.builder(ParameterizedTypeName.get(dtoField.asType()), "elements")
+                .build();
         methodBuilder.addParameter(parameterSpec);
         methodBuilder.returns(ClassName.get("org.jboss.pnc.client.patch", patchBuilderClassName));
         methodBuilder.addStatement("return add(elements, \"" + fieldName + "\")");
@@ -155,16 +151,15 @@ public class PatchDtoGenerator extends AbstractProcessor {
         methods.add(methodSpec);
     }
 
-    private void createRemoveMethod(
-            List<MethodSpec> methods,
-            VariableElement dtoField,
-            String patchBuilderClassName) {
+    private void createRemoveMethod(List<MethodSpec> methods, VariableElement dtoField, String patchBuilderClassName) {
 
         String fieldName = dtoField.getSimpleName().toString();
 
         String methodName = "remove" + StringUtils.firstCharToUpperCase(fieldName);
         MethodSpec.Builder methodBuilder = beginMethod(methodName);
-        ParameterSpec parameterSpec = ParameterSpec.builder(ParameterizedTypeName.get(ClassName.get(Collection.class), TypeName.get(Object.class)), "keys").build();
+        ParameterSpec parameterSpec = ParameterSpec
+                .builder(ParameterizedTypeName.get(ClassName.get(Collection.class), TypeName.get(Object.class)), "keys")
+                .build();
         methodBuilder.addParameter(parameterSpec);
         methodBuilder.returns(ClassName.get("org.jboss.pnc.client.patch", patchBuilderClassName));
         methodBuilder.addStatement("return remove(keys, \"" + fieldName + "\")");
@@ -173,16 +168,14 @@ public class PatchDtoGenerator extends AbstractProcessor {
         methods.add(methodSpec);
     }
 
-    private void createReplaceMethod(
-            List<MethodSpec> methods,
-            VariableElement dtoField,
-            String patchBuilderClassName) {
+    private void createReplaceMethod(List<MethodSpec> methods, VariableElement dtoField, String patchBuilderClassName) {
 
         String fieldName = dtoField.getSimpleName().toString();
 
         String methodName = "replace" + StringUtils.firstCharToUpperCase(fieldName);
         MethodSpec.Builder methodBuilder = beginMethod(methodName);
-        ParameterSpec parameterSpec = ParameterSpec.builder(ParameterizedTypeName.get(dtoField.asType()), "element").build();
+        ParameterSpec parameterSpec = ParameterSpec.builder(ParameterizedTypeName.get(dtoField.asType()), "element")
+                .build();
         methodBuilder.addParameter(parameterSpec);
         methodBuilder.returns(ClassName.get("org.jboss.pnc.client.patch", patchBuilderClassName));
         methodBuilder.addStatement("return replace(element, \"" + fieldName + "\")");
@@ -200,11 +193,10 @@ public class PatchDtoGenerator extends AbstractProcessor {
     }
 
     private MethodSpec completeMethod(MethodSpec.Builder methodBuilder) {
-        return methodBuilder
-            .nextControlFlow("catch ($T e)", Exception.class)
-            .addStatement("throw new PatchBuilderException(\"Error creating patch.\", e)")
-            .endControlFlow()
-            .build();
+        return methodBuilder.nextControlFlow("catch ($T e)", Exception.class)
+                .addStatement("throw new PatchBuilderException(\"Error creating patch.\", e)")
+                .endControlFlow()
+                .build();
     }
 
     public static TypeName[] getGenericTypeNames(VariableElement field) {
@@ -212,7 +204,7 @@ public class PatchDtoGenerator extends AbstractProcessor {
         List<? extends TypeMirror> typeArguments = ((DeclaredType) fieldType).getTypeArguments();
         TypeName[] typeNames = new TypeName[typeArguments.size()];
         for (int i = 0; i < typeArguments.size(); i++) {
-            typeNames[i] =  TypeName.get(typeArguments.get(i));
+            typeNames[i] = TypeName.get(typeArguments.get(i));
         }
         return typeNames;
     }

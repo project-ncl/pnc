@@ -24,7 +24,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import javax.enterprise.context.Dependent;
 
 @Dependent
-public interface ProductMilestoneSpringRepository extends JpaRepository<ProductMilestone, Integer>,
-        JpaSpecificationExecutor<ProductMilestone> {
+public interface ProductMilestoneSpringRepository
+        extends JpaRepository<ProductMilestone, Integer>, JpaSpecificationExecutor<ProductMilestone> {
 
 }

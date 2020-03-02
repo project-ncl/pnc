@@ -35,7 +35,7 @@ public class DefaultSortInfoProducer implements SortInfoProducer {
 
     @Override
     public SortInfo getSortInfo(String rsql) {
-        if(rsql == null || rsql.isEmpty()) {
+        if (rsql == null || rsql.isEmpty()) {
             return new EmptySortInfo();
         }
         return new RSQLSortInfo(rsql);

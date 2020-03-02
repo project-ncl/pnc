@@ -34,11 +34,11 @@ public class BuildRecordPushResultPredicates {
             return cb.equal(root.get(BuildRecordPushResult_.buildRecord).get(BuildRecord_.id), buildRecordId);
         };
     }
-    
+
     public static Predicate<BuildRecordPushResult> successForBuildRecord(Integer buildRecordId) {
-        return (root, query, cb) -> cb.and(cb.equal(root.get(BuildRecordPushResult_.buildRecord).get(BuildRecord_.id), buildRecordId),
-            cb.equal(root.get(BuildRecordPushResult_.status), BuildPushStatus.SUCCESS )
-        );
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get(BuildRecordPushResult_.buildRecord).get(BuildRecord_.id), buildRecordId),
+                cb.equal(root.get(BuildRecordPushResult_.status), BuildPushStatus.SUCCESS));
     }
 
 }

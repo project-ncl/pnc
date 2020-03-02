@@ -52,11 +52,14 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @Pattern(message="Version doesn't match the required pattern " + PRODUCT_STREAM_VERSION , regexp=PRODUCT_STREAM_VERSION, groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @Pattern(
+            message = "Version doesn't match the required pattern " + PRODUCT_STREAM_VERSION,
+            regexp = PRODUCT_STREAM_VERSION,
+            groups = { WhenCreatingNew.class, WhenUpdating.class })
     private String version;
 
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private Integer productId;
 
     private String productName;
@@ -70,11 +73,11 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     List<BuildConfigurationSetRest> buildConfigurationSets = new ArrayList<BuildConfigurationSetRest>();
 
     List<BuildConfigurationRest> buildConfigurations = new ArrayList<BuildConfigurationRest>();
-    
+
     @Getter
     @Setter
     private Map<String, String> attributes = new HashMap<>();
-    
+
     public ProductVersionRest() {
     }
 
@@ -84,7 +87,8 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         this.productId = productVersion.getProduct().getId();
         this.productName = productVersion.getProduct().getName();
         this.currentProductMilestoneId = productVersion.getCurrentProductMilestone() != null
-                ? productVersion.getCurrentProductMilestone().getId() : null;
+                ? productVersion.getCurrentProductMilestone().getId()
+                : null;
 
         for (ProductMilestone milestone : productVersion.getProductMilestones()) {
             productMilestones.add(new ProductMilestoneRest(milestone));
@@ -100,7 +104,7 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
         for (BuildConfigurationSet buildConfigurationSet : productVersion.getBuildConfigurationSets()) {
             buildConfigurationSets.add(new BuildConfigurationSetRest(buildConfigurationSet));
         }
-        
+
         this.attributes = productVersion.getAttributes();
     }
 
@@ -177,7 +181,7 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
     public void setCurrentProductMilestoneId(Integer currentProductMilestoneId) {
         this.currentProductMilestoneId = currentProductMilestoneId;
     }
-    
+
     public ProductVersion.Builder toDBEntityBuilder() {
         ProductVersion.Builder builder = ProductVersion.Builder.newBuilder()
                 .id(id)
@@ -185,15 +189,18 @@ public class ProductVersionRest implements GenericRestEntity<Integer> {
                 .attributes(attributes);
 
         performIfNotNull(productId, () -> builder.product(Product.Builder.newBuilder().id(productId).build()));
-        performIfNotNull(currentProductMilestoneId, () -> builder
-                .currentProductMilestone(ProductMilestone.Builder.newBuilder().id(currentProductMilestoneId).build()));
+        performIfNotNull(
+                currentProductMilestoneId,
+                () -> builder.currentProductMilestone(
+                        ProductMilestone.Builder.newBuilder().id(currentProductMilestoneId).build()));
         nullableStreamOf(this.getProductMilestones()).forEach(milestone -> {
             builder.productMilestone(ProductMilestone.Builder.newBuilder().id(milestone.getId()).build());
         });
-        nullableStreamOf(this.getBuildConfigurationSets()).forEach(set ->
-                builder.buildConfigurationSet(BuildConfigurationSet.Builder.newBuilder().id(set.getId()).build()));
-        
+        nullableStreamOf(this.getBuildConfigurationSets()).forEach(
+                set -> builder
+                        .buildConfigurationSet(BuildConfigurationSet.Builder.newBuilder().id(set.getId()).build()));
+
         return builder;
     }
-    
+
 }

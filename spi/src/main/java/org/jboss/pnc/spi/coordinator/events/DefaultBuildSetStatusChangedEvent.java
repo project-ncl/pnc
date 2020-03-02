@@ -96,7 +96,7 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
 
     @Override
     public String toString() {
-        return "DefaultBuildSetStatusChangedEvent{" + "oldStatus=" + oldStatus + ", newStatus="
-                + newStatus + ", groupBuild=" + groupBuild + '}';
+        return "DefaultBuildSetStatusChangedEvent{" + "oldStatus=" + oldStatus + ", newStatus=" + newStatus
+                + ", groupBuild=" + groupBuild + '}';
     }
 }

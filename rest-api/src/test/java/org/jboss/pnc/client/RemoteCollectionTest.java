@@ -43,9 +43,7 @@ public class RemoteCollectionTest {
             collection.add(new Entity(index.getAndIncrement()));
             return new Page<>(parameters.getPageIndex(), parameters.getPageSize(), 3, 6, collection);
         };
-        RemoteCollectionConfig config = RemoteCollectionConfig.builder()
-                .pageSize(2)
-                .build();
+        RemoteCollectionConfig config = RemoteCollectionConfig.builder().pageSize(2).build();
         RemoteCollection<Entity> collection = new DefaultRemoteCollection<>(endpoint, config);
         Iterator<Entity> iterator = collection.iterator();
         List<Entity> collected = new ArrayList<>();

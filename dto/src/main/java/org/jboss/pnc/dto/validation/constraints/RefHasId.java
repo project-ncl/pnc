@@ -30,9 +30,10 @@ import java.lang.annotation.Target;
 
 /**
  * Validates that the refernced {@link org.jboss.pnc.dto.model.DTOEntity} has nun-null ID.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Target({ElementType.FIELD})
+@Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(validatedBy = RefHasIdValidator.class)
@@ -45,8 +46,7 @@ public @interface RefHasId {
     Class<? extends Payload>[] payload() default {};
 
     /**
-     * If the reference is optional (can be null). When the reference is not null, it must have non
-     * null ID.
+     * If the reference is optional (can be null). When the reference is not null, it must have non null ID.
      */
     boolean optional() default false;
 }

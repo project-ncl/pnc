@@ -94,10 +94,7 @@ public class ProductVersionEndpointTest {
     @Test
     public void testCreateNew() throws ClientException {
         // given
-        ProductVersion productVersion = ProductVersion.builder()
-                .product(product)
-                .version("42.0")
-                .build();
+        ProductVersion productVersion = ProductVersion.builder().product(product).version("42.0").build();
 
         // when
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
@@ -140,7 +137,7 @@ public class ProductVersionEndpointTest {
         // when
         client.update(productVersionsId2, toUpdate);
 
-        //then
+        // then
         ProductVersion retrieved = client.getSpecific(dto.getId());
 
         assertThat(retrieved).isEqualTo(toUpdate);
@@ -154,9 +151,7 @@ public class ProductVersionEndpointTest {
 
         RemoteCollection<BuildConfiguration> all = client.getBuildConfigurations(productVersionsId);
 
-        assertThat(all)
-                .hasSize(2)
-                .allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
+        assertThat(all).hasSize(2).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
     }
 
     @Test
@@ -165,9 +160,7 @@ public class ProductVersionEndpointTest {
 
         RemoteCollection<GroupConfiguration> all = client.getGroupConfigurations(productVersionsId);
 
-        assertThat(all)
-                .hasSize(2)
-                .allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
+        assertThat(all).hasSize(2).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
     }
 
     @Test
@@ -176,9 +169,7 @@ public class ProductVersionEndpointTest {
 
         RemoteCollection<ProductMilestone> all = client.getMilestones(productVersionsId);
 
-        assertThat(all)
-                .hasSize(2)
-                .allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
+        assertThat(all).hasSize(2).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
     }
 
     @Test
@@ -187,9 +178,7 @@ public class ProductVersionEndpointTest {
 
         RemoteCollection<ProductRelease> all = client.getReleases(productVersionsId);
 
-        assertThat(all)
-                .hasSize(1)
-                .allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
+        assertThat(all).hasSize(1).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
     }
 
     @Test
@@ -204,18 +193,14 @@ public class ProductVersionEndpointTest {
         // whenthen
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
 
-        assertThatThrownBy(() -> client.createNew(productVersion))
-                .isInstanceOf(ClientException.class);
+        assertThatThrownBy(() -> client.createNew(productVersion)).isInstanceOf(ClientException.class);
     }
 
     @Test
     public void shouldGenerateBrewTagWhenCreatingProductVersion() throws Exception {
         // given
         final String version = "42.3";
-        ProductVersion productVersion = ProductVersion.builder()
-                .product(product)
-                .version(version)
-                .build();
+        ProductVersion productVersion = ProductVersion.builder().product(product).version(version).build();
 
         // when
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
@@ -223,20 +208,19 @@ public class ProductVersionEndpointTest {
 
         // then
         assertThat(created.getAttributes()).containsKey(Attributes.BREW_TAG_PREFIX);
-        assertThat(created.getAttributes().get(Attributes.BREW_TAG_PREFIX)).isEqualTo(product.getAbbreviation().toLowerCase() + "-"+ version + "-pnc");
+        assertThat(created.getAttributes().get(Attributes.BREW_TAG_PREFIX))
+                .isEqualTo(product.getAbbreviation().toLowerCase() + "-" + version + "-pnc");
     }
 
     @Test
     public void shouldUpdateGroupConfigs() throws ClientException {
-        //given
-        GroupConfiguration gc = GroupConfiguration.builder()
-                .name("New GC")
-                .build();
+        // given
+        GroupConfiguration gc = GroupConfiguration.builder().name("New GC").build();
         GroupConfigurationClient gcc = new GroupConfigurationClient(RestClientConfiguration.asUser());
         GroupConfiguration gcToAdd = gcc.createNew(gc);
         Map<String, GroupConfigurationRef> groupConfis = new HashMap<>();
 
-        //when
+        // when
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
         ProductVersion productVersion = client.getSpecific(productVersionsId2);
 
@@ -247,17 +231,20 @@ public class ProductVersionEndpointTest {
         client.update(productVersion.getId(), toUpdate);
         ProductVersion retrieved = client.getSpecific(productVersion.getId());
 
-        //then
-        assertThat(retrieved.getGroupConfigs())
-                .hasSameSizeAs(groupConfis)
-                .containsKey(gcToAdd.getId());
+        // then
+        assertThat(retrieved.getGroupConfigs()).hasSameSizeAs(groupConfis).containsKey(gcToAdd.getId());
     }
 
     @Test
-    public void shouldNotUpdateGroupConfigsWhenOneIsAlreadyAsssociatedWithAnotherProductVersion() throws ClientException {
+    public void shouldNotUpdateGroupConfigsWhenOneIsAlreadyAsssociatedWithAnotherProductVersion()
+            throws ClientException {
         // given
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
-        GroupConfigurationRef alreadyAssignedGC = client.getSpecific(productVersionsId).getGroupConfigs().values().iterator().next();
+        GroupConfigurationRef alreadyAssignedGC = client.getSpecific(productVersionsId)
+                .getGroupConfigs()
+                .values()
+                .iterator()
+                .next();
         Map<String, GroupConfigurationRef> groupConfis = new HashMap<>();
         assertThat(alreadyAssignedGC).isNotNull();
 
@@ -270,14 +257,16 @@ public class ProductVersionEndpointTest {
         ProductVersion toUpdate = productVersion.toBuilder().groupConfigs(groupConfis).build();
 
         // then
-        assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate))
-                .isInstanceOf(ClientException.class);
+        assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate)).isInstanceOf(ClientException.class);
     }
 
     @Test
     public void shouldNotUpdateGroupConfigsWithNonExistantGroupConfig() throws ClientException {
         // given
-        GroupConfigurationRef notExistingGC = GroupConfigurationRef.refBuilder().id("9999").name("i-dont-exist").build();
+        GroupConfigurationRef notExistingGC = GroupConfigurationRef.refBuilder()
+                .id("9999")
+                .name("i-dont-exist")
+                .build();
         Map<String, GroupConfigurationRef> groupConfis = new HashMap<>();
 
         // when
@@ -290,8 +279,7 @@ public class ProductVersionEndpointTest {
         ProductVersion toUpdate = productVersion.toBuilder().groupConfigs(groupConfis).build();
 
         // then
-        assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate))
-                .isInstanceOf(ClientException.class);
+        assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate)).isInstanceOf(ClientException.class);
     }
 
     @Test
@@ -306,12 +294,11 @@ public class ProductVersionEndpointTest {
         ProductMilestone milestone = pmc.getSpecific(milestoneId);
         pmc.closeMilestone(milestoneId, milestone);
 
-        //when
+        // when
         ProductVersion toUpdate = productVersion.toBuilder().version("2.0").build();
 
         // then
-        assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate))
-                .isInstanceOf(ClientException.class);
+        assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate)).isInstanceOf(ClientException.class);
     }
 
 }

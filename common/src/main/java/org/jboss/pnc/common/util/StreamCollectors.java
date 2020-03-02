@@ -28,46 +28,38 @@ import java.util.stream.Collector;
 public class StreamCollectors {
 
     /**
-     * Collect element(s) into a list and then return the single element of this list.
-     * If there is not exactly one element, throw an exception.
+     * Collect element(s) into a list and then return the single element of this list. If there is not exactly one
+     * element, throw an exception.
+     * 
      * @param <T> module config
      * @return
-    */
+     */
     public static <T> Collector<T, List<T>, T> singletonCollector() {
-        return Collector.of(
-                ArrayList::new,
-                List::add,
-                (left, right) -> {
-                    left.addAll(right);
-                    return left;
-                },
-                list -> {
-                    if (list.size() == 0) {
-                        return null;
-                    }
-                    if (list.size() > 1) {
-                        throw new IllegalStateException();
-                    }
-                    return list.get(0);
-                }
-        );
+        return Collector.of(ArrayList::new, List::add, (left, right) -> {
+            left.addAll(right);
+            return left;
+        }, list -> {
+            if (list.size() == 0) {
+                return null;
+            }
+            if (list.size() > 1) {
+                throw new IllegalStateException();
+            }
+            return list.get(0);
+        });
     }
 
     /**
-     * Flattening collector.
-     * Look at StreamCollectorsTest for example usage
+     * Flattening collector. Look at StreamCollectorsTest for example usage
      *
      *
      * @param <T> type of elements in the collections
      * @return flattened list of elements from all of the collections
      */
     public static <T> Collector<Collection<T>, List<T>, List<T>> toFlatList() {
-        return Collector.of(
-                ArrayList::new,
-                List::addAll,
-                (left, right) -> {
-                    left.addAll(right);
-                    return left;
-                });
+        return Collector.of(ArrayList::new, List::addAll, (left, right) -> {
+            left.addAll(right);
+            return left;
+        });
     }
 }

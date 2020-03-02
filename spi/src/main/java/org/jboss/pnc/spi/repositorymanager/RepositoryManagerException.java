@@ -20,9 +20,7 @@ package org.jboss.pnc.spi.repositorymanager;
 import java.text.MessageFormat;
 import java.util.IllegalFormatException;
 
-public class RepositoryManagerException
-    extends Exception
-{
+public class RepositoryManagerException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
@@ -30,39 +28,28 @@ public class RepositoryManagerException
 
     private transient String formatted;
 
-    public RepositoryManagerException( final String format, final Object... params )
-    {
-        super( format );
+    public RepositoryManagerException(final String format, final Object... params) {
+        super(format);
         this.params = params;
     }
 
-    public RepositoryManagerException( final String format, final Throwable error, final Object... params )
-    {
-        super( format, error );
+    public RepositoryManagerException(final String format, final Throwable error, final Object... params) {
+        super(format, error);
         this.params = params;
     }
 
     @Override
-    public String getMessage()
-    {
-        if ( formatted == null )
-        {
+    public String getMessage() {
+        if (formatted == null) {
             formatted = super.getMessage();
 
-            if ( params != null )
-            {
-                try
-                {
-                    formatted = String.format( formatted.replaceAll( "\\{\\}", "%s" ), params );
-                }
-                catch ( final IllegalFormatException ife )
-                {
-                    try
-                    {
-                        formatted = MessageFormat.format( formatted, params );
-                    }
-                    catch ( final IllegalArgumentException iae )
-                    {
+            if (params != null) {
+                try {
+                    formatted = String.format(formatted.replaceAll("\\{\\}", "%s"), params);
+                } catch (final IllegalFormatException ife) {
+                    try {
+                        formatted = MessageFormat.format(formatted, params);
+                    } catch (final IllegalArgumentException iae) {
                     }
                 }
             }
@@ -71,13 +58,11 @@ public class RepositoryManagerException
         return formatted;
     }
 
-    private Object writeReplace()
-    {
+    private Object writeReplace() {
         final Object[] newParams = new Object[params.length];
         int i = 0;
-        for ( final Object object : params )
-        {
-            newParams[i] = String.valueOf( object );
+        for (final Object object : params) {
+            newParams[i] = String.valueOf(object);
             i++;
         }
 

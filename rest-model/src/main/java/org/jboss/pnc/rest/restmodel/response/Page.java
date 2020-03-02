@@ -32,16 +32,12 @@ import java.util.Collections;
 @XmlRootElement
 public class Page<T> {
 
-    
     private Integer pageIndex;
 
-    
     private Integer pageSize;
 
-    
     private Integer totalPages;
 
-    
     private Collection<T> content;
 
     public Page() {
@@ -88,11 +84,7 @@ public class Page<T> {
 
     @Override
     public String toString() {
-        return "Page{" +
-                "pageIndex=" + pageIndex +
-                ", pageSize=" + pageSize +
-                ", totalPages=" + totalPages +
-                ", content=" + content +
-                '}';
+        return "Page{" + "pageIndex=" + pageIndex + ", pageSize=" + pageSize + ", totalPages=" + totalPages
+                + ", content=" + content + '}';
     }
 }

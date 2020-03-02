@@ -27,7 +27,8 @@ import javax.enterprise.event.Observes;
  */
 public class TestBuildStatusUpdates {
     public void collectEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
-        Assert.assertNotEquals("Status update event should not be fired if there is no status updates. " + buildStatusChangedEvent,
+        Assert.assertNotEquals(
+                "Status update event should not be fired if there is no status updates. " + buildStatusChangedEvent,
                 buildStatusChangedEvent.getNewStatus(),
                 buildStatusChangedEvent.getOldStatus());
     }

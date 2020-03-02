@@ -31,7 +31,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(indexes = {@Index(name="idx_key", columnList = "key")})
+@Table(indexes = { @Index(name = "idx_key", columnList = "key") })
 public class GenericSetting implements GenericEntity<Integer> {
 
     public static final String SEQUENCE_NAME = "generic_setting_id_seq";
@@ -42,7 +42,7 @@ public class GenericSetting implements GenericEntity<Integer> {
     private Integer id;
 
     @NotNull
-    @Column(unique=true)
+    @Column(unique = true)
     private String key;
 
     @NotNull
@@ -76,4 +76,3 @@ public class GenericSetting implements GenericEntity<Integer> {
         this.value = value;
     }
 }
-

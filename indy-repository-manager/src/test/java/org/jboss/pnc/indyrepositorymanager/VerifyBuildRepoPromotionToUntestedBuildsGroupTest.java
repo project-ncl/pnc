@@ -52,7 +52,12 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
 
         // create a dummy build execution, and a repo session based on it
         BuildExecution execution = new TestBuildExecution(buildId);
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession session = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
 
         StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
 
@@ -60,7 +65,8 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
         indy.module(IndyFoloContentClientModule.class)
                 .store(buildId, hostedKey, path, new ByteArrayInputStream(content.getBytes()));
 
-        // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the pnc-builds group.
+        // now, extract the build artifacts. This will trigger promotion of the build hosted repo to the pnc-builds
+        // group.
         RepositoryManagerResult result = session.extractBuildArtifacts(true);
         assertThat(result.getCompletionStatus(), equalTo(CompletionStatus.SUCCESS));
 

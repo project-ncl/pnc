@@ -18,9 +18,7 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/22/16
- * Time: 2:21 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 2:21 PM
  */
 public interface SequenceHandlerRepository {
     String getEntityManagerFactoryProperty(String propertyName);

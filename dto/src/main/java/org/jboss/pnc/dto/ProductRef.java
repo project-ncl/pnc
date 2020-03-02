@@ -47,21 +47,21 @@ public class ProductRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String name;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String description;
 
-    @PatchSupport({REPLACE})
-    @NotNull(groups =  { WhenCreatingNew.class, WhenUpdating.class })
+    @PatchSupport({ REPLACE })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     @Pattern(regexp = Patterns.PRODUCT_ABBREVIATION, groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String abbreviation;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String productCode;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String pgmSystemName;
 
     @JsonPOJOBuilder(withPrefix = "")

@@ -29,9 +29,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/15/16
- * Time: 1:13 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/15/16 Time: 1:13 PM
  */
 public class CollectionUtils {
 
@@ -42,27 +40,21 @@ public class CollectionUtils {
     public static <T> boolean hasCycle(Collection<T> vertices, Function<T, Collection<T>> neighborExtractor) {
         Map<T, Collection<T>> parents = vertices.stream().collect(toMap(identity(), v -> new ArrayList<T>()));
         vertices.forEach(
-                v -> nullSafeCollection(neighborExtractor.apply(v))
-                        .forEach(child -> parents.get(child).add(v))
-        );
+                v -> nullSafeCollection(neighborExtractor.apply(v)).forEach(child -> parents.get(child).add(v)));
 
-        Set<T> roots = vertices.stream()
-                .filter(v -> parents.get(v).isEmpty())
-                .collect(Collectors.toSet());
+        Set<T> roots = vertices.stream().filter(v -> parents.get(v).isEmpty()).collect(Collectors.toSet());
 
         while (!roots.isEmpty()) {
             T root = roots.iterator().next();
             roots.remove(root);
             parents.remove(root);
 
-            nullSafeCollection(neighborExtractor.apply(root)).forEach(
-                    child -> {
-                        parents.get(child).remove(root);
-                        if (parents.get(child).isEmpty()) {
-                            roots.add(child);
-                        }
-                    }
-            );
+            nullSafeCollection(neighborExtractor.apply(root)).forEach(child -> {
+                parents.get(child).remove(root);
+                if (parents.get(child).isEmpty()) {
+                    roots.add(child);
+                }
+            });
 
         }
 

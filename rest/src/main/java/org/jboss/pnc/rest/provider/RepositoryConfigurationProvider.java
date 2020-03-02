@@ -54,9 +54,11 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>.
  */
 @Stateless
-public class RepositoryConfigurationProvider extends AbstractProvider<RepositoryConfiguration, RepositoryConfigurationRest> {
+public class RepositoryConfigurationProvider
+        extends AbstractProvider<RepositoryConfiguration, RepositoryConfigurationRest> {
 
-    private static final Pattern REPOSITORY_NAME_PATTERN = Pattern.compile("(\\/[\\w\\.:\\~_-]+)+(\\.git)(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$");
+    private static final Pattern REPOSITORY_NAME_PATTERN = Pattern
+            .compile("(\\/[\\w\\.:\\~_-]+)+(\\.git)(?:\\/?|\\#[\\d\\w\\.\\-_]+?)$");
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
@@ -83,7 +85,8 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
     }
 
     public RepositoryConfigurationRest getSpecificByInternalScm(String internalScmUrl) {
-        RepositoryConfiguration repositoryConfiguration = repository.queryByPredicates(RepositoryConfigurationPredicates.withExactInternalScmRepoUrl(internalScmUrl));
+        RepositoryConfiguration repositoryConfiguration = repository
+                .queryByPredicates(RepositoryConfigurationPredicates.withExactInternalScmRepoUrl(internalScmUrl));
         if (repositoryConfiguration != null) {
             return toRESTModel().apply(repositoryConfiguration);
         }
@@ -91,15 +94,16 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
     }
 
     @Override
-    protected void validateBeforeSaving(RepositoryConfigurationRest repositoryConfigurationRest) throws RestValidationException {
+    protected void validateBeforeSaving(RepositoryConfigurationRest repositoryConfigurationRest)
+            throws RestValidationException {
         super.validateBeforeSaving(repositoryConfigurationRest);
         validateInternalRepository(repositoryConfigurationRest.getInternalUrl());
         validateIfItsNotConflicting(repositoryConfigurationRest);
     }
 
     @Override
-    protected void validateBeforeUpdating(Integer id, RepositoryConfigurationRest repositoryConfigurationRest) throws
-            RestValidationException {
+    protected void validateBeforeUpdating(Integer id, RepositoryConfigurationRest repositoryConfigurationRest)
+            throws RestValidationException {
         super.validateBeforeUpdating(id, repositoryConfigurationRest);
         validateInternalRepository(repositoryConfigurationRest.getInternalUrl());
     }
@@ -108,7 +112,9 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
         String internalScmAuthority = moduleConfig.getInternalScmAuthority();
         if (!isInternalRepository(internalScmAuthority, internalRepoUrl)) {
             logger.warn("Invalid internal repo url: " + internalRepoUrl);
-            throw new InvalidEntityException("Internal repository url has to start with: <protocol>://" + internalScmAuthority + " followed by a repository name or match the pattern: " + REPOSITORY_NAME_PATTERN);
+            throw new InvalidEntityException(
+                    "Internal repository url has to start with: <protocol>://" + internalScmAuthority
+                            + " followed by a repository name or match the pattern: " + REPOSITORY_NAME_PATTERN);
         }
 
     }
@@ -122,28 +128,44 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
                 && REPOSITORY_NAME_PATTERN.matcher(internalRepoUrlNoProto.replace(internalScmAuthority, "")).matches();
     }
 
-    private void validateIfItsNotConflicting(RepositoryConfigurationRest repositoryConfigurationRest) throws ConflictedEntryException {
-        RepositoryConfiguration existingRepositoryConfiguration =
-                repository.queryByPredicates(RepositoryConfigurationPredicates.withExactInternalScmRepoUrl(repositoryConfigurationRest.getInternalUrl()));
-        if(existingRepositoryConfiguration != null)
-            throw new ConflictedEntryException("RepositoryConfiguration with specified internalURL already exists",
-                    RepositoryConfiguration.class, existingRepositoryConfiguration.getId());
+    private void validateIfItsNotConflicting(RepositoryConfigurationRest repositoryConfigurationRest)
+            throws ConflictedEntryException {
+        RepositoryConfiguration existingRepositoryConfiguration = repository.queryByPredicates(
+                RepositoryConfigurationPredicates
+                        .withExactInternalScmRepoUrl(repositoryConfigurationRest.getInternalUrl()));
+        if (existingRepositoryConfiguration != null)
+            throw new ConflictedEntryException(
+                    "RepositoryConfiguration with specified internalURL already exists",
+                    RepositoryConfiguration.class,
+                    existingRepositoryConfiguration.getId());
 
     }
 
-    public CollectionInfo<RepositoryConfigurationRest> searchByScmUrl(int pageIndex, int pageSize, String sortingRsql, String scmUrl) {
+    public CollectionInfo<RepositoryConfigurationRest> searchByScmUrl(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String scmUrl) {
         Predicate<RepositoryConfiguration> predicate = RepositoryConfigurationPredicates.searchByScmUrl(scmUrl);
 
         return getRepositoryConfigurationRestCollectionInfo(pageIndex, pageSize, sortingRsql, predicate);
     }
 
-    public CollectionInfo<RepositoryConfigurationRest> matchByScmUrl(int pageIndex, int pageSize, String sortingRsql, String scmUrl) {
+    public CollectionInfo<RepositoryConfigurationRest> matchByScmUrl(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String scmUrl) {
         Predicate<RepositoryConfiguration> predicate = RepositoryConfigurationPredicates.matchByScmUrl(scmUrl);
 
         return getRepositoryConfigurationRestCollectionInfo(pageIndex, pageSize, sortingRsql, predicate);
     }
 
-    private CollectionInfo<RepositoryConfigurationRest> getRepositoryConfigurationRestCollectionInfo(int pageIndex, int pageSize, String sortingRsql, Predicate<RepositoryConfiguration> predicate) {
+    private CollectionInfo<RepositoryConfigurationRest> getRepositoryConfigurationRestCollectionInfo(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            Predicate<RepositoryConfiguration> predicate) {
         List<RepositoryConfiguration> collection = repository.queryWithPredicates(
                 pageInfoProducer.getPageInfo(pageIndex, pageSize),
                 sortInfoProducer.getSortInfo(sortingRsql),
@@ -151,8 +173,7 @@ public class RepositoryConfigurationProvider extends AbstractProvider<Repository
 
         int totalPages = (repository.count(predicate) + pageSize - 1) / pageSize;
 
-        return nullableStreamOf(collection)
-                .map(toRESTModel())
+        return nullableStreamOf(collection).map(toRESTModel())
                 .collect(new CollectionInfoCollector<>(pageIndex, pageSize, totalPages));
     }
 

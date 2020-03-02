@@ -93,7 +93,7 @@ public abstract class AbstractModelTest {
             em.close();
         }
     }
-    
+
     /**
      * Inserts data into database from the dbunit XML file
      * 

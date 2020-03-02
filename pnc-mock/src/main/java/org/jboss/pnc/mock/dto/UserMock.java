@@ -25,9 +25,6 @@ import org.jboss.pnc.dto.User;
 public class UserMock {
 
     public static User newUser() {
-        return User.builder()
-                .id("1")
-                .username("user")
-                .build();
+        return User.builder().id("1").username("user").build();
     }
 }

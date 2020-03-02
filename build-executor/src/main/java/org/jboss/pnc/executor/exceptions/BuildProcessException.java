@@ -20,14 +20,13 @@ package org.jboss.pnc.executor.exceptions;
 import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 
 /**
- * Exception in build process, which contains data
- * to clean up after unsuccessful build task 
+ * Exception in build process, which contains data to clean up after unsuccessful build task
  * 
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public class BuildProcessException extends ExecutionExceptionWrapper {
-    
+
     private DestroyableEnvironment destroyableEnvironment;
 
     public BuildProcessException(String message) {

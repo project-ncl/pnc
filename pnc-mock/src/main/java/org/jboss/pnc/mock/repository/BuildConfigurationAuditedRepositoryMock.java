@@ -31,20 +31,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/22/16
- * Time: 12:25 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:25 PM
  */
 public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurationAuditedRepository {
 
     private final AtomicInteger idSequence = new AtomicInteger(0);
     protected final List<BuildConfigurationAudited> data = new ArrayList<>();
-    
+
     public BuildConfigurationAudited save(BuildConfigurationAudited entity) {
         IdRev idRev = entity.getIdRev();
 
         if (idRev == null) {
-            throw new IllegalStateException("auto-setting " + this.getClass().getSimpleName() + " entity id is not supported");
+            throw new IllegalStateException(
+                    "auto-setting " + this.getClass().getSimpleName() + " entity id is not supported");
         }
 
         BuildConfiguration buildConfiguration = entity.getBuildConfiguration();
@@ -56,8 +55,8 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
         data.add(entity);
         return entity;
     }
-    
-    public BuildConfigurationAudited findLatestById(int buildConfigurationId){
+
+    public BuildConfigurationAudited findLatestById(int buildConfigurationId) {
         return data.stream()
                 .filter(c -> c.getId().equals(buildConfigurationId))
                 .sorted((c1, c2) -> c2.getRev().compareTo(c1.getRev()))
@@ -82,9 +81,7 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
     }
 
     private Optional<BuildConfigurationAudited> getOptionalById(IdRev id) {
-        return data.stream()
-                .filter(m -> id.getId().equals(m.getId()))
-                .findAny();
+        return data.stream().filter(m -> id.getId().equals(m.getId())).findAny();
     }
 
     public BuildConfigurationAudited queryById(IdRev id) {
@@ -93,11 +90,10 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
 
     public Map<IdRev, BuildConfigurationAudited> queryById(Set<IdRev> idRevs) {
 
-        return idRevs.stream()
-                .map(idRev -> {
-                    return getOptionalById(idRev).orElseThrow(() -> new RuntimeException("Didn't find entity for id: " + idRev));
-                })
-                .collect(Collectors.toMap(BuildConfigurationAudited::getIdRev, bca -> bca));
+        return idRevs.stream().map(idRev -> {
+            return getOptionalById(idRev)
+                    .orElseThrow(() -> new RuntimeException("Didn't find entity for id: " + idRev));
+        }).collect(Collectors.toMap(BuildConfigurationAudited::getIdRev, bca -> bca));
     }
 
     @Override

@@ -36,23 +36,23 @@ public class PageableMapper {
     }
 
     private static Sort getSort(SortInfo sortInfo) {
-        if(sortInfo == null) {
+        if (sortInfo == null) {
             sortInfo = new DefaultSortInfo();
         }
-        Sort.Direction direction = sortInfo.getDirection() == SortInfo.SortingDirection.ASC ? Sort.Direction.ASC :
-                Sort.Direction.DESC;
+        Sort.Direction direction = sortInfo.getDirection() == SortInfo.SortingDirection.ASC ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
         return new Sort(direction, sortInfo.getFields());
     }
 
     private static int getPageOffset(PageInfo pageInfo) {
-        if(pageInfo == null) {
+        if (pageInfo == null) {
             pageInfo = new DefaultPageInfo();
         }
         return pageInfo.getPageOffset();
     }
 
     private static int getPageSize(PageInfo pageInfo) {
-        if(pageInfo == null) {
+        if (pageInfo == null) {
             pageInfo = new DefaultPageInfo();
         }
         return pageInfo.getPageSize();

@@ -43,16 +43,15 @@ import org.jboss.pnc.common.util.StringUtils;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
  *
- * The class Project incapsulates the basic properties of a Project, i.e. the name, description, license. It is linked to a list
- * of BuildConfigurations, that contain the build configurations of the Project in its lifetime. The class Project is also
- * linked to a list of buildRecords, that contains the result of the build triggered with a BuildConfiguration
+ * The class Project incapsulates the basic properties of a Project, i.e. the name, description, license. It is linked
+ * to a list of BuildConfigurations, that contain the build configurations of the Project in its lifetime. The class
+ * Project is also linked to a list of buildRecords, that contains the result of the build triggered with a
+ * BuildConfiguration
  */
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(
-    uniqueConstraints = @UniqueConstraint(name = "uk_project_name", columnNames = {"name"})
-)
+@Table(uniqueConstraints = @UniqueConstraint(name = "uk_project_name", columnNames = { "name" }))
 public class Project implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -4644857058640271044L;
@@ -67,17 +66,17 @@ public class Project implements GenericEntity<Integer> {
 
     @Column(unique = true)
     @NotNull
-    @Size(max=255)
+    @Size(max = 255)
     private String name;
 
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String description;
 
-    @Size(max=255)
+    @Size(max = 255)
     private String issueTrackerUrl;
 
-    @Size(max=255)
+    @Size(max = 255)
     private String projectUrl;
 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)

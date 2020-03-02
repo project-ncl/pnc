@@ -27,12 +27,13 @@ import java.util.stream.Stream;
 
 import static io.restassured.path.json.JsonPath.from;
 
-
 public class JsonMatcher {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static CustomMatcher<String> containsJsonAttribute(String jsonAttribute, Consumer<String>... actionWhenMatches) {
+    public static CustomMatcher<String> containsJsonAttribute(
+            String jsonAttribute,
+            Consumer<String>... actionWhenMatches) {
         return new CustomMatcher<String>("matchesJson") {
             @Override
             public boolean matches(Object o) {

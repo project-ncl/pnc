@@ -27,7 +27,7 @@ import java.util.List;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @XmlRootElement(name = "MavenRepositoryManagerResult")
-public class MavenRepositoryManagerResultRest { //TODO delete me
+public class MavenRepositoryManagerResultRest { // TODO delete me
 
     @Getter
     private final List<ArtifactRest> uploads;

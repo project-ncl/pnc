@@ -59,61 +59,59 @@ public class EnvironmentDriverMock implements EnvironmentDriver {
             }
 
             @Override
-            public void monitorInitialization(Consumer<RunningEnvironment> onComplete,
-                    Consumer<Exception> onError) {
-                onComplete.accept(
-                        new RunningEnvironment() {
+            public void monitorInitialization(Consumer<RunningEnvironment> onComplete, Consumer<Exception> onError) {
+                onComplete.accept(new RunningEnvironment() {
 
-                            @Override
-                            public RepositorySession getRepositorySession() {
-                                return repositoryConfiguration;
-                            }
+                    @Override
+                    public RepositorySession getRepositorySession() {
+                        return repositoryConfiguration;
+                    }
 
-                            @Override
-                            public Path getWorkingDirectory() {
-                                try {
-                                    Path tempDirectory = Files.createTempDirectory("EnvironmentDriverMock");
-                                    tempDirectory.toFile().deleteOnExit();
-                                    return tempDirectory;
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            }
+                    @Override
+                    public Path getWorkingDirectory() {
+                        try {
+                            Path tempDirectory = Files.createTempDirectory("EnvironmentDriverMock");
+                            tempDirectory.toFile().deleteOnExit();
+                            return tempDirectory;
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
 
-                            @Override
-                            public DebugData getDebugData() {
-                                return new DebugData(false);
-                            }
+                    @Override
+                    public DebugData getDebugData() {
+                        return new DebugData(false);
+                    }
 
-                            @Override
-                            public String getBuildAgentUrl() {
-                                return "http://10.10.10.10:8080";
-                            }
+                    @Override
+                    public String getBuildAgentUrl() {
+                        return "http://10.10.10.10:8080";
+                    }
 
-                            @Override
-                            public String getHost() {
-                                return "10.10.10.10";
-                            }
+                    @Override
+                    public String getHost() {
+                        return "10.10.10.10";
+                    }
 
-                            @Override
-                            public String getInternalBuildAgentUrl() {
-                                return getBuildAgentUrl();
-                            }
+                    @Override
+                    public String getInternalBuildAgentUrl() {
+                        return getBuildAgentUrl();
+                    }
 
-                            @Override
-                            public int getBuildAgentPort() {
-                                return 0;
-                            }
+                    @Override
+                    public int getBuildAgentPort() {
+                        return 0;
+                    }
 
-                            @Override
-                            public String getId() {
-                                return null;
-                            }
+                    @Override
+                    public String getId() {
+                        return null;
+                    }
 
-                            @Override
-                            public void destroyEnvironment() throws EnvironmentDriverException {
-                            }
-                        });
+                    @Override
+                    public void destroyEnvironment() throws EnvironmentDriverException {
+                    }
+                });
             }
 
             @Override

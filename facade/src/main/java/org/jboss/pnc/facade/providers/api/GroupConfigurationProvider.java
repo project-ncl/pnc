@@ -22,20 +22,22 @@ import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 
-public interface GroupConfigurationProvider extends Provider<Integer, org.jboss.pnc.model.BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
+public interface GroupConfigurationProvider extends
+        Provider<Integer, org.jboss.pnc.model.BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
 
-    Page<GroupConfiguration> getGroupConfigurationsForProductVersion(int pageIndex,
-                                                                     int pageSize,
-                                                                     String sortingRsql,
-                                                                     String query,
-                                                                     String productVersionId);
+    Page<GroupConfiguration> getGroupConfigurationsForProductVersion(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String productVersionId);
 
-
-    Page<GroupConfiguration> getGroupConfigurationsForBuildConfiguration(int pageIndex,
-                                                                         int pageSize,
-                                                                         String sortingRsql,
-                                                                         String query,
-                                                                         String bcId);
+    Page<GroupConfiguration> getGroupConfigurationsForBuildConfiguration(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String bcId);
 
     void addConfiguration(String id, String configId) throws DTOValidationException;
 

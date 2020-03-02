@@ -26,6 +26,7 @@ import java.io.Serializable;
 
 /**
  * Mappers that converts RSQL path with DTO field names to Criteria API path.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  * @param <DB> The database entity type
  */
@@ -33,12 +34,14 @@ public interface RSQLMapper<ID extends Serializable, DB extends GenericEntity<ID
 
     /**
      * Return the class for which this mapper works.
+     * 
      * @return
      */
     Class<DB> type();
 
     /**
      * Converts RSQL selector to Criteria API path.
+     * 
      * @param from The entity path node.
      * @param selector The RSQL selector.
      * @return Criteria API path equivalent of the RSQL selector.
@@ -47,6 +50,7 @@ public interface RSQLMapper<ID extends Serializable, DB extends GenericEntity<ID
 
     /**
      * Converts RSQL selector to string with '.' separetaed list of entity field names.
+     * 
      * @param selector The RSQL selector
      * @return String with entity field names separated by '.'.
      */

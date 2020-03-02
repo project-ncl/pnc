@@ -27,13 +27,13 @@ public class BuildEnvironmentMock {
 
     public static Environment newBuildEnvironment() {
         return Environment.builder()
-            .id("1")
-            .name("jdk8")
-            .description("desc")
-            .systemImageRepositoryUrl("url")
-            .systemImageId("11")
-            .systemImageType(SystemImageType.DOCKER_IMAGE)
-            .deprecated(true)
-            .build();
+                .id("1")
+                .name("jdk8")
+                .description("desc")
+                .systemImageRepositoryUrl("url")
+                .systemImageId("11")
+                .systemImageType(SystemImageType.DOCKER_IMAGE)
+                .deprecated(true)
+                .build();
     }
 }

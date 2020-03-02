@@ -49,7 +49,8 @@ public class TypedMessage<T> implements Serializable {
         private MessageType messageType;
         private T data;
 
-        private TypedMessageBuilder() {}
+        private TypedMessageBuilder() {
+        }
 
         public TypedMessageBuilder messageType(MessageType messageType) {
             this.messageType = messageType;

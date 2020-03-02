@@ -87,7 +87,8 @@ public class ModuleConfigFactory {
 
     @Produces
     @Dependent
-    OpenshiftEnvironmentDriverModuleConfig createOpenshiftEnvironmentDriverModuleConfig() throws ConfigurationParseException {
+    OpenshiftEnvironmentDriverModuleConfig createOpenshiftEnvironmentDriverModuleConfig()
+            throws ConfigurationParseException {
         return configuration.getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
     }
 

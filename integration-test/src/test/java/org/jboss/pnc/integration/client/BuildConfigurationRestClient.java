@@ -48,7 +48,8 @@ public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfig
     }
 
     public RestResponse<BuildRecordRest> trigger0(int id, Optional<Integer> revision, BuildOptions options) {
-        RequestSpecification request = getRestClient().request().when()
+        RequestSpecification request = getRestClient().request()
+                .when()
                 .queryParam("temporaryBuild", options.isTemporaryBuild())
                 .queryParam("forceRebuild", options.isForceRebuild())
                 .queryParam("buildDependencies", options.isBuildDependencies())
@@ -56,7 +57,7 @@ public class BuildConfigurationRestClient extends AbstractRestClient<BuildConfig
                 .queryParam("timestampAlignment", options.isTimestampAlignment());
 
         Response response;
-        if(revision.isPresent()) {
+        if (revision.isPresent()) {
             response = request
                     .post(getRestClient().addHost(collectionUrl + id + "/revisions/" + revision.get() + "/build"));
         } else {

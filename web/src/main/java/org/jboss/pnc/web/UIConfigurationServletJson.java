@@ -45,7 +45,7 @@ public class UIConfigurationServletJson extends HttpServlet {
 
     @Inject
     private Configuration configuration;
-    
+
     private String uiConfig;
 
     @Override
@@ -54,7 +54,9 @@ public class UIConfigurationServletJson extends HttpServlet {
             UiConfigRest configRest = UiConfigRestBuilder.build(configuration);
             this.uiConfig = JsonOutputConverterMapper.apply(configRest);
         } catch (ConfigurationParseException e) {
-            throw new ServletException("Lazy-loading of UI configuration failed because the servlet was not able to fetch the configuration.", e);
+            throw new ServletException(
+                    "Lazy-loading of UI configuration failed because the servlet was not able to fetch the configuration.",
+                    e);
         }
     }
 

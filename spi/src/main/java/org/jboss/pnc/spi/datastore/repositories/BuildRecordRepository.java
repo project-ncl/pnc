@@ -42,28 +42,35 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
      */
     BuildRecord findByIdFetchProperties(Integer id);
 
-    List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, Predicate<BuildRecord>... predicates);
+    List<BuildRecord> queryWithPredicatesUsingCursor(
+            PageInfo pageInfo,
+            SortInfo sortInfo,
+            Predicate<BuildRecord>... predicates);
 
-    List<BuildRecord> queryWithPredicatesUsingCursor(PageInfo pageInfo, SortInfo sortInfo, List<Predicate<BuildRecord>> andPredicates,
-                                                            List<Predicate<BuildRecord>> orPredicates);
+    List<BuildRecord> queryWithPredicatesUsingCursor(
+            PageInfo pageInfo,
+            SortInfo sortInfo,
+            List<Predicate<BuildRecord>> andPredicates,
+            List<Predicate<BuildRecord>> orPredicates);
 
     BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean buildTemporary);
 
     default BuildRecord getLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords, boolean buildTemporary) {
         final boolean containsTemporary = buildRecords.stream().anyMatch(BuildRecord::isTemporaryBuild);
 
-        //Include temporary builds if you are building temporary and don't if building persistent
+        // Include temporary builds if you are building temporary and don't if building persistent
         final boolean includeTemporary = buildTemporary;
-        //NCL-5192
-        //Exclude persistent builds if you are building temporary and there are some temporary builds built
+        // NCL-5192
+        // Exclude persistent builds if you are building temporary and there are some temporary builds built
         final boolean excludePersistent = buildTemporary && containsTemporary;
         final boolean includePersistent = !excludePersistent;
 
         return buildRecords.stream()
                 .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
-                //First part includes temporary BRs and second part includes persistent BRs
-                .filter(record -> (includeTemporary && record.isTemporaryBuild()) ||
-                                  (includePersistent && !record.isTemporaryBuild()))
+                // First part includes temporary BRs and second part includes persistent BRs
+                .filter(
+                        record -> (includeTemporary && record.isTemporaryBuild())
+                                || (includePersistent && !record.isTemporaryBuild()))
                 .max(Comparator.comparing(BuildRecord::getId))
                 .orElse(null);
     }
@@ -80,5 +87,6 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
     GraphWithMetadata<BuildRecord, Integer> getDependencyGraph(Integer buildRecordId);
 
     BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild);
+
     Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId);
 }

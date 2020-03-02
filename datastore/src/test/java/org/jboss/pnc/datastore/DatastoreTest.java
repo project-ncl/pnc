@@ -139,8 +139,8 @@ public class DatastoreTest {
     }
 
     /**
-     * The data initialization of the build configurations needs to be done in a separate test method so that
-     * the transaction can complete, and the hibernate envers BuildConfigurationAudit is created.
+     * The data initialization of the build configurations needs to be done in a separate test method so that the
+     * transaction can complete, and the hibernate envers BuildConfigurationAudit is created.
      */
     @Test
     @InSequence(1)
@@ -208,14 +208,16 @@ public class DatastoreTest {
         targetRepository = targetRepositoryRepository.save(targetRepository);
         logger.info("Saved targetRepository: {}", targetRepository);
 
-        Artifact builtArtifact1 = Artifact.Builder.newBuilder().identifier(ARTIFACT_1_IDENTIFIER)
+        Artifact builtArtifact1 = Artifact.Builder.newBuilder()
+                .identifier(ARTIFACT_1_IDENTIFIER)
                 .md5("md-fake-" + ARTIFACT_1_CHECKSUM)
                 .sha1("sha1-fake-" + ARTIFACT_1_CHECKSUM)
                 .sha256("sha256-fake-" + ARTIFACT_1_CHECKSUM)
                 .size(ARTIFACT_1_SIZE)
                 .targetRepository(targetRepository)
                 .build();
-        Artifact importedArtifact2 = Artifact.Builder.newBuilder().identifier(ARTIFACT_2_IDENTIFIER)
+        Artifact importedArtifact2 = Artifact.Builder.newBuilder()
+                .identifier(ARTIFACT_2_IDENTIFIER)
                 .md5("md-fake-" + ARTIFACT_2_CHECKSUM)
                 .sha1("sha1-fake-" + ARTIFACT_2_CHECKSUM)
                 .sha256("sha256-fake-" + ARTIFACT_2_CHECKSUM)
@@ -225,12 +227,12 @@ public class DatastoreTest {
                 .targetRepository(targetRepository)
                 .build();
 
-        User user = User.Builder.newBuilder()
-                .username("pnc").email("pnc@redhat.com").build();
+        User user = User.Builder.newBuilder().username("pnc").email("pnc@redhat.com").build();
         user = userRepository.save(user);
         Assert.assertNotNull(user.getId());
 
-        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(datastore.getNextBuildRecordId())
+        BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
+                .id(datastore.getNextBuildRecordId())
                 .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
@@ -305,7 +307,8 @@ public class DatastoreTest {
                 .md5("md-fake-" + ARTIFACT_2_CHECKSUM)
                 .sha1("sha1-fake-" + ARTIFACT_2_CHECKSUM)
                 .sha256("sha256-fake-" + ARTIFACT_2_CHECKSUM)
-                .originUrl("http://test/importArtifact2.jar").importDate(Date.from(Instant.now()))
+                .originUrl("http://test/importArtifact2.jar")
+                .importDate(Date.from(Instant.now()))
                 .targetRepository(targetRepository)
                 .build();
         Artifact builtArtifact3 = Artifact.Builder.newBuilder()
@@ -313,11 +316,12 @@ public class DatastoreTest {
                 .md5("md-fake-" + ARTIFACT_3_CHECKSUM)
                 .sha1("sha1-fake-" + ARTIFACT_3_CHECKSUM)
                 .sha256("sha256-fake-" + ARTIFACT_3_CHECKSUM)
-                .size(ARTIFACT_3_SIZE).originUrl("http://test/importArtifact2.jar")
+                .size(ARTIFACT_3_SIZE)
+                .originUrl("http://test/importArtifact2.jar")
                 .importDate(Date.from(Instant.now()))
                 .targetRepository(targetRepositoryTmp)
                 .build();
-        //two equal artifacts in different repository
+        // two equal artifacts in different repository
         String identifier = "the.same.artifact";
         long size = 12L;
         String checksum = "1234456ffsfjjdfddy";
@@ -338,8 +342,7 @@ public class DatastoreTest {
                 .targetRepository(targetRepositorySharedImports)
                 .build();
 
-        User user = User.Builder.newBuilder()
-                .username("pnc2").email("pnc2@redhat.com").build();
+        User user = User.Builder.newBuilder().username("pnc2").email("pnc2@redhat.com").build();
         user = userRepository.save(user);
         Assert.assertNotNull(user.getId());
 
@@ -366,16 +369,21 @@ public class DatastoreTest {
         Assert.assertEquals(5, artifactRepository.queryAll().size());
 
         Set<Artifact.IdentifierSha256> identifiersAndSha = new HashSet<>();
-        identifiersAndSha.add(new Artifact.IdentifierSha256(importedDuplicateArtifact.getIdentifier(), importedDuplicateArtifact.getSha256()));
+        identifiersAndSha.add(
+                new Artifact.IdentifierSha256(
+                        importedDuplicateArtifact.getIdentifier(),
+                        importedDuplicateArtifact.getSha256()));
         Set<Artifact> artifactsFromDb = artifactRepository.withIdentifierAndSha256s(identifiersAndSha);
         Assert.assertEquals(1, artifactsFromDb.size());
-        Assert.assertEquals(buildsUntestedRepoPath, artifactsFromDb.stream().findFirst().get().getTargetRepository().getRepositoryPath());
+        Assert.assertEquals(
+                buildsUntestedRepoPath,
+                artifactsFromDb.stream().findFirst().get().getTargetRepository().getRepositoryPath());
     }
 
     @Test
     @InSequence(4)
     public void testRepositoryCreationSearchPredicates() {
-        //given
+        // given
         String externalUrl = "https://github.com/external/repo.git";
         String internalUrl = "git+ssh://internal.repo.com/repo.git";
 
@@ -388,60 +396,62 @@ public class DatastoreTest {
 
         List<RepositoryConfiguration> repositoryConfigurations;
 
-        //when
+        // when
         String scmUrl = "repo";
         repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
-        //expect
+        // expect
         Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
 
-        //when
+        // when
         scmUrl = "repoX";
         repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
-        //expect
+        // expect
         Assert.assertTrue("Repository configuration should not be found.", repositoryConfigurations.isEmpty());
 
-        //when
+        // when
         scmUrl = "ssh://internal.repo.com/repo.git";
         repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
-        //expect
+        // expect
         Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
 
-        //when
+        // when
         scmUrl = "http://internal.repo.com/repo.git";
         repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
-        //expect
+        // expect
         Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
 
-        //when
+        // when
         repositoryConfigurations = repositoryConfigurationRepository
                 .queryWithPredicates(RepositoryConfigurationPredicates.withExactInternalScmRepoUrl(internalUrl));
-        //expect
+        // expect
         Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
 
-        //when
-        repositoryConfigurations = repositoryConfigurationRepository
-                .queryWithPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl("ssh://internal.repo.com/repo"));
-        //expect
+        // when
+        repositoryConfigurations = repositoryConfigurationRepository.queryWithPredicates(
+                RepositoryConfigurationPredicates.withInternalScmRepoUrl("ssh://internal.repo.com/repo"));
+        // expect
         Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
 
-        //when
-        repositoryConfigurations = repositoryConfigurationRepository
-                .queryWithPredicates(RepositoryConfigurationPredicates.withExternalScmRepoUrl("http://github.com/external/repo.git"));
-        //expect
+        // when
+        repositoryConfigurations = repositoryConfigurationRepository.queryWithPredicates(
+                RepositoryConfigurationPredicates.withExternalScmRepoUrl("http://github.com/external/repo.git"));
+        // expect
         Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
 
-        //when
-        repositoryConfigurations = repositoryConfigurationRepository
-                .queryWithPredicates(RepositoryConfigurationPredicates.withInternalScmRepoUrl("http://github.com/external/repo.git"));
-        //expect
-        Assert.assertTrue("Repository configuration should not be found. Found " + repositoryConfigurations.size() + " repositoryConfigurations.", repositoryConfigurations.isEmpty());
+        // when
+        repositoryConfigurations = repositoryConfigurationRepository.queryWithPredicates(
+                RepositoryConfigurationPredicates.withInternalScmRepoUrl("http://github.com/external/repo.git"));
+        // expect
+        Assert.assertTrue(
+                "Repository configuration should not be found. Found " + repositoryConfigurations.size()
+                        + " repositoryConfigurations.",
+                repositoryConfigurations.isEmpty());
 
-        //when
-        repositoryConfigurations = repositoryConfigurationRepository
-                .queryWithPredicates(RepositoryConfigurationPredicates.withExternalScmRepoUrl("ssh://internal.repo.com/"));
-        //expect
+        // when
+        repositoryConfigurations = repositoryConfigurationRepository.queryWithPredicates(
+                RepositoryConfigurationPredicates.withExternalScmRepoUrl("ssh://internal.repo.com/"));
+        // expect
         Assert.assertTrue("Repository configuration should not be found.", repositoryConfigurations.isEmpty());
-
 
     }
 
@@ -453,25 +463,29 @@ public class DatastoreTest {
     @Test
     @InSequence(5)
     public void testBooleanQuery() {
-        //given
-        String findNotDeprecated="deprecated==false";
-        String findDeprecated="deprecated==true";
+        // given
+        String findNotDeprecated = "deprecated==false";
+        String findDeprecated = "deprecated==true";
 
         SpringDataRSQLPredicateProducer rsqlPredicateProducer = new SpringDataRSQLPredicateProducer();
-        Predicate<BuildEnvironment> notDeprecatedPredicate = rsqlPredicateProducer.getPredicate(BuildEnvironment.class, findNotDeprecated);
-        Predicate<BuildEnvironment> deprecatedPredicate = rsqlPredicateProducer.getPredicate(BuildEnvironment.class, findDeprecated);
+        Predicate<BuildEnvironment> notDeprecatedPredicate = rsqlPredicateProducer
+                .getPredicate(BuildEnvironment.class, findNotDeprecated);
+        Predicate<BuildEnvironment> deprecatedPredicate = rsqlPredicateProducer
+                .getPredicate(BuildEnvironment.class, findDeprecated);
 
-        //when
-        List<BuildEnvironment> notDeprecatedEnvironments = buildEnvironmentRepository.queryWithPredicates(notDeprecatedPredicate);
+        // when
+        List<BuildEnvironment> notDeprecatedEnvironments = buildEnvironmentRepository
+                .queryWithPredicates(notDeprecatedPredicate);
 
-        //expect
+        // expect
         assertThat(notDeprecatedEnvironments.size()).isEqualTo(1);
         assertThat(notDeprecatedEnvironments.get(0).isDeprecated()).isFalse();
 
-        //when
-        List<BuildEnvironment> deprecatedEnvironments = buildEnvironmentRepository.queryWithPredicates(deprecatedPredicate);
+        // when
+        List<BuildEnvironment> deprecatedEnvironments = buildEnvironmentRepository
+                .queryWithPredicates(deprecatedPredicate);
 
-        //expect
+        // expect
         assertThat(deprecatedEnvironments.size()).isEqualTo(1);
         assertThat(deprecatedEnvironments.get(0).isDeprecated()).isTrue();
     }

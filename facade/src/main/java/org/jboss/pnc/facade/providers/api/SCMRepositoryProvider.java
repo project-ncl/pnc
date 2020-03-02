@@ -26,9 +26,11 @@ import org.jboss.pnc.model.RepositoryConfiguration;
 import java.util.function.Consumer;
 import lombok.Data;
 
-public interface SCMRepositoryProvider extends Provider<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {
+public interface SCMRepositoryProvider
+        extends Provider<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {
 
-    Page<SCMRepository> getAllWithMatchAndSearchUrl(int pageIndex,
+    Page<SCMRepository> getAllWithMatchAndSearchUrl(
+            int pageIndex,
             int pageSize,
             String sortingRsql,
             String query,
@@ -36,33 +38,36 @@ public interface SCMRepositoryProvider extends Provider<Integer, RepositoryConfi
             String searchUrl);
 
     /**
-     * Starts the task of creating SCMRepository. If the SCM URL is external, the task creates new
-     * internal repository and does inital synchronization.
+     * Starts the task of creating SCMRepository. If the SCM URL is external, the task creates new internal repository
+     * and does inital synchronization.
      *
      * @param scmUrl The URL of the SCM repository.
-     * @param preBuildSyncEnabled If the SCM URL is external, this parameter specifies wheather the
-     * external repository should be synchronized into the internal one before build.
+     * @param preBuildSyncEnabled If the SCM URL is external, this parameter specifies wheather the external repository
+     *        should be synchronized into the internal one before build.
      * @return id of the created
      */
     RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled);
 
     /**
-     * Starts the task of creating SCMRepository.If the SCM URL is external, the task creates new
-     * internal repository and does inital synchronization.
+     * Starts the task of creating SCMRepository.If the SCM URL is external, the task creates new internal repository
+     * and does inital synchronization.
      *
      * @param scmUrl The URL of the SCM repository.
-     * @param preBuildSyncEnabled If the SCM URL is external, this parameter specifies wheather the
-     * external repository should be synchronized into the internal one before build.
+     * @param preBuildSyncEnabled If the SCM URL is external, this parameter specifies wheather the external repository
+     *        should be synchronized into the internal one before build.
      * @param jobType Type of the job that requested the SCM repository creation (for notification purposes).
-     * @param consumer Callback function that is called when SCM repository is created. The callback
-     * function takes SCM repository id as a parameter.
+     * @param consumer Callback function that is called when SCM repository is created. The callback function takes SCM
+     *        repository id as a parameter.
      * @return id of the created
      */
-    RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled, JobNotificationType jobType, Consumer<RepositoryCreated> consumer);
+    RepositoryCreationResponse createSCMRepository(
+            String scmUrl,
+            Boolean preBuildSyncEnabled,
+            JobNotificationType jobType,
+            Consumer<RepositoryCreated> consumer);
 
-    
     @Data
-    public static class RepositoryCreated{
+    public static class RepositoryCreated {
         private final Integer taskId;
         private final int repositoryId;
     }

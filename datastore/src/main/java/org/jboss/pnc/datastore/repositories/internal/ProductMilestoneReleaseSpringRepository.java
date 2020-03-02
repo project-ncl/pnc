@@ -26,12 +26,11 @@ import org.springframework.data.jpa.repository.Query;
 import javax.enterprise.context.Dependent;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/30/16
- * Time: 1:46 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 1:46 PM
  */
 @Dependent
-public interface ProductMilestoneReleaseSpringRepository extends JpaRepository<ProductMilestoneRelease, Integer>, JpaSpecificationExecutor<ProductMilestoneRelease> {
+public interface ProductMilestoneReleaseSpringRepository
+        extends JpaRepository<ProductMilestoneRelease, Integer>, JpaSpecificationExecutor<ProductMilestoneRelease> {
 
     @Query("select r from ProductMilestoneRelease r where r.id = (select max(id) from ProductMilestoneRelease o where o.milestone = ?1)")
     ProductMilestoneRelease findLatestForMilestone(ProductMilestone milestone);

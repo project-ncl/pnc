@@ -60,8 +60,8 @@ public class DebugInContainerTest {
     SystemConfig systemConfig = mock(SystemConfig.class);
 
     @Test
-    public void shouldEnableSshWhenBuildFails()
-            throws IOException, BuildAgentException, InterruptedException, BuildAgentClientException, BuildDriverException {
+    public void shouldEnableSshWhenBuildFails() throws IOException, BuildAgentException, InterruptedException,
+            BuildAgentClientException, BuildDriverException {
 
         TermdBuildDriverModuleConfig buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
         doReturn(1000L).when(buildDriverModuleConfig).getLivenessProbeFrequencyMillis();
@@ -93,20 +93,24 @@ public class DebugInContainerTest {
             Assert.fail("Build should fail without system error.");
         };
 
-        //when
+        // when
         RunningBuild runningBuild = driver.startProjectBuild(buildExecution, runningEnvironment, onComplete, onError);
-        Thread.sleep(500); //wait to start waiting for completion and start liveness probe
-        buildAgentClientFactory.getOnStatusUpdate().accept(TaskStatusUpdateEvent.newBuilder().newStatus(Status.FAILED).build());
+        Thread.sleep(500); // wait to start waiting for completion and start liveness probe
+        buildAgentClientFactory.getOnStatusUpdate()
+                .accept(TaskStatusUpdateEvent.newBuilder().newStatus(Status.FAILED).build());
 
-        //then
+        // then
         CompletedBuild completedBuild = result.poll(1, TimeUnit.SECONDS);
         Assert.assertNotNull("Missing build result.", completedBuild);
-        Assert.assertEquals("The build should fail.", BuildStatus.FAILED, completedBuild.getBuildResult().getBuildStatus());
+        Assert.assertEquals(
+                "The build should fail.",
+                BuildStatus.FAILED,
+                completedBuild.getBuildResult().getBuildStatus());
 
         List<Object> executedCommands = buildAgentClientFactory.getBuildAgentClient().getExecutedCommands();
         logger.info("Executed commands {}.", executedCommands);
         Assert.assertEquals(2, executedCommands.size());
-        Assertions.assertThat(executedCommands).anySatisfy(c -> ((String)c).contains("startSshd.sh"));
+        Assertions.assertThat(executedCommands).anySatisfy(c -> ((String) c).contains("startSshd.sh"));
     }
 
 }

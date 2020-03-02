@@ -23,6 +23,8 @@ import java.io.Serializable;
 
 public interface Repository<T extends GenericEntity<ID>, ID extends Serializable> extends ReadOnlyRepository<T, ID> {
     T save(T entity);
+
     void delete(ID id);
+
     void flushAndRefresh(T entity);
 }

@@ -75,12 +75,13 @@ public class ProcessProgressNotificationTest {
 
     RemoteEndpoint.Async asyncRemote;
 
-    @Deployment(name="WebSocketsNotificationTest")
+    @Deployment(name = "WebSocketsNotificationTest")
     public static EnterpriseArchive deploy() {
         return Deployments.testEarForInContainerTest(
                 Collections.singletonList(NotificationsEndpoint.class.getPackage()),
                 Arrays.asList(BuildMock.class.getPackage()),
-                ProcessProgressNotificationTest.class, NotificationCollector.class);
+                ProcessProgressNotificationTest.class,
+                NotificationCollector.class);
     }
 
     @Before
@@ -107,21 +108,25 @@ public class ProcessProgressNotificationTest {
                 BuildStatus.NEW,
                 build.getStatus());
 
-        //when
+        // when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
-        ProgressUpdatesRequest progressUpdatesRequest = new ProgressUpdatesRequest(Action.SUBSCRIBE,
+        ProgressUpdatesRequest progressUpdatesRequest = new ProgressUpdatesRequest(
+                Action.SUBSCRIBE,
                 "component-build",
                 taskId.toString());
-        String text = JsonOutputConverterMapper.apply(new TypedMessage<ProgressUpdatesRequest>(MessageType.PROCESS_UPDATES,
-                progressUpdatesRequest));
+        String text = JsonOutputConverterMapper
+                .apply(new TypedMessage<ProgressUpdatesRequest>(MessageType.PROCESS_UPDATES, progressUpdatesRequest));
         logger.info("Sending test message:" + text);
         asyncRemote.sendText(text);
         waitForMessages(1);
 
-        //then
+        // then
         logger.info("Received: " + notificationCollector.getMessages().get(0));
 
-        assertTrue(notificationCollector.getMessages().get(0).startsWith("{\"oldStatus\":\"NEW\",\"build\":{\"id\":\"1\",\"status\":\"SUCCESS\","));
+        assertTrue(
+                notificationCollector.getMessages()
+                        .get(0)
+                        .startsWith("{\"oldStatus\":\"NEW\",\"build\":{\"id\":\"1\",\"status\":\"SUCCESS\","));
     }
 
     private void waitForMessages(int numberOfMessages) {
@@ -134,8 +139,8 @@ public class ProcessProgressNotificationTest {
 
     private void awaitFor(Supplier<Boolean> condition, int timeMs) {
         long waitUntil = System.currentTimeMillis() + timeMs;
-        while(System.currentTimeMillis() < waitUntil) {
-            if(condition.get()) {
+        while (System.currentTimeMillis() < waitUntil) {
+            if (condition.get()) {
                 return;
             }
             Thread.currentThread().yield();

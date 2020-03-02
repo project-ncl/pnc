@@ -43,7 +43,9 @@ public class Configurations {
         return content;
     }
 
-    private static String getContentFromConfigFile(Resource resource, OpenshiftBuildAgentConfig openshiftBuildAgentConfig) {
+    private static String getContentFromConfigFile(
+            Resource resource,
+            OpenshiftBuildAgentConfig openshiftBuildAgentConfig) {
         String content = null;
         switch (resource) {
             case PNC_BUILDER_POD:

@@ -33,7 +33,8 @@ import static javax.ws.rs.core.Response.Status.FORBIDDEN;
 public class UnauthorizedExceptionMapper implements ExceptionMapper<EJBAccessException> {
     private static final Logger log = LoggerFactory.getLogger(UnauthorizedExceptionMapper.class);
 
-    @Override public Response toResponse(EJBAccessException exception) {
+    @Override
+    public Response toResponse(EJBAccessException exception) {
         log.info("A user is trying to access restricted resource", exception);
 
         Response.ResponseBuilder builder = Response.status(FORBIDDEN);

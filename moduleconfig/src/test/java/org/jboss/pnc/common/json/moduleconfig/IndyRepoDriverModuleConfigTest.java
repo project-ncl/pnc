@@ -37,44 +37,43 @@ public class IndyRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
 
     @Test
     public void loadIndyRepoDriverConfigTest() throws ConfigurationParseException {
-            Configuration configuration = new Configuration();
+        Configuration configuration = new Configuration();
 
-            IndyRepoDriverModuleConfig mavenConfig = configuration
-                    .getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
+        IndyRepoDriverModuleConfig mavenConfig = configuration
+                .getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
 
-            assertNotNull(mavenConfig);
-            assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
-            assertEquals(100, mavenConfig.getDefaultRequestTimeout().intValue());
-            assertEquals(true, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
-            assertEquals(0, mavenConfig.getIgnoredPathPatterns().getNpm().getPatterns().size());
-            List<Pattern> ignoredPathPatternsMaven = mavenConfig.getIgnoredPathPatterns().getMaven().getPatterns();
-            assertNotNull(ignoredPathPatternsMaven);
-            assertEquals(2, ignoredPathPatternsMaven.size());
-            List<String> strings = ignoredPathPatternsMaven.stream().map(p -> p.pattern()).collect(Collectors.toList());
-            assertTrue(strings.contains(".*/maven-metadata\\.xml$"));
-            assertTrue(strings.contains(".*\\.sha1$"));
+        assertNotNull(mavenConfig);
+        assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
+        assertEquals(100, mavenConfig.getDefaultRequestTimeout().intValue());
+        assertEquals(true, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
+        assertEquals(0, mavenConfig.getIgnoredPathPatterns().getNpm().getPatterns().size());
+        List<Pattern> ignoredPathPatternsMaven = mavenConfig.getIgnoredPathPatterns().getMaven().getPatterns();
+        assertNotNull(ignoredPathPatternsMaven);
+        assertEquals(2, ignoredPathPatternsMaven.size());
+        List<String> strings = ignoredPathPatternsMaven.stream().map(p -> p.pattern()).collect(Collectors.toList());
+        assertTrue(strings.contains(".*/maven-metadata\\.xml$"));
+        assertTrue(strings.contains(".*\\.sha1$"));
     }
 
     @Test
     public void checkDefaultValuesLoadedProperly() throws ConfigurationParseException {
-            String backupConfigPath = System.getProperty("pnc-config-file");
-            System.setProperty("pnc-config-file", "testConfigWithoutDefaults.json");
+        String backupConfigPath = System.getProperty("pnc-config-file");
+        System.setProperty("pnc-config-file", "testConfigWithoutDefaults.json");
 
-            Configuration configuration = new Configuration();
-            IndyRepoDriverModuleConfig mavenConfig = configuration
-                    .getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
+        Configuration configuration = new Configuration();
+        IndyRepoDriverModuleConfig mavenConfig = configuration
+                .getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
 
-            if (backupConfigPath != null) {
-                System.setProperty("pnc-config-file", backupConfigPath);
-            } else {
-                System.getProperties().remove("pnc-config-file");
-            }
+        if (backupConfigPath != null) {
+            System.setProperty("pnc-config-file", backupConfigPath);
+        } else {
+            System.getProperties().remove("pnc-config-file");
+        }
 
-            assertNotNull(mavenConfig);
-            assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
-            assertEquals(600, mavenConfig.getDefaultRequestTimeout().intValue());
-            assertEquals(false, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
+        assertNotNull(mavenConfig);
+        assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
+        assertEquals(600, mavenConfig.getDefaultRequestTimeout().intValue());
+        assertEquals(false, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
     }
-
 
 }

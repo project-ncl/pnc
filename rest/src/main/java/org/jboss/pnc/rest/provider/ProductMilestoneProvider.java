@@ -59,7 +59,8 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
             ArtifactRepository artifactRepository,
             ProductMilestoneReleaseManager releaseManager,
             RSQLPredicateProducer rsqlPredicateProducer,
-            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer) {
         super(productMilestoneRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.artifactRepository = artifactRepository;
         this.releaseManager = releaseManager;
@@ -70,8 +71,12 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
     public ProductMilestoneProvider() {
     }
 
-    public CollectionInfo<ProductMilestoneRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
-                                                                        String query, Integer versionId) {
+    public CollectionInfo<ProductMilestoneRest> getAllForProductVersion(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Integer versionId) {
         return super.queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId));
     }
 
@@ -93,18 +98,19 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
 
     private void validateDoesNotConflict(ProductMilestoneRest restEntity)
             throws ConflictedEntryException, InvalidEntityException {
-            ValidationBuilder.validateObject(restEntity, WhenUpdating.class).validateConflict(() -> {
-                ProductMilestone milestoneFromDB = repository.queryByPredicates(
-                        withProductVersionIdAndVersion(restEntity.getProductVersionId(), restEntity.getVersion())
-                );
+        ValidationBuilder.validateObject(restEntity, WhenUpdating.class).validateConflict(() -> {
+            ProductMilestone milestoneFromDB = repository.queryByPredicates(
+                    withProductVersionIdAndVersion(restEntity.getProductVersionId(), restEntity.getVersion()));
 
-                // don't validate against myself
-                if (milestoneFromDB != null && !milestoneFromDB.getId().equals(restEntity.getId())) {
-                    return new ConflictedEntryValidator.ConflictedEntryValidationError(milestoneFromDB.getId(),
-                            ProductMilestone.class, "Product milestone with the same product version and version already exists");
-                }
-                return null;
-            });
+            // don't validate against myself
+            if (milestoneFromDB != null && !milestoneFromDB.getId().equals(restEntity.getId())) {
+                return new ConflictedEntryValidator.ConflictedEntryValidationError(
+                        milestoneFromDB.getId(),
+                        ProductMilestone.class,
+                        "Product milestone with the same product version and version already exists");
+            }
+            return null;
+        });
     }
 
     public void addDistributedArtifact(Integer milestoneId, Integer artifactId) throws RestValidationException {
@@ -160,7 +166,8 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
         closeMilestone(id, restEntity, "");
     }
 
-    public void closeMilestone(Integer id, ProductMilestoneRest restEntity, String accessToken) throws RestValidationException {
+    public void closeMilestone(Integer id, ProductMilestoneRest restEntity, String accessToken)
+            throws RestValidationException {
         ProductMilestone milestoneInDb = repository.queryById(id);
 
         // If we want to close a milestone, make sure it's not already released (by checking end date)
@@ -176,7 +183,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
                 repository.save(milestoneInDb);
             }
 
-            if(releaseManager.noReleaseInProgress(milestoneInDb)) {
+            if (releaseManager.noReleaseInProgress(milestoneInDb)) {
                 log.debug("Milestone end date set and no release in progress, will start release");
                 releaseManager.startRelease(milestoneInDb, accessToken);
             }
@@ -193,7 +200,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
             log.info("Milestone is already closed.");
             throw new RepositoryViolationException("Milestone is already closed!");
         } else {
-            if(releaseManager.noReleaseInProgress(milestoneInDb)) {
+            if (releaseManager.noReleaseInProgress(milestoneInDb)) {
                 log.debug("Milestone end date set and no release in progress, will start release");
                 throw new EntityNotFoundException("No running cancel process for given id.");
             } else {

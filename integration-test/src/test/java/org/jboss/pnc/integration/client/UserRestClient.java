@@ -37,12 +37,18 @@ public class UserRestClient extends AbstractRestClient<UserRest> {
     private static final String USER_REST_ENDPOINT = "/pnc-rest/rest/users";
 
     private static final String USER_BUILDS_ENDPOINT = "/%d/builds";
-    
+
     public UserRestClient() {
         super(USER_REST_ENDPOINT, UserRest.class);
     }
-    
-    public RestResponse<List<BuildRecordRest>> allUserBuilds(int userId, boolean withValidation, int pageIndex, int pageSize, String rsql, String sort) {
+
+    public RestResponse<List<BuildRecordRest>> allUserBuilds(
+            int userId,
+            boolean withValidation,
+            int pageIndex,
+            int pageSize,
+            String rsql,
+            String sort) {
         QueryParam rsqlQueryParam = null;
         QueryParam sortQueryParam = null;
         if (rsql != null) {
@@ -63,7 +69,8 @@ public class UserRestClient extends AbstractRestClient<UserRest> {
         List<BuildRecordRest> object = new ArrayList<>();
         String responseBody = response.getBody().asString();
 
-        // Response body may be null, if the query did not return any result! This would need to deliver a response with 204
+        // Response body may be null, if the query did not return any result! This would need to deliver a response with
+        // 204
         // status, with no errors
         if (responseBody != null && !responseBody.isEmpty()) {
             try {
@@ -96,9 +103,10 @@ public class UserRestClient extends AbstractRestClient<UserRest> {
     }
 
     public RestResponse<UserRest> createUser(String username) {
-        return createNew(new UserRest(User.Builder.newBuilder().username(username).email(username + "@example.com").build()));
+        return createNew(
+                new UserRest(User.Builder.newBuilder().username(username).email(username + "@example.com").build()));
     }
-    
+
     public RestResponse<UserRest> getLoggedUser() {
         String requestUrl = USER_REST_ENDPOINT + "/loggedUser";
         Response response = post(requestUrl);

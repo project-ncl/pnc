@@ -51,7 +51,7 @@ public class ErrorResponseRest {
 
     public ErrorResponseRest(BuildConflictException e) {
         this.errorType = e.getClass().getSimpleName();
-        this.errorMessage = e.getMessage() + ": " +  e.getBuildTaskId();
+        this.errorMessage = e.getMessage() + ": " + e.getBuildTaskId();
         this.details = null;
     }
 

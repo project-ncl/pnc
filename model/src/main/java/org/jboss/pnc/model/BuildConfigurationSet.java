@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,9 +46,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "uk_buildconfigurationset_name", columnNames = "name"),
-       indexes = @Index(name = "idx_buildconfigurationset_productversion", columnList = "productversion_id")
-)
+@Table(
+        uniqueConstraints = @UniqueConstraint(name = "uk_buildconfigurationset_name", columnNames = "name"),
+        indexes = @Index(name = "idx_buildconfigurationset_productversion", columnList = "productversion_id"))
 public class BuildConfigurationSet implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 2596901834161647987L;
@@ -64,7 +63,7 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
 
     @Column(unique = true)
     @NotNull
-    @Size(max=255)
+    @Size(max = 255)
     private String name;
 
     @ManyToOne(cascade = { CascadeType.REFRESH, CascadeType.DETACH })
@@ -73,25 +72,18 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany
-    @JoinTable(name = "build_configuration_set_map", joinColumns = {
-            @JoinColumn(
-                name = "build_configuration_set_id",
-                referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfigurationset")
-            )
-        },
-        inverseJoinColumns = {
-            @JoinColumn(
-                name = "build_configuration_id",
-                referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfiguration")
-            )
-        },
-        indexes = {
-            @Index(name = "idx_build_configuration_set_map_bc", columnList = "build_configuration_id"),
-            @Index(name = "idx_build_configuration_set_map_bcs", columnList = "build_configuration_set_id")
-        }
-    )
+    @JoinTable(
+            name = "build_configuration_set_map",
+            joinColumns = { @JoinColumn(
+                    name = "build_configuration_set_id",
+                    referencedColumnName = "id",
+                    foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfigurationset")) },
+            inverseJoinColumns = { @JoinColumn(
+                    name = "build_configuration_id",
+                    referencedColumnName = "id",
+                    foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfiguration")) },
+            indexes = { @Index(name = "idx_build_configuration_set_map_bc", columnList = "build_configuration_id"),
+                    @Index(name = "idx_build_configuration_set_map_bcs", columnList = "build_configuration_set_id") })
     private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -99,8 +91,7 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
 
     /**
-     * Normally set to true.
-     * If BuildConfigurationSet is no longer to be used (is archived) - this is set to **null**
+     * Normally set to true. If BuildConfigurationSet is no longer to be used (is archived) - this is set to **null**
      */
     private Boolean active;
 
@@ -197,10 +188,11 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     /**
      * Get the current product milestone (if any) associated with this build config set.
      *
-     * @return The current product milestone for the product version associated with this build config set, or null if there is none
+     * @return The current product milestone for the product version associated with this build config set, or null if
+     *         there is none
      */
     public ProductMilestone getCurrentProductMilestone() {
-        if(getProductVersion() == null) {
+        if (getProductVersion() == null) {
             return null;
         }
         return getProductVersion().getCurrentProductMilestone();
@@ -237,14 +229,9 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "BuildConfigurationSet{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", productVersion=" + productVersion +
-                ", buildConfigurations=" + buildConfigurations +
-                ", buildConfigSetRecords=" + buildConfigSetRecords +
-                ", active=" + active +
-                '}';
+        return "BuildConfigurationSet{" + "id=" + id + ", name='" + name + '\'' + ", productVersion=" + productVersion
+                + ", buildConfigurations=" + buildConfigurations + ", buildConfigSetRecords=" + buildConfigSetRecords
+                + ", active=" + active + '}';
     }
 
     public Boolean getActive() {

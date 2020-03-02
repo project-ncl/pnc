@@ -30,7 +30,6 @@ public class TestBuildExecution implements BuildExecution {
 
     private List<ArtifactRepository> artifactRepositories;
 
-
     public TestBuildExecution(String buildId) {
         this.buildContentId = buildId;
     }
@@ -38,7 +37,6 @@ public class TestBuildExecution implements BuildExecution {
     public TestBuildExecution() {
         this("build+myproject+12345");
     }
-
 
     @Override
     public int getId() {
@@ -59,14 +57,14 @@ public class TestBuildExecution implements BuildExecution {
         this.artifactRepositories = artifactRepositories;
     }
 
-	@Override
-	public boolean isTempBuild() {
-		return false;
-	}
+    @Override
+    public boolean isTempBuild() {
+        return false;
+    }
 
-	@Override
-	public String getTempBuildTimestamp() {
-		return null;
-	}
+    @Override
+    public String getTempBuildTimestamp() {
+        return null;
+    }
 
 }

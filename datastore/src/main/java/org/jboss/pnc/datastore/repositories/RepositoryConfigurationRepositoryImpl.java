@@ -30,7 +30,8 @@ import javax.inject.Inject;
  * @author Jakub Bartecek
  */
 @Stateless
-public class RepositoryConfigurationRepositoryImpl extends AbstractRepository<RepositoryConfiguration, Integer> implements RepositoryConfigurationRepository {
+public class RepositoryConfigurationRepositoryImpl extends AbstractRepository<RepositoryConfiguration, Integer>
+        implements RepositoryConfigurationRepository {
 
     /**
      * @deprecated Created for CDI.
@@ -39,9 +40,9 @@ public class RepositoryConfigurationRepositoryImpl extends AbstractRepository<Re
     public RepositoryConfigurationRepositoryImpl() {
     }
 
-
     @Inject
-    public RepositoryConfigurationRepositoryImpl(RepositoryConfigurationSpringRepository repositoryConfigurationSpringRepository) {
+    public RepositoryConfigurationRepositoryImpl(
+            RepositoryConfigurationSpringRepository repositoryConfigurationSpringRepository) {
         super(repositoryConfigurationSpringRepository, repositoryConfigurationSpringRepository);
     }
 

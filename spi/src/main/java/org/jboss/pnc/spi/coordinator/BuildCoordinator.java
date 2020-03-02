@@ -34,16 +34,20 @@ import java.util.Optional;
 
 public interface BuildCoordinator {
 
-    BuildSetTask build(BuildConfiguration buildConfiguration,
-                       User user, BuildOptions buildOptions) throws BuildConflictException, CoreException;
+    BuildSetTask build(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions)
+            throws BuildConflictException, CoreException;
 
-    BuildSetTask build(BuildConfigurationAudited buildConfiguration,
-                       User user, BuildOptions buildOptions) throws BuildConflictException, CoreException;
+    BuildSetTask build(BuildConfigurationAudited buildConfiguration, User user, BuildOptions buildOptions)
+            throws BuildConflictException, CoreException;
 
-    BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions) throws CoreException;
+    BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)
+            throws CoreException;
 
-    BuildSetTask build(BuildConfigurationSet buildConfigurationSet, Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
-                       User user, BuildOptions buildOptions) throws CoreException;
+    BuildSetTask build(
+            BuildConfigurationSet buildConfigurationSet,
+            Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
+            User user,
+            BuildOptions buildOptions) throws CoreException;
 
     List<BuildTask> getSubmittedBuildTasks();
 

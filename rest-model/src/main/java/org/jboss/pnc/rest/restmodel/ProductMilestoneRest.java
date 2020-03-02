@@ -43,10 +43,14 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
     private Integer id;
 
     /**
-     * Version check to be correspond with the DB pattern in ProductMilestone.version. Version examples: 1.2.3.ER1, 1.2.10.CR1, 1.2.CD1
+     * Version check to be correspond with the DB pattern in ProductMilestone.version. Version examples: 1.2.3.ER1,
+     * 1.2.10.CR1, 1.2.CD1
      */
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = Patterns.PRODUCT_MILESTONE_VERSION, message = "Version doesn't match the required pattern " + Patterns.PRODUCT_MILESTONE_VERSION)
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @Pattern(
+            groups = { WhenCreatingNew.class, WhenUpdating.class },
+            regexp = Patterns.PRODUCT_MILESTONE_VERSION,
+            message = "Version doesn't match the required pattern " + Patterns.PRODUCT_MILESTONE_VERSION)
     private String version;
 
     private Date endDate;
@@ -59,7 +63,7 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
 
     private String issueTrackerUrl;
 
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private Integer productVersionId;
 
     private Set<Integer> performedBuilds;
@@ -84,10 +88,10 @@ public class ProductMilestoneRest implements GenericRestEntity<Integer> {
         this.downloadUrl = productMilestone.getDownloadUrl();
         this.issueTrackerUrl = productMilestone.getIssueTrackerUrl();
         this.productVersionId = productMilestone.getProductVersion().getId();
-        this.performedBuilds = nullableStreamOf(productMilestone.getPerformedBuilds())
-                .map(BuildRecord::getId).collect(Collectors.toSet());
-        this.distributedArtifactIds = nullableStreamOf(productMilestone.getDistributedArtifacts())
-                .map(Artifact::getId).collect(Collectors.toSet());
+        this.performedBuilds = nullableStreamOf(productMilestone.getPerformedBuilds()).map(BuildRecord::getId)
+                .collect(Collectors.toSet());
+        this.distributedArtifactIds = nullableStreamOf(productMilestone.getDistributedArtifacts()).map(Artifact::getId)
+                .collect(Collectors.toSet());
         if (productMilestone.getProductRelease() != null) {
             this.productReleaseId = productMilestone.getProductRelease().getId();
         }

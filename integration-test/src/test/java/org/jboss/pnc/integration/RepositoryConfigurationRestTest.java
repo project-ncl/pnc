@@ -75,7 +75,7 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
         restWar.addClass(AbstractProvider.class);
 
         logger.info(enterpriseArchive.toString(true));
-        return  enterpriseArchive;
+        return enterpriseArchive;
     }
 
     private static int repositoryConfigurationId;
@@ -92,7 +92,11 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
     @Test
     @InSequence(1)
     public void shouldCreateNewWithInternalUrl() throws IOException {
-        repositoryConfigurationId = processCreateRequest("repositoryConfiguration_create_template", 201, VALID_INTERNAL_REPO, null);
+        repositoryConfigurationId = processCreateRequest(
+                "repositoryConfiguration_create_template",
+                201,
+                VALID_INTERNAL_REPO,
+                null);
     }
 
     @Test
@@ -101,21 +105,25 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
         processCreateRequest("repositoryConfiguration_create_template", 409, VALID_INTERNAL_REPO, null);
     }
 
-    private int processCreateRequest(String templateName, int expectedReponseCode,
-                                      String internalUrl, String externalUrl) throws IOException {
+    private int processCreateRequest(
+            String templateName,
+            int expectedReponseCode,
+            String internalUrl,
+            String externalUrl) throws IOException {
         JsonTemplateBuilder requestTemplate = JsonTemplateBuilder.fromResource(templateName);
-        if(internalUrl != null)
+        if (internalUrl != null)
             requestTemplate.addValue("_internalUrl", internalUrl);
-        if(externalUrl != null)
+        if (externalUrl != null)
             requestTemplate.addValue("_externalUrl", externalUrl);
 
         Response response = given().headers(testHeaders)
                 .body(requestTemplate.fillTemplate())
                 .contentType(ContentType.JSON)
-                .port(getHttpPort()).when()
+                .port(getHttpPort())
+                .when()
                 .post(REPOSITORY_CONFIGURATION_REST_ENDPOINT);
         assertEquals(expectedReponseCode, response.getStatusCode());
-        if(expectedReponseCode >= 200 && expectedReponseCode < 300)
+        if (expectedReponseCode >= 200 && expectedReponseCode < 300)
             return response.jsonPath().get(CONTENT_ID);
         else
             return 0;
@@ -126,7 +134,6 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
         processCreateRequest("repositoryConfiguration_create_template_external_url", 400, null, VALID_EXTERNAL_REPO);
     }
 
-
     @Test
     public void shouldFailToCreateNewWithInternalUrlNotMatchingPattern() throws IOException {
         processCreateRequest("repositoryConfiguration_create_template", 400, VALID_EXTERNAL_REPO, null);
@@ -135,25 +142,28 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
     @InSequence(3)
     @Test
     public void shouldUpdate() throws IOException {
-        //given
+        // given
         JsonTemplateBuilder requestTemplate = JsonTemplateBuilder.fromResource("repositoryConfiguration_all_fields");
         requestTemplate.addValue("_internalUrl", VALID_INTERNAL_REPO);
         requestTemplate.addValue("_externalUrl", VALID_EXTERNAL_REPO);
         requestTemplate.addValue("_id", String.valueOf(repositoryConfigurationId));
         requestTemplate.addValue("_preBuildSyncEnabled", String.valueOf(true));
 
-        //when
+        // when
         given().headers(testHeaders)
                 .body(requestTemplate.fillTemplate())
                 .contentType(ContentType.JSON)
-                .port(getHttpPort()).when()
+                .port(getHttpPort())
+                .when()
                 .put(String.format(REPOSITORY_CONFIGURATION_SPECIFIC_REST_ENDPOINT, repositoryConfigurationId))
                 .then()
                 .statusCode(200);
 
-        //then
+        // then
         Response responseAfterUpdate = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(REPOSITORY_CONFIGURATION_SPECIFIC_REST_ENDPOINT, repositoryConfigurationId));
         ResponseAssertion.assertThat(responseAfterUpdate).hasStatus(200);
         ResponseAssertion.assertThat(responseAfterUpdate)
@@ -164,16 +174,18 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
 
     @Test
     public void shouldNotAllowUpdatingInternalUrl() throws IOException {
-        //given
+        // given
         final String validInternalUrl2 = "git+ssh://git-repo-user@git-repo.devvm.devcloud.example.com:12839/booValid2.git";
-        JsonTemplateBuilder requestTemplate = JsonTemplateBuilder.fromResource("repositoryConfiguration_create_template");
+        JsonTemplateBuilder requestTemplate = JsonTemplateBuilder
+                .fromResource("repositoryConfiguration_create_template");
         requestTemplate.addValue("_internalUrl", validInternalUrl2);
 
-        //when
+        // when
         given().headers(testHeaders)
                 .body(requestTemplate.fillTemplate())
                 .contentType(ContentType.JSON)
-                .port(getHttpPort()).when()
+                .port(getHttpPort())
+                .when()
                 .put(String.format(REPOSITORY_CONFIGURATION_SPECIFIC_REST_ENDPOINT, repositoryConfigurationId))
                 .then()
                 .statusCode(400);
@@ -182,7 +194,11 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
     @Test
     @InSequence(4)
     public void shouldCreateNewWithBothUrls() throws IOException {
-        repositoryConfigurationId = processCreateRequest("repositoryConfiguration_create_template_both_urls", 201, VALID_INTERNAL_REPO_2, VALID_EXTERNAL_REPO_2);
+        repositoryConfigurationId = processCreateRequest(
+                "repositoryConfiguration_create_template_both_urls",
+                201,
+                VALID_INTERNAL_REPO_2,
+                VALID_EXTERNAL_REPO_2);
     }
 
     @InSequence(5)
@@ -200,7 +216,7 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
 
     @InSequence(6)
     @Test
-    public void shouldNotMatchPartialExternalRepositoryUrl(){
+    public void shouldNotMatchPartialExternalRepositoryUrl() {
         // given record inserted in shouldUpdate VALID_INTERNAL_REPO, VALID_EXTERNAL_REPO
         final String requestUrl1 = "https://github.com";
         final String requestUrl2 = "ssh://github.com/project-ncl";
@@ -211,25 +227,28 @@ public class RepositoryConfigurationRestTest extends AbstractTest {
 
     private void matchFullExternalRepositoryUrl(String requestUrl1, boolean shouldSucceed) {
         Response responseAll = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(REPOSITORY_CONFIGURATION_REST_ENDPOINT);
         logger.debug(responseAll.asString());
 
-        //when
+        // when
         Response responseMatch = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .queryParam(SEARCH_QUERY_PARAM, requestUrl1)
                 .get(REPOSITORY_CONFIGURATION_MATCH_REST_ENDPOINT);
 
         // then
-        if(shouldSucceed) {
+        if (shouldSucceed) {
             ResponseAssertion.assertThat(responseMatch).hasStatus(200);
             List<RepositoryConfigurationRest> returnedObjects = responseMatch.path("content.externalUrl");
             assertEquals(1, returnedObjects.size());
             ResponseAssertion.assertThat(responseMatch)
                     .hasJsonValueEqual("content[0].externalUrl", VALID_EXTERNAL_REPO_2);
-        }
-        else {
+        } else {
             ResponseAssertion.assertThat(responseMatch).hasStatus(204);
         }
     }

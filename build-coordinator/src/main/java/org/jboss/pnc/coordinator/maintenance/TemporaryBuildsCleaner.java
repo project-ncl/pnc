@@ -82,19 +82,24 @@ public class TemporaryBuildsCleaner {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
 
         if (buildRecord == null) {
-            throw new ValidationException("Cannot delete temporary build with id " + buildRecordId + " as no build with this id exists");
+            throw new ValidationException(
+                    "Cannot delete temporary build with id " + buildRecordId + " as no build with this id exists");
         }
 
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
-        log.info("Starting deletion of a temporary build " + buildRecord + "; Built artifacts: " + buildRecord.getBuiltArtifacts()
-                + "; Dependencies: " + buildRecord.getDependencies());
+        log.info(
+                "Starting deletion of a temporary build " + buildRecord + "; Built artifacts: "
+                        + buildRecord.getBuiltArtifacts() + "; Dependencies: " + buildRecord.getDependencies());
 
         Result result = remoteBuildsCleaner.deleteRemoteBuilds(buildRecord, authToken);
         if (!result.isSuccess()) {
             log.error("Failed to delete remote temporary builds for BR.id:{}.", buildRecord.getId());
-            return new Result(buildRecordId.toString(), ResultStatus.FAILED, "Failed to delete remote temporary builds.");
+            return new Result(
+                    buildRecordId.toString(),
+                    ResultStatus.FAILED,
+                    "Failed to delete remote temporary builds.");
         }
 
         removeBuiltArtifacts(buildRecord);
@@ -107,9 +112,9 @@ public class TemporaryBuildsCleaner {
     }
 
     private void deleteDependencies(BuildRecord buildRecord) {
-        for(Artifact artifact : buildRecord.getDependencies()) {
-            //check if the BR in which this artifact was produced has been already deleted
-            if(ArtifactQuality.DELETED.equals(artifact.getArtifactQuality())) {
+        for (Artifact artifact : buildRecord.getDependencies()) {
+            // check if the BR in which this artifact was produced has been already deleted
+            if (ArtifactQuality.DELETED.equals(artifact.getArtifactQuality())) {
                 if (artifact.getDependantBuildRecords().size() == 0) {
                     artifactRepository.delete(artifact.getId());
                 }
@@ -130,7 +135,8 @@ public class TemporaryBuildsCleaner {
 
     /**
      * Deletes a BuildConfigSetRecord and BuildRecords produced in the build
-     *  @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
+     * 
+     * @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
      * @param authToken
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -139,8 +145,9 @@ public class TemporaryBuildsCleaner {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
 
         if (buildConfigSetRecord == null) {
-            throw new ValidationException("Cannot delete temporary BuildConfigSetRecord with id " + buildConfigSetRecordId
-                    + " as no BuildConfigSetRecord with this id exists");
+            throw new ValidationException(
+                    "Cannot delete temporary BuildConfigSetRecord with id " + buildConfigSetRecordId
+                            + " as no BuildConfigSetRecord with this id exists");
         }
 
         if (!buildConfigSetRecord.isTemporaryBuild()) {
@@ -163,14 +170,16 @@ public class TemporaryBuildsCleaner {
     private void removeBuiltArtifacts(BuildRecord buildRecord) {
         Set<Artifact> toDelete = new HashSet<>(buildRecord.getBuiltArtifacts());
         for (Artifact artifact : toDelete) {
-            log.debug(String.format(
-                    "Deleting relation BR-Artifact. BR=%s, artifact=%s",
-                    buildRecord,
-                    artifact.getDescriptiveString()));
+            log.debug(
+                    String.format(
+                            "Deleting relation BR-Artifact. BR=%s, artifact=%s",
+                            buildRecord,
+                            artifact.getDescriptiveString()));
 
             if (!artifact.getDistributedInProductMilestones().isEmpty()) {
-                log.error("Temporary artifact was distributed in milestone! Artifact: "
-                        + artifact.toString() + "\n Milestones: " + artifact.getDistributedInProductMilestones().toString());
+                log.error(
+                        "Temporary artifact was distributed in milestone! Artifact: " + artifact.toString()
+                                + "\n Milestones: " + artifact.getDistributedInProductMilestones().toString());
                 continue;
             }
 

@@ -37,7 +37,11 @@ public class DefaultCompletedBuild implements CompletedBuild {
 
     private String buildLog;
 
-    public DefaultCompletedBuild(RunningEnvironment runningEnvironment, BuildStatus buildStatus, Optional<String> outputChecksum, String buildLog) {
+    public DefaultCompletedBuild(
+            RunningEnvironment runningEnvironment,
+            BuildStatus buildStatus,
+            Optional<String> outputChecksum,
+            String buildLog) {
         this.runningEnvironment = runningEnvironment;
         this.buildStatus = buildStatus;
         this.outputChecksum = outputChecksum;

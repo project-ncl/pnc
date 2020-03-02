@@ -35,7 +35,8 @@ public class BuildConfigSetRecordPredicates {
 
     public static Predicate<BuildConfigSetRecord> withBuildConfigSetId(Integer buildConfigSetId) {
         return (root, query, cb) -> {
-            Join<BuildConfigSetRecord, BuildConfigurationSet> buildConfigurationSet = root.join(BuildConfigSetRecord_.buildConfigurationSet);
+            Join<BuildConfigSetRecord, BuildConfigurationSet> buildConfigurationSet = root
+                    .join(BuildConfigSetRecord_.buildConfigurationSet);
             return cb.equal(buildConfigurationSet.get(BuildConfigurationSet_.id), buildConfigSetId);
         };
     }
@@ -55,7 +56,8 @@ public class BuildConfigSetRecordPredicates {
             Subquery<Integer> subQuery = cb.createQuery(Integer.class).subquery(Integer.class);
             Root<BuildConfigSetRecord> subRoot = subQuery.from(BuildConfigSetRecord.class);
             javax.persistence.criteria.Predicate subSelect = cb.equal(
-                    subRoot.get(BuildConfigSetRecord_.buildConfigurationSet).get(BuildConfigurationSet_.id), buildConfigSetId);
+                    subRoot.get(BuildConfigSetRecord_.buildConfigurationSet).get(BuildConfigurationSet_.id),
+                    buildConfigSetId);
 
             subQuery.select(cb.max(subRoot.get(BuildConfigSetRecord_.id))).where(subSelect);
             return cb.equal(root.get(BuildConfigSetRecord_.id), cb.any(subQuery));

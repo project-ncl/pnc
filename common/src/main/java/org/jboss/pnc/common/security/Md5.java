@@ -33,8 +33,7 @@ public class Md5 {
         md = MessageDigest.getInstance("MD5");
     }
 
-    public static String digest(String message)
-            throws NoSuchAlgorithmException, IOException {
+    public static String digest(String message) throws NoSuchAlgorithmException, IOException {
         return CheckSum.calculateDigest(message, "MD5");
     }
 
@@ -46,6 +45,5 @@ public class Md5 {
         byte[] digest = md.digest();
         return CheckSum.format(digest);
     }
-
 
 }

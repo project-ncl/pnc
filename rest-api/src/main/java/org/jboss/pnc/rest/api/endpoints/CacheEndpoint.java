@@ -48,41 +48,93 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Client
 public interface CacheEndpoint {
 
-    @Operation(summary = "Get general statistics related to Hibernate.", responses = {
-            @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION, content = @Content(schema = @Schema(implementation = Response.class))),
-            @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION, content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @Operation(
+            summary = "Get general statistics related to Hibernate.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Response.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/statistics")
     public Response getGenericStats();
 
-    @Operation(summary = "Get statistics of all entities in second-level cache.", responses = {
-            @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION, content = @Content(schema = @Schema(implementation = Response.class))),
-            @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION, content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @Operation(
+            summary = "Get statistics of all entities in second-level cache.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Response.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/entity-statistics")
     public Response getSecondLevelCacheEntitiesStats();
 
-    @Operation(summary = "Get statistics of all cache region names in second-level cache.", responses = {
-            @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION, content = @Content(schema = @Schema(implementation = Response.class))),
-            @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION, content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @Operation(
+            summary = "Get statistics of all cache region names in second-level cache.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Response.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/region-statistics")
     public Response getSecondLevelCacheRegionsStats();
 
-    @Operation(summary = "Get statistics of all collections in second-level cache.", responses = {
-            @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION, content = @Content(schema = @Schema(implementation = Response.class))),
-            @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION, content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @Operation(
+            summary = "Get statistics of all collections in second-level cache.",
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Response.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/collection-statistics")
     public Response getSecondLevelCacheCollectionsStats();
 
-    @Operation(summary = "Delete all content from second level cache. Needs to be admin", responses = {
-            @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION, content = @Content(schema = @Schema(implementation = Response.class))),
-            @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION, content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION, content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @Operation(
+            summary = "Delete all content from second level cache. Needs to be admin",
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Response.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @DELETE
     public Response clearCache();
 

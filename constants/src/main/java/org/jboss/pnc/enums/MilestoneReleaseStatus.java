@@ -18,14 +18,8 @@
 package org.jboss.pnc.enums;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/30/16
- * Time: 1:16 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 1:16 PM
  */
 public enum MilestoneReleaseStatus {
-    IN_PROGRESS,
-    FAILED,
-    SUCCEEDED,
-    CANCELED,
-    SYSTEM_ERROR
+    IN_PROGRESS, FAILED, SUCCEEDED, CANCELED, SYSTEM_ERROR
 }

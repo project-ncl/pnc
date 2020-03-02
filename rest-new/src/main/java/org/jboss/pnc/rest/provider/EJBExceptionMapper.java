@@ -39,12 +39,15 @@ public class EJBExceptionMapper implements ExceptionMapper<EJBException> {
     @Context
     private Providers providers;
 
-    @Override public Response toResponse(EJBException exception) {
+    @Override
+    public Response toResponse(EJBException exception) {
         Throwable t = exception.getCause();
         ExceptionMapper mapper = providers.getExceptionMapper(t.getClass());
-        log.debug("Unwrapping " + t.getClass().getSimpleName() + " from EJBException and passing in it to its appropriate ExceptionMapper");
+        log.debug(
+                "Unwrapping " + t.getClass().getSimpleName()
+                        + " from EJBException and passing in it to its appropriate ExceptionMapper");
 
-        if( mapper != null ) {
+        if (mapper != null) {
             return mapper.toResponse(t);
         } else {
             log.error("Could not find exception mapper for exception " + t.getClass().getSimpleName(), t);

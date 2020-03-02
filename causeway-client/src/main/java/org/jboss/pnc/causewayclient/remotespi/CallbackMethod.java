@@ -22,6 +22,5 @@ package org.jboss.pnc.causewayclient.remotespi;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 public enum CallbackMethod {
-    POST,
-    PUT
+    POST, PUT
 }

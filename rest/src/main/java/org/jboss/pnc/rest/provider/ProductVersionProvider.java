@@ -51,7 +51,6 @@ import static java.lang.String.format;
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
 
-
 @Stateless
 public class ProductVersionProvider extends AbstractProvider<ProductVersion, ProductVersionRest> {
 
@@ -83,34 +82,52 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
     public ProductVersionProvider() {
     }
 
-    public CollectionInfo<ProductVersionRest> getAllForProduct(int pageIndex, int pageSize, String sortingRsql, String query,
-            Integer productId){
+    public CollectionInfo<ProductVersionRest> getAllForProduct(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Integer productId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(productId));
     }
 
-    public CollectionInfo<ProductVersionRest> getAllForBuildConfiguration(int pageIndex, int pageSize, String sortingRsql, String query,
-            Integer buildConfigurationId){
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildConfigurationId(buildConfigurationId));
+    public CollectionInfo<ProductVersionRest> getAllForBuildConfiguration(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Integer buildConfigurationId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withBuildConfigurationId(buildConfigurationId));
     }
 
-    public ProductVersion updateBuildConfigurationSets(Integer id, List<BuildConfigurationSetRest> buildConfigurationSetsToAdd) throws
-            RestValidationException {
+    public ProductVersion updateBuildConfigurationSets(
+            Integer id,
+            List<BuildConfigurationSetRest> buildConfigurationSetsToAdd) throws RestValidationException {
         if (buildConfigurationSetsToAdd == null) {
             throw new InvalidEntityException("No BuildConfigurationSets supplied");
         }
 
         ProductVersion productVersion = repository.queryById(id);
-        List<BuildConfigurationSet> buildConfigurationSets = buildConfigurationSetRepository.withProductVersionId(productVersion.getId());
+        List<BuildConfigurationSet> buildConfigurationSets = buildConfigurationSetRepository
+                .withProductVersionId(productVersion.getId());
 
         if (logger.isTraceEnabled()) {
-            logger.trace("Retrieved ProductVersion: {}; Retrieved BuildConfigurationSets: {}",
-                    productVersion, buildConfigurationSets.stream().map(bcs -> bcs.getId().toString()).collect(Collectors.joining()));
+            logger.trace(
+                    "Retrieved ProductVersion: {}; Retrieved BuildConfigurationSets: {}",
+                    productVersion,
+                    buildConfigurationSets.stream().map(bcs -> bcs.getId().toString()).collect(Collectors.joining()));
         }
 
         Set<BuildConfigurationSet> addedBCSets = new HashSet<>();
 
         for (BuildConfigurationSetRest configurationSetToAdd : buildConfigurationSetsToAdd) {
-            BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(configurationSetToAdd.getId());
+            BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository
+                    .queryById(configurationSetToAdd.getId());
             logger.trace("Validating buildConfigurationSet: {}", buildConfigurationSet);
 
             if (buildConfigurationSet == null) {
@@ -119,8 +136,12 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
 
             if (buildConfigurationSet.getProductVersion() != null
                     && !buildConfigurationSet.getProductVersion().getId().equals(productVersion.getId())) {
-                throw new ConflictedEntryException(format("BuildConfigurationSet: '%s' is already associated with a different Product Version",
-                        buildConfigurationSet.getName()), BuildConfigurationSet.class, buildConfigurationSet.getId());
+                throw new ConflictedEntryException(
+                        format(
+                                "BuildConfigurationSet: '%s' is already associated with a different Product Version",
+                                buildConfigurationSet.getName()),
+                        BuildConfigurationSet.class,
+                        buildConfigurationSet.getId());
             }
 
             addedBCSets.add(buildConfigurationSet);
@@ -131,7 +152,8 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
         productVersion.setBuildConfigurationSets(addedBCSets);
         validateBeforeUpdating(id, new ProductVersionRest(productVersion));
         if (logger.isTraceEnabled()) {
-            logger.trace("About to remove BCSets from productVersion: {}",
+            logger.trace(
+                    "About to remove BCSets from productVersion: {}",
                     removedBCSets.stream().map(set -> set.getId().toString()).collect(Collectors.joining()));
         }
         removedBCSets.forEach(removed -> {
@@ -139,7 +161,8 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
             buildConfigurationSetRepository.save(removed);
         });
         if (logger.isTraceEnabled()) {
-            logger.trace("About to add BCSets to productVersion: {}",
+            logger.trace(
+                    "About to add BCSets to productVersion: {}",
                     addedBCSets.stream().map(set -> set.getId().toString()).collect(Collectors.joining()));
         }
         addedBCSets.forEach(added -> {
@@ -148,8 +171,13 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
             buildConfigurationSetRepository.save(added);
         });
         if (logger.isTraceEnabled()) {
-            logger.trace("About to save ProductVersion: {}; Contains BuildConfigurationSets: {}",
-                    productVersion, productVersion.getBuildConfigurationSets().stream().map(bcs -> bcs.getId().toString()).collect(Collectors.joining()));
+            logger.trace(
+                    "About to save ProductVersion: {}; Contains BuildConfigurationSets: {}",
+                    productVersion,
+                    productVersion.getBuildConfigurationSets()
+                            .stream()
+                            .map(bcs -> bcs.getId().toString())
+                            .collect(Collectors.joining()));
         }
         return repository.save(productVersion);
     }
@@ -161,16 +189,19 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
 
     @Override
     protected Function<? super ProductVersionRest, ? extends ProductVersion> toDBModel() {
-        return productVersionRest -> productVersionRest.toDBEntityBuilder().build();        
+        return productVersionRest -> productVersionRest.toDBEntityBuilder().build();
     }
-    
+
     @Override
     public Integer store(ProductVersionRest restEntity) throws RestValidationException {
         validateBeforeSaving(restEntity);
         ProductVersion.Builder productVersionBuilder = restEntity.toDBEntityBuilder();
         Product product = productRepository.queryById(restEntity.getProductId());
-        productVersionBuilder.generateBrewTagPrefix(product.getAbbreviation(), restEntity.getVersion(), systemConfig.getBrewTagPattern());
-        
+        productVersionBuilder.generateBrewTagPrefix(
+                product.getAbbreviation(),
+                restEntity.getVersion(),
+                systemConfig.getBrewTagPattern());
+
         return repository.save(productVersionBuilder.build()).getId();
     }
 
@@ -178,10 +209,9 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
     public void update(Integer id, ProductVersionRest restEntity) throws RestValidationException {
         ProductVersionRest current = super.getSpecific(id);
         if (!current.getVersion().equals(restEntity.getVersion())
-                && current.getProductMilestones()
-                    .stream()
-                    .anyMatch(milestone -> milestone.getEndDate() != null)) {
-            throw new InvalidEntityException("Cannot change version id due to having closed milestone. Product version id: " + id);
+                && current.getProductMilestones().stream().anyMatch(milestone -> milestone.getEndDate() != null)) {
+            throw new InvalidEntityException(
+                    "Cannot change version id due to having closed milestone. Product version id: " + id);
         }
         super.update(id, restEntity);
     }
@@ -195,21 +225,25 @@ public class ProductVersionProvider extends AbstractProvider<ProductVersion, Pro
         }
     }
 
-    private void validateBeforeUpdate(Integer productVersionId, Set<BuildConfigurationSet> sets) throws InvalidEntityException {
+    private void validateBeforeUpdate(Integer productVersionId, Set<BuildConfigurationSet> sets)
+            throws InvalidEntityException {
         for (BuildConfigurationSet set : sets) {
             validateBeforeUpdate(productVersionId, sets);
         }
     }
 
-    private void validateBeforeUpdate(Integer productVersionId, BuildConfigurationSet set) throws InvalidEntityException {
+    private void validateBeforeUpdate(Integer productVersionId, BuildConfigurationSet set)
+            throws InvalidEntityException {
         BuildConfigurationSetRest restModel = new BuildConfigurationSetRest(set);
-        ValidationBuilder.validateObject(set, WhenUpdating.class).validateCondition(
-                set != null, "Invalid BuildConfigurationSet"
-        );
+        ValidationBuilder.validateObject(set, WhenUpdating.class)
+                .validateCondition(set != null, "Invalid BuildConfigurationSet");
 
-        ValidationBuilder.validateObject(restModel, WhenUpdating.class).validateCondition(
-                set.getProductVersion() == null || set.getProductVersion().getId().equals(productVersionId),
-                format("BuildConfigurationSet: '%s' is already associated with a different Product Version", restModel.getName()));
+        ValidationBuilder.validateObject(restModel, WhenUpdating.class)
+                .validateCondition(
+                        set.getProductVersion() == null || set.getProductVersion().getId().equals(productVersionId),
+                        format(
+                                "BuildConfigurationSet: '%s' is already associated with a different Product Version",
+                                restModel.getName()));
     }
 
 }

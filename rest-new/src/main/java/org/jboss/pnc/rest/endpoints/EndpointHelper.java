@@ -34,7 +34,7 @@ public class EndpointHelper<DBEntityID extends Serializable, DTO extends REF, RE
     private final Class<DTO> dtoClass;
     private final Provider<DBEntityID, ?, DTO, REF> provider;
 
-    protected EndpointHelper(Class<DTO> dtoClass, Provider<DBEntityID, ?, DTO, REF> provider){
+    protected EndpointHelper(Class<DTO> dtoClass, Provider<DBEntityID, ?, DTO, REF> provider) {
         this.dtoClass = dtoClass;
         this.provider = provider;
     }
@@ -51,7 +51,8 @@ public class EndpointHelper<DBEntityID extends Serializable, DTO extends REF, RE
         DTO dto = provider.getSpecific(id);
         if (dto == null) {
             logger.debug("Entity of type " + dtoClass.getSimpleName() + " with id: " + id + " not found.");
-            throw new NotFoundException("Entity of type " + dtoClass.getSimpleName() + " with id: " + id + " not found.");
+            throw new NotFoundException(
+                    "Entity of type " + dtoClass.getSimpleName() + " with id: " + id + " not found.");
         }
         logger.debug("Successful retrieval of " + dtoClass.getSimpleName() + " with id: " + id);
         return dto;
@@ -59,7 +60,11 @@ public class EndpointHelper<DBEntityID extends Serializable, DTO extends REF, RE
 
     protected Page<DTO> getAll(PageParameters pageParameters) {
         logger.debug("Retrieving " + dtoClass.getSimpleName() + "s with these " + pageParameters);
-        return provider.getAll(pageParameters.getPageIndex(), pageParameters.getPageSize(), pageParameters.getSort(), pageParameters.getQ());
+        return provider.getAll(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ());
     }
 
     protected DTO update(String id, DTO dto) {

@@ -48,8 +48,7 @@ public class RepositoryConfigurationProviderTest {
     private ScmModuleConfig scmModuleConfig;
 
     @InjectMocks
-    private RepositoryConfigurationProvider repositoryConfigurationProvider =
-            new RepositoryConfigurationProvider();
+    private RepositoryConfigurationProvider repositoryConfigurationProvider = new RepositoryConfigurationProvider();
 
     @Before
     public void setUp() throws ConfigurationParseException {

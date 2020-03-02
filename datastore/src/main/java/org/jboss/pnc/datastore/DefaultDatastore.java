@@ -86,14 +86,15 @@ public class DefaultDatastore implements Datastore {
     }
 
     @Inject
-    public DefaultDatastore(ArtifactRepository artifactRepository,
-                            BuildRecordRepository buildRecordRepository,
-                            BuildConfigurationRepository buildConfigurationRepository,
-                            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
-                            BuildConfigSetRecordRepository buildConfigSetRecordRepository,
-                            UserRepository userRepository,
-                            SequenceHandlerRepository sequenceHandlerRepository,
-                            TargetRepositoryRepository targetRepositoryRepository) {
+    public DefaultDatastore(
+            ArtifactRepository artifactRepository,
+            BuildRecordRepository buildRecordRepository,
+            BuildConfigurationRepository buildConfigurationRepository,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+            BuildConfigSetRecordRepository buildConfigSetRecordRepository,
+            UserRepository userRepository,
+            SequenceHandlerRepository sequenceHandlerRepository,
+            TargetRepositoryRepository targetRepositoryRepository) {
         this.artifactRepository = artifactRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.buildConfigurationRepository = buildConfigurationRepository;
@@ -108,7 +109,8 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     public Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts) {
-        Map<String, Artifact> sha256s = artifacts.stream().collect(Collectors.toMap(Artifact::getSha256, Function.identity()));
+        Map<String, Artifact> sha256s = artifacts.stream()
+                .collect(Collectors.toMap(Artifact::getSha256, Function.identity()));
         List<Artifact> conflicting = artifactRepository.queryWithPredicates(withSha256InAndBuilt(sha256s.keySet()));
         Map<Artifact, String> conflicts = new HashMap<>();
         for (Artifact conflict : conflicting) {
@@ -120,7 +122,10 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public BuildRecord storeCompletedBuild(BuildRecord.Builder buildRecordBuilder, List<Artifact> builtArtifacts, List<Artifact> dependencies) {
+    public BuildRecord storeCompletedBuild(
+            BuildRecord.Builder buildRecordBuilder,
+            List<Artifact> builtArtifacts,
+            List<Artifact> dependencies) {
         BuildRecord buildRecord = buildRecordBuilder.build(true);
         logger.debug("Storing completed build {}.", buildRecord);
         if (logger.isTraceEnabled()) {
@@ -130,9 +135,9 @@ public class DefaultDatastore implements Datastore {
         Map<TargetRepository.IdentifierPath, TargetRepository> repositoriesCache = new HashMap<>();
         Map<Artifact.IdentifierSha256, Artifact> artifactCache = new HashMap<>();
 
-        /** Built artifacts must be saved before the dependencies.
-         *  In case an artifact is built and the dependency (re-downloaded),
-         *  it must be linked to built artifacts repository.
+        /**
+         * Built artifacts must be saved before the dependencies. In case an artifact is built and the dependency
+         * (re-downloaded), it must be linked to built artifacts repository.
          */
         logger.debug("Saving built artifacts ...");
         final Set<Artifact> savedBuiltArtifacts = saveArtifacts(builtArtifacts, repositoriesCache, artifactCache);
@@ -165,14 +170,15 @@ public class DefaultDatastore implements Datastore {
     }
 
     /**
-     * Checks the given list against the existing database and creates a new list containing
-     * artifacts which have been saved to or loaded from the database.
+     * Checks the given list against the existing database and creates a new list containing artifacts which have been
+     * saved to or loaded from the database.
      *
      * @param artifacts of in-memory artifacts to either insert to the database or find the matching record in the db
      * @param artifactCache
      * @return Set of up to date JPA artifact entities
      */
-    private Set<Artifact> saveArtifacts(Collection<Artifact> artifacts,
+    private Set<Artifact> saveArtifacts(
+            Collection<Artifact> artifacts,
             Map<TargetRepository.IdentifierPath, TargetRepository> storedTargetRepositories,
             Map<Artifact.IdentifierSha256, Artifact> artifactCache) {
         logger.debug("Saving {} artifacts.", artifacts.size());
@@ -199,8 +205,9 @@ public class DefaultDatastore implements Datastore {
         }
 
         for (Artifact artifact : artifacts) {
-            //link managed targetRepository
-            artifact.setTargetRepository(storedTargetRepositories.get(artifact.getTargetRepository().getIdentifierPath()));
+            // link managed targetRepository
+            artifact.setTargetRepository(
+                    storedTargetRepositories.get(artifact.getTargetRepository().getIdentifierPath()));
 
             Artifact artifactFromDb;
             if (RepositoryType.GENERIC_PROXY.equals(artifact.getTargetRepository().getRepositoryType())) {
@@ -228,27 +235,32 @@ public class DefaultDatastore implements Datastore {
         }
 
         if (requiredTargetRepositories.size() > 0) {
-            List<TargetRepository> targetRepositoriesInDB = targetRepositoryRepository.queryByIdentifiersAndPaths(
-                    requiredTargetRepositories.keySet());
-            storedTargetRepositories.putAll(targetRepositoriesInDB.stream()
-                    .collect(Collectors.toMap(TargetRepository::getIdentifierPath, tr -> tr)));
+            List<TargetRepository> targetRepositoriesInDB = targetRepositoryRepository
+                    .queryByIdentifiersAndPaths(requiredTargetRepositories.keySet());
+            storedTargetRepositories.putAll(
+                    targetRepositoriesInDB.stream()
+                            .collect(Collectors.toMap(TargetRepository::getIdentifierPath, tr -> tr)));
         }
 
-        for (Map.Entry<TargetRepository.IdentifierPath, TargetRepository> entry : requiredTargetRepositories.entrySet()) {
-           TargetRepository.IdentifierPath identifierPath = entry.getKey();
-           TargetRepository targetRepository = entry.getValue();
-           storedTargetRepositories.computeIfAbsent(identifierPath, ip -> targetRepositoryRepository.save(targetRepository));
-       }
+        for (Map.Entry<TargetRepository.IdentifierPath, TargetRepository> entry : requiredTargetRepositories
+                .entrySet()) {
+            TargetRepository.IdentifierPath identifierPath = entry.getKey();
+            TargetRepository targetRepository = entry.getValue();
+            storedTargetRepositories
+                    .computeIfAbsent(identifierPath, ip -> targetRepositoryRepository.save(targetRepository));
+        }
     }
 
-    private Artifact getOrSaveRepositoryArtifact(Artifact artifact, Map<Artifact.IdentifierSha256, Artifact> artifactCache) {
+    private Artifact getOrSaveRepositoryArtifact(
+            Artifact artifact,
+            Map<Artifact.IdentifierSha256, Artifact> artifactCache) {
         logger.trace("Saving repository artifact {}.", artifact);
         Artifact artifactFromDb = artifactCache.get(artifact.getIdentifierSha256());
 
         if (artifactFromDb == null) {
             logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
 
-            //Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
+            // Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
             artifact.setDependantBuildRecords(Collections.emptySet());
             artifactFromDb = artifactRepository.save(artifact);
 
@@ -265,7 +277,7 @@ public class DefaultDatastore implements Datastore {
         // NONE OF THE ARTIFACTS CAN BE IN THE DB BECAUSE OF PER-BUILD REPOS
         logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
 
-        //Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
+        // Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
         artifact.setDependantBuildRecords(Collections.emptySet());
         Artifact artifactFromDb = artifactRepository.save(artifact);
 
@@ -294,9 +306,9 @@ public class DefaultDatastore implements Datastore {
     }
 
     /**
-     * Save a build config set record to the db.  This requires a new transaction to ensure that
-     * the record is immediately committed to the database so that it's available to use by the
-     * foreign keys set in the individual build records.
+     * Save a build config set record to the db. This requires a new transaction to ensure that the record is
+     * immediately committed to the database so that it's available to use by the foreign keys set in the individual
+     * build records.
      */
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -312,7 +324,8 @@ public class DefaultDatastore implements Datastore {
      */
     @Override
     public BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigurationId) {
-        List<BuildConfigurationAudited> buildConfigRevs = buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(buildConfigurationId);
+        List<BuildConfigurationAudited> buildConfigRevs = buildConfigurationAuditedRepository
+                .findAllByIdOrderByRevDesc(buildConfigurationId);
         if (buildConfigRevs.isEmpty()) {
             logger.error("Did not find any BuildConfiguration revisions.");
             return null;
@@ -321,11 +334,12 @@ public class DefaultDatastore implements Datastore {
         return buildConfigRevs.get(0);
     }
 
-
     @Override
-    public BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(Integer buildConfigurationId) {
+    public BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(
+            Integer buildConfigurationId) {
         BuildConfigurationAudited buildConfigurationAudited = getLatestBuildConfigurationAudited(buildConfigurationId);
-        buildConfigurationAudited.setBuildConfiguration(buildConfigurationRepository.queryById(buildConfigurationAudited.getBuildConfiguration().getId()));
+        buildConfigurationAudited.setBuildConfiguration(
+                buildConfigurationRepository.queryById(buildConfigurationAudited.getBuildConfiguration().getId()));
         buildConfigurationAudited.getBuildConfiguration().getIndirectDependencies();
 
         return buildConfigurationAudited;
@@ -337,23 +351,30 @@ public class DefaultDatastore implements Datastore {
     }
 
     /**
-     * Rebuild is required if Build Configuration has been modified or a dependency has been rebuilt since last successful build.
+     * Rebuild is required if Build Configuration has been modified or a dependency has been rebuilt since last
+     * successful build.
      */
     @Override
     public Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet) {
-        return new HashSet<>(buildConfigurationRepository.queryWithPredicates(withBuildConfigurationSetId(buildConfigurationSet.getId())));
+        return new HashSet<>(
+                buildConfigurationRepository
+                        .queryWithPredicates(withBuildConfigurationSetId(buildConfigurationSet.getId())));
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public boolean requiresRebuild(BuildConfigurationAudited buildConfigurationAudited,
+    public boolean requiresRebuild(
+            BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
             Set<Integer> processedDependenciesCache) {
         IdRev idRev = buildConfigurationAudited.getIdRev();
-        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev, temporaryBuild);
+        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
+                .getLatestSuccessfulBuildRecord(idRev, temporaryBuild);
         if (latestSuccessfulBuildRecord == null) {
-            logger.debug("Rebuild of buildConfiguration.idRev: {} required as there is no successful BuildRecord.", idRev);
+            logger.debug(
+                    "Rebuild of buildConfiguration.idRev: {} required as there is no successful BuildRecord.",
+                    idRev);
             return true;
         }
         if (!isLatestSuccessBRFromThisBCA(buildConfigurationAudited, temporaryBuild)) {
@@ -361,8 +382,14 @@ public class DefaultDatastore implements Datastore {
         }
         if (checkImplicitDependencies) {
             logger.debug("Checking if BCA: {} has implicit dependencies that need rebuild", idRev);
-            boolean rebuild = hasARebuiltImplicitDependency(latestSuccessfulBuildRecord, temporaryBuild, processedDependenciesCache);
-            logger.debug("Implicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.", idRev, rebuild);
+            boolean rebuild = hasARebuiltImplicitDependency(
+                    latestSuccessfulBuildRecord,
+                    temporaryBuild,
+                    processedDependenciesCache);
+            logger.debug(
+                    "Implicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.",
+                    idRev,
+                    rebuild);
             if (rebuild) {
                 return rebuild;
             }
@@ -370,7 +397,10 @@ public class DefaultDatastore implements Datastore {
         // check explicit dependencies
         Set<BuildConfiguration> dependencies = buildConfigurationAudited.getBuildConfiguration().getDependencies();
         boolean rebuild = hasARebuiltExplicitDependency(latestSuccessfulBuildRecord, dependencies, temporaryBuild);
-        logger.debug("Explicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.", idRev, rebuild);
+        logger.debug(
+                "Explicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.",
+                idRev,
+                rebuild);
         return rebuild;
     }
 
@@ -378,56 +408,79 @@ public class DefaultDatastore implements Datastore {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public boolean requiresRebuild(BuildTask task, Set<Integer> processedDependenciesCache) {
-        return requiresRebuild(task.getBuildConfigurationAudited(),
+        return requiresRebuild(
+                task.getBuildConfigurationAudited(),
                 task.getBuildOptions().isImplicitDependenciesCheck(),
                 task.getBuildOptions().isTemporaryBuild(),
                 processedDependenciesCache);
     }
 
     /**
-     * @return true when the latest success {@link BuildRecord} of {@link BuildConfiguration} is build from this {@link BuildConfigurationAudited}
-     * if a build is persistent {@param temporaryBuild} , then it skips temporary build during evaluation
+     * @return true when the latest success {@link BuildRecord} of {@link BuildConfiguration} is build from this
+     *         {@link BuildConfigurationAudited} if a build is persistent {@param temporaryBuild} , then it skips
+     *         temporary build during evaluation
      */
-    private boolean isLatestSuccessBRFromThisBCA(BuildConfigurationAudited buildConfigurationAudited, boolean temporaryBuild) {
-        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(buildConfigurationAudited.getId(), temporaryBuild);
+    private boolean isLatestSuccessBRFromThisBCA(
+            BuildConfigurationAudited buildConfigurationAudited,
+            boolean temporaryBuild) {
+        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
+                .getLatestSuccessfulBuildRecord(buildConfigurationAudited.getId(), temporaryBuild);
         if (latestSuccessfulBuildRecord == null) {
-            logger.warn("The check should be done once it's known there is a successful BuildRecord. There is no successful BuildRecord for BuildConfigurationAudited {}.", buildConfigurationAudited.getIdRev());
+            logger.warn(
+                    "The check should be done once it's known there is a successful BuildRecord. There is no successful BuildRecord for BuildConfigurationAudited {}.",
+                    buildConfigurationAudited.getIdRev());
         }
-        if (latestSuccessfulBuildRecord.getBuildConfigurationAuditedIdRev().equals(buildConfigurationAudited.getIdRev())) {
+        if (latestSuccessfulBuildRecord.getBuildConfigurationAuditedIdRev()
+                .equals(buildConfigurationAudited.getIdRev())) {
             return true;
         } else {
-            logger.debug("Last successful BuildRecord id {} is not from this BuildConfigurationAudited idRev {}.", latestSuccessfulBuildRecord.getId(), buildConfigurationAudited.getIdRev());
+            logger.debug(
+                    "Last successful BuildRecord id {} is not from this BuildConfigurationAudited idRev {}.",
+                    latestSuccessfulBuildRecord.getId(),
+                    buildConfigurationAudited.getIdRev());
             return false;
         }
     }
 
     /**
-     * Check is some of the dependencies from the previous build were rebuild.
-     * Checking is done based on captured dependencies which are stored in the Build Record.
-     * Dependencies which have already been processed and are contained in the provided cache processedDependenciesCache (if any), are not processed again
+     * Check is some of the dependencies from the previous build were rebuild. Checking is done based on captured
+     * dependencies which are stored in the Build Record. Dependencies which have already been processed and are
+     * contained in the provided cache processedDependenciesCache (if any), are not processed again
      */
-    private boolean hasARebuiltImplicitDependency(BuildRecord latestSuccessfulBuildRecord, boolean temporaryBuild, Set<Integer> processedDependenciesCache) {
-        Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(latestSuccessfulBuildRecord, processedDependenciesCache);
-        return lastBuiltFrom.stream()
-                .anyMatch(br -> {
-                    if(hasNewerVersion(br, temporaryBuild)) {
-                        logger.debug("Latest successful BuildRecord: {} has implicitly dependent BR: {} that requires rebuild.", latestSuccessfulBuildRecord.getId(), br.getId());
-                        return true;
-                    }
-                    return false;
-                });
+    private boolean hasARebuiltImplicitDependency(
+            BuildRecord latestSuccessfulBuildRecord,
+            boolean temporaryBuild,
+            Set<Integer> processedDependenciesCache) {
+        Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(
+                latestSuccessfulBuildRecord,
+                processedDependenciesCache);
+        return lastBuiltFrom.stream().anyMatch(br -> {
+            if (hasNewerVersion(br, temporaryBuild)) {
+                logger.debug(
+                        "Latest successful BuildRecord: {} has implicitly dependent BR: {} that requires rebuild.",
+                        latestSuccessfulBuildRecord.getId(),
+                        br.getId());
+                return true;
+            }
+            return false;
+        });
     }
 
     /**
      * Check is some of the dependencies defined on BuildConfiguration has newer version.
      */
-    private boolean hasARebuiltExplicitDependency(BuildRecord latestSuccessfulBuildRecord, Set<BuildConfiguration> dependencies, boolean temporaryBuild) {
+    private boolean hasARebuiltExplicitDependency(
+            BuildRecord latestSuccessfulBuildRecord,
+            Set<BuildConfiguration> dependencies,
+            boolean temporaryBuild) {
         for (BuildConfiguration dependencyBuildConfiguration : dependencies) {
-            BuildRecord dependencyLatestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(dependencyBuildConfiguration.getId(), temporaryBuild);
+            BuildRecord dependencyLatestSuccessfulBuildRecord = buildRecordRepository
+                    .getLatestSuccessfulBuildRecord(dependencyBuildConfiguration.getId(), temporaryBuild);
             if (dependencyLatestSuccessfulBuildRecord == null) {
                 return true;
             }
-            boolean newer = dependencyLatestSuccessfulBuildRecord.getEndTime().after(latestSuccessfulBuildRecord.getEndTime());
+            boolean newer = dependencyLatestSuccessfulBuildRecord.getEndTime()
+                    .after(latestSuccessfulBuildRecord.getEndTime());
             if (newer) {
                 return true;
             }
@@ -439,9 +492,11 @@ public class DefaultDatastore implements Datastore {
      * @return true if there is newer successful BuildRecord for the same buildConfiguration.idRev
      */
     private boolean hasNewerVersion(BuildRecord buildRecord, boolean temporaryBuild) {
-        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(buildRecord.getBuildConfigurationAuditedIdRev(), temporaryBuild);
+        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
+                .getLatestSuccessfulBuildRecord(buildRecord.getBuildConfigurationAuditedIdRev(), temporaryBuild);
         if (latestSuccessfulBuildRecord == null) {
-            logger.error("Something went wrong, the buildRecord should be successful (ot this lattest or the BuildRecord that produced artifacts.).");
+            logger.error(
+                    "Something went wrong, the buildRecord should be successful (ot this lattest or the BuildRecord that produced artifacts.).");
         }
         return !buildRecord.getId().equals(latestSuccessfulBuildRecord.getId());
     }
@@ -450,8 +505,7 @@ public class DefaultDatastore implements Datastore {
      * @return BuildRecords that produced captured dependencies artifacts
      */
     private Collection<BuildRecord> getRecordsUsedFor(BuildRecord record, Set<Integer> processedDependenciesCache) {
-        Set<Integer> dependenciesId = ofNullableCollection(record.getDependencies())
-                .stream()
+        Set<Integer> dependenciesId = ofNullableCollection(record.getDependencies()).stream()
                 .map(Artifact::getId)
                 .collect(Collectors.toSet());
 
@@ -462,16 +516,20 @@ public class DefaultDatastore implements Datastore {
 
         logger.debug("Retrieved dependencies size: {}", dependenciesId.size());
         if (processedDependenciesCache != null) {
-            // If the cache of already processed dependencies is not null, remove them from the list of dependencies still to be processed to avoid multiple iterated checks on same items
+            // If the cache of already processed dependencies is not null, remove them from the list of dependencies
+            // still to be processed to avoid multiple iterated checks on same items
             dependenciesId.removeAll(processedDependenciesCache);
-            logger.debug("Retrieved dependencies after removal of already processed cache size: {}", dependenciesId.size());
+            logger.debug(
+                    "Retrieved dependencies after removal of already processed cache size: {}",
+                    dependenciesId.size());
 
             // Populate the cache with the list of processed dependencies
             processedDependenciesCache.addAll(dependenciesId);
         }
 
         logger.debug("Finding built artifacts for dependencies: {}", dependenciesId);
-        return dependenciesId.isEmpty() ? Collections.emptyList() : buildRecordRepository.findByBuiltArtifacts(dependenciesId);
+        return dependenciesId.isEmpty() ? Collections.emptyList()
+                : buildRecordRepository.findByBuiltArtifacts(dependenciesId);
     }
 
 }

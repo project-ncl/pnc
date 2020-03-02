@@ -35,14 +35,14 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
-* Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
-*/
+ * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
+ */
 public class BuildTask {
 
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-task");
 
     private final Integer id;
-    private final BuildConfigurationAudited buildConfigurationAudited; //TODO decouple DB entity
+    private final BuildConfigurationAudited buildConfigurationAudited; // TODO decouple DB entity
 
     @Getter
     private final BuildOptions buildOptions;
@@ -74,7 +74,7 @@ public class BuildTask {
 
     private boolean hasFailed = false;
 
-    //called when all dependencies are built
+    // called when all dependencies are built
     private final Integer buildConfigSetRecordId;
 
     /**
@@ -82,7 +82,8 @@ public class BuildTask {
      */
     private Optional<String> requestContext;
 
-    private BuildTask(BuildConfigurationAudited buildConfigurationAudited,
+    private BuildTask(
+            BuildConfigurationAudited buildConfigurationAudited,
             BuildOptions buildOptions,
             User user,
             Date submitTime,
@@ -150,11 +151,12 @@ public class BuildTask {
     }
 
     /**
-     * Check if this build task has a build configuration dependency on the given build task.
-     * The search include transitive dependencies.
+     * Check if this build task has a build configuration dependency on the given build task. The search include
+     * transitive dependencies.
      *
      * @param buildTask The buildTask with the config to check
-     * @return true if this task's build config has a dependency (including transitive) on the build config of the given task, otherwise false
+     * @return true if this task's build config has a dependency (including transitive) on the build config of the given
+     *         task, otherwise false
      */
     public boolean hasConfigDependencyOn(BuildTask buildTask) {
         if (buildTask == null || this.equals(buildTask)) {
@@ -173,7 +175,8 @@ public class BuildTask {
      * Check if this build task has a direct build configuration dependency on the given build task
      *
      * @param buildTask The buildTask with the config to check
-     * @return true if this task's build config has a direct dependency on the build config of the given task, otherwise false
+     * @return true if this task's build config has a direct dependency on the build config of the given task, otherwise
+     *         false
      */
     public boolean hasDirectConfigDependencyOn(BuildTask buildTask) {
         if (buildTask == null || this.equals(buildTask)) {
@@ -185,7 +188,8 @@ public class BuildTask {
             return false;
         }
 
-        return buildConfiguration.getDependencies().contains(buildTask.getBuildConfigurationAudited().getBuildConfiguration());
+        return buildConfiguration.getDependencies()
+                .contains(buildTask.getBuildConfigurationAudited().getBuildConfiguration());
     }
 
     public void addDependant(BuildTask buildTask) {
@@ -200,8 +204,7 @@ public class BuildTask {
     }
 
     /**
-     * A build task is equal to another build task if they are using the same
-     * build configuration ID and version.
+     * A build task is equal to another build task if they are using the same build configuration ID and version.
      */
     @Override
     public boolean equals(Object o) {
@@ -224,12 +227,12 @@ public class BuildTask {
         this.statusDescription = statusDescription;
     }
 
-    public boolean hasFailed(){
+    public boolean hasFailed() {
         return this.hasFailed;
     }
 
-    void setHasFailed(boolean hasFailed){
-       this.hasFailed = hasFailed;
+    void setHasFailed(boolean hasFailed) {
+        this.hasFailed = hasFailed;
     }
 
     public int getId() {
@@ -265,14 +268,13 @@ public class BuildTask {
     }
 
     /**
-     * Check if this build is ready to build, for example if all dependency builds
-     * are complete.
+     * Check if this build is ready to build, for example if all dependency builds are complete.
      *
      * @return true if already built, false otherwise
      */
     public boolean readyToBuild() {
         for (BuildTask buildTask : dependencies) {
-            if(!buildTask.getStatus().isCompleted()) {
+            if (!buildTask.getStatus().isCompleted()) {
                 return false;
             }
         }
@@ -281,11 +283,14 @@ public class BuildTask {
 
     @Override
     public String toString() {
-        return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", project name: " + buildConfigurationAudited.getProject().getName() + ", status: " + status;
+        return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", project name: "
+                + buildConfigurationAudited.getProject().getName() + ", status: " + status;
     }
 
-    public static BuildTask build(BuildConfigurationAudited buildConfigurationAudited,
-            BuildOptions buildOptions, User user,
+    public static BuildTask build(
+            BuildConfigurationAudited buildConfigurationAudited,
+            BuildOptions buildOptions,
+            User user,
             int buildTaskId,
             BuildSetTask buildSetTask,
             Date submitTime,
@@ -295,14 +300,17 @@ public class BuildTask {
 
         Integer buildConfigSetRecordId = null;
         if (buildSetTask != null) {
-            buildConfigSetRecordId =
-                    buildSetTask.getBuildConfigSetRecord().map(BuildConfigSetRecord::getId).orElse(null);
+            buildConfigSetRecordId = buildSetTask.getBuildConfigSetRecord()
+                    .map(BuildConfigSetRecord::getId)
+                    .orElse(null);
         }
 
         ProductMilestone milestone = productMilestone;
         if (milestone != null && milestone.getEndDate() != null) {
-            userLog.warn("Not using current milestone {} for build task {}, because the milestone is closed.",
-                    productMilestone, buildTaskId);
+            userLog.warn(
+                    "Not using current milestone {} for build task {}, because the milestone is closed.",
+                    productMilestone,
+                    buildTaskId);
             milestone = null;
         }
 
@@ -318,7 +326,6 @@ public class BuildTask {
                 contentId,
                 requestContext);
     }
-
 
     public Integer getBuildConfigSetRecordId() {
         return buildConfigSetRecordId;

@@ -23,12 +23,29 @@ import org.jboss.pnc.dto.response.Page;
 
 import java.util.Optional;
 
-public interface ArtifactProvider extends Provider<Integer, org.jboss.pnc.model.Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
-    Page<Artifact> getAll(int pageIndex, int pageSize, String sortingRsql, String query, Optional<String> sha256,
-            Optional<String> md5, Optional<String> sha1);
+public interface ArtifactProvider
+        extends Provider<Integer, org.jboss.pnc.model.Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
+    Page<Artifact> getAll(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Optional<String> sha256,
+            Optional<String> md5,
+            Optional<String> sha1);
 
-    Page<Artifact> getBuiltArtifactsForBuild(int pageIndex, int pageSize, String sortingRsql, String query, String buildId);
+    Page<Artifact> getBuiltArtifactsForBuild(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String buildId);
 
-    Page<Artifact> getDependantArtifactsForBuild(int pageIndex, int pageSize, String sortingRsql, String query, String buildId);
+    Page<Artifact> getDependantArtifactsForBuild(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String buildId);
 
 }

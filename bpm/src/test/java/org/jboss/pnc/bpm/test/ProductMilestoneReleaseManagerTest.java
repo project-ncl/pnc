@@ -113,7 +113,7 @@ public class ProductMilestoneReleaseManagerTest {
     public void shouldStoreSuccessForTwoBuilds() {
         // given
         ProductMilestone milestone = createMilestone();
-        BuildRecord[] records = {buildRecord(milestone), buildRecord(milestone)};
+        BuildRecord[] records = { buildRecord(milestone), buildRecord(milestone) };
 
         int brewBuildId = 1000;
         // when
@@ -127,7 +127,8 @@ public class ProductMilestoneReleaseManagerTest {
     }
 
     private void release(ProductMilestone milestone, int brewBuildId, BuildRecord... records) {
-        answer.callback = t -> t.notify(BpmEventType.BREW_IMPORT_SUCCESS, successfulReleaseResult(brewBuildId, records));
+        answer.callback = t -> t
+                .notify(BpmEventType.BREW_IMPORT_SUCCESS, successfulReleaseResult(brewBuildId, records));
         releaseManager.startRelease(milestone, null);
         List<ProductMilestoneRelease> releases = releaseRepository.queryAll();
         assertThat(releases).hasSize(1);
@@ -146,8 +147,13 @@ public class ProductMilestoneReleaseManagerTest {
 
         for (int i = 0; i < records.length; i++) {
             Integer recordId = records[i].getId();
-            BuildImportResultRest buildResult =
-                    new BuildImportResultRest(recordId, brewBuildId + i, brewUrl(brewBuildId + i), BuildImportStatus.SUCCESSFUL, null, null);
+            BuildImportResultRest buildResult = new BuildImportResultRest(
+                    recordId,
+                    brewBuildId + i,
+                    brewUrl(brewBuildId + i),
+                    BuildImportStatus.SUCCESSFUL,
+                    null,
+                    null);
             buildResults.add(buildResult);
         }
 
@@ -186,7 +192,6 @@ public class ProductMilestoneReleaseManagerTest {
             callback.accept(task);
             return true;
         }
-
 
     }
 }

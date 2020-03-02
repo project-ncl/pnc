@@ -27,6 +27,7 @@ public class BuildConfigurationRevisionMock {
     public static BuildConfigurationRevisionRef newBuildConfigurationRevisionRef() {
         return newBuildConfigurationRevisionRef("name");
     }
+
     public static BuildConfigurationRevisionRef newBuildConfigurationRevisionRef(String name) {
         return BuildConfigurationRevisionRef.refBuilder()
                 .id("1")

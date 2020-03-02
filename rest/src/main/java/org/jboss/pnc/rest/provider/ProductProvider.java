@@ -41,8 +41,12 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withName;
 public class ProductProvider extends AbstractProvider<Product, ProductRest> {
 
     @Inject
-    public ProductProvider(ProductRepository productRepository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
-        super(productRepository,rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
+    public ProductProvider(
+            ProductRepository productRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer) {
+        super(productRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 
     // needed for EJB/CDI
@@ -64,6 +68,7 @@ public class ProductProvider extends AbstractProvider<Product, ProductRest> {
         super.validateBeforeSaving(restEntity);
         validateIfNotConflicted(restEntity, WhenCreatingNew.class);
     }
+
     @Override
     protected void validateBeforeUpdating(Integer id, ProductRest restEntity) throws RestValidationException {
         super.validateBeforeUpdating(id, restEntity);
@@ -71,14 +76,17 @@ public class ProductProvider extends AbstractProvider<Product, ProductRest> {
     }
 
     @SuppressWarnings("unchecked")
-    private void validateIfNotConflicted(ProductRest productRest, Class<? extends ValidationGroup> group) throws ConflictedEntryException {
+    private void validateIfNotConflicted(ProductRest productRest, Class<? extends ValidationGroup> group)
+            throws ConflictedEntryException {
         ValidationBuilder.validateObject(productRest, WhenCreatingNew.class).validateConflict(() -> {
-                    Product product = repository.queryByPredicates(withName(productRest.getName()));
-                    if (product != null && !product.getId().equals(productRest.getId())) {
-                        return new ConflictedEntryValidationError(product.getId(), Product.class, "Product with the same name already exists");
-                    }
-                    return null;
-                }
-        );
+            Product product = repository.queryByPredicates(withName(productRest.getName()));
+            if (product != null && !product.getId().equals(productRest.getId())) {
+                return new ConflictedEntryValidationError(
+                        product.getId(),
+                        Product.class,
+                        "Product with the same name already exists");
+            }
+            return null;
+        });
     }
 }

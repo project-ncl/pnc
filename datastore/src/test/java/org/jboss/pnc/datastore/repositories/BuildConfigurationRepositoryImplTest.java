@@ -37,9 +37,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 10/18/16
- * Time: 8:05 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 10/18/16 Time: 8:05 AM
  */
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -49,7 +47,6 @@ public class BuildConfigurationRepositoryImplTest {
 
     @Inject
     Producers producers;
-
 
     @Deployment
     public static Archive<?> getDeployment() {
@@ -68,8 +65,7 @@ public class BuildConfigurationRepositoryImplTest {
         BuildConfiguration duplicatedConfiguration = producers.createValidBuildConfiguration(name);
         assertThrows(
                 () -> repository.save(duplicatedConfiguration),
-                org.hibernate.exception.ConstraintViolationException.class
-        );
+                org.hibernate.exception.ConstraintViolationException.class);
     }
 
     @Test
@@ -92,7 +88,6 @@ public class BuildConfigurationRepositoryImplTest {
         repository.save(config2);
         repository.save(producers.createValidBuildConfiguration(name));
     }
-
 
     private void assertThrows(Runnable runnable, Class<? extends Exception> exceptionClass) {
         try {

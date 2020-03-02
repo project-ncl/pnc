@@ -40,21 +40,23 @@ public class ProductVersionPredicates {
         };
     }
 
-    // THIS PREDICATE GIVES ALL THE PRODUCTVERSIONS LINKED TO THE BUILDCONFIGURATIONSETS THAT CONTAIN A CERTAIN BUILDCONFIGURATION
-    /*public static Predicate<ProductVersion> withBuildConfigurationId(Integer buildConfigurationId) {
-        return (root, query, cb) -> {
-            SetJoin<ProductVersion, BuildConfigurationSet> buildConfigurationSetSetJoin = root.join(ProductVersion_.buildConfigurationSets);
-            SetJoin<BuildConfigurationSet, BuildConfiguration> buildConfigurationJoin = buildConfigurationSetSetJoin.join( BuildConfigurationSet_.buildConfigurations);
-            return cb.equal(buildConfigurationJoin.get(BuildConfiguration_.id), buildConfigurationId);
-        };
-    }*/
+    // THIS PREDICATE GIVES ALL THE PRODUCTVERSIONS LINKED TO THE BUILDCONFIGURATIONSETS THAT CONTAIN A CERTAIN
+    // BUILDCONFIGURATION
+    /*
+     * public static Predicate<ProductVersion> withBuildConfigurationId(Integer buildConfigurationId) { return (root,
+     * query, cb) -> { SetJoin<ProductVersion, BuildConfigurationSet> buildConfigurationSetSetJoin =
+     * root.join(ProductVersion_.buildConfigurationSets); SetJoin<BuildConfigurationSet, BuildConfiguration>
+     * buildConfigurationJoin = buildConfigurationSetSetJoin.join( BuildConfigurationSet_.buildConfigurations); return
+     * cb.equal(buildConfigurationJoin.get(BuildConfiguration_.id), buildConfigurationId); }; }
+     */
 
     /**
      * This predicate returns all the ProductVersions linked to a specified BuildConfiguration
      */
     public static Predicate<ProductVersion> withBuildConfigurationId(Integer buildConfigurationId) {
         return (root, query, cb) -> {
-            SetJoin<ProductVersion, BuildConfiguration> buildConfigurationJoin = root.join(ProductVersion_.buildConfigurations);
+            SetJoin<ProductVersion, BuildConfiguration> buildConfigurationJoin = root
+                    .join(ProductVersion_.buildConfigurations);
             return cb.equal(buildConfigurationJoin.get(BuildConfiguration_.id), buildConfigurationId);
         };
     }

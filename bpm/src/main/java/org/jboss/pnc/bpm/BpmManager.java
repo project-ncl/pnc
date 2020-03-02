@@ -62,8 +62,7 @@ import static org.kie.api.runtime.process.ProcessInstance.STATE_ABORTED;
 import static org.kie.api.runtime.process.ProcessInstance.STATE_COMPLETED;
 
 /**
- * Responsible for starting, keeping track of, and notifying BPM tasks.
- * Thread safe.
+ * Responsible for starting, keeping track of, and notifying BPM tasks. Thread safe.
  *
  * @author Jakub Senko
  */
@@ -85,14 +84,13 @@ public class BpmManager {
     private Set<Consumer<BpmTask>> newTaskAddedSubscribes = new HashSet<>();
 
     @Deprecated
-    public BpmManager() { //CDI workaround
+    public BpmManager() { // CDI workaround
     }
 
     @Inject
     public BpmManager(BpmModuleConfig bpmConfig) {
         this.bpmConfig = bpmConfig;
     }
-
 
     @PostConstruct
     public void init() throws CoreException {
@@ -110,8 +108,10 @@ public class BpmManager {
                     .addTimeout(AUTHENTICATION_TIMEOUT_S)
                     .build();
         } catch (Exception e) {
-            throw new CoreException("Could not initialize connection to BPM server at '" +
-                    bpmConfig.getBpmInstanceUrl() + "' check that the URL is correct.", e);
+            throw new CoreException(
+                    "Could not initialize connection to BPM server at '" + bpmConfig.getBpmInstanceUrl()
+                            + "' check that the URL is correct.",
+                    e);
         }
 
         return restSessionFactory.getKieSession();
@@ -122,19 +122,17 @@ public class BpmManager {
         session.dispose();
     }
 
-
     private int getNextTaskId() {
         return nextTaskId.getAndIncrement();
     }
-
 
     public boolean startTask(BpmTask task) throws CoreException {
         try {
             task.setTaskId(getNextTaskId());
             task.setBpmConfig(bpmConfig);
 
-            ProcessInstance processInstance = session.startProcess(task.getProcessId(),
-                    task.getExtendedProcessParameters());
+            ProcessInstance processInstance = session
+                    .startProcess(task.getProcessId(), task.getExtendedProcessParameters());
             if (processInstance == null) {
                 log.warn("Failed to create new process instance.");
                 return false;
@@ -188,16 +186,20 @@ public class BpmManager {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             log.debug("Triggering the cancellation using url: {}", uri.toString());
             HttpGet httpget = new HttpGet(uri);
-            httpget.setConfig(RequestConfig.custom()
-                    .setConnectionRequestTimeout(bpmConfig.getCancelConnectionRequestTimeout())
-                    .setConnectTimeout(bpmConfig.getCancelConnectTimeout())
-                    .setSocketTimeout(bpmConfig.getCancelSocketTimeout())
-                    .build());
+            httpget.setConfig(
+                    RequestConfig.custom()
+                            .setConnectionRequestTimeout(bpmConfig.getCancelConnectionRequestTimeout())
+                            .setConnectTimeout(bpmConfig.getCancelConnectTimeout())
+                            .setSocketTimeout(bpmConfig.getCancelSocketTimeout())
+                            .build());
             CloseableHttpResponse httpResponse = httpClient.execute(httpget);
             int statusCode = httpResponse.getStatusLine().getStatusCode();
             httpResponse.close();
-            log.info("Cancel request for bpmTask.id: {} and processInstanceId: {} completed with status: {}.",
-                    bpmTask.getTaskId(), bpmTask.getProcessInstanceId(), statusCode);
+            log.info(
+                    "Cancel request for bpmTask.id: {} and processInstanceId: {} completed with status: {}.",
+                    bpmTask.getTaskId(),
+                    bpmTask.getProcessInstanceId(),
+                    statusCode);
             return statusCode == 200;
         } catch (IOException e) {
             log.error("Unable to cancel process id: " + bpmTask.getProcessId(), e);
@@ -205,8 +207,11 @@ public class BpmManager {
         }
     }
 
-    public void notify(int taskId, BpmEvent notification) { //TODO do not use RestModel down here.
-        log.debug("Will process notification for taskId: {}; BpmNotificationRest: {}.", taskId, notification.toString());
+    public void notify(int taskId, BpmEvent notification) { // TODO do not use RestModel down here.
+        log.debug(
+                "Will process notification for taskId: {}; BpmNotificationRest: {}.",
+                taskId,
+                notification.toString());
         Optional<BpmTask> maybeTask = getTaskById(taskId);
         if (!maybeTask.isPresent()) {
             log.error("Cannot notify tasks with id: [{}]. Ids of tasks in progress: {}", taskId, tasks.keySet());
@@ -214,7 +219,11 @@ public class BpmManager {
         maybeTask.ifPresent(task -> {
             BpmEventType bpmEventType = nullableValueOf(notification.getEventType());
             if (bpmEventType != null && bpmEventType.getType().isInstance(notification)) {
-                log.debug("Notifying task: {}, eventType: {}, notification: {}.", task.getTaskId(), bpmEventType, notification.toString());
+                log.debug(
+                        "Notifying task: {}, eventType: {}, notification: {}.",
+                        task.getTaskId(),
+                        bpmEventType,
+                        notification.toString());
                 task.notify(bpmEventType, notification);
             }
         });
@@ -223,10 +232,10 @@ public class BpmManager {
     }
 
     /**
-     * Regularly cleans finished BPM tasks asynchronously
-     * Immediate cleanup is not usable because of NCL-2300
+     * Regularly cleans finished BPM tasks asynchronously Immediate cleanup is not usable because of NCL-2300
      */
-    public void cleanup() { //TODO remove tasks immediately after the completion, see: BuildTaskEndpoint.buildTaskCompleted
+    public void cleanup() { // TODO remove tasks immediately after the completion, see:
+                            // BuildTaskEndpoint.buildTaskCompleted
         log.debug("Bpm manager tasks cleanup started");
 
         if (session == null) {
@@ -235,23 +244,20 @@ public class BpmManager {
 
         Map<Integer, BpmTask> clonedTaskMap = new HashMap<>(this.tasks);
 
-        Set<Integer> toBeRemoved = clonedTaskMap.values().stream()
-                .filter(bpmTask -> {
-                    if (bpmTask == null) {
-                        log.warn("Listing invalid entry for removal from the tasks list.");
-                        return true;
-                    }
-                    log.debug("Attempting to fetch process instance for bpmTask: {}.", bpmTask.getTaskId());
-                    Long processInstanceId = bpmTask.getProcessInstanceId();
-                    ProcessInstance processInstance = session.getProcessInstance(processInstanceId);
-                    log.debug("fetched: {}", processInstance);
-                    if (processInstance == null) // instance has been terminated from outside
-                        return true;
-                    int state = processInstance.getState();
-                    return state == STATE_COMPLETED || state == STATE_ABORTED;
-                })
-                .map(BpmTask::getTaskId)
-                .collect(Collectors.toSet());
+        Set<Integer> toBeRemoved = clonedTaskMap.values().stream().filter(bpmTask -> {
+            if (bpmTask == null) {
+                log.warn("Listing invalid entry for removal from the tasks list.");
+                return true;
+            }
+            log.debug("Attempting to fetch process instance for bpmTask: {}.", bpmTask.getTaskId());
+            Long processInstanceId = bpmTask.getProcessInstanceId();
+            ProcessInstance processInstance = session.getProcessInstance(processInstanceId);
+            log.debug("fetched: {}", processInstance);
+            if (processInstance == null) // instance has been terminated from outside
+                return true;
+            int state = processInstance.getState();
+            return state == STATE_COMPLETED || state == STATE_ABORTED;
+        }).map(BpmTask::getTaskId).collect(Collectors.toSet());
         toBeRemoved.forEach(id -> {
             BpmTask removed = tasks.remove(id);
             if (removed != null) {
@@ -265,12 +271,12 @@ public class BpmManager {
     }
 
     /**
-     * This method solves backwards compatibility problem.
-     * It will be removed soon.
+     * This method solves backwards compatibility problem. It will be removed soon.
      */
     @Deprecated
     public Integer getTaskIdByBuildId(int buildId) {
-        List<Integer> result = tasks.values().stream()
+        List<Integer> result = tasks.values()
+                .stream()
                 .filter(t -> t instanceof BpmBuildTask)
                 .filter(t -> ((BpmBuildTask) t).getBuildTask().getId() == buildId)
                 .map(BpmTask::getTaskId)

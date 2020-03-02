@@ -32,135 +32,135 @@ public class SortInfoTest {
 
     @Test
     public void shouldParseSimpleAscendingRSQL() throws Exception {
-        //given
+        // given
         String sorting = "sort=asc=id";
 
-        //when
+        // when
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
 
-        //then
+        // then
         assertThat(testedSorting.getFields()).containsExactly("id");
         assertThat(testedSorting.getDirection()).isEqualTo(SortInfo.SortingDirection.ASC);
     }
 
     @Test
     public void shouldParseSimpleDescendingRSQL() throws Exception {
-        //given
+        // given
         String sorting = "sort=desc=id";
 
-        //when
+        // when
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
 
-        //then
+        // then
         assertThat(testedSorting.getFields()).containsExactly("id");
         assertThat(testedSorting.getDirection()).isEqualTo(SortInfo.SortingDirection.DESC);
     }
 
     @Test
     public void shouldParseComplicatedAscendingRSQL() throws Exception {
-        //given
+        // given
         String sorting = "sort=asc=(id,name)";
 
-        //when
+        // when
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
 
-        //then
+        // then
         assertThat(testedSorting.getFields()).containsExactly("id", "name");
         assertThat(testedSorting.getDirection()).isEqualTo(SortInfo.SortingDirection.ASC);
     }
 
     @Test
     public void shouldParseComplicatedDescendingRSQL() throws Exception {
-        //given
+        // given
         String sorting = "sort=desc=(id,name)";
 
-        //when
+        // when
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
 
-        //then
+        // then
         assertThat(testedSorting.getFields()).containsExactly("id", "name");
         assertThat(testedSorting.getDirection()).isEqualTo(SortInfo.SortingDirection.DESC);
     }
 
     @Test
     public void shouldAllowSortingStringWithoutSortAtTheBeginning() throws Exception {
-        //given
+        // given
         String sorting = "=asc=(id,name)";
 
-        //when
+        // when
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
 
-        //then
+        // then
         assertThat(testedSorting.getFields()).containsExactly("id", "name");
         assertThat(testedSorting.getDirection()).isEqualTo(SortInfo.SortingDirection.ASC);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRejectWrongRSQL() throws Exception {
-        //given
+        // given
         String sorting = "Yeah, this is a wrong rsql";
 
-        //when
+        // when
         defaultSortInfoProducer.getSortInfo(sorting);
     }
 
     @Test
     public void shouldCreateProperComparator() throws Exception {
-        //given
+        // given
         String sorting = "=asc=(field1)";
 
         List<SortTester> tester = new ArrayList<>();
         tester.add(new SortTester("b", "b"));
         tester.add(new SortTester("a", "b"));
 
-        //when
+        // when
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
         List<String> sorted = tester.stream()
                 .sorted(testedSorting.getComparator())
                 .map(value -> value.getField1())
                 .collect(Collectors.toList());
 
-        //then
+        // then
         assertThat(sorted).containsExactly("a", "b");
     }
 
     @Test
     public void shouldCreateProperComparatorAndSortWithTwoDimensions() throws Exception {
-        //given
+        // given
         String sorting = "=asc=(field1,field2)";
 
         List<SortTester> tester = new ArrayList<>();
         tester.add(new SortTester("a", "b"));
         tester.add(new SortTester("a", "a"));
 
-        //when
+        // when
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
         List<String> sorted = tester.stream()
                 .sorted(testedSorting.getComparator())
                 .map(value -> value.getField2())
                 .collect(Collectors.toList());
 
-        //then
+        // then
         assertThat(sorted).containsExactly("a", "b");
     }
 
     @Test
     public void shouldCreateProperComparatorAndSortDescending() throws Exception {
-        //given
+        // given
         String sorting = "=desc=(field1)";
 
         List<SortTester> tester = new ArrayList<>();
         tester.add(new SortTester("a", "b"));
         tester.add(new SortTester("b", "a"));
 
-        //when
+        // when
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
         List<String> sorted = tester.stream()
                 .sorted(testedSorting.getComparator())
                 .map(value -> value.getField1())
                 .collect(Collectors.toList());
 
-        //then
+        // then
         assertThat(sorted).containsExactly("b", "a");
     }
 

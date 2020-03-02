@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
 @Path("/build-record-push")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushResult, BuildRecordPushResultRest>  {
+public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushResult, BuildRecordPushResultRest> {
 
     private Logger logger = LoggerFactory.getLogger(BuildRecordPushEndpoint.class);
 
@@ -81,11 +81,10 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     private BuildRecordRepository buildRecordRepository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
-
     @Context
     private HttpServletRequest httpServletRequest;
 
-    @Deprecated //RestEasy - CDI workaround
+    @Deprecated // RestEasy - CDI workaround
     public BuildRecordPushEndpoint() {
     }
 
@@ -125,7 +124,8 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         if (buildRecord == null) {
             return Response.noContent().entity("Cannot find a BuildRecord with given id.").build();
         }
-        Map<String, IdRev> buildRecordsIds = Collections.singletonMap(String.valueOf(buildRecordId), buildRecord.getBuildConfigurationAuditedIdRev());
+        Map<String, IdRev> buildRecordsIds = Collections
+                .singletonMap(String.valueOf(buildRecordId), buildRecord.getBuildConfigurationAuditedIdRev());
         logger.debug("Pushing BuildRecords {}.", buildRecordsIds);
         Set<Result> pushed = buildResultPushManager.push(
                 buildRecordsIds.keySet(),
@@ -149,13 +149,13 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
         List<BuildRecord> buildRecords = buildRecordRepository.queryWithPredicates(
-                BuildRecordPredicates.withBuildConfigSetRecordId(buildConfigSetRecordPushRequestRest.getBuildConfigSetRecordId()));
+                BuildRecordPredicates
+                        .withBuildConfigSetRecordId(buildConfigSetRecordPushRequestRest.getBuildConfigSetRecordId()));
 
         Map<String, IdRev> buildRecordsIds = buildRecords.stream()
-                .collect(Collectors.toMap(
-                        a -> String.valueOf(a.getId()),
-                        BuildRecord::getBuildConfigurationAuditedIdRev
-                ));
+                .collect(
+                        Collectors
+                                .toMap(a -> String.valueOf(a.getId()), BuildRecord::getBuildConfigurationAuditedIdRev));
 
         Set<Result> pushed = buildResultPushManager.push(
                 buildRecordsIds.keySet(),
@@ -171,8 +171,8 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
 
     private Set<ResultRest> toResultRests(Set<Result> pushed, Map<String, IdRev> buildRecordsIds) {
         return pushed.stream()
-                    .map(r -> createResultRest(r, buildRecordsIds.get(r.getId())))
-                    .collect(Collectors.toSet());
+                .map(r -> createResultRest(r, buildRecordsIds.get(r.getId())))
+                .collect(Collectors.toSet());
     }
 
     private ResultRest createResultRest(Result result, IdRev configurationIdRev) {
@@ -195,9 +195,8 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
 
     @GET
     @Path("/{buildRecordPushResultId}")
-    public Response get(
-            @PathParam("buildRecordPushResultId") Integer buildRecordPushResultId
-    ) throws RestValidationException, ProcessException {
+    public Response get(@PathParam("buildRecordPushResultId") Integer buildRecordPushResultId)
+            throws RestValidationException, ProcessException {
         return getSpecific(buildRecordPushResultId);
     }
 
@@ -221,18 +220,21 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
             BuildRecordPushResultRest buildRecordPushResult,
             @PathParam("buildRecordId") Integer buildRecordId,
             @Context UriInfo uriInfo) throws RestValidationException, ProcessException {
-        logger.info("Received completion notification for BuildRecord.id: {}. Object received: {}.", buildRecordId, buildRecordPushResult);
+        logger.info(
+                "Received completion notification for BuildRecord.id: {}. Object received: {}.",
+                buildRecordId,
+                buildRecordPushResult);
         Integer id = buildResultPushManager.complete(buildRecordId, buildRecordPushResult.toDBEntityBuilder().build());
         return Response.ok().entity(id).build();
     }
 
     @GET
     @Path("/status/{buildRecordId}")
-    public Response status(
-            @PathParam("buildRecordId") Integer buildRecordId)
+    public Response status(@PathParam("buildRecordId") Integer buildRecordId)
             throws RestValidationException, ProcessException {
 
-        BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(buildRecordId);
+        BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository
+                .getLatestForBuildRecord(buildRecordId);
         if (latestForBuildRecord != null) {
             BuildRecordPushResultRest buildRecordPushResultRest = new BuildRecordPushResultRest(latestForBuildRecord);
             return Response.ok().entity(buildRecordPushResultRest.toString()).build();

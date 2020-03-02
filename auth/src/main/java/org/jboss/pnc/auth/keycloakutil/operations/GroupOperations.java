@@ -42,8 +42,17 @@ public class GroupOperations {
         doPostJSON(resourceUrl, auth, roles);
     }
 
-    public static void addClientRoles(String rootUrl, String realm, String auth, String groupid, String idOfClient, List<?> roles) {
-        String resourceUrl = composeResourceUrl(rootUrl, realm, "groups/" + groupid + "/role-mappings/clients/" + idOfClient);
+    public static void addClientRoles(
+            String rootUrl,
+            String realm,
+            String auth,
+            String groupid,
+            String idOfClient,
+            List<?> roles) {
+        String resourceUrl = composeResourceUrl(
+                rootUrl,
+                realm,
+                "groups/" + groupid + "/role-mappings/clients/" + idOfClient);
         doPostJSON(resourceUrl, auth, roles);
     }
 
@@ -52,8 +61,17 @@ public class GroupOperations {
         doDeleteJSON(resourceUrl, auth, roles);
     }
 
-    public static void removeClientRoles(String rootUrl, String realm, String auth, String groupid, String idOfClient, List<?> roles) {
-        String resourceUrl = composeResourceUrl(rootUrl, realm, "groups/" + groupid + "/role-mappings/clients/" + idOfClient);
+    public static void removeClientRoles(
+            String rootUrl,
+            String realm,
+            String auth,
+            String groupid,
+            String idOfClient,
+            List<?> roles) {
+        String resourceUrl = composeResourceUrl(
+                rootUrl,
+                realm,
+                "groups/" + groupid + "/role-mappings/clients/" + idOfClient);
         doDeleteJSON(resourceUrl, auth, roles);
     }
 }

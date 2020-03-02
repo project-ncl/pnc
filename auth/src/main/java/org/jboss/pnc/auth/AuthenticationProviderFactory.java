@@ -42,24 +42,29 @@ public class AuthenticationProviderFactory {
 
     private AuthenticationProvider authenticationProvider;
 
-    @Deprecated //CDI workaround
+    @Deprecated // CDI workaround
     public AuthenticationProviderFactory() {
     }
 
     @Inject
-    public AuthenticationProviderFactory(@AuthProvider Instance<AuthenticationProvider> providers, Configuration configuration)
-            throws CoreException {
+    public AuthenticationProviderFactory(
+            @AuthProvider Instance<AuthenticationProvider> providers,
+            Configuration configuration) throws CoreException {
 
         AtomicReference<String> providerId = new AtomicReference<>(null);
         try {
-            providerId.set(configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)).getAuthenticationProviderId());
+            providerId.set(
+                    configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class))
+                            .getAuthenticationProviderId());
         } catch (ConfigurationParseException e) {
             logger.warn("Unable parse config. Using default scheduler");
             providerId.set(DEFAULT_AUTHENTICATION_PROVIDER_ID);
         }
         providers.forEach(provider -> setMatchingProvider(provider, providerId.get()));
         if (authenticationProvider == null) {
-            throw new CoreException("Cannot get AuthenticationProvider, check configurations and make sure a provider with configured id is available for injection. configured id: " + providerId);
+            throw new CoreException(
+                    "Cannot get AuthenticationProvider, check configurations and make sure a provider with configured id is available for injection. configured id: "
+                            + providerId);
         }
     }
 

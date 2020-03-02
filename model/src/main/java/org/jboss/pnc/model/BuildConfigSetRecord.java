@@ -51,18 +51,17 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jboss.pnc.enums.BuildStatus;
 
 /**
- * This class contains a summary of the build results of the execution of a build config set. This includes the start and end
- * time, links to the build records for the executed builds, and the overall status (success/failure) of the set execution.
+ * This class contains a summary of the build results of the execution of a build config set. This includes the start
+ * and end time, links to the build records for the executed builds, and the overall status (success/failure) of the set
+ * execution.
  */
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(indexes = {
-           @Index(name = "idx_buildconfigsetrecord_buildconfigset", columnList = "buildconfigurationset_id"),
-           @Index(name = "idx_buildconfigsetrecord_productversion", columnList = "productversion_id"),
-           @Index(name = "idx_buildconfigsetrecord_user", columnList = "user_id")
-       }
-)
+@Table(
+        indexes = { @Index(name = "idx_buildconfigsetrecord_buildconfigset", columnList = "buildconfigurationset_id"),
+                @Index(name = "idx_buildconfigsetrecord_productversion", columnList = "productversion_id"),
+                @Index(name = "idx_buildconfigsetrecord_user", columnList = "user_id") })
 public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
@@ -86,14 +85,13 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      * The time at which the first build in the set was started
      */
     @NotNull
-    @Column(columnDefinition="timestamp with time zone")
+    @Column(columnDefinition = "timestamp with time zone")
     private Date startTime;
 
     /**
-     * The time at which the last build in the set was completed
-     * Temporarily set to null while the set is executing
+     * The time at which the last build in the set was completed Temporarily set to null while the set is executing
      */
-    @Column(columnDefinition="timestamp with time zone")
+    @Column(columnDefinition = "timestamp with time zone")
     private Date endTime;
 
     /**
@@ -105,7 +103,8 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     private User user;
 
     /**
-     * The status (success/failure) of the overall set. If any builds in the set failed, the status of the set is failed.
+     * The status (success/failure) of the overall set. If any builds in the set failed, the status of the set is
+     * failed.
      */
     @Enumerated(EnumType.STRING)
     private BuildStatus status;
@@ -122,19 +121,21 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildconfigsetrecord_productversion"))
     private ProductVersion productVersion;
 
-
     @NotNull
     private boolean temporaryBuild;
 
     /**
-     * Example attributes
-     * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
+     * Example attributes POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="build_config_set_record_attributes", joinColumns=@JoinColumn(name="build_config_set_record_id", foreignKey = @ForeignKey(name = "fk_build_config_set_record_attributes_build_config_set_record")))
-    @MapKeyColumn(name="key")
-    @Column(name="value")
+    @CollectionTable(
+            name = "build_config_set_record_attributes",
+            joinColumns = @JoinColumn(
+                    name = "build_config_set_record_id",
+                    foreignKey = @ForeignKey(name = "fk_build_config_set_record_attributes_build_config_set_record")))
+    @MapKeyColumn(name = "key")
+    @Column(name = "value")
     private Map<String, String> attributes = new HashMap<>();
 
     /**
@@ -146,8 +147,9 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     @PreRemove
     public void preRemove() {
-        if(this.temporaryBuild == false)
-            throw new PersistenceException("The non-temporary builds cannot be deleted! Only deletion of temporary builds is supported");
+        if (this.temporaryBuild == false)
+            throw new PersistenceException(
+                    "The non-temporary builds cannot be deleted! Only deletion of temporary builds is supported");
     }
 
     /**
@@ -296,7 +298,8 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "BuildConfigSetRecord [id=" + id + ", buildConfigurationSet=" + buildConfigurationSet.getName() + ", status=" + status + "]";
+        return "BuildConfigSetRecord [id=" + id + ", buildConfigurationSet=" + buildConfigurationSet.getName()
+                + ", status=" + status + "]";
     }
 
     public static class Builder {

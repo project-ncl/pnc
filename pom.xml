@@ -1313,6 +1313,7 @@
             <excludes>
               <exclude>**/README</exclude>
               <exclude>**/LICENSE.txt</exclude>
+              <exclude>**/eclipse-codeStyle.xml</exclude>
               <exclude>.license-header.txt</exclude>
               <exclude>**/plugins.txt</exclude>
               <exclude>**/Dockerfile</exclude>
@@ -1572,6 +1573,22 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+          <groupId>net.revelc.code.formatter</groupId>
+          <artifactId>formatter-maven-plugin</artifactId>
+          <version>2.11.0</version>
+          <configuration>
+              <configFile>../eclipse-codeStyle.xml</configFile>
+          </configuration>
+          <executions>
+              <execution>
+                  <id>java-format</id>
+                  <goals>
+                      <goal>format</goal>
+                  </goals>
+              </execution>
+          </executions>
       </plugin>
     </plugins>
   </build>

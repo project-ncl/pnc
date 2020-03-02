@@ -53,8 +53,8 @@ public class ProcessProgressUpdate extends BpmEvent {
     private BPMTaskStatus bpmTaskStatus;
 
     /**
-     * Url to subscribe to detailed notification.
-     * Notifications can be a string stream of live log or an object with detailed statuses.
+     * Url to subscribe to detailed notification. Notifications can be a string stream of live log or an object with
+     * detailed statuses.
      */
     @Getter
     private String detailedNotificationsEndpointUrl;

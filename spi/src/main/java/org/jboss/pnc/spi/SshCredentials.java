@@ -22,13 +22,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/11/16
- * Time: 1:06 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/11/16 Time: 1:06 PM
  *
  *
- * WARNING: This class is used in REST API too.
- * Create a separate *Rest class if you wish to add here something that should not be sent via rest
+ * WARNING: This class is used in REST API too. Create a separate *Rest class if you wish to add here something that
+ * should not be sent via rest
  */
 @Data
 @NoArgsConstructor

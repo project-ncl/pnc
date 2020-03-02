@@ -51,7 +51,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Deprecated
-    public BpmBuildScheduler() { //CDI workaround
+    public BpmBuildScheduler() { // CDI workaround
     }
 
     @Inject
@@ -64,7 +64,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException {
         try {
             BpmBuildTask task = new BpmBuildTask(buildTask);
-            task.<BuildResultRest>addListener(BpmEventType.BUILD_COMPLETE, b -> onComplete.accept(mapper.toEntity(b)));
+            task.<BuildResultRest> addListener(BpmEventType.BUILD_COMPLETE, b -> onComplete.accept(mapper.toEntity(b)));
             manager.startTask(task);
         } catch (Exception e) {
             throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
@@ -73,7 +73,8 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Override
     public boolean cancel(BuildTask buildTask) {
-        Optional<BpmBuildTask> taskOptional = manager.getActiveTasks().stream()
+        Optional<BpmBuildTask> taskOptional = manager.getActiveTasks()
+                .stream()
                 .filter(bpmTask -> bpmTask instanceof BpmBuildTask)
                 .map(bpmTask -> (BpmBuildTask) bpmTask)
                 .filter(bpmTask -> bpmTask.getBuildTask().getId() == buildTask.getId())

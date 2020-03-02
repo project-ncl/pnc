@@ -28,6 +28,9 @@ import javax.ws.rs.core.Response;
 public class ErrorResponse {
 
     public static Response toResponse(Exception e) {
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(new ErrorResponseRest(e)).type(MediaType.APPLICATION_JSON).build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(new ErrorResponseRest(e))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 }

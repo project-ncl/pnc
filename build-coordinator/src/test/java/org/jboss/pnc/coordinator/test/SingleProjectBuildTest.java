@@ -45,7 +45,9 @@ public class SingleProjectBuildTest extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
+        return BuildCoordinatorDeployments.deployment(
+                BuildCoordinatorDeployments.Options.WITH_DATASTORE,
+                BuildCoordinatorDeployments.Options.WITH_BPM);
     }
 
     @Inject
@@ -53,16 +55,16 @@ public class SingleProjectBuildTest extends ProjectBuilder {
 
     @Test
     public void buildSingleProjectTestCase() throws Exception {
-        //given
+        // given
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
-        //when
+        // when
         BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
         buildProject(configurationBuilder.build(1, "c1-java"), coordinator, receivedStatuses::add);
 
-        //expect
+        // expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
         Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
 
@@ -84,16 +86,19 @@ public class SingleProjectBuildTest extends ProjectBuilder {
 
     @Test
     public void buildWithBasicOptionsTest() throws Exception {
-        //given
+        // given
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
-        //when
+        // when
         BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
-        BuildTask buildTask = buildProject(configurationBuilder.build(1, "c1-java"), coordinator, receivedStatuses::add);
+        BuildTask buildTask = buildProject(
+                configurationBuilder.build(1, "c1-java"),
+                coordinator,
+                receivedStatuses::add);
 
-        //then
+        // then
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
         Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
         Assert.assertEquals(new BuildOptions(), buildTask.getBuildOptions());
@@ -101,17 +106,21 @@ public class SingleProjectBuildTest extends ProjectBuilder {
 
     @Test
     public void buildWithAdvancedOptionsTest() throws Exception {
-        //given
+        // given
         BuildOptions originalBuildOptions = new BuildOptions(true, true, true, true, RebuildMode.FORCE);
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
-        //when
+        // when
         BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
-        BuildTask buildTask = buildProject(configurationBuilder.build(1, "c1-java"), coordinator, receivedStatuses::add, originalBuildOptions);
+        BuildTask buildTask = buildProject(
+                configurationBuilder.build(1, "c1-java"),
+                coordinator,
+                receivedStatuses::add,
+                originalBuildOptions);
 
-        //then
+        // then
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
         Assert.assertEquals("Wrong datastore results count.", 1, buildRecords.size());
         Assert.assertEquals(originalBuildOptions, buildTask.getBuildOptions());

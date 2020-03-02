@@ -39,7 +39,9 @@ public class ProjectWithFailedDependenciesBuildTest extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
+        return BuildCoordinatorDeployments.deployment(
+                BuildCoordinatorDeployments.Options.WITH_DATASTORE,
+                BuildCoordinatorDeployments.Options.WITH_BPM);
     }
 
     @Test
@@ -61,8 +63,6 @@ public class ProjectWithFailedDependenciesBuildTest extends ProjectBuilder {
         Assert.assertNotNull("End time is null.", buildConfigSetRecord.getEndTime());
         Assert.assertTrue(buildConfigSetRecord.getEndTime().getTime() > buildConfigSetRecord.getStartTime().getTime());
         Assert.assertEquals(BuildStatus.FAILED, buildConfigSetRecord.getStatus());
-
-
 
     }
 

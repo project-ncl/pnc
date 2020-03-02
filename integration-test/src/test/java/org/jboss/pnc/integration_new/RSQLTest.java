@@ -69,6 +69,7 @@ public class RSQLTest {
         RemoteCollection<Build> persistent = client.getAll(null, null, Optional.empty(), Optional.of(queryPersistent));
         assertThat(persistent).hasSize(2);
     }
+
     @Test
     public void shouldFailWithMisingSelectorElement() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());

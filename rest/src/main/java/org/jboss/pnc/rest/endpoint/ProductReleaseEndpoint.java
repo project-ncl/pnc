@@ -64,14 +64,17 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
     }
 
     @Inject
-    public ProductReleaseEndpoint(ProductReleaseProvider productReleaseProvider, BuildRecordProvider buildRecordProvider) {
+    public ProductReleaseEndpoint(
+            ProductReleaseProvider productReleaseProvider,
+            BuildRecordProvider buildRecordProvider) {
         super(productReleaseProvider);
         this.productReleaseProvider = productReleaseProvider;
         this.buildRecordProvider = buildRecordProvider;
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q) {
@@ -96,14 +99,15 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
     }
 
     @POST
-    public Response createNew(ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws RestValidationException {
+    public Response createNew(ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo)
+            throws RestValidationException {
         return super.createNew(productReleaseRest, uriInfo);
     }
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Integer id,
-            ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo) throws RestValidationException {
+    public Response update(@PathParam("id") Integer id, ProductReleaseRest productReleaseRest, @Context UriInfo uriInfo)
+            throws RestValidationException {
         return super.update(id, productReleaseRest);
     }
 
@@ -126,8 +130,13 @@ public class ProductReleaseEndpoint extends AbstractEndpoint<ProductRelease, Pro
         if (release == null) {
             return fromSingleton(null);
         }
-        return fromCollection(buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(pageIndex,
-                pageSize, sort, query, release.getProductMilestoneId()));
+        return fromCollection(
+                buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(
+                        pageIndex,
+                        pageSize,
+                        sort,
+                        query,
+                        release.getProductMilestoneId()));
     }
 
 }

@@ -36,9 +36,8 @@ public class BuildConflictExceptionMapper implements ExceptionMapper<BuildConfli
     public Response toResponse(BuildConflictException e) {
         Response.Status status = Response.Status.CONFLICT;
         logger.debug("A BuildConflict error occurred when processing REST call", e);
-        return Response
-                .status(status)
-                .entity(new ErrorResponse("BuildConflictException", e.getMessage() + ": " +  e.getBuildTaskId()))
+        return Response.status(status)
+                .entity(new ErrorResponse("BuildConflictException", e.getMessage() + ": " + e.getBuildTaskId()))
                 .build();
     }
 }

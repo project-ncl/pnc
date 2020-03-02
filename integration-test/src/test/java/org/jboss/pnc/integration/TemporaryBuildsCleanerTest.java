@@ -136,7 +136,6 @@ public class TemporaryBuildsCleanerTest {
 
     private TargetRepository targetRepository = null;
 
-
     @Deployment
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
@@ -154,26 +153,27 @@ public class TemporaryBuildsCleanerTest {
     }
 
     @Before
-    public void init() throws Exception,
-            RollbackException {
-        if(this.user == null)  {
+    public void init() throws Exception, RollbackException {
+        if (this.user == null) {
             this.user = userRepository.queryAll().get(0);
             assertNotNull(this.user);
         }
 
-        if(this.buildConfigurationAudited == null) {
+        if (this.buildConfigurationAudited == null) {
             BuildConfiguration buildConfiguration = buildConfigurationRepository.queryAll().get(0);
-            this.buildConfigurationAudited = buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(buildConfiguration.getId()).get(0);
+            this.buildConfigurationAudited = buildConfigurationAuditedRepository
+                    .findAllByIdOrderByRevDesc(buildConfiguration.getId())
+                    .get(0);
             assertNotNull(this.buildConfigurationAudited);
         }
 
-        if(this.targetRepository == null) {
+        if (this.targetRepository == null) {
             this.targetRepository = targetRepositoryRepository.queryAll().get(0);
             assertNotNull(this.targetRepository);
         }
 
-        if(this.buildConfigurationSet == null) {
-            transaction.begin(); //required to lazy load the productVersion
+        if (this.buildConfigurationSet == null) {
+            transaction.begin(); // required to lazy load the productVersion
             entityManager.joinTransaction();
             this.buildConfigurationSet = buildConfigurationSetRepository.queryAll().get(0);
             assertNotNull(this.buildConfigurationSet);
@@ -182,13 +182,10 @@ public class TemporaryBuildsCleanerTest {
         }
     }
 
-
     @Test(expected = ValidationException.class)
     public void shouldNotDeleteNonTemporaryBuildTest() throws ValidationException {
         // given
-        BuildRecord nonTempBr = initBuildRecordBuilder()
-                .temporaryBuild(false)
-                .build();
+        BuildRecord nonTempBr = initBuildRecordBuilder().temporaryBuild(false).build();
         buildRecordRepository.save(nonTempBr);
 
         // when - then
@@ -200,9 +197,7 @@ public class TemporaryBuildsCleanerTest {
     @Test
     public void shouldDeleteTemporaryBuildWithoutArtifactsTest() throws ValidationException {
         // given
-        BuildRecord tempBr = initBuildRecordBuilder()
-                .temporaryBuild(true)
-                .build();
+        BuildRecord tempBr = initBuildRecordBuilder().temporaryBuild(true).build();
         buildRecordRepository.save(tempBr);
         System.out.println("shouldDeleteTemporaryBuildWithoutArtifactsTest#Inserted BR: " + tempBr.getId());
 
@@ -218,9 +213,8 @@ public class TemporaryBuildsCleanerTest {
     }
 
     @Test
-    public void shouldDeleteTemporaryBuildWithArtifactsTest()
-            throws SystemException, NotSupportedException, HeuristicRollbackException, HeuristicMixedException, RollbackException,
-            ValidationException {
+    public void shouldDeleteTemporaryBuildWithArtifactsTest() throws SystemException, NotSupportedException,
+            HeuristicRollbackException, HeuristicMixedException, RollbackException, ValidationException {
         // given
         Artifact artifact1 = storeAndGetArtifact();
         Artifact artifact2 = storeAndGetArtifact();
@@ -231,9 +225,7 @@ public class TemporaryBuildsCleanerTest {
         dependencies.add(artifact3);
         dependencies.add(artifact4);
 
-        BuildRecord tempBr = initBuildRecordBuilder()
-                .temporaryBuild(true)
-                .build();
+        BuildRecord tempBr = initBuildRecordBuilder().temporaryBuild(true).build();
 
         tempBr.setDependencies(dependencies);
         BuildRecord savedTempBr = buildRecordRepository.save(tempBr);
@@ -260,17 +252,13 @@ public class TemporaryBuildsCleanerTest {
     @Test
     public void shouldNotDeleteNonTemporaryArtifacts() {
         // given
-        Artifact artifact = initArtifactBuilder()
-                .artifactQuality(ArtifactQuality.NEW)
-                .build();
+        Artifact artifact = initArtifactBuilder().artifactQuality(ArtifactQuality.NEW).build();
         artifactRepository.save(artifact);
 
         Set<Artifact> builtArtifacts = new HashSet<>();
         builtArtifacts.add(artifact);
 
-        BuildRecord tempBr = initBuildRecordBuilder()
-                .temporaryBuild(true)
-                .build();
+        BuildRecord tempBr = initBuildRecordBuilder().temporaryBuild(true).build();
         BuildRecord savedTempBr = buildRecordRepository.save(tempBr);
         artifact.setBuildRecord(savedTempBr);
         artifactRepository.save(artifact);
@@ -280,7 +268,7 @@ public class TemporaryBuildsCleanerTest {
             temporaryBuildsCleaner.deleteTemporaryBuild(tempBr.getId(), "");
         } catch (Exception ex) {
             logger.info("Received exception:", ex);
-            if(ex.getCause().getClass().equals(PersistenceException.class)) {
+            if (ex.getCause().getClass().equals(PersistenceException.class)) {
                 return;
             }
         }
@@ -291,17 +279,13 @@ public class TemporaryBuildsCleanerTest {
     @Test(expected = ValidationException.class)
     public void shouldNotDeleteNonTemporaryBuildSetTest() throws ValidationException {
         // given
-        BuildRecord tempBr = initBuildRecordBuilder()
-                .temporaryBuild(true)
-                .build();
+        BuildRecord tempBr = initBuildRecordBuilder().temporaryBuild(true).build();
         buildRecordRepository.save(tempBr);
 
         Set<BuildRecord> buildRecords = new HashSet<>();
         buildRecords.add(tempBr);
 
-        BuildConfigSetRecord buildConfigSetRecord = initBuildConfigSetRecordBuilder()
-                .temporaryBuild(false)
-                .build();
+        BuildConfigSetRecord buildConfigSetRecord = initBuildConfigSetRecordBuilder().temporaryBuild(false).build();
         buildConfigSetRecord.setBuildRecords(buildRecords);
         buildConfigSetRecordRepository.save(buildConfigSetRecord);
 
@@ -314,13 +298,10 @@ public class TemporaryBuildsCleanerTest {
     @Test
     public void shouldDeleteSingleTemporaryBuildSetTestWithOneBr() throws Exception {
         // given
-        BuildConfigSetRecord buildConfigSetRecord = initBuildConfigSetRecordBuilder()
-                .temporaryBuild(true)
-                .build();
+        BuildConfigSetRecord buildConfigSetRecord = initBuildConfigSetRecordBuilder().temporaryBuild(true).build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord);
 
-        BuildRecord tempBr = initBuildRecordBuilder()
-                .temporaryBuild(true)
+        BuildRecord tempBr = initBuildRecordBuilder().temporaryBuild(true)
                 .buildConfigSetRecord(buildConfigSetRecord)
                 .build();
         buildRecordRepository.save(tempBr);
@@ -335,20 +316,18 @@ public class TemporaryBuildsCleanerTest {
     }
 
     private Artifact storeAndGetArtifact() {
-        Artifact artifact = initArtifactBuilder()
-                .artifactQuality(ArtifactQuality.TEMPORARY)
-                .build();
+        Artifact artifact = initArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).build();
         return artifactRepository.save(artifact);
 
     }
 
     private Artifact.Builder initArtifactBuilder() {
         return Artifact.Builder.newBuilder()
-                        .identifier("g:a:v" + UUID.randomUUID().toString())
-                        .targetRepository(this.targetRepository)
-                        .md5("md5")
-                        .sha1("sha1")
-                        .sha256("sha256");
+                .identifier("g:a:v" + UUID.randomUUID().toString())
+                .targetRepository(this.targetRepository)
+                .md5("md5")
+                .sha1("sha1")
+                .sha256("sha256");
 
     }
 

@@ -19,6 +19,7 @@ package org.jboss.pnc.enums;
 
 /**
  * Enum describing build progress.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 public enum BuildProgress {

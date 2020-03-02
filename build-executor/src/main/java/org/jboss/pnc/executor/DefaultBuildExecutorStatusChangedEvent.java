@@ -82,13 +82,8 @@ class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionStatusChan
 
     @Override
     public String toString() {
-        return "DefaultBuildExecutionStatusChangedEvent{" +
-                "oldStatus=" + oldStatus +
-                ", newStatus=" + newStatus +
-                ", buildTaskId=" + buildTaskId +
-                ", buildConfigurationId=" + buildConfigurationId +
-                ", buildResult=" + buildResult +
-                ", isFinal=" + isFinal +
-                '}';
+        return "DefaultBuildExecutionStatusChangedEvent{" + "oldStatus=" + oldStatus + ", newStatus=" + newStatus
+                + ", buildTaskId=" + buildTaskId + ", buildConfigurationId=" + buildConfigurationId + ", buildResult="
+                + buildResult + ", isFinal=" + isFinal + '}';
     }
 }

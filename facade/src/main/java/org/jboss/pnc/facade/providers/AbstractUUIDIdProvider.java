@@ -40,14 +40,16 @@ import java.util.UUID;
  * @param <DTO> The full DTO entity type
  * @param <REF> The reference DTO entity type
  */
-@PermitAll //required to allow all non explicitly restricted operations in EJB that use other restrictions
+@PermitAll // required to allow all non explicitly restricted operations in EJB that use other restrictions
 public abstract class AbstractUUIDIdProvider<DB extends GenericEntity<UUID>, DTO extends REF, REF extends DTOEntity>
-        extends AbstractProvider<UUID, DB, DTO, REF>
-        implements Provider<UUID, DB, DTO, REF> {
+        extends AbstractProvider<UUID, DB, DTO, REF> implements Provider<UUID, DB, DTO, REF> {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractUUIDIdProvider.class);
 
-    public AbstractUUIDIdProvider(Repository<DB, UUID> repository, EntityMapper<UUID, DB, DTO, REF> mapper, Class<DB> type) {
+    public AbstractUUIDIdProvider(
+            Repository<DB, UUID> repository,
+            EntityMapper<UUID, DB, DTO, REF> mapper,
+            Class<DB> type) {
         super(repository, mapper, type);
     }
 

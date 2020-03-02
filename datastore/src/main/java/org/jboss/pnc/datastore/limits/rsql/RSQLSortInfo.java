@@ -52,10 +52,12 @@ public class RSQLSortInfo implements SortInfo {
     private static final ComparisonOperator DESC = new ComparisonOperator("=desc=", true);
 
     public RSQLSortInfo(String sortingRsql) {
-        Preconditions.checkArgument(sortingRsql != null && !sortingRsql.isEmpty(), "RSQL for sorting can't be null or empty");
+        Preconditions.checkArgument(
+                sortingRsql != null && !sortingRsql.isEmpty(),
+                "RSQL for sorting can't be null or empty");
 
         StringBuilder sortingRsqlBuilder = new StringBuilder(sortingRsql);
-        if(!sortingRsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {
+        if (!sortingRsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {
             sortingRsqlBuilder.insert(0, FIXED_START_OF_SORTING_EXPRESSION);
         }
 
@@ -65,7 +67,8 @@ public class RSQLSortInfo implements SortInfo {
 
         RSQLParser rsqlParser = new RSQLParser(operators);
         try {
-            //since we need to parse nodes (operand + operation + arguments, we have to append some work at the beginning).
+            // since we need to parse nodes (operand + operation + arguments, we have to append some work at the
+            // beginning).
             Node parse = rsqlParser.parse(sortingRsqlBuilder.toString());
             parse.accept(new RSQLVisitor<Boolean, Void>() {
                 @Override

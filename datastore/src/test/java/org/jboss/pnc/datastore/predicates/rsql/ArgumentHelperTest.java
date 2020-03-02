@@ -40,50 +40,50 @@ public class ArgumentHelperTest {
 
     @Test
     public void shouldConvertSimpleValue() throws Exception {
-        //given
+        // given
         ArgumentHelper helper = new ArgumentHelper();
 
-        //when
+        // when
         Object returnedValue = helper.getConvertedType(TestClass.class, "simpleIntField", "1");
 
-        //then
+        // then
         assertThat(returnedValue).isInstanceOf(Integer.class);
         assertThat((Integer) returnedValue).isEqualTo(1);
     }
 
     @Test
     public void shouldConvertSimpleFieldEvenIfItIsPrivate() throws Exception {
-        //given
+        // given
         ArgumentHelper helper = new ArgumentHelper();
 
-        //when
+        // when
         Object returnedValue = helper.getConvertedType(TestClass.class, "privateField", "1");
 
-        //then
+        // then
         assertThat(returnedValue).isInstanceOf(Integer.class);
     }
 
     @Test
     public void shouldConvertSimpleInnerField() throws Exception {
-        //given
+        // given
         ArgumentHelper helper = new ArgumentHelper();
 
-        //when
+        // when
         Object returnedValue = helper.getConvertedType(TestClass.class, "innerField.simpleString", "test");
 
-        //then
+        // then
         assertThat(returnedValue).isInstanceOf(String.class);
     }
 
     @Test
     public void shouldConvertEnumField() throws Exception {
-        //given
+        // given
         ArgumentHelper helper = new ArgumentHelper();
 
-        //when
+        // when
         Object returnedValue = helper.getConvertedType(TestClass.class, "enumType", "YES_IT_WORKS");
 
-        //then
+        // then
         assertThat(returnedValue).isInstanceOf(enumType.class);
     }
 

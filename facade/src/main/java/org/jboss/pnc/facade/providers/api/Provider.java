@@ -44,6 +44,11 @@ public interface Provider<ID extends Serializable, DB extends GenericEntity<ID>,
 
     void delete(String id) throws DTOValidationException;
 
-    Page<DTO> queryForCollection(int pageIndex, int pageSize, String sortingRsql, String query, Predicate<DB>... predicates);
+    Page<DTO> queryForCollection(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Predicate<DB>... predicates);
 
 }

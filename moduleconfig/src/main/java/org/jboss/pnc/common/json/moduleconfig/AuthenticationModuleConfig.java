@@ -20,7 +20,7 @@ package org.jboss.pnc.common.json.moduleconfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
-public class AuthenticationModuleConfig extends AbstractModuleConfig{
+public class AuthenticationModuleConfig extends AbstractModuleConfig {
 
     public static final String MODULE_NAME = "authentication-config";
 
@@ -39,8 +39,10 @@ public class AuthenticationModuleConfig extends AbstractModuleConfig{
      */
     private String baseAuthUrl;
 
-    public AuthenticationModuleConfig(@JsonProperty("username") String username,
-            @JsonProperty("password")String password, @JsonProperty("baseAuthUrl")String baseAuthUrl) {
+    public AuthenticationModuleConfig(
+            @JsonProperty("username") String username,
+            @JsonProperty("password") String password,
+            @JsonProperty("baseAuthUrl") String baseAuthUrl) {
         super();
         this.username = username;
         this.password = password;
@@ -50,12 +52,15 @@ public class AuthenticationModuleConfig extends AbstractModuleConfig{
     public String getUsername() {
         return username;
     }
+
     public void setUsername(String username) {
         this.username = username;
     }
+
     public String getPassword() {
         return password;
     }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -70,6 +75,7 @@ public class AuthenticationModuleConfig extends AbstractModuleConfig{
 
     @Override
     public String toString() {
-        return "AuthenticationModuleConfig [username=" + username + ", password=HIDDEN, baseAuthUrl=" + baseAuthUrl +"]";
+        return "AuthenticationModuleConfig [username=" + username + ", password=HIDDEN, baseAuthUrl=" + baseAuthUrl
+                + "]";
     }
 }

@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.restmodel;
 
-
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
@@ -37,26 +36,21 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
     @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
-    
     private String name;
 
-    
     private String description;
 
-    
     private String systemImageRepositoryUrl;
 
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+
     private String systemImageId;
 
     private Map<String, String> attributes;
 
-    
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private SystemImageType systemImageType;
 
-    
     private boolean deprecated;
 
     public BuildEnvironmentRest() {
@@ -92,7 +86,6 @@ public class BuildEnvironmentRest implements GenericRestEntity<Integer> {
     public void setSystemImageType(SystemImageType systemImageType) {
         this.systemImageType = systemImageType;
     }
-
 
     public String getName() {
         return name;

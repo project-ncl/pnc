@@ -69,13 +69,14 @@ public class RSQLPredicateProducerTest {
     @Before
     public void setupMocks() {
         Class<?> foo = BuildRecord.class;
-        when(universalMapper.toPath(ArgumentMatchers.same(BuildRecord.class), any(), any())).then(callBuildRecordPath());
+        when(universalMapper.toPath(ArgumentMatchers.same(BuildRecord.class), any(), any()))
+                .then(callBuildRecordPath());
     }
 
     @Test
-    public void testCriteriaPredicate(){
-        org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate
-                = producer.getCriteriaPredicate(BuildRecord.class, "id==4");
+    public void testCriteriaPredicate() {
+        org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate = producer
+                .getCriteriaPredicate(BuildRecord.class, "id==4");
 
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);
@@ -90,9 +91,9 @@ public class RSQLPredicateProducerTest {
     }
 
     @Test
-    public void testCriteriaPredicateEmbeded(){
-        org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate
-                = producer.getCriteriaPredicate(BuildRecord.class, "environment.name==fooEnv");
+    public void testCriteriaPredicateEmbeded() {
+        org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate = producer
+                .getCriteriaPredicate(BuildRecord.class, "environment.name==fooEnv");
 
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);
@@ -109,29 +110,30 @@ public class RSQLPredicateProducerTest {
     }
 
     @Test
-    public void testCriteriaPredicateUnknownQuery(){
-        org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate
-                = producer.getCriteriaPredicate(BuildRecord.class, "fieldThatDoesNotExists==\"FooBar\"");
+    public void testCriteriaPredicateUnknownQuery() {
+        org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate = producer
+                .getCriteriaPredicate(BuildRecord.class, "fieldThatDoesNotExists==\"FooBar\"");
 
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);
 
-        try{
+        try {
             criteriaPredicate.apply(root, null, cb);
             fail("Exception expected");
-        }catch(RuntimeException ex){
+        } catch (RuntimeException ex) {
             // ok
         }
     }
 
     @Test
-    public void testStreamPredicate(){
+    public void testStreamPredicate() {
         Predicate<BuildConfiguration> streamPredicate = producer.getStreamPredicate("name==\"FooBar\"");
 
         BuildConfiguration fooBar = BuildConfiguration.builder().name("FooBar").build();
         BuildConfiguration fooBaz = BuildConfiguration.builder().name("FooBaz").build();
 
-        List<BuildConfiguration> filtered = Arrays.asList(fooBar, fooBaz).stream()
+        List<BuildConfiguration> filtered = Arrays.asList(fooBar, fooBaz)
+                .stream()
                 .filter(streamPredicate)
                 .collect(Collectors.toList());
 
@@ -140,7 +142,7 @@ public class RSQLPredicateProducerTest {
     }
 
     @Test
-    public void testStreamPredicateEmbeded(){
+    public void testStreamPredicateEmbeded() {
         Predicate<BuildConfiguration> streamPredicate = producer.getStreamPredicate("project.name==\"Bar Project\"");
 
         Project projBar = Project.builder().name("Bar Project").build();
@@ -148,7 +150,8 @@ public class RSQLPredicateProducerTest {
         BuildConfiguration fooBar = BuildConfiguration.builder().project(projBar).build();
         BuildConfiguration fooBaz = BuildConfiguration.builder().project(projBaz).build();
 
-        List<BuildConfiguration> filtered = Arrays.asList(fooBar, fooBaz).stream()
+        List<BuildConfiguration> filtered = Arrays.asList(fooBar, fooBaz)
+                .stream()
                 .filter(streamPredicate)
                 .collect(Collectors.toList());
 
@@ -157,31 +160,34 @@ public class RSQLPredicateProducerTest {
     }
 
     @Test
-    public void testStreamPredicateUnknownQuery(){
-        Predicate<BuildConfiguration> streamPredicate = producer.getStreamPredicate("fieldThatDoesNotExists==\"FooBar\"");
+    public void testStreamPredicateUnknownQuery() {
+        Predicate<BuildConfiguration> streamPredicate = producer
+                .getStreamPredicate("fieldThatDoesNotExists==\"FooBar\"");
 
         BuildConfiguration fooBar = BuildConfiguration.builder().name("FooBar").build();
         BuildConfiguration fooBaz = BuildConfiguration.builder().name("FooBaz").build();
 
-        try{
-            List<BuildConfiguration> filtered = Arrays.asList(fooBar, fooBaz).stream()
+        try {
+            List<BuildConfiguration> filtered = Arrays.asList(fooBar, fooBaz)
+                    .stream()
                     .filter(streamPredicate)
                     .collect(Collectors.toList());
             fail("Exception expected");
-        }catch(RuntimeException ex){
+        } catch (RuntimeException ex) {
             // ok
         }
     }
 
     @Test
-    public void testComparator(){
+    public void testComparator() {
         Comparator<BuildConfiguration> comparator = producer.getComparator("=desc=id");
 
         BuildConfiguration foo = BuildConfiguration.builder().id("3").name("FooBC").build();
         BuildConfiguration bar = BuildConfiguration.builder().id("5").name("BarBC").build();
         BuildConfiguration baz = BuildConfiguration.builder().id("7").name("BazBC").build();
 
-        List<BuildConfiguration> sorted = Arrays.asList(foo, bar, baz).stream()
+        List<BuildConfiguration> sorted = Arrays.asList(foo, bar, baz)
+                .stream()
                 .sorted(comparator)
                 .collect(Collectors.toList());
 
@@ -192,7 +198,7 @@ public class RSQLPredicateProducerTest {
     }
 
     @Test
-    public void testComparatorUnknownQuery(){
+    public void testComparatorUnknownQuery() {
         Comparator<BuildConfiguration> comparator = producer.getComparator("=desc=fieldThatDoesNotExists");
 
         BuildConfiguration foo = BuildConfiguration.builder().id("3").name("FooBC").build();
@@ -200,7 +206,8 @@ public class RSQLPredicateProducerTest {
         BuildConfiguration baz = BuildConfiguration.builder().id("7").name("BazBC").build();
 
         try {
-            List<BuildConfiguration> sorted = Arrays.asList(foo, bar, baz).stream()
+            List<BuildConfiguration> sorted = Arrays.asList(foo, bar, baz)
+                    .stream()
                     .sorted(comparator)
                     .collect(Collectors.toList());
             fail("Exception expected");
@@ -217,10 +224,11 @@ public class RSQLPredicateProducerTest {
             }
         };
     }
-    
+
     private Path<?> toPath(From<?, BuildRecord> from, RSQLSelectorPath selector) {
         switch (selector.getElement()) {
-            case "id": return from.get(BuildRecord_.id);
+            case "id":
+                return from.get(BuildRecord_.id);
             case "environment":
                 return toPathEnvironment(from.join(BuildRecord_.buildEnvironment), selector.next());
             default:
@@ -230,7 +238,8 @@ public class RSQLPredicateProducerTest {
 
     private Path<?> toPathEnvironment(From<?, BuildEnvironment> from, RSQLSelectorPath selector) {
         switch (selector.getElement()) {
-            case "name": return from.get(BuildEnvironment_.name);
+            case "name":
+                return from.get(BuildEnvironment_.name);
             default:
                 throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
         }

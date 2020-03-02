@@ -120,7 +120,9 @@ public class DefaultMessageSender implements MessageSender {
             messageProducer = session.createProducer(destination);
             sendUsingProducer(message, headers, session, messageProducer);
         } catch (Exception e) {
-            throw new MessagingRuntimeException("Cannot send the message: " + message + "; with headers: " + headers + ".", e);
+            throw new MessagingRuntimeException(
+                    "Cannot send the message: " + message + "; with headers: " + headers + ".",
+                    e);
         } finally {
             if (session != null) {
                 try {
@@ -139,13 +141,17 @@ public class DefaultMessageSender implements MessageSender {
         }
     }
 
-    protected void sendUsingProducer(String message, Map<String, String> headers, Session session, MessageProducer messageProducer) {
+    protected void sendUsingProducer(
+            String message,
+            Map<String, String> headers,
+            Session session,
+            MessageProducer messageProducer) {
         TextMessage textMessage;
         try {
             textMessage = session.createTextMessage(message);
             textMessage.setStringProperty("producer", "PNC");
         } catch (JMSException e) {
-           throw new MessagingRuntimeException(e);
+            throw new MessagingRuntimeException(e);
         }
         if (textMessage == null) {
             logger.error("Unable to create textMessage.");

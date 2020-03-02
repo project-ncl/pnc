@@ -30,8 +30,11 @@ import org.mapstruct.Mapping;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class, uses = {ProductMilestoneMapper.class, ProductMapper.class, MapSetMapper.class})
-public interface ProductVersionMapper extends EntityMapper<Integer, ProductVersion, org.jboss.pnc.dto.ProductVersion, ProductVersionRef> {
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { ProductMilestoneMapper.class, ProductMapper.class, MapSetMapper.class })
+public interface ProductVersionMapper
+        extends EntityMapper<Integer, ProductVersion, org.jboss.pnc.dto.ProductVersion, ProductVersionRef> {
 
     @Override
     default ProductVersion toIDEntity(ProductVersionRef dtoEntity) {
@@ -47,12 +50,13 @@ public interface ProductVersionMapper extends EntityMapper<Integer, ProductVersi
     @Mapping(target = "buildConfigurationSets", source = "groupConfigs")
     @Mapping(target = "buildConfigurations", source = "buildConfigs")
     @Mapping(target = "productReleases", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"productReleases"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "productReleases" })
     ProductVersion toEntity(org.jboss.pnc.dto.ProductVersion dtoEntity);
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"product", "productReleases", "productMilestones", "currentProductMilestone",
-            "buildConfigurationSets", "buildConfigurations"})
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "product", "productReleases", "productMilestones",
+                    "currentProductMilestone", "buildConfigurationSets", "buildConfigurations" })
     ProductVersionRef toRef(ProductVersion dbEntity);
 
     @Override

@@ -49,15 +49,19 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
-    extends AbstractImportTest {
+public class UploadTwoThenVerifyExtractedArtifactsContainThemTest extends AbstractImportTest {
 
     @Test
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession rc = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDeployUrl();
@@ -71,7 +75,10 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
         for (String path : new String[] { pomPath, jarPath }) {
             final String url = UrlUtils.buildUrl(baseUrl, path);
 
-            assertThat("Failed to upload: " + url, ArtifactUploadUtils.put(client, url, "This is a test"), equalTo(true));
+            assertThat(
+                    "Failed to upload: " + url,
+                    ArtifactUploadUtils.put(client, url, "This is a test"),
+                    equalTo(true));
         }
 
         // extract the "built" artifacts we uploaded above.
@@ -91,7 +98,8 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest
 
         // check that the artifact getIdentifier() stores GAVT[C] information in the standard Maven rendering
         for (Artifact artifact : artifacts) {
-            assertThat(artifact + " is not in the expected list of built artifacts: " + refs,
+            assertThat(
+                    artifact + " is not in the expected list of built artifacts: " + refs,
                     refs.contains(artifact.getIdentifier()),
                     equalTo(true));
         }

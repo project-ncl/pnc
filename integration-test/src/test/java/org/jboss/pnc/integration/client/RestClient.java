@@ -36,9 +36,9 @@ public class RestClient {
 
     public Response get(String path, AbstractRestClient.QueryParam... queryParams) {
         RequestSpecification specification = request().when();
-        if(queryParams != null && queryParams.length > 0) {
+        if (queryParams != null && queryParams.length > 0) {
             for (AbstractRestClient.QueryParam qp : queryParams) {
-                if(qp != null) {
+                if (qp != null) {
                     specification.queryParam(qp.paramName, qp.paramValue);
                 }
             }
@@ -71,8 +71,7 @@ public class RestClient {
     }
 
     public RequestSpecification request() {
-        RequestSpecification requestSpec = given()
-                .header("Accept", "application/json")
+        RequestSpecification requestSpec = given().header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(connectionInfo.getPort());
         ConnectionInfo.BasicAuth basicAuth = connectionInfo.getBasicAuth();
@@ -84,9 +83,7 @@ public class RestClient {
             requestSpec.header("Authorization", "Bearer " + bearerToken);
         }
 
-        requestSpec
-            .log().all()
-            .expect().log().all();
+        requestSpec.log().all().expect().log().all();
 
         return requestSpec.request();
     }

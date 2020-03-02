@@ -74,7 +74,7 @@ abstract class BaseMessageSenderTest {
             }
         }).findFirst();
 
-        if(collected.isPresent()) {
+        if (collected.isPresent()) {
             TextMessage textMessage = collected.get();
             try {
                 logger.info("Found message {}.", textMessage.getText());
@@ -106,6 +106,5 @@ abstract class BaseMessageSenderTest {
         }
         return matchingHeaders == headers.size();
     }
-
 
 }

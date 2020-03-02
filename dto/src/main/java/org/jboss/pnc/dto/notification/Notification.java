@@ -23,11 +23,12 @@ import org.jboss.pnc.enums.JobNotificationProgress;
 
 /**
  * Notification about progress of asynchronous job.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
 public abstract class Notification {
-    
+
     /**
      * Type of the asynchronous job.
      */
@@ -53,8 +54,12 @@ public abstract class Notification {
      */
     private final String message;
 
-    protected Notification(JobNotificationType job, String notificationType,
-            JobNotificationProgress progress, JobNotificationProgress oldProgress, String message) {
+    protected Notification(
+            JobNotificationType job,
+            String notificationType,
+            JobNotificationProgress progress,
+            JobNotificationProgress oldProgress,
+            String message) {
         this.job = job;
         this.notificationType = notificationType;
         this.progress = progress;
@@ -62,8 +67,11 @@ public abstract class Notification {
         this.message = message;
     }
 
-    protected Notification(JobNotificationType job, String notificationType,
-            JobNotificationProgress progress, JobNotificationProgress oldProgress) {
+    protected Notification(
+            JobNotificationType job,
+            String notificationType,
+            JobNotificationProgress progress,
+            JobNotificationProgress oldProgress) {
         this.job = job;
         this.notificationType = notificationType;
         this.progress = progress;

@@ -43,8 +43,7 @@ public class DestroyableEnvironmentMock {
                 "internal,build/agent/url",
                 repositorySession,
                 workingDir,
-                () -> {
-                },
+                () -> {},
                 new DebugData(false));
 
     }

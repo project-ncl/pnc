@@ -68,9 +68,7 @@ public class TestEndpoint {
     @GET
     @Path("/unauthorized")
     public void redirect() throws Exception {
-        Response.status(Response.Status.UNAUTHORIZED)
-                .header("WWW-Authenticate", "Bearer realm=\"test\"")
-                .build();
+        Response.status(Response.Status.UNAUTHORIZED).header("WWW-Authenticate", "Bearer realm=\"test\"").build();
     }
 
     @GET

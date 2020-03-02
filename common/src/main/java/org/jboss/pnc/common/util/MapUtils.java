@@ -26,6 +26,9 @@ import java.util.stream.Collectors;
 public class MapUtils {
 
     public static String toString(MultivaluedMap<String, String> map) {
-        return map.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue()).collect(Collectors.joining("; "));
+        return map.entrySet()
+                .stream()
+                .map(entry -> entry.getKey() + ":" + entry.getValue())
+                .collect(Collectors.joining("; "));
     }
 }

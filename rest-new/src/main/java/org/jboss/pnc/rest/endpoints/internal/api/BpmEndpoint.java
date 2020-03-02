@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoints.internal.api;
 
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -42,12 +41,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Path("/bpm")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public interface BpmEndpoint{
+public interface BpmEndpoint {
 
-    @Operation(summary = "Notify PNC about a BPM task event. Accepts polymorphic JSON {\"eventType\": \"string\"} based on \"eventType\" field.",
-            responses = {
-                @ApiResponse(responseCode = SUCCESS_CODE, description = "Success")
-    })
+    @Operation(
+            summary = "Notify PNC about a BPM task event. Accepts polymorphic JSON {\"eventType\": \"string\"} based on \"eventType\" field.",
+            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success") })
     @POST
     @Path("/tasks/{taskId}/notify")
     @Consumes(MediaType.APPLICATION_JSON)

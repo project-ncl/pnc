@@ -68,10 +68,9 @@ public class BuildResultMock {
 
     private static ExecutorException buildException() {
         DestroyableEnvironment destroyableEnvironment = DestroyableEnvironmentMock.build();
-        return new ExecutorException("",
-                new CompletionException(
-                        new BuildProcessExceptionMock(
-                                new Exception(""), destroyableEnvironment)));
+        return new ExecutorException(
+                "",
+                new CompletionException(new BuildProcessExceptionMock(new Exception(""), destroyableEnvironment)));
     }
 
 }

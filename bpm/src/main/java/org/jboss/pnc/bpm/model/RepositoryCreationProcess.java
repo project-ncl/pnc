@@ -33,6 +33,7 @@ import java.io.Serializable;
  * Repository creation configuration object.
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @JsonDeserialize(builder = RepositoryCreationProcess.RepositoryCreationProcessRestBuilder.class)
@@ -66,6 +67,5 @@ public class RepositoryCreationProcess implements Serializable {
     public void setRepositoryConfigurationRest(RepositoryConfiguration repositoryConfigurationRest) {
         this.repositoryConfiguration = repositoryConfigurationRest;
     }
-
 
 }

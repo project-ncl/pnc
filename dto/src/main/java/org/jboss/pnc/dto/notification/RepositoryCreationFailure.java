@@ -27,20 +27,16 @@ import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 
 /**
- * Notification about failure in SCM Repository or Build Config creation. This notification is used
- * when there is problem when creating the SCM repository (which is prerequisit for the Build Config
- * creation).
- *   
+ * Notification about failure in SCM Repository or Build Config creation. This notification is used when there is
+ * problem when creating the SCM repository (which is prerequisit for the Build Config creation).
+ * 
  * <pre>
- * Job:
- *     {@link JobNotificationType#BUILD_CONFIG_CREATION} - When the job is to create Build Config.
- *     {@link JobNotificationType#SCM_REPOSITORY_CREATION} - When the job is to create SCM Repository.
- * Notification type:
- *     {@code RC_REPO_CREATION_ERROR} - Failure while creating the repository in SCM system.
- *     {@code RC_REPO_CLONE_ERROR} - Failure while cloning the repository content.
- *     {@code RC_CREATION_ERROR} - Failure while creating SCM Repository record.
- * Progress: {@link JobNotificationProgress#FINISHED}
- * Message: no
+ * Job: {@link JobNotificationType#BUILD_CONFIG_CREATION} - When the job is to create Build Config.
+ * {@link JobNotificationType#SCM_REPOSITORY_CREATION} - When the job is to create SCM Repository. Notification type:
+ * {@code RC_REPO_CREATION_ERROR} - Failure while creating the repository in SCM system. {@code RC_REPO_CLONE_ERROR} -
+ * Failure while cloning the repository content. {@code RC_CREATION_ERROR} - Failure while creating SCM Repository
+ * record. Progress: {@link JobNotificationProgress#FINISHED} Message: no
+ * 
  * <pre>
  * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -54,11 +50,12 @@ public class RepositoryCreationFailure extends Notification {
      * Object with data describing the failure.
      */
     private final Object data;
-    
+
     private final String taskId;
 
     @JsonCreator
-    public RepositoryCreationFailure(@JsonProperty("job") JobNotificationType job,
+    public RepositoryCreationFailure(
+            @JsonProperty("job") JobNotificationType job,
             @JsonProperty("notificationType") String notificationType,
             @JsonProperty("data") Object data,
             @JsonProperty("taskId") String taskId) {

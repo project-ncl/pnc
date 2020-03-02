@@ -34,7 +34,8 @@ import static java.lang.String.format;
 public class BuildConfigurationSetRestClient extends AbstractRestClient<BuildConfigurationSetRest> {
 
     public static final String BUILD_CONFIGURATION_SET_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/";
-    public static final String BUILD_CONFIGURATIONS_SUB_ENDPOINT = BUILD_CONFIGURATION_SET_REST_ENDPOINT + "%d/build-configurations";
+    public static final String BUILD_CONFIGURATIONS_SUB_ENDPOINT = BUILD_CONFIGURATION_SET_REST_ENDPOINT
+            + "%d/build-configurations";
 
     public BuildConfigurationSetRestClient() {
         super(BUILD_CONFIGURATION_SET_REST_ENDPOINT, BuildConfigurationSetRest.class);
@@ -44,46 +45,65 @@ public class BuildConfigurationSetRestClient extends AbstractRestClient<BuildCon
         return trigger0(id, Optional.empty(), options);
     }
 
-    public RestResponse<BuildConfigSetRecordRest> trigger(int id,
-                                                           BuildConfigurationSetWithAuditedBCsRest buildConfigurationSetWithAuditedBCsRest,
-                                                           BuildOptions options) {
+    public RestResponse<BuildConfigSetRecordRest> trigger(
+            int id,
+            BuildConfigurationSetWithAuditedBCsRest buildConfigurationSetWithAuditedBCsRest,
+            BuildOptions options) {
         return trigger0(id, Optional.of(buildConfigurationSetWithAuditedBCsRest), options);
     }
 
-    private RestResponse<BuildConfigSetRecordRest> trigger0(int id,
-                                                            Optional<BuildConfigurationSetWithAuditedBCsRest> buildConfigurationSetWithAuditedBCsRestOptional,
-                                                            BuildOptions options) {
-         RequestSpecification request = request().when()
+    private RestResponse<BuildConfigSetRecordRest> trigger0(
+            int id,
+            Optional<BuildConfigurationSetWithAuditedBCsRest> buildConfigurationSetWithAuditedBCsRestOptional,
+            BuildOptions options) {
+        RequestSpecification request = request().when()
                 .queryParam("temporaryBuild", options.isTemporaryBuild())
                 .queryParam("forceRebuild", options.isForceRebuild())
                 .queryParam("timestampAlignment", options.isTimestampAlignment());
 
-         Response response;
-         if (buildConfigurationSetWithAuditedBCsRestOptional.isPresent()) {
-             response = request
-                     .body(buildConfigurationSetWithAuditedBCsRestOptional.get())
-                     .post(collectionUrl + id + "/build-versioned");
-         } else {
-             response = request.post(collectionUrl + id + "/build");
-         }
+        Response response;
+        if (buildConfigurationSetWithAuditedBCsRestOptional.isPresent()) {
+            response = request.body(buildConfigurationSetWithAuditedBCsRestOptional.get())
+                    .post(collectionUrl + id + "/build-versioned");
+        } else {
+            response = request.post(collectionUrl + id + "/build");
+        }
         response.then().statusCode(200);
 
         try {
-            return new RestResponse<>(response, response.jsonPath().getObject("content", BuildConfigSetRecordRest.class));
+            return new RestResponse<>(
+                    response,
+                    response.jsonPath().getObject("content", BuildConfigSetRecordRest.class));
         } catch (Exception e) {
             throw new AssertionError("JSON unmarshalling error", e);
         }
     }
 
-    public RestResponse<List<BuildConfigurationRest>> getBuildConfigurations(int id, boolean withValidation, int pageIndex, int pageSize, String rsql, String sort) {
-        return all(BuildConfigurationRest.class, format(BUILD_CONFIGURATIONS_SUB_ENDPOINT, id), withValidation, pageIndex, pageSize, rsql, sort);
+    public RestResponse<List<BuildConfigurationRest>> getBuildConfigurations(
+            int id,
+            boolean withValidation,
+            int pageIndex,
+            int pageSize,
+            String rsql,
+            String sort) {
+        return all(
+                BuildConfigurationRest.class,
+                format(BUILD_CONFIGURATIONS_SUB_ENDPOINT, id),
+                withValidation,
+                pageIndex,
+                pageSize,
+                rsql,
+                sort);
     }
 
     public RestResponse<List<BuildConfigurationRest>> getBuildConfigurations(int id, boolean withValidation) {
         return getBuildConfigurations(id, withValidation, 0, 50, null, null);
     }
 
-    public RestResponse<List<BuildConfigurationRest>> updateBuildConfigurations(int id, List<BuildConfigurationRest> buildConfigurationRests, boolean withValidation) {
+    public RestResponse<List<BuildConfigurationRest>> updateBuildConfigurations(
+            int id,
+            List<BuildConfigurationRest> buildConfigurationRests,
+            boolean withValidation) {
         Response response = put(format(BUILD_CONFIGURATIONS_SUB_ENDPOINT, id), buildConfigurationRests);
 
         if (withValidation) {

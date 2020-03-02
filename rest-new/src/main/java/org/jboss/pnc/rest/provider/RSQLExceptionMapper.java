@@ -38,9 +38,6 @@ public class RSQLExceptionMapper implements ExceptionMapper<RSQLException> {
     public Response toResponse(RSQLException e) {
         Response.StatusType status = Response.Status.BAD_REQUEST;
         logger.debug("An RSQL error occurred when processing REST call", e);
-        return Response
-                .status(status)
-                .entity(new ErrorResponse(e))
-                .build();
+        return Response.status(status).entity(new ErrorResponse(e)).build();
     }
 }

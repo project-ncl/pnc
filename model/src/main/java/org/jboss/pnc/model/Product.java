@@ -49,13 +49,11 @@ import org.jboss.pnc.constants.Patterns;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(uniqueConstraints = {
-        @UniqueConstraint(name="uk_product_abbreviation", columnNames = "abbreviation"),
-        @UniqueConstraint(name="uk_product_productcode", columnNames = "productcode"),
-        @UniqueConstraint(name="uk_product_name", columnNames = "name"),
-        @UniqueConstraint(name="uk_product_pgmsystemname", columnNames = "pgmsystemname")
-       }
-)
+@Table(
+        uniqueConstraints = { @UniqueConstraint(name = "uk_product_abbreviation", columnNames = "abbreviation"),
+                @UniqueConstraint(name = "uk_product_productcode", columnNames = "productcode"),
+                @UniqueConstraint(name = "uk_product_name", columnNames = "name"),
+                @UniqueConstraint(name = "uk_product_pgmsystemname", columnNames = "pgmsystemname") })
 public class Product implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -9022966336791211855L;
@@ -70,7 +68,7 @@ public class Product implements GenericEntity<Integer> {
 
     @Column(unique = true)
     @NotNull
-    @Size(max=255)
+    @Size(max = 255)
     private String name;
 
     @Lob
@@ -79,21 +77,20 @@ public class Product implements GenericEntity<Integer> {
 
     @Column(unique = true)
     @NotNull
-    @Size(max=20)
+    @Size(max = 20)
     @Pattern(regexp = Patterns.PRODUCT_ABBREVIATION)
     private String abbreviation;
 
     @Column(unique = true)
-    @Size(max=50)
+    @Size(max = 50)
     private String productCode;
 
     @Column(unique = true)
-    @Size(max=50)
+    @Size(max = 50)
     private String pgmSystemName;
 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @OneToMany(mappedBy = "product", cascade = { CascadeType.REFRESH, CascadeType.DETACH,
-            CascadeType.REMOVE })
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE })
     private Set<ProductVersion> productVersions;
 
     /**

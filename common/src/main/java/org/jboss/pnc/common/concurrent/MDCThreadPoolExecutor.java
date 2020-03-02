@@ -39,7 +39,8 @@ public class MDCThreadPoolExecutor implements ExecutorService {
     MDCThreadPoolExecutor() {
     }
 
-    public MDCThreadPoolExecutor(int corePoolSize,
+    public MDCThreadPoolExecutor(
+            int corePoolSize,
             int maximumPoolSize,
             long keepAliveTime,
             TimeUnit unit,
@@ -47,13 +48,20 @@ public class MDCThreadPoolExecutor implements ExecutorService {
         this.executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
     }
 
-    public MDCThreadPoolExecutor(int corePoolSize,
+    public MDCThreadPoolExecutor(
+            int corePoolSize,
             int maximumPoolSize,
             long keepAliveTime,
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue,
             ThreadFactory threadFactory) {
-        this.executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
+        this.executorService = new ThreadPoolExecutor(
+                corePoolSize,
+                maximumPoolSize,
+                keepAliveTime,
+                unit,
+                workQueue,
+                threadFactory);
     }
 
     @Override
@@ -77,8 +85,8 @@ public class MDCThreadPoolExecutor implements ExecutorService {
     }
 
     @Override
-    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks,
-            long timeout, TimeUnit unit) throws InterruptedException {
+    public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+            throws InterruptedException {
         return executorService.invokeAll(MDCWrappers.wrapCollection(tasks), timeout, unit);
     }
 
@@ -88,9 +96,8 @@ public class MDCThreadPoolExecutor implements ExecutorService {
     }
 
     @Override
-    public <T> T invokeAny(Collection<? extends Callable<T>> tasks,
-            long timeout,
-            TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+    public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit)
+            throws InterruptedException, ExecutionException, TimeoutException {
         return executorService.invokeAny(MDCWrappers.wrapCollection(tasks), timeout, unit);
     }
 

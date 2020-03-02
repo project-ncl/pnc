@@ -23,6 +23,7 @@ import org.jboss.pnc.enums.BuildStatus;
 public interface BuildStatusChangedEvent {
 
     BuildStatus getOldStatus();
+
     BuildStatus getNewStatus();
 
     Build getBuild();

@@ -45,16 +45,16 @@ public class ProjectRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String name;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String description;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String issueTrackerUrl;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String projectUrl;
 
     @JsonPOJOBuilder(withPrefix = "")

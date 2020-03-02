@@ -30,23 +30,10 @@ public class SysConfigProducer {
 
     @Produces
     public SystemConfig createSystemConfig() {
-//        SystemConfig systemConfig = Mockito.mock(SystemConfig.class);
-//        Mockito.when(systemConfig.getMessagingInternalQueueSize()).thenReturn(2);
-//        return systemConfig;
+        // SystemConfig systemConfig = Mockito.mock(SystemConfig.class);
+        // Mockito.when(systemConfig.getMessagingInternalQueueSize()).thenReturn(2);
+        // return systemConfig;
 
-        return new SystemConfig(
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                "10",
-                null,
-                null,
-                null,
-                "",
-                "2");
+        return new SystemConfig(null, null, null, null, null, null, null, "10", null, null, null, "", "2");
     }
 }

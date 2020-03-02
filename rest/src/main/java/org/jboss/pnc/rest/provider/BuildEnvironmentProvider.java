@@ -36,8 +36,11 @@ public class BuildEnvironmentProvider extends AbstractProvider<BuildEnvironment,
     }
 
     @Inject
-    public BuildEnvironmentProvider(BuildEnvironmentRepository environmentRepository, RSQLPredicateProducer rsqlPredicateProducer,
-            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
+    public BuildEnvironmentProvider(
+            BuildEnvironmentRepository environmentRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer) {
         super(environmentRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 

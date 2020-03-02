@@ -49,37 +49,38 @@ public class BuildConfigRevisionHelper {
 
     @Inject
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
-    
+
     @Transactional(Transactional.TxType.REQUIRES_NEW)
     public void updateBuildConfiguration(org.jboss.pnc.model.BuildConfiguration bcEntity) {
         buildConfigurationRepository.save(bcEntity);
     }
 
     public BuildConfigurationRevision findRevision(String id, BuildConfiguration bcEntity) {
-        return buildConfigurationAuditedRepository
-                .findAllByIdOrderByRevDesc(Integer.valueOf(id))
+        return buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(Integer.valueOf(id))
                 .stream()
-                .peek(p-> logger.warn("going through: " + p))
+                .peek(p -> logger.warn("going through: " + p))
                 .filter(bca -> equalValues(bca, bcEntity))
                 .findFirst()
                 .map(buildConfigurationRevisionMapper::toDTO)
-                .orElseThrow(() -> new IllegalStateException("Couldn't find updated BuildConfigurationAudited entity. "
-                + "BuildConfiguration to be stored: " + bcEntity));
+                .orElseThrow(
+                        () -> new IllegalStateException(
+                                "Couldn't find updated BuildConfigurationAudited entity. "
+                                        + "BuildConfiguration to be stored: " + bcEntity));
     }
 
     private boolean equalValues(BuildConfigurationAudited audited, BuildConfiguration query) {
-        return audited.getName().equals(query.getName()) &&
-                Objects.equals(audited.getBuildScript(), query.getBuildScript()) &&
-                equalsId(audited.getRepositoryConfiguration(), query.getRepositoryConfiguration()) &&
-                Objects.equals(audited.getScmRevision(), query.getScmRevision()) &&
-                Objects.equals(audited.getDescription(), query.getDescription()) &&
-                equalsId(audited.getProject(), query.getProject()) &&
-                equalsId(audited.getBuildEnvironment(), query.getBuildEnvironment()) &&
-                audited.getGenericParameters().equals(query.getGenericParameters());
+        return audited.getName().equals(query.getName())
+                && Objects.equals(audited.getBuildScript(), query.getBuildScript())
+                && equalsId(audited.getRepositoryConfiguration(), query.getRepositoryConfiguration())
+                && Objects.equals(audited.getScmRevision(), query.getScmRevision())
+                && Objects.equals(audited.getDescription(), query.getDescription())
+                && equalsId(audited.getProject(), query.getProject())
+                && equalsId(audited.getBuildEnvironment(), query.getBuildEnvironment())
+                && audited.getGenericParameters().equals(query.getGenericParameters());
     }
 
     private boolean equalsId(GenericEntity<Integer> dbEntity, GenericEntity<Integer> query) {
-        if(dbEntity == null || query == null){
+        if (dbEntity == null || query == null) {
             return dbEntity == query;
         }
 

@@ -27,7 +27,11 @@ import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 public class ShrinkwrapDeployerUtils {
 
     public static void addPomLibs(JavaArchive jar, String gav) {
-        JavaArchive[] libs = Maven.resolver().loadPomFromFile("pom.xml").resolve(gav).withTransitivity().as(JavaArchive.class);
+        JavaArchive[] libs = Maven.resolver()
+                .loadPomFromFile("pom.xml")
+                .resolve(gav)
+                .withTransitivity()
+                .as(JavaArchive.class);
         for (JavaArchive lib : libs) {
             jar.merge(lib);
         }

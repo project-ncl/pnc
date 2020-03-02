@@ -65,7 +65,8 @@ public class BuildCoordinatorFactory {
                 buildSchedulerFactory,
                 queue,
                 systemConfig,
-                groupBuildMapper, buildMapper);
+                groupBuildMapper,
+                buildMapper);
         coordinator.start();
         queue.initSemaphore();
         return new BuildCoordinatorBeans(queue, coordinator);
@@ -73,18 +74,18 @@ public class BuildCoordinatorFactory {
 
     private SystemConfig createConfiguration() {
         return new SystemConfig(
-                    "ProperDriver",
-                    "local-build-scheduler",
-                    "NO_AUTH",
-                    "10",
-                    "10",
-                    "10",
-                    "${product_short_name}-${product_version}-pnc",
-                    "10",
-                    null,
-                    null,
-                    "",
-                    "",
-                    "10");
+                "ProperDriver",
+                "local-build-scheduler",
+                "NO_AUTH",
+                "10",
+                "10",
+                "10",
+                "${product_short_name}-${product_version}-pnc",
+                "10",
+                null,
+                null,
+                "",
+                "",
+                "10");
     }
 }

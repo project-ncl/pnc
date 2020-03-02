@@ -26,19 +26,11 @@ import org.jboss.pnc.model.User;
  */
 public class TestEntitiesFactory {
     public static User newUser() {
-        return User.Builder.newBuilder()
-                .id(1)
-                .username("medusa")
-                .firstName("Medusa")
-                .lastName("Poseidon's")
-                .build();
+        return User.Builder.newBuilder().id(1).username("medusa").firstName("Medusa").lastName("Poseidon's").build();
     }
 
     public static BuildConfigurationSet newBuildConfigurationSet() {
-        return BuildConfigurationSet.Builder.newBuilder()
-                .id(1)
-                .name("test-build-configuration-set-1")
-                .build();
+        return BuildConfigurationSet.Builder.newBuilder().id(1).name("test-build-configuration-set-1").build();
     }
 
 }

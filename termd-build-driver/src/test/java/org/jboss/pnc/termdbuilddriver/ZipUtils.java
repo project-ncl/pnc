@@ -27,9 +27,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 2/29/16
- * Time: 2:01 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 2/29/16 Time: 2:01 PM
  */
 public class ZipUtils {
     public static void unzipToDir(Path dir, String resourcePath) throws IOException {

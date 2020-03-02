@@ -40,7 +40,7 @@ public class DefaultKeycloakServiceClient implements KeycloakServiceClient {
 
     private Instant expiresAt;
 
-    @Deprecated //CDI workaround
+    @Deprecated // CDI workaround
     public DefaultKeycloakServiceClient() {
     }
 

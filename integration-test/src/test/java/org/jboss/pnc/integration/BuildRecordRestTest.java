@@ -60,9 +60,11 @@ public class BuildRecordRestTest extends AbstractTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String BUILD_RECORD_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-records/%d";
-//    private static final String BUILD_RECORD_NAME_REST_ENDPOINT = "/pnc-rest/rest/build-records?q=latestBuildConfiguration.name==%s";
+    // private static final String BUILD_RECORD_NAME_REST_ENDPOINT =
+    // "/pnc-rest/rest/build-records?q=latestBuildConfiguration.name==%s";
     private static final String BUILD_RECORD_PROJECT_REST_ENDPOINT = "/pnc-rest/rest/build-records/projects/%d";
-//    private static final String BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT = "/pnc-rest/rest/build-records/projects/%d?q=latestBuildConfiguration.name==%s";
+    // private static final String BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT =
+    // "/pnc-rest/rest/build-records/projects/%d?q=latestBuildConfiguration.name==%s";
     private static final String BUILD_ENDPOINT_SSH_CREDENTIALS = "/pnc-rest/rest/builds/ssh-credentials/%d";
 
     private static int buildRecordId;
@@ -75,7 +77,8 @@ public class BuildRecordRestTest extends AbstractTest {
         EnterpriseArchive enterpriseArchive = Deployments.baseEar();
 
         WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, REST_WAR_PATH);
-        //adding classes at runtime allows to "dynamically" add them to deployments without requiring to have new ear build
+        // adding classes at runtime allows to "dynamically" add them to deployments without requiring to have new ear
+        // build
         restWar.addClass(BuildConfigurationProvider.class);
         restWar.addClass(BuildConfigurationEndpoint.class);
         restWar.addClass(BuildConfigurationRest.class);
@@ -95,7 +98,10 @@ public class BuildRecordRestTest extends AbstractTest {
         new UserRestClient().getLoggedUser();
 
         Response response = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(BuildRecordRestClient.BUILD_RECORD_REST_ENDPOINT);
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(BuildRecordRestClient.BUILD_RECORD_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
         buildRecordId = response.body().jsonPath().getInt(FIRST_CONTENT_ID);
         configurationId = response.body().jsonPath().getInt("content[0].buildConfigurationId");
@@ -104,7 +110,10 @@ public class BuildRecordRestTest extends AbstractTest {
         logger.info("configurationId: {} ", configurationId);
 
         response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
         ResponseAssertion.assertThat(response).hasStatus(200);
         buildConfigurationName = response.body().jsonPath().getString(CONTENT_NAME);
 
@@ -119,7 +128,10 @@ public class BuildRecordRestTest extends AbstractTest {
     public void shouldGetBuildRecords() {
 
         Response response = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(BuildRecordRestClient.BUILD_RECORD_REST_ENDPOINT  );
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(BuildRecordRestClient.BUILD_RECORD_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
         ResponseAssertion.assertThat(response).hasJsonValueEqual(FIRST_CONTENT_ID, buildRecordId);
     }
@@ -128,7 +140,9 @@ public class BuildRecordRestTest extends AbstractTest {
     public void shouldGetSpecificBuildRecord() {
 
         Response response = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(BUILD_RECORD_SPECIFIC_REST_ENDPOINT, buildRecordId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
@@ -139,31 +153,37 @@ public class BuildRecordRestTest extends AbstractTest {
     public void shouldGetAuditedConfigurationLinkedToBuildRecord() {
 
         Response response = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(BUILD_RECORD_SPECIFIC_REST_ENDPOINT, buildRecordId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content.buildConfigurationAudited.genericParameters");
-        BuildConfigurationAuditedRest bca = response.jsonPath().getObject("content.buildConfigurationAudited", BuildConfigurationAuditedRest.class);
+        ResponseAssertion.assertThat(response)
+                .hasJsonValueNotNullOrEmpty("content.buildConfigurationAudited.genericParameters");
+        BuildConfigurationAuditedRest bca = response.jsonPath()
+                .getObject("content.buildConfigurationAudited", BuildConfigurationAuditedRest.class);
         Assert.assertEquals("VALUE", bca.getGenericParameters().get("KEY"));
     }
 
     @Test
-    @Ignore //TODO enable or delete
+    @Ignore // TODO enable or delete
     public void shouldGetBuildRecordWithName() {
-//        Response response = given().headers(testHeaders)
-//                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-//                .get(String.format(BUILD_RECORD_NAME_REST_ENDPOINT, buildConfigurationName));
-//
-//        ResponseAssertion.assertThat(response).hasStatus(200);
-//        ResponseAssertion.assertThat(response).hasJsonValueEqual(FIRST_CONTENT_ID, buildRecordId);
+        // Response response = given().headers(testHeaders)
+        // .contentType(ContentType.JSON).port(getHttpPort()).when()
+        // .get(String.format(BUILD_RECORD_NAME_REST_ENDPOINT, buildConfigurationName));
+        //
+        // ResponseAssertion.assertThat(response).hasStatus(200);
+        // ResponseAssertion.assertThat(response).hasJsonValueEqual(FIRST_CONTENT_ID, buildRecordId);
     }
 
     @Test
     public void shouldGetBuildRecordForProject() {
 
         Response response = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
@@ -174,7 +194,9 @@ public class BuildRecordRestTest extends AbstractTest {
         logger.info("projectId: {} ", projectId);
 
         Response response2 = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(BUILD_RECORD_PROJECT_REST_ENDPOINT, projectId));
 
         ResponseAssertion.assertThat(response2).hasStatus(200);
@@ -182,33 +204,35 @@ public class BuildRecordRestTest extends AbstractTest {
     }
 
     @Test
-    @Ignore //TODO enable or delete
+    @Ignore // TODO enable or delete
     public void shouldGetBuildRecordForProjectWithName() {
 
-//        Response response = given().headers(testHeaders)
-//                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-//                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
-//
-//        ResponseAssertion.assertThat(response).hasStatus(200);
-//        ResponseAssertion.assertThat(response).hasJsonValueEqual(CONTENT_ID, configurationId);
-//
-//        projectId = response.body().jsonPath().getInt("content.project.id");
-//
-//        logger.info("projectId: {} ", projectId);
-//
-//        Response response2 = given().headers(testHeaders)
-//                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-//                .get(String.format(BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT, projectId, buildConfigurationName));
-//
-//        ResponseAssertion.assertThat(response2).hasStatus(200);
-//        ResponseAssertion.assertThat(response2).hasJsonValueEqual(FIRST_CONTENT_ID, buildRecordId);
+        // Response response = given().headers(testHeaders)
+        // .contentType(ContentType.JSON).port(getHttpPort()).when()
+        // .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, configurationId));
+        //
+        // ResponseAssertion.assertThat(response).hasStatus(200);
+        // ResponseAssertion.assertThat(response).hasJsonValueEqual(CONTENT_ID, configurationId);
+        //
+        // projectId = response.body().jsonPath().getInt("content.project.id");
+        //
+        // logger.info("projectId: {} ", projectId);
+        //
+        // Response response2 = given().headers(testHeaders)
+        // .contentType(ContentType.JSON).port(getHttpPort()).when()
+        // .get(String.format(BUILD_RECORD_PROJECT_BR_NAME_REST_ENDPOINT, projectId, buildConfigurationName));
+        //
+        // ResponseAssertion.assertThat(response2).hasStatus(200);
+        // ResponseAssertion.assertThat(response2).hasJsonValueEqual(FIRST_CONTENT_ID, buildRecordId);
     }
 
     @Test
     public void shouldFailToGetSshCredentialsForUserThatDidntTrigger() throws IOException {
         if (AuthUtils.authEnabled()) {
             Response response = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .contentType(ContentType.JSON)
+                    .port(getHttpPort())
+                    .when()
                     .get(String.format(BUILD_ENDPOINT_SSH_CREDENTIALS, buildRecordId));
 
             ResponseAssertion.assertThat(response).hasStatus(204);
@@ -219,7 +243,9 @@ public class BuildRecordRestTest extends AbstractTest {
     public void shouldFailToGetSshCredentialsForAnonymous() throws IOException {
         if (AuthUtils.authEnabled()) {
             Response response = given().header(acceptJsonHeader)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                    .contentType(ContentType.JSON)
+                    .port(getHttpPort())
+                    .when()
                     .get(String.format(BUILD_ENDPOINT_SSH_CREDENTIALS, buildRecordId));
 
             ResponseAssertion.assertThat(response).hasStatus(401);

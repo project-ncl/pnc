@@ -23,7 +23,7 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DemoDataConfig extends AbstractModuleConfig{
+public class DemoDataConfig extends AbstractModuleConfig {
 
     public static String MODULE_NAME = "demo-data-config";
 
@@ -34,7 +34,8 @@ public class DemoDataConfig extends AbstractModuleConfig{
 
     private List<String> internalRepos;
 
-    public DemoDataConfig(@JsonProperty("importDemoData") Boolean importDemoData,
+    public DemoDataConfig(
+            @JsonProperty("importDemoData") Boolean importDemoData,
             @JsonProperty(value = "internalRepos") List<String> internalRepos) {
         super();
         this.importDemoData = importDemoData;
@@ -53,7 +54,9 @@ public class DemoDataConfig extends AbstractModuleConfig{
         if (index >= 0 && index < internalRepos.size()) {
             return internalRepos.get(index);
         }
-        throw new IllegalArgumentException("Invalid pnc-config in module " + MODULE_NAME + " : Internal repo with index " + index + " doesn't exist");
+        throw new IllegalArgumentException(
+                "Invalid pnc-config in module " + MODULE_NAME + " : Internal repo with index " + index
+                        + " doesn't exist");
     }
 
     public List<String> getInternalRepos() {

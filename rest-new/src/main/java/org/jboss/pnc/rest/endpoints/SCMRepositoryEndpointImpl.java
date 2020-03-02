@@ -85,10 +85,11 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
     @Override
     public RepositoryCreationResponse createNew(CreateAndSyncSCMRequest request) {
         ValidationBuilder.validateObject(request, WhenCreatingNew.class)
-                .validateNotEmptyArgument().validateAnnotations();
+                .validateNotEmptyArgument()
+                .validateAnnotations();
 
-        RepositoryCreationResponse responseDTO = scmRepositoryProvider.createSCMRepository(request.getScmUrl(),
-                                                                                           request.getPreBuildSyncEnabled());
+        RepositoryCreationResponse responseDTO = scmRepositoryProvider
+                .createSCMRepository(request.getScmUrl(), request.getPreBuildSyncEnabled());
 
         if (responseDTO.getRepository() == null) {
             // not in database, it is being created

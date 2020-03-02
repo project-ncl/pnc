@@ -33,16 +33,19 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class AllSessionUrlsForBuildAreAlikeTest
-    extends AbstractRepositoryManagerDriverTest
-{
+public class AllSessionUrlsForBuildAreAlikeTest extends AbstractRepositoryManagerDriverTest {
 
     @Test
     public void formatRepositoryURLForSimpleInfo_AllURLsMatch() throws Exception {
         // create a dummy non-chained build execution and a repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
         assertThat(repositoryConfiguration, notNullValue());
 
         RepositoryConnectionInfo connectionInfo = repositoryConfiguration.getConnectionInfo();
@@ -52,7 +55,7 @@ public class AllSessionUrlsForBuildAreAlikeTest
         String expectedUrl = connectionInfo.getDependencyUrl();
 
         assertThat(connectionInfo.getToolchainUrl(), equalTo(expectedUrl));
-        //assertThat(connectionInfo.getDeployPath(), equalTo(expectedUrl));
+        // assertThat(connectionInfo.getDeployPath(), equalTo(expectedUrl));
     }
 
 }

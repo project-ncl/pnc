@@ -45,7 +45,7 @@ public class ProductRest implements GenericRestEntity<Integer> {
 
     private String description;
 
-    @NotNull(groups =  { WhenCreatingNew.class, WhenUpdating.class })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     @Pattern(regexp = "[a-zA-Z0-9-]+", groups = { WhenCreatingNew.class, WhenUpdating.class })
     private String abbreviation;
 
@@ -102,28 +102,28 @@ public class ProductRest implements GenericRestEntity<Integer> {
     }
 
     public String getAbbreviation() {
-		return abbreviation;
-	}
+        return abbreviation;
+    }
 
-	public void setAbbreviation(String abbreviation) {
-		this.abbreviation = abbreviation;
-	}
+    public void setAbbreviation(String abbreviation) {
+        this.abbreviation = abbreviation;
+    }
 
-	public String getProductCode() {
-		return productCode;
-	}
+    public String getProductCode() {
+        return productCode;
+    }
 
-	public void setProductCode(String productCode) {
-		this.productCode = productCode;
-	}
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
 
-	public String getPgmSystemName() {
-		return pgmSystemName;
-	}
+    public String getPgmSystemName() {
+        return pgmSystemName;
+    }
 
-	public void setPgmSystemName(String pgmSystemName) {
-		this.pgmSystemName = pgmSystemName;
-	}
+    public void setPgmSystemName(String pgmSystemName) {
+        this.pgmSystemName = pgmSystemName;
+    }
 
     public List<Integer> getProductVersionIds() {
         return productVersionIds;

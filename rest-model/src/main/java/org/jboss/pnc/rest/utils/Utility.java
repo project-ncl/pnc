@@ -26,11 +26,11 @@ public class Utility {
      * @param action The action to perform if object is not null
      */
     public static void performIfNotNull(Object obj, Runnable action) {
-        if(obj != null) {
+        if (obj != null) {
             action.run();
         }
     }
-    
+
     /**
      * Perform the given action if the object is null
      * 
@@ -38,7 +38,7 @@ public class Utility {
      * @param action The action to perform if object is null
      */
     public static void performIfNull(Object obj, Runnable action) {
-        if(obj == null) {
+        if (obj == null) {
             action.run();
         }
     }

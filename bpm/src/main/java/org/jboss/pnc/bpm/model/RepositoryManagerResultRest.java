@@ -39,7 +39,8 @@ public class RepositoryManagerResultRest implements Serializable {
     private String log;
     private CompletionStatus completionStatus;
 
-    public RepositoryManagerResultRest() {}
+    public RepositoryManagerResultRest() {
+    }
 
     public List<org.jboss.pnc.dto.Artifact> getBuiltArtifacts() {
         return builtArtifacts;
@@ -63,20 +64,14 @@ public class RepositoryManagerResultRest implements Serializable {
 
     @Override
     public String toString() {
-        return "RepositoryManagerResultRest{" +
-                "builtArtifacts=" + builtArtifacts +
-                ", dependencies=" + dependencies +
-                ", buildContentId='" + buildContentId + '\'' +
-                ", log='" + log + '\'' +
-                ", completionStatus=" + completionStatus +
-                '}';
+        return "RepositoryManagerResultRest{" + "builtArtifacts=" + builtArtifacts + ", dependencies=" + dependencies
+                + ", buildContentId='" + buildContentId + '\'' + ", log='" + log + '\'' + ", completionStatus="
+                + completionStatus + '}';
     }
 
     public String toStringLimited() {
-        return "RepositoryManagerResultRest{" +
-                ", buildContentId='" + buildContentId + '\'' +
-                ", completionStatus=" + completionStatus +
-                '}';
+        return "RepositoryManagerResultRest{" + ", buildContentId='" + buildContentId + '\'' + ", completionStatus="
+                + completionStatus + '}';
     }
 
     public static class GenericRepositoryManagerResult implements RepositoryManagerResult {

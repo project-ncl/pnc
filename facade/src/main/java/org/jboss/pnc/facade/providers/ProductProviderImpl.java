@@ -37,7 +37,8 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withName;
 
 @PermitAll
 @Stateless
-public class ProductProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.model.Product, Product, ProductRef> implements ProductProvider {
+public class ProductProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.model.Product, Product, ProductRef>
+        implements ProductProvider {
 
     @Inject
     public ProductProviderImpl(ProductRepository repository, ProductMapper mapper) {
@@ -58,6 +59,7 @@ public class ProductProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.mod
 
     /**
      * Not allowed to delete a product
+     * 
      * @param id
      *
      * @throws UnsupportedOperationException
@@ -73,24 +75,23 @@ public class ProductProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.mod
 
         ValidationBuilder.validateObject(productRest, WhenCreatingNew.class).validateConflict(() -> {
 
-                    org.jboss.pnc.model.Product product = repository.queryByPredicates(withName(productRest.getName()));
+            org.jboss.pnc.model.Product product = repository.queryByPredicates(withName(productRest.getName()));
 
-                    Integer productId = null;
+            Integer productId = null;
 
-                    if (productRest.getId() != null) {
-                        productId = Integer.valueOf(productRest.getId());
-                    }
+            if (productRest.getId() != null) {
+                productId = Integer.valueOf(productRest.getId());
+            }
 
-                    if (product != null && !product.getId().equals(productId)) {
-                        return new ConflictedEntryValidator.ConflictedEntryValidationError(
-                                product.getId(),
-                                org.jboss.pnc.model.Product.class,
-                                "Product with the same name already exists");
-                    }
+            if (product != null && !product.getId().equals(productId)) {
+                return new ConflictedEntryValidator.ConflictedEntryValidationError(
+                        product.getId(),
+                        org.jboss.pnc.model.Product.class,
+                        "Product with the same name already exists");
+            }
 
-                    return null;
-                }
-        );
+            return null;
+        });
     }
 
 }

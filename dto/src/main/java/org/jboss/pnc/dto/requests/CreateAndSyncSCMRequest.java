@@ -37,8 +37,8 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 @JsonDeserialize(builder = CreateAndSyncSCMRequest.Builder.class)
 public class CreateAndSyncSCMRequest {
 
-    @NotBlank(groups = {WhenCreatingNew.class})
-    @SCMUrl(groups = {WhenCreatingNew.class})
+    @NotBlank(groups = { WhenCreatingNew.class })
+    @SCMUrl(groups = { WhenCreatingNew.class })
     private final String scmUrl;
 
     private final Boolean preBuildSyncEnabled;

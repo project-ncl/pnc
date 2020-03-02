@@ -55,11 +55,9 @@ import org.jboss.pnc.enums.SystemImageType;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name="uk_buildenvironment_name", columnNames = "name"),
-       indexes = {
-           @Index(name = "idx_buildenvironment_systemimageid", columnList = "systemimageid")
-       }
-)
+@Table(
+        uniqueConstraints = @UniqueConstraint(name = "uk_buildenvironment_name", columnNames = "name"),
+        indexes = { @Index(name = "idx_buildenvironment_systemimageid", columnList = "systemimageid") })
 public class BuildEnvironment implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 3170247997550146257L;
@@ -72,8 +70,8 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     private Integer id;
 
     @NotNull
-    @Column(unique=true)
-    @Size(max=255)
+    @Column(unique = true)
+    @Size(max = 255)
     private String name;
 
     @Lob
@@ -83,29 +81,32 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     /**
      * The URL of the repository which contains the build system image.
      */
-    @Size(max=255)
+    @Size(max = 255)
     private String systemImageRepositoryUrl;
 
     /**
-     * A unique identifier such representing the system image, 
-     * for example a Docker container ID or a checksum of a VM image.
-     * This must never be modified to ensure build reproducibility.
+     * A unique identifier such representing the system image, for example a Docker container ID or a checksum of a VM
+     * image. This must never be modified to ensure build reproducibility.
      */
     @NotNull
-    @Column(unique=true, updatable=false)
-    @Size(max=255)
+    @Column(unique = true, updatable = false)
+    @Size(max = 255)
     private String systemImageId;
 
     @NotNull
-    @Column(updatable=false)
+    @Column(updatable = false)
     @Enumerated(EnumType.STRING)
     private SystemImageType systemImageType;
 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="build_environment_attributes", joinColumns=@JoinColumn(name="build_environment_id", foreignKey = @ForeignKey(name = "fk_build_environment_attributes_buildenvironment")))
-    @MapKeyColumn(name="name")
-    @Column(name="value")
+    @CollectionTable(
+            name = "build_environment_attributes",
+            joinColumns = @JoinColumn(
+                    name = "build_environment_id",
+                    foreignKey = @ForeignKey(name = "fk_build_environment_attributes_buildenvironment")))
+    @MapKeyColumn(name = "name")
+    @Column(name = "value")
     private Map<String, String> attributes = new HashMap<String, String>();
 
     @NotNull
@@ -213,7 +214,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
         private Boolean deprecated = false;
 
         private Builder() {
-            
+
         }
 
         public static Builder newBuilder() {
@@ -278,6 +279,5 @@ public class BuildEnvironment implements GenericEntity<Integer> {
             return this;
         }
 
-        
     }
 }

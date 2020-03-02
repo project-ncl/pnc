@@ -30,8 +30,8 @@ import java.util.Optional;
  */
 public class BuildResultRestTest {
 
-    private final String LOG = "LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" +
-            "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
+    private final String LOG = "LOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO"
+            + "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG";
 
     @Test
     public void shouldGetLimitedToStringWithNulls() {
@@ -50,10 +50,14 @@ public class BuildResultRestTest {
         buildResultRest.setBuildDriverResult(null);
         buildResultRest.setRepositoryManagerResult(null);
 
-        EnvironmentDriverResult environmentDriverResult = new EnvironmentDriverResult(CompletionStatus.SUCCESS, "SUCCESS", Optional.empty());
+        EnvironmentDriverResult environmentDriverResult = new EnvironmentDriverResult(
+                CompletionStatus.SUCCESS,
+                "SUCCESS",
+                Optional.empty());
         buildResultRest.setEnvironmentDriverResult(environmentDriverResult);
 
-        buildResultRest.setRepourResult(new RepourResult(CompletionStatus.SUCCESS, "Repour Success", "org.jboss", "1.1.0.Final-redhat-1"));
+        buildResultRest.setRepourResult(
+                new RepourResult(CompletionStatus.SUCCESS, "Repour Success", "org.jboss", "1.1.0.Final-redhat-1"));
 
         buildResultRest.toString();
     }

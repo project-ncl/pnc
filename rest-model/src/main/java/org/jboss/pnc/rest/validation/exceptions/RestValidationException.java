@@ -42,7 +42,11 @@ public abstract class RestValidationException extends Exception {
         super(cause);
     }
 
-    public RestValidationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public RestValidationException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 

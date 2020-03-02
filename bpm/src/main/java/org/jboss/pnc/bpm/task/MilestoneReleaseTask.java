@@ -50,8 +50,7 @@ public class MilestoneReleaseTask extends BpmTask {
         return new MilestoneReleaseParameters(
                 createMilestoneRest(milestone),
                 config.getPncBaseUrl(),
-                config.getCausewayBaseUrl()
-        );
+                config.getCausewayBaseUrl());
     }
 
     @Override

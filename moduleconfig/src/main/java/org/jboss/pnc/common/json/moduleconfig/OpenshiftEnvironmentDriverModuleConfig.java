@@ -53,26 +53,35 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
 
     private String creationPodRetry;
 
-    public OpenshiftEnvironmentDriverModuleConfig(@JsonProperty("restEndpointUrl") String restEndpointUrl,
-                                                  @JsonProperty("buildAgentHost") String buildAgentHost,
-                                                  @JsonProperty("imageId") String imageId,
-                                                  @JsonProperty("firewallAllowedDestinations") String firewallAllowedDestinations,
-                                                  @JsonProperty("allowedHttpOutgoingDestinations") List<HttpDestinationConfig> allowedHttpOutgoingDestinations,
-                                                  @JsonProperty("proxyServer") String proxyServer,
-                                                  @JsonProperty("proxyPort") String proxyPort,
-                                                  @JsonProperty("nonProxyHosts") String nonProxyHosts,
-                                                  @JsonProperty("podNamespace") String podNamespace,
-                                                  @JsonProperty("buildAgentBindPath") String buildAgentBindPath,
-                                                  @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize,
-                                                  @JsonProperty("restAuthToken") String restAuthToken,
-                                                  @JsonProperty("containerPort") String containerPort,
-                                                  @JsonProperty("workingDirectory") String workingDirectory,
-                                                  @JsonProperty("disabled") Boolean disabled,
-                                                  @JsonProperty("keepBuildAgentInstance") Boolean keepBuildAgentInstance,
-                                                  @JsonProperty("exposeBuildAgentOnPublicUrl") Boolean exposeBuildAgentOnPublicUrl,
-                                                  @JsonProperty("creationPodRetry") String creationPodRetry,
-                                                  @JsonProperty("builderPodMemory") Integer builderPodMemory) {
-        super(imageId, firewallAllowedDestinations, allowedHttpOutgoingDestinations, proxyServer, proxyPort, nonProxyHosts,workingDirectory, disabled);
+    public OpenshiftEnvironmentDriverModuleConfig(
+            @JsonProperty("restEndpointUrl") String restEndpointUrl,
+            @JsonProperty("buildAgentHost") String buildAgentHost,
+            @JsonProperty("imageId") String imageId,
+            @JsonProperty("firewallAllowedDestinations") String firewallAllowedDestinations,
+            @JsonProperty("allowedHttpOutgoingDestinations") List<HttpDestinationConfig> allowedHttpOutgoingDestinations,
+            @JsonProperty("proxyServer") String proxyServer,
+            @JsonProperty("proxyPort") String proxyPort,
+            @JsonProperty("nonProxyHosts") String nonProxyHosts,
+            @JsonProperty("podNamespace") String podNamespace,
+            @JsonProperty("buildAgentBindPath") String buildAgentBindPath,
+            @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize,
+            @JsonProperty("restAuthToken") String restAuthToken,
+            @JsonProperty("containerPort") String containerPort,
+            @JsonProperty("workingDirectory") String workingDirectory,
+            @JsonProperty("disabled") Boolean disabled,
+            @JsonProperty("keepBuildAgentInstance") Boolean keepBuildAgentInstance,
+            @JsonProperty("exposeBuildAgentOnPublicUrl") Boolean exposeBuildAgentOnPublicUrl,
+            @JsonProperty("creationPodRetry") String creationPodRetry,
+            @JsonProperty("builderPodMemory") Integer builderPodMemory) {
+        super(
+                imageId,
+                firewallAllowedDestinations,
+                allowedHttpOutgoingDestinations,
+                proxyServer,
+                proxyPort,
+                nonProxyHosts,
+                workingDirectory,
+                disabled);
 
         this.restEndpointUrl = restEndpointUrl;
         this.buildAgentHost = buildAgentHost;
@@ -81,8 +90,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         this.podNamespace = podNamespace;
         this.restAuthToken = restAuthToken;
         this.containerPort = containerPort;
-        this.keepBuildAgentInstance = keepBuildAgentInstance != null ? keepBuildAgentInstance: false;
-        this.exposeBuildAgentOnPublicUrl = exposeBuildAgentOnPublicUrl != null ? exposeBuildAgentOnPublicUrl: false;
+        this.keepBuildAgentInstance = keepBuildAgentInstance != null ? keepBuildAgentInstance : false;
+        this.exposeBuildAgentOnPublicUrl = exposeBuildAgentOnPublicUrl != null ? exposeBuildAgentOnPublicUrl : false;
         this.creationPodRetry = creationPodRetry;
         this.builderPodMemory = builderPodMemory == null ? DEFAULT_BUILDER_POD_MEMORY : builderPodMemory;
 
@@ -131,25 +140,16 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
 
     @Override
     public String toString() {
-        return "OpenshiftEnvironmentDriverModuleConfig{" +
-                "restEndpointUrl='" + restEndpointUrl + '\'' +
-                ", imageId='" + imageId + '\'' +
-                ", firewallAllowedDestinations='" + firewallAllowedDestinations + '\'' +
-                ", allowedHttpOutgoingDestinations='" + allowedHttpOutgoingDestinations + '\'' +
-                ", proxyServer='" + proxyServer + '\'' +
-                ", proxyPort='" + proxyPort + '\'' +
-                ", nonProxyHosts='" + nonProxyHosts + '\'' +
-                ", podNamespace='" + podNamespace + '\'' +
-                ", buildAgentHost='" + buildAgentHost + '\'' +
-                ", buildAgentBindPath='" + buildAgentBindPath + '\'' +
-                ", executorThreadPoolSize='" + executorThreadPoolSize + '\'' +
-                ", restAuthToken= HIDDEN " +
-                ", containerPort='" + containerPort + '\'' +
-                ", disabled='" + disabled + '\'' +
-                ", keepBuildAgentInstance='" + keepBuildAgentInstance + '\'' +
-                ", exposeBuildAgentOnPublicUrl='" + exposeBuildAgentOnPublicUrl + '\'' +
-                ", creationPodRetry='" + creationPodRetry + '\'' +
-                '}';
+        return "OpenshiftEnvironmentDriverModuleConfig{" + "restEndpointUrl='" + restEndpointUrl + '\'' + ", imageId='"
+                + imageId + '\'' + ", firewallAllowedDestinations='" + firewallAllowedDestinations + '\''
+                + ", allowedHttpOutgoingDestinations='" + allowedHttpOutgoingDestinations + '\'' + ", proxyServer='"
+                + proxyServer + '\'' + ", proxyPort='" + proxyPort + '\'' + ", nonProxyHosts='" + nonProxyHosts + '\''
+                + ", podNamespace='" + podNamespace + '\'' + ", buildAgentHost='" + buildAgentHost + '\''
+                + ", buildAgentBindPath='" + buildAgentBindPath + '\'' + ", executorThreadPoolSize='"
+                + executorThreadPoolSize + '\'' + ", restAuthToken= HIDDEN " + ", containerPort='" + containerPort
+                + '\'' + ", disabled='" + disabled + '\'' + ", keepBuildAgentInstance='" + keepBuildAgentInstance + '\''
+                + ", exposeBuildAgentOnPublicUrl='" + exposeBuildAgentOnPublicUrl + '\'' + ", creationPodRetry='"
+                + creationPodRetry + '\'' + '}';
     }
 
 }

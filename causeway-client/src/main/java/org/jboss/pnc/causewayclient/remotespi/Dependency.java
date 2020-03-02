@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.causewayclient.remotespi;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,5 +35,5 @@ public class Dependency {
     @NonNull
     private final String md5;
     private final long size;
-    
+
 }

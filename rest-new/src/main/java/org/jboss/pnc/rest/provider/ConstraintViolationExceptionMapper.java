@@ -53,6 +53,9 @@ public class ConstraintViolationExceptionMapper implements ExceptionMapper<Const
         }
 
         Response.ResponseBuilder builder = Response.status(BAD_REQUEST);
-        return builder.entity(new ErrorResponse("VALIDATION", "Constraint violation: " + e.getMessage(), detailBuilder.build())).type(MediaType.APPLICATION_JSON).build();
+        return builder.entity(
+                new ErrorResponse("VALIDATION", "Constraint violation: " + e.getMessage(), detailBuilder.build()))
+                .type(MediaType.APPLICATION_JSON)
+                .build();
     }
 }

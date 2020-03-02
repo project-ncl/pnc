@@ -46,7 +46,6 @@ public class GraphUtilsTest {
 
         logger.debug("TargetGraph.edges {}.", graphTarget.getEdges());
 
-
         Entry entry3 = new Entry("3");
         Vertex<Entry> vertex3 = new NameUniqueVertex<>(entry3.name, entry3);
         graphTarget.addVertex(vertex3);
@@ -87,7 +86,6 @@ public class GraphUtilsTest {
         Assert.assertEquals("5", graphTarget.findVertexByName("2").getIncomingEdge(1).getFrom().getName());
         Assert.assertEquals("2", graphTarget.findVertexByName("5").getOutgoingEdge(0).getTo().getName());
     }
-
 
     private static class Entry {
         String name;

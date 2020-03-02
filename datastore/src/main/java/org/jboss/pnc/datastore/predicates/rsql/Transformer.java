@@ -24,5 +24,10 @@ import java.util.List;
 
 @FunctionalInterface
 interface Transformer<Entity> {
-    Predicate transform(Root<Entity> r, CriteriaBuilder cb, Class<?> selectingClass, String operand, List<String> arguments);
+    Predicate transform(
+            Root<Entity> r,
+            CriteriaBuilder cb,
+            Class<?> selectingClass,
+            String operand,
+            List<String> arguments);
 }

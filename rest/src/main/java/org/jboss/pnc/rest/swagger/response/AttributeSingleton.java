@@ -60,5 +60,5 @@ import java.util.Map;
 /**
  * Created by thauser on 8/11/16.
  */
-public class AttributeSingleton extends Singleton<Map<String,String>> {
+public class AttributeSingleton extends Singleton<Map<String, String>> {
 }

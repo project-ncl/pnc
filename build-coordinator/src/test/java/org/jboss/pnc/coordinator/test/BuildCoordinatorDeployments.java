@@ -67,8 +67,7 @@ public class BuildCoordinatorDeployments {
 
     public enum Options {
 
-        WITH_DATASTORE (() -> datastoreArchive()),
-        WITH_BPM (() -> bpmArchive());
+        WITH_DATASTORE(() -> datastoreArchive()), WITH_BPM(() -> bpmArchive());
 
         Supplier<Archive> archiveSupplier;
 
@@ -97,17 +96,13 @@ public class BuildCoordinatorDeployments {
 
     private static JavaArchive defaultLibs() {
         Filter<ArchivePath> filter = path -> {
-            String packageStylePath = path.get()
-                    .replaceAll("/", ".")
-                    .replaceAll("\\.class$", "")
-                    .substring(1);
+            String packageStylePath = path.get().replaceAll("/", ".").replaceAll("\\.class$", "").substring(1);
             log.debug("Checking path: {}.", packageStylePath);
             if (packageStylePath.equals(DefaultBuildExecutor.class.getName())) {
                 return false;
             }
             return true;
         };
-
 
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
@@ -117,9 +112,10 @@ public class BuildCoordinatorDeployments {
                 .addClass(TestEntitiesFactory.class)
                 .addClass(BuildCoordinatorFactory.class)
                 .addClass(BuildConfigurationAuditedRepositoryMock.class)
-                .addPackages(false, filter,
-                        BuildResultMapper.class.getPackage())
-                .addPackages(true, filter,
+                .addPackages(false, filter, BuildResultMapper.class.getPackage())
+                .addPackages(
+                        true,
+                        filter,
                         BuildCoordinator.class.getPackage(),
                         DefaultBuildCoordinator.class.getPackage(),
                         BuildSetStatusNotifications.class.getPackage(),
@@ -137,8 +133,10 @@ public class BuildCoordinatorDeployments {
                         SystemConfig.class.getPackage(),
                         ModuleConfigFactory.class.getPackage(),
                         AbstractArtifactMapper.class.getPackage())
-                //TODO remove, no need to use default beans.xml
-                .addAsManifestResource(new StringAsset(Descriptors.create(BeansDescriptor.class).exportAsString()), "beans.xml")
+                // TODO remove, no need to use default beans.xml
+                .addAsManifestResource(
+                        new StringAsset(Descriptors.create(BeansDescriptor.class).exportAsString()),
+                        "beans.xml")
                 .addAsResource("logback-test.xml", "logback.xml");
 
         log.info("Deployment content: {}", jar.toString(true));
@@ -153,10 +151,7 @@ public class BuildCoordinatorDeployments {
 
     private static JavaArchive bpmArchive() {
         return ShrinkWrap.create(JavaArchive.class)
-                .addPackages(false,
-                    BpmManager.class.getPackage(),
-                    BpmBuildTask.class.getPackage()
-                );
+                .addPackages(false, BpmManager.class.getPackage(), BpmBuildTask.class.getPackage());
     }
 
 }

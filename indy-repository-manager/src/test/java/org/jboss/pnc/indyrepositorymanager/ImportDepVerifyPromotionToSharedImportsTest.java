@@ -47,13 +47,19 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
         String path = "/org/myproj/myproj/1.0/myproj-1.0.pom";
         String content = "This is a test " + System.currentTimeMillis();
 
-        // setup the expectation that the remote repo pointing at this server will request this file...and define its content.
+        // setup the expectation that the remote repo pointing at this server will request this file...and define its
+        // content.
         server.expect(server.formatUrl(STORE, path), 200, content);
 
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession session = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession session = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
 
         // simulate a build resolving an artifact via the Indy remote repository.
         assertThat(download(UrlUtils.buildUrl(session.getConnectionInfo().getDependencyUrl(), path)), equalTo(content));

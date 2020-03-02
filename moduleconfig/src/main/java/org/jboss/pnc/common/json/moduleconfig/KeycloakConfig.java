@@ -23,7 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Web UI configuration parameters for Keycloak JavaScript adapter.
  *
  * @author Alex Creasy
- * @see <a href="http://keycloak.github.io/docs/userguide/keycloak-server/html/ch08.html#javascript-adapter">Keycloak JS Adapter Documentation</a>
+ * @see <a href="http://keycloak.github.io/docs/userguide/keycloak-server/html/ch08.html#javascript-adapter">Keycloak JS
+ *      Adapter Documentation</a>
  */
 class KeycloakConfig {
 
@@ -57,10 +58,6 @@ class KeycloakConfig {
 
     @Override
     public String toString() {
-        return "Keycloak{" +
-                "url='" + url + '\'' +
-                ", realm='" + realm + '\'' +
-                ", clientId='" + clientId + '\'' +
-                '}';
+        return "Keycloak{" + "url='" + url + '\'' + ", realm='" + realm + '\'' + ", clientId='" + clientId + '\'' + '}';
     }
 }

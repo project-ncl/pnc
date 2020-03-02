@@ -52,8 +52,9 @@ public class BuildConfigurationTest extends AbstractModelTest {
 
     protected final Project PROJECT_WITH_ID_1;
 
-    protected final RepositoryConfiguration REPOSITORY_CONFIGURATION_ID_1 = RepositoryConfiguration.Builder
-            .newBuilder().id(1).build();
+    protected final RepositoryConfiguration REPOSITORY_CONFIGURATION_ID_1 = RepositoryConfiguration.Builder.newBuilder()
+            .id(1)
+            .build();
 
     private final String KEY1 = "key1";
 
@@ -64,7 +65,6 @@ public class BuildConfigurationTest extends AbstractModelTest {
     private EntityManager em;
 
     private static AtomicInteger buildConfigurationSequence = new AtomicInteger();
-
 
     public BuildConfigurationTest() {
         BUILD_ENVIRONMENT_WITH_ID_1 = BuildEnvironment.Builder.newBuilder().id(1).build();
@@ -88,11 +88,13 @@ public class BuildConfigurationTest extends AbstractModelTest {
         BuildConfiguration original = BuildConfiguration.Builder.newBuilder()
                 .id(buildConfigurationSequence.incrementAndGet())
                 .name("Test Build Configuration 1")
-                .description("Test Build Configuration 1 Description").project(PROJECT_WITH_ID_1)
+                .description("Test Build Configuration 1 Description")
+                .project(PROJECT_WITH_ID_1)
                 .repositoryConfiguration(REPOSITORY_CONFIGURATION_ID_1)
                 .buildScript("mvn install")
                 .genericParameters(GENERIC_PARAMETERS_EMPTY)
-                .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
+                .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1)
+                .build();
 
         em.getTransaction().begin();
         em.persist(original);
@@ -109,7 +111,8 @@ public class BuildConfigurationTest extends AbstractModelTest {
                 .name("Test Build Configuration 1")
                 .project(PROJECT_WITH_ID_1)
                 .buildScript("mvn install")
-                .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
+                .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1)
+                .build();
 
         em.getTransaction().begin();
         em.persist(bc);
@@ -121,19 +124,18 @@ public class BuildConfigurationTest extends AbstractModelTest {
         RepositoryConfiguration defaultRepositoryConfiguration = em.find(RepositoryConfiguration.class, 1);
         RepositoryConfiguration secondRepositoryConfiguration = em.find(RepositoryConfiguration.class, 2);
 
-
         BuildConfiguration bc = BuildConfiguration.Builder.newBuilder()
                 .id(buildConfigurationSequence.incrementAndGet())
                 .name("Test Build Configuration 1")
                 .project(PROJECT_WITH_ID_1)
                 .repositoryConfiguration(defaultRepositoryConfiguration)
                 .buildScript("mvn install")
-                .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
+                .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1)
+                .build();
 
         em.getTransaction().begin();
         em.persist(bc);
         em.getTransaction().commit();
-
 
         em.getTransaction().begin();
         BuildConfiguration loadedBc = em.find(BuildConfiguration.class, bc.getId());
@@ -141,7 +143,9 @@ public class BuildConfigurationTest extends AbstractModelTest {
         em.getTransaction().commit();
         em.clear();
 
-        assertEquals(2, em.find(BuildConfiguration.class, loadedBc.getId()).getRepositoryConfiguration().getId().intValue());
+        assertEquals(
+                2,
+                em.find(BuildConfiguration.class, loadedBc.getId()).getRepositoryConfiguration().getId().intValue());
     }
 
     @Test
@@ -149,8 +153,10 @@ public class BuildConfigurationTest extends AbstractModelTest {
         Map<String, String> genericParameters = new HashMap<>();
         genericParameters.put(KEY1, VALUE1);
 
-        BuildConfiguration original = createBc("Test Build Configuration 1",
-                "Test Build Configuration 1 Description", genericParameters);
+        BuildConfiguration original = createBc(
+                "Test Build Configuration 1",
+                "Test Build Configuration 1 Description",
+                genericParameters);
 
         em.getTransaction().begin();
         em.persist(original);
@@ -169,10 +175,14 @@ public class BuildConfigurationTest extends AbstractModelTest {
         genericParameters.put(KEY1, VALUE1);
         genericParameters.put(KEY2, VALUE2);
 
-        BuildConfiguration original1 = createBc("Test Build Configuration 1",
-                "Test Build Configuration 1 Description", genericParameters);
-        BuildConfiguration original2 = createBc("Test Build Configuration 2",
-                "Test Build Configuration 2 Description", genericParameters);
+        BuildConfiguration original1 = createBc(
+                "Test Build Configuration 1",
+                "Test Build Configuration 1 Description",
+                genericParameters);
+        BuildConfiguration original2 = createBc(
+                "Test Build Configuration 2",
+                "Test Build Configuration 2 Description",
+                genericParameters);
 
         em.getTransaction().begin();
         logger.info("Saving {}", original1);
@@ -185,7 +195,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
         assertEquals(2, obtained1.getGenericParameters().size());
         assertEquals(VALUE1, obtained1.getGenericParameters().get(KEY1));
         assertEquals(VALUE2, obtained1.getGenericParameters().get(KEY2));
-        
+
         BuildConfiguration obtained2 = em.find(BuildConfiguration.class, original1.getId());
         assertEquals(2, obtained2.getGenericParameters().size());
         assertEquals(VALUE1, obtained2.getGenericParameters().get(KEY1));
@@ -194,7 +204,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
 
     @Test
     public void testRetrieveAuditedGenericParameters() {
-        //given
+        // given
         String key = "key";
         String initialValue = "initialValue";
         String updatedValue = "updatedValue";
@@ -204,7 +214,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
         Map<String, String> updatedParameters = new HashMap<>();
         updatedParameters.put(key, updatedValue);
 
-        //when
+        // when
         BuildConfiguration buildConfiguration = createBc("auditing test", "description", initialParameters);
         em.getTransaction().begin();
         em.persist(buildConfiguration);
@@ -216,7 +226,7 @@ public class BuildConfigurationTest extends AbstractModelTest {
         em.persist(buildConfiguration);
         em.getTransaction().commit();
 
-        //then
+        // then
         BuildConfiguration obtained = em.find(BuildConfiguration.class, buildConfiguration.getId());
 
         AuditReader reader = AuditReaderFactory.get(em);
@@ -225,20 +235,24 @@ public class BuildConfigurationTest extends AbstractModelTest {
         assertEquals(2, revisions.size());
 
         Number firstRevision = revisions.get(0);
-        BuildConfiguration oldBuildConfiguration = reader.find(BuildConfiguration.class, obtained.getId(), firstRevision);
+        BuildConfiguration oldBuildConfiguration = reader
+                .find(BuildConfiguration.class, obtained.getId(), firstRevision);
         Number secondRevision = revisions.get(1);
-        BuildConfiguration newBuildConfiguration = reader.find(BuildConfiguration.class, obtained.getId(), secondRevision);
+        BuildConfiguration newBuildConfiguration = reader
+                .find(BuildConfiguration.class, obtained.getId(), secondRevision);
 
         Assert.assertEquals(oldBuildConfiguration.getGenericParameters().get(key), initialValue);
         Assert.assertEquals(newBuildConfiguration.getGenericParameters().get(key), updatedValue);
 
         BuildConfiguration buildConfigurationOld = getByIdRev(buildConfiguration.getId(), firstRevision.intValue());
-        BuildConfigurationAudited auditedOld = BuildConfigurationAudited.fromBuildConfiguration(buildConfigurationOld, firstRevision.intValue());
+        BuildConfigurationAudited auditedOld = BuildConfigurationAudited
+                .fromBuildConfiguration(buildConfigurationOld, firstRevision.intValue());
 
         Assert.assertEquals(auditedOld.getGenericParameters().get(key), initialValue);
 
         BuildConfiguration buildConfigurationNew = getByIdRev(buildConfiguration.getId(), secondRevision.intValue());
-        BuildConfigurationAudited auditedNew = BuildConfigurationAudited.fromBuildConfiguration(buildConfigurationNew, secondRevision.intValue());
+        BuildConfigurationAudited auditedNew = BuildConfigurationAudited
+                .fromBuildConfiguration(buildConfigurationNew, secondRevision.intValue());
 
         Assert.assertEquals(auditedNew.getGenericParameters().get(key), updatedValue);
 
@@ -246,25 +260,24 @@ public class BuildConfigurationTest extends AbstractModelTest {
 
     private BuildConfiguration getByIdRev(Integer buildConfigurationId, Integer revision) {
         return (BuildConfiguration) AuditReaderFactory.get(em)
-                    .createQuery()
-                    .forEntitiesAtRevision(BuildConfiguration.class, revision)
-                    .add(AuditEntity.id().eq(buildConfigurationId))
-                    .addOrder(AuditEntity.revisionNumber().desc())
-                    .getSingleResult();
+                .createQuery()
+                .forEntitiesAtRevision(BuildConfiguration.class, revision)
+                .add(AuditEntity.id().eq(buildConfigurationId))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getSingleResult();
     }
 
-    private BuildConfiguration createBc(
-            String name,
-            String description,
-            Map<String, String> genericParameters) {
+    private BuildConfiguration createBc(String name, String description, Map<String, String> genericParameters) {
         return BuildConfiguration.Builder.newBuilder()
                 .id(buildConfigurationSequence.incrementAndGet())
                 .name(name)
-                .description(description).project(PROJECT_WITH_ID_1)
+                .description(description)
+                .project(PROJECT_WITH_ID_1)
                 .repositoryConfiguration(REPOSITORY_CONFIGURATION_ID_1)
                 .buildScript("mvn install")
                 .genericParameters(genericParameters)
-                .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1).build();
+                .buildEnvironment(BUILD_ENVIRONMENT_WITH_ID_1)
+                .build();
 
     }
 

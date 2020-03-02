@@ -40,7 +40,10 @@ public class UserProvider extends AbstractProvider<User, UserRest> {
     }
 
     @Inject
-    public UserProvider(UserRepository userRepository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer,
+    public UserProvider(
+            UserRepository userRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
             PageInfoProducer pageInfoProducer) {
         super(userRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
@@ -58,12 +61,11 @@ public class UserProvider extends AbstractProvider<User, UserRest> {
     @Override
     protected void validateBeforeSaving(UserRest restEntity) throws RestValidationException {
 
-
-        if(repository.count(UserPredicates.withEmail(restEntity.getEmail())) != 0) {
+        if (repository.count(UserPredicates.withEmail(restEntity.getEmail())) != 0) {
             throw new IllegalArgumentException("Email address already in use by another user");
         }
 
-        if(repository.count(UserPredicates.withUserName(restEntity.getUsername())) != 0) {
+        if (repository.count(UserPredicates.withUserName(restEntity.getUsername())) != 0) {
             throw new IllegalArgumentException("Username already in use by another user");
         }
     }

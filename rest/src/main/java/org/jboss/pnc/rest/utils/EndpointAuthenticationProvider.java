@@ -32,9 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/12/16
- * Time: 1:28 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/12/16 Time: 1:28 PM
  */
 @ApplicationScoped
 public class EndpointAuthenticationProvider {
@@ -50,7 +48,9 @@ public class EndpointAuthenticationProvider {
     }
 
     @Inject
-    public EndpointAuthenticationProvider(Datastore datastore, AuthenticationProviderFactory authenticationProviderFactory) {
+    public EndpointAuthenticationProvider(
+            Datastore datastore,
+            AuthenticationProviderFactory authenticationProviderFactory) {
         this.datastore = datastore;
         this.authenticationProvider = authenticationProviderFactory.getProvider();
     }
@@ -61,9 +61,9 @@ public class EndpointAuthenticationProvider {
         logger.trace("LoggedInUser: {}.", loginInUser);
         String loggedUser = loginInUser.getUserName();
         User currentUser = null;
-        if(StringUtils.isNotEmpty(loggedUser)) {
+        if (StringUtils.isNotEmpty(loggedUser)) {
             currentUser = datastore.retrieveUserByUsername(loggedUser);
-            if(currentUser != null) {
+            if (currentUser != null) {
                 currentUser.setLoginToken(loginInUser.getTokenString());
             }
         }

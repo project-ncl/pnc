@@ -17,6 +17,7 @@
  */
 
 /**
- * Copied from https://github.com/keycloak/keycloak/tree/master/integration/client-cli/admin-cli/src/main/java/org/keycloak/client/admin/cli/util
+ * Copied from
+ * https://github.com/keycloak/keycloak/tree/master/integration/client-cli/admin-cli/src/main/java/org/keycloak/client/admin/cli/util
  */
 package org.jboss.pnc.auth.keycloakutil;

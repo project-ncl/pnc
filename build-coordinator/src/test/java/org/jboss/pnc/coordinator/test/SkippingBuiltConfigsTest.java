@@ -44,9 +44,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/22/16
- * Time: 2:51 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 2:51 PM
  */
 public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     private static final Logger log = LoggerFactory.getLogger(SkippingBuiltConfigsTest.class);
@@ -71,37 +69,37 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         configSet = configSet(configA, configB, configC, configD, configE);
 
         buildConfigurationRepository = spy(new BuildConfigurationRepositoryMock());
-        when(buildConfigurationRepository.queryWithPredicates(any())).thenReturn(new ArrayList<>(configSet.getBuildConfigurations()));
+        when(buildConfigurationRepository.queryWithPredicates(any()))
+                .thenReturn(new ArrayList<>(configSet.getBuildConfigurations()));
 
         super.initialize();
 
         configSet.getBuildConfigurations().forEach(bc -> saveConfig(bc));
     }
 
-
-
     @Test
     public void shouldNotBuildTheSameBuildConfigurationTwice() throws Exception {
         coordinator.start();
         buildRecordRepository.clear();
-        //given
+        // given
         BuildConfiguration testConfiguration = config("shouldNotBuildTheSameBuildConfigurationTwice");
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setBuildDependencies(false);
 
-        //when
+        // when
         coordinator.build(testConfiguration, user, buildOptions);
         waitForEmptyBuildQueue();
 
         coordinator.build(testConfiguration, user, buildOptions);
         waitForEmptyBuildQueue();
 
-        //then
-        //there should be one non build
+        // then
+        // there should be one non build
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
 
-        //there should be stored one NO_REBUILD_REQUIRED
-        List<BuildRecord> collectNoRebuildRequired = buildRecordRepository.queryAll().stream()
+        // there should be stored one NO_REBUILD_REQUIRED
+        List<BuildRecord> collectNoRebuildRequired = buildRecordRepository.queryAll()
+                .stream()
                 .filter(r -> r.getStatus() == BuildStatus.NO_REBUILD_REQUIRED)
                 .collect(Collectors.toList());
         assertThat(collectNoRebuildRequired.size()).isEqualTo(1);
@@ -111,12 +109,12 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     public void shouldTriggerTheSameBuildConfigurationWithNewRevision() throws Exception {
         coordinator.start();
         buildRecordRepository.clear();
-        //given
+        // given
         BuildConfiguration testConfiguration = config("shouldRejectBCWithNewRevision");
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setBuildDependencies(false);
 
-        //when
+        // when
         coordinator.build(testConfiguration, user, buildOptions);
         BuildConfiguration updatedConfiguration = updateConfiguration(testConfiguration);
 
@@ -128,7 +126,7 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
             rejected = true;
         }
 
-        //then
+        // then
         Assert.assertFalse("The task was rejected.", rejected);
         waitForEmptyBuildQueue();
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(2);
@@ -138,17 +136,17 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     public void shouldNotTriggerTheSameBuildConfigurationViaDependency() throws Exception {
         coordinator.start();
         buildRecordRepository.clear();
-        //given
+        // given
         BuildConfiguration configurationA = config("configurationA");
         BuildConfiguration configurationB = config("configurationB");
         configurationA.addDependency(configurationB);
         BuildOptions buildOptions = new BuildOptions();
 
-        //when
+        // when
         coordinator.build(configurationB, user, buildOptions);
         coordinator.build(configurationA, user, buildOptions);
 
-        //then
+        // then
         waitForEmptyBuildQueue();
         Assert.assertEquals("There should be 2 build records.", 2, buildRecordRepository.queryAll().size());
     }
@@ -157,17 +155,17 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     public void shouldBuildConfigurationAndUnbuiltDependency() throws Exception {
         coordinator.start();
         buildRecordRepository.clear();
-        //given
+        // given
         BuildConfiguration testConfiguration = config("shouldBuildConfigurationAndUnbuiltDependency");
         BuildConfiguration dependency = config("dependency");
         testConfiguration.addDependency(dependency);
         BuildOptions buildOptions = new BuildOptions();
 
-        //when
+        // when
         coordinator.build(testConfiguration, user, buildOptions);
         waitForEmptyBuildQueue();
 
-        //then
+        // then
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(2);
     }
 
@@ -175,7 +173,7 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     public void shouldNotRebuildAlreadyBuiltDependency() throws Exception {
         coordinator.start();
         buildRecordRepository.clear();
-        //given
+        // given
         BuildConfiguration testConfiguration = config("shouldNotRebuildAlreadyBuiltDependency");
         BuildConfiguration dependency = config("dependency");
         testConfiguration.addDependency(dependency);
@@ -185,11 +183,11 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         waitForEmptyBuildQueue();
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
 
-        //when
+        // when
         coordinator.build(testConfiguration, user, buildOptions);
         waitForEmptyBuildQueue();
 
-        //then
+        // then
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(2);
     }
 
@@ -199,14 +197,14 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
 
-        //when
+        // when
         coordinator.build(configA, user, buildOptions);
         waitForEmptyBuildQueue();
 
         coordinator.build(configA, user, buildOptions);
         waitForEmptyBuildQueue();
 
-        //then
+        // then
         List<BuildRecord> buildRecords = getNonRejectedBuildRecords();
         assertThat(buildRecords.size()).isEqualTo(2);
         logRecords(buildRecords);
@@ -214,16 +212,16 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
 
     @Test
     public void shouldNotBuildTheSameBuildConfigurationSetTwice() throws Exception {
-        //when
+        // when
         BuildOptions buildOptions1 = new BuildOptions();
-        coordinator.build(configSet, user, buildOptions1); //first build
+        coordinator.build(configSet, user, buildOptions1); // first build
         waitForEmptyBuildQueue();
 
         BuildOptions buildOptions2 = new BuildOptions();
         coordinator.build(configSet, user, buildOptions2); // rebuild build
         waitForEmptyBuildQueue();
 
-        //then
+        // then
         List<BuildRecord> buildRecords = getNonRejectedBuildRecords();
         logRecords(buildRecords);
         assertThat(buildRecords.size()).isEqualTo(configSet.getBuildConfigurations().size());
@@ -231,30 +229,32 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
 
     @Test
     public void shouldRerunTheSameBuildConfigurationSetIfRebuildAllIsSpecified() throws Exception {
-        //when
+        // when
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
-        coordinator.build(configSet, user, buildOptions); //first build
+        coordinator.build(configSet, user, buildOptions); // first build
         waitForEmptyBuildQueue();
 
-
-        coordinator.build(configSet, user, buildOptions); //forced rebuild build
+        coordinator.build(configSet, user, buildOptions); // forced rebuild build
         waitForEmptyBuildQueue();
-        //then
+        // then
         List<BuildRecord> buildRecords = getNonRejectedBuildRecords();
         logRecords(buildRecords);
         assertThat(buildRecords.size()).isEqualTo(2 * configSet.getBuildConfigurations().size());
     }
 
     private List<BuildRecord> getNonRejectedBuildRecords() {
-        return buildRecordRepository.queryAll().stream()
+        return buildRecordRepository.queryAll()
+                .stream()
                 .filter(r -> r.getStatus() != BuildStatus.REJECTED && r.getStatus() != BuildStatus.NO_REBUILD_REQUIRED)
                 .collect(Collectors.toList());
     }
 
     private void logRecords(List<BuildRecord> buildRecords) {
-        log.trace("Found build records: {}", buildRecords.stream()
-                .map(br -> "Br.id: " + br.getId() + ", " + br.getBuildConfigurationAudited().getId().toString())
-                .collect(Collectors.joining("; ")));
+        log.trace(
+                "Found build records: {}",
+                buildRecords.stream()
+                        .map(br -> "Br.id: " + br.getId() + ", " + br.getBuildConfigurationAudited().getId().toString())
+                        .collect(Collectors.joining("; ")));
     }
 }

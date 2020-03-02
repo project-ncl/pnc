@@ -75,8 +75,8 @@ import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.DRIVER
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.TEMPORARY_BUILDS_GROUP;
 
 /**
- * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/indy">Indy</a> instance to
- * support repositories for Maven-ish builds.
+ * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/indy">Indy</a>
+ * instance to support repositories for Maven-ish builds.
  * <p>
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
  *
@@ -118,8 +118,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         IndyRepoDriverModuleConfig config;
         try {
-            config = configuration
-                    .getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
+            config = configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
         } catch (ConfigurationParseException e) {
             throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
         }
@@ -164,12 +163,15 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     .withMaxConnections(1)
                     .build();
 
-            IndyClientModule[] modules = new IndyClientModule[] {
-                    new IndyFoloAdminClientModule(),
-                    new IndyFoloContentClientModule(),
-                    new IndyPromoteClientModule() };
+            IndyClientModule[] modules = new IndyClientModule[] { new IndyFoloAdminClientModule(),
+                    new IndyFoloContentClientModule(), new IndyPromoteClientModule() };
 
-            return new Indy(siteConfig, authenticator, new IndyObjectMapper(true), MDCUtils.getMDCToHeaderMappings(), modules);
+            return new Indy(
+                    siteConfig,
+                    authenticator,
+                    new IndyObjectMapper(true),
+                    MDCUtils.getMDCToHeaderMappings(),
+                    modules);
         } catch (IndyClientException e) {
             throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);
         }
@@ -184,19 +186,20 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     /**
-     * Use the Indy client API to setup global and build-set level repos and groups, then setup the repo/group needed for this
-     * build. Calculate the URL to use for resolving artifacts using the Indy Folo API (Folo is an artifact activity-tracker).
-     * Return a new session ({@link IndyRepositorySession}) containing this information.
+     * Use the Indy client API to setup global and build-set level repos and groups, then setup the repo/group needed
+     * for this build. Calculate the URL to use for resolving artifacts using the Indy Folo API (Folo is an artifact
+     * activity-tracker). Return a new session ({@link IndyRepositorySession}) containing this information.
      *
-     * @throws RepositoryManagerException In the event one or more repositories or groups can't be created to support the build
-     *                                    (or product, or shared-releases).
+     * @throws RepositoryManagerException In the event one or more repositories or groups can't be created to support
+     *         the build (or product, or shared-releases).
      */
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution,
-                                                   String accessToken,
-                                                   String serviceAccountToken,
-                                                   RepositoryType repositoryType,
-                                                   Map<String, String> genericParameters) throws RepositoryManagerException {
+    public RepositorySession createBuildRepository(
+            BuildExecution buildExecution,
+            String accessToken,
+            String serviceAccountToken,
+            RepositoryType repositoryType,
+            Map<String, String> genericParameters) throws RepositoryManagerException {
         Indy indy = init(accessToken);
         Indy serviceAccountIndy = init(serviceAccountToken);
         String packageType = getIndyPackageTypeKey(repositoryType);
@@ -205,7 +208,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
         try {
             setupBuildRepos(buildExecution, packageType, serviceAccountIndy, genericParameters);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to setup repository or repository group for this build: %s", e,
+            throw new RepositoryManagerException(
+                    "Failed to setup repository or repository group for this build: %s",
+                    e,
                     e.getMessage());
         }
 
@@ -225,15 +230,24 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             logger.info("Using '{}' for {} repository access in build: {}", url, packageType, buildId);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve Indy client module for the artifact tracker: %s", e,
+            throw new RepositoryManagerException(
+                    "Failed to retrieve Indy client module for the artifact tracker: %s",
+                    e,
                     e.getMessage());
         }
 
         boolean tempBuild = buildExecution.isTempBuild();
         String buildPromotionGroup = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
-        return new IndyRepositorySession(indy, serviceAccountIndy, buildId, packageType,
+        return new IndyRepositorySession(
+                indy,
+                serviceAccountIndy,
+                buildId,
+                packageType,
                 new IndyRepositoryConnectionInfo(url, deployUrl),
-                internalRepoPatterns, ignoredPathPatterns, buildPromotionGroup, tempBuild);
+                internalRepoPatterns,
+                ignoredPathPatterns,
+                buildPromotionGroup,
+                tempBuild);
     }
 
     private String getIndyPackageTypeKey(RepositoryType repoType) {
@@ -243,14 +257,13 @@ public class RepositoryManagerDriver implements RepositoryManager {
             case NPM:
                 return NPM_PKG_KEY;
             default:
-                throw new IllegalArgumentException("Repository type " + repoType
-                        + " is not supported by this repository manager driver.");
+                throw new IllegalArgumentException(
+                        "Repository type " + repoType + " is not supported by this repository manager driver.");
         }
     }
 
     @Override
-    public RepositoryManagerResult collectRepoManagerResult(Integer id)
-            throws RepositoryManagerException {
+    public RepositoryManagerResult collectRepoManagerResult(Integer id) throws RepositoryManagerException {
         BuildRecord br = buildRecordRepository.findByIdFetchProperties(id);
         if (br == null) {
             return null;
@@ -265,22 +278,34 @@ public class RepositoryManagerDriver implements RepositoryManager {
         String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
         String packageType = getIndyPackageTypeKey(buildType.getRepoType());
 
-        IndyRepositorySession session = new IndyRepositorySession(indy, indy, buildContentId, packageType, null,
-                internalRepoPatterns, ignoredPathPatterns, buildPromotionTarget, tempBuild);
+        IndyRepositorySession session = new IndyRepositorySession(
+                indy,
+                indy,
+                buildContentId,
+                packageType,
+                null,
+                internalRepoPatterns,
+                ignoredPathPatterns,
+                buildPromotionTarget,
+                tempBuild);
         return session.extractBuildArtifacts(false);
     }
 
     /**
      * Create the hosted repository and group necessary to support a single build. The hosted repository holds artifacts
      * uploaded from the build, and the group coordinates access to this hosted repository, along with content from the
-     * product-level content group with which this build is associated. The group also provides a tracking target, so the
-     * repository manager can keep track of downloads and uploads for the build.
+     * product-level content group with which this build is associated. The group also provides a tracking target, so
+     * the repository manager can keep track of downloads and uploads for the build.
      *
      * @param execution The execution object, which contains the content id for creating the repo, and the build id.
      * @param packageType the package type key used by Indy
      * @throws IndyClientException
      */
-    private void setupBuildRepos(BuildExecution execution, String packageType, Indy indy, Map<String, String> genericParameters) throws IndyClientException {
+    private void setupBuildRepos(
+            BuildExecution execution,
+            String packageType,
+            Indy indy,
+            Map<String, String> genericParameters) throws IndyClientException {
 
         String buildContentId = execution.getBuildContentId();
         int id = execution.getId();
@@ -299,8 +324,12 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
                 buildArtifacts.setDescription(String.format("Build output for PNC %s build #%s", packageType, id));
 
-                indy.stores().create(buildArtifacts, "Creating hosted repository for " + packageType + " build: " + id
-                        + " (repo: " + buildContentId + ")", HostedRepository.class);
+                indy.stores()
+                        .create(
+                                buildArtifacts,
+                                "Creating hosted repository for " + packageType + " build: " + id + " (repo: "
+                                        + buildContentId + ")",
+                                HostedRepository.class);
             }
 
             Group buildGroup = new Group(packageType, buildContentId);
@@ -314,14 +343,19 @@ public class RepositoryManagerDriver implements RepositoryManager {
             addGlobalConstituents(packageType, buildGroup, tempBuild);
 
             // add extra repositories removed from poms by the adjust process and set in BC by user
-            List<ArtifactRepository> extraDependencyRepositories = extractExtraRepositoriesFromGenericParameters(genericParameters);
+            List<ArtifactRepository> extraDependencyRepositories = extractExtraRepositoriesFromGenericParameters(
+                    genericParameters);
             if (execution.getArtifactRepositories() != null) {
                 extraDependencyRepositories.addAll(execution.getArtifactRepositories());
             }
             addExtraConstituents(packageType, extraDependencyRepositories, id, buildContentId, indy, buildGroup);
 
-            indy.stores().create(buildGroup, "Creating repository group for resolving artifacts in build: " + id
-                    + " (repo: " + buildContentId + ")", Group.class);
+            indy.stores()
+                    .create(
+                            buildGroup,
+                            "Creating repository group for resolving artifacts in build: " + id + " (repo: "
+                                    + buildContentId + ")",
+                            Group.class);
         }
     }
 
@@ -331,44 +365,37 @@ public class RepositoryManagerDriver implements RepositoryManager {
             return new ArrayList<>();
         }
 
-        return Arrays.stream(extraReposString.split("\n"))
-                .map((repoString) -> {
-                    try {
-                        String id = new URL(repoString)
-                                .getHost()
-                                .replaceAll("\\.", "-");
-                        return ArtifactRepository.build(id, id, repoString.trim(), true, false);
-                    } catch (MalformedURLException e) {
-                        userLog.warn("Malformed repository URL entered: " + repoString + ". Skipping.");
-                        return null;
-                    }
-                })
-                .filter((x) -> x != null)
-                .collect(Collectors.toList());
+        return Arrays.stream(extraReposString.split("\n")).map((repoString) -> {
+            try {
+                String id = new URL(repoString).getHost().replaceAll("\\.", "-");
+                return ArtifactRepository.build(id, id, repoString.trim(), true, false);
+            } catch (MalformedURLException e) {
+                userLog.warn("Malformed repository URL entered: " + repoString + ". Skipping.");
+                return null;
+            }
+        }).filter((x) -> x != null).collect(Collectors.toList());
     }
 
     /**
      * Adds extra remote repositories to the build group that are requested for the particular build. For a Maven build
      * these are repositories defined in the root pom removed by PME by the adjust process.
      *
-     * @param packageType
-     *            the package type key used by Indy
-     * @param repositories
-     *            the list of repositories to be added
-     * @param buildId
-     *            build ID
-     * @param buildContentId
-     *            build content ID
-     * @param indy
-     *            Indy client
-     * @param buildGroup
-     *            target build group in which the repositories are added
+     * @param packageType the package type key used by Indy
+     * @param repositories the list of repositories to be added
+     * @param buildId build ID
+     * @param buildContentId build content ID
+     * @param indy Indy client
+     * @param buildGroup target build group in which the repositories are added
      *
-     * @throws IndyClientException
-     *             in case of an issue when communicating with the repository manager
+     * @throws IndyClientException in case of an issue when communicating with the repository manager
      */
-    private void addExtraConstituents(String packageType, List<ArtifactRepository> repositories, int buildId,
-            String buildContentId, Indy indy, Group buildGroup) throws IndyClientException {
+    private void addExtraConstituents(
+            String packageType,
+            List<ArtifactRepository> repositories,
+            int buildId,
+            String buildContentId,
+            Indy indy,
+            Group buildGroup) throws IndyClientException {
         if (repositories != null && !repositories.isEmpty()) {
             StoreListingDTO<RemoteRepository> existingRepos = indy.stores().listRemoteRepositories(packageType);
             for (ArtifactRepository repository : repositories) {
@@ -391,15 +418,23 @@ public class RepositoryManagerDriver implements RepositoryManager {
                         remoteKey = new StoreKey(packageType, StoreType.remote, remoteName + "-" + i++);
                     }
 
-                    RemoteRepository remoteRepo = new RemoteRepository(packageType, remoteKey.getName(), repository.getUrl());
+                    RemoteRepository remoteRepo = new RemoteRepository(
+                            packageType,
+                            remoteKey.getName(),
+                            repository.getUrl());
                     remoteRepo.setAllowReleases(repository.getReleases());
                     remoteRepo.setAllowSnapshots(repository.getSnapshots());
-                    remoteRepo.setDescription("Implicitly created " + packageType + " repo for: " + repository.getName()
-                            + " (" + repository.getId() + ") from repository declaration removed by PME in build "
-                            + buildId + " (repo: " + buildContentId + ")");
-                    indy.stores().create(remoteRepo, "Creating extra remote repository " + repository.getName() + " ("
-                            + repository.getId() + ") for build: " + buildId + " (repo: " + buildContentId + ")",
-                            RemoteRepository.class);
+                    remoteRepo.setDescription(
+                            "Implicitly created " + packageType + " repo for: " + repository.getName() + " ("
+                                    + repository.getId() + ") from repository declaration removed by PME in build "
+                                    + buildId + " (repo: " + buildContentId + ")");
+                    indy.stores()
+                            .create(
+                                    remoteRepo,
+                                    "Creating extra remote repository " + repository.getName() + " ("
+                                            + repository.getId() + ") for build: " + buildId + " (repo: "
+                                            + buildContentId + ")",
+                                    RemoteRepository.class);
                 }
 
                 buildGroup.addConstituent(remoteKey);
@@ -417,7 +452,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
         char[] result = new char[name.length()];
         for (int i = 0; i < name.length(); i++) {
             char checkedChar = name.charAt(i);
-            if (Character.isLetterOrDigit(checkedChar) || checkedChar == '+' || checkedChar == '-' || checkedChar == '.') {
+            if (Character.isLetterOrDigit(checkedChar) || checkedChar == '+' || checkedChar == '-'
+                    || checkedChar == '.') {
                 result[i] = checkedChar;
             } else {
                 result[i] = '_';
@@ -434,6 +470,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * <li>shared-imports (Hosted Repo)</li>
      * <li>public (Group)</li>
      * </ol>
+     * 
      * @param pakageType package type key used by Indy
      */
     private void addGlobalConstituents(String pakageType, Group group, boolean tempBuild) {
@@ -455,11 +492,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * Promote the hosted repository associated with a given project build to an arbitrary repository group.
      *
      * @return The promotion instance, which won't actually trigger promotion until its
-     * {@link RunningRepositoryPromotion#monitor(java.util.function.Consumer, java.util.function.Consumer)} method is
-     * called.
+     *         {@link RunningRepositoryPromotion#monitor(java.util.function.Consumer, java.util.function.Consumer)}
+     *         method is called.
      */
     @Override
-    public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String pakageType, String toGroup,
+    public RunningRepositoryPromotion promoteBuild(
+            BuildRecord buildRecord,
+            String pakageType,
+            String toGroup,
             String accessToken) throws RepositoryManagerException {
         Indy indy = init(accessToken);
         return new IndyRunningPromotion(pakageType, StoreType.hosted, buildRecord.getBuildContentId(), toGroup, indy);

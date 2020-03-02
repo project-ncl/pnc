@@ -75,8 +75,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * This endpoint is used for starting and interacting
- * with BPM processes.
+ * This endpoint is used for starting and interacting with BPM processes.
  *
  * @author Jakub Senko
  */
@@ -109,7 +108,8 @@ public class BpmEndpoint extends AbstractEndpoint {
     } // CDI workaround
 
     @Inject
-    public BpmEndpoint(BpmManager bpmManager,
+    public BpmEndpoint(
+            BpmManager bpmManager,
             BuildConfigurationSetProvider bcSetProvider,
             AuthenticationProviderFactory authenticationProviderFactory,
             Notifier wsNotifier,
@@ -132,9 +132,8 @@ public class BpmEndpoint extends AbstractEndpoint {
     @POST
     @Path("/tasks/{taskId}/notify")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response notifyTask(
-            @Context HttpServletRequest request,
-            @PathParam("taskId") int taskId) throws CoreException {
+    public Response notifyTask(@Context HttpServletRequest request, @PathParam("taskId") int taskId)
+            throws CoreException {
 
         String content;
         JsonNode node;
@@ -142,8 +141,9 @@ public class BpmEndpoint extends AbstractEndpoint {
             content = readContent(request.getInputStream());
             node = JsonOutputConverterMapper.getMapper().readTree(content);
         } catch (IOException e) {
-            throw new CoreException("Could not get JSON from request data. " +
-                    "Verify it is not empty and in the correct format.", e);
+            throw new CoreException(
+                    "Could not get JSON from request data. " + "Verify it is not empty and in the correct format.",
+                    e);
         }
         if (!node.has("eventType")) {
             throw new CoreException("Request JSON does not contain required \"eventType\" field.");
@@ -154,8 +154,10 @@ public class BpmEndpoint extends AbstractEndpoint {
         try {
             notification = JsonOutputConverterMapper.getMapper().readValue(node.traverse(), eventType.getType());
         } catch (IOException e) {
-            throw new CoreException("Could not deserialize JSON request for event type '" + eventTypeName + "' " +
-                    " into '" + eventType.getType() + "'. JSON value: " + content, e);
+            throw new CoreException(
+                    "Could not deserialize JSON request for event type '" + eventTypeName + "' " + " into '"
+                            + eventType.getType() + "'. JSON value: " + content,
+                    e);
         }
         LOG.debug("Received notification {} for BPM task with id {}.", notification, taskId);
         bpmManager.notify(taskId, notification);
@@ -164,7 +166,7 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     private String readContent(InputStream inputStream) throws IOException {
         try (InputStreamReader streamReader = new InputStreamReader(inputStream, "UTF-8");
-             BufferedReader reader = new BufferedReader(streamReader)) {
+                BufferedReader reader = new BufferedReader(streamReader)) {
             StringBuilder result = new StringBuilder();
             String line;
 
@@ -177,20 +179,21 @@ public class BpmEndpoint extends AbstractEndpoint {
     }
 
     /**
-     * Given the successful BC creation, add the BC into the BC sets. This solution has been
-     * selected because if this was done in BPM process there would have to be a foreach cycle and
-     * at least two REST requests for each BC Set ID. The process would become too complicated.
-     * Notification listeners are ideal for these kind of operations.
+     * Given the successful BC creation, add the BC into the BC sets. This solution has been selected because if this
+     * was done in BPM process there would have to be a foreach cycle and at least two REST requests for each BC Set ID.
+     * The process would become too complicated. Notification listeners are ideal for these kind of operations.
      */
     private void onRCCreationSuccess(BpmEvent notification, BuildConfigurationRest buildConfigurationRest) {
         LOG.debug("Received BPM event RC_CREATION_SUCCESS: " + notification);
 
         RepositoryCreationSuccess repositoryCreationTaskResult = (RepositoryCreationSuccess) notification;
 
-        int repositoryConfigurationId = Integer.parseInt(repositoryCreationTaskResult.getData().getRepositoryConfigurationId());
+        int repositoryConfigurationId = Integer
+                .parseInt(repositoryCreationTaskResult.getData().getRepositoryConfigurationId());
         int buildConfigurationSavedId = -1;
 
-        RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(repositoryConfigurationId);
+        RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
+                .queryById(repositoryConfigurationId);
         if (repositoryConfiguration == null) {
             String errorMessage = "Repository Configuration was not found in database.";
             LOG.error(errorMessage);
@@ -198,7 +201,7 @@ public class BpmEndpoint extends AbstractEndpoint {
             return;
         }
 
-        if (buildConfigurationRest != null) { //TODO test me
+        if (buildConfigurationRest != null) { // TODO test me
             BuildConfiguration buildConfiguration = buildConfigurationRest.toDBEntityBuilder()
                     .repositoryConfiguration(repositoryConfiguration)
                     .build();
@@ -217,29 +220,28 @@ public class BpmEndpoint extends AbstractEndpoint {
             }
         }
 
-        RepositoryCreationResultRest repositoryCreationResultRest
-                = new RepositoryCreationResultRest(
-                        repositoryConfigurationId,
-                        buildConfigurationSavedId,
-                        RepositoryCreationResultRest.EventType.RC_CREATION_SUCCESS,
-                        null);
+        RepositoryCreationResultRest repositoryCreationResultRest = new RepositoryCreationResultRest(
+                repositoryConfigurationId,
+                buildConfigurationSavedId,
+                RepositoryCreationResultRest.EventType.RC_CREATION_SUCCESS,
+                null);
 
-        wsNotifier.sendMessage(repositoryCreationResultRest); //TODO test me!
+        wsNotifier.sendMessage(repositoryCreationResultRest); // TODO test me!
     }
 
     private void sendErrorMessage(int repositoryConfigurationId, int buildConfigurationId, String message) {
-        RepositoryCreationResultRest repositoryCreationResultRest =
-                new RepositoryCreationResultRest(
-                        repositoryConfigurationId,
-                        buildConfigurationId,
-                        RepositoryCreationResultRest.EventType.RC_CREATION_ERROR,
-                        message);
-        wsNotifier.sendMessage(repositoryCreationResultRest); //TODO test me!
+        RepositoryCreationResultRest repositoryCreationResultRest = new RepositoryCreationResultRest(
+                repositoryConfigurationId,
+                buildConfigurationId,
+                RepositoryCreationResultRest.EventType.RC_CREATION_ERROR,
+                message);
+        wsNotifier.sendMessage(repositoryCreationResultRest); // TODO test me!
     }
 
     private Response checkIfInternalUrlExits(String internalUrl) throws InvalidEntityException {
         if (internalUrl != null) {
-            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByInternalScm(internalUrl);
+            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
+                    .queryByInternalScm(internalUrl);
             if (repositoryConfiguration != null) {
                 String message = "{ \"repositoryConfigurationId\" : " + repositoryConfiguration.getId() + "}";
                 return Response.status(Response.Status.CONFLICT).entity(message).build();
@@ -250,7 +252,8 @@ public class BpmEndpoint extends AbstractEndpoint {
 
     private Response checkIfExternalUrlExits(String externalUrl) throws InvalidEntityException {
         if (externalUrl != null) {
-            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryByExternalScm(externalUrl);
+            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
+                    .queryByExternalScm(externalUrl);
             if (repositoryConfiguration != null) {
                 String message = "{ \"repositoryConfigurationId\" : " + repositoryConfiguration.getId() + "}";
                 return Response.status(Response.Status.CONFLICT).entity(message).build();
@@ -264,17 +267,17 @@ public class BpmEndpoint extends AbstractEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response startRCreationTaskWithSingleUrl(
             RepositoryCreationUrlAutoRest repositoryCreationUrlAutoRest,
-            @Context HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
+            @Context HttpServletRequest httpServletRequest)
+            throws CoreException, InvalidEntityException, EmptyEntityException {
 
         LOG.debug("Received request to start RC creation with url autodetect: " + repositoryCreationUrlAutoRest);
         final BuildConfigurationRest buildConfigurationRest = repositoryCreationUrlAutoRest.getBuildConfigurationRest();
 
-        ValidationBuilder.validateObject(repositoryCreationUrlAutoRest, WhenCreatingNew.class)
-                .validateAnnotations();
-        ValidationBuilder.validateObject(buildConfigurationRest, WhenCreatingNew.class)
-                .validateAnnotations();
+        ValidationBuilder.validateObject(repositoryCreationUrlAutoRest, WhenCreatingNew.class).validateAnnotations();
+        ValidationBuilder.validateObject(buildConfigurationRest, WhenCreatingNew.class).validateAnnotations();
 
-        RepositoryConfigurationRest.RepositoryConfigurationRestBuilder repositoryConfigurationBuilder = RepositoryConfigurationRest.builder();
+        RepositoryConfigurationRest.RepositoryConfigurationRestBuilder repositoryConfigurationBuilder = RepositoryConfigurationRest
+                .builder();
 
         String internalScmAuthority = moduleConfig.getInternalScmAuthority();
         String scmUrl = repositoryCreationUrlAutoRest.getScmUrl();
@@ -295,9 +298,10 @@ public class BpmEndpoint extends AbstractEndpoint {
             if (message != null) {
                 return message;
             }
-            //when creating new SCM config with external Url, enable preBuildSync if it is not specified
+            // when creating new SCM config with external Url, enable preBuildSync if it is not specified
             if (repositoryCreationUrlAutoRest.getPreBuildSyncEnabled() != null) {
-                repositoryConfigurationBuilder.preBuildSyncEnabled(repositoryCreationUrlAutoRest.getPreBuildSyncEnabled());
+                repositoryConfigurationBuilder
+                        .preBuildSyncEnabled(repositoryCreationUrlAutoRest.getPreBuildSyncEnabled());
             } else {
                 repositoryConfigurationBuilder.preBuildSyncEnabled(true);
             }
@@ -307,11 +311,16 @@ public class BpmEndpoint extends AbstractEndpoint {
         RepositoryConfigurationRest repositoryConfigurationRest = repositoryConfigurationBuilder.build();
         repositoryConfigurationRest.validate();
 
-        RepositoryCreationTask task = startRCreationTask(repositoryConfigurationRest, buildConfigurationRest, httpServletRequest);
+        RepositoryCreationTask task = startRCreationTask(
+                repositoryConfigurationRest,
+                buildConfigurationRest,
+                httpServletRequest);
         return Response.ok(task.getTaskId()).build();
     }
 
-    private RepositoryCreationTask startRCreationTask(RepositoryConfigurationRest repositoryConfigurationRest, BuildConfigurationRest buildConfigurationRest,
+    private RepositoryCreationTask startRCreationTask(
+            RepositoryConfigurationRest repositoryConfigurationRest,
+            BuildConfigurationRest buildConfigurationRest,
             HttpServletRequest httpServletRequest) throws CoreException, InvalidEntityException, EmptyEntityException {
         LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
 
@@ -323,21 +332,27 @@ public class BpmEndpoint extends AbstractEndpoint {
         if (buildConfigurationRest != null) {
             revision = buildConfigurationRest.getScmRevision();
         }
-        org.jboss.pnc.bpm.model.RepositoryConfiguration repositoryConfig = org.jboss.pnc.bpm.model.RepositoryConfiguration.builder()
+        org.jboss.pnc.bpm.model.RepositoryConfiguration repositoryConfig = org.jboss.pnc.bpm.model.RepositoryConfiguration
+                .builder()
                 .externalUrl(repositoryConfigurationRest.getExternalUrl())
                 .internalUrl(repositoryConfigurationRest.getInternalUrl())
                 .preBuildSyncEnabled(repositoryConfigurationRest.getPreBuildSyncEnabled())
                 .build();
 
         RepositoryCreationProcess repositoryConfigurationProcessRest = new RepositoryCreationProcess(
-                repositoryConfig, revision);
+                repositoryConfig,
+                revision);
 
-        RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(repositoryConfigurationProcessRest, loginInUser.getTokenString());
+        RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(
+                repositoryConfigurationProcessRest,
+                loginInUser.getTokenString());
 
-        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS,
+        repositoryCreationTask.addListener(
+                BpmEventType.RC_CREATION_SUCCESS,
                 MDCWrappers.wrap(x -> onRCCreationSuccess(x, buildConfigurationRest)));
 
-        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_ERROR,
+        repositoryCreationTask.addListener(
+                BpmEventType.RC_CREATION_ERROR,
                 MDCWrappers.wrap(x -> LOG.debug("Received BPM event RC_CREATION_ERROR: " + x)));
 
         addWebsocketForwardingListeners(repositoryCreationTask);
@@ -351,20 +366,22 @@ public class BpmEndpoint extends AbstractEndpoint {
         return repositoryCreationTask;
     }
 
-    private void addBuildConfigurationToSet(BuildConfiguration buildConfiguration, Set<Integer> bcSetIds) throws Exception {
+    private void addBuildConfigurationToSet(BuildConfiguration buildConfiguration, Set<Integer> bcSetIds)
+            throws Exception {
         for (Integer setId : bcSetIds) {
             try {
                 bcSetProvider.addConfiguration(setId, buildConfiguration.getId());
             } catch (RestValidationException e) {
-                throw new Exception("Could not add BC with ID '" + buildConfiguration.getId() +
-                        "' to a BC Set with id '" + setId + "'.", e);
+                throw new Exception(
+                        "Could not add BC with ID '" + buildConfiguration.getId() + "' to a BC Set with id '" + setId
+                                + "'.",
+                        e);
             }
         }
     }
 
     /**
-     * This method will add listeners to all important RCC event types
-     * and forward the event to WS clients.
+     * This method will add listeners to all important RCC event types and forward the event to WS clients.
      */
     private void addWebsocketForwardingListeners(RepositoryCreationTask task) {
         Consumer<? extends BpmEvent> doNotify = (e) -> wsNotifier.sendMessage(e);
@@ -372,8 +389,8 @@ public class BpmEndpoint extends AbstractEndpoint {
         task.addListener(BpmEventType.RC_REPO_CREATION_ERROR, doNotify);
         task.addListener(BpmEventType.RC_REPO_CLONE_SUCCESS, doNotify);
         task.addListener(BpmEventType.RC_REPO_CLONE_ERROR, doNotify);
-        //clients are notified from callback in startRCreationTask
-        //task.addListener(BpmEventType.RC_CREATION_SUCCESS, doNotify);
+        // clients are notified from callback in startRCreationTask
+        // task.addListener(BpmEventType.RC_CREATION_SUCCESS, doNotify);
         task.addListener(BpmEventType.RC_CREATION_ERROR, doNotify);
     }
 }

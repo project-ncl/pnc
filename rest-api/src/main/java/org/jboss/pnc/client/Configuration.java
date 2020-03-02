@@ -47,8 +47,8 @@ public class Configuration {
     private final String bearerToken;
 
     /**
-     * Allows to provide a supplied method, which can be repeatedly used by client to generate new bearer token.
-     * If a request fails with 401 Unauthorized, client tries to generate new token and re-run the requests.
+     * Allows to provide a supplied method, which can be repeatedly used by client to generate new bearer token. If a
+     * request fails with 401 Unauthorized, client tries to generate new token and re-run the requests.
      *
      * This is very useful when using long running applications. Users doesn't need to care about token expiration.
      *
@@ -63,9 +63,8 @@ public class Configuration {
     private final int pageSize;
 
     /**
-     * Define which values from the logging MDC are added as headers to the request.
-     * A key is a MDC key.
-     * A value is a header name
+     * Define which values from the logging MDC are added as headers to the request. A key is a MDC key. A value is a
+     * header name
      */
     private Map<String, String> mdcToHeadersMappings;
 
@@ -80,7 +79,7 @@ public class Configuration {
         }
 
         public String getBase64Credentials() {
-            return Base64.getEncoder().encodeToString((username + ":"  + password).getBytes());
+            return Base64.getEncoder().encodeToString((username + ":" + password).getBytes());
         }
     }
 

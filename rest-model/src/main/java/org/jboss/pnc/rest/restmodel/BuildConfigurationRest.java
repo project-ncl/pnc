@@ -48,7 +48,9 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     private Integer id;
 
     @NotNull(groups = WhenCreatingNew.class)
-    @Pattern(regexp = "^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?<!\\.git)$", groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @Pattern(
+            regexp = "^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*(?<!\\.git)$",
+            groups = { WhenCreatingNew.class, WhenUpdating.class })
     private String name;
 
     private String description;
@@ -89,7 +91,7 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
     @Getter
     @Setter
-    private Map<String, String> genericParameters ;
+    private Map<String, String> genericParameters;
 
     public BuildConfigurationRest() {
     }
@@ -111,15 +113,21 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
             this.genericParameters = Collections.unmodifiableMap(buildConfiguration.getGenericParameters());
         }
 
-        performIfNotNull(buildConfiguration.getRepositoryConfiguration(),
-                () -> this.repositoryConfiguration = new RepositoryConfigurationRest(buildConfiguration.getRepositoryConfiguration()));
-        performIfNotNull(buildConfiguration.getProject(),
+        performIfNotNull(
+                buildConfiguration.getRepositoryConfiguration(),
+                () -> this.repositoryConfiguration = new RepositoryConfigurationRest(
+                        buildConfiguration.getRepositoryConfiguration()));
+        performIfNotNull(
+                buildConfiguration.getProject(),
                 () -> this.project = new ProjectRest(buildConfiguration.getProject()));
-        performIfNotNull(buildConfiguration.getBuildEnvironment(),
+        performIfNotNull(
+                buildConfiguration.getBuildEnvironment(),
                 () -> this.environment = new BuildEnvironmentRest(buildConfiguration.getBuildEnvironment()));
         this.dependencyIds = nullableStreamOf(buildConfiguration.getDependencies())
-                .map(dependencyConfig -> dependencyConfig.getId()).collect(Collectors.toSet());
-        performIfNotNull(buildConfiguration.getProductVersion(),
+                .map(dependencyConfig -> dependencyConfig.getId())
+                .collect(Collectors.toSet());
+        performIfNotNull(
+                buildConfiguration.getProductVersion(),
                 () -> this.productVersionId = buildConfiguration.getProductVersion().getId());
         this.buildType = buildConfiguration.getBuildType();
     }
@@ -241,16 +249,23 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 .genericParameters(this.getGenericParameters())
                 .buildType(this.getBuildType());
 
-        performIfNotNull(this.getRepositoryConfiguration(), () -> builder.repositoryConfiguration(this.getRepositoryConfiguration().toDBEntityBuilder().build()));
+        performIfNotNull(
+                this.getRepositoryConfiguration(),
+                () -> builder.repositoryConfiguration(this.getRepositoryConfiguration().toDBEntityBuilder().build()));
         performIfNotNull(this.getProject(), () -> builder.project(this.getProject().toDBEntityBuilder().build()));
-        performIfNotNull(this.getEnvironment(), () -> builder.buildEnvironment(this.getEnvironment().toDBEntityBuilder().build()));
-        performIfNotNull(this.getProductVersionId(), () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
+        performIfNotNull(
+                this.getEnvironment(),
+                () -> builder.buildEnvironment(this.getEnvironment().toDBEntityBuilder().build()));
+        performIfNotNull(
+                this.getProductVersionId(),
+                () -> builder.productVersion(ProductVersion.Builder.newBuilder().id(productVersionId).build()));
 
         nullableStreamOf(this.getDependencyIds()).forEach(dependencyId -> {
-            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder().id(dependencyId);
+            BuildConfiguration.Builder buildConfigurationBuilder = BuildConfiguration.Builder.newBuilder()
+                    .id(dependencyId);
             builder.dependency(buildConfigurationBuilder.build());
         });
-        
+
         return builder;
     }
 }

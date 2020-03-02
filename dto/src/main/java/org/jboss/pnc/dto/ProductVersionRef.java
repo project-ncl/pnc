@@ -50,12 +50,15 @@ public class ProductVersionRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
-    @PatchSupport({REPLACE})
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp=Patterns.PRODUCT_STREAM_VERSION, groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @PatchSupport({ REPLACE })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @Pattern(
+            message = "The version should consist of two numeric parts separated by a dot",
+            regexp = Patterns.PRODUCT_STREAM_VERSION,
+            groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String version;
 
-    @PatchSupport({ADD, REMOVE, REPLACE})
+    @PatchSupport({ ADD, REMOVE, REPLACE })
     protected final Map<String, String> attributes;
 
     @JsonPOJOBuilder(withPrefix = "")

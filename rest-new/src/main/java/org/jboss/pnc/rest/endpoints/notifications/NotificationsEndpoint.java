@@ -88,23 +88,10 @@ public class NotificationsEndpoint {
     }
 
     /**
-     * Expected message format:
-     * {
-     *   messageType: 'process-updates',
-     *   message: {
-     *     _typed_body_
-     *   }
-     * }
+     * Expected message format: { messageType: 'process-updates', message: { _typed_body_ } }
      *
-     * Example:
-     * {
-     *   messageType: 'process-updates',
-     *   message: {
-     *     action: 'subscribe|unsubscribe',
-     *     topic: 'component-build',
-     *     id: 123
-     *   }
-     * }
+     * Example: { messageType: 'process-updates', message: { action: 'subscribe|unsubscribe', topic: 'component-build',
+     * id: 123 } }
      *
      * @param message
      * @param session
@@ -119,13 +106,17 @@ public class NotificationsEndpoint {
                 return;
             }
         } catch (IOException e) {
-            respondWithErrorMessage(parser.getErrorMessage() + " " + e.getMessage(), parser.getFailedStatus(), session, e);
+            respondWithErrorMessage(
+                    parser.getErrorMessage() + " " + e.getMessage(),
+                    parser.getFailedStatus(),
+                    session,
+                    e);
             return;
         }
 
         MessageType messageType = parser.getMessageType();
         if (MessageType.PROCESS_UPDATES.equals(messageType)) {
-            ProgressUpdatesRequest progressUpdatesRequest = parser.<ProgressUpdatesRequest>getData();
+            ProgressUpdatesRequest progressUpdatesRequest = parser.<ProgressUpdatesRequest> getData();
             onProgressUpdateRequest(progressUpdatesRequest, session);
         }
     }
@@ -165,7 +156,8 @@ public class NotificationsEndpoint {
             client.unsubscribe(topic, messagesId);
         } else {
             String statusCode = Integer.toString(Response.Status.NOT_ACCEPTABLE.getStatusCode());
-            String errorMessage = "Invalid action: " + progressUpdatesRequest.getAction() + ". Supported actions are: {}." + Action.values();
+            String errorMessage = "Invalid action: " + progressUpdatesRequest.getAction()
+                    + ". Supported actions are: {}." + Action.values();
             String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
             logger.warn(errorMessage);
             session.getAsyncRemote().sendText(error);

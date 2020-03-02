@@ -57,7 +57,7 @@ public abstract class PatchBase<T, S> {
     }
 
     protected T add(Collection elements, String path) {
-        for (Object element: elements) {
+        for (Object element : elements) {
             AddOperation operation = new AddOperation(JsonPointer.of(path, "-"), mapper.valueToTree(element));
             operations.add(operation);
         }
@@ -65,8 +65,10 @@ public abstract class PatchBase<T, S> {
     }
 
     protected T add(Map<?, ?> elements, String path) {
-        for (Map.Entry<?, ?> entry: elements.entrySet()) {
-            AddOperation operation = new AddOperation(JsonPointer.of(path, entry.getKey()), mapper.valueToTree(entry.getValue()));
+        for (Map.Entry<?, ?> entry : elements.entrySet()) {
+            AddOperation operation = new AddOperation(
+                    JsonPointer.of(path, entry.getKey()),
+                    mapper.valueToTree(entry.getValue()));
             operations.add(operation);
         }
         return (T) this;

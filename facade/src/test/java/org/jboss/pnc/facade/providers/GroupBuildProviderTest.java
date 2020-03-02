@@ -104,7 +104,8 @@ public class GroupBuildProviderTest extends AbstractProviderTest<BuildConfigSetR
         final BuildConfigSetRecord d = prepareBCSetRecord(mockBuildConfigSet(5, "5% pleasure"));
         final BuildConfigSetRecord e = prepareBCSetRecord(mockBuildConfigSet(6, "50% pain"));
 
-        List<BuildConfigSetRecord> records = new ArrayList<>(Arrays.asList(new BuildConfigSetRecord[]{a, b, c, d, e, bcsr}));
+        List<BuildConfigSetRecord> records = new ArrayList<>(
+                Arrays.asList(new BuildConfigSetRecord[] { a, b, c, d, e, bcsr }));
         fillRepository(records);
 
         user = mock(User.class);
@@ -136,9 +137,12 @@ public class GroupBuildProviderTest extends AbstractProviderTest<BuildConfigSetR
     public void testGetAll() {
         Page<GroupBuild> all = provider.getAll(0, 10, null, null);
 
-        assertThat(all.getContent())
-                .hasSize(6)
-                .haveExactly(1, new Condition<>(gB -> gB.getGroupConfig().getName().equals(bcsr.getBuildConfigurationSet().getName()), "GroupBuild present"));
+        assertThat(all.getContent()).hasSize(6)
+                .haveExactly(
+                        1,
+                        new Condition<>(
+                                gB -> gB.getGroupConfig().getName().equals(bcsr.getBuildConfigurationSet().getName()),
+                                "GroupBuild present"));
     }
 
     @Test
@@ -149,14 +153,14 @@ public class GroupBuildProviderTest extends AbstractProviderTest<BuildConfigSetR
 
     @Test
     public void testCancel() throws CoreException {
-        //When
+        // When
         provider.cancel(bcsr.getId().toString());
-        //Then
+        // Then
         verify(buildCoordinator, times(1)).cancelSet(bcsr.getId());
     }
 
     @Test
-    public void shouldProvideCallbackOnDeletion() throws Exception{
+    public void shouldProvideCallbackOnDeletion() throws Exception {
         // given
         final int buildId = 88;
         final String buildIdString = String.valueOf(buildId);
@@ -166,22 +170,28 @@ public class GroupBuildProviderTest extends AbstractProviderTest<BuildConfigSetR
         wireMockServer.start();
         wireMockServer.stubFor(post(urlEqualTo("/callback")).willReturn(aResponse().withStatus(200)));
 
-        given(temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(eq(buildId), eq(USER_TOKEN), any
-                ())).willAnswer(invocation -> {
-            Result result = new Result(buildIdString, ResultStatus.SUCCESS, "BuildConfigSetRecord was deleted " +
-                    "successfully");
+        given(
+                temporaryBuildsCleanerAsyncInvoker
+                        .deleteTemporaryBuildConfigSetRecord(eq(buildId), eq(USER_TOKEN), any()))
+                                .willAnswer(invocation -> {
+                                    Result result = new Result(
+                                            buildIdString,
+                                            ResultStatus.SUCCESS,
+                                            "BuildConfigSetRecord was deleted " + "successfully");
 
-            ((Consumer<Result>) invocation.getArgument(2)).accept(result);
-            return true;
-        });
+                                    ((Consumer<Result>) invocation.getArgument(2)).accept(result);
+                                    return true;
+                                });
 
         // when
         boolean result = provider.delete(buildIdString, callbackUrl);
 
         // then
         assertThat(result).isTrue();
-        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/callback")).withRequestBody(matchingJsonPath("$.id",
-                equalTo(buildIdString))));
+        wireMockServer.verify(
+                1,
+                postRequestedFor(urlEqualTo("/callback"))
+                        .withRequestBody(matchingJsonPath("$.id", equalTo(buildIdString))));
         wireMockServer.stop();
     }
 

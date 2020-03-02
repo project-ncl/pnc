@@ -37,7 +37,8 @@ import java.util.function.Consumer;
  */
 public class WsUpdatesClient {
 
-    public void subscribeBlocking(String topic, String filter, Consumer<String> onMessage) throws IOException, DeploymentException {
+    public void subscribeBlocking(String topic, String filter, Consumer<String> onMessage)
+            throws IOException, DeploymentException {
 
         ProgressUpdatesRequest progressUpdatesRequest = ProgressUpdatesRequest.subscribe(topic, filter);
 
@@ -52,8 +53,8 @@ public class WsUpdatesClient {
     }
 
     public String toJson(ProgressUpdatesRequest progressUpdatesRequest) {
-        return JsonOutputConverterMapper.apply(
-                new TypedMessage<ProgressUpdatesRequest>(MessageType.PROCESS_UPDATES, progressUpdatesRequest));
+        return JsonOutputConverterMapper
+                .apply(new TypedMessage<ProgressUpdatesRequest>(MessageType.PROCESS_UPDATES, progressUpdatesRequest));
     }
 
 }

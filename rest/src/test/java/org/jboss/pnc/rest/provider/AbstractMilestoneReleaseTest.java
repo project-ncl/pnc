@@ -51,9 +51,7 @@ import org.mockito.MockitoAnnotations;
 import static org.mockito.Mockito.when;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/31/16
- * Time: 9:17 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/31/16 Time: 9:17 AM
  */
 public class AbstractMilestoneReleaseTest {
     ArtifactRepository artifactRepository = new ArtifactRepositoryMock();
@@ -99,25 +97,36 @@ public class AbstractMilestoneReleaseTest {
     ProductMilestoneReleaseManager releaseManager;
     BpmEndpoint bpmEndpoint;
 
-
     @Before
     public void setUp() throws CoreException, ConfigurationParseException {
         bpmMock = new BpmPushMock();
         MockitoAnnotations.initMocks(this);
-        releaseManager = new ProductMilestoneReleaseManager(releaseRepository, bpmMock, artifactRepository, productVersionRepository, buildRecordRepository, productMilestoneRepository,
+        releaseManager = new ProductMilestoneReleaseManager(
+                releaseRepository,
+                bpmMock,
+                artifactRepository,
+                productVersionRepository,
+                buildRecordRepository,
+                productMilestoneRepository,
                 buildRecordPushResultRepository);
-        ProductMilestoneProvider milestoneProvider = new ProductMilestoneProvider(productMilestoneRepository,
+        ProductMilestoneProvider milestoneProvider = new ProductMilestoneProvider(
+                productMilestoneRepository,
                 artifactRepository,
                 releaseManager,
                 rsqlPredicateProducer,
                 sortInfoProducer,
                 pageInfoProducer);
-        milestoneEndpoint = new ProductMilestoneEndpoint(milestoneProvider, artifactProvider, buildRecordProvider, milestoneReleaseProvider,
-                authenticationProviderFactory, productMilestoneRepository);
+        milestoneEndpoint = new ProductMilestoneEndpoint(
+                milestoneProvider,
+                artifactProvider,
+                buildRecordProvider,
+                milestoneReleaseProvider,
+                authenticationProviderFactory,
+                productMilestoneRepository);
 
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git@github.com:22");
-        when(pncConfiguration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class))).thenReturn(scmModuleConfig);
-
+        when(pncConfiguration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class)))
+                .thenReturn(scmModuleConfig);
 
         bpmEndpoint = new BpmEndpoint(
                 bpmMock,

@@ -48,7 +48,8 @@ public class BuildConfigurationPredicates {
 
     public static Predicate<BuildConfiguration> withDependantConfiguration(Integer parentBuildConfigurationId) {
         return (root, query, cb) -> {
-            SetJoin<BuildConfiguration, BuildConfiguration> dependantBuildConfigurationsJoin = root.join(BuildConfiguration_.dependants);
+            SetJoin<BuildConfiguration, BuildConfiguration> dependantBuildConfigurationsJoin = root
+                    .join(BuildConfiguration_.dependants);
             return cb.equal(dependantBuildConfigurationsJoin.get(BuildConfiguration_.id), parentBuildConfigurationId);
         };
     }
@@ -59,6 +60,7 @@ public class BuildConfigurationPredicates {
 
     /**
      * Return a predicate which excludes all archived build configurations
+     * 
      * @return
      */
     public static Predicate<BuildConfiguration> isNotArchived() {
@@ -82,16 +84,19 @@ public class BuildConfigurationPredicates {
 
     public static Predicate<BuildConfiguration> withBuildConfigurationSetId(Integer buildConfigurationSetId) {
         return (root, query, cb) -> {
-            SetJoin<BuildConfiguration, BuildConfigurationSet> configurationBuildConfigurationSetSetJoin = root.join(BuildConfiguration_.buildConfigurationSets);
-            return cb.equal(configurationBuildConfigurationSetSetJoin.get(BuildConfigurationSet_.id), buildConfigurationSetId);
+            SetJoin<BuildConfiguration, BuildConfigurationSet> configurationBuildConfigurationSetSetJoin = root
+                    .join(BuildConfiguration_.buildConfigurationSets);
+            return cb.equal(
+                    configurationBuildConfigurationSetSetJoin.get(BuildConfigurationSet_.id),
+                    buildConfigurationSetId);
         };
     }
 
     public static Predicate<BuildConfiguration> withScmRepositoryId(Integer scmRepositoryId) {
         return (root, query, cb) -> {
-            Join<BuildConfiguration, RepositoryConfiguration> repositoryConfigurations = root.join(BuildConfiguration_.repositoryConfiguration);
+            Join<BuildConfiguration, RepositoryConfiguration> repositoryConfigurations = root
+                    .join(BuildConfiguration_.repositoryConfiguration);
             return cb.equal(repositoryConfigurations.get(RepositoryConfiguration_.id), scmRepositoryId);
         };
     }
 }
-

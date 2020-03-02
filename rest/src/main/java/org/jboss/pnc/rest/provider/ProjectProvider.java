@@ -36,7 +36,11 @@ import static org.jboss.pnc.spi.datastore.predicates.ProjectPredicates.withProje
 public class ProjectProvider extends AbstractProvider<Project, ProjectRest> {
 
     @Inject
-    public ProjectProvider(ProjectRepository projectRepository, RSQLPredicateProducer rsqlPredicateProducer, SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer) {
+    public ProjectProvider(
+            ProjectRepository projectRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer) {
         super(projectRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
     }
 
@@ -47,8 +51,8 @@ public class ProjectProvider extends AbstractProvider<Project, ProjectRest> {
     @Override
     protected void validateBeforeSaving(ProjectRest projectRest) throws RestValidationException {
         Project project = repository.queryByPredicates(withProjectName(projectRest.getName()));
-        //don't validate against myself
-        if(project != null && !project.getId().equals(projectRest.getId())) {
+        // don't validate against myself
+        if (project != null && !project.getId().equals(projectRest.getId())) {
             throw new ConflictedEntryException("Project of that name already exists", Project.class, project.getId());
         }
     }

@@ -38,22 +38,32 @@ public class GroupBuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildConfi
     @Override
     protected SingularAttribute<BuildConfigSetRecord, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            case "user": return BuildConfigSetRecord_.user;
-            case "groupConfig": return BuildConfigSetRecord_.buildConfigurationSet;
-            case "productVersion": return BuildConfigSetRecord_.productVersion;
-            default: return null;
+            case "user":
+                return BuildConfigSetRecord_.user;
+            case "groupConfig":
+                return BuildConfigSetRecord_.buildConfigurationSet;
+            case "productVersion":
+                return BuildConfigSetRecord_.productVersion;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<BuildConfigSetRecord, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return BuildConfigSetRecord_.id;
-            case "startTime": return  BuildConfigSetRecord_.startTime;
-            case "endTime": return  BuildConfigSetRecord_.endTime;
-            case "status": return  BuildConfigSetRecord_.status;
-            case "temporaryBuild": return  BuildConfigSetRecord_.temporaryBuild;
-            default: return null;
+            case "id":
+                return BuildConfigSetRecord_.id;
+            case "startTime":
+                return BuildConfigSetRecord_.startTime;
+            case "endTime":
+                return BuildConfigSetRecord_.endTime;
+            case "status":
+                return BuildConfigSetRecord_.status;
+            case "temporaryBuild":
+                return BuildConfigSetRecord_.temporaryBuild;
+            default:
+                return null;
         }
     }
 }

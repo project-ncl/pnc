@@ -35,7 +35,6 @@ public class IoUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(IoUtils.class);
 
-
     /**
      * @param name Resource name to use.
      * @param classLoader Classloader to use
@@ -85,7 +84,9 @@ public class IoUtils {
     }
 
     /**
-     * <p>readFileOrResource.</p>
+     * <p>
+     * readFileOrResource.
+     * </p>
      *
      * @param systemPropertyName Name of system property to override default file name
      * @param defaultFileName Filename to use if system property doesn't exist.
@@ -93,8 +94,8 @@ public class IoUtils {
      * @return The configuration string
      * @throws IOException Thrown if data couldn't be loaded
      */
-    public static String readFileOrResource(String systemPropertyName, String defaultFileName,
-            ClassLoader classLoader) throws IOException {
+    public static String readFileOrResource(String systemPropertyName, String defaultFileName, ClassLoader classLoader)
+            throws IOException {
 
         String templateFileName = System.getProperty(systemPropertyName);
 

@@ -95,7 +95,7 @@ public class ArtifactProviderTest extends AbstractProviderTest<org.jboss.pnc.mod
     }
 
     @Test
-    public void testStore(){
+    public void testStore() {
         final String identifier = "foo:bar:0.0.1";
         Artifact artifact = Artifact.builder().identifier(identifier).build();
 
@@ -103,25 +103,24 @@ public class ArtifactProviderTest extends AbstractProviderTest<org.jboss.pnc.mod
 
         assertThat(stored.getIdentifier()).isEqualTo(identifier);
         assertThat(stored.getId()).isNotNull();
-        Mockito.verify(repository).save(ArgumentMatchers
-                .argThat(a -> identifier.equals(a.getIdentifier())));
+        Mockito.verify(repository).save(ArgumentMatchers.argThat(a -> identifier.equals(a.getIdentifier())));
     }
 
     @Test
-    public void testStoreWithId(){
+    public void testStoreWithId() {
         final String identifier = "foo:bar:0.0.1";
         Artifact artifact = Artifact.builder().id("123").identifier(identifier).build();
 
-        try{
+        try {
             provider.store(artifact);
             fail("Validation exception expected");
-        }catch(DTOValidationException ex){
+        } catch (DTOValidationException ex) {
             // ok
         }
     }
 
     @Test
-    public void testGetSpecific(){
+    public void testGetSpecific() {
         fillRepository(artifacts);
 
         Artifact specific = provider.getSpecific(Integer.toString(artifact1.getId()));
@@ -137,13 +136,14 @@ public class ArtifactProviderTest extends AbstractProviderTest<org.jboss.pnc.mod
 
         Page<Artifact> all = provider.getAll(0, 10, null, null);
 
-        assertThat(all.getContent())
-                .hasSize(4)
-                .haveExactly(1, new Condition<>(a -> artifact1.getIdentifier().equals(a.getIdentifier()), "Artifact present"));
+        assertThat(all.getContent()).hasSize(4)
+                .haveExactly(
+                        1,
+                        new Condition<>(a -> artifact1.getIdentifier().equals(a.getIdentifier()), "Artifact present"));
     }
 
     @Test
-    public void testUpdate(){
+    public void testUpdate() {
         fillRepository(artifacts);
 
         Artifact toUpdate = Artifact.builder()
@@ -155,7 +155,8 @@ public class ArtifactProviderTest extends AbstractProviderTest<org.jboss.pnc.mod
                 .sha256(artifact1.getSha256())
                 .build();
 
-        assertThat(artifact1.getArtifactQuality()).isNotEqualTo(ArtifactQuality.BLACKLISTED); // assert that original is different
+        assertThat(artifact1.getArtifactQuality()).isNotEqualTo(ArtifactQuality.BLACKLISTED); // assert that original is
+                                                                                              // different
 
         Artifact updated = provider.update(Integer.toString(artifact1.getId()), toUpdate);
 
@@ -166,14 +167,14 @@ public class ArtifactProviderTest extends AbstractProviderTest<org.jboss.pnc.mod
     }
 
     @Test
-    public void testDelete(){
+    public void testDelete() {
         fillRepository(artifacts);
 
-        try{
+        try {
             provider.delete(Integer.toString(artifact1.getId()));
             fail("Deleting artifact must be unsupported.");
-        } catch(UnsupportedOperationException ex){
-            //ok
+        } catch (UnsupportedOperationException ex) {
+            // ok
         }
     }
 

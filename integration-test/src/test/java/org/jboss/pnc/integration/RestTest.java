@@ -72,12 +72,17 @@ public class RestTest extends AbstractTest {
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
-    
+
     @Test
     @InSequence(0)
     public void shouldGetAllProducts() {
         given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(PRODUCT_REST_ENDPOINT).then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(PRODUCT_REST_ENDPOINT)
+                .then()
+                .statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productId = Integer.valueOf(value)));
     }
 
@@ -85,8 +90,12 @@ public class RestTest extends AbstractTest {
     @InSequence(1)
     public void shouldGetSpecificProduct() {
         given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PRODUCT_SPECIFIC_REST_ENDPOINT, productId)).then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(PRODUCT_SPECIFIC_REST_ENDPOINT, productId))
+                .then()
+                .statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
@@ -94,17 +103,28 @@ public class RestTest extends AbstractTest {
     @InSequence(2)
     public void shouldGetAllProductsVersions() {
         given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(ProductVersionRestClient.PRODUCT_VERSION_REST_ENDPOINT).then().statusCode(200)
-                .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> productVersionId = Integer.valueOf(value)));
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(ProductVersionRestClient.PRODUCT_VERSION_REST_ENDPOINT)
+                .then()
+                .statusCode(200)
+                .body(
+                        JsonMatcher.containsJsonAttribute(
+                                FIRST_CONTENT_ID,
+                                value -> productVersionId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(3)
     public void shouldSpecificProductsVersions() {
         given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(ProductVersionRestClient.PRODUCT_VERSION_REST_ENDPOINT + "%d", productVersionId)).then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(ProductVersionRestClient.PRODUCT_VERSION_REST_ENDPOINT + "%d", productVersionId))
+                .then()
+                .statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
@@ -112,17 +132,25 @@ public class RestTest extends AbstractTest {
     @InSequence(4)
     public void shouldGetFirstProject() {
         given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(PROJECT_REST_ENDPOINT).then()
-                .statusCode(200).body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> projectId = Integer.valueOf(value)));
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(PROJECT_REST_ENDPOINT)
+                .then()
+                .statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> projectId = Integer.valueOf(value)));
     }
 
     @Test
     @InSequence(5)
     public void shouldGetSpecificProject() {
         given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, projectId)).then().statusCode(200)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, projectId))
+                .then()
+                .statusCode(200)
                 .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
@@ -131,11 +159,15 @@ public class RestTest extends AbstractTest {
     public void shouldGetAllUsers() {
         final String toMatch = "{\"pageIndex\":0,\"pageSize\":50,\"totalPages\":1,\"content\":[{\"id\":100,\"email\":\"demo-user@pnc.com\",\"firstName\":\"Demo First Name\",\"lastName\":\"Demo Last Name\",\"username\":\"demo-user\"},{\"id\":101,\"email\":\"pnc-admin@pnc.com\",\"firstName\":\"pnc-admin\",\"lastName\":\"pnc-admin\",\"username\":\"pnc-admin\"}]}";
 
-        given()
-            .headers(testHeaders)
-            .contentType(ContentType.JSON).port(getHttpPort()).when().get(USER_REST_ENDPOINT).then().assertThat()
-            .body(equalTo(StringEscapeUtils.unescapeJava(toMatch)))
-            .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> userId = Integer.valueOf(value)));
+        given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(USER_REST_ENDPOINT)
+                .then()
+                .assertThat()
+                .body(equalTo(StringEscapeUtils.unescapeJava(toMatch)))
+                .body(JsonMatcher.containsJsonAttribute(FIRST_CONTENT_ID, value -> userId = Integer.valueOf(value)));
 
     }
 
@@ -143,8 +175,13 @@ public class RestTest extends AbstractTest {
     @InSequence(7)
     public void shouldGetSpecificUser() {
         given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when().get(String.format(SPECIFIC_USER_REST_ENDPOINT, userId))
-                .then().statusCode(200).body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(SPECIFIC_USER_REST_ENDPOINT, userId))
+                .then()
+                .statusCode(200)
+                .body(JsonMatcher.containsJsonAttribute(CONTENT_ID));
     }
 
     @Test
@@ -153,7 +190,12 @@ public class RestTest extends AbstractTest {
         String rawJson = IoUtils.readFileOrResource("user", "user.json", getClass().getClassLoader());
         logger.info(rawJson);
         given().headers(testHeaders)
-                .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when().post(USER_REST_ENDPOINT).then()
+                .body(rawJson)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .post(USER_REST_ENDPOINT)
+                .then()
                 .statusCode(201);
     }
 
@@ -164,15 +206,18 @@ public class RestTest extends AbstractTest {
         logger.info(rawJson);
 
         Response response = given().headers(testHeaders)
-                .body(rawJson).contentType(ContentType.JSON).port(getHttpPort()).when()
+                .body(rawJson)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .post(PRODUCT_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
         String location = response.getHeader("Location");
         logger.info("Found location in Response header: " + location);
 
-        newProductId = Integer.valueOf(location.substring(location.lastIndexOf(PRODUCT_REST_ENDPOINT)
-                + PRODUCT_REST_ENDPOINT.length()));
+        newProductId = Integer.valueOf(
+                location.substring(location.lastIndexOf(PRODUCT_REST_ENDPOINT) + PRODUCT_REST_ENDPOINT.length()));
 
         logger.info("Created id of product: " + newProductId);
     }
@@ -183,7 +228,9 @@ public class RestTest extends AbstractTest {
         logger.info("### newProductId: " + newProductId);
 
         Response response = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(PRODUCT_SPECIFIC_REST_ENDPOINT, newProductId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
@@ -196,18 +243,25 @@ public class RestTest extends AbstractTest {
         productRest.setName("JBoss Enterprise Application Platform 7");
 
         given().headers(testHeaders)
-                    .body(JsonUtils.toJson(productRest)).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format(PRODUCT_SPECIFIC_REST_ENDPOINT, newProductId)).then().statusCode(200);
+                .body(JsonUtils.toJson(productRest))
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .put(String.format(PRODUCT_SPECIFIC_REST_ENDPOINT, newProductId))
+                .then()
+                .statusCode(200);
 
         // Reading updated resource
         Response updateResponse = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(PRODUCT_SPECIFIC_REST_ENDPOINT, newProductId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);
         Assertions.assertThat(updateResponse.body().jsonPath().getInt(CONTENT_ID)).isEqualTo(newProductId);
-        Assertions.assertThat(updateResponse.body().jsonPath().getString(CONTENT_NAME)).isEqualTo(
-                "JBoss Enterprise Application Platform 7");
+        Assertions.assertThat(updateResponse.body().jsonPath().getString(CONTENT_NAME))
+                .isEqualTo("JBoss Enterprise Application Platform 7");
 
     }
 
@@ -217,17 +271,20 @@ public class RestTest extends AbstractTest {
         String rawJson = IoUtils.readFileOrResource("project", "project.json", getClass().getClassLoader());
         logger.info(rawJson);
 
-        Response response = given()
-                .headers(testHeaders)
-                .body(rawJson).contentType(ContentType.JSON).port(getHttpPort())
-                .header("Content-Type", "application/json; charset=UTF-8").when().post(PROJECT_REST_ENDPOINT);
+        Response response = given().headers(testHeaders)
+                .body(rawJson)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .when()
+                .post(PROJECT_REST_ENDPOINT);
         Assertions.assertThat(response.statusCode()).isEqualTo(201);
 
         String location = response.getHeader("Location");
         logger.info("Found location in Response header: " + location);
 
-        newProjectId = Integer.valueOf(location.substring(location.lastIndexOf(PROJECT_REST_ENDPOINT)
-                + PROJECT_REST_ENDPOINT.length()));
+        newProjectId = Integer.valueOf(
+                location.substring(location.lastIndexOf(PROJECT_REST_ENDPOINT) + PROJECT_REST_ENDPOINT.length()));
 
         logger.info("Created id of project: " + newProjectId);
     }
@@ -237,9 +294,10 @@ public class RestTest extends AbstractTest {
     public void shouldUpdateProject() throws Exception {
         logger.info("### newProjectId: " + newProjectId);
 
-        Response response = given()
-                .headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
+        Response response = given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, newProjectId));
 
         Assertions.assertThat(response.statusCode()).isEqualTo(200);
@@ -252,12 +310,19 @@ public class RestTest extends AbstractTest {
         projectRest.setName(NEW_AWESOME_PROJECT);
 
         given().headers(testHeaders)
-                    .body(JsonUtils.toJson(projectRest)).contentType(ContentType.JSON).port(getHttpPort()).when()
-                .put(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, newProjectId)).then().statusCode(200);
+                .body(JsonUtils.toJson(projectRest))
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .put(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, newProjectId))
+                .then()
+                .statusCode(200);
 
         // Reading updated resource
         Response updateResponse = given().headers(testHeaders)
-                    .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, newProjectId));
 
         Assertions.assertThat(updateResponse.statusCode()).isEqualTo(200);

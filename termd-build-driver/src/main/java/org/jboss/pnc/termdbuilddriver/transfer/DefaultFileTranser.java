@@ -98,7 +98,7 @@ public class DefaultFileTranser implements FileTranser {
                 logger.warn("Log buffer was not fully drained for URI: {}", uri);
             }
             if (logger.isTraceEnabled()) {
-                logger.trace("Downloaded log: {}." , logsAggregate);
+                logger.trace("Downloaded log: {}.", logsAggregate);
             }
             return logsAggregate;
         } catch (IOException e) {
@@ -134,9 +134,10 @@ public class DefaultFileTranser implements FileTranser {
                 outputStream.write(fileContent);
             }
 
-            if(200 != connection.getResponseCode()) {
-                throw new TransferException("Could not upload script to Build Agent at url " + connection.getURL()
-                        + " - Returned status code " + connection.getResponseCode());
+            if (200 != connection.getResponseCode()) {
+                throw new TransferException(
+                        "Could not upload script to Build Agent at url " + connection.getURL()
+                                + " - Returned status code " + connection.getResponseCode());
             }
             logger.debug("Uploaded successfully");
         } catch (IOException e) {

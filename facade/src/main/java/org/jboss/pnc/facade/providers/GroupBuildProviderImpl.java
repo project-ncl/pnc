@@ -54,8 +54,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredica
 
 @PermitAll
 @Stateless
-public class GroupBuildProviderImpl
-        extends AbstractIntIdProvider<BuildConfigSetRecord, GroupBuild, GroupBuildRef>
+public class GroupBuildProviderImpl extends AbstractIntIdProvider<BuildConfigSetRecord, GroupBuild, GroupBuildRef>
         implements GroupBuildProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupBuildProviderImpl.class);
@@ -65,7 +64,7 @@ public class GroupBuildProviderImpl
 
     @Inject
     private BuildConfigurationRepository buildConfigurationRepository;
-    
+
     @Inject
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
 
@@ -80,7 +79,10 @@ public class GroupBuildProviderImpl
     private ResultMapper resultMapper;
 
     @Inject
-    public GroupBuildProviderImpl(BuildConfigSetRecordRepository repository, GroupBuildMapper mapper, UserService userService,
+    public GroupBuildProviderImpl(
+            BuildConfigSetRecordRepository repository,
+            GroupBuildMapper mapper,
+            UserService userService,
             ResultMapper resultMapper) {
         super(repository, mapper, BuildConfigSetRecord.class);
         this.userService = userService;
@@ -106,7 +108,10 @@ public class GroupBuildProviderImpl
             throw new RuntimeException("Failed to load user metadata.");
         }
         try {
-            return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(Integer.valueOf(id), user.getLoginToken(), notifyOnDeletionCompletion(callback));
+            return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(
+                    Integer.valueOf(id),
+                    user.getLoginToken(),
+                    notifyOnDeletionCompletion(callback));
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
@@ -125,8 +130,18 @@ public class GroupBuildProviderImpl
     }
 
     @Override
-    public Page<GroupBuild> getGroupBuilds(int pageIndex, int pageSize, String sort, String q, String groupConfigurationId) {
-        return queryForCollection(pageIndex, pageSize, sort, q, withBuildConfigSetId(Integer.valueOf(groupConfigurationId)));
+    public Page<GroupBuild> getGroupBuilds(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String q,
+            String groupConfigurationId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sort,
+                q,
+                withBuildConfigSetId(Integer.valueOf(groupConfigurationId)));
     }
 
     @Override

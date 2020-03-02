@@ -31,22 +31,22 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
     /**
      * Image to use for build container
      */
-    @Deprecated //moving to BuildConfiguration
+    @Deprecated // moving to BuildConfiguration
     protected String imageId;
 
     /**
-     * List of allowed destinations by firewall in Docker container. <br /> Format: \<IPv4>:\<Port>(,\<IPv4>:\<Port>)+
-     * You can set it to "all" and network isolation will be skipped, in case of not setting it up at all
-     * all network traffic will be dropped
+     * List of allowed destinations by firewall in Docker container. <br />
+     * Format: \<IPv4>:\<Port>(,\<IPv4>:\<Port>)+ You can set it to "all" and network isolation will be skipped, in case
+     * of not setting it up at all all network traffic will be dropped
      */
     protected String firewallAllowedDestinations;
 
     /**
-     * List of Http destinations; The Http Destination needs to specify the url, port (optional), and the
-     * allowed Http method to allow.
+     * List of Http destinations; The Http Destination needs to specify the url, port (optional), and the allowed Http
+     * method to allow.
      *
-     * If you want to specify all the Http methods, specify the destination in the 'firewallAllowedDestinations'
-     * section instead.
+     * If you want to specify all the Http methods, specify the destination in the 'firewallAllowedDestinations' section
+     * instead.
      *
      * Format: [{"url": "\<url\>", "allowedMethods": "PUT,POST"}, ...]
      */
@@ -108,6 +108,7 @@ public class EnvironmentDriverModuleConfigBase extends AbstractModuleConfig {
     public String getNonProxyHosts() {
         return nonProxyHosts;
     }
+
     public String getFirewallAllowedDestinations() {
         return firewallAllowedDestinations;
     }

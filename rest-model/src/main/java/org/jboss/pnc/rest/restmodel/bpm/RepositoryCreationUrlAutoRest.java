@@ -46,7 +46,7 @@ public class RepositoryCreationUrlAutoRest implements Serializable {
 
     @Getter
     @Setter
-    @NotBlank(groups = {WhenUpdating.class, WhenCreatingNew.class})
+    @NotBlank(groups = { WhenUpdating.class, WhenCreatingNew.class })
     private String scmUrl;
 
     @Getter

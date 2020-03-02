@@ -31,8 +31,7 @@ public interface BuildExecutor {
     BuildExecutionSession startBuilding(
             BuildExecutionConfiguration buildExecutionConfiguration,
             Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent,
-            String accessToken)
-            throws ExecutorException;
+            String accessToken) throws ExecutorException;
 
     BuildExecutionSession getRunningExecution(int buildExecutionTaskId);
 

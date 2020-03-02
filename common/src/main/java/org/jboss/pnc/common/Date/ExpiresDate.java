@@ -26,8 +26,8 @@ import java.time.temporal.ChronoUnit;
 public class ExpiresDate {
 
     /**
-     * @return expiration date. Date is calculated now + temporaryBuildsLifeSpanDays days.
-     * If the build is not temporary returns MAX java date.
+     * @return expiration date. Date is calculated now + temporaryBuildsLifeSpanDays days. If the build is not temporary
+     *         returns MAX java date.
      */
     public static Instant getTemporaryBuildExpireDate(long temporaryBuildsLifeSpanDays, boolean isTemporaryBuild) {
         if (isTemporaryBuild) {

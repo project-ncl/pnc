@@ -33,7 +33,7 @@ public interface RemoteCollection<T> extends Iterable<T> {
      */
     Collection<T> getAll();
 
-    static<T> RemoteCollection<T> empty() {
+    static <T> RemoteCollection<T> empty() {
         return new RemoteCollection<T>() {
             @Override
             public int size() {

@@ -100,10 +100,12 @@ public class BuildTaskEndpointTest {
                 false,
                 null);
 
-        BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(buildExecutionConfig);
+        BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(
+                buildExecutionConfig);
 
         List<NameValuePair> requestParameters = new ArrayList<>();
-        requestParameters.add(new BasicNameValuePair("buildExecutionConfiguration", buildExecutionConfigurationRest.toString()));
+        requestParameters
+                .add(new BasicNameValuePair("buildExecutionConfiguration", buildExecutionConfigurationRest.toString()));
 
         try {
             request.setEntity(new UrlEncodedFormEntity(requestParameters));
@@ -118,7 +120,10 @@ public class BuildTaskEndpointTest {
         try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 statusCode = response.getStatusLine().getStatusCode();
-                Assert.assertEquals("Received error response code. Response: " + printEntity(response), 200, statusCode);
+                Assert.assertEquals(
+                        "Received error response code. Response: " + printEntity(response),
+                        200,
+                        statusCode);
             }
         } catch (IOException e) {
             Assertions.fail("Cannot invoke remote endpoint.", e);

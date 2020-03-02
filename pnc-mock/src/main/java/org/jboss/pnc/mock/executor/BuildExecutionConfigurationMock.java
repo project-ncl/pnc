@@ -70,6 +70,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
         return mock;
     }
+
     @Override
     public int getId() {
         return id;
@@ -173,16 +174,20 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     public String getSystemImageId() {
         return systemImageId;
     }
+
     public void setSystemImageId(String systemImageId) {
         this.systemImageId = systemImageId;
     }
+
     @Override
     public String getSystemImageRepositoryUrl() {
         return systemImageRepositoryUrl;
     }
+
     public void setSystemImageRepositoryUrl(String systemImageRepositoryUrl) {
         this.systemImageRepositoryUrl = systemImageRepositoryUrl;
     }
+
     @Override
     public SystemImageType getSystemImageType() {
         return systemImageType;
@@ -214,6 +219,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     public void setGenericParameters(Map<String, String> genericParameters) {
         this.genericParameters = genericParameters;
     }
+
     @Override
     public boolean isTempBuild() {
         return tempBuild;

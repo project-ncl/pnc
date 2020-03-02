@@ -45,10 +45,7 @@ public class GraphDtoBuilder<T> {
         List<Edge<T>> edges = new ArrayList<>();
 
         for (org.jboss.util.graph.Vertex<T> vertex : graph.getVerticies()) {
-            Vertex<T> vertexRest = new Vertex<>(
-                    vertex.getName(),
-                    dataType.getName(),
-                    vertex.getData());
+            Vertex<T> vertexRest = new Vertex<>(vertex.getName(), dataType.getName(), vertex.getData());
             verticies.put(vertexRest.getName(), vertexRest);
         }
 

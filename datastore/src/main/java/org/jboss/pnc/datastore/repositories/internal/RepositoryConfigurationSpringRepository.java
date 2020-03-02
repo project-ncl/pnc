@@ -27,6 +27,6 @@ import javax.enterprise.context.Dependent;
  * @author Jakub Bartecek
  */
 @Dependent
-public interface RepositoryConfigurationSpringRepository extends JpaRepository<RepositoryConfiguration, Integer>,
-        JpaSpecificationExecutor<RepositoryConfiguration> {
+public interface RepositoryConfigurationSpringRepository
+        extends JpaRepository<RepositoryConfiguration, Integer>, JpaSpecificationExecutor<RepositoryConfiguration> {
 }

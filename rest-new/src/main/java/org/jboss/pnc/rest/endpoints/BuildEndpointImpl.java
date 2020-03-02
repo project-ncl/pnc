@@ -70,7 +70,13 @@ public class BuildEndpointImpl implements BuildEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static BuildPageInfo toBuildPageInfo(PageParameters page, BuildsFilterParameters builds) {
-        return new BuildPageInfo(page.getPageIndex(), page.getPageSize(), page.getSort(), page.getQ(), builds.isLatest(), builds.isRunning());
+        return new BuildPageInfo(
+                page.getPageIndex(),
+                page.getPageSize(),
+                page.getSort(),
+                page.getQ(),
+                builds.isLatest(),
+                builds.isRunning());
     }
 
     @Inject
@@ -93,7 +99,10 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public Page<Build> getAllByStatusAndLogContaining(BuildStatus status, String search, PageParameters pageParameters) {
+    public Page<Build> getAllByStatusAndLogContaining(
+            BuildStatus status,
+            String search,
+            PageParameters pageParameters) {
         return provider.getAllByStatusAndLogContaining(
                 pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),
@@ -123,7 +132,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Override
     public Page<Build> getAll(PageParameters pageParams, BuildsFilterParameters filterParams, List<String> attributes) {
         if (attributes != null && !attributes.isEmpty()) {
-            Map<String,String> attributeConstraints = parseAttributes(attributes);
+            Map<String, String> attributeConstraints = parseAttributes(attributes);
             return provider.getByAttribute(toBuildPageInfo(pageParams, filterParams), attributeConstraints);
         } else {
             return provider.getBuilds(toBuildPageInfo(pageParams, filterParams));
@@ -135,9 +144,9 @@ public class BuildEndpointImpl implements BuildEndpoint {
         for (String attribute : attributes) {
             String[] kv = attribute.split(":");
             if (kv.length == 2) {
-                map.put(kv[0],kv[1]);
+                map.put(kv[0], kv[1]);
             } else if (kv.length == 1) {
-                map.put(kv[0],"");
+                map.put(kv[0], "");
             } else {
                 throw new BadRequestException("Invalid 'attributes' query parameters.");
             }
@@ -147,11 +156,12 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Override
     public Page<Artifact> getBuiltArtifacts(String id, PageParameters pageParameters) {
-        return artifactProvider.getBuiltArtifactsForBuild(pageParameters.getPageIndex(),
-                                                  pageParameters.getPageSize(),
-                                                  pageParameters.getSort(),
-                                                  pageParameters.getQ(),
-                                                  id);
+        return artifactProvider.getBuiltArtifactsForBuild(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
+                id);
     }
 
     @Override
@@ -161,11 +171,12 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Override
     public Page<Artifact> getDependencyArtifacts(String id, PageParameters pageParameters) {
-        return artifactProvider.getDependantArtifactsForBuild(pageParameters.getPageIndex(),
-                                                      pageParameters.getPageSize(),
-                                                      pageParameters.getSort(),
-                                                      pageParameters.getQ(),
-                                                      id);
+        return artifactProvider.getDependantArtifactsForBuild(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
+                id);
     }
 
     @Override
@@ -197,7 +208,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Override
     public BuildPushResult getPushResult(String id) {
         BuildPushResult brewPushResult = brewPusher.getBrewPushResult(Integer.parseInt(id));
-        if(brewPushResult == null){
+        if (brewPushResult == null) {
             throw new NotFoundException();
         }
         return brewPushResult;

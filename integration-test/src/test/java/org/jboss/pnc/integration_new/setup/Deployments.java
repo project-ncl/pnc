@@ -51,22 +51,19 @@ public class Deployments {
 
     public static EnterpriseArchive testEar() {
 
-        File earArchive = mavenResolver.resolve("org.jboss.pnc:ear-package:ear:?")
-                .withoutTransitivity()
-                .asSingleFile();
+        File earArchive = mavenResolver.resolve("org.jboss.pnc:ear-package:ear:?").withoutTransitivity().asSingleFile();
 
         EnterpriseArchive ear = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, earArchive);
 
         WebArchive restWar = prepareRestArchive(ear);
         ear.addAsModule(archiveToTest(restWar));
-        //remove the old rest
+        // remove the old rest
         ear.delete("rest.war");
 
         addTestPersistenceXml(ear);
         ear.setApplicationXML("application-new.xml");
 
         addKeycloakServiceClientMock(ear);
-
 
         logger.info("Ear archive listing: {}", ear.toString(true));
 
@@ -98,7 +95,10 @@ public class Deployments {
      *
      * @return
      */
-    public static EnterpriseArchive testEarForInContainerTest(List<Package> packages, List<Package> packagesRecursive, Class<?>... classes) {
+    public static EnterpriseArchive testEarForInContainerTest(
+            List<Package> packages,
+            List<Package> packagesRecursive,
+            Class<?>... classes) {
         EnterpriseArchive ear = testEarForInContainerTest();
         WebArchive restWar = ear.getAsType(WebArchive.class, "/rest-new.war");
         restWar.addClasses(classes);

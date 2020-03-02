@@ -36,11 +36,18 @@ public class RequestLoggingFilter implements ClientRequestFilter {
     @Override
     public void filter(ClientRequestContext requestContext) throws IOException {
         MultivaluedMap<String, String> headers = requestContext.getStringHeaders();
-        logger.debug("Requesting: {} {} Headers: {}.", requestContext.getMethod(), requestContext.getUri(), toString(headers));
+        logger.debug(
+                "Requesting: {} {} Headers: {}.",
+                requestContext.getMethod(),
+                requestContext.getUri(),
+                toString(headers));
     }
 
     public static String toString(MultivaluedMap<String, String> map) {
-        return map.entrySet().stream().map(entry -> entry.getKey() + ":" + entry.getValue()).collect(Collectors.joining("; "));
+        return map.entrySet()
+                .stream()
+                .map(entry -> entry.getKey() + ":" + entry.getValue())
+                .collect(Collectors.joining("; "));
     }
 
 }

@@ -78,12 +78,8 @@ class BuildExecutorStatusChangedEventMock implements BuildExecutionStatusChanged
 
     @Override
     public String toString() {
-        return "DefaultBuildExecutionStatusChangedEvent{" +
-                "oldStatus=" + oldStatus +
-                ", newStatus=" + newStatus +
-                ", buildTaskId=" + buildTaskId +
-                ", buildConfigurationId=" + buildConfigurationId +
-                ", buildResult=" + buildResult +
-                '}';
+        return "DefaultBuildExecutionStatusChangedEvent{" + "oldStatus=" + oldStatus + ", newStatus=" + newStatus
+                + ", buildTaskId=" + buildTaskId + ", buildConfigurationId=" + buildConfigurationId + ", buildResult="
+                + buildResult + '}';
     }
 }

@@ -33,16 +33,19 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest
-    extends AbstractRepositoryManagerDriverTest
-{
+public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest extends AbstractRepositoryManagerDriverTest {
 
     @Test
     public void formatRepositoryURLForSimpleInfo_CheckDependencyURL() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
         assertThat(repositoryConfiguration, notNullValue());
 
         // verify the URLs in the connection info reference this build, and refer to a tracked repository group URL
@@ -52,11 +55,15 @@ public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest
         String expectedUrlPrefix = String.format("%sfolo/track/%s", url, execution.getBuildContentId());
         String expectedGroupPathPrefix = String.format("/group/%s", execution.getBuildContentId());
 
-        assertThat("Expected URL prefix: " + expectedUrlPrefix + "\nActual URL was: " + connectionInfo.getDependencyUrl(),
-                connectionInfo.getDependencyUrl().startsWith(expectedUrlPrefix), equalTo(true));
+        assertThat(
+                "Expected URL prefix: " + expectedUrlPrefix + "\nActual URL was: " + connectionInfo.getDependencyUrl(),
+                connectionInfo.getDependencyUrl().startsWith(expectedUrlPrefix),
+                equalTo(true));
 
-        assertThat("Expected URL to contain group path prefix: " + expectedGroupPathPrefix + "\nActual URL was: "
-                + connectionInfo.getDependencyUrl(), connectionInfo.getDependencyUrl().contains(expectedGroupPathPrefix),
+        assertThat(
+                "Expected URL to contain group path prefix: " + expectedGroupPathPrefix + "\nActual URL was: "
+                        + connectionInfo.getDependencyUrl(),
+                connectionInfo.getDependencyUrl().contains(expectedGroupPathPrefix),
                 equalTo(true));
     }
 }

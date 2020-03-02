@@ -26,10 +26,9 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import java.util.function.Consumer;
 
 /**
- * BuildScheduler is used to direct the build to by scheduler defined execution engine.
- * Example: BuildCoordinator uses BuildScheduler to start the builds and depending on
- * BuildScheduler implementation builds can be pushed to BPM engine (BpmBuildScheduler)
- * or submitted directly (LocalBuildScheduler).
+ * BuildScheduler is used to direct the build to by scheduler defined execution engine. Example: BuildCoordinator uses
+ * BuildScheduler to start the builds and depending on BuildScheduler implementation builds can be pushed to BPM engine
+ * (BpmBuildScheduler) or submitted directly (LocalBuildScheduler).
  *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */

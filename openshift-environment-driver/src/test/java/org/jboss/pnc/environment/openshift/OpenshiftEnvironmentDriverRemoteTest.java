@@ -59,7 +59,8 @@ import static org.junit.Assert.fail;
 @Category({ DebugTest.class })
 public class OpenshiftEnvironmentDriverRemoteTest {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass().getName());
+    private static final org.slf4j.Logger logger = LoggerFactory
+            .getLogger(MethodHandles.lookup().lookupClass().getName());
 
     private static final RepositorySession DUMMY_REPOSITORY_CONFIGURATION = new DummyRepositoryConfiguration();
 
@@ -68,11 +69,12 @@ public class OpenshiftEnvironmentDriverRemoteTest {
     private final EnvironmentDriver environmentDriver;
 
     public OpenshiftEnvironmentDriverRemoteTest() throws Exception {
-        //workaround for protected root rest endpoint from where version should be read
+        // workaround for protected root rest endpoint from where version should be read
         System.setProperty(DefaultClient.SYSTEM_PROP_OPENSHIFT_API_VERSION, "v1");
 
         SystemConfig systemConfig = Mockito.mock(SystemConfig.class);
-        OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig = Mockito.mock(OpenshiftEnvironmentDriverModuleConfig.class);
+        OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig = Mockito
+                .mock(OpenshiftEnvironmentDriverModuleConfig.class);
 
         environmentDriver = new OpenshiftEnvironmentDriver(
                 new PollingMonitor(),
@@ -127,7 +129,9 @@ public class OpenshiftEnvironmentDriverRemoteTest {
                 startedEnv.destroyEnvironment();
                 mutex.release();
             } catch (EnvironmentDriverException e1) {
-                logger.error("Environment LEAK! The running environment was not destroyed. ID: " + startedEnv.getId(), e1);
+                logger.error(
+                        "Environment LEAK! The running environment was not destroyed. ID: " + startedEnv.getId(),
+                        e1);
             }
             fail("Failed to init builder. " + e.getMessage());
         };
@@ -191,7 +195,9 @@ public class OpenshiftEnvironmentDriverRemoteTest {
             logger.info("Trying to destroy environment!");
             destroyEnvironment(runningEnvironment);
         } catch (Exception e) {
-            logger.error("Environment LEAK! The running environment was not removed stopped. ID: " + runningEnvironment.getId());
+            logger.error(
+                    "Environment LEAK! The running environment was not removed stopped. ID: "
+                            + runningEnvironment.getId());
         }
     }
 

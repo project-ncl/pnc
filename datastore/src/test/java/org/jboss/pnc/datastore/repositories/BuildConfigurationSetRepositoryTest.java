@@ -79,7 +79,7 @@ public class BuildConfigurationSetRepositoryTest {
 
     @Test
     public void shouldSaveBCSetWithBCs() {
-        //given
+        // given
         BuildConfigurationFactory buildConfigurationFactory = new BuildConfigurationFactory();
 
         BuildConfiguration buildConfiguration1 = buildConfigurationFactory.createDetached("One");
@@ -89,17 +89,16 @@ public class BuildConfigurationSetRepositoryTest {
         BuildConfigurationSet buildConfigurationSet = BuildConfigurationSet.Builder.newBuilder()
                 .name("Build Group")
                 .buildConfiguration(buildConfiguration1)
-//                .buildConfiguration(buildConfiguration2)
-//                .buildConfiguration(buildConfiguration3)
+                // .buildConfiguration(buildConfiguration2)
+                // .buildConfiguration(buildConfiguration3)
                 .build();
 
-        //when
+        // when
         BuildConfigurationSet buildConfigurationSetSaved = buildConfigurationSetRepository.save(buildConfigurationSet);
 
-        //then
-        List<BuildConfiguration> buildConfigurationsLoaded = buildConfigurationRepository.queryWithPredicates(
-                withBuildConfigurationSetId(buildConfigurationSetSaved.getId()),
-                isNotArchived());
+        // then
+        List<BuildConfiguration> buildConfigurationsLoaded = buildConfigurationRepository
+                .queryWithPredicates(withBuildConfigurationSetId(buildConfigurationSetSaved.getId()), isNotArchived());
 
         assertThat(buildConfigurationsLoaded).isNotEmpty();
         assertThat(buildConfigurationsLoaded.size()).isEqualTo(1);
@@ -111,7 +110,9 @@ public class BuildConfigurationSetRepositoryTest {
         Project project;
 
         BuildConfigurationFactory() {
-            repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder().internalUrl("http://Internal/").build();
+            repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+                    .internalUrl("http://Internal/")
+                    .build();
             repositoryConfigurationRepository.save(repositoryConfiguration);
             buildEnvironment = BuildEnvironment.Builder.newBuilder()
                     .name("friendly environment")

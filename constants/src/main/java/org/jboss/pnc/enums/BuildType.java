@@ -23,9 +23,7 @@ package org.jboss.pnc.enums;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public enum BuildType {
-    MVN(RepositoryType.MAVEN),
-    NPM(RepositoryType.NPM),
-    GRADLE(RepositoryType.MAVEN);
+    MVN(RepositoryType.MAVEN), NPM(RepositoryType.NPM), GRADLE(RepositoryType.MAVEN);
 
     private RepositoryType repoType;
 

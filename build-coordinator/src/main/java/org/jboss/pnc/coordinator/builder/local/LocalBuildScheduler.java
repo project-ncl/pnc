@@ -54,7 +54,8 @@ public class LocalBuildScheduler implements BuildScheduler {
     }
 
     @Deprecated
-    public LocalBuildScheduler() {} //CDI workaround
+    public LocalBuildScheduler() {
+    } // CDI workaround
 
     @Inject
     public LocalBuildScheduler(BuildExecutor buildExecutor) {
@@ -62,8 +63,7 @@ public class LocalBuildScheduler implements BuildScheduler {
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete)
-            throws CoreException {
+    public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException {
 
         Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent = (statusChangedEvent) -> {
             log.debug("Received execution status update {}.", statusChangedEvent);
@@ -94,7 +94,8 @@ public class LocalBuildScheduler implements BuildScheduler {
                 buildTask.getBuildOptions().isKeepPodOnFailure(),
                 configuration.getGenericParameters(),
                 buildTask.getBuildOptions().isTemporaryBuild(),
-                TimeUtils.generateTimestamp(buildTask.getBuildOptions().isTimestampAlignment(),
+                TimeUtils.generateTimestamp(
+                        buildTask.getBuildOptions().isTimestampAlignment(),
                         buildTask.getBuildSetTask().getStartTime()));
 
         try {

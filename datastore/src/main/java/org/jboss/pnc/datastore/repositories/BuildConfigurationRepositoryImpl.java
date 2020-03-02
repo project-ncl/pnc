@@ -29,8 +29,8 @@ import javax.inject.Inject;
 import java.util.Date;
 
 @Stateless
-public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildConfiguration, Integer> implements
-        BuildConfigurationRepository {
+public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildConfiguration, Integer>
+        implements BuildConfigurationRepository {
 
     /**
      * @deprecated Created for CDI.
@@ -52,7 +52,7 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
         BuildConfiguration persisted = queryById(id);
         if (persisted != null) {
             if (!areParametersEqual(persisted, buildConfiguration)) {
-                //always increment the revision of main entity when the child collection is updated
+                // always increment the revision of main entity when the child collection is updated
                 buildConfiguration.setLastModificationTime(new Date());
             }
         }

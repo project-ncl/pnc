@@ -79,8 +79,8 @@ import java.util.logging.Logger;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
 
 /**
- * Data for the DEMO. Note: The database initialization requires two separate transactions in order for the build configuration
- * audit record to be created and then linked to a build record.
+ * Data for the DEMO. Note: The database initialization requires two separate transactions in order for the build
+ * configuration audit record to be created and then linked to a build record.
  */
 @Singleton
 public class DatabaseDataInitializer {
@@ -176,50 +176,44 @@ public class DatabaseDataInitializer {
         // Check number of entities in DB
         Preconditions.checkState(projectRepository.count() > 0, "Expecting number of Projects > 0");
         Preconditions.checkState(productRepository.count() > 0, "Expecting number of Products > 0");
-        Preconditions.checkState(buildConfigurationRepository.count() > 0,
-                "Expecting number of BuildConfigurations > 0");
-        Preconditions.checkState(productVersionRepository.count() > 0,
-                "Expecting number of ProductVersions > 0");
-        Preconditions.checkState(buildConfigurationSetRepository.count() > 0,
-                "Expecting number of BuildRepositorySets > 0");
-        Preconditions.checkState(artifactRepository.count() > 0,
-                "Expecting number of Artifacts > 0");
+        Preconditions
+                .checkState(buildConfigurationRepository.count() > 0, "Expecting number of BuildConfigurations > 0");
+        Preconditions.checkState(productVersionRepository.count() > 0, "Expecting number of ProductVersions > 0");
+        Preconditions
+                .checkState(buildConfigurationSetRepository.count() > 0, "Expecting number of BuildRepositorySets > 0");
+        Preconditions.checkState(artifactRepository.count() > 0, "Expecting number of Artifacts > 0");
 
         BuildConfiguration buildConfigurationDB = buildConfigurationRepository.queryAll().get(0);
 
         // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
-        BuildConfigurationSet buildConfigurationSet = buildConfigurationDB.getBuildConfigurationSets().iterator().next();
+        BuildConfigurationSet buildConfigurationSet = buildConfigurationDB.getBuildConfigurationSets()
+                .iterator()
+                .next();
         Preconditions.checkState(
-                buildConfigurationSet
-                        .getProductVersion() != null,
+                buildConfigurationSet.getProductVersion() != null,
                 "Product version of buildConfiguration must be not null");
 
-        BuildConfigurationSet buildConfigurationSetDB = buildConfigurationSetRepository.queryAll()
-                .get(0);
+        BuildConfigurationSet buildConfigurationSetDB = buildConfigurationSetRepository.queryAll().get(0);
 
-        Preconditions.checkState(buildConfigurationSetDB.getProductVersion() != null,
+        Preconditions.checkState(
+                buildConfigurationSetDB.getProductVersion() != null,
                 "Product version of buildConfigurationSet must be not null");
 
         // Check that mapping between Product and Build Configuration via BuildConfigurationSet is correct
-        Preconditions.checkState(buildConfigurationSetDB.getProductVersion().getProduct().getName()
-                .equals(PNC_PRODUCT_NAME),
+        Preconditions.checkState(
+                buildConfigurationSetDB.getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
                 "Product mapped to Project must be " + PNC_PRODUCT_NAME);
         Preconditions.checkState(
-                buildConfigurationSetDB.getProductVersion().getVersion()
-                        .equals(PNC_PRODUCT_VERSION_1),
+                buildConfigurationSetDB.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION_1),
                 "Product version mapped to Project must be " + PNC_PRODUCT_VERSION_1);
 
         // Check that BuildConfiguration and BuildConfigurationSet have a ProductVersion associated
-        Preconditions.checkState(buildConfigurationSet
-                .getProductVersion()
-                .getVersion().equals(PNC_PRODUCT_VERSION_1),
-                "Product version mapped to BuildConfiguration must be "
-                        + PNC_PRODUCT_VERSION_1);
-        Preconditions.checkState(buildConfigurationSet
-                .getProductVersion()
-                .getProduct().getName().equals(PNC_PRODUCT_NAME),
-                "Product mapped to BuildConfiguration must be "
-                        + PNC_PRODUCT_NAME);
+        Preconditions.checkState(
+                buildConfigurationSet.getProductVersion().getVersion().equals(PNC_PRODUCT_VERSION_1),
+                "Product version mapped to BuildConfiguration must be " + PNC_PRODUCT_VERSION_1);
+        Preconditions.checkState(
+                buildConfigurationSet.getProductVersion().getProduct().getName().equals(PNC_PRODUCT_NAME),
+                "Product mapped to BuildConfiguration must be " + PNC_PRODUCT_NAME);
 
         // Check data of BuildConfiguration
         Preconditions.checkState(
@@ -259,50 +253,63 @@ public class DatabaseDataInitializer {
          * All the bi-directional mapping settings are managed inside the Builders
          */
         // Example product and product version
-        Product product = Product.Builder.newBuilder().name(PNC_PRODUCT_NAME).abbreviation("PNC")
-                .description("Example Product for Project Newcastle Demo").productCode("PNC")
+        Product product = Product.Builder.newBuilder()
+                .name(PNC_PRODUCT_NAME)
+                .abbreviation("PNC")
+                .description("Example Product for Project Newcastle Demo")
+                .productCode("PNC")
                 .pgmSystemName("newcastle")
                 .build();
         product = productRepository.save(product);
 
         // Example product version, release, and milestone of the product
         ProductVersion productVersion1 = ProductVersion.Builder.newBuilder()
-                .version(PNC_PRODUCT_VERSION_1).product(product)
-                .generateBrewTagPrefix(product.getAbbreviation(), PNC_PRODUCT_VERSION_1, systemConfig.getBrewTagPattern())
+                .version(PNC_PRODUCT_VERSION_1)
+                .product(product)
+                .generateBrewTagPrefix(
+                        product.getAbbreviation(),
+                        PNC_PRODUCT_VERSION_1,
+                        systemConfig.getBrewTagPattern())
                 .build();
         productVersion1 = productVersionRepository.save(productVersion1);
 
         ProductVersion productVersion2 = ProductVersion.Builder.newBuilder()
-                .version(PNC_PRODUCT_VERSION_2).product(product)
-                .generateBrewTagPrefix(product.getAbbreviation(), PNC_PRODUCT_VERSION_2, systemConfig.getBrewTagPattern())
+                .version(PNC_PRODUCT_VERSION_2)
+                .product(product)
+                .generateBrewTagPrefix(
+                        product.getAbbreviation(),
+                        PNC_PRODUCT_VERSION_2,
+                        systemConfig.getBrewTagPattern())
                 .build();
         productVersion2 = productVersionRepository.save(productVersion2);
 
         final int DAYS_IN_A_WEEK = 7;
-        final Date TODAY = Date
-                .from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
-        final Date ONE_WEEK_BEFORE_TODAY = Date.from(LocalDateTime.now().minusDays(DAYS_IN_A_WEEK)
-                .atZone(ZoneId.systemDefault()).toInstant());
-        final Date ONE_WEEK_AFTER_TODAY = Date.from(LocalDateTime.now().plusDays(DAYS_IN_A_WEEK)
-                .atZone(ZoneId.systemDefault()).toInstant());
+        final Date TODAY = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+        final Date ONE_WEEK_BEFORE_TODAY = Date
+                .from(LocalDateTime.now().minusDays(DAYS_IN_A_WEEK).atZone(ZoneId.systemDefault()).toInstant());
+        final Date ONE_WEEK_AFTER_TODAY = Date
+                .from(LocalDateTime.now().plusDays(DAYS_IN_A_WEEK).atZone(ZoneId.systemDefault()).toInstant());
 
         demoProductMilestone1 = ProductMilestone.Builder.newBuilder()
                 .version(PNC_PRODUCT_MILESTONE1)
                 .startingDate(ONE_WEEK_BEFORE_TODAY)
                 .plannedEndDate(TODAY)
-                .productVersion(productVersion1).build();
+                .productVersion(productVersion1)
+                .build();
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
 
         ProductMilestone demoProductMilestone2 = ProductMilestone.Builder.newBuilder()
                 .version(PNC_PRODUCT_MILESTONE2)
                 .startingDate(TODAY)
                 .plannedEndDate(ONE_WEEK_AFTER_TODAY)
-                .productVersion(productVersion1).build();
+                .productVersion(productVersion1)
+                .build();
         demoProductMilestone2 = productMilestoneRepository.save(demoProductMilestone2);
 
         ProductRelease productRelease = ProductRelease.Builder.newBuilder()
                 .version(PNC_PRODUCT_RELEASE)
-                .productMilestone(demoProductMilestone1).supportLevel(SupportLevel.EARLYACCESS)
+                .productMilestone(demoProductMilestone1)
+                .supportLevel(SupportLevel.EARLYACCESS)
                 .build();
         productRelease = productReleaseRepository.save(productRelease);
 
@@ -342,16 +349,20 @@ public class DatabaseDataInitializer {
         projectRepository.save(project4);
         projectRepository.save(project5);
 
-
-        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(0),
+        RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration(
+                demoDataConfig.getInternalRepo(0),
                 "https://github.com/project-ncl/pnc.git");
-        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(1),
+        RepositoryConfiguration repositoryConfiguration2 = createRepositoryConfiguration(
+                demoDataConfig.getInternalRepo(1),
                 null);
-        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(2),
+        RepositoryConfiguration repositoryConfiguration3 = createRepositoryConfiguration(
+                demoDataConfig.getInternalRepo(2),
                 null);
-        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(3),
+        RepositoryConfiguration repositoryConfiguration4 = createRepositoryConfiguration(
+                demoDataConfig.getInternalRepo(3),
                 null);
-        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration(demoDataConfig.getInternalRepo(4),
+        RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration(
+                demoDataConfig.getInternalRepo(4),
                 null);
 
         repositoryConfigurationRepository.save(repositoryConfiguration1);
@@ -434,20 +445,31 @@ public class DatabaseDataInitializer {
         // Build config set containing the three example build configs
         buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder()
                 .name("Example Build Group 1")
-                .buildConfiguration(buildConfiguration1).buildConfiguration(buildConfiguration2)
-                .buildConfiguration(buildConfiguration3).productVersion(productVersion1).build();
+                .buildConfiguration(buildConfiguration1)
+                .buildConfiguration(buildConfiguration2)
+                .buildConfiguration(buildConfiguration3)
+                .productVersion(productVersion1)
+                .build();
 
         BuildConfigurationSet buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder()
-                .name("Fabric Build Group").buildConfiguration(buildConfiguration4).
-                productVersion(productVersion1).build();
+                .name("Fabric Build Group")
+                .buildConfiguration(buildConfiguration4)
+                .productVersion(productVersion1)
+                .build();
 
-        demoUser = User.Builder.newBuilder().username("demo-user").firstName("Demo First Name")
+        demoUser = User.Builder.newBuilder()
+                .username("demo-user")
+                .firstName("Demo First Name")
                 .lastName("Demo Last Name")
-                .email("demo-user@pnc.com").build();
+                .email("demo-user@pnc.com")
+                .build();
 
-        pncAdminUser = User.Builder.newBuilder().username("pnc-admin").firstName("pnc-admin")
+        pncAdminUser = User.Builder.newBuilder()
+                .username("pnc-admin")
+                .firstName("pnc-admin")
                 .lastName("pnc-admin")
-                .email("pnc-admin@pnc.com").build();
+                .email("pnc-admin@pnc.com")
+                .build();
 
         buildConfigurationSetRepository.save(buildConfigurationSet1);
         buildConfigurationSetRepository.save(buildConfigurationSet2);
@@ -457,7 +479,8 @@ public class DatabaseDataInitializer {
     }
 
     /**
-     * Build record needs to be initialized in a separate transaction so that the audited build configuration can be set.
+     * Build record needs to be initialized in a separate transaction so that the audited build configuration can be
+     * set.
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initiliazeBuildRecordDemoData() {
@@ -523,7 +546,8 @@ public class DatabaseDataInitializer {
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
-                .deployPath("/imported1").build();
+                .deployPath("/imported1")
+                .build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:imported-artifact2:jar:1.0")
                 .targetRepository(targetRepository)
@@ -534,7 +558,8 @@ public class DatabaseDataInitializer {
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
-                .deployPath("/imported2").build();
+                .deployPath("/imported2")
+                .build();
 
         importedArtifact1 = artifactRepository.save(importedArtifact1);
         importedArtifact2 = artifactRepository.save(importedArtifact2);
@@ -550,7 +575,8 @@ public class DatabaseDataInitializer {
             int nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
+            BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder()
+                    .id(nextId)
                     .buildConfigurationAudited(buildConfigAudited1)
                     .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
@@ -577,13 +603,16 @@ public class DatabaseDataInitializer {
             builtArtifact1.setBuildRecord(savedBuildRecord1);
             builtArtifact2.setBuildRecord(savedBuildRecord1);
 
-            log.info("Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: " + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
+            log.info(
+                    "Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: "
+                            + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
             buildRecords.add(buildRecord1);
 
             nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
-            BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
+            BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder()
+                    .id(nextId)
                     .buildConfigurationAudited(buildConfigAudited1)
                     .submitTime(Timestamp.from(Instant.now()))
                     .startTime(Timestamp.from(Instant.now()))
@@ -600,12 +629,14 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(true)
                     .build();
 
-                log.info("Saving tempRecord1: " + tempRecord1);
-                BuildRecord savedTempRecord1 = buildRecordRepository.save(tempRecord1);
-                builtArtifact3.setBuildRecord(savedTempRecord1);
-                builtArtifact4.setBuildRecord(savedTempRecord1);
-                log.info("Saved buildRecord1: " + savedTempRecord1 + "BuildConfigurationAuditedIdRev: " + savedTempRecord1.getBuildConfigurationAuditedIdRev());
-                buildRecords.add(tempRecord1);
+            log.info("Saving tempRecord1: " + tempRecord1);
+            BuildRecord savedTempRecord1 = buildRecordRepository.save(tempRecord1);
+            builtArtifact3.setBuildRecord(savedTempRecord1);
+            builtArtifact4.setBuildRecord(savedTempRecord1);
+            log.info(
+                    "Saved buildRecord1: " + savedTempRecord1 + "BuildConfigurationAuditedIdRev: "
+                            + savedTempRecord1.getBuildConfigurationAuditedIdRev());
+            buildRecords.add(tempRecord1);
 
         }
 
@@ -657,10 +688,9 @@ public class DatabaseDataInitializer {
         builtArtifact8 = artifactRepository.save(builtArtifact8);
 
         Artifact dependencyBuiltArtifact1 = artifactRepository
-                .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(),
-                        builtArtifact1.getSha256()));
+                .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(), builtArtifact1.getSha256()));
 
-        //For timestamp tests where concrete timestamp is needed
+        // For timestamp tests where concrete timestamp is needed
         Calendar calendar = Calendar.getInstance();
         calendar.set(2019, Calendar.JANUARY, 10);
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
@@ -671,7 +701,8 @@ public class DatabaseDataInitializer {
             int nextId = datastore.getNextBuildRecordId();
             log.info("####nextId: " + nextId);
 
-            BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder().id(nextId)
+            BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
+                    .id(nextId)
                     .buildConfigurationAudited(buildConfigAudited2)
                     .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
@@ -695,7 +726,8 @@ public class DatabaseDataInitializer {
             builtArtifact6.setBuildRecord(savedBuildRecord2);
             buildRecords.add(buildRecord2);
 
-            BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder().id(nextId)
+            BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder()
+                    .id(nextId)
                     .buildConfigurationAudited(buildConfigAudited2)
                     .submitTime(Timestamp.from(calendar.toInstant().minus(8, ChronoUnit.HOURS)))
                     .startTime(Timestamp.from(calendar.toInstant().minus(5, ChronoUnit.HOURS)))
@@ -755,7 +787,7 @@ public class DatabaseDataInitializer {
     }
 
     private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl, String externalUrl) {
-        return  RepositoryConfiguration.Builder.newBuilder()
+        return RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl(internalScmUrl)
                 .externalUrl(externalUrl)
                 .build();

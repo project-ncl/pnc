@@ -23,9 +23,10 @@ import org.slf4j.LoggerFactory;
 public class ReadEnvProperty {
 
     private static final Logger log = LoggerFactory.getLogger(ReadEnvProperty.class);
+
     /**
-     * If propertyName has no value (either specified in system property or environment property), then just return
-     * the default value. System property value has priority over environment property value.
+     * If propertyName has no value (either specified in system property or environment property), then just return the
+     * default value. System property value has priority over environment property value.
      *
      * If value can't be parsed, just return the default value.
      *
@@ -49,8 +50,8 @@ public class ReadEnvProperty {
             }
             return value;
         } catch (NumberFormatException e) {
-            log.warn("Could not parse the '" + propertyName +
-                    "' system property. Using default value: " + defaultValue);
+            log.warn(
+                    "Could not parse the '" + propertyName + "' system property. Using default value: " + defaultValue);
             return value;
         }
     }

@@ -72,30 +72,21 @@ public class EarlyCancellationTest extends BuildExecutionBase {
         return BuildExecutorDeployments.deployment(BuildExecutorDeployments.Options.BLOCKED_BUILD_DRIVER);
     }
 
-    @Test(timeout=3000)
-    public void cancelImmediately() throws InterruptedException, TimeoutException, ExecutorException, BuildDriverException {
+    @Test(timeout = 3000)
+    public void cancelImmediately()
+            throws InterruptedException, TimeoutException, ExecutorException, BuildDriverException {
         BuildExecutionStatus cancelAfter = BuildExecutionStatus.NEW;
 
-        BuildExecutionStatus[] expectedStatuses = {
-                BuildExecutionStatus.NEW,
-                BuildExecutionStatus.FINALIZING_EXECUTION,
-                BuildExecutionStatus.CANCELLED
-        };
+        BuildExecutionStatus[] expectedStatuses = { BuildExecutionStatus.NEW, BuildExecutionStatus.FINALIZING_EXECUTION,
+                BuildExecutionStatus.CANCELLED };
 
-        BuildExecutionStatus[] unexpectedStatuses = {
-                BuildExecutionStatus.BUILD_ENV_SETTING_UP,
-                BuildExecutionStatus.BUILD_ENV_WAITING,
-                BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
-                BuildExecutionStatus.REPO_SETTING_UP,
-                BuildExecutionStatus.BUILD_SETTING_UP,
-                BuildExecutionStatus.BUILD_WAITING,
-                BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER,
+        BuildExecutionStatus[] unexpectedStatuses = { BuildExecutionStatus.BUILD_ENV_SETTING_UP,
+                BuildExecutionStatus.BUILD_ENV_WAITING, BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
+                BuildExecutionStatus.REPO_SETTING_UP, BuildExecutionStatus.BUILD_SETTING_UP,
+                BuildExecutionStatus.BUILD_WAITING, BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER,
                 BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER,
-                BuildExecutionStatus.BUILD_ENV_DESTROYING,
-                BuildExecutionStatus.BUILD_ENV_DESTROYED,
-                BuildExecutionStatus.DONE,
-                BuildExecutionStatus.DONE_WITH_ERRORS
-        };
+                BuildExecutionStatus.BUILD_ENV_DESTROYING, BuildExecutionStatus.BUILD_ENV_DESTROYED,
+                BuildExecutionStatus.DONE, BuildExecutionStatus.DONE_WITH_ERRORS };
 
         try {
             testBuild(cancelAfter, expectedStatuses, unexpectedStatuses);
@@ -104,30 +95,21 @@ public class EarlyCancellationTest extends BuildExecutionBase {
         }
     }
 
-    @Test(timeout=3000)
-    public void cancelAfterEnvSetUp() throws InterruptedException, TimeoutException, ExecutorException, BuildDriverException {
+    @Test(timeout = 3000)
+    public void cancelAfterEnvSetUp()
+            throws InterruptedException, TimeoutException, ExecutorException, BuildDriverException {
         BuildExecutionStatus cancelAfter = BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS;
 
-        BuildExecutionStatus[] expectedStatuses = {
-                BuildExecutionStatus.NEW,
-                BuildExecutionStatus.REPO_SETTING_UP,
-                BuildExecutionStatus.BUILD_ENV_SETTING_UP,
-                BuildExecutionStatus.BUILD_ENV_WAITING,
-                BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
-                BuildExecutionStatus.BUILD_ENV_DESTROYING,
-                BuildExecutionStatus.BUILD_ENV_DESTROYED,
-                BuildExecutionStatus.FINALIZING_EXECUTION,
-                BuildExecutionStatus.CANCELLED
-        };
+        BuildExecutionStatus[] expectedStatuses = { BuildExecutionStatus.NEW, BuildExecutionStatus.REPO_SETTING_UP,
+                BuildExecutionStatus.BUILD_ENV_SETTING_UP, BuildExecutionStatus.BUILD_ENV_WAITING,
+                BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS, BuildExecutionStatus.BUILD_ENV_DESTROYING,
+                BuildExecutionStatus.BUILD_ENV_DESTROYED, BuildExecutionStatus.FINALIZING_EXECUTION,
+                BuildExecutionStatus.CANCELLED };
 
-        BuildExecutionStatus[] unexpectedStatuses = {
-                BuildExecutionStatus.BUILD_SETTING_UP,
-                BuildExecutionStatus.BUILD_WAITING,
-                BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER,
-                BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER,
-                BuildExecutionStatus.DONE,
-                BuildExecutionStatus.DONE_WITH_ERRORS
-        };
+        BuildExecutionStatus[] unexpectedStatuses = { BuildExecutionStatus.BUILD_SETTING_UP,
+                BuildExecutionStatus.BUILD_WAITING, BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER,
+                BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER, BuildExecutionStatus.DONE,
+                BuildExecutionStatus.DONE_WITH_ERRORS };
 
         try {
             testBuild(cancelAfter, expectedStatuses, unexpectedStatuses);
@@ -136,11 +118,11 @@ public class EarlyCancellationTest extends BuildExecutionBase {
         }
     }
 
-
-    private void testBuild(BuildExecutionStatus cancelAfter,
+    private void testBuild(
+            BuildExecutionStatus cancelAfter,
             BuildExecutionStatus[] expectedStatuses,
-            BuildExecutionStatus[] unexpectedStatuses)
-            throws ExecutorException, TimeoutException, InterruptedException, BuildDriverException, ConfigurationParseException {
+            BuildExecutionStatus[] unexpectedStatuses) throws ExecutorException, TimeoutException, InterruptedException,
+            BuildDriverException, ConfigurationParseException {
 
         BuildConfiguration buildConfiguration = configurationBuilder.build(1, "c1-java");
         Set<BuildExecutionStatusChangedEvent> statusChangedEvents = new HashSet<>();
@@ -151,8 +133,7 @@ public class EarlyCancellationTest extends BuildExecutionBase {
                 buildDriverFactory,
                 environmentDriverFactory,
                 new Configuration(),
-                null
-        );
+                null);
 
         Consumer<BuildExecutionStatusChangedEvent> cancel = (e) -> {
             if (cancelAfter.equals(e.getNewStatus())) {
@@ -165,18 +146,11 @@ public class EarlyCancellationTest extends BuildExecutionBase {
             }
         };
 
-        runBuild(
-                buildConfiguration,
-                statusChangedEvents,
-                buildExecutionResultWrapper,
-                cancel,
-                executor
-                );
+        runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, cancel, executor);
 
-        //check build statuses
+        // check build statuses
         checkBuildStatuses(statusChangedEvents, Arrays.asList(expectedStatuses));
         buildStatusesShouldNotContain(statusChangedEvents, Arrays.asList(unexpectedStatuses));
     }
-
 
 }

@@ -50,7 +50,7 @@ public class RepositoryConfigurationTest extends AbstractModelTest {
 
     @Test
     public void shouldStoreNormalizedScms() {
-        //given
+        // given
         String internalScmBase = internalScmHost + internalScmPort + internalScmPath;
         String internalScmWithoutPort = internalScmHost + internalScmPath;
         String externalScmBase = "github.com/my/repo";
@@ -60,12 +60,12 @@ public class RepositoryConfigurationTest extends AbstractModelTest {
                 .externalUrl("https://git@" + externalScmBase + ".git")
                 .build();
 
-        //when
+        // when
         em.getTransaction().begin();
         em.persist(repositoryConfiguration);
         em.getTransaction().commit();
 
-        //then
+        // then
         RepositoryConfiguration obtained = em.find(RepositoryConfiguration.class, repositoryConfiguration.getId());
         assertNotNull(obtained.getInternalUrlNormalized());
         assertEquals(internalScmWithoutPort, obtained.getInternalUrlNormalized());

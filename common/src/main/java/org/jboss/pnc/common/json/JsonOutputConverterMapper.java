@@ -54,7 +54,7 @@ public class JsonOutputConverterMapper {
      * @throws RuntimeException
      */
     public static String apply(Object objectToBeConverted) {
-        if(objectToBeConverted != null) {
+        if (objectToBeConverted != null) {
             try {
                 return mapper.writeValueAsString(objectToBeConverted);
             } catch (JsonProcessingException e) {
@@ -70,7 +70,9 @@ public class JsonOutputConverterMapper {
     }
 
     final class OptionalMixin {
-        private OptionalMixin(){}
+        private OptionalMixin() {
+        }
+
         @JsonProperty
         private Object value;
     }

@@ -38,28 +38,44 @@ public class BuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildRecord> {
     @Override
     protected SingularAttribute<BuildRecord, ? extends GenericEntity<Integer>> toEntity(String name) {
         switch (name) {
-            case "environment": return BuildRecord_.buildEnvironment;
-            case "user": return BuildRecord_.user;
-            case "groupBuild": return BuildRecord_.buildConfigSetRecord;
-            default: return null;
+            case "environment":
+                return BuildRecord_.buildEnvironment;
+            case "user":
+                return BuildRecord_.user;
+            case "groupBuild":
+                return BuildRecord_.buildConfigSetRecord;
+            default:
+                return null;
         }
     }
 
     @Override
     protected SingularAttribute<BuildRecord, ?> toAttribute(String name) {
         switch (name) {
-            case "id": return BuildRecord_.id;
-            case "submitTime": return BuildRecord_.submitTime;
-            case "startTime": return BuildRecord_.startTime;
-            case "endTime": return BuildRecord_.endTime;
-            case "status": return BuildRecord_.status;
-            case "buildContentId": return BuildRecord_.buildContentId;
-            case "temporaryBuild": return BuildRecord_.temporaryBuild;
-            case "scmUrl": return BuildRecord_.scmRepoURL;
-            case "scmTag": return BuildRecord_.scmTag;
-            case "scmRevision": return BuildRecord_.scmRevision;
-            case "buildOutputChecksum": return BuildRecord_.buildOutputChecksum;
-            default: return null;
+            case "id":
+                return BuildRecord_.id;
+            case "submitTime":
+                return BuildRecord_.submitTime;
+            case "startTime":
+                return BuildRecord_.startTime;
+            case "endTime":
+                return BuildRecord_.endTime;
+            case "status":
+                return BuildRecord_.status;
+            case "buildContentId":
+                return BuildRecord_.buildContentId;
+            case "temporaryBuild":
+                return BuildRecord_.temporaryBuild;
+            case "scmUrl":
+                return BuildRecord_.scmRepoURL;
+            case "scmTag":
+                return BuildRecord_.scmTag;
+            case "scmRevision":
+                return BuildRecord_.scmRevision;
+            case "buildOutputChecksum":
+                return BuildRecord_.buildOutputChecksum;
+            default:
+                return null;
         }
     }
 

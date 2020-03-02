@@ -51,7 +51,7 @@ public class MergeIteratorTest {
 
     @Test
     public void testWithEmptyIterator1() {
-        Iterator<Integer> it1 = Collections.<Integer>emptyList().iterator();
+        Iterator<Integer> it1 = Collections.<Integer> emptyList().iterator();
         Iterator<Integer> it2 = Arrays.asList(2, 4, 6).iterator();
 
         MergeIterator<Integer> mergeIterator = new MergeIterator<>(it1, it2, Comparator.naturalOrder());
@@ -67,7 +67,7 @@ public class MergeIteratorTest {
     @Test
     public void testWithEmptyIterator2() {
         Iterator<Integer> it1 = Arrays.asList(1, 3, 5, 7).iterator();
-        Iterator<Integer> it2 = Collections.<Integer>emptyList().iterator();
+        Iterator<Integer> it2 = Collections.<Integer> emptyList().iterator();
 
         MergeIterator<Integer> mergeIterator = new MergeIterator<>(it1, it2, Comparator.naturalOrder());
 
@@ -81,8 +81,8 @@ public class MergeIteratorTest {
 
     @Test
     public void testWithBothEmptyIterators() {
-        Iterator<Integer> it1 = Collections.<Integer>emptyList().iterator();
-        Iterator<Integer> it2 = Collections.<Integer>emptyList().iterator();
+        Iterator<Integer> it1 = Collections.<Integer> emptyList().iterator();
+        Iterator<Integer> it2 = Collections.<Integer> emptyList().iterator();
 
         MergeIterator<Integer> mergeIterator = new MergeIterator<>(it1, it2, Comparator.naturalOrder());
 

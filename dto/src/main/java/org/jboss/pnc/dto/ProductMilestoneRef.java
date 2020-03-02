@@ -49,25 +49,28 @@ public class ProductMilestoneRef implements DTOEntity {
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
-    @PatchSupport({REPLACE})
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
-    @Pattern(groups = {WhenCreatingNew.class, WhenUpdating.class}, regexp = Patterns.PRODUCT_MILESTONE_VERSION, message = "Version doesn't match the required pattern " + Patterns.PRODUCT_MILESTONE_VERSION)
+    @PatchSupport({ REPLACE })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @Pattern(
+            groups = { WhenCreatingNew.class, WhenUpdating.class },
+            regexp = Patterns.PRODUCT_MILESTONE_VERSION,
+            message = "Version doesn't match the required pattern " + Patterns.PRODUCT_MILESTONE_VERSION)
     protected final String version;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     @Null(groups = WhenCreatingNew.class)
     protected final Instant endDate;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final Instant startingDate;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final Instant plannedEndDate;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String downloadUrl;
 
-    @PatchSupport({REPLACE})
+    @PatchSupport({ REPLACE })
     protected final String issueTrackerUrl;
 
     @JsonPOJOBuilder(withPrefix = "")

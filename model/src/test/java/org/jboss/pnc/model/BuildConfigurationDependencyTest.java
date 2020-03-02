@@ -32,8 +32,9 @@ import org.junit.Test;
 
 public class BuildConfigurationDependencyTest extends AbstractModelTest {
 
-    protected final RepositoryConfiguration basicRepositoryConfiguration = RepositoryConfiguration.Builder
-            .newBuilder().id(1).build();
+    protected final RepositoryConfiguration basicRepositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+            .id(1)
+            .build();
 
     @After
     public void cleanup() {
@@ -102,28 +103,36 @@ public class BuildConfigurationDependencyTest extends AbstractModelTest {
         Assert.assertEquals(7, buildConfig1.getAllDependencies().size());
     }
 
-    @Test(expected=PersistenceException.class)
+    @Test(expected = PersistenceException.class)
     public void testBuildConfigurationDependenciesInDatabase() throws Exception {
 
         Project project1 = getProject();
         BuildEnvironment buildEnvironment = getBuildEnvironment();
 
         BuildConfiguration buildConfig1 = getBuildConfigBuilder().project(project1)
-                .buildEnvironment(buildEnvironment).build();
+                .buildEnvironment(buildEnvironment)
+                .build();
         BuildConfiguration buildConfig2 = getBuildConfigBuilder().project(project1)
-                .buildEnvironment(buildEnvironment).build();
+                .buildEnvironment(buildEnvironment)
+                .build();
         BuildConfiguration buildConfig3 = getBuildConfigBuilder().project(project1)
-                .buildEnvironment(buildEnvironment).build();
+                .buildEnvironment(buildEnvironment)
+                .build();
         BuildConfiguration buildConfig4 = getBuildConfigBuilder().project(project1)
-                .buildEnvironment(buildEnvironment).build();
+                .buildEnvironment(buildEnvironment)
+                .build();
         BuildConfiguration buildConfig5 = getBuildConfigBuilder().project(project1)
-                .buildEnvironment(buildEnvironment).build();
+                .buildEnvironment(buildEnvironment)
+                .build();
         BuildConfiguration buildConfig6 = getBuildConfigBuilder().project(project1)
-                .buildEnvironment(buildEnvironment).build();
+                .buildEnvironment(buildEnvironment)
+                .build();
         BuildConfiguration buildConfig7 = getBuildConfigBuilder().project(project1)
-                .buildEnvironment(buildEnvironment).build();
+                .buildEnvironment(buildEnvironment)
+                .build();
         BuildConfiguration buildConfig8 = getBuildConfigBuilder().project(project1)
-                .buildEnvironment(buildEnvironment).build();
+                .buildEnvironment(buildEnvironment)
+                .build();
 
         EntityManager em = getEmFactory().createEntityManager();
         EntityTransaction insertConfigTx = em.getTransaction();
@@ -181,7 +190,7 @@ public class BuildConfigurationDependencyTest extends AbstractModelTest {
             buildConfig1 = em.find(BuildConfiguration.class, buildConfig1.getId());
             Assert.assertEquals(6, buildConfig1.getIndirectDependencies().size());
             Assert.assertEquals(7, buildConfig1.getAllDependencies().size());
-            
+
         } catch (RuntimeException e) {
             if (updateDependenciesTx != null && updateDependenciesTx.isActive()) {
                 updateDependenciesTx.rollback();
@@ -195,12 +204,11 @@ public class BuildConfigurationDependencyTest extends AbstractModelTest {
         buildConfig8.addDependency(buildConfig1);
     }
 
-    @Test(expected=PersistenceException.class)
+    @Test(expected = PersistenceException.class)
     public void testBuildConfigurationSelfReferenceCheck() throws Exception {
         BuildConfiguration buildConfig1 = getBuildConfigBuilder().id(1).build();
         buildConfig1.addDependency(buildConfig1);
     }
-
 
     @Test
     public void testBuildConfigurationCircularDependencies() throws Exception {
@@ -209,22 +217,38 @@ public class BuildConfigurationDependencyTest extends AbstractModelTest {
 
         // Set up sample build configurations, the id needs to be set manually
         // because the configs are not stored to the database.
-        BuildConfiguration buildConfig1 = getBuildConfigBuilder()
-                .id(1).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig2 = getBuildConfigBuilder()
-                .id(2).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig3 = getBuildConfigBuilder()
-                .id(3).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig4 = getBuildConfigBuilder()
-                .id(4).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig5 = getBuildConfigBuilder()
-                .id(5).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig6 = getBuildConfigBuilder()
-                .id(6).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig7 = getBuildConfigBuilder()
-                .id(7).project(project1).buildEnvironment(buildEnvironmentDefault).build();
-        BuildConfiguration buildConfig8 = getBuildConfigBuilder()
-                .id(8).project(project1).buildEnvironment(buildEnvironmentDefault).build();
+        BuildConfiguration buildConfig1 = getBuildConfigBuilder().id(1)
+                .project(project1)
+                .buildEnvironment(buildEnvironmentDefault)
+                .build();
+        BuildConfiguration buildConfig2 = getBuildConfigBuilder().id(2)
+                .project(project1)
+                .buildEnvironment(buildEnvironmentDefault)
+                .build();
+        BuildConfiguration buildConfig3 = getBuildConfigBuilder().id(3)
+                .project(project1)
+                .buildEnvironment(buildEnvironmentDefault)
+                .build();
+        BuildConfiguration buildConfig4 = getBuildConfigBuilder().id(4)
+                .project(project1)
+                .buildEnvironment(buildEnvironmentDefault)
+                .build();
+        BuildConfiguration buildConfig5 = getBuildConfigBuilder().id(5)
+                .project(project1)
+                .buildEnvironment(buildEnvironmentDefault)
+                .build();
+        BuildConfiguration buildConfig6 = getBuildConfigBuilder().id(6)
+                .project(project1)
+                .buildEnvironment(buildEnvironmentDefault)
+                .build();
+        BuildConfiguration buildConfig7 = getBuildConfigBuilder().id(7)
+                .project(project1)
+                .buildEnvironment(buildEnvironmentDefault)
+                .build();
+        BuildConfiguration buildConfig8 = getBuildConfigBuilder().id(8)
+                .project(project1)
+                .buildEnvironment(buildEnvironmentDefault)
+                .build();
 
         // Set up the dependency relationships
         buildConfig1.addDependency(buildConfig2);
@@ -242,11 +266,11 @@ public class BuildConfigurationDependencyTest extends AbstractModelTest {
         buildConfig8.getDependencies().add(buildConfig1);
         buildConfig1.getDependants().add(buildConfig8);
         depPath = buildConfig1.dependencyDepthFirstSearch(buildConfig1);
-        for(BuildConfiguration dep : depPath) {
+        for (BuildConfiguration dep : depPath) {
             System.out.print(dep.getName() + " " + dep.getId() + " -> ");
         }
         System.out.println();
         Assert.assertEquals(4, depPath.size());
-        
+
     }
 }

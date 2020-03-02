@@ -51,7 +51,9 @@ public class CancelledBuildTest extends ProjectBuilder {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
+        return BuildCoordinatorDeployments.deployment(
+                BuildCoordinatorDeployments.Options.WITH_DATASTORE,
+                BuildCoordinatorDeployments.Options.WITH_BPM);
     }
 
     private static final Logger log = LoggerFactory.getLogger(CancelledBuildTest.class);
@@ -59,9 +61,9 @@ public class CancelledBuildTest extends ProjectBuilder {
     @Inject
     BuildCoordinatorFactory buildCoordinatorFactory;
 
-    @Test (timeout = 5_000)
+    @Test(timeout = 5_000)
     public void buildSingleProjectTestCase() throws Exception {
-        //given
+        // given
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
 
@@ -74,7 +76,7 @@ public class CancelledBuildTest extends ProjectBuilder {
             if (event.getNewStatus().equals(BuildStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {
                     try {
-                        Thread.sleep(250); //wait a bit for build execution to start
+                        Thread.sleep(250); // wait a bit for build execution to start
                         coordinator.cancel(Integer.parseInt(event.getBuild().getId()));
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
@@ -84,10 +86,13 @@ public class CancelledBuildTest extends ProjectBuilder {
             }
         };
 
-        //when
-        BuildTask buildTask = buildProject(configurationBuilder.buildConfigurationToCancel(1, "c1-java"), coordinator, onStatusUpdate);
+        // when
+        BuildTask buildTask = buildProject(
+                configurationBuilder.buildConfigurationToCancel(1, "c1-java"),
+                coordinator,
+                onStatusUpdate);
 
-        //expect
+        // expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
 
         Assert.assertEquals("Too many build records in datastore: " + buildRecords, 1, buildRecords.size());
@@ -104,9 +109,9 @@ public class CancelledBuildTest extends ProjectBuilder {
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.CANCELLED, buildTaskId);
     }
 
-    @Test (timeout = 5_000)
+    @Test(timeout = 5_000)
     public void cancelBuildingConfigSetTestCase() throws Exception {
-        //given
+        // given
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
         BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
@@ -115,12 +120,15 @@ public class CancelledBuildTest extends ProjectBuilder {
         List<BuildStatusChangedEvent> receivedStatuses = new ArrayList<>();
         Consumer<BuildStatusChangedEvent> onStatusUpdate = (event) -> {
             receivedStatuses.add(event);
-            if (event.getBuild().getBuildConfigRevision().getId().equals("2") && event.getNewStatus().equals(BuildStatus.BUILDING)) {
+            if (event.getBuild().getBuildConfigRevision().getId().equals("2")
+                    && event.getNewStatus().equals(BuildStatus.BUILDING)) {
                 CompletableFuture.runAsync(() -> {
                     try {
-                        Thread.sleep(250); //wait a bit for build execution to start
-                        //we need to get buildConfigSet id to cancel BuildGroup, it is not provided by event class directly, so we need to dit it up from buildTaskId that event provides
-                        coordinator.cancelSet(getBuildConfigSetId(coordinator, Integer.valueOf(event.getBuild().getId())));
+                        Thread.sleep(250); // wait a bit for build execution to start
+                        // we need to get buildConfigSet id to cancel BuildGroup, it is not provided by event class
+                        // directly, so we need to dit it up from buildTaskId that event provides
+                        coordinator
+                                .cancelSet(getBuildConfigSetId(coordinator, Integer.valueOf(event.getBuild().getId())));
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
                         Assert.fail("Unable to cancel the build.");
@@ -129,10 +137,10 @@ public class CancelledBuildTest extends ProjectBuilder {
             }
         };
 
-        //when
-        BuildSetTask buildSetTask = buildProjects(configurationSet,coordinator,onStatusUpdate,1);
+        // when
+        BuildSetTask buildSetTask = buildProjects(configurationSet, coordinator, onStatusUpdate, 1);
 
-        //expect
+        // expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
 
         Assert.assertEquals("Incorrect number of build records in datastore: " + buildRecords, 3, buildRecords.size());
@@ -162,7 +170,7 @@ public class CancelledBuildTest extends ProjectBuilder {
             Integer buildTaskId = buildTask.getId();
             switch (buildTask.getBuildConfigurationAudited().getId()) {
                 case 1:
-                    //Building status is skipped (cancelled before it can start building)
+                    // Building status is skipped (cancelled before it can start building)
                     assertStatusUpdateReceived(receivedStatuses, BuildStatus.WAITING_FOR_DEPENDENCIES, buildTaskId);
                     assertStatusUpdateReceived(receivedStatuses, BuildStatus.CANCELLED, buildTaskId);
                     break;
@@ -182,12 +190,12 @@ public class CancelledBuildTest extends ProjectBuilder {
     }
 
     private Integer getBuildConfigSetId(BuildCoordinator coordinator, Integer buildTaskId) {
-        return coordinator
-                .getSubmittedBuildTasks().stream()
+        return coordinator.getSubmittedBuildTasks()
+                .stream()
                 .filter(t -> buildTaskId.equals(t.getId()))
-                .findAny() //got BuildTask
+                .findAny() // got BuildTask
                 .get()
-                .getBuildSetTask() //got BuildConfigSet
+                .getBuildSetTask() // got BuildConfigSet
                 .getId();
     }
 }

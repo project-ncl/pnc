@@ -105,21 +105,21 @@ public class MapSetMapper {
         return map(value, productReleaseMapper);
     }
 
-    private <DTO extends DTOEntity, DB extends GenericEntity<?>> Set<DB> map(Map<String, DTO> value, EntityMapper<?, DB, ?, DTO> mapper) {
+    private <DTO extends DTOEntity, DB extends GenericEntity<?>> Set<DB> map(
+            Map<String, DTO> value,
+            EntityMapper<?, DB, ?, DTO> mapper) {
         if (value == null) {
             return null;
         }
-        return value.values().stream()
-                .map(mapper::toIDEntity)
-                .collect(Collectors.toSet());
+        return value.values().stream().map(mapper::toIDEntity).collect(Collectors.toSet());
     }
 
-    private <DTO extends DTOEntity, DB extends GenericEntity<?>> Map<String, DTO> map(Collection<DB> value, EntityMapper<?, DB, ?, DTO> mapper) {
+    private <DTO extends DTOEntity, DB extends GenericEntity<?>> Map<String, DTO> map(
+            Collection<DB> value,
+            EntityMapper<?, DB, ?, DTO> mapper) {
         if (value == null) {
             return null;
         }
-        return value.stream()
-                .map(mapper::toRef)
-                .collect(Collectors.toMap(DTOEntity::getId, identity()));
+        return value.stream().map(mapper::toRef).collect(Collectors.toMap(DTOEntity::getId, identity()));
     }
 }

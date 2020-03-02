@@ -62,9 +62,10 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
     }
 
     @Inject
-    public RunningBuildRecordEndpoint(BuildRecordProvider buildRecordProvider,
-                                      BuildCoordinator buildCoordinator,
-                                      BuildConfigSetRecordProvider buildConfigSetRecordProvider) {
+    public RunningBuildRecordEndpoint(
+            BuildRecordProvider buildRecordProvider,
+            BuildCoordinator buildCoordinator,
+            BuildConfigSetRecordProvider buildConfigSetRecordProvider) {
         super(buildRecordProvider);
         this.buildConfigSetRecordProvider = buildConfigSetRecordProvider;
         this.buildRecordProvider = buildRecordProvider;
@@ -72,7 +73,8 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(SEARCH_QUERY_PARAM) @DefaultValue(SEARCH_DEFAULT_VALUE) String search) {
@@ -99,7 +101,8 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SEARCH_QUERY_PARAM) @DefaultValue(SEARCH_DEFAULT_VALUE) String search,
             @PathParam("id") Integer bcId) {
-        return fromCollection(buildRecordProvider.getAllRunningForBuildConfiguration(pageIndex, pageSize, search, "", bcId));
+        return fromCollection(
+                buildRecordProvider.getAllRunningForBuildConfiguration(pageIndex, pageSize, search, "", bcId));
     }
 
     @GET
@@ -109,13 +112,13 @@ public class RunningBuildRecordEndpoint extends AbstractEndpoint<BuildRecord, Bu
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SEARCH_QUERY_PARAM) @DefaultValue(SEARCH_DEFAULT_VALUE) String search,
             @PathParam("id") Integer bcSetRecordId) {
-        return fromCollection(buildRecordProvider.getAllRunningForBCSetRecord(pageIndex, pageSize, search, bcSetRecordId));
+        return fromCollection(
+                buildRecordProvider.getAllRunningForBCSetRecord(pageIndex, pageSize, search, bcSetRecordId));
     }
 
     @POST
     @Path("/build-config-set-records/{id}/cancel")
-    public Response cancelAllBuildsInGroup(
-            @PathParam("id") Integer bcSetRecordId) {
+    public Response cancelAllBuildsInGroup(@PathParam("id") Integer bcSetRecordId) {
         logger.debug("Received cancel request fot Build Configuration Set: {}.", bcSetRecordId);
         if (buildConfigSetRecordProvider.getSpecific(bcSetRecordId) == null) {
             logger.error("Unable to find Build Configuration Set: {}.", bcSetRecordId);

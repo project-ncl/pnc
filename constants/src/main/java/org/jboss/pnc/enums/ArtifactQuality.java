@@ -27,8 +27,8 @@ public enum ArtifactQuality {
      */
     NEW,
     /**
-     * The artifact has been verified by an automated process, but has not yet been tested against a
-     * complete product or other large set of components.
+     * The artifact has been verified by an automated process, but has not yet been tested against a complete product or
+     * other large set of components.
      */
     VERIFIED,
     /**
@@ -36,8 +36,7 @@ public enum ArtifactQuality {
      */
     TESTED,
     /**
-     * The artifact should no longer be used due to lack of support and/or a better alternative
-     * being available.
+     * The artifact should no longer be used due to lack of support and/or a better alternative being available.
      */
     DEPRECATED,
     /**
@@ -45,13 +44,14 @@ public enum ArtifactQuality {
      */
     BLACKLISTED,
     /**
-     * Artifact with DELETED quality is used to show BuildRecord dependencies although the artifact itself was deleted OR
-     * can identify artifacts, which are were removed from repository manager (e.g. due to conflicts), but the metadata were kept
-     * for archival purposes.
+     * Artifact with DELETED quality is used to show BuildRecord dependencies although the artifact itself was deleted
+     * OR can identify artifacts, which are were removed from repository manager (e.g. due to conflicts), but the
+     * metadata were kept for archival purposes.
      */
     DELETED,
     /**
-     * The artifact is built as temporary and it is planned to remove it later. The artifact cannot be used for product releases.
+     * The artifact is built as temporary and it is planned to remove it later. The artifact cannot be used for product
+     * releases.
      */
     TEMPORARY
 

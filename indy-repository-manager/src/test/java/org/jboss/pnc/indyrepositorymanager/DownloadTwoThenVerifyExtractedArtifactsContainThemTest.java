@@ -50,9 +50,7 @@ import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.SHARED
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
-    extends AbstractImportTest
-{
+public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest extends AbstractImportTest {
 
     @Test
     public void extractBuildArtifacts_ContainsTwoDownloads() throws Exception {
@@ -61,14 +59,20 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         String pomContent = "This is a pom test " + System.currentTimeMillis();
         String jarContent = "This is a jar test " + System.currentTimeMillis();
 
-        // setup the expectation that the remote repo pointing at this server will request this file...and define its content.
+        // setup the expectation that the remote repo pointing at this server will request this file...and define its
+        // content.
         server.expect(server.formatUrl(STORE, pomPath), 200, pomContent);
         server.expect(server.formatUrl(STORE, jarPath), 200, jarContent);
 
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession rc = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDependencyUrl();
@@ -95,7 +99,9 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
 
         // check that both files are in the dep artifacts list using getIdentifier() to match on GAVT[C]
         for (Artifact artifact : deps) {
-            assertThat(artifact + " is not in the expected list of deps: " + refs, refs.contains(artifact.getIdentifier()),
+            assertThat(
+                    artifact + " is not in the expected list of deps: " + refs,
+                    refs.contains(artifact.getIdentifier()),
                     equalTo(true));
         }
 
@@ -106,7 +112,8 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest
         assertAvailableInSharedImports(indy, jarContent, jarPath);
     }
 
-    private void assertAvailableInSharedImports(Indy indy, String content, String path) throws IndyClientException, IOException {
+    private void assertAvailableInSharedImports(Indy indy, String content, String path)
+            throws IndyClientException, IOException {
         InputStream stream = indy.content().get(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID), path);
         String downloaded = IOUtils.toString(stream);
         assertThat(downloaded, equalTo(content));

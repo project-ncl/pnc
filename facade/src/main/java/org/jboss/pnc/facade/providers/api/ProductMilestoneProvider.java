@@ -24,19 +24,19 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
-public interface ProductMilestoneProvider extends Provider<Integer, org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef> {
+public interface ProductMilestoneProvider
+        extends Provider<Integer, org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef> {
 
     void closeMilestone(String id, ProductMilestone restEntity);
 
-    void cancelMilestoneCloseProcess(String id)
-            throws RepositoryViolationException, EmptyEntityException;
+    void cancelMilestoneCloseProcess(String id) throws RepositoryViolationException, EmptyEntityException;
 
-    Page<ProductMilestone> getProductMilestonesForProductVersion(int pageIndex,
-                                                                 int pageSize,
-                                                                 String sortingRsql,
-                                                                 String query,
-                                                                 String productVersionId);
-
+    Page<ProductMilestone> getProductMilestonesForProductVersion(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String productVersionId);
 
     Page<MilestoneInfo> getMilestonesOfArtifact(String id, int pageIndex, int pageSize);
 }

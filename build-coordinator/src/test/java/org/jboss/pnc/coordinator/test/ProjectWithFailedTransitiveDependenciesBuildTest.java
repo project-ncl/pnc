@@ -47,7 +47,9 @@ public class ProjectWithFailedTransitiveDependenciesBuildTest extends ProjectBui
 
     @Deployment
     public static JavaArchive createDeployment() {
-        JavaArchive deployment = BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE, BuildCoordinatorDeployments.Options.WITH_BPM);
+        JavaArchive deployment = BuildCoordinatorDeployments.deployment(
+                BuildCoordinatorDeployments.Options.WITH_DATASTORE,
+                BuildCoordinatorDeployments.Options.WITH_BPM);
         deployment.addAsResource("pnc-config-one-parallel-only.json");
         System.setProperty(CONFIG_SYSPROP, "pnc-config-one-parallel-only.json");
         return deployment;

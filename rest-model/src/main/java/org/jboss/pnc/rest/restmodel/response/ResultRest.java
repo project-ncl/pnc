@@ -61,11 +61,7 @@ public class ResultRest {
     }
 
     public enum Status {
-        ACCEPTED(true),
-        SUCCESS(true),
-        REJECTED(false),
-        FAILED(false),
-        SYSTEM_ERROR(false);
+        ACCEPTED(true), SUCCESS(true), REJECTED(false), FAILED(false), SYSTEM_ERROR(false);
 
         private boolean success;
 

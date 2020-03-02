@@ -34,7 +34,12 @@ public class ScheduledExecutorServiceWithTimeout {
         this.executorService = executorService;
     }
 
-    public CancellableCompletableFuture<Void> scheduleWithFixedDelayAndTimeout(Supplier<Boolean> condition, long initialDelay, long delay, long timeout, TimeUnit timeUnit) {
+    public CancellableCompletableFuture<Void> scheduleWithFixedDelayAndTimeout(
+            Supplier<Boolean> condition,
+            long initialDelay,
+            long delay,
+            long timeout,
+            TimeUnit timeUnit) {
         Task task = new Task();
 
         CancellableCompletableFuture<Void> completableFuture = new CancellableCompletableFuture<>(() -> task.cancel());
@@ -54,12 +59,14 @@ public class ScheduledExecutorServiceWithTimeout {
 
         Runnable selfTimeout = () -> {
             task.cancel();
-            completableFuture.completeExceptionally(new TimeoutException("Condition was not satisfied in: " + timeout + " " + timeUnit.toString()));
+            completableFuture.completeExceptionally(
+                    new TimeoutException("Condition was not satisfied in: " + timeout + " " + timeUnit.toString()));
         };
         ScheduledFuture<?> timeoutFuture = executorService.schedule(selfTimeout, timeout, timeUnit);
         task.setTimeoutFuture(timeoutFuture);
 
-        ScheduledFuture<?> scheduledFuture = executorService.scheduleWithFixedDelay(task, initialDelay, delay, timeUnit);
+        ScheduledFuture<?> scheduledFuture = executorService
+                .scheduleWithFixedDelay(task, initialDelay, delay, timeUnit);
         task.setTaskFuture(scheduledFuture);
 
         return completableFuture;
@@ -82,7 +89,7 @@ public class ScheduledExecutorServiceWithTimeout {
         @Override
         public void run() {
             try {
-                //if timeout occurred before the taskFuture has been set
+                // if timeout occurred before the taskFuture has been set
                 if (!cancelled) {
                     runnable.run();
                 } else {

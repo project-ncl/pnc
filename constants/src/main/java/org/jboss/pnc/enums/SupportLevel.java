@@ -23,5 +23,5 @@ package org.jboss.pnc.enums;
  */
 public enum SupportLevel {
     UNRELEASED, EARLYACCESS, SUPPORTED, EXTENDED_SUPPORT, EOL
-    
+
 }

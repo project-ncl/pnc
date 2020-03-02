@@ -33,12 +33,11 @@ import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 
 /**
  * Notification about Brew Push.
- *   
+ * 
  * <pre>
- * Job: {@link JobNotificationType#BREW_PUSH}
- * Notification type: {@code BREW_PUSH_RESULT}
- * Progress:{@link JobNotificationProgress#FINISHED}
- * Message: no
+ * Job: {@link JobNotificationType#BREW_PUSH} Notification type: {@code BREW_PUSH_RESULT}
+ * Progress:{@link JobNotificationProgress#FINISHED} Message: no
+ * 
  * <pre>
  * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;

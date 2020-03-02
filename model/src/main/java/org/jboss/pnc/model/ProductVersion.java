@@ -62,12 +62,12 @@ import org.jboss.util.StringPropertyReplacer;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "uk_productversion_version_prod_id", columnNames = {"version", "product_id"}),
-       indexes = {
-           @Index(name = "idx_productversion_currentmilestone", columnList = "currentproductmilestone_id"),
-           @Index(name = "idx_productversion_product", columnList = "product_id")
-       }
-)
+@Table(
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_productversion_version_prod_id",
+                columnNames = { "version", "product_id" }),
+        indexes = { @Index(name = "idx_productversion_currentmilestone", columnList = "currentproductmilestone_id"),
+                @Index(name = "idx_productversion_product", columnList = "product_id") })
 public class ProductVersion implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 6314079319551264379L;
@@ -79,9 +79,11 @@ public class ProductVersion implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
-    @Pattern(message="The version should consist of two numeric parts separated by a dot" , regexp=Patterns.PRODUCT_STREAM_VERSION)
+    @Pattern(
+            message = "The version should consist of two numeric parts separated by a dot",
+            regexp = Patterns.PRODUCT_STREAM_VERSION)
     @NotNull
-    @Size(max=50)
+    @Size(max = 50)
     private String version;
 
     @NotNull
@@ -107,11 +109,15 @@ public class ProductVersion implements GenericEntity<Integer> {
 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name="product_version_attributes", joinColumns=@JoinColumn(name="product_version_id", foreignKey = @ForeignKey(name = "fk_product_version_attributes_productversion")))
-    @MapKeyColumn(name="key")
-    @Column(name="value")
+    @CollectionTable(
+            name = "product_version_attributes",
+            joinColumns = @JoinColumn(
+                    name = "product_version_id",
+                    foreignKey = @ForeignKey(name = "fk_product_version_attributes_productversion")))
+    @MapKeyColumn(name = "key")
+    @Column(name = "value")
     private Map<String, String> attributes = new HashMap<>();
-    
+
     public ProductVersion() {
         buildConfigurationSets = new HashSet<>();
         buildConfigurations = new HashSet<>();
@@ -207,8 +213,7 @@ public class ProductVersion implements GenericEntity<Integer> {
     public void setBuildConfigurations(Set<BuildConfiguration> buildConfigurations) {
         if (buildConfigurations == null) {
             this.buildConfigurations = new HashSet<BuildConfiguration>();
-        }
-        else {
+        } else {
             this.buildConfigurations = buildConfigurations;
         }
     }
@@ -252,7 +257,7 @@ public class ProductVersion implements GenericEntity<Integer> {
         private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 
         private Map<String, String> attributes = new HashMap<>();
-        
+
         private Builder() {
         }
 
@@ -284,7 +289,7 @@ public class ProductVersion implements GenericEntity<Integer> {
             productVersion.setProductMilestones(productMilestones);
 
             productVersion.attributes = this.attributes;
-            
+
             return productVersion;
         }
 
@@ -337,7 +342,7 @@ public class ProductVersion implements GenericEntity<Integer> {
             this.attributes = attributes;
             return this;
         }
-        
+
         /**
          * Will generate read-only value for Brew tag prefix for import of binaries
          * 

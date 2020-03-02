@@ -39,16 +39,21 @@ public class RepositoryCreationUrlAutoRestSerializationTest {
     @Test
     public void serializeAndDeserialize() throws IOException, BuildDriverException {
 
-        RepositoryCreationUrlAutoRest repositoryCreationRest = RepositoryCreationUrlAutoRestMockBuilder.mock("BC1", "mvn deploy", "http://giturl");
+        RepositoryCreationUrlAutoRest repositoryCreationRest = RepositoryCreationUrlAutoRestMockBuilder
+                .mock("BC1", "mvn deploy", "http://giturl");
 
         String json = repositoryCreationRest.toString();
         log.debug("json : {}", json);
 
-        RepositoryCreationUrlAutoRest deserialized = JsonOutputConverterMapper.readValue(json, RepositoryCreationUrlAutoRest.class);
+        RepositoryCreationUrlAutoRest deserialized = JsonOutputConverterMapper
+                .readValue(json, RepositoryCreationUrlAutoRest.class);
 
         String message = "Deserialized object does not match the original.";
 
-        Assert.assertEquals(message, repositoryCreationRest.getBuildConfigurationRest().getName(), deserialized.getBuildConfigurationRest().getName());
+        Assert.assertEquals(
+                message,
+                repositoryCreationRest.getBuildConfigurationRest().getName(),
+                deserialized.getBuildConfigurationRest().getName());
         Assert.assertEquals(message, repositoryCreationRest.getScmUrl(), deserialized.getScmUrl());
 
     }

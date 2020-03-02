@@ -27,10 +27,7 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
     private final BuildStatus newStatus;
     private final Build build;
 
-    public DefaultBuildStatusChangedEvent(
-            Build build,
-            BuildStatus oldStatus,
-            BuildStatus newStatus) {
+    public DefaultBuildStatusChangedEvent(Build build, BuildStatus oldStatus, BuildStatus newStatus) {
         this.build = build;
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
@@ -54,10 +51,7 @@ public class DefaultBuildStatusChangedEvent implements BuildStatusChangedEvent {
     @Override
     public String toString() {
 
-        return "DefaultBuildStatusChangedEvent{" +
-                "oldStatus=" + oldStatus +
-                ", newStatus=" + newStatus +
-                ", build=" + build +
-                '}';
+        return "DefaultBuildStatusChangedEvent{" + "oldStatus=" + oldStatus + ", newStatus=" + newStatus + ", build="
+                + build + '}';
     }
 }

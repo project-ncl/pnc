@@ -34,8 +34,21 @@ public class ProjectRestClient extends AbstractRestClient<ProjectRest> {
         super(PROJECT_REST_ENDPOINT, ProjectRest.class);
     }
 
-    public RestResponse<List<BuildConfigurationRest>> getBuildConfigurations(int id, boolean withValidation, int pageIndex, int pageSize, String rsql, String sort) {
-        return all(BuildConfigurationRest.class, format(BUILD_CONFIGURATION_SUB_ENDPOINT, id), withValidation, pageIndex, pageSize, rsql, sort);
+    public RestResponse<List<BuildConfigurationRest>> getBuildConfigurations(
+            int id,
+            boolean withValidation,
+            int pageIndex,
+            int pageSize,
+            String rsql,
+            String sort) {
+        return all(
+                BuildConfigurationRest.class,
+                format(BUILD_CONFIGURATION_SUB_ENDPOINT, id),
+                withValidation,
+                pageIndex,
+                pageSize,
+                rsql,
+                sort);
     }
 
     public RestResponse<List<BuildConfigurationRest>> getBuildConfigurations(int id, boolean withValidation) {

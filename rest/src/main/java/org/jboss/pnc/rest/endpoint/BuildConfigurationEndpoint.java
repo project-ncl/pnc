@@ -87,13 +87,14 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     private EndpointAuthenticationProvider authenticationProvider;
     @Context
     private HttpServletRequest httpServletRequest;
-    
+
     private java.util.Map<String, String> buildConfigurationSupportedGenericParameters;
 
     public static void checkBuildOptionsValidity(BuildOptions buildOptions) throws InvalidEntityException {
-        if(!buildOptions.isTemporaryBuild() && buildOptions.isTimestampAlignment()) {
+        if (!buildOptions.isTemporaryBuild() && buildOptions.isTimestampAlignment()) {
             // Combination timestampAlignment + standard build is not allowed
-            throw new InvalidEntityException("Combination of the build parameters is not allowed. Timestamp alignment is allowed only for temporary builds. ");
+            throw new InvalidEntityException(
+                    "Combination of the build parameters is not allowed. Timestamp alignment is allowed only for temporary builds. ");
         }
     }
 
@@ -117,13 +118,13 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         this.buildRecordProvider = buildRecordProvider;
         this.productVersionProvider = productVersionProvider;
         this.authenticationProvider = authenticationProvider;
-        
-        this.buildConfigurationSupportedGenericParameters = supportedGenericParameters
-                .getSupportedGenericParameters();
+
+        this.buildConfigurationSupportedGenericParameters = supportedGenericParameters.getSupportedGenericParameters();
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q) {
@@ -144,52 +145,55 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     @GET
     @Path("/{id}")
-    public Response getSpecific(
-            @PathParam("id") Integer id) {
+    public Response getSpecific(@PathParam("id") Integer id) {
         return super.getSpecific(id);
     }
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Integer id,
-            BuildConfigurationRest buildConfigurationRest) throws RestValidationException {
+    public Response update(@PathParam("id") Integer id, BuildConfigurationRest buildConfigurationRest)
+            throws RestValidationException {
         return super.update(id, buildConfigurationRest);
     }
 
     @POST
     @Path("/{id}/update-and-get-audited")
-    public Response updateAndGetAudited(@PathParam("id") Integer id,
-            BuildConfigurationRest buildConfigurationRest) throws RestValidationException {
+    public Response updateAndGetAudited(@PathParam("id") Integer id, BuildConfigurationRest buildConfigurationRest)
+            throws RestValidationException {
         buildConfigurationProvider.update(id, buildConfigurationRest);
-        Optional<BuildConfigurationAuditedRest> buildConfigurationAuditedRestOptional = buildConfigurationProvider.getLatestAuditedMatchingBCRest(buildConfigurationRest);
+        Optional<BuildConfigurationAuditedRest> buildConfigurationAuditedRestOptional = buildConfigurationProvider
+                .getLatestAuditedMatchingBCRest(buildConfigurationRest);
 
         if (buildConfigurationAuditedRestOptional.isPresent()) {
             return fromSingleton(buildConfigurationAuditedRestOptional.get());
         } else {
-            throw new RuntimeException("Couldn't find updated BuildConfigurationAudited entity. BuildConfigurationRest to be stored: " + buildConfigurationRest);
+            throw new RuntimeException(
+                    "Couldn't find updated BuildConfigurationAudited entity. BuildConfigurationRest to be stored: "
+                            + buildConfigurationRest);
         }
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@PathParam("id") Integer id)
-            throws RestValidationException {
+    public Response deleteSpecific(@PathParam("id") Integer id) throws RestValidationException {
         buildConfigurationProvider.archive(id);
         return Response.ok().build();
     }
 
     @POST
     @Path("/{id}/clone")
-    public Response clone(@PathParam("id") Integer id,
-            @Context UriInfo uriInfo) throws RestValidationException {
+    public Response clone(@PathParam("id") Integer id, @Context UriInfo uriInfo) throws RestValidationException {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-configurations/{id}");
         int newId = buildConfigurationProvider.clone(id);
-        return Response.created(uriBuilder.build(newId)).entity(new Singleton(buildConfigurationProvider.getSpecific(newId))).build();
+        return Response.created(uriBuilder.build(newId))
+                .entity(new Singleton(buildConfigurationProvider.getSpecific(newId)))
+                .build();
     }
 
     @POST
     @Path("/{id}/build")
-    public Response trigger(@PathParam("id") Integer id,
+    public Response trigger(
+            @PathParam("id") Integer id,
             @QueryParam("callbackUrl") String callbackUrl,
             @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
             @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
@@ -197,50 +201,89 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
             @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
             @QueryParam("rebuildMode") RebuildMode rebuildMode,
-            @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
+            @Context UriInfo uriInfo)
+            throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
 
         rebuildMode = ParameterBackCompatibility.getRebuildMode(forceRebuild, rebuildMode);
-        return triggerBuild(id, Optional.empty(), callbackUrl, temporaryBuild, rebuildMode, buildDependencies, keepPodOnFailure, timestampAlignment, uriInfo);
+        return triggerBuild(
+                id,
+                Optional.empty(),
+                callbackUrl,
+                temporaryBuild,
+                rebuildMode,
+                buildDependencies,
+                keepPodOnFailure,
+                timestampAlignment,
+                uriInfo);
     }
 
     @POST
     @Path("/{id}/revisions/{rev}/build")
-    public Response triggerAudited(@PathParam("id") Integer id,
-                            @PathParam("rev") Integer rev,
-                            @QueryParam("callbackUrl") String callbackUrl,
-                            @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
-                            @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
-                            @QueryParam("buildDependencies") @DefaultValue("true") boolean buildDependencies,
-                            @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
-                            @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
-                            @QueryParam("rebuildMode") RebuildMode rebuildMode,
-                            @Context UriInfo uriInfo) throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
+    public Response triggerAudited(
+            @PathParam("id") Integer id,
+            @PathParam("rev") Integer rev,
+            @QueryParam("callbackUrl") String callbackUrl,
+            @QueryParam("temporaryBuild") @DefaultValue("false") boolean temporaryBuild,
+            @QueryParam("forceRebuild") @DefaultValue("false") boolean forceRebuild,
+            @QueryParam("buildDependencies") @DefaultValue("true") boolean buildDependencies,
+            @QueryParam("keepPodOnFailure") @DefaultValue("false") boolean keepPodOnFailure,
+            @QueryParam("timestampAlignment") @DefaultValue("false") boolean timestampAlignment,
+            @QueryParam("rebuildMode") RebuildMode rebuildMode,
+            @Context UriInfo uriInfo)
+            throws InvalidEntityException, MalformedURLException, BuildConflictException, CoreException {
         rebuildMode = ParameterBackCompatibility.getRebuildMode(forceRebuild, rebuildMode);
-        return triggerBuild(id, Optional.of(rev), callbackUrl, temporaryBuild, rebuildMode, buildDependencies, keepPodOnFailure, timestampAlignment, uriInfo);
+        return triggerBuild(
+                id,
+                Optional.of(rev),
+                callbackUrl,
+                temporaryBuild,
+                rebuildMode,
+                buildDependencies,
+                keepPodOnFailure,
+                timestampAlignment,
+                uriInfo);
     }
 
-    private Response triggerBuild(Integer id,
-                                  Optional<Integer> rev,
-                                  String callbackUrl,
-                                  boolean temporaryBuild,
-                                  RebuildMode rebuildMode,
-                                  boolean buildDependencies,
-                                  boolean keepPodOnFailure,
-                                  boolean timestampAlignment,
-                                  UriInfo uriInfo) throws InvalidEntityException, BuildConflictException, CoreException, MalformedURLException {
-        logger.debug("Endpoint /build requested for buildConfigurationId: {}, revision: {}, temporaryBuild: {}, rebuildMode: {}, " +
-                        "buildDependencies: {}, keepPodOnFailure: {}, timestampAlignment: {}",
-                id, rev, temporaryBuild, rebuildMode, buildDependencies, keepPodOnFailure, timestampAlignment);
+    private Response triggerBuild(
+            Integer id,
+            Optional<Integer> rev,
+            String callbackUrl,
+            boolean temporaryBuild,
+            RebuildMode rebuildMode,
+            boolean buildDependencies,
+            boolean keepPodOnFailure,
+            boolean timestampAlignment,
+            UriInfo uriInfo)
+            throws InvalidEntityException, BuildConflictException, CoreException, MalformedURLException {
+        logger.debug(
+                "Endpoint /build requested for buildConfigurationId: {}, revision: {}, temporaryBuild: {}, rebuildMode: {}, "
+                        + "buildDependencies: {}, keepPodOnFailure: {}, timestampAlignment: {}",
+                id,
+                rev,
+                temporaryBuild,
+                rebuildMode,
+                buildDependencies,
+                keepPodOnFailure,
+                timestampAlignment);
 
         User currentUser = getCurrentUser();
 
-        BuildOptions buildOptions = new BuildOptions(temporaryBuild, buildDependencies, keepPodOnFailure, timestampAlignment, rebuildMode);
+        BuildOptions buildOptions = new BuildOptions(
+                temporaryBuild,
+                buildDependencies,
+                keepPodOnFailure,
+                timestampAlignment,
+                rebuildMode);
         checkBuildOptionsValidity(buildOptions);
 
         Integer runningBuildId = null;
         // if callbackUrl is provided trigger build accordingly
         if (callbackUrl != null && !callbackUrl.isEmpty()) {
-            logger.debug("Triggering build for buildConfigurationId {}, rev {} with callback URL {}.", id, rev, callbackUrl);
+            logger.debug(
+                    "Triggering build for buildConfigurationId {}, rev {} with callback URL {}.",
+                    id,
+                    rev,
+                    callbackUrl);
             runningBuildId = buildTriggerer.triggerBuild(id, rev, currentUser, buildOptions, new URL(callbackUrl));
         } else {
             logger.debug("Triggering build for buildConfigurationId {}, rev {} without callback URL.", id, rev);
@@ -249,21 +292,26 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-config-set-records/{id}");
         URI uri = uriBuilder.build(runningBuildId);
-        return Response.ok(uri).header("location", uri).entity(new Singleton<>(buildRecordProvider.getSpecificRunning(runningBuildId))).build();
+        return Response.ok(uri)
+                .header("location", uri)
+                .entity(new Singleton<>(buildRecordProvider.getSpecificRunning(runningBuildId)))
+                .build();
     }
 
     private User getCurrentUser() throws InvalidEntityException {
         User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
         if (currentUser == null) {
-            throw new InvalidEntityException("No such user exists to trigger builds. Before triggering builds"
-                    + " user must be initialized through /users/getLoggedUser");
+            throw new InvalidEntityException(
+                    "No such user exists to trigger builds. Before triggering builds"
+                            + " user must be initialized through /users/getLoggedUser");
         }
         return currentUser;
     }
 
     @GET
     @Path("/projects/{projectId}")
-    public Response getAllByProjectId(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAllByProjectId(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
@@ -273,28 +321,33 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     @GET
     @Path("/products/{productId}")
-    public Response getAllByProductId(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAllByProductId(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @PathParam("productId") Integer productId) {
         return fromCollection(buildConfigurationProvider.getAllForProduct(pageIndex, pageSize, sort, q, productId));
     }
+
     @GET
     @Path("/products/{productId}/product-versions/{versionId}")
-    public Response getAllByProductVersionId(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAllByProductVersionId(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @PathParam("productId") Integer productId,
             @PathParam("versionId") Integer versionId) {
-        return fromCollection(buildConfigurationProvider
-                .getAllForProductAndProductVersion(pageIndex, pageSize, sort, q, productId, versionId));
+        return fromCollection(
+                buildConfigurationProvider
+                        .getAllForProductAndProductVersion(pageIndex, pageSize, sort, q, productId, versionId));
     }
 
     @GET
     @Path("/{id}/dependencies")
-    public Response getDependencies(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getDependencies(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
@@ -304,18 +357,16 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     @POST
     @Path("/{id}/dependencies")
-    public Response addDependency(@PathParam("id") Integer id,
-            BuildConfigurationRest dependency) throws RestValidationException {
+    public Response addDependency(@PathParam("id") Integer id, BuildConfigurationRest dependency)
+            throws RestValidationException {
         buildConfigurationProvider.addDependency(id, dependency.getId());
         return fromEmpty();
     }
 
     @DELETE
     @Path("/{id}/dependencies/{dependencyId}")
-    public Response removeDependency(
-            @PathParam("id") Integer id,
-            @PathParam("dependencyId") Integer dependencyId) throws
-            RestValidationException {
+    public Response removeDependency(@PathParam("id") Integer id, @PathParam("dependencyId") Integer dependencyId)
+            throws RestValidationException {
         buildConfigurationProvider.removeDependency(id, dependencyId);
         return fromEmpty();
     }
@@ -329,8 +380,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @PathParam("id") Integer id) {
 
-        return Response.ok().entity(buildConfigurationSetProvider.getAllForBuildConfiguration(pageIndex, pageSize, sort,
-                q, id)).build();
+        return Response.ok()
+                .entity(buildConfigurationSetProvider.getAllForBuildConfiguration(pageIndex, pageSize, sort, q, id))
+                .build();
     }
 
     /**
@@ -339,7 +391,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @GET
     @Path("/{id}/product-versions")
     @Deprecated
-    public Response getProductVersions(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getProductVersions(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
@@ -353,9 +406,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @POST
     @Path("/{id}/product-versions")
     @Deprecated
-    public Response addProductVersion(
-            @PathParam("id") Integer id,
-            ProductVersionRest productVersion) throws RestValidationException {
+    public Response addProductVersion(@PathParam("id") Integer id, ProductVersionRest productVersion)
+            throws RestValidationException {
         buildConfigurationProvider.setProductVersion(id, productVersion.getId());
         return fromEmpty();
     }
@@ -368,15 +420,15 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Deprecated
     public Response removeProductVersion(
             @PathParam("id") Integer id,
-            @PathParam("productVersionId") Integer productVersionId) throws
-            RestValidationException {
+            @PathParam("productVersionId") Integer productVersionId) throws RestValidationException {
         buildConfigurationProvider.setProductVersion(id, null);
         return fromEmpty();
     }
 
     @GET
     @Path("/{id}/revisions")
-    public Response getRevisions(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getRevisions(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @PathParam("id") Integer id) {
@@ -385,16 +437,13 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     @GET
     @Path("/{id}/revisions/{rev}")
-    public Response getRevision(@PathParam("id") Integer id,
-            @PathParam("rev") Integer rev) {
+    public Response getRevision(@PathParam("id") Integer id, @PathParam("rev") Integer rev) {
         return fromSingleton(buildConfigurationProvider.getRevision(id, rev));
     }
 
-
     @POST
     @Path("/{id}/revisions/{rev}/restore")
-    public Response restoreRevision(@PathParam("id") Integer id,
-                                   @PathParam("rev") Integer rev) {
+    public Response restoreRevision(@PathParam("id") Integer id, @PathParam("rev") Integer rev) {
         return fromSingleton(buildConfigurationProvider.restoreRevision(id, rev));
     }
 
@@ -411,13 +460,11 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     @GET
     @Path("/{id}/build-records/latest")
-    public Response getLatestBuildRecord(
-            @PathParam("id") Integer id,
-            @QueryParam("executed") boolean executed) {
+    public Response getLatestBuildRecord(@PathParam("id") Integer id, @QueryParam("executed") boolean executed) {
         return this.fromSingleton(buildRecordProvider.getLatestBuildRecord(id, executed));
     }
 
-    //TODO To be removed after testing, will be available via pnc-rest/rest/builds?q=buildConfigurationAuditedId==1
+    // TODO To be removed after testing, will be available via pnc-rest/rest/builds?q=buildConfigurationAuditedId==1
     @GET
     @Path("/{id}/builds")
     public Response getBuilds(
@@ -426,6 +473,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,
             @PathParam("id") Integer id) {
-        return fromCollection(buildRecordProvider.getRunningAndCompletedBuildRecordsByBuildConfigurationId(pageIndex, pageSize, sort, q, id));
+        return fromCollection(
+                buildRecordProvider
+                        .getRunningAndCompletedBuildRecordsByBuildConfigurationId(pageIndex, pageSize, sort, q, id));
     }
 }

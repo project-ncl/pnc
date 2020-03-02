@@ -24,7 +24,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import javax.enterprise.context.Dependent;
 
 @Dependent
-public interface GenericSettingSpringRepository extends JpaRepository<GenericSetting, Integer>,
-        JpaSpecificationExecutor<GenericSetting> {
+public interface GenericSettingSpringRepository
+        extends JpaRepository<GenericSetting, Integer>, JpaSpecificationExecutor<GenericSetting> {
 
 }

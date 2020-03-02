@@ -29,13 +29,12 @@ import javax.inject.Inject;
  */
 @Singleton
 public class BpmScheduler {
-    
+
     @Inject
     private BpmManager bpmManager;
-    
+
     /**
-     * The finished BPM tasks has to be cleaned up regularly
-     * Immediate cleanup is not usable because of NCL-2300
+     * The finished BPM tasks has to be cleaned up regularly Immediate cleanup is not usable because of NCL-2300
      */
     @Schedule(hour = "*")
     public void bpmTasksCleanup() {

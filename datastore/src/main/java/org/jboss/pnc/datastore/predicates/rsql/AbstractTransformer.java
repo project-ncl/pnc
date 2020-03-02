@@ -38,8 +38,17 @@ abstract class AbstractTransformer<Entity> implements Transformer<Entity> {
     private final ArgumentHelper argumentHelper = new ArgumentHelper();
 
     @Override
-    public Predicate transform(Root<Entity> r, CriteriaBuilder cb, Class<?> selectingClass, String operand, List<String> arguments) {
-        return transform(r, selectWithOperand(r, operand, selectingClass), cb, operand,
+    public Predicate transform(
+            Root<Entity> r,
+            CriteriaBuilder cb,
+            Class<?> selectingClass,
+            String operand,
+            List<String> arguments) {
+        return transform(
+                r,
+                selectWithOperand(r, operand, selectingClass),
+                cb,
+                operand,
                 argumentHelper.getConvertedType(selectingClass, operand, arguments));
     }
 
@@ -86,5 +95,10 @@ abstract class AbstractTransformer<Entity> implements Transformer<Entity> {
         return path.get(fields[fields.length - 1]);
     }
 
-    abstract Predicate transform(Root<Entity> r, Path<?> selectedPath, CriteriaBuilder cb, String operand, List<Object> convertedArguments);
+    abstract Predicate transform(
+            Root<Entity> r,
+            Path<?> selectedPath,
+            CriteriaBuilder cb,
+            String operand,
+            List<Object> convertedArguments);
 }

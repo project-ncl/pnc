@@ -88,7 +88,6 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
 
     private static final String USER_TOKEN = "token";
 
-
     @Mock
     private BuildRecordRepository repository;
 
@@ -123,20 +122,15 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
 
     @Before
     public void prepareMock() throws ReflectiveOperationException, IllegalArgumentException {
-        when(repository.queryWithPredicatesUsingCursor(any(PageInfo.class), any(SortInfo.class), any())).thenAnswer(new ListAnswer(repositoryList));
+        when(repository.queryWithPredicatesUsingCursor(any(PageInfo.class), any(SortInfo.class), any()))
+                .thenAnswer(new ListAnswer(repositoryList));
         when(repository.findByIdFetchAllProperties(anyInt())).thenAnswer(inv -> {
             Integer id = inv.getArgument(0);
-            return repositoryList.stream()
-                    .filter(a -> id.equals(a.getId()))
-                    .findFirst()
-                    .orElse(null);
+            return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
         });
         when(repository.findByIdFetchProperties(anyInt())).thenAnswer(inv -> {
             Integer id = inv.getArgument(0);
-            return repositoryList.stream()
-                    .filter(a -> id.equals(a.getId()))
-                    .findFirst()
-                    .orElse(null);
+            return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
         });
 
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(runningBuilds);
@@ -160,10 +154,7 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
     }
 
     private BuildRecord mockBuildRecord() {
-        BuildRecord br = BuildRecord.Builder.newBuilder()
-                .id(entityId++)
-                .submitTime(new Date(entityId * 100))
-                .build();
+        BuildRecord br = BuildRecord.Builder.newBuilder().id(entityId++).submitTime(new Date(entityId * 100)).build();
         repositoryList.add(0, br);
         return br;
     }
@@ -252,7 +243,6 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
         assertEquals(String.valueOf(build2.getId()), it.next().getId());
     }
 
-
     @Test
     public void testGetBuildsPages() {
         // Prepare
@@ -276,7 +266,7 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
         testPage(2, 10);
     }
 
-    private void testPage(int idx, int size, Integer... ids){
+    private void testPage(int idx, int size, Integer... ids) {
         BuildPageInfo pageInfo = new BuildPageInfo(idx, size, "", "", false, false);
         Page<Build> builds = provider.getBuilds(pageInfo);
 
@@ -327,17 +317,17 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
     }
 
     @Test
-    public void testStore(){
-        try{
+    public void testStore() {
+        try {
             provider.store(null);
             fail("Creating build must be unsupported.");
-        } catch(UnsupportedOperationException ex){
-            //ok
+        } catch (UnsupportedOperationException ex) {
+            // ok
         }
     }
 
     @Test
-    public void testGetSpecificFinished(){
+    public void testGetSpecificFinished() {
         BuildRecord record = mockBuildRecord();
 
         Build specific = provider.getSpecific(Integer.toString(record.getId()));
@@ -346,7 +336,7 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
     }
 
     @Test
-    public void testGetSpecificRunning(){
+    public void testGetSpecificRunning() {
         BuildTask task = mockBuildTask();
 
         Build specific = provider.getSpecific(Integer.toString(task.getId()));
@@ -361,16 +351,27 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
         BuildRecord buildRecord3 = mockBuildRecord();
         Page<Build> all = provider.getAll(0, 10, null, null);
 
-        assertThat(all.getContent())
-                .hasSize(3)
-                .haveExactly(1, new Condition<>(b -> buildRecord1.getSubmitTime().toInstant().equals(b.getSubmitTime()), "Build present"))
-                .haveExactly(1, new Condition<>(b -> buildRecord2.getSubmitTime().toInstant().equals(b.getSubmitTime()), "Build present"))
-                .haveExactly(1, new Condition<>(b -> buildRecord3.getSubmitTime().toInstant().equals(b.getSubmitTime()), "Build present"));
+        assertThat(all.getContent()).hasSize(3)
+                .haveExactly(
+                        1,
+                        new Condition<>(
+                                b -> buildRecord1.getSubmitTime().toInstant().equals(b.getSubmitTime()),
+                                "Build present"))
+                .haveExactly(
+                        1,
+                        new Condition<>(
+                                b -> buildRecord2.getSubmitTime().toInstant().equals(b.getSubmitTime()),
+                                "Build present"))
+                .haveExactly(
+                        1,
+                        new Condition<>(
+                                b -> buildRecord3.getSubmitTime().toInstant().equals(b.getSubmitTime()),
+                                "Build present"));
     }
 
     @Test
     public void shouldGetGraphWithDependencies() {
-        //With
+        // With
         Integer buildSetTaskId = 1;
         BuildSetTask buildSetTask = mock(BuildSetTask.class);
         when(buildSetTask.getId()).thenReturn(buildSetTaskId);
@@ -382,16 +383,15 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
         when(task.getDependencies()).thenReturn(asSet(taskDep));
         when(taskDep.getDependencies()).thenReturn(asSet(taskDepDep));
 
-        //When
+        // When
         Graph<BuildTask> graph = provider.getRunningBuildGraphForGroupBuild(buildSetTaskId);
 
-        //Then
+        // Then
         assertThat(graph.getVerticies()).hasSize(3);
-        assertThat(graph.getVerticies().stream().map(Vertex::getName))
-                .containsExactly(
-                        String.valueOf(task.getId()),
-                        String.valueOf(taskDep.getId()),
-                        String.valueOf(taskDepDep.getId()));
+        assertThat(graph.getVerticies().stream().map(Vertex::getName)).containsExactly(
+                String.valueOf(task.getId()),
+                String.valueOf(taskDep.getId()),
+                String.valueOf(taskDepDep.getId()));
 
     }
 
@@ -418,8 +418,10 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
 
         // then
         assertThat(result).isTrue();
-        wireMockServer.verify(1, postRequestedFor(urlEqualTo("/callback")).withRequestBody(matchingJsonPath("$.id",
-                equalTo(buildIdString))));
+        wireMockServer.verify(
+                1,
+                postRequestedFor(urlEqualTo("/callback"))
+                        .withRequestBody(matchingJsonPath("$.id", equalTo(buildIdString))));
         wireMockServer.stop();
     }
 

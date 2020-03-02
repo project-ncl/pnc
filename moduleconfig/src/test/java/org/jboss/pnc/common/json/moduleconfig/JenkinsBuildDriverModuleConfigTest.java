@@ -33,13 +33,13 @@ public class JenkinsBuildDriverModuleConfigTest extends AbstractModuleConfigTest
 
     @Test
     public void loadJenkinsBuildDriverConfigTest() throws ConfigurationParseException {
-            Configuration configuration = new Configuration();
-            JenkinsBuildDriverModuleConfig jenkinsConfig = configuration
-                    .getModuleConfig(new PncConfigProvider<JenkinsBuildDriverModuleConfig>(JenkinsBuildDriverModuleConfig.class));
-            
-            assertNotNull(jenkinsConfig);
-            assertEquals("user", jenkinsConfig.getUsername());
-            assertEquals("pass", jenkinsConfig.getPassword());
+        Configuration configuration = new Configuration();
+        JenkinsBuildDriverModuleConfig jenkinsConfig = configuration.getModuleConfig(
+                new PncConfigProvider<JenkinsBuildDriverModuleConfig>(JenkinsBuildDriverModuleConfig.class));
+
+        assertNotNull(jenkinsConfig);
+        assertEquals("user", jenkinsConfig.getUsername());
+        assertEquals("pass", jenkinsConfig.getPassword());
     }
 
 }

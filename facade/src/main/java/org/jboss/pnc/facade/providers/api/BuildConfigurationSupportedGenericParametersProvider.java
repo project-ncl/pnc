@@ -23,5 +23,5 @@ import java.util.Set;
 
 public interface BuildConfigurationSupportedGenericParametersProvider {
 
-   Set<Parameter> getSupportedGenericParameters();
+    Set<Parameter> getSupportedGenericParameters();
 }

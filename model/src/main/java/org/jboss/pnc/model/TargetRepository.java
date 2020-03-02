@@ -46,7 +46,10 @@ import org.jboss.pnc.enums.RepositoryType;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name="uk_targetrepo_identifier_repopath", columnNames = { "identifier", "repositoryPath" }) )
+@Table(
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_targetrepo_identifier_repopath",
+                columnNames = { "identifier", "repositoryPath" }))
 public class TargetRepository implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
@@ -62,35 +65,32 @@ public class TargetRepository implements GenericEntity<Integer> {
      * Flag that the repository is temporary.
      */
     @NotNull
-    @Column(updatable=false)
+    @Column(updatable = false)
     private Boolean temporaryRepo;
 
     /**
      * Identifier to link repository configurations (eg. hostname)
      */
     @NotNull
-    @Size(max=255)
-    @Column(updatable=false)
+    @Size(max = 255)
+    @Column(updatable = false)
     private String identifier;
 
     /**
-     * Path that need to be appended to the hostname
-     * eg. "ga" for https://maven.repository.redhat.com/ga/
-     * or "maven2" for https://repo1.maven.org/maven2/
-     * or "" (empty string) when the repository content starts at root
+     * Path that need to be appended to the hostname eg. "ga" for https://maven.repository.redhat.com/ga/ or "maven2"
+     * for https://repo1.maven.org/maven2/ or "" (empty string) when the repository content starts at root
      */
     @NotNull
-    @Size(max=255)
-    @Column(updatable=false)
+    @Size(max = 255)
+    @Column(updatable = false)
     private String repositoryPath;
 
-
     /**
-     * The type of repository which hosts this artifact (Maven, NPM, etc).  This field determines
-     * the format of the identifier string.
+     * The type of repository which hosts this artifact (Maven, NPM, etc). This field determines the format of the
+     * identifier string.
      */
     @NotNull
-    @Column(updatable=false)
+    @Column(updatable = false)
     @Enumerated(EnumType.STRING)
     private RepositoryType repositoryType;
 
@@ -171,27 +171,19 @@ public class TargetRepository implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "TargetRepository{" +
-                "id=" + id +
-                ", temporaryRepo=" + temporaryRepo +
-                ", identifier='" + identifier + '\'' +
-                ", repositoryPath='" + repositoryPath + '\'' +
-                ", repositoryType=" + repositoryType +
-                '}';
+        return "TargetRepository{" + "id=" + id + ", temporaryRepo=" + temporaryRepo + ", identifier='" + identifier
+                + '\'' + ", repositoryPath='" + repositoryPath + '\'' + ", repositoryType=" + repositoryType + '}';
     }
 
     /**
-     * List of trusted repository URLs.  These repositories contain only artifacts which have been built
-     * from source in a trusted build environment.
+     * List of trusted repository URLs. These repositories contain only artifacts which have been built from source in a
+     * trusted build environment.
      */
-    public static final String [] TRUSTED_REPOSITORY_URLS = {
-            "http://mead/eap6",
-            "http://mead/eap7"
-    };
+    public static final String[] TRUSTED_REPOSITORY_URLS = { "http://mead/eap6", "http://mead/eap7" };
 
     /**
-     * Check if a given artifact originates from a trusted source.  Compares the given artifactOriginUrl
-     * to the list of trusted repositories.
+     * Check if a given artifact originates from a trusted source. Compares the given artifactOriginUrl to the list of
+     * trusted repositories.
      *
      * @param artifactOriginUrl The URL from which the artifact was downloaded
      * @param targetRepository

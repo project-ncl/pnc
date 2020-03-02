@@ -102,11 +102,11 @@ public class RSQLProducerImpl implements RSQLProducer {
 
     @Override
     public <DB extends GenericEntity<?>> SortInfo getSortInfo(Class<DB> type, String rsql) {
-        if(rsql == null || rsql.isEmpty()) {
+        if (rsql == null || rsql.isEmpty()) {
             return new EmptySortInfo();
         }
 
-        if(!rsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {
+        if (!rsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {
             rsql = FIXED_START_OF_SORTING_EXPRESSION + rsql;
         }
 
@@ -120,7 +120,7 @@ public class RSQLProducerImpl implements RSQLProducer {
         if (rsql == null || rsql.isEmpty()) {
             throw new RSQLException("RSQL sort query must be non-empty and non-null.");
         }
-        if(!rsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {
+        if (!rsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {
             rsql = FIXED_START_OF_SORTING_EXPRESSION + rsql;
         }
         Node rootNode = sortParser.parse(preprocessRSQL(rsql));
@@ -139,12 +139,15 @@ public class RSQLProducerImpl implements RSQLProducer {
 
     private <DB extends GenericEntity<?>> Predicate<DB> getEntityPredicate(Node rootNode, Class<DB> type) {
         return (root, query, cb) -> {
-            RSQLNodeTraveller<javax.persistence.criteria.Predicate> visitor = new EntityRSQLNodeTraveller(root, cb, new BiFunction<From<?, DB>, RSQLSelectorPath, Path>() {
-                @Override
-                public Path apply(From<?, DB> from, RSQLSelectorPath selector) {
-                    return mapper.toPath(type, from, selector);
-                }
-            });
+            RSQLNodeTraveller<javax.persistence.criteria.Predicate> visitor = new EntityRSQLNodeTraveller(
+                    root,
+                    cb,
+                    new BiFunction<From<?, DB>, RSQLSelectorPath, Path>() {
+                        @Override
+                        public Path apply(From<?, DB> from, RSQLSelectorPath selector) {
+                            return mapper.toPath(type, from, selector);
+                        }
+                    });
             return rootNode.accept(visitor);
         };
     }

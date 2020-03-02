@@ -22,8 +22,8 @@ import java.util.Map;
 public interface HealthCheckProvider {
 
     /**
-     * Checks for the system's health should be performed in this method. The returned map should
-     * contain the description of the test, and whether it passed or not
+     * Checks for the system's health should be performed in this method. The returned map should contain the
+     * description of the test, and whether it passed or not
      *
      * @return results
      */

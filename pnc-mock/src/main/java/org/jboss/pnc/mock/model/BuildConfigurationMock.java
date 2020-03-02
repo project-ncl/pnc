@@ -31,7 +31,8 @@ import java.util.Date;
  */
 public class BuildConfigurationMock {
 
-    public static BuildConfiguration createNew(Integer id,
+    public static BuildConfiguration createNew(
+            Integer id,
             Project project,
             BuildEnvironment buildEnvironment,
             RepositoryConfiguration repositoryConfiguration) {

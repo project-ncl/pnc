@@ -35,11 +35,9 @@ public class BuildRecordAliasEndpointImpl {
     @GET
     @Path("/{id}")
     public Response getSpecific(@PathParam("id") String id, @Context UriInfo uriInfo) {
-        //redirects to new Rest-api endpoint
+        // redirects to new Rest-api endpoint
         return Response.status(Response.Status.MOVED_PERMANENTLY)
-                .location(uriInfo.getBaseUriBuilder()
-                        .path("/builds")
-                        .path("/" + id).build())
+                .location(uriInfo.getBaseUriBuilder().path("/builds").path("/" + id).build())
                 .build();
     }
 }

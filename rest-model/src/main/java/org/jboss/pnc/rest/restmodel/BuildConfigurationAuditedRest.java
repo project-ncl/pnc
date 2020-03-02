@@ -75,7 +75,7 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     @Getter
     @Setter
-    private Map<String, String> genericParameters ;
+    private Map<String, String> genericParameters;
 
     public BuildConfigurationAuditedRest() {
     }
@@ -92,11 +92,15 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.lastModificationTime = buildConfigurationAudited.getLastModificationTime();
         genericParameters = buildConfigurationAudited.getGenericParameters();
 
-        performIfNotNull(buildConfigurationAudited.getRepositoryConfiguration(),
-                () -> this.repositoryConfiguration = new RepositoryConfigurationRest(buildConfigurationAudited.getRepositoryConfiguration()));
-        performIfNotNull(buildConfigurationAudited.getProject(),
+        performIfNotNull(
+                buildConfigurationAudited.getRepositoryConfiguration(),
+                () -> this.repositoryConfiguration = new RepositoryConfigurationRest(
+                        buildConfigurationAudited.getRepositoryConfiguration()));
+        performIfNotNull(
+                buildConfigurationAudited.getProject(),
                 () -> this.project = new ProjectRest(buildConfigurationAudited.getProject()));
-        performIfNotNull(buildConfigurationAudited.getBuildEnvironment(),
+        performIfNotNull(
+                buildConfigurationAudited.getBuildEnvironment(),
                 () -> this.environment = new BuildEnvironmentRest(buildConfigurationAudited.getBuildEnvironment()));
 
         performIfNotNull(this.project, () -> this.projectId = this.project.getId());
@@ -176,7 +180,7 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
     public void setLastModificationTime(Date lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
     }
-    
+
     public Integer getProjectId() {
         return projectId;
     }
@@ -222,9 +226,12 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
                 .lastModificationTime(lastModificationTime)
                 .genericParameters(genericParameters);
 
-        performIfNotNull(this.getRepositoryConfiguration(), () -> this.getRepositoryConfiguration().toDBEntityBuilder().build());
+        performIfNotNull(
+                this.getRepositoryConfiguration(),
+                () -> this.getRepositoryConfiguration().toDBEntityBuilder().build());
         performIfNotNull(this.project, () -> buildConfigBuilder.project(this.project.toDBEntityBuilder().build()));
-        performIfNotNull(this.environment,
+        performIfNotNull(
+                this.environment,
                 () -> buildConfigBuilder.buildEnvironment(this.environment.toDBEntityBuilder().build()));
 
         BuildConfigurationAudited.Builder builder = BuildConfigurationAudited.Builder.newBuilder()

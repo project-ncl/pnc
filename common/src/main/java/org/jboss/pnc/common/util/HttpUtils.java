@@ -56,8 +56,8 @@ public class HttpUtils {
     }
 
     /**
-     * Process HTTP GET request and get the data as type specified as parameter.
-     * Client accepts application/json MIME type.
+     * Process HTTP GET request and get the data as type specified as parameter. Client accepts application/json MIME
+     * type.
      *
      * @param clazz Class to which the data are unmarshalled
      * @param <T> module config
@@ -72,17 +72,17 @@ public class HttpUtils {
         ClientResponse<T> response = request.get(clazz);
         return response.getEntity();
     }
-    
+
     public static String processGetRequest(String url) throws Exception {
         ClientRequest request = new ClientRequest(url);
         request.accept(MediaType.APPLICATION_JSON);
         ClientResponse<String> response = request.get(String.class);
         return response.getEntity();
-    }    
+    }
 
     /**
-     * Process HTTP requests and tests if server responds with expected HTTP code.
-     * Request is implicitly set to accept MIME type application/json.
+     * Process HTTP requests and tests if server responds with expected HTTP code. Request is implicitly set to accept
+     * MIME type application/json.
      *
      * @param ecode Expected HTTP error code
      * @param url Request URL
@@ -100,6 +100,7 @@ public class HttpUtils {
     /**
      *
      * NOTE: Be sure to close the HTTP connection after every request!
+     * 
      * @param retries - int number of retries to execute request in case of failure
      * @return Closeable "permissive" HttpClient instance, ignoring invalid SSL certificates.
      */
@@ -118,7 +119,9 @@ public class HttpUtils {
 
         SSLConnectionSocketFactory sslSF = null;
         try {
-            sslSF = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            sslSF = new SSLConnectionSocketFactory(
+                    builder.build(),
+                    SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
         } catch (KeyManagementException | NoSuchAlgorithmException e1) {
             LOG.error("Error creating SSL Connection Factory.", e1);
         }
@@ -126,7 +129,8 @@ public class HttpUtils {
         CloseableHttpClient httpclient = HttpClients.custom()
                 .setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false))
                 .setSSLSocketFactory(sslSF)
-                .setHostnameVerifier(new AllowAllHostnameVerifier()).build();
+                .setHostnameVerifier(new AllowAllHostnameVerifier())
+                .build();
 
         return httpclient;
     }
@@ -158,12 +162,18 @@ public class HttpUtils {
         try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 if (isSuccess(response.getStatusLine().getStatusCode())) {
-                    LOG.debug("HTTP POST request to {} with payload {} sent successfully. Response code: {}",
-                            uri, payload, response.getStatusLine().getStatusCode());
+                    LOG.debug(
+                            "HTTP POST request to {} with payload {} sent successfully. Response code: {}",
+                            uri,
+                            payload,
+                            response.getStatusLine().getStatusCode());
                 } else {
-                    LOG.error("Sending HTTP POST request to {} with payload {} failed! " +
-                                    "Response code: {}, Message: {}",
-                            uri, payload, response.getStatusLine().getStatusCode(),
+                    LOG.error(
+                            "Sending HTTP POST request to {} with payload {} failed! "
+                                    + "Response code: {}, Message: {}",
+                            uri,
+                            payload,
+                            response.getStatusLine().getStatusCode(),
                             response.getEntity().getContent());
                 }
             }
@@ -171,8 +181,10 @@ public class HttpUtils {
             LOG.error("Error occurred executing the HTTP post request!", e);
         }
     }
+
     /**
-     * @return Closeable "permissive" HttpClient instance, ignoring invalid SSL certificates, using 3 attempts to retry failed request 
+     * @return Closeable "permissive" HttpClient instance, ignoring invalid SSL certificates, using 3 attempts to retry
+     *         failed request
      * @see getPermissiveHttpClient(int retries)
      */
     public static CloseableHttpClient getPermissiveHttpClient() {

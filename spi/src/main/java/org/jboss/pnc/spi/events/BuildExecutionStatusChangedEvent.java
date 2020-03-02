@@ -26,8 +26,11 @@ import java.util.Optional;
 public interface BuildExecutionStatusChangedEvent {
 
     BuildExecutionStatus getOldStatus();
+
     BuildExecutionStatus getNewStatus();
+
     Integer getBuildTaskId();
+
     Integer getBuildConfigurationId();
 
     /**

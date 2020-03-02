@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.facade.providers;
 
-
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.util.UserService;
@@ -51,7 +50,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMilestone> {
@@ -99,7 +97,9 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
     public void testStoreNewProductMilestoneWithoutId() {
 
         // when
-        org.jboss.pnc.dto.ProductMilestone toCreate = createNewProductMilestoneDTO(mock.getProductVersion(), "6.6.6.CR1");
+        org.jboss.pnc.dto.ProductMilestone toCreate = createNewProductMilestoneDTO(
+                mock.getProductVersion(),
+                "6.6.6.CR1");
         org.jboss.pnc.dto.ProductMilestone created = provider.store(toCreate);
 
         // then
@@ -113,37 +113,36 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
     public void testStoreNewProductMilestoneWithIdShouldFail() {
 
         // when
-        org.jboss.pnc.dto.ProductMilestone toCreate =
-                createNewProductMilestoneDTO(mock.getProductVersion(), "6.6.7.CR1", Integer.toString(entityId++));
+        org.jboss.pnc.dto.ProductMilestone toCreate = createNewProductMilestoneDTO(
+                mock.getProductVersion(),
+                "6.6.7.CR1",
+                Integer.toString(entityId++));
 
         // then
-        assertThatThrownBy(() -> provider.store(toCreate))
-                .isInstanceOf(InvalidEntityException.class);
+        assertThatThrownBy(() -> provider.store(toCreate)).isInstanceOf(InvalidEntityException.class);
     }
 
     @Test
     public void testStoreSameProductVersionShouldFail() {
 
         // when
-        org.jboss.pnc.dto.ProductMilestone toCreate =
-                createNewProductMilestoneDTO(mock.getProductVersion(), mock.getVersion());
+        org.jboss.pnc.dto.ProductMilestone toCreate = createNewProductMilestoneDTO(
+                mock.getProductVersion(),
+                mock.getVersion());
 
         when(repository.queryByPredicates(any(Predicate.class))).thenReturn(mock);
 
         // then
-        assertThatThrownBy(() -> provider.store(toCreate))
-                .isInstanceOf(ConflictedEntryException.class);
+        assertThatThrownBy(() -> provider.store(toCreate)).isInstanceOf(ConflictedEntryException.class);
     }
 
     @Test
     public void testStoreBadVersionsShouldFail() {
 
-        assertThatThrownBy(() -> provider.store(
-                createNewProductMilestoneDTO(mock.getProductVersion(), "1.2")))
+        assertThatThrownBy(() -> provider.store(createNewProductMilestoneDTO(mock.getProductVersion(), "1.2")))
                 .isInstanceOf(InvalidEntityException.class);
 
-        assertThatThrownBy(() -> provider.store(
-                createNewProductMilestoneDTO(mock.getProductVersion(), "a.b.c.d")))
+        assertThatThrownBy(() -> provider.store(createNewProductMilestoneDTO(mock.getProductVersion(), "a.b.c.d")))
                 .isInstanceOf(InvalidEntityException.class);
     }
 
@@ -214,8 +213,8 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
         // when
         ProductVersion pv = mock.getProductVersion();
 
-        Page<org.jboss.pnc.dto.ProductMilestone> page =
-                provider.getProductMilestonesForProductVersion(0, 10, null, null, pv.getId().toString());
+        Page<org.jboss.pnc.dto.ProductMilestone> page = provider
+                .getProductMilestonesForProductVersion(0, 10, null, null, pv.getId().toString());
 
         // then
         assertThat(page.getContent().size()).isGreaterThanOrEqualTo(1);
@@ -281,10 +280,7 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
 
     private ProductMilestone prepareNewProductMilestone(String productVersion, String milestoneVersion) {
 
-        Product product = Product.Builder.newBuilder()
-                .id(entityId++)
-                .name(UUID.randomUUID().toString())
-                .build();
+        Product product = Product.Builder.newBuilder().id(entityId++).name(UUID.randomUUID().toString()).build();
 
         ProductVersion pV = ProductVersion.Builder.newBuilder()
                 .id(entityId++)
@@ -295,7 +291,9 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
         return createNewProductMilestoneFromProductVersion(pV, milestoneVersion);
     }
 
-    private ProductMilestone createNewProductMilestoneFromProductVersion(ProductVersion productVersion, String milestoneVersion) {
+    private ProductMilestone createNewProductMilestoneFromProductVersion(
+            ProductVersion productVersion,
+            String milestoneVersion) {
 
         return ProductMilestone.Builder.newBuilder()
                 .id(entityId++)
@@ -304,7 +302,10 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
                 .build();
     }
 
-    private org.jboss.pnc.dto.ProductMilestone createNewProductMilestoneDTO(ProductVersion pv, String milestoneVersion, String id) {
+    private org.jboss.pnc.dto.ProductMilestone createNewProductMilestoneDTO(
+            ProductVersion pv,
+            String milestoneVersion,
+            String id) {
         return org.jboss.pnc.dto.ProductMilestone.builder()
                 .version(milestoneVersion)
                 .productVersion(productVersionMapper.toRef(pv))
@@ -312,7 +313,9 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
                 .build();
     }
 
-    private org.jboss.pnc.dto.ProductMilestone createNewProductMilestoneDTO(ProductVersion pv, String milestoneVersion) {
+    private org.jboss.pnc.dto.ProductMilestone createNewProductMilestoneDTO(
+            ProductVersion pv,
+            String milestoneVersion) {
         return createNewProductMilestoneDTO(pv, milestoneVersion, null);
     }
 }

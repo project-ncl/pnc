@@ -74,14 +74,14 @@ public class AbstractEndpoint<DBEntity extends GenericEntity<Integer>, RESTEntit
 
     protected <T> Response fromCollection(CollectionInfo<T> collection) {
         Page<T> pageForResponse = new Page<>(collection);
-        if(collection == null || collection.getContent().size() == 0) {
+        if (collection == null || collection.getContent().size() == 0) {
             return Response.noContent().entity(pageForResponse).build();
         }
         return Response.ok().entity(pageForResponse).build();
     }
 
     protected <T> Response fromSingleton(T singleton) {
-        if(singleton == null) {
+        if (singleton == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(new Singleton(null)).build();
         }
         return Response.ok().entity(new Singleton(singleton)).build();

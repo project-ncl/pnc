@@ -59,9 +59,11 @@ public class HibernateLazyInitializer {
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public BuildConfigurationAudited initializeBuildConfigurationAuditedBeforeTriggeringIt(BuildConfigurationAudited buildConfigurationAudited) {
+    public BuildConfigurationAudited initializeBuildConfigurationAuditedBeforeTriggeringIt(
+            BuildConfigurationAudited buildConfigurationAudited) {
         log.trace("Initializing BCA {}.", buildConfigurationAudited.getIdRev());
-        buildConfigurationAudited.setBuildConfiguration(buildConfigurationRepository.queryById(buildConfigurationAudited.getId()));
+        buildConfigurationAudited
+                .setBuildConfiguration(buildConfigurationRepository.queryById(buildConfigurationAudited.getId()));
         initializeBuildConfigurationBeforeTriggeringIt(buildConfigurationAudited.getBuildConfiguration());
 
         return buildConfigurationAudited;
@@ -70,8 +72,7 @@ public class HibernateLazyInitializer {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BuildConfigurationSet initializeBuildConfigurationSetBeforeTriggeringIt(BuildConfigurationSet bcs) {
         log.trace("Initializing {} build configurations in set {}.", bcs.getBuildConfigurations().size(), bcs.getId());
-        bcs.getBuildConfigurations().stream()
-                .forEach(bc -> initializeBuildConfigurationBeforeTriggeringIt(bc));
+        bcs.getBuildConfigurations().stream().forEach(bc -> initializeBuildConfigurationBeforeTriggeringIt(bc));
         return bcs;
     }
 }

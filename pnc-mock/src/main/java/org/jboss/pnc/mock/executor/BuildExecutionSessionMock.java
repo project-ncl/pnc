@@ -59,7 +59,7 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
     private Date endTime;
     private BuildDriverResult buildDriverResult;
     private RepositoryManagerResult repositoryManagerResult;
-    //keep record of first received failed status
+    // keep record of first received failed status
     private BuildExecutionStatus failedReasonStatus;
 
     private boolean cancelRequested = false;
@@ -68,7 +68,8 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
 
     private String accessToken;
 
-    public BuildExecutionSessionMock(BuildExecutionConfiguration buildExecutionConfiguration,
+    public BuildExecutionSessionMock(
+            BuildExecutionConfiguration buildExecutionConfiguration,
             Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent) {
         liveLogsUri = Optional.empty();
         this.buildExecutionConfiguration = buildExecutionConfiguration;
@@ -109,7 +110,9 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
     public void setStatus(BuildExecutionStatus status, boolean isFinal) {
         if (status.hasFailed() && failedReasonStatus == null) {
             if (status.equals(DONE_WITH_ERRORS)) {
-                setException(new ExecutorException("Missing failedReasonStatus. Failed reason must be sat before final DONE_WITH_ERRORS."));
+                setException(
+                        new ExecutorException(
+                                "Missing failedReasonStatus. Failed reason must be sat before final DONE_WITH_ERRORS."));
             }
             log.debug("Setting status {} as failed reason for session {}.", status, getId());
             failedReasonStatus = status;
@@ -216,7 +219,10 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
 
     @Override
     public boolean hasFailed() {
-        log.debug("Has failed ? executorException: {} || failedReasonStatus: {}", executorException == null ? "" : executorException.getMessage(), failedReasonStatus );
+        log.debug(
+                "Has failed ? executorException: {} || failedReasonStatus: {}",
+                executorException == null ? "" : executorException.getMessage(),
+                failedReasonStatus);
         return executorException != null || failedReasonStatus != null;
     }
 

@@ -64,19 +64,11 @@ public class ProductVersionRepositoryTest {
     @Test
     @Transactional
     public void shouldGetProductVersion() {
-        //given
-        Product pruduct = Product.Builder.newBuilder()
-                .abbreviation("mp")
-                .name("MyProduct")
-                .build();
-        ProductVersion productVersion = ProductVersion.Builder.newBuilder()
-                .version("1.0")
-                .product(pruduct)
-                .build();
+        // given
+        Product pruduct = Product.Builder.newBuilder().abbreviation("mp").name("MyProduct").build();
+        ProductVersion productVersion = ProductVersion.Builder.newBuilder().version("1.0").product(pruduct).build();
 
-        BuildConfigurationSet buildConfigurationSet = BuildConfigurationSet.Builder.newBuilder()
-                .name("set1")
-                .build();
+        BuildConfigurationSet buildConfigurationSet = BuildConfigurationSet.Builder.newBuilder().name("set1").build();
 
         Set<BuildConfigurationSet> buildConfigurationSets = new HashSet<>();
         buildConfigurationSets.add(buildConfigurationSet);
@@ -84,12 +76,11 @@ public class ProductVersionRepositoryTest {
 
         productVersion.setBuildConfigurationSets(buildConfigurationSets);
 
-
-        //when
+        // when
         productRepository.save(pruduct);
         ProductVersion saved = productVersionRepository.save(productVersion);
 
-        //then
+        // then
         ProductVersion productVersionFromDb = productVersionRepository.queryById(productVersion.getId());
         Assert.assertNotNull(productVersionFromDb);
         Assert.assertEquals(productVersionFromDb.getVersion(), productVersion.getVersion());

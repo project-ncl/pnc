@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EnvironmentProviderTest  extends AbstractProviderTest<BuildEnvironment>{
+public class EnvironmentProviderTest extends AbstractProviderTest<BuildEnvironment> {
 
     @Mock
     private BuildEnvironmentRepository repository;
@@ -74,8 +74,7 @@ public class EnvironmentProviderTest  extends AbstractProviderTest<BuildEnvironm
     public void testGetAll() {
         Page<Environment> all = provider.getAll(0, 10, null, null);
 
-        assertThat(all.getContent())
-                .hasSize(4)
+        assertThat(all.getContent()).hasSize(4)
                 .haveExactly(1, new Condition<>(e -> e.getName().equals(env.getName()), "Environment present"));
     }
 
@@ -84,10 +83,13 @@ public class EnvironmentProviderTest  extends AbstractProviderTest<BuildEnvironm
         final String name = "Hello";
         final String sysImageId = "NewID";
 
-        Environment environment = Environment.builder().name(name).systemImageId(sysImageId).systemImageType(SystemImageType.DOCKER_IMAGE).build();
+        Environment environment = Environment.builder()
+                .name(name)
+                .systemImageId(sysImageId)
+                .systemImageType(SystemImageType.DOCKER_IMAGE)
+                .build();
 
-        assertThatThrownBy(() -> provider.store(environment))
-                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> provider.store(environment)).isInstanceOf(UnsupportedOperationException.class);
     }
 
     @Test
@@ -99,7 +101,7 @@ public class EnvironmentProviderTest  extends AbstractProviderTest<BuildEnvironm
     }
 
     @Test
-    public void testUpdate(){
+    public void testUpdate() {
         final String newName = "newName";
 
         Environment environment = Environment.builder()
@@ -120,7 +122,7 @@ public class EnvironmentProviderTest  extends AbstractProviderTest<BuildEnvironm
     }
 
     @Test
-    public void testDelete(){
+    public void testDelete() {
         assertThatThrownBy(() -> provider.delete(env.getId().toString()))
                 .isInstanceOf(UnsupportedOperationException.class);
     }

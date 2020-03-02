@@ -120,7 +120,7 @@ public class ProductReleaseEndpointTest {
         // when
         client.update(releaseId, toUpdate);
 
-        //then
+        // then
         ProductRelease retrieved = client.getSpecific(dto.getId());
 
         assertThat(retrieved).isEqualTo(toUpdate);
@@ -133,9 +133,7 @@ public class ProductReleaseEndpointTest {
         ProductReleaseClient client = new ProductReleaseClient(RestClientConfiguration.asAnonymous());
         Set<SupportLevel> all = client.getAllSupportLevel();
 
-        assertThat(all)
-                .hasSameSizeAs(SupportLevel.values())
-                .contains(SupportLevel.values());
+        assertThat(all).hasSameSizeAs(SupportLevel.values()).contains(SupportLevel.values());
     }
 
 }

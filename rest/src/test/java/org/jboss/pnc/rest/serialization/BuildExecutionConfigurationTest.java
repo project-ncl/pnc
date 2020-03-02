@@ -44,29 +44,71 @@ public class BuildExecutionConfigurationTest {
     public void serializeAndDeserializeBuildResult() throws IOException, BuildDriverException {
 
         BuildExecutionConfiguration buildExecutionConfiguration = getBuildExecutionConfigurationMock();
-        BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(buildExecutionConfiguration);
+        BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(
+                buildExecutionConfiguration);
 
         String buildExecutionConfigurationJson = JsonOutputConverterMapper.apply(buildExecutionConfigurationREST);
         log.debug("Json : {}", buildExecutionConfigurationJson);
 
-        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = new BuildExecutionConfigurationRest(buildExecutionConfigurationJson);
-        BuildExecutionConfiguration buildExecutionConfigurationFromJson = buildExecutionConfigurationRestFromJson.toBuildExecutionConfiguration();
+        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = new BuildExecutionConfigurationRest(
+                buildExecutionConfigurationJson);
+        BuildExecutionConfiguration buildExecutionConfigurationFromJson = buildExecutionConfigurationRestFromJson
+                .toBuildExecutionConfiguration();
         String message = "Deserialized object does not match the original.";
 
         Assert.assertEquals(message, buildExecutionConfiguration.getId(), buildExecutionConfigurationFromJson.getId());
-        Assert.assertEquals(message, buildExecutionConfiguration.getBuildScript(), buildExecutionConfigurationFromJson.getBuildScript());
-        Assert.assertEquals(message, buildExecutionConfiguration.getName(), buildExecutionConfigurationFromJson.getName());
-        Assert.assertEquals(message, buildExecutionConfiguration.getScmRepoURL(), buildExecutionConfigurationFromJson.getScmRepoURL());
-        Assert.assertEquals(message, buildExecutionConfiguration.getScmRevision(), buildExecutionConfigurationFromJson.getScmRevision());
-        Assert.assertEquals(message, buildExecutionConfiguration.getScmTag(), buildExecutionConfigurationFromJson.getScmTag());
-        Assert.assertEquals(message, buildExecutionConfiguration.getOriginRepoURL(), buildExecutionConfigurationFromJson.getOriginRepoURL());
-        Assert.assertEquals(message, buildExecutionConfiguration.isPreBuildSyncEnabled(), buildExecutionConfigurationFromJson.isPreBuildSyncEnabled());
-        Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageId(), buildExecutionConfigurationFromJson.getSystemImageId());
-        Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageRepositoryUrl(), buildExecutionConfigurationFromJson.getSystemImageRepositoryUrl());
-        Assert.assertEquals(message, buildExecutionConfiguration.getSystemImageType(), buildExecutionConfigurationFromJson.getSystemImageType());
-        Assert.assertEquals(message, buildExecutionConfiguration.getUserId(), buildExecutionConfigurationFromJson.getUserId());
-        Assert.assertEquals(message, buildExecutionConfiguration.getGenericParameters(), buildExecutionConfigurationFromJson.getGenericParameters());
-        Assert.assertEquals(message, buildExecutionConfiguration.getBuildType(), buildExecutionConfigurationFromJson.getBuildType());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getBuildScript(),
+                buildExecutionConfigurationFromJson.getBuildScript());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getName(),
+                buildExecutionConfigurationFromJson.getName());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getScmRepoURL(),
+                buildExecutionConfigurationFromJson.getScmRepoURL());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getScmRevision(),
+                buildExecutionConfigurationFromJson.getScmRevision());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getScmTag(),
+                buildExecutionConfigurationFromJson.getScmTag());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getOriginRepoURL(),
+                buildExecutionConfigurationFromJson.getOriginRepoURL());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.isPreBuildSyncEnabled(),
+                buildExecutionConfigurationFromJson.isPreBuildSyncEnabled());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getSystemImageId(),
+                buildExecutionConfigurationFromJson.getSystemImageId());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getSystemImageRepositoryUrl(),
+                buildExecutionConfigurationFromJson.getSystemImageRepositoryUrl());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getSystemImageType(),
+                buildExecutionConfigurationFromJson.getSystemImageType());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getUserId(),
+                buildExecutionConfigurationFromJson.getUserId());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getGenericParameters(),
+                buildExecutionConfigurationFromJson.getGenericParameters());
+        Assert.assertEquals(
+                message,
+                buildExecutionConfiguration.getBuildType(),
+                buildExecutionConfigurationFromJson.getBuildType());
     }
 
     private BuildExecutionConfiguration getBuildExecutionConfigurationMock() {
@@ -74,26 +116,25 @@ public class BuildExecutionConfigurationTest {
         genericParameters.put("KEY", "VALUE");
 
         return new DefaultBuildExecutionConfiguration(
-                    1,
-                    "condent-id",
-                    "1",
-                    "mvn clean install",
-                    "configuration name",
-                    "https://pathToRepo.git",
-                    "1111111",
-                    "1.0.0.redhat-1",
-                    "https://pathToOriginRepo.git",
-                    false,
-                    BuildType.MVN,
-                    "abcd1234",
-                    "image.repo.url/repo",
-                    SystemImageType.DOCKER_IMAGE,
-                    false,
-                    null,
-                    genericParameters,
-                    false,
-                    null
-            );
+                1,
+                "condent-id",
+                "1",
+                "mvn clean install",
+                "configuration name",
+                "https://pathToRepo.git",
+                "1111111",
+                "1.0.0.redhat-1",
+                "https://pathToOriginRepo.git",
+                false,
+                BuildType.MVN,
+                "abcd1234",
+                "image.repo.url/repo",
+                SystemImageType.DOCKER_IMAGE,
+                false,
+                null,
+                genericParameters,
+                false,
+                null);
     }
 
 }

@@ -63,8 +63,7 @@ public class BpmBuildTask extends BpmTask {
                 config.getDaBaseUrl(),
                 Boolean.valueOf(Optional.ofNullable(config.getCommunityBuild()).orElse("true")),
                 Boolean.valueOf(Optional.ofNullable(config.getVersionAdjust()).orElse("false")),
-                getBuildExecutionConfiguration(buildTask)
-        );
+                getBuildExecutionConfiguration(buildTask));
     }
 
     private BuildExecutionConfigurationRest getBuildExecutionConfiguration(BuildTask buildTask) {
@@ -78,7 +77,7 @@ public class BpmBuildTask extends BpmTask {
                 buildTask.getUser().getId().toString(),
                 buildConfigurationAudited.getBuildScript(),
                 buildConfigurationAudited.getName(),
-                //TODO update to use also other parts or Repository Configuration
+                // TODO update to use also other parts or Repository Configuration
                 buildConfigurationAudited.getRepositoryConfiguration().getInternalUrl(),
                 buildConfigurationAudited.getScmRevision(),
                 // SCM Tag is about to be set once it is created after the alignment phase
@@ -92,7 +91,8 @@ public class BpmBuildTask extends BpmTask {
                 buildTask.getBuildOptions().isKeepPodOnFailure(),
                 buildConfigurationAudited.getGenericParameters(),
                 buildTask.getBuildOptions().isTemporaryBuild(),
-                TimeUtils.generateTimestamp(buildTask.getBuildOptions().isTimestampAlignment(),
+                TimeUtils.generateTimestamp(
+                        buildTask.getBuildOptions().isTimestampAlignment(),
                         buildTask.getBuildSetTask().getStartTime()));
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
@@ -111,7 +111,6 @@ public class BpmBuildTask extends BpmTask {
             } else {
                 return false;
             }
-        })
-        .findFirst();
+        }).findFirst();
     }
 }

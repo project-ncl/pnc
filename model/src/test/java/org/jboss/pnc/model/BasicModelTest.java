@@ -41,8 +41,9 @@ public class BasicModelTest extends AbstractModelTest {
 
     private User pncUser;
 
-    protected final RepositoryConfiguration basicRepositoryConfiguration = RepositoryConfiguration.Builder
-            .newBuilder().id(1).build();
+    protected final RepositoryConfiguration basicRepositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
+            .id(1)
+            .build();
 
     /**
      * Initialize a basic data set before each test run
@@ -53,7 +54,8 @@ public class BasicModelTest extends AbstractModelTest {
         EntityManager em = getEmFactory().createEntityManager();
         initDatabaseUsingDataset(em, DBUNIT_DATASET_FILE);
 
-        // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers Auditing
+        // Initialize sample build configurations, these cannot be done by DBUnit because of the Hibernate Envers
+        // Auditing
         insertExampleBuildConfigurations(em, basicRepositoryConfiguration);
 
         em.close();
@@ -83,8 +85,11 @@ public class BasicModelTest extends AbstractModelTest {
 
         EntityManager em = getEmFactory().createEntityManager();
         em.getTransaction().begin();
-        Product newProduct = Product.Builder.newBuilder().name(NEW_PRODUCT_INSERTED_NAME).description("Product")
-                .abbreviation("foo").build();
+        Product newProduct = Product.Builder.newBuilder()
+                .name(NEW_PRODUCT_INSERTED_NAME)
+                .description("Product")
+                .abbreviation("foo")
+                .build();
         em.persist(newProduct);
         em.getTransaction().commit();
         int productId = newProduct.getId();
@@ -120,7 +125,9 @@ public class BasicModelTest extends AbstractModelTest {
                 .md5("md-fake-BBCD1234")
                 .sha1("sha1-fake-BBCD1234")
                 .sha256("sha256-fake-BBCD1234")
-                .filename("artifact2.jar").originUrl("http://central/artifact2.jar").importDate(Date.from(Instant.now()))
+                .filename("artifact2.jar")
+                .originUrl("http://central/artifact2.jar")
+                .importDate(Date.from(Instant.now()))
                 .targetRepository(targetRepository)
                 .build();
         Artifact artifact3 = Artifact.Builder.newBuilder()
@@ -128,7 +135,9 @@ public class BasicModelTest extends AbstractModelTest {
                 .md5("md-fake-CBCD1234")
                 .sha1("sha1-fake-CBCD1234")
                 .sha256("sha256-fake-CBCD1234")
-                .filename("artifact3.jar").originUrl("http://central/artifact3.jar").importDate(Date.from(Instant.now()))
+                .filename("artifact3.jar")
+                .originUrl("http://central/artifact3.jar")
+                .importDate(Date.from(Instant.now()))
                 .targetRepository(targetRepository)
                 .build();
 
@@ -158,11 +167,11 @@ public class BasicModelTest extends AbstractModelTest {
 
     private TargetRepository getTargetRepository(String path) {
         return TargetRepository.newBuilder()
-                    .temporaryRepo(false)
-                    .identifier("indy-maven")
-                    .repositoryPath(path)
-                    .repositoryType(RepositoryType.MAVEN)
-                    .build();
+                .temporaryRepo(false)
+                .identifier("indy-maven")
+                .repositoryPath(path)
+                .repositoryType(RepositoryType.MAVEN)
+                .build();
     }
 
     private BuildConfigurationAudited findBuildConfigurationAudited(EntityManager em) {
@@ -174,7 +183,8 @@ public class BasicModelTest extends AbstractModelTest {
 
         Object[] second = result.get(1);
         BuildConfiguration buildConfiguration = (BuildConfiguration) second[0];
-        return BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, ((DefaultRevisionEntity)second[1]).getId());
+        return BuildConfigurationAudited
+                .fromBuildConfiguration(buildConfiguration, ((DefaultRevisionEntity) second[1]).getId());
     }
 
     @Test
@@ -197,19 +207,23 @@ public class BasicModelTest extends AbstractModelTest {
                 .md5("md-fake-12345678")
                 .sha1("sha1-fake-12345678")
                 .sha256("sha256-fake-12345678")
-                .filename("importedArtifact.jar").originUrl("http://central/importedArtifact.jar").importDate(Date.from(Instant.now()))
+                .filename("importedArtifact.jar")
+                .originUrl("http://central/importedArtifact.jar")
+                .importDate(Date.from(Instant.now()))
                 .targetRepository(targetRepository)
                 .build();
 
         BuildConfigurationAudited buildConfigAud = findBuildConfigurationAudited(em);
 
-        BuildRecord buildRecord = BuildRecord.Builder.newBuilder().id(2).buildConfigurationAudited(buildConfigAud)
+        BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
+                .id(2)
+                .buildConfigurationAudited(buildConfigAud)
                 .buildLog("Bulid Complete")
                 .buildContentId("foo")
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
                 .endTime(Date.from(Instant.now()))
-                //Add the built artifact and dependency artifact twice
+                // Add the built artifact and dependency artifact twice
                 .dependency(importedArtifact)
                 .dependency(importedArtifact)
                 .user(pncUser)
@@ -239,12 +253,16 @@ public class BasicModelTest extends AbstractModelTest {
                 .md5("md-fake-987654321")
                 .sha1("sha1-fake-987654321")
                 .sha256("sha256-fake-987654321")
-                .filename("artifact1.jar").originUrl("http://central.maven.org/maven2/test.jar").importDate(Date.from(Instant.now()))
+                .filename("artifact1.jar")
+                .originUrl("http://central.maven.org/maven2/test.jar")
+                .importDate(Date.from(Instant.now()))
                 .targetRepository(targetRepository)
                 .build();
         productMilestone1.addDistributedArtifact(artifact);
-        ProductRelease productRelease1 = ProductRelease.Builder.newBuilder().version("1.0.0.Beta1")
-                .productMilestone(productMilestone1).build();
+        ProductRelease productRelease1 = ProductRelease.Builder.newBuilder()
+                .version("1.0.0.Beta1")
+                .productMilestone(productMilestone1)
+                .build();
 
         productRelease1.setProductMilestone(productMilestone1);
 
@@ -276,11 +294,11 @@ public class BasicModelTest extends AbstractModelTest {
         EntityTransaction tx = em.getTransaction();
 
         final String version = "10.1";
-        Product product = Product.Builder.newBuilder().id(1)
-                .build();
+        Product product = Product.Builder.newBuilder().id(1).build();
 
         ProductVersion productVersionOriginal = ProductVersion.Builder.newBuilder()
-                .version(version).product(product)
+                .version(version)
+                .product(product)
                 .generateBrewTagPrefix("TP1", version, "${product_short_name}-${product_version}-pnc")
                 .build();
 
@@ -289,8 +307,9 @@ public class BasicModelTest extends AbstractModelTest {
         tx.commit();
 
         ProductVersion productVersionLoaded = em.find(ProductVersion.class, productVersionOriginal.getId());
-        Assert.assertEquals("tp1-" + version + "-pnc", productVersionLoaded.getAttributes().get(Attributes.BREW_TAG_PREFIX));
-
+        Assert.assertEquals(
+                "tp1-" + version + "-pnc",
+                productVersionLoaded.getAttributes().get(Attributes.BREW_TAG_PREFIX));
 
     }
 }

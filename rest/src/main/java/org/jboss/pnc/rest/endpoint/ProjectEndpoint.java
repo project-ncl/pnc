@@ -65,7 +65,8 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
     }
 
     @GET
-    public Response getAll(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getAll(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q) {
@@ -85,21 +86,21 @@ public class ProjectEndpoint extends AbstractEndpoint<Project, ProjectRest> {
 
     @PUT
     @Path("/{id}")
-    public Response update(@PathParam("id") Integer id,
-            ProjectRest projectRest, @Context UriInfo uriInfo) throws RestValidationException {
+    public Response update(@PathParam("id") Integer id, ProjectRest projectRest, @Context UriInfo uriInfo)
+            throws RestValidationException {
         return super.update(id, projectRest);
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deleteSpecific(@PathParam("id") Integer id)
-            throws RestValidationException {
+    public Response deleteSpecific(@PathParam("id") Integer id) throws RestValidationException {
         return super.delete(id);
     }
 
     @GET
     @Path("/{id}/build-configurations")
-    public Response getBuildConfigurations(@PathParam("id") Integer id,
+    public Response getBuildConfigurations(
+            @PathParam("id") Integer id,
             @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,

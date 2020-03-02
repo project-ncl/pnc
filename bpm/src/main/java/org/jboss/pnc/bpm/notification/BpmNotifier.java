@@ -59,7 +59,7 @@ public class BpmNotifier {
     private BuildResultMapper mapper;
 
     @Deprecated
-    public BpmNotifier() { //CDI workaround
+    public BpmNotifier() { // CDI workaround
     }
 
     @Inject
@@ -87,7 +87,11 @@ public class BpmNotifier {
         HttpPost request = new HttpPost(uri);
 
         List<NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair("event", buildResultRest != null ? buildResultRest.toFullLogString() : "{\"error\", \"" + errMessage + "\"}"));
+        parameters.add(
+                new BasicNameValuePair(
+                        "event",
+                        buildResultRest != null ? buildResultRest.toFullLogString()
+                                : "{\"error\", \"" + errMessage + "\"}"));
 
         UrlEncodedFormEntity entity = new UrlEncodedFormEntity(parameters, StandardCharsets.UTF_8);
         if (entity != null) {
@@ -99,16 +103,19 @@ public class BpmNotifier {
 
         request.addHeader("Authorization", getAuthHeader());
 
-        //get id for logging
+        // get id for logging
         String buildExecutionConfigurationId;
         if (buildResult.getBuildExecutionConfiguration().isPresent()) {
-            BuildExecutionConfiguration buildExecutionConfiguration = buildResult.getBuildExecutionConfiguration().get();
+            BuildExecutionConfiguration buildExecutionConfiguration = buildResult.getBuildExecutionConfiguration()
+                    .get();
             buildExecutionConfigurationId = buildExecutionConfiguration.getId() + "";
         } else {
             buildExecutionConfigurationId = "NO BuildExecutionConfiguration.";
         }
 
-        log.info("Sending buildResult of buildExecutionConfiguration.id " + buildExecutionConfigurationId + ": " + request.getRequestLine());
+        log.info(
+                "Sending buildResult of buildExecutionConfiguration.id " + buildExecutionConfigurationId + ": "
+                        + request.getRequestLine());
 
         try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {

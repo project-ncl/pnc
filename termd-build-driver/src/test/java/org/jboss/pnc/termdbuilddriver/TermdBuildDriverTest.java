@@ -52,13 +52,16 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
     @Test(timeout = 15_000)
     public void shouldFetchFromGitAndBuild() throws Throwable {
-        //given
+        // given
         Path tmpRepo = Files.createTempDirectory("tmpRepo");
         String repoPath = "file://" + tmpRepo.toAbsolutePath().toString() + "/test-repo";
         ZipUtils.unzipToDir(tmpRepo, "/repo.zip");
         String dirName = "test-repo-cloned";
 
-        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, new DefaultClientFactory());
+        TermdBuildDriver driver = new TermdBuildDriver(
+                systemConfig,
+                buildDriverModuleConfig,
+                new DefaultClientFactory());
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn(repoPath).when(buildExecutionConfiguration).getScmRepoURL();
@@ -82,12 +85,15 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
             fail(throwable.getMessage());
         };
 
-        //when
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError); //TODO set monitor before the build starts
+        // when
+        RunningBuild runningBuild = driver
+                .startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError); // TODO set monitor
+                                                                                                  // before the build
+                                                                                                  // starts
 
         logger.info("Waiting for build to complete...");
         latch.await();
-        //then
+        // then
         assertThat(buildResult.get().getBuildResult()).isNotNull();
         assertThat(buildResult.get().getBuildResult().getBuildLog()).isNotEmpty();
         assertThat(Files.exists(localEnvironmentPointer.getWorkingDirectory())).isTrue();
@@ -95,22 +101,27 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
     }
 
     @Test(timeout = 5_000)
-    public void shouldStartAndCancelTheExecutionImmediately() throws ConfigurationParseException, BuildDriverException, InterruptedException {
-        //given
+    public void shouldStartAndCancelTheExecutionImmediately()
+            throws ConfigurationParseException, BuildDriverException, InterruptedException {
+        // given
         String dirName = "test-workdir";
         String logStart = "Running the command...";
         String logEnd = "Command completed.";
 
-        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, new DefaultClientFactory());
+        TermdBuildDriver driver = new TermdBuildDriver(
+                systemConfig,
+                buildDriverModuleConfig,
+                new DefaultClientFactory());
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
-        doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration).getBuildScript();
+        doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration)
+                .getBuildScript();
         doReturn(dirName).when(buildExecutionConfiguration).getName();
         doReturn(buildExecutionConfiguration).when(buildExecution).getBuildExecutionConfiguration();
 
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
-        //when
+        // when
         CountDownLatch latch = new CountDownLatch(1);
         Consumer<CompletedBuild> onComplete = (completedBuild) -> {
             buildResult.set(completedBuild);
@@ -120,19 +131,21 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
             logger.error("Error received: ", throwable);
             fail(throwable.getMessage());
         };
-        RunningBuild runningBuild = driver.startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError);
+        RunningBuild runningBuild = driver
+                .startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError);
         runningBuild.cancel();
 
         latch.await();
 
-        //then
+        // then
         assertThat(buildResult.get().getBuildResult().getBuildLog()).doesNotContain(logEnd);
         assertThat(buildResult.get().getBuildResult().getBuildStatus()).isEqualTo(CANCELLED);
     }
 
     @Test(timeout = 5_000)
-    public void shouldStartAndCancelWhileExecutingCommand() throws ConfigurationParseException, BuildDriverException, InterruptedException {
-        //given
+    public void shouldStartAndCancelWhileExecutingCommand()
+            throws ConfigurationParseException, BuildDriverException, InterruptedException {
+        // given
         String dirName = "test-workdir";
         String logStart = "Running the command...";
         String logEnd = "Command completed.";
@@ -140,7 +153,10 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         CountDownLatch latchCompleted = new CountDownLatch(1);
         CountDownLatch latchRunning = new CountDownLatch(1);
 
-        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, new DefaultClientFactory());
+        TermdBuildDriver driver = new TermdBuildDriver(
+                systemConfig,
+                buildDriverModuleConfig,
+                new DefaultClientFactory());
         Consumer<Status> cancelOnBuildStart = (status) -> {
             try {
                 Thread.sleep(200);
@@ -153,13 +169,14 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         };
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
-        doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration).getBuildScript();
+        doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration)
+                .getBuildScript();
         doReturn(dirName).when(buildExecutionConfiguration).getName();
         doReturn(buildExecutionConfiguration).when(buildExecution).getBuildExecutionConfiguration();
 
         AtomicReference<CompletedBuild> buildResult = new AtomicReference<>();
 
-        //when
+        // when
         Consumer<CompletedBuild> onComplete = (completedBuild) -> {
             buildResult.set(completedBuild);
             latchCompleted.countDown();
@@ -180,7 +197,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
         latchCompleted.await();
 
-        //then
+        // then
         assertThat(buildResult.get().getBuildResult()).isNotNull();
         assertThat(buildResult.get().getBuildResult().getBuildLog()).contains("sh " + getWorkingDirectory());
         assertThat(buildResult.get().getBuildResult().getBuildLog()).doesNotContain(logEnd);

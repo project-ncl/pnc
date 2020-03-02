@@ -63,19 +63,21 @@ class RemoteInvocation implements Closeable {
         Consumer<TaskStatusUpdateEvent> onStatusUpdateInternal = (event) -> {
             final org.jboss.pnc.buildagent.api.Status newStatus;
             if (isCanceled() && event.getNewStatus().equals(FAILED)) {
-                newStatus = INTERRUPTED; //TODO fix returned status and remove this workaround
+                newStatus = INTERRUPTED; // TODO fix returned status and remove this workaround
             } else {
                 newStatus = event.getNewStatus();
             }
             logger.debug("Driver received new status update {}.", newStatus);
             onStatusUpdate.ifPresent(c -> c.accept(newStatus));
             if (newStatus.isFinal()) {
-                completionNotifier.complete(new RemoteInvocationCompletion(newStatus, Optional.ofNullable(event.getOutputChecksum())));
+                completionNotifier.complete(
+                        new RemoteInvocationCompletion(newStatus, Optional.ofNullable(event.getOutputChecksum())));
             }
         };
 
         try {
-            buildAgentClient = buildAgentClientFactory.createBuildAgentClient(terminalUrl, MDCWrappers.wrap(onStatusUpdateInternal));
+            buildAgentClient = buildAgentClientFactory
+                    .createBuildAgentClient(terminalUrl, MDCWrappers.wrap(onStatusUpdateInternal));
         } catch (TimeoutException | BuildAgentClientException | InterruptedException e) {
             throw new BuildDriverException("Cannot create Build Agent Client.", e);
         }
@@ -132,12 +134,12 @@ class RemoteInvocation implements Closeable {
             logger.debug("Closing build agent client.");
             try {
                 buildAgentClient.close();
-                buildAgentClient = null; //make sure there is no reference left
+                buildAgentClient = null; // make sure there is no reference left
             } catch (IOException e) {
                 logger.error("Cannot close buildAgentClient.", e);
             }
         } else {
-            //cancel has been requested
+            // cancel has been requested
             logger.debug("There is no buildAgentClient probably cancel has been requested.");
         }
         closeListeners.forEach(Runnable::run);

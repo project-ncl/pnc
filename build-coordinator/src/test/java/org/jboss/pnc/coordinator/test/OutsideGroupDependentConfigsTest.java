@@ -45,9 +45,7 @@ import static org.mockito.Mockito.when;
  * config1 is an "outside" dependency of configA
  *
  * <p>
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 9/14/16
- * Time: 12:09 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/14/16 Time: 12:09 PM
  * </p>
  */
 public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest {
@@ -69,7 +67,8 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
         configSet = configSet(configA, configB, configC);
 
         buildConfigurationRepository = spy(new BuildConfigurationRepositoryMock());
-        when(buildConfigurationRepository.queryWithPredicates(any())).thenReturn(new ArrayList<>(configSet.getBuildConfigurations()));
+        when(buildConfigurationRepository.queryWithPredicates(any()))
+                .thenReturn(new ArrayList<>(configSet.getBuildConfigurations()));
 
         super.initialize();
 
@@ -81,7 +80,8 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
     }
 
     @Test
-    public void shouldNotRebuildIfDependencyIsNotRebuilt() throws CoreException, TimeoutException, InterruptedException {
+    public void shouldNotRebuildIfDependencyIsNotRebuilt()
+            throws CoreException, TimeoutException, InterruptedException {
         build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
         waitForEmptyBuildQueue();
         List<BuildConfiguration> configsWithTasks = getBuiltConfigs();

@@ -29,5 +29,6 @@ import javax.inject.Qualifier;
  */
 @Qualifier
 @Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = {ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
-public @interface AuthProvider {}
+@Target(value = { ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE })
+public @interface AuthProvider {
+}

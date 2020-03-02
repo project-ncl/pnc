@@ -34,12 +34,12 @@ public class LocalSearch {
         this.items = items;
     }
 
-    public ObjectNode exactMatchOne(String value, String ... attrs) {
+    public ObjectNode exactMatchOne(String value, String... attrs) {
 
         List<ObjectNode> matched = new LinkedList<>();
 
-        for (ObjectNode item: items) {
-            for (String attr: attrs) {
+        for (ObjectNode item : items) {
+            for (String attr : attrs) {
                 JsonNode node = item.get(attr);
                 if (node != null && node.asText().equals(value)) {
                     matched.add(item);

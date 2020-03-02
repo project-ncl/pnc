@@ -60,14 +60,20 @@ public abstract class AbstractRestClient<T> {
     }
 
     protected AbstractRestClient(String collectionUrl, Class<T> entityClass, boolean withAuth) {
-        this(collectionUrl, entityClass, ConnectionInfo.builder().port(getHttpPort()).basicAuth(new ConnectionInfo.BasicAuth("admin", "user.1234")).build());
+        this(
+                collectionUrl,
+                entityClass,
+                ConnectionInfo.builder()
+                        .port(getHttpPort())
+                        .basicAuth(new ConnectionInfo.BasicAuth("admin", "user.1234"))
+                        .build());
     }
 
     protected AbstractRestClient(String collectionUrl, Class<T> entityClass, ConnectionInfo connectionInfo) {
         this.entityClass = entityClass;
         restClient = new RestClient(connectionInfo);
 
-        if(collectionUrl.endsWith("/")) {
+        if (collectionUrl.endsWith("/")) {
             this.collectionUrl = collectionUrl;
         } else {
             this.collectionUrl = collectionUrl + "/";
@@ -113,7 +119,7 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<T> firstNotNull(boolean withValidation) {
         Response response = restClient.get(collectionUrl);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(200);
         }
 
@@ -121,7 +127,7 @@ public abstract class AbstractRestClient<T> {
         try {
             object = response.then().extract().body().jsonPath().getObject("content[0]", entityClass);
         } catch (Exception e) {
-            if(withValidation) {
+            if (withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
             }
         }
@@ -132,7 +138,7 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<T> post(String path, Object body, boolean withValidation) {
         Response response = getRestClient().post(path, body);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(200);
         }
 
@@ -140,14 +146,13 @@ public abstract class AbstractRestClient<T> {
         try {
             object = response.then().extract().body().jsonPath().getObject("", entityClass);
         } catch (Exception e) {
-            if(withValidation) {
+            if (withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
             }
         }
 
         return new RestResponse(response, object);
     }
-
 
     public RestResponse<T> firstNotNull() {
         return firstNotNull(true);
@@ -156,7 +161,7 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<T> get(int id, boolean withValidation) {
         Response response = restClient.get(collectionUrl + id);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(200);
         }
 
@@ -164,7 +169,7 @@ public abstract class AbstractRestClient<T> {
         try {
             object = response.jsonPath().getObject(CONTENT, entityClass);
         } catch (Exception e) {
-            if(withValidation) {
+            if (withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
             }
         }
@@ -179,7 +184,7 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<T> createNew(T obj, boolean withValidation) {
         Response response = restClient.post(collectionUrl, obj);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(201);
         }
 
@@ -187,7 +192,7 @@ public abstract class AbstractRestClient<T> {
         try {
             object = response.thenReturn().jsonPath().getObject(CONTENT, entityClass);
         } catch (Exception e) {
-            if(withValidation) {
+            if (withValidation) {
                 throw new AssertionError("JSON unmarshalling error", e);
             }
         }
@@ -201,7 +206,7 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<T> update(int id, T obj, boolean withValidation) {
         Response response = restClient.put(collectionUrl + id, obj);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(200);
         }
 
@@ -215,7 +220,7 @@ public abstract class AbstractRestClient<T> {
     public RestResponse<T> delete(int id, boolean withValidation) {
         Response response = restClient.delete(collectionUrl + id);
 
-        if(withValidation) {
+        if (withValidation) {
             response.then().statusCode(200);
         }
 
@@ -234,25 +239,34 @@ public abstract class AbstractRestClient<T> {
         return all(true, 0, 50, null, null);
     }
 
-    protected final <U> RestResponse<List<U>> all (Class<U> type, String url, boolean withValidation, int pageIndex, int pageSize, String rsql, String sort) {
+    protected final <U> RestResponse<List<U>> all(
+            Class<U> type,
+            String url,
+            boolean withValidation,
+            int pageIndex,
+            int pageSize,
+            String rsql,
+            String sort) {
         QueryParam rsqlQueryParam = null;
         QueryParam sortQueryParam = null;
-        if(rsql != null) {
+        if (rsql != null) {
             rsqlQueryParam = new QueryParam("q", rsql);
         }
-        if(sort != null) {
+        if (sort != null) {
             sortQueryParam = new QueryParam("sort", sort);
         }
         QueryParam pageIndexQueryParam = new QueryParam("pageIndex", Integer.toString(pageIndex));
         QueryParam pageSizeQueryParam = new QueryParam("pageSize", "" + Integer.toString(pageSize));
-        Response response = restClient.get(url, rsqlQueryParam, sortQueryParam, pageIndexQueryParam, pageSizeQueryParam);
+        Response response = restClient
+                .get(url, rsqlQueryParam, sortQueryParam, pageIndexQueryParam, pageSizeQueryParam);
 
         logger.info("response {} ", response.prettyPrint());
 
         List<U> object = new ArrayList<>();
         String responseBody = response.getBody().asString();
 
-        // Response body may be null, if the query did not return any result! This would need to deliver a response with 204
+        // Response body may be null, if the query did not return any result! This would need to deliver a response with
+        // 204
         // status, with no errors
         if (responseBody != null && !responseBody.isEmpty()) {
             try {

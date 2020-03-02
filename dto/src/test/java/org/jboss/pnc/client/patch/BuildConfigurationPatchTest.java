@@ -45,10 +45,7 @@ public class BuildConfigurationPatchTest {
 
     @Test
     public void shouldReplaceSimpleValue() throws PatchBuilderException, IOException, JsonPatchException {
-        BuildConfiguration buildConfiguration = BuildConfiguration.builder()
-                .id("1")
-                .description("Hello Tom!")
-                .build();
+        BuildConfiguration buildConfiguration = BuildConfiguration.builder().id("1").description("Hello Tom!").build();
 
         String newDescription = "Hi Jerry";
         String patchString = new BuildConfigurationPatchBuilder().replaceDescription(newDescription).getJsonPatch();
@@ -59,22 +56,15 @@ public class BuildConfigurationPatchTest {
 
     @Test
     public void shouldReplaceRef() throws PatchBuilderException, IOException, JsonPatchException {
-        ProjectRef project = ProjectRef.refBuilder()
-                .id("1")
-                .name("Project 1")
-                .build();
-        ProjectRef newProject = ProjectRef.refBuilder()
-                .id("2")
-                .name("Project 2")
-                .build();
+        ProjectRef project = ProjectRef.refBuilder().id("1").name("Project 1").build();
+        ProjectRef newProject = ProjectRef.refBuilder().id("2").name("Project 2").build();
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
                 .id("1")
                 .name("BC 1")
                 .project(project)
                 .build();
 
-        String patchString = new BuildConfigurationPatchBuilder()
-                .replaceProject(newProject)
+        String patchString = new BuildConfigurationPatchBuilder().replaceProject(newProject)
                 .replaceName("Build Configuration 1")
                 .getJsonPatch();
         BuildConfiguration updatedBuildConfiguration = applyPatch(buildConfiguration, patchString);
@@ -92,13 +82,12 @@ public class BuildConfigurationPatchTest {
                 .build();
 
         Map<String, String> addParameters = Collections.singletonMap("k2", "v2");
-        String patchString = new BuildConfigurationPatchBuilder()
-            .addParameters(addParameters)
-            .getJsonPatch();
+        String patchString = new BuildConfigurationPatchBuilder().addParameters(addParameters).getJsonPatch();
         BuildConfiguration updatedBuildConfiguration = applyPatch(buildConfiguration, patchString);
 
         genericParameters.putAll(addParameters);
-        Assertions.assertThat(updatedBuildConfiguration.getParameters()).contains(genericParameters.entrySet().toArray(new Map.Entry[2]));
+        Assertions.assertThat(updatedBuildConfiguration.getParameters())
+                .contains(genericParameters.entrySet().toArray(new Map.Entry[2]));
     }
 
     @Test
@@ -107,21 +96,17 @@ public class BuildConfigurationPatchTest {
         BuildConfigurationRef dependency1 = BuildConfigurationRef.refBuilder().id("1").build();
         dependencies.put(dependency1.getId(), dependency1);
 
-        BuildConfiguration buildConfiguration = BuildConfiguration.builder()
-                .id("1")
-                .dependencies(dependencies)
-                .build();
+        BuildConfiguration buildConfiguration = BuildConfiguration.builder().id("1").dependencies(dependencies).build();
 
         Map<String, BuildConfigurationRef> addDependencies = new HashMap<>();
         BuildConfigurationRef dependency2 = BuildConfigurationRef.refBuilder().id("2").build();
         addDependencies.put(dependency2.getId(), dependency2);
-        String patchString = new BuildConfigurationPatchBuilder()
-            .addDependencies(addDependencies)
-            .getJsonPatch();
+        String patchString = new BuildConfigurationPatchBuilder().addDependencies(addDependencies).getJsonPatch();
         BuildConfiguration updatedBuildConfiguration = applyPatch(buildConfiguration, patchString);
 
         dependencies.putAll(addDependencies);
-        Assertions.assertThat(updatedBuildConfiguration.getDependencies()).containsKeys(dependency1.getId(), dependency2.getId());
+        Assertions.assertThat(updatedBuildConfiguration.getDependencies())
+                .containsKeys(dependency1.getId(), dependency2.getId());
     }
 
     @Test
@@ -134,18 +119,13 @@ public class BuildConfigurationPatchTest {
         Map<String, BuildConfigurationRef> dependencies = new HashMap<>();
         dependencies.put(dependency1.getId(), dependency1);
         dependencies.put(dependency2.getId(), dependency2);
-        BuildConfiguration buildConfiguration = BuildConfiguration.builder()
-                .id("1")
-                .dependencies(dependencies)
-                .build();
+        BuildConfiguration buildConfiguration = BuildConfiguration.builder().id("1").dependencies(dependencies).build();
 
         Map<String, BuildConfigurationRef> newDependencies = new HashMap<>();
         newDependencies.put(dependency2a.getId(), dependency2a);
         newDependencies.put(dependency3.getId(), dependency3);
         newDependencies.put(dependency4.getId(), dependency4);
-        String patchString = new BuildConfigurationPatchBuilder()
-            .replaceDependencies(newDependencies)
-            .getJsonPatch();
+        String patchString = new BuildConfigurationPatchBuilder().replaceDependencies(newDependencies).getJsonPatch();
         BuildConfiguration updatedBuildConfiguration = applyPatch(buildConfiguration, patchString);
 
         Assertions.assertThat(updatedBuildConfiguration.getDependencies())

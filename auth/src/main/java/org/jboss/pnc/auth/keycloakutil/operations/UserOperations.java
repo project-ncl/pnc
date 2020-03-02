@@ -43,8 +43,17 @@ public class UserOperations {
         doPostJSON(resourceUrl, auth, roles);
     }
 
-    public static void addClientRoles(String rootUrl, String realm, String auth, String userid, String idOfClient, List<?> roles) {
-        String resourceUrl = composeResourceUrl(rootUrl, realm, "users/" + userid + "/role-mappings/clients/" + idOfClient);
+    public static void addClientRoles(
+            String rootUrl,
+            String realm,
+            String auth,
+            String userid,
+            String idOfClient,
+            List<?> roles) {
+        String resourceUrl = composeResourceUrl(
+                rootUrl,
+                realm,
+                "users/" + userid + "/role-mappings/clients/" + idOfClient);
         doPostJSON(resourceUrl, auth, roles);
     }
 
@@ -53,12 +62,27 @@ public class UserOperations {
         doDeleteJSON(resourceUrl, auth, roles);
     }
 
-    public static void removeClientRoles(String rootUrl, String realm, String auth, String userid, String idOfClient, List<?> roles) {
-        String resourceUrl = composeResourceUrl(rootUrl, realm, "users/" + userid + "/role-mappings/clients/" + idOfClient);
+    public static void removeClientRoles(
+            String rootUrl,
+            String realm,
+            String auth,
+            String userid,
+            String idOfClient,
+            List<?> roles) {
+        String resourceUrl = composeResourceUrl(
+                rootUrl,
+                realm,
+                "users/" + userid + "/role-mappings/clients/" + idOfClient);
         doDeleteJSON(resourceUrl, auth, roles);
     }
 
-    public static void resetUserPassword(String rootUrl, String realm, String auth, String userid, String password, boolean temporary) {
+    public static void resetUserPassword(
+            String rootUrl,
+            String realm,
+            String auth,
+            String userid,
+            String password,
+            boolean temporary) {
 
         String resourceUrl = composeResourceUrl(rootUrl, realm, "users/" + userid + "/reset-password");
 

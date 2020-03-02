@@ -74,7 +74,8 @@ public class ArtifactEndpointTest {
 
     @Before
     public void setTargetRepository() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.NONE));
+        ArtifactClient client = new ArtifactClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.NONE));
 
         List<Artifact> artifacts = new ArrayList<>();
         for (Artifact artifact : client.getAll(null, null, null)) {
@@ -104,9 +105,8 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> artifacts = client.getAll(null, artifactRest1.getMd5(), null);
 
-        //artifacts 1 and 2 have same MD5
-        assertThat(artifacts)
-                .hasSize(2)
+        // artifacts 1 and 2 have same MD5
+        assertThat(artifacts).hasSize(2)
                 .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest1.getId(), artifactRest2.getId()));
     }
 
@@ -116,9 +116,8 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> artifacts = client.getAll(null, null, artifactRest2.getSha1());
 
-        //artifacts 2 and 3 have same SHA1
-        assertThat(artifacts)
-                .hasSize(2)
+        // artifacts 2 and 3 have same SHA1
+        assertThat(artifacts).hasSize(2)
                 .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest2.getId(), artifactRest4.getId()));
     }
 
@@ -128,9 +127,8 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> artifacts = client.getAll(artifactRest1.getSha256(), null, null);
 
-        //artifacts 1 and 3 have same SHA256
-        assertThat(artifacts)
-                .hasSize(2)
+        // artifacts 1 and 3 have same SHA256
+        assertThat(artifacts).hasSize(2)
                 .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest1.getId(), artifactRest4.getId()));
     }
 
@@ -141,9 +139,7 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> artifacts = client.getAll(null, artifactRest2.getMd5(), artifactRest2.getSha1());
 
-        assertThat(artifacts)
-                .hasSize(1)
-                .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest2.getId()));
+        assertThat(artifacts).hasSize(1).allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest2.getId()));
     }
 
     @Test
@@ -152,9 +148,7 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> artifacts = client.getAll(artifactRest1.getSha256(), artifactRest1.getMd5(), null);
 
-        assertThat(artifacts)
-                .hasSize(1)
-                .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest1.getId()));
+        assertThat(artifacts).hasSize(1).allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest1.getId()));
     }
 
     @Test
@@ -163,9 +157,7 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> artifacts = client.getAll(artifactRest4.getSha256(), null, artifactRest4.getSha1());
 
-        assertThat(artifacts)
-                .hasSize(1)
-                .allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest4.getId()));
+        assertThat(artifacts).hasSize(1).allSatisfy(a -> assertThat(a.getId()).isIn(artifactRest4.getId()));
     }
 
     @Test
@@ -179,7 +171,8 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldFailToSaveArtifact() {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        ArtifactClient client = new ArtifactClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
         Artifact artifact = Artifact.builder()
                 .filename("builtArtifactInsert.jar")
                 .identifier("integration-test:built-artifact-insert:jar:1.0")
@@ -212,7 +205,8 @@ public class ArtifactEndpointTest {
                 .size(10L)
                 .build();
 
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
+        ArtifactClient client = new ArtifactClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
 
         Artifact inserted = client.create(artifact);
         String id = inserted.getId();
@@ -230,7 +224,6 @@ public class ArtifactEndpointTest {
         Assertions.assertThat(updated.getArtifactQuality()).isEqualTo(ArtifactQuality.TESTED);
     }
 
-
     @Test
     public void shouldUpdateArtifact() throws ClientException {
         String id = artifactRest1.getId();
@@ -240,7 +233,6 @@ public class ArtifactEndpointTest {
         final long size = artifact.getSize() + 10;
         Artifact updatedArtifact = artifact.toBuilder().size(size).build();
         client.update(id, updatedArtifact);
-
 
         Artifact artifact2 = client.getSpecific(id);
         assertThat(artifact2.getSize()).isEqualTo(size);
@@ -253,12 +245,12 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetBuildsThatDependsOnArtifact() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        ArtifactClient client = new ArtifactClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
 
         RemoteCollection<Build> builds = client.getDependantBuilds(artifactRest3.getId());
 
-        assertThat(builds)
-                .hasSize(2);
+        assertThat(builds).hasSize(2);
     }
 
     @Test
@@ -266,12 +258,10 @@ public class ArtifactEndpointTest {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
         RemoteCollection<MilestoneInfo> milestonesInfo = client.getMilestonesInfo(artifactRest3.getId());
-        assertThat(milestonesInfo).hasSize(1)
-                .first().extracting(MilestoneInfo::isBuilt).isEqualTo(false);
+        assertThat(milestonesInfo).hasSize(1).first().extracting(MilestoneInfo::isBuilt).isEqualTo(false);
 
         RemoteCollection<MilestoneInfo> milestonesInfo2 = client.getMilestonesInfo(artifactRest1.getId());
-        ObjectAssert<MilestoneInfo> milestone = assertThat(milestonesInfo2).hasSize(1)
-                .first();
+        ObjectAssert<MilestoneInfo> milestone = assertThat(milestonesInfo2).hasSize(1).first();
         milestone.extracting(MilestoneInfo::isBuilt).isEqualTo(true);
         milestone.extracting(MilestoneInfo::getProductName).isEqualTo("Project Newcastle Demo Product");
         milestone.extracting(MilestoneInfo::getMilestoneVersion).isEqualTo("1.0.0.Build1");

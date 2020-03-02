@@ -26,8 +26,7 @@ import java.util.List;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class BuildRecordPushResultRepositoryMock
-        extends RepositoryMock<BuildRecordPushResult>
+public class BuildRecordPushResultRepositoryMock extends RepositoryMock<BuildRecordPushResult>
         implements BuildRecordPushResultRepository {
 
     @Override

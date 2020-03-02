@@ -45,10 +45,9 @@ public class WebsocketListener {
         OptionMap optionMap = OptionMap.EMPTY;
 
         ByteBufferPool byteBufferSlicePool = new DefaultByteBufferPool(true, 1024);
-        IoFuture<WebSocketChannel> ioFuture = WebSocketClient.connectionBuilder(
-                Xnio.getInstance().createWorker(optionMap),
-                byteBufferSlicePool,
-                uri).connect();
+        IoFuture<WebSocketChannel> ioFuture = WebSocketClient
+                .connectionBuilder(Xnio.getInstance().createWorker(optionMap), byteBufferSlicePool, uri)
+                .connect();
 
         WebSocketChannel webSocketChannel = ioFuture.get();
         webSocketChannel.getReceiveSetter().set(new AbstractReceiveListener() {
@@ -60,7 +59,8 @@ public class WebsocketListener {
             }
 
             @Override
-            protected void onFullBinaryMessage(WebSocketChannel channel, BufferedBinaryMessage message) throws IOException {
+            protected void onFullBinaryMessage(WebSocketChannel channel, BufferedBinaryMessage message)
+                    throws IOException {
                 logger.debug("Received binary WS message {}.", message.getData());
             }
         });

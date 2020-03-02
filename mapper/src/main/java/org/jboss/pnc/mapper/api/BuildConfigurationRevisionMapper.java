@@ -29,7 +29,10 @@ import org.mapstruct.Mapping;
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = {ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class}, imports = IdRev.class)
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class },
+        imports = IdRev.class)
 public interface BuildConfigurationRevisionMapper {
 
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
@@ -38,7 +41,7 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "project", resultType = ProjectRef.class)
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @Mapping(target = "parameters", source = "genericParameters")
-    @BeanMapping(ignoreUnmappedSourceProperties = {"idRev", "buildRecords", "buildConfiguration"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "buildRecords", "buildConfiguration" })
     BuildConfigurationRevision toDTO(BuildConfigurationAudited dbEntity);
 
     default BuildConfigurationAudited toIDEntity(BuildConfigurationRevisionRef dtoEntity) {
@@ -53,7 +56,9 @@ public interface BuildConfigurationRevisionMapper {
 
     @Mapping(target = "repositoryConfiguration", source = "scmRepository", qualifiedBy = IdEntity.class)
     @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
-    @Mapping(target = "idRev", expression = "java( new IdRev( Integer.valueOf(dtoEntity.getId()), dtoEntity.getRev() ) )")
+    @Mapping(
+            target = "idRev",
+            expression = "java( new IdRev( Integer.valueOf(dtoEntity.getId()), dtoEntity.getRev() ) )")
     @Mapping(target = "buildConfiguration", ignore = true)
     @Mapping(target = "lastModificationTime", source = "modificationTime")
     @Mapping(target = "genericParameters", source = "parameters")
@@ -61,8 +66,8 @@ public interface BuildConfigurationRevisionMapper {
 
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
-    @BeanMapping(ignoreUnmappedSourceProperties = {"idRev", "buildRecords", "buildConfiguration",
-        "repositoryConfiguration", "buildEnvironment", "project", "genericParameters"
-    })
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "idRev", "buildRecords", "buildConfiguration", "repositoryConfiguration",
+                    "buildEnvironment", "project", "genericParameters" })
     BuildConfigurationRevisionRef toRef(BuildConfigurationAudited dbEntity);
 }

@@ -45,19 +45,17 @@ public class BuildExecutorDeployments {
 
     public enum Options {
 
-        ENV_DRIVER_WITH_FAILED_CONTAINER_INITIALIZATION (() -> {
+        ENV_DRIVER_WITH_FAILED_CONTAINER_INITIALIZATION(() -> {
             return ShrinkWrap.create(JavaArchive.class)
                     .addClass(EnvironmentDriverWithFailedContainerInitializationMock.class);
         }),
 
-        BLOCKED_ENV_DRIVER (() -> {
-            return ShrinkWrap.create(JavaArchive.class)
-                    .addClass(BlockedBuildDriverMock.class);
+        BLOCKED_ENV_DRIVER(() -> {
+            return ShrinkWrap.create(JavaArchive.class).addClass(BlockedBuildDriverMock.class);
         }),
 
-        BLOCKED_BUILD_DRIVER (() -> {
-            return ShrinkWrap.create(JavaArchive.class)
-                    .addClass(BlockedBuildDriverMock.class);
+        BLOCKED_BUILD_DRIVER(() -> {
+            return ShrinkWrap.create(JavaArchive.class).addClass(BlockedBuildDriverMock.class);
         });
 
         Supplier<Archive> archiveSupplier;

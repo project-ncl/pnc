@@ -51,7 +51,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
 
     BuildRecordRepository buildRecordRepository;
 
-    @Deprecated //CDI workaround
+    @Deprecated // CDI workaround
     public BuildConfigurationAuditedRepositoryImpl() {
     }
 
@@ -85,7 +85,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
                 .addOrder(AuditEntity.revisionNumber().desc())
                 .setMaxResults(1)
                 .getSingleResult();
-        if(result == null){
+        if (result == null) {
             return null;
         }
 
@@ -97,8 +97,8 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
         BuildConfiguration buildConfiguration = (BuildConfiguration) entity;
         DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) revision;
 
-        //preload generic parameters
-        buildConfiguration.getGenericParameters().forEach((k,v) -> k.equals(null));
+        // preload generic parameters
+        buildConfiguration.getGenericParameters().forEach((k, v) -> k.equals(null));
 
         return BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, revisionEntity.getId());
     }
@@ -113,13 +113,10 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
             return null;
         }
 
-        //preload generic parameters
-        buildConfiguration.getGenericParameters().forEach((k,v) -> k.equals(null));
+        // preload generic parameters
+        buildConfiguration.getGenericParameters().forEach((k, v) -> k.equals(null));
 
-        return BuildConfigurationAudited.fromBuildConfiguration(
-                buildConfiguration,
-                idRev.getRev()
-        );
+        return BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, idRev.getRev());
     }
 
     @Override
@@ -127,12 +124,13 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
         logger.trace("Querying for BuildConfigurationAudited.idRevs: {}.", idRevs);
 
         List<String> idRevConcatenated = idRevs.stream()
-                .map(idRev -> idRev.getId() + "-" + idRev.getRev()).collect(Collectors.toList());
+                .map(idRev -> idRev.getId() + "-" + idRev.getRev())
+                .collect(Collectors.toList());
 
-        // WORKAROUND: as I cannot concatenate AuditEntity property to match `AuditEntity.property("id")-AuditEntity.property("rev")` in idRevConcatenated list
+        // WORKAROUND: as I cannot concatenate AuditEntity property to match
+        // `AuditEntity.property("id")-AuditEntity.property("rev")` in idRevConcatenated list
         // I can query all BuildConfigurationAudited with the only id and later on filter id and rev
-        List<Integer> bcaRevIds= idRevs.stream()
-                .map(idRev -> idRev.getRev()).collect(Collectors.toList());
+        List<Integer> bcaRevIds = idRevs.stream().map(idRev -> idRev.getRev()).collect(Collectors.toList());
         // Getting all revisions of BuildConfiguration with specified list of IDs
         List<Object[]> result = AuditReaderFactory.get(entityManager)
                 .createQuery()
@@ -145,17 +143,14 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
             BuildConfiguration buildConfiguration = (BuildConfiguration) res[0];
             DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) res[1];
             return idRevConcatenated.contains(buildConfiguration.getId() + "-" + revisionEntity.getId());
-        }).peek (res -> {
+        }).peek(res -> {
             BuildConfiguration buildConfiguration = (BuildConfiguration) res[0];
-            //preload generic parameters
-            buildConfiguration.getGenericParameters().forEach((k,v) -> k.equals(null));
-        })
-        .map(res -> {
+            // preload generic parameters
+            buildConfiguration.getGenericParameters().forEach((k, v) -> k.equals(null));
+        }).map(res -> {
             BuildConfiguration buildConfiguration = (BuildConfiguration) res[0];
             DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) res[1];
-            return BuildConfigurationAudited.fromBuildConfiguration(
-                    buildConfiguration,
-                    revisionEntity.getId());
+            return BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, revisionEntity.getId());
         }).collect(Collectors.toMap(BuildConfigurationAudited::getIdRev, bca -> bca));
     }
 
@@ -169,9 +164,9 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
         Root<BuildRecord> root = query.from(BuildRecord.class);
         query.select(root.get(BuildRecord_.id));
         query.where(
-            cb.and( cb.equal(root.get(BuildRecord_.buildConfigurationId), idRev.getId()),
-                    cb.equal(root.get(BuildRecord_.buildConfigurationRev), idRev.getRev()))
-        );
+                cb.and(
+                        cb.equal(root.get(BuildRecord_.buildConfigurationId), idRev.getId()),
+                        cb.equal(root.get(BuildRecord_.buildConfigurationRev), idRev.getRev())));
         List<Integer> buildRecordIds = entityManager.createQuery(query).getResultList();
         return buildRecordIds.stream()
                 .map(id -> BuildRecord.Builder.newBuilder().id(id).build())

@@ -55,8 +55,10 @@ public class UserEndpointTest {
     @Test
     public void testGetAllBuilds() throws ClientException {
 
-        UserClient client = new UserClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
-        BuildClient buildClient = new BuildClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.NONE));
+        UserClient client = new UserClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        BuildClient buildClient = new BuildClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.NONE));
 
         BuildsFilterParameters params = new BuildsFilterParameters();
         params.setLatest(false);
@@ -69,15 +71,15 @@ public class UserEndpointTest {
         RemoteCollection<Build> builds = client.getBuilds(user.getId(), params);
 
         assertThat(builds).isNotNull();
-        assertThat(builds.size())
-                .isGreaterThanOrEqualTo(1);
+        assertThat(builds.size()).isGreaterThanOrEqualTo(1);
     }
 
     @Test
     public void testGetUser() throws ClientException {
 
         // when
-        UserClient client = new UserClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        UserClient client = new UserClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
         User user = client.getCurrentUser();
 
         // then
@@ -86,7 +88,8 @@ public class UserEndpointTest {
         assertThat(user.getId()).isNotNull();
 
         // when
-        client = new UserClient(RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
+        client = new UserClient(
+                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
         user = client.getCurrentUser();
 
         // then

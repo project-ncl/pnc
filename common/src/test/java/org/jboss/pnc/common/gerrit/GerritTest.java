@@ -112,7 +112,6 @@ public class GerritTest {
         gerrit.generateGerritGitwebLogUrl("", "master");
     }
 
-
     @Test
     public void gerritGitwebCommitUrlShouldHandleHttpCloneLink() throws GerritException {
 

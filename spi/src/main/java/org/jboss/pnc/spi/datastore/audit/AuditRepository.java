@@ -31,6 +31,7 @@ public interface AuditRepository<Entity extends GenericEntity<ID>, ID extends Nu
 
     /**
      * Gets all revisions for audited entity.
+     * 
      * @return A list of all revisions of this entity
      */
     List<Revision<Entity, ID>> getAllRevisions();

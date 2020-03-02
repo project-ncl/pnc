@@ -29,14 +29,14 @@ public class SessionBasedAttachedClientTest {
 
     @Test
     public void shouldTwoInstancesCreatedTheSameWayBeEqual() throws Exception {
-        //given
+        // given
         Session session = mock(Session.class);
         Notifier notifier = mock(Notifier.class);
 
         SessionBasedAttachedClient client1 = new SessionBasedAttachedClient(session, notifier);
         SessionBasedAttachedClient client2 = new SessionBasedAttachedClient(session, notifier);
 
-        //when//then
+        // when//then
         assertEquals(client1, client2);
     }
 

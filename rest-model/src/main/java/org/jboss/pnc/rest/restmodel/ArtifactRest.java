@@ -46,10 +46,9 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     @Null(groups = WhenCreatingNew.class)
     private Integer id;
 
-    @NotNull(groups = {WhenCreatingNew.class, WhenUpdating.class})
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private String identifier;
 
-    
     private ArtifactQuality artifactQuality;
 
     @Getter
@@ -90,7 +89,6 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
     @Setter
     private String deployUrl;
 
-
     /**
      * Public url to the artifact using public network domain
      */
@@ -105,8 +103,8 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.id = artifact.getId();
         this.identifier = artifact.getIdentifier();
         this.md5 = artifact.getMd5();
-        this.sha1= artifact.getSha1();
-        this.sha256= artifact.getSha256();
+        this.sha1 = artifact.getSha1();
+        this.sha256 = artifact.getSha256();
         this.filename = artifact.getFilename();
         this.deployPath = artifact.getDeployPath();
         this.artifactQuality = artifact.getArtifactQuality();
@@ -114,8 +112,8 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
         this.originUrl = artifact.getOriginUrl();
         this.buildRecordIds = artifact.getBuildRecord() == null ? Collections.emptySet()
                 : Collections.singleton(artifact.getBuildRecord().getId());
-        this.dependantBuildRecordIds = nullableStreamOf(artifact.getDependantBuildRecords())
-                .map(BuildRecord::getId).collect(Collectors.toSet());
+        this.dependantBuildRecordIds = nullableStreamOf(artifact.getDependantBuildRecords()).map(BuildRecord::getId)
+                .collect(Collectors.toSet());
         this.size = artifact.getSize();
         this.deployUrl = deployUrl;
         this.publicUrl = publicUrl;
@@ -255,22 +253,12 @@ public class ArtifactRest implements GenericRestEntity<Integer> {
 
     @Override
     public String toString() {
-        return "ArtifactRest{" +
-                "id=" + id +
-                ", identifier='" + identifier + '\'' +
-                ", artifactQuality=" + artifactQuality +
-                ", targetRepository=" + targetRepository.toString() +
-                ", md5='" + md5 + '\'' +
-                ", sha1='" + sha1 + '\'' +
-                ", sha256='" + sha256 + '\'' +
-                ", filename='" + filename + '\'' +
-                ", deployPath='" + deployPath + '\'' +
-                ", buildRecordIds=" + buildRecordIds +
-                ", dependantBuildRecordIds=" + dependantBuildRecordIds +
-                ", importDate=" + importDate +
-                ", originUrl='" + originUrl + '\'' +
-                ", deployUrl='" + deployUrl + '\'' +
-                ", publicUrl='" + publicUrl + '\'' +
-                '}';
+        return "ArtifactRest{" + "id=" + id + ", identifier='" + identifier + '\'' + ", artifactQuality="
+                + artifactQuality + ", targetRepository=" + targetRepository.toString() + ", md5='" + md5 + '\''
+                + ", sha1='" + sha1 + '\'' + ", sha256='" + sha256 + '\'' + ", filename='" + filename + '\''
+                + ", deployPath='" + deployPath + '\'' + ", buildRecordIds=" + buildRecordIds
+                + ", dependantBuildRecordIds=" + dependantBuildRecordIds + ", importDate=" + importDate
+                + ", originUrl='" + originUrl + '\'' + ", deployUrl='" + deployUrl + '\'' + ", publicUrl='" + publicUrl
+                + '\'' + '}';
     }
 }

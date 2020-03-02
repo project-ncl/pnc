@@ -54,17 +54,11 @@ public class IndyPromotionValidationTest {
 
     @Test
     /**
-     * Test whose purpose is to provide a means for more or less easy debugging of indy validation errors.
-     * For it to work it needs a standalone Indy server, with a rule-set definition such as this:
-     * {
-     *   "storeKeyPattern": "group:builds-untested",
-     *   "ruleNames": [
-     *   "no-snapshots.groovy",
-     *   "parsable-pom.groovy"
-     *   ],
-     *   "validationParameters": {}
-     * }
-     * Provide the base URL to this Indy server as a System parameter such as e.g. -DbaseUrl="http://127.0.0.1:8090"
+     * Test whose purpose is to provide a means for more or less easy debugging of indy validation errors. For it to
+     * work it needs a standalone Indy server, with a rule-set definition such as this: { "storeKeyPattern":
+     * "group:builds-untested", "ruleNames": [ "no-snapshots.groovy", "parsable-pom.groovy" ], "validationParameters":
+     * {} } Provide the base URL to this Indy server as a System parameter such as e.g.
+     * -DbaseUrl="http://127.0.0.1:8090"
      */
     public void testIndyPromotionValidation() {
         String baseUrl = System.getProperty("baseUrl");
@@ -75,15 +69,19 @@ public class IndyPromotionValidationTest {
         RepositoryManager driver = null;
         try {
             driver = new RepositoryManagerDriver(new TestConfiguration(baseUrl), new BuildRecordRepositoryMock());
-            RepositorySession repositorySession = driver.createBuildRepository(new TestBuildExecution("test"), null, null,
-                    RepositoryType.MAVEN, Collections.emptyMap());
+            RepositorySession repositorySession = driver.createBuildRepository(
+                    new TestBuildExecution("test"),
+                    null,
+                    null,
+                    RepositoryType.MAVEN,
+                    Collections.emptyMap());
 
             CloseableHttpClient client = HttpClientBuilder.create().build();
             String deployUrl = repositorySession.getConnectionInfo().getDeployUrl();
 
             // Deploy several 'wrong' artifacts to get a composed error message back
             String pathPom1 = "org/foo/invalid/1/invalid-1.pom";
-            String snapshotPom =  "<?xml version=\"1.0\"?>\n<project><modelVersion>4.0.0</modelVersion><groupId>org.foo</groupId>"
+            String snapshotPom = "<?xml version=\"1.0\"?>\n<project><modelVersion>4.0.0</modelVersion><groupId>org.foo</groupId>"
                     + "<artifactId>invalid</artifactId><version>1</version><dependencies>"
                     + "<dependency><groupId>org.bar</groupId><artifactId>dep</artifactId>"
                     + "<version>1.0-SNAPSHOT</version></dependency></dependencies></project>";
@@ -91,7 +89,7 @@ public class IndyPromotionValidationTest {
             put(client, url, snapshotPom);
 
             String pathPom2 = "org/foo/invalid2/1/invalid2-1.pom";
-            String snapshotPom2 =  "<?xml version=\"1.0\"?>\n<project><modelVersion>4.0.0</modelVersion><groupId>org.foo</groupId>"
+            String snapshotPom2 = "<?xml version=\"1.0\"?>\n<project><modelVersion>4.0.0</modelVersion><groupId>org.foo</groupId>"
                     + "<artifactId>invalid2</artifactId><version>1</version><dependencies>"
                     + "<dependency><groupId>org.bar</groupId><artifactId>dep</artifactId>"
                     + "<version>1.0-SNAPSHOT</version></dependency></dependencies></project>";
@@ -99,7 +97,7 @@ public class IndyPromotionValidationTest {
             put(client, url, snapshotPom2);
 
             String pathPom3 = "org/foo/nonparseable/1/nonparseable.pom";
-            String nonparseablePom =  "<?xml version=\"1.0\"?>\n<project><modelVersion>4.0.0</modelVersion><groupId>org.foo</groupId>"
+            String nonparseablePom = "<?xml version=\"1.0\"?>\n<project><modelVersion>4.0.0</modelVersion><groupId>org.foo</groupId>"
                     + "<artifactId>nonparseable</artifactId><version>1</version><dependencies>"
                     + "<dependency><groupId>org.bar</groupId><artifactId>dep</artifactId>"
                     + "<version>1.0</version></dependency></dependencies></project>";
@@ -130,14 +128,17 @@ public class IndyPromotionValidationTest {
 
     private class TestConfiguration extends Configuration {
         private String baseUrl;
-        private TestConfiguration(String baseUrl) throws ConfigurationParseException{
+
+        private TestConfiguration(String baseUrl) throws ConfigurationParseException {
             super();
             this.baseUrl = baseUrl;
         }
+
         @Override
-        public <T extends AbstractModuleConfig> T getModuleConfig(ConfigProvider<T> provider) throws ConfigurationParseException {
+        public <T extends AbstractModuleConfig> T getModuleConfig(ConfigProvider<T> provider)
+                throws ConfigurationParseException {
             IndyRepoDriverModuleConfig mvnCfg = new IndyRepoDriverModuleConfig(baseUrl);
-            return (T)mvnCfg;
+            return (T) mvnCfg;
         }
 
         @Override

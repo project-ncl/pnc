@@ -68,7 +68,8 @@ public class RequestParser {
         try {
             messageType = MessageType.valueOf(node.get("messageType").asText());
         } catch (IllegalArgumentException e) {
-            errorMessage = "Invalid message-type: " + messageType + ". Supported types are: " + MessageType.PROCESS_UPDATES;
+            errorMessage = "Invalid message-type: " + messageType + ". Supported types are: "
+                    + MessageType.PROCESS_UPDATES;
             failedStatus = Response.Status.NOT_ACCEPTABLE;
             return false;
         }
@@ -85,6 +86,6 @@ public class RequestParser {
     }
 
     public <T> T getData() {
-        return (T)dataObject;
+        return (T) dataObject;
     }
 }

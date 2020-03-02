@@ -67,10 +67,10 @@ import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.BuildType;
 
 /**
- * The Class BuildConfiguration cointains the information needed to execute a build of a project, i.e. the sources,
- * the build script, the build system image needed to run, the project configurations that need to be triggered after
- * a successful build. Note that creationTime and lastModificationTime are handled internally via JPA settings
- * and therefore do not have public setters.
+ * The Class BuildConfiguration cointains the information needed to execute a build of a project, i.e. the sources, the
+ * build script, the build system image needed to run, the project configurations that need to be triggered after a
+ * successful build. Note that creationTime and lastModificationTime are handled internally via JPA settings and
+ * therefore do not have public setters.
  * <p>
  * (project + name) should be unique
  *
@@ -81,14 +81,14 @@ import org.jboss.pnc.enums.BuildType;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Audited
-@Table(uniqueConstraints = @UniqueConstraint(name = "uk_build_configuration_name", columnNames = {"name", "active"}),
-       indexes = {
-           @Index(name = "idx_build_configuration_product_version", columnList = "productversion_id"),
-           @Index(name = "idx_buildconfiguration_buildenvironment", columnList = "buildenvironment_id"),
-           @Index(name = "idx_buildconfiguration_project", columnList = "project_id"),
-           @Index(name = "idx_buildconfiguration_repositoryconfiguration", columnList = "repositoryconfiguration_id")
-       }
-)
+@Table(
+        uniqueConstraints = @UniqueConstraint(name = "uk_build_configuration_name", columnNames = { "name", "active" }),
+        indexes = { @Index(name = "idx_build_configuration_product_version", columnList = "productversion_id"),
+                @Index(name = "idx_buildconfiguration_buildenvironment", columnList = "buildenvironment_id"),
+                @Index(name = "idx_buildconfiguration_project", columnList = "project_id"),
+                @Index(
+                        name = "idx_buildconfiguration_repositoryconfiguration",
+                        columnList = "repositoryconfiguration_id") })
 public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     private static final long serialVersionUID = -5890729679489304114L;
@@ -100,7 +100,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Integer id;
 
     @NotNull
-    @Size(max=255)
+    @Size(max = 255)
     private String name;
 
     @Lob
@@ -110,16 +110,17 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(updatable = true, nullable = false, foreignKey = @ForeignKey(name = "fk_buildconfiguration_repositoryconfiguration"))
+    @JoinColumn(
+            updatable = true,
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_buildconfiguration_repositoryconfiguration"))
     private RepositoryConfiguration repositoryConfiguration;
 
     /**
-     * Revision to build.
-     * This may not be the final revision on which the
-     * actual build gets executed, but MUST be the starting point
-     * of the build process.
+     * Revision to build. This may not be the final revision on which the actual build gets executed, but MUST be the
+     * starting point of the build process.
      */
-    @Size(max=255)
+    @Size(max = 255)
     private String scmRevision;
 
     @Lob
@@ -152,7 +153,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
     @NotNull
-    @Column(columnDefinition = "timestamp with time zone", updatable=false)
+    @Column(columnDefinition = "timestamp with time zone", updatable = false)
     private Date creationTime;
 
     @NotNull
@@ -165,39 +166,31 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * Normally set to true.
-     * If BuildConfiguration is no longer to be used (is archived) - this is set to **null**
+     * Normally set to true. If BuildConfiguration is no longer to be used (is archived) - this is set to **null**
      *
      * Workaround to have a database constraint for active configuration name
      */
     private Boolean active;
 
     /**
-     * The set of build configs upon which this build depends. The build configs contained in dependencies should normally be
-     * completed before this build config is executed. Similar to Maven dependencies.
+     * The set of build configs upon which this build depends. The build configs contained in dependencies should
+     * normally be completed before this build config is executed. Similar to Maven dependencies.
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @NotAudited
     @ManyToMany(cascade = { CascadeType.REFRESH })
-    @JoinTable(name = "build_configuration_dep_map", joinColumns = {
-            @JoinColumn(
-                name = "dependency_id",
-                referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependency")
-            )
-        },
-        inverseJoinColumns = {
-            @JoinColumn(
-                name = "dependant_id",
-                referencedColumnName = "id",
-                foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependant")
-            )
-        },
-        indexes = {
-            @Index(name = "idx_build_configuration_dep_map_dependant", columnList = "dependant_id"),
-            @Index(name = "idx_build_configuration_dep_map_dependency", columnList = "dependency_id")
-        }
-    )
+    @JoinTable(
+            name = "build_configuration_dep_map",
+            joinColumns = { @JoinColumn(
+                    name = "dependency_id",
+                    referencedColumnName = "id",
+                    foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependency")) },
+            inverseJoinColumns = { @JoinColumn(
+                    name = "dependant_id",
+                    referencedColumnName = "id",
+                    foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependant")) },
+            indexes = { @Index(name = "idx_build_configuration_dep_map_dependant", columnList = "dependant_id"),
+                    @Index(name = "idx_build_configuration_dep_map_dependency", columnList = "dependency_id") })
     private Set<BuildConfiguration> dependencies;
 
     /**
@@ -211,7 +204,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "build_configuration_parameters", joinColumns=@JoinColumn(name = "buildconfiguration_id", foreignKey = @ForeignKey(name = "fk_build_configuration_parameters_bc")))
+    @CollectionTable(
+            name = "build_configuration_parameters",
+            joinColumns = @JoinColumn(
+                    name = "buildconfiguration_id",
+                    foreignKey = @ForeignKey(name = "fk_build_configuration_parameters_bc")))
     @MapKeyColumn(length = 50, name = "key", nullable = false)
     @Column(name = "value", nullable = false, length = 8192)
     private Map<String, String> genericParameters = new HashMap<>();
@@ -225,7 +222,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         buildConfigurationSets = new HashSet<>();
 
         // The lastModificationTime needs to be non-null for certain use cases even though the
-        // actual value is managed by JPA.  For example, if saving an entity with a relation
+        // actual value is managed by JPA. For example, if saving an entity with a relation
         // to BuildConfiguration, JPA will not allow the related entity to be saved unless
         // the Build Configuration contains both an ID and a non-null lastModificationTime
         lastModificationTime = Date.from(Instant.now());
@@ -352,7 +349,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.buildConfigurationSets.remove(buildConfigurationSet);
     }
 
-
     /**
      * @return the dependency build configs (only direct dependencies)
      */
@@ -376,7 +372,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         if (dependency.getAllDependencies().contains(this)) {
             List<BuildConfiguration> depPath = dependency.dependencyDepthFirstSearch(this);
             String depPathString = depPath.stream().map(dep -> dep.getName()).collect(Collectors.joining(" -> "));
-            throw new PersistenceException("Unable to add dependency, would create a circular reference: " + depPathString);
+            throw new PersistenceException(
+                    "Unable to add dependency, would create a circular reference: " + depPathString);
         }
 
         boolean result = dependencies.add(dependency);
@@ -395,8 +392,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * Gets the full set of indirect dependencies (dependencies of dependencies). In cases where a particular dependency is both
-     * a direct dependency and is an indirect dependency, it will be included in the set.
+     * Gets the full set of indirect dependencies (dependencies of dependencies). In cases where a particular dependency
+     * is both a direct dependency and is an indirect dependency, it will be included in the set.
      *
      * @return The set of indirect dependencies
      */
@@ -422,8 +419,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * Perform a depth first search of the dependencies to find a match of the given build config. Returns a list with a single
-     * build config (this), if no match is found.
+     * Perform a depth first search of the dependencies to find a match of the given build config. Returns a list with a
+     * single build config (this), if no match is found.
      *
      * @param buildConfig The build config to search for
      * @return A list of the build configurations in the path between this config and the given config.
@@ -434,7 +431,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         return this.dependencyDepthFirstSearch(buildConfig, path);
     }
 
-    private List<BuildConfiguration> dependencyDepthFirstSearch(BuildConfiguration buildConfig, List<BuildConfiguration> path) {
+    private List<BuildConfiguration> dependencyDepthFirstSearch(
+            BuildConfiguration buildConfig,
+            List<BuildConfiguration> path) {
         for (BuildConfiguration dep : getDependencies()) {
             path.add(dep);
             if (dep.equals(buildConfig)) {
@@ -474,8 +473,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * This method is private because a dependant should never be added externally. Instead the dependency relation should be
-     * set up using the addDependency method
+     * This method is private because a dependant should never be added externally. Instead the dependency relation
+     * should be set up using the addDependency method
      *
      * @param dependant
      * @return
@@ -489,8 +488,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * This method is private because a dependant should never be removed externally. Instead the dependency relation should be
-     * set up using the removeDependency method
+     * This method is private because a dependant should never be removed externally. Instead the dependency relation
+     * should be set up using the removeDependency method
      *
      * @param dependant
      * @return
@@ -528,7 +527,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * @param lastModificationTime the time at which this config was last modified
      */
     public void setLastModificationTime(Date lastModificationTime) {
-        if(lastModificationTime != null) {
+        if (lastModificationTime != null) {
             this.lastModificationTime = lastModificationTime;
         }
     }
@@ -547,10 +546,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     /**
      * Get the current product milestone (if any) associated with this build config.
      *
-     * @return The current product milestone for the product version associated with this build config, or null if there is none
+     * @return The current product milestone for the product version associated with this build config, or null if there
+     *         is none
      */
     public ProductMilestone getCurrentProductMilestone() {
-        if(getProductVersion() == null) {
+        if (getProductVersion() == null) {
             return null;
         }
         return getProductVersion().getCurrentProductMilestone();
@@ -590,7 +590,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     @Override
     public String toString() {
-        return "BuildConfiguration " + getId() + " [project=" + getProject() + ", name=" + getName() + ", active=" + active + "]";
+        return "BuildConfiguration " + getId() + " [project=" + getProject() + ", name=" + getName() + ", active="
+                + active + "]";
     }
 
     @Override
@@ -622,7 +623,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      */
     @Override
     public BuildConfiguration clone() {
-        //do not use this.clone as it clones the entity proxy object
+        // do not use this.clone as it clones the entity proxy object
         BuildConfiguration clone = new BuildConfiguration();
         clone.id = null;
         Date now = Date.from(Instant.now());
@@ -645,8 +646,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     }
 
     /**
-     * Change the BC clone name into date_original-BC-name where date will be for every clone updated and for original BC names
-     * will be added.
+     * Change the BC clone name into date_original-BC-name where date will be for every clone updated and for original
+     * BC names will be added.
      *
      * Example: clone1 of pslegr-BC on Wednesday October,21st, 2015: 20151021095415_pslegr-BC
      *

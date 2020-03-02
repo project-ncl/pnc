@@ -63,7 +63,7 @@ public class KeycloakClientConfig {
         String secretPath = credentials.get("secretFileLocation");
         try {
             return IoUtils.readFileAsString(new File(secretPath)).trim();
-        } catch(IOException e) {
+        } catch (IOException e) {
             log.error("Error while getting secret token", e);
             throw new RuntimeException(e);
         }

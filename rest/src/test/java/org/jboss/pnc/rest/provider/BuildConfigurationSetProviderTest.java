@@ -36,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
-
 public class BuildConfigurationSetProviderTest {
 
     @Mock
@@ -62,7 +61,7 @@ public class BuildConfigurationSetProviderTest {
 
     @Test
     public void shouldThrowConflictedEntryExceptionWhenAddingDuplicatedConfiguration() {
-        //given
+        // given
         BuildRecordProvider buildRecordProvider = mock(BuildRecordProvider.class);
         BuildConfigurationSetRepository buildConfigurationSetRepository = mock(BuildConfigurationSetRepository.class);
         BuildConfigurationRepository buildConfigurationRepository = mock(BuildConfigurationRepository.class);
@@ -72,15 +71,22 @@ public class BuildConfigurationSetProviderTest {
         when(buildConfigurationSetRepository.queryById(1)).thenReturn(testBCS);
         when(buildConfigurationRepository.queryById(2)).thenReturn(createBuildConfiguration(2));
 
-        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, null, null, null, null, null);
+        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(
+                buildConfigurationSetRepository,
+                buildConfigurationRepository,
+                null,
+                null,
+                null,
+                null,
+                null);
 
-        //when
+        // when
         addConfigsToSet(testBCS, createBuildConfiguration(1), createBuildConfiguration(2));
         try {
             buildConfigurationSetProvider.addConfiguration(1, 2);
             fail();
         } catch (RestValidationException ignoreMe) {
-            //then
+            // then
         }
     }
 
@@ -96,83 +102,93 @@ public class BuildConfigurationSetProviderTest {
         when(buildConfigurationSetRepository.queryById(1)).thenReturn(testBCS);
         when(buildConfigurationRepository.queryById(3)).thenReturn(createBuildConfiguration(3));
 
-        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(buildConfigurationSetRepository, buildConfigurationRepository, null, null, null, null, null);
+        BuildConfigurationSetProvider buildConfigurationSetProvider = new BuildConfigurationSetProvider(
+                buildConfigurationSetRepository,
+                buildConfigurationRepository,
+                null,
+                null,
+                null,
+                null,
+                null);
 
-        //when
+        // when
         addConfigsToSet(testBCS, createBuildConfiguration(1), createBuildConfiguration(2));
-        buildConfigurationSetProvider.addConfiguration(1,3);
+        buildConfigurationSetProvider.addConfiguration(1, 3);
 
-        //then
+        // then
         assertThat(testBCS.getBuildConfigurations()).hasSize(3);
     }
 
     @Test
     public void shouldUpdateBuildConfigurations() throws Exception {
-        //given
+        // given
         List<BuildConfigurationRest> buildConfigurationRests = new LinkedList<>();
         buildConfigurationRests.add(new BuildConfigurationRest(createBuildConfiguration(2)));
 
         ArgumentCaptor<BuildConfigurationSet> args = ArgumentCaptor.forClass(BuildConfigurationSet.class);
 
-        //when
+        // when
         buildConfigurationSetProvider.updateConfigurations(1, buildConfigurationRests);
 
-        //then
+        // then
         verify(buildConfigurationSetRepository, times(1)).save(args.capture());
         assertThat(args.getValue().getBuildConfigurations()).hasSize(1);
-        assertThat(args.getValue().getBuildConfigurations().stream().map(BuildConfiguration::getId).collect(toList())).containsOnly(2);
+        assertThat(args.getValue().getBuildConfigurations().stream().map(BuildConfiguration::getId).collect(toList()))
+                .containsOnly(2);
     }
 
     @Test
     public void shouldUpdateBuildConfigurationsWithEmptyList() throws Exception {
-        //given
+        // given
         List<BuildConfigurationRest> buildConfigurationRests = new LinkedList<>();
 
         ArgumentCaptor<BuildConfigurationSet> args = ArgumentCaptor.forClass(BuildConfigurationSet.class);
 
-        //when
+        // when
         buildConfigurationSetProvider.updateConfigurations(1, buildConfigurationRests);
 
-        //then
+        // then
         verify(buildConfigurationSetRepository, times(1)).save(args.capture());
         assertThat(args.getValue().getBuildConfigurations()).isEmpty();
     }
 
     @Test(expected = InvalidEntityException.class)
-    public void shouldThrowInvalidEntityExceptionWhenUpdatingAllBuildConfigurationsAndBuildConfigurationSetDoesNotExist() throws Exception {
-        //given
+    public void shouldThrowInvalidEntityExceptionWhenUpdatingAllBuildConfigurationsAndBuildConfigurationSetDoesNotExist()
+            throws Exception {
+        // given
         List<BuildConfigurationRest> buildConfigurationRests = new LinkedList<>();
 
-        //when
+        // when
         buildConfigurationSetProvider.updateConfigurations(2, buildConfigurationRests);
 
-        //then expect InvalidEntityException to be thrown
+        // then expect InvalidEntityException to be thrown
     }
 
     @Test(expected = InvalidEntityException.class)
-    public void shouldThrowInvalidEntityExceptionWhenUpdatingAllBuildConfigurationsAndABuildConfigurationDoesNotExist() throws Exception {
-        //given
+    public void shouldThrowInvalidEntityExceptionWhenUpdatingAllBuildConfigurationsAndABuildConfigurationDoesNotExist()
+            throws Exception {
+        // given
         List<BuildConfigurationRest> buildConfigurationRests = new LinkedList<>();
         buildConfigurationRests.add(new BuildConfigurationRest(createBuildConfiguration(3)));
 
-        //when
+        // when
         buildConfigurationSetProvider.updateConfigurations(1, buildConfigurationRests);
 
-        //then expect InvalidEntityException to be thrown
+        // then expect InvalidEntityException to be thrown
     }
 
-    private BuildConfiguration createBuildConfiguration(int id){
+    private BuildConfiguration createBuildConfiguration(int id) {
         return BuildConfiguration.Builder.newBuilder().id(id).build();
     }
 
-    private BuildConfigurationSet createBuildConfigurationSet(int id){
+    private BuildConfigurationSet createBuildConfigurationSet(int id) {
         BuildConfigurationSet retVal = new BuildConfigurationSet();
         retVal.setId(id);
         return retVal;
     }
 
-    private void addConfigsToSet(BuildConfigurationSet bset, BuildConfiguration... bconfigs){
-        for (BuildConfiguration config : bconfigs){
+    private void addConfigsToSet(BuildConfigurationSet bset, BuildConfiguration... bconfigs) {
+        for (BuildConfiguration config : bconfigs) {
             bset.addBuildConfiguration(config);
         }
     }

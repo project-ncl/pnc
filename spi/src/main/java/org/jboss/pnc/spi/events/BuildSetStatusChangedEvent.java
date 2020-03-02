@@ -33,13 +33,22 @@ public interface BuildSetStatusChangedEvent {
      * @return The status of the build set before the change
      */
     BuildSetStatus getOldStatus();
+
     BuildSetStatus getNewStatus();
+
     GroupBuild getGroupBuild();
+
     String getBuildSetTaskId();
+
     String getUserId();
+
     String getBuildSetConfigurationId();
+
     String getBuildSetConfigurationName();
+
     Date getBuildSetStartTime();
+
     Date getBuildSetEndTime();
+
     String getDescription();
 }

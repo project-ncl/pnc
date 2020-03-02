@@ -71,7 +71,7 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
 
     private Notifier notifier;
 
-    @Deprecated //CDI workaround
+    @Deprecated // CDI workaround
     public BuildConfigSetRecordEndpoint() {
     }
 
@@ -80,7 +80,8 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
             BuildConfigSetRecordProvider buildConfigSetRecordProvider,
             BuildRecordProvider buildRecordProvider,
             TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker,
-            EndpointAuthenticationProvider authenticationProvider, Notifier notifier) {
+            EndpointAuthenticationProvider authenticationProvider,
+            Notifier notifier) {
         super(buildConfigSetRecordProvider);
         this.buildRecordProvider = buildRecordProvider;
         this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;
@@ -106,12 +107,12 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
 
     @DELETE
     @Path("/{id}")
-    public Response delete(@PathParam("id") Integer id)
-            throws RepositoryViolationException {
+    public Response delete(@PathParam("id") Integer id) throws RepositoryViolationException {
         User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
 
         try {
-            temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(id, currentUser.getLoginToken(), (t) -> {});
+            temporaryBuildsCleanerAsyncInvoker
+                    .deleteTemporaryBuildConfigSetRecord(id, currentUser.getLoginToken(), (t) -> {});
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
@@ -120,7 +121,8 @@ public class BuildConfigSetRecordEndpoint extends AbstractEndpoint<BuildConfigSe
 
     @GET
     @Path("/{id}/build-records")
-    public Response getBuildRecords(@QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
+    public Response getBuildRecords(
+            @QueryParam(PAGE_INDEX_QUERY_PARAM) @DefaultValue(PAGE_INDEX_DEFAULT_VALUE) int pageIndex,
             @QueryParam(PAGE_SIZE_QUERY_PARAM) @DefaultValue(PAGE_SIZE_DEFAULT_VALUE) int pageSize,
             @QueryParam(SORTING_QUERY_PARAM) String sort,
             @QueryParam(QUERY_QUERY_PARAM) String q,

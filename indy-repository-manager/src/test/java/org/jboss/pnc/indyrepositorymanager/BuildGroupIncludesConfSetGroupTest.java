@@ -45,7 +45,12 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
         BuildExecution execution = new TestBuildExecution("build_myproject_67890");
         Indy indy = driver.getIndy(accessToken);
 
-        RepositorySession repositoryConfiguration = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession repositoryConfiguration = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
         String repoId = repositoryConfiguration.getBuildRepositoryId();
 
         assertThat(repoId, equalTo(execution.getBuildContentId()));
@@ -61,9 +66,13 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
         Group buildGroup = indy.stores().load(new StoreKey(MAVEN_PKG_KEY, StoreType.group, repoId), Group.class);
 
         System.out.printf("Constituents:\n  %s\n", join(buildGroup.getConstituents(), "\n  "));
-        assertGroupConstituents(buildGroup,
+        assertGroupConstituents(
+                buildGroup,
                 new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, execution.getBuildContentId()),
-                new StoreKey(MAVEN_PKG_KEY, StoreType.group, IndyRepositoryConstants.COMMON_BUILD_GROUP_CONSTITUENTS_GROUP));
+                new StoreKey(
+                        MAVEN_PKG_KEY,
+                        StoreType.group,
+                        IndyRepositoryConstants.COMMON_BUILD_GROUP_CONSTITUENTS_GROUP));
     }
 
 }

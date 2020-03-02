@@ -53,7 +53,6 @@ public class PollingMonitorTest {
         pollingMonitor.destroy();
     }
 
-
     @Test
     public void monitorShouldNotifyWhenConditionIsSatisfied() throws InterruptedException {
         AtomicInteger polled = new AtomicInteger(0);

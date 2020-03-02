@@ -39,7 +39,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 /**
  * @author Alex Creasy
  */
@@ -58,7 +57,6 @@ public class ProductVersionProviderTest {
     private BuildConfigurationSet buildConfigurationSet2;
     private BuildConfigurationSet buildConfigurationSet3;
 
-
     @Before
     public void setup() {
         mockProductVersionRepository = mock(ProductVersionRepository.class);
@@ -67,28 +65,49 @@ public class ProductVersionProviderTest {
         SystemConfig systemConfig = mock(SystemConfig.class);
         when(systemConfig.getBrewTagPattern()).thenReturn("${product_short_name}-${product_version}-pnc");
 
-        productVersionProvider = new ProductVersionProvider(mockProductVersionRepository, mockBuildConfigurationSetRepository, null, null, null, null, systemConfig);
+        productVersionProvider = new ProductVersionProvider(
+                mockProductVersionRepository,
+                mockBuildConfigurationSetRepository,
+                null,
+                null,
+                null,
+                null,
+                systemConfig);
 
         product1 = Product.Builder.newBuilder().id(1).name("product-1").build();
 
-        productVersion1 = ProductVersion.Builder.newBuilder().id(1).version("1.0").product(product1)
-                .generateBrewTagPrefix("TMP", "1.0", "${product_short_name}-${product_version}-pnc").build();
-        productVersion2 = ProductVersion.Builder.newBuilder().id(2).version("2.0").product(product1)
-                .generateBrewTagPrefix("TMP", "2.0", "${product_short_name}-${product_version}-pnc").build();
+        productVersion1 = ProductVersion.Builder.newBuilder()
+                .id(1)
+                .version("1.0")
+                .product(product1)
+                .generateBrewTagPrefix("TMP", "1.0", "${product_short_name}-${product_version}-pnc")
+                .build();
+        productVersion2 = ProductVersion.Builder.newBuilder()
+                .id(2)
+                .version("2.0")
+                .product(product1)
+                .generateBrewTagPrefix("TMP", "2.0", "${product_short_name}-${product_version}-pnc")
+                .build();
 
         when(mockProductVersionRepository.queryById(1)).thenReturn(productVersion1);
         when(mockProductVersionRepository.queryById(2)).thenReturn(productVersion2);
 
-
-        buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder().id(1).name("bcs-1").productVersion(productVersion1).build();
-        buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder().id(2).name("bcs-2").productVersion(productVersion2).build();
+        buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder()
+                .id(1)
+                .name("bcs-1")
+                .productVersion(productVersion1)
+                .build();
+        buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder()
+                .id(2)
+                .name("bcs-2")
+                .productVersion(productVersion2)
+                .build();
         buildConfigurationSet3 = BuildConfigurationSet.Builder.newBuilder().id(3).name("bcs-3").build();
 
         when(mockBuildConfigurationSetRepository.queryById(1)).thenReturn(buildConfigurationSet1);
         when(mockBuildConfigurationSetRepository.queryById(2)).thenReturn(buildConfigurationSet2);
         when(mockBuildConfigurationSetRepository.queryById(3)).thenReturn(buildConfigurationSet3);
     }
-
 
     @Test
     public void shouldUpdateBuildConfigurationSets() throws Exception {
@@ -118,7 +137,8 @@ public class ProductVersionProviderTest {
     @Test(expected = InvalidEntityException.class)
     public void shouldThrowInvalidEntityExceptionWithInvalidBuildConfigurationSets() throws Exception {
         // Given
-        BuildConfigurationSetRest restModel = new BuildConfigurationSetRest(BuildConfigurationSet.Builder.newBuilder().id(9999).name("i-dont-exist").build());
+        BuildConfigurationSetRest restModel = new BuildConfigurationSetRest(
+                BuildConfigurationSet.Builder.newBuilder().id(9999).name("i-dont-exist").build());
         when(mockBuildConfigurationSetRepository.queryById(9999)).thenReturn(null);
 
         List<BuildConfigurationSetRest> buildConfigurationSetRests = new LinkedList<>();
@@ -131,7 +151,8 @@ public class ProductVersionProviderTest {
     }
 
     @Test(expected = ConflictedEntryException.class)
-    public void shouldThrowConflictedEntryExceptionWhenAddingBCSetsThatAreAlreadyAssociatedWithAProductVersion() throws Exception {
+    public void shouldThrowConflictedEntryExceptionWhenAddingBCSetsThatAreAlreadyAssociatedWithAProductVersion()
+            throws Exception {
         // Given
         List<BuildConfigurationSetRest> buildConfigurationSets = new LinkedList<>();
         buildConfigurationSets.add(new BuildConfigurationSetRest(buildConfigurationSet2));

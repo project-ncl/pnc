@@ -29,9 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 8/29/16
- * Time: 11:57 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/29/16 Time: 11:57 AM
  */
 public class RequestUtils {
     public static HttpServletRequest requestWithEntity(Object entity) throws IOException {

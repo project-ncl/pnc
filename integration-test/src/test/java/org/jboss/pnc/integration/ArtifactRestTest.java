@@ -102,7 +102,9 @@ public class ArtifactRestTest extends AbstractTest {
     @Test
     public void testGetAllArtifacts() {
         Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(ArtifactRestClient.ARTIFACT_REST_ENDPOINT);
 
         ResponseAssertion.assertThat(response).hasStatus(200);
@@ -112,111 +114,115 @@ public class ArtifactRestTest extends AbstractTest {
     @Test
     public void testGetAllArfifactsWithMd5() {
         Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .queryParam("md5",artifactRest1.getMd5())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .queryParam("md5", artifactRest1.getMd5())
                 .get(ArtifactRestClient.ARTIFACT_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
 
-        //artifacts 1 and 2 have same MD5
-        List<Map<String,Object>> list = response.jsonPath().getList("content");
-        assertThat(list)
-                .hasSize(2)
-                .allSatisfy(map -> {
-                    assertThat(map).containsKey("id");
-                    assertThat(map.get("id")).isIn(artifactRest1.getId(), artifactRest2.getId());
-                    }
-                );
+        // artifacts 1 and 2 have same MD5
+        List<Map<String, Object>> list = response.jsonPath().getList("content");
+        assertThat(list).hasSize(2).allSatisfy(map -> {
+            assertThat(map).containsKey("id");
+            assertThat(map.get("id")).isIn(artifactRest1.getId(), artifactRest2.getId());
+        });
     }
 
     @Test
     public void testGetAllArfifactsWithSha1() {
         Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .queryParam("sha1",artifactRest2.getSha1())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .queryParam("sha1", artifactRest2.getSha1())
                 .get(ArtifactRestClient.ARTIFACT_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
 
-        //artifacts 2 and 3 have same SHA1
-        List<Map<String,Object>> list = response.jsonPath().getList("content");
-        assertThat(list)
-                .hasSize(2)
-                .allSatisfy(map -> {
-                    assertThat(map).containsKey("id");
-                    assertThat(map.get("id")).isIn(artifactRest2.getId(), artifactRest3.getId());
-                    }
-                );
+        // artifacts 2 and 3 have same SHA1
+        List<Map<String, Object>> list = response.jsonPath().getList("content");
+        assertThat(list).hasSize(2).allSatisfy(map -> {
+            assertThat(map).containsKey("id");
+            assertThat(map.get("id")).isIn(artifactRest2.getId(), artifactRest3.getId());
+        });
     }
 
     @Test
     public void testGetAllArfifactsWithSha256() {
         Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .queryParam("sha256",artifactRest1.getSha256())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .queryParam("sha256", artifactRest1.getSha256())
                 .get(ArtifactRestClient.ARTIFACT_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
 
-        //artifacts 1 and 3 have same SHA256
-        List<Map<String,Object>> list = response.jsonPath().getList("content");
-        assertThat(list)
-                .hasSize(2)
-                .allSatisfy(map -> {
-                    assertThat(map).containsKey("id");
-                    assertThat(map.get("id")).isIn(artifactRest1.getId(), artifactRest3.getId());
-                    }
-                );
+        // artifacts 1 and 3 have same SHA256
+        List<Map<String, Object>> list = response.jsonPath().getList("content");
+        assertThat(list).hasSize(2).allSatisfy(map -> {
+            assertThat(map).containsKey("id");
+            assertThat(map.get("id")).isIn(artifactRest1.getId(), artifactRest3.getId());
+        });
     }
 
     @Test
     public void testGetAllArfifactsWithMd5AndSha1() {
         Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .queryParam("sha1",artifactRest2.getSha1())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .queryParam("sha1", artifactRest2.getSha1())
                 .queryParam("md5", artifactRest2.getMd5())
                 .get(ArtifactRestClient.ARTIFACT_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
 
-        List<Map<String,Object>> list = response.jsonPath().getList("content");
+        List<Map<String, Object>> list = response.jsonPath().getList("content");
         assertThat(list).hasSize(1);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id",artifactRest2.getId());
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id", artifactRest2.getId());
     }
 
     @Test
     public void testGetAllArfifactsWithMd5AndSha256() {
         Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .queryParam("sha256",artifactRest1.getSha256())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .queryParam("sha256", artifactRest1.getSha256())
                 .queryParam("md5", artifactRest1.getMd5())
                 .get(ArtifactRestClient.ARTIFACT_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
 
-        List<Map<String,Object>> list = response.jsonPath().getList("content");
+        List<Map<String, Object>> list = response.jsonPath().getList("content");
         assertThat(list).hasSize(1);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id",artifactRest1.getId());
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id", artifactRest1.getId());
     }
 
     @Test
     public void testGetAllArfifactsWithSha1AndSha256() {
         Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
-                .queryParam("sha256",artifactRest3.getSha256())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .queryParam("sha256", artifactRest3.getSha256())
                 .queryParam("sha1", artifactRest3.getSha1())
                 .get(ArtifactRestClient.ARTIFACT_REST_ENDPOINT);
         ResponseAssertion.assertThat(response).hasStatus(200);
 
-        List<Map<String,Object>> list = response.jsonPath().getList("content");
+        List<Map<String, Object>> list = response.jsonPath().getList("content");
         assertThat(list).hasSize(1);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id",artifactRest3.getId());
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content[0].id", artifactRest3.getId());
     }
 
     @Test
     public void testGetSpecificArtifact() {
         Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON).port(getHttpPort()).when()
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
                 .get(String.format(ARTIFACT_REST_SPECIFIC_ENDPOINT, artifactRest1.getId()));
 
         ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id",artifactRest1.getId());
-
+        ResponseAssertion.assertThat(response).hasJsonValueEqual("content.id", artifactRest1.getId());
 
     }
 }

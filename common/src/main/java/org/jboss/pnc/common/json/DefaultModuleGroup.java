@@ -20,5 +20,5 @@ package org.jboss.pnc.common.json;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DefaultModuleGroup extends AbstractModuleGroup{
+public class DefaultModuleGroup extends AbstractModuleGroup {
 }

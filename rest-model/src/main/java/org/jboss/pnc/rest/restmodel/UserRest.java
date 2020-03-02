@@ -27,7 +27,7 @@ import javax.validation.constraints.Null;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-@XmlRootElement(name = "User") //TODO lowercase
+@XmlRootElement(name = "User") // TODO lowercase
 @ToString
 public class UserRest implements GenericRestEntity<Integer> {
 

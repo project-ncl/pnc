@@ -54,13 +54,12 @@ public class RepositoryManagerResultSerializationTest {
 
     private final Logger log = LoggerFactory.getLogger(RepositoryManagerResultSerializationTest.class);
 
-
     @Mock
     private Configuration configuration;
 
     @Spy
     private TargetRepositoryMapper targetRepositoryMapper;
-    
+
     @Spy
     private BuildMapper buildMapper;
 
@@ -72,19 +71,25 @@ public class RepositoryManagerResultSerializationTest {
     private RepositoryManagerResultMapper repositoryManagerResultMapper;
 
     @Before
-    public void before() throws Exception{
+    public void before() throws Exception {
         IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig("http://url.com");
         indyRepoDriverModuleConfig.setExternalRepositoryMvnPath("http://url.com");
         indyRepoDriverModuleConfig.setExternalRepositoryNpmPath("http://url.com");
         indyRepoDriverModuleConfig.setInternalRepositoryMvnPath("http://url.com");
         indyRepoDriverModuleConfig.setInternalRepositoryNpmPath("http://url.com");
-        when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class))).thenReturn(indyRepoDriverModuleConfig);
+        when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class)))
+                .thenReturn(indyRepoDriverModuleConfig);
         injectMethod("config", artifactMapper, configuration, AbstractArtifactMapper.class);
-        injectMethod("targetRepositoryMapper", artifactMapper, targetRepositoryMapper, AbstractArtifactMapperImpl.class);
+        injectMethod(
+                "targetRepositoryMapper",
+                artifactMapper,
+                targetRepositoryMapper,
+                AbstractArtifactMapperImpl.class);
         injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
     }
 
-    private void injectMethod(String fieldName, Object to, Object what, Class clazz) throws NoSuchFieldException, IllegalAccessException {
+    private void injectMethod(String fieldName, Object to, Object what, Class clazz)
+            throws NoSuchFieldException, IllegalAccessException {
         Field f = clazz.getDeclaredField(fieldName);
         f.setAccessible(true);
         f.set(to, what);
@@ -99,16 +104,39 @@ public class RepositoryManagerResultSerializationTest {
         String repoMngrResultJson = JsonOutputConverterMapper.apply(repoMngrResultRest);
         log.debug("RepoManagerResultJson : {}", repoMngrResultJson);
 
-        RepositoryManagerResultRest deserializedRepoManResultRest = JsonOutputConverterMapper.readValue(repoMngrResultJson, RepositoryManagerResultRest.class);
-        RepositoryManagerResult deserializedRepoMngrResult = repositoryManagerResultMapper.toEntity(deserializedRepoManResultRest);
+        RepositoryManagerResultRest deserializedRepoManResultRest = JsonOutputConverterMapper
+                .readValue(repoMngrResultJson, RepositoryManagerResultRest.class);
+        RepositoryManagerResult deserializedRepoMngrResult = repositoryManagerResultMapper
+                .toEntity(deserializedRepoManResultRest);
         String message = "Deserialized object does not match the original.";
 
-        Assert.assertEquals(message, repoMngrResult.getBuildContentId(), deserializedRepoMngrResult.getBuildContentId());
-        Assert.assertEquals(message, repoMngrResult.getBuiltArtifacts().get(0), deserializedRepoMngrResult.getBuiltArtifacts().get(0));
-        Assert.assertEquals(message, repoMngrResult.getBuiltArtifacts().get(0).getSha256(), deserializedRepoMngrResult.getBuiltArtifacts().get(0).getSha256());
-        Assert.assertEquals(message, repoMngrResult.getBuiltArtifacts().get(0).isBuilt(), deserializedRepoMngrResult.getBuiltArtifacts().get(0).isBuilt());
-        Assert.assertEquals(message, repoMngrResult.getDependencies().get(0), deserializedRepoMngrResult.getDependencies().get(0));
-        Assert.assertEquals(message, repoMngrResult.getDependencies().get(0).getDeployPath(), deserializedRepoMngrResult.getDependencies().get(0).getDeployPath());
-        Assert.assertEquals(message, repoMngrResult.getDependencies().get(0).isImported(), deserializedRepoMngrResult.getDependencies().get(0).isImported());
+        Assert.assertEquals(
+                message,
+                repoMngrResult.getBuildContentId(),
+                deserializedRepoMngrResult.getBuildContentId());
+        Assert.assertEquals(
+                message,
+                repoMngrResult.getBuiltArtifacts().get(0),
+                deserializedRepoMngrResult.getBuiltArtifacts().get(0));
+        Assert.assertEquals(
+                message,
+                repoMngrResult.getBuiltArtifacts().get(0).getSha256(),
+                deserializedRepoMngrResult.getBuiltArtifacts().get(0).getSha256());
+        Assert.assertEquals(
+                message,
+                repoMngrResult.getBuiltArtifacts().get(0).isBuilt(),
+                deserializedRepoMngrResult.getBuiltArtifacts().get(0).isBuilt());
+        Assert.assertEquals(
+                message,
+                repoMngrResult.getDependencies().get(0),
+                deserializedRepoMngrResult.getDependencies().get(0));
+        Assert.assertEquals(
+                message,
+                repoMngrResult.getDependencies().get(0).getDeployPath(),
+                deserializedRepoMngrResult.getDependencies().get(0).getDeployPath());
+        Assert.assertEquals(
+                message,
+                repoMngrResult.getDependencies().get(0).isImported(),
+                deserializedRepoMngrResult.getDependencies().get(0).isImported());
     }
 }

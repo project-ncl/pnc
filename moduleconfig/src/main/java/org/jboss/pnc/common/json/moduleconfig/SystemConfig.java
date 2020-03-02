@@ -33,8 +33,8 @@ public class SystemConfig extends AbstractModuleConfig {
     private final String authenticationProviderId;
 
     /**
-     * Number of threads that are used to run executor operations
-     * (setting up the repos, configuring the build, triggering the build, collecting the results)
+     * Number of threads that are used to run executor operations (setting up the repos, configuring the build,
+     * triggering the build, collecting the results)
      */
     private String executorThreadPoolSize;
 
@@ -44,16 +44,16 @@ public class SystemConfig extends AbstractModuleConfig {
     private String builderThreadPoolSize;
 
     /**
-     * number of threads that are taking a build task to be build and starting the building process
-     * (their job finishes at starting bpm build, then they go back to grab the next build task)
+     * number of threads that are taking a build task to be build and starting the building process (their job finishes
+     * at starting bpm build, then they go back to grab the next build task)
      */
     private int coordinatorThreadPoolSize;
 
     private String brewTagPattern;
 
     /**
-     * maximum number of build tasks processed at a time (build tasks that are in progress,
-     * regardless of whether they are starting bpm process, being build by executor, etc)
+     * maximum number of build tasks processed at a time (build tasks that are in progress, regardless of whether they
+     * are starting bpm process, being build by executor, etc)
      */
     private int coordinatorMaxConcurrentBuilds;
 
@@ -91,13 +91,22 @@ public class SystemConfig extends AbstractModuleConfig {
         this.executorThreadPoolSize = executorThreadPoolSize;
         this.builderThreadPoolSize = builderThreadPoolSize;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
-        this.coordinatorMaxConcurrentBuilds = toIntWithDefault("coordinatorMaxConcurrentBuilds", coordinatorMaxConcurrentBuilds, 10);
+        this.coordinatorMaxConcurrentBuilds = toIntWithDefault(
+                "coordinatorMaxConcurrentBuilds",
+                coordinatorMaxConcurrentBuilds,
+                10);
         this.brewTagPattern = brewTagPattern;
         this.keycloakServiceAccountConfig = keycloakServiceAccountConfig;
-        this.serviceTokenRefreshIfExpiresInSeconds = toIntWithDefault("serviceTokenRefreshIfExpiresInSeconds", serviceTokenRefreshIfExpiresInSeconds, 3600);
+        this.serviceTokenRefreshIfExpiresInSeconds = toIntWithDefault(
+                "serviceTokenRefreshIfExpiresInSeconds",
+                serviceTokenRefreshIfExpiresInSeconds,
+                3600);
         this.temporaryBuildsLifeSpan = toIntWithDefault("temporaryBuildsLifeSpan", temporaryBuildsLifeSpan, 14);
         this.messageSenderId = messageSenderId;
-        this.messagingInternalQueueSize = toIntWithDefault("messagingInternalQueueSize", messagingInternalQueueSize, 1000);
+        this.messagingInternalQueueSize = toIntWithDefault(
+                "messagingInternalQueueSize",
+                messagingInternalQueueSize,
+                1000);
     }
 
     public String getBuildDriverId() {
@@ -164,7 +173,12 @@ public class SystemConfig extends AbstractModuleConfig {
             try {
                 result = Integer.parseInt(numberAsString);
             } catch (NumberFormatException nfe) {
-                log.warn("Invalid value in field: " + fieldName + ". Expected an integer, got: {}. Will use default value: {}", numberAsString, defaultValue, nfe);
+                log.warn(
+                        "Invalid value in field: " + fieldName
+                                + ". Expected an integer, got: {}. Will use default value: {}",
+                        numberAsString,
+                        defaultValue,
+                        nfe);
             }
         }
         return result;
@@ -172,14 +186,12 @@ public class SystemConfig extends AbstractModuleConfig {
 
     @Override
     public String toString() {
-        return "SystemConfig ["
-                + (buildDriverId != null ? "buildDriverId=" + buildDriverId + ", " : "")
+        return "SystemConfig [" + (buildDriverId != null ? "buildDriverId=" + buildDriverId + ", " : "")
                 + (buildSchedulerId != null ? "buildSchedulerId=" + buildSchedulerId + ", " : "")
-                + (authenticationProviderId != null ? "authenticationProviderId=" + authenticationProviderId + ", " : "")
-                + (executorThreadPoolSize != null ? "executorThreadPoolSize="
-                        + executorThreadPoolSize + ", " : "")
-                + (builderThreadPoolSize != null ? "builderThreadPoolSize=" + builderThreadPoolSize
-                        : "") + "]";
+                + (authenticationProviderId != null ? "authenticationProviderId=" + authenticationProviderId + ", "
+                        : "")
+                + (executorThreadPoolSize != null ? "executorThreadPoolSize=" + executorThreadPoolSize + ", " : "")
+                + (builderThreadPoolSize != null ? "builderThreadPoolSize=" + builderThreadPoolSize : "") + "]";
     }
 
 }

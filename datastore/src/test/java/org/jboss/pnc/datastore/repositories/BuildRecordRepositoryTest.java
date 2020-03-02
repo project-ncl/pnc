@@ -90,8 +90,7 @@ public class BuildRecordRepositoryTest {
     public void shouldFindNoneExpiredTemporaryBuilds() {
         // given
         Date now = new Date();
-        BuildRecord givenBr = initBuildRecordBuilder(datastore.getNextBuildRecordId())
-                .endTime(now)
+        BuildRecord givenBr = initBuildRecordBuilder(datastore.getNextBuildRecordId()).endTime(now)
                 .temporaryBuild(true)
                 .build();
         buildRecordRepository.save(givenBr);
@@ -107,8 +106,7 @@ public class BuildRecordRepositoryTest {
     @Test
     public void shouldFindExpiredTemporaryBuilds() {
         // given
-        BuildRecord givenBr = initBuildRecordBuilder(datastore.getNextBuildRecordId())
-                .endTime(new Date(0))
+        BuildRecord givenBr = initBuildRecordBuilder(datastore.getNextBuildRecordId()).endTime(new Date(0))
                 .temporaryBuild(true)
                 .build();
         givenBr = buildRecordRepository.save(givenBr);
@@ -126,59 +124,52 @@ public class BuildRecordRepositoryTest {
     public void dependencyGraphTest() {
         // given
         Date now = new Date();
-        BuildRecord buildRecord0 = initBuildRecordBuilder(100000)
-                .endTime(now)
+        BuildRecord buildRecord0 = initBuildRecordBuilder(100000).endTime(now)
                 .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[]{100002})
-                .dependentBuildRecordIds(new Integer[]{})
+                .dependencyBuildRecordIds(new Integer[] { 100002 })
+                .dependentBuildRecordIds(new Integer[] {})
                 .build();
         buildRecordRepository.save(buildRecord0);
 
-        BuildRecord buildRecord1 = initBuildRecordBuilder(100001)
-                .endTime(now)
+        BuildRecord buildRecord1 = initBuildRecordBuilder(100001).endTime(now)
                 .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[]{100002})
-                .dependentBuildRecordIds(new Integer[]{})
+                .dependencyBuildRecordIds(new Integer[] { 100002 })
+                .dependentBuildRecordIds(new Integer[] {})
                 .build();
         buildRecordRepository.save(buildRecord1);
 
-        BuildRecord buildRecord2 = initBuildRecordBuilder(100002)
-                .endTime(now)
+        BuildRecord buildRecord2 = initBuildRecordBuilder(100002).endTime(now)
                 .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[]{100003,100005,110000,100006}) //missing record: 110000
-                .dependentBuildRecordIds(new Integer[]{100000,100001})
+                .dependencyBuildRecordIds(new Integer[] { 100003, 100005, 110000, 100006 }) // missing record: 110000
+                .dependentBuildRecordIds(new Integer[] { 100000, 100001 })
                 .build();
         buildRecordRepository.save(buildRecord2);
 
-        BuildRecord buildRecord3 = initBuildRecordBuilder(100003)
-                .endTime(now)
+        BuildRecord buildRecord3 = initBuildRecordBuilder(100003).endTime(now)
                 .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[]{100004})
-                .dependentBuildRecordIds(new Integer[]{100002})
+                .dependencyBuildRecordIds(new Integer[] { 100004 })
+                .dependentBuildRecordIds(new Integer[] { 100002 })
                 .build();
         buildRecordRepository.save(buildRecord3);
 
-        BuildRecord buildRecord4 = initBuildRecordBuilder(100004)
-                .endTime(now)
+        BuildRecord buildRecord4 = initBuildRecordBuilder(100004).endTime(now)
                 .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[]{})
-                .dependentBuildRecordIds(new Integer[]{100003})
+                .dependencyBuildRecordIds(new Integer[] {})
+                .dependentBuildRecordIds(new Integer[] { 100003 })
                 .build();
         buildRecordRepository.save(buildRecord4);
 
-        BuildRecord buildRecord5 = initBuildRecordBuilder(100005)
-                .endTime(now)
+        BuildRecord buildRecord5 = initBuildRecordBuilder(100005).endTime(now)
                 .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[]{})
-                .dependentBuildRecordIds(new Integer[]{100002})
+                .dependencyBuildRecordIds(new Integer[] {})
+                .dependentBuildRecordIds(new Integer[] { 100002 })
                 .build();
         buildRecordRepository.save(buildRecord5);
 
-        BuildRecord buildRecord6 = initBuildRecordBuilder(100006)
-                .endTime(now)
+        BuildRecord buildRecord6 = initBuildRecordBuilder(100006).endTime(now)
                 .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[]{})
-                .dependentBuildRecordIds(new Integer[]{100002})
+                .dependencyBuildRecordIds(new Integer[] {})
+                .dependentBuildRecordIds(new Integer[] { 100002 })
                 .build();
         buildRecordRepository.save(buildRecord6);
 
@@ -208,16 +199,14 @@ public class BuildRecordRepositoryTest {
     public void shouldGetRecordsWithoutAttributeKey() {
         // given
         Date now = new Date();
-        BuildRecord buildRecord0 = initBuildRecordBuilder(200000)
-                .endTime(now)
+        BuildRecord buildRecord0 = initBuildRecordBuilder(200000).endTime(now)
                 .temporaryBuild(true)
                 .attribute("ATTR1", "X")
-                .attribute("TEST", "true") //exclude all other builds
+                .attribute("TEST", "true") // exclude all other builds
                 .build();
         buildRecordRepository.save(buildRecord0);
 
-        BuildRecord buildRecord1 = initBuildRecordBuilder(200001)
-                .endTime(now)
+        BuildRecord buildRecord1 = initBuildRecordBuilder(200001).endTime(now)
                 .temporaryBuild(true)
                 .attribute("ATTR1", "X")
                 .attribute("ATTR2", "X")
@@ -225,36 +214,38 @@ public class BuildRecordRepositoryTest {
                 .build();
         buildRecordRepository.save(buildRecord1);
 
-        //when
+        // when
         List<BuildRecord> result = buildRecordRepository.queryWithPredicates(
                 BuildRecordPredicates.withoutAttribute("ATTR2"),
                 BuildRecordPredicates.withAttribute("TEST", "true"));
 
-        //then
+        // then
         logger.debug("Builds {}", result);
         Assertions.assertThat(result.size()).isEqualTo(1);
     }
 
     private BuildRecord.Builder initBuildRecordBuilder(Integer id) {
-        if(user == null) {
+        if (user == null) {
             List<User> users = userRepository.queryWithPredicates(UserPredicates.withUserName("demo-user"));
             if (users.size() > 0) {
                 user = users.get(0);
             }
-            if(user == null) {
-                this.user = userRepository.save(User.Builder.newBuilder()
-                        .username("demo-user")
-                        .firstName("Demo First Name")
-                        .lastName("Demo Last Name")
-                        .email("demo-user@pnc.com")
-                        .build());
+            if (user == null) {
+                this.user = userRepository.save(
+                        User.Builder.newBuilder()
+                                .username("demo-user")
+                                .firstName("Demo First Name")
+                                .lastName("Demo Last Name")
+                                .email("demo-user@pnc.com")
+                                .build());
             }
         }
 
         BuildConfiguration buildConfiguration = producers.createValidBuildConfiguration("buildRecordTest-" + id);
         BuildConfiguration saved = buildConfigurationRepository.save(buildConfiguration);
-        BuildConfigurationAudited buildConfigurationAudited =
-                buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(saved.getId()).get(0);
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
+                .findAllByIdOrderByRevDesc(saved.getId())
+                .get(0);
 
         return BuildRecord.Builder.newBuilder()
                 .id(id)
@@ -263,7 +254,5 @@ public class BuildRecordRepositoryTest {
                 .user(user)
                 .status(BuildStatus.SUCCESS);
     }
-
-
 
 }

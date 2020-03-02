@@ -30,8 +30,11 @@ import java.util.concurrent.TimeUnit;
 public class MDCExecutors {
 
     public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) {
-        return new MDCThreadPoolExecutor(nThreads, nThreads,
-                0L, TimeUnit.MILLISECONDS,
+        return new MDCThreadPoolExecutor(
+                nThreads,
+                nThreads,
+                0L,
+                TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(),
                 threadFactory);
     }
@@ -44,7 +47,9 @@ public class MDCExecutors {
         return new MDCScheduledThreadPoolExecutor(corePoolSize);
     }
 
-    public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize, NamedThreadFactory namedThreadFactory) {
+    public static ScheduledExecutorService newScheduledThreadPool(
+            int corePoolSize,
+            NamedThreadFactory namedThreadFactory) {
         return new MDCScheduledThreadPoolExecutor(corePoolSize, namedThreadFactory);
     }
 }

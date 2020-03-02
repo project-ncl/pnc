@@ -82,8 +82,9 @@ public class BuildRecordPushTest extends AbstractTest {
     }
 
     @Test
-    @Ignore //TODO: unignore after NCL-4964, fails because of switching to BuildPushResult in BuildResultPushManager
-    public void shouldPushBuildRecord() throws IOException, DeploymentException, TimeoutException, InterruptedException {
+    @Ignore // TODO: unignore after NCL-4964, fails because of switching to BuildPushResult in BuildResultPushManager
+    public void shouldPushBuildRecord()
+            throws IOException, DeploymentException, TimeoutException, InterruptedException {
         List<BuildPushResulNotification> results = new ArrayList<>();
         Consumer<BuildPushResulNotification> onMessage = (result) -> {
             logger.debug("Received notification result {}.", result);
@@ -99,40 +100,40 @@ public class BuildRecordPushTest extends AbstractTest {
 
         BuildRecordPushRestClient pushRestClient = new BuildRecordPushRestClient();
 
-        //when push BR
+        // when push BR
         BuildRecordPushRequestRest pushRequest = new BuildRecordPushRequestRest("tagPrefix", buildRecordId, false);
         RestResponse<ResultRest[]> restResponse = pushRestClient.push(pushRequest);
 
-        //then make sure the request has been accepted
+        // then make sure the request has been accepted
         ResultRest[] responseValue = restResponse.getValue();
         ResultRest result = getById(responseValue, buildRecordId.toString());
         Assert.assertTrue(result.getStatus().isSuccess());
         Assertions.assertThat(result.getStatus()).isEqualTo(ResultRest.Status.ACCEPTED);
 
-        //when the same BuildRecord pushed again
+        // when the same BuildRecord pushed again
         RestResponse<ResultRest[]> secondResponse = pushRestClient.push(pushRequest);
 
-        //then it should be rejected
+        // then it should be rejected
         ResultRest[] secondValue = secondResponse.getValue();
         ResultRest secondResult = getById(secondValue, buildRecordId.toString());
         Assert.assertFalse(secondResult.getStatus().isSuccess());
         Assertions.assertThat(secondResult.getStatus()).isEqualTo(ResultRest.Status.REJECTED);
 
-        //when completed
+        // when completed
         mockCompletedFromCauseway(pushRestClient, buildRecordId);
 
-        //test the completion notification
+        // test the completion notification
         Wait.forCondition(() -> results.size() > 0, 5, ChronoUnit.SECONDS);
         Assertions.assertThat(results.get(0).getBuildPushResult().getLog()).isEqualTo(PUSH_LOG);
 
-        //test DB entry
+        // test DB entry
         BuildRecordPushResultRest status = pushRestClient.getStatus(buildRecordId);
         Assertions.assertThat(status.getLog()).isEqualTo(PUSH_LOG);
 
-        //when the same BuildRecord pushed again
+        // when the same BuildRecord pushed again
         RestResponse<ResultRest[]> thirdResponse = pushRestClient.push(pushRequest);
 
-        //then it should be accepted again
+        // then it should be accepted again
         ResultRest[] thirdValue = thirdResponse.getValue();
         ResultRest thirdResult = getById(responseValue, buildRecordId.toString());
         Assert.assertTrue(thirdResult.isSuccess());
@@ -163,7 +164,8 @@ public class BuildRecordPushTest extends AbstractTest {
 
         Consumer<String> onMessageInternal = (message) -> {
             try {
-                BuildPushResulNotification buildRecordPushResultRest = JsonOutputConverterMapper.readValue(message, BuildPushResulNotification.class);
+                BuildPushResulNotification buildRecordPushResultRest = JsonOutputConverterMapper
+                        .readValue(message, BuildPushResulNotification.class);
                 onMessage.accept(buildRecordPushResultRest);
             } catch (IOException e) {
                 throw new RuntimeException(e);

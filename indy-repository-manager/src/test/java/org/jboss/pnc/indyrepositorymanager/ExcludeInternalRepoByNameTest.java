@@ -49,9 +49,7 @@ import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.SHARED
 import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
-public class ExcludeInternalRepoByNameTest
- extends AbstractImportTest
-{
+public class ExcludeInternalRepoByNameTest extends AbstractImportTest {
 
     private static final String INTERNAL = "internal";
     private static final String EXTERNAL = "external";
@@ -66,18 +64,32 @@ public class ExcludeInternalRepoByNameTest
     @Test
     public void extractBuildArtifacts_ContainsTwoDownloads() throws Exception {
         // create a remote repo pointing at our server fixture's 'repo/test' directory.
-        indy.stores().create(new RemoteRepository(MAVEN_PKG_KEY, INTERNAL, server.formatUrl(INTERNAL)), "Creating internal test remote repo",
-                RemoteRepository.class);
+        indy.stores()
+                .create(
+                        new RemoteRepository(MAVEN_PKG_KEY, INTERNAL, server.formatUrl(INTERNAL)),
+                        "Creating internal test remote repo",
+                        RemoteRepository.class);
 
-        indy.stores().create(new RemoteRepository(MAVEN_PKG_KEY, EXTERNAL, server.formatUrl(EXTERNAL)), "Creating external test remote repo",
-                RemoteRepository.class);
+        indy.stores()
+                .create(
+                        new RemoteRepository(MAVEN_PKG_KEY, EXTERNAL, server.formatUrl(EXTERNAL)),
+                        "Creating external test remote repo",
+                        RemoteRepository.class);
 
-        Group publicGroup = indy.stores().load(new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC_GROUP_ID), Group.class);
+        Group publicGroup = indy.stores()
+                .load(new StoreKey(MAVEN_PKG_KEY, StoreType.group, PUBLIC_GROUP_ID), Group.class);
         if (publicGroup == null) {
-            publicGroup = new Group(MAVEN_PKG_KEY, PUBLIC_GROUP_ID, new StoreKey(MAVEN_PKG_KEY, StoreType.remote, INTERNAL), new StoreKey(MAVEN_PKG_KEY, StoreType.remote, EXTERNAL));
+            publicGroup = new Group(
+                    MAVEN_PKG_KEY,
+                    PUBLIC_GROUP_ID,
+                    new StoreKey(MAVEN_PKG_KEY, StoreType.remote, INTERNAL),
+                    new StoreKey(MAVEN_PKG_KEY, StoreType.remote, EXTERNAL));
             indy.stores().create(publicGroup, "creating public group", Group.class);
         } else {
-            publicGroup.setConstituents(Arrays.asList(new StoreKey(MAVEN_PKG_KEY, StoreType.remote, INTERNAL), new StoreKey(MAVEN_PKG_KEY, StoreType.remote, EXTERNAL)));
+            publicGroup.setConstituents(
+                    Arrays.asList(
+                            new StoreKey(MAVEN_PKG_KEY, StoreType.remote, INTERNAL),
+                            new StoreKey(MAVEN_PKG_KEY, StoreType.remote, EXTERNAL)));
             indy.stores().update(publicGroup, "adding test remotes to public group");
         }
 
@@ -86,14 +98,20 @@ public class ExcludeInternalRepoByNameTest
 
         String content = "This is a test " + System.currentTimeMillis();
 
-        // setup the expectation that the remote repo pointing at this server will request this file...and define its content.
+        // setup the expectation that the remote repo pointing at this server will request this file...and define its
+        // content.
         server.expect(server.formatUrl(INTERNAL, internalPath), 200, content);
         server.expect(server.formatUrl(EXTERNAL, externalPath), 200, content);
 
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
 
-        RepositorySession rc = driver.createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, Collections.emptyMap());
+        RepositorySession rc = driver.createBuildRepository(
+                execution,
+                accessToken,
+                accessToken,
+                RepositoryType.MAVEN,
+                Collections.emptyMap());
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDependencyUrl();

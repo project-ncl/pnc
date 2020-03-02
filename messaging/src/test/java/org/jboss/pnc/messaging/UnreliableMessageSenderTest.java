@@ -51,8 +51,7 @@ public class UnreliableMessageSenderTest extends BaseMessageSenderTest {
 
     @Deployment
     public static Archive<?> deployment() {
-        return getDeployment()
-                .addClass(UnreliableMessageSender.class)
+        return getDeployment().addClass(UnreliableMessageSender.class)
                 .addClass(SystemConfig.class)
                 .addClass(AbstractModuleConfig.class)
                 .addClass(KeycloakClientConfig.class)

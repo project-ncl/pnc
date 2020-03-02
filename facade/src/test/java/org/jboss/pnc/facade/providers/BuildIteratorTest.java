@@ -60,7 +60,7 @@ public class BuildIteratorTest {
     private BuildProviderImpl provider;
 
     @Before
-    public void prepareMock(){
+    public void prepareMock() {
         when(mapper.toDTO(any())).thenAnswer((InvocationOnMock invocation) -> {
             BuildRecord build = invocation.getArgument(0);
             return Build.builder().id(build.getId().toString()).build();

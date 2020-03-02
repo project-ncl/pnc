@@ -26,8 +26,8 @@ import org.mapstruct.Mapper;
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = {MapSetMapper.class})
-public interface ProductMapper extends EntityMapper<Integer, Product, org.jboss.pnc.dto.Product,ProductRef> {
+@Mapper(config = MapperCentralConfig.class, uses = { MapSetMapper.class })
+public interface ProductMapper extends EntityMapper<Integer, Product, org.jboss.pnc.dto.Product, ProductRef> {
     @Override
     Product toEntity(org.jboss.pnc.dto.Product dtoEntity);
 
@@ -45,6 +45,6 @@ public interface ProductMapper extends EntityMapper<Integer, Product, org.jboss.
     org.jboss.pnc.dto.Product toDTO(Product dbEntity);
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = {"productVersions"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "productVersions" })
     ProductRef toRef(Product dbEntity);
 }

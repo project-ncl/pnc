@@ -66,7 +66,6 @@ public class ProductEndpointTest {
     private static final Logger logger = LoggerFactory.getLogger(ProductEndpointTest.class);
     private static String productId;
 
-
     @Deployment
     public static EnterpriseArchive deploy() {
         return Deployments.testEar();
@@ -79,7 +78,7 @@ public class ProductEndpointTest {
     }
 
     @Before
-    public void before() throws RemoteResourceException{
+    public void before() throws RemoteResourceException {
         ProductClient client = new ProductClient(RestClientConfiguration.asAnonymous());
         System.out.println("All things: ");
         for (Product product : client.getAll()) {
@@ -140,7 +139,8 @@ public class ProductEndpointTest {
 
     @Test
     @InSequence(30)
-    public void shouldFailToAddConflictingProduct() throws RestValidationException, URISyntaxException, ClientException {
+    public void shouldFailToAddConflictingProduct()
+            throws RestValidationException, URISyntaxException, ClientException {
         ProductClient client = new ProductClient(RestClientConfiguration.asUser());
 
         Product product = Product.builder()
@@ -167,7 +167,8 @@ public class ProductEndpointTest {
         Product dto = client.getSpecific(productId);
 
         assertThat(dto.getName()).isEqualTo("Project Newcastle Demo Product"); // from DatabaseDataInitializer
-        assertThat(dto.getDescription()).isEqualTo("Example Product for Project Newcastle Demo"); // from DatabaseDataInitializer
+        assertThat(dto.getDescription()).isEqualTo("Example Product for Project Newcastle Demo"); // from
+                                                                                                  // DatabaseDataInitializer
     }
 
     @Test
@@ -206,9 +207,7 @@ public class ProductEndpointTest {
 
         RemoteCollection<ProductVersion> all = client.getProductVersions(productId);
 
-        assertThat(all)
-                .hasSize(2)
-                .allMatch(v -> v.getProduct().getId().equals(productId));
+        assertThat(all).hasSize(2).allMatch(v -> v.getProduct().getId().equals(productId));
     }
 
 }

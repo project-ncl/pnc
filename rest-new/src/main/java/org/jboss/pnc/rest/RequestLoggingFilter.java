@@ -85,7 +85,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
                 }
             }
         } catch (IllegalStateException e) {
-            //user not found.. proceed
+            // user not found.. proceed
         }
 
         UriInfo uriInfo = requestContext.getUriInfo();
@@ -101,21 +101,21 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
     }
 
     @Override
-    public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) throws IOException {
+    public void filter(
+            ContainerRequestContext containerRequestContext,
+            ContainerResponseContext containerResponseContext) throws IOException {
         Long startTime = (Long) containerRequestContext.getProperty(REQUEST_EXECUTION_START);
 
         String took;
         if (startTime == null) {
-            took="-1";
+            took = "-1";
         } else {
             took = Long.toString(System.currentTimeMillis() - startTime);
         }
 
-        try (
-            MDC.MDCCloseable mdcTook = MDC.putCloseable("request.took", took);
-            MDC.MDCCloseable mdcStatus = MDC.putCloseable("response.status",
-                    Integer.toString(containerResponseContext.getStatus()));
-        ) {
+        try (MDC.MDCCloseable mdcTook = MDC.putCloseable("request.took", took);
+                MDC.MDCCloseable mdcStatus = MDC
+                        .putCloseable("response.status", Integer.toString(containerResponseContext.getStatus()));) {
             logger.debug("Completed {}.", containerRequestContext.getUriInfo().getPath());
         }
     }
@@ -148,7 +148,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             } else {
                 b.append(new String(requestEntity)).append("\n");
             }
-            requestContext.setEntityStream( new ByteArrayInputStream(requestEntity) );
+            requestContext.setEntityStream(new ByteArrayInputStream(requestEntity));
 
         } catch (IOException e) {
             logger.error("Error logging REST request.", e);

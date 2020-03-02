@@ -23,7 +23,7 @@ import org.jboss.pnc.rest.restmodel.ArtifactRest;
  *
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-public class ArtifactRestClient extends AbstractRestClient<ArtifactRest>{
+public class ArtifactRestClient extends AbstractRestClient<ArtifactRest> {
 
     public static final String ARTIFACT_REST_ENDPOINT = "/pnc-rest/rest/artifacts/";
 

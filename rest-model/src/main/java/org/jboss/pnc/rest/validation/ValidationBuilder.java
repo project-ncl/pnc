@@ -51,7 +51,7 @@ public class ValidationBuilder<T> {
     }
 
     public static ValidationBuilder validateObject(Object object, Class<? extends ValidationGroup> validationGroup) {
-        if(validationGroup == ValidationGroup.class) {
+        if (validationGroup == ValidationGroup.class) {
             throw new IllegalArgumentException("Use validation subclasses");
         }
 
@@ -63,9 +63,9 @@ public class ValidationBuilder<T> {
     }
 
     public ValidationBuilder validateAnnotations() throws InvalidEntityException {
-        if(objectToBeValidated != null) {
+        if (objectToBeValidated != null) {
             Set<ConstraintViolation<T>> constraintViolations = validator.validate(objectToBeValidated, validationGroup);
-            if(!constraintViolations.isEmpty()) {
+            if (!constraintViolations.isEmpty()) {
                 throw new InvalidEntityException(constraintViolations.iterator().next());
             }
         }
@@ -73,12 +73,12 @@ public class ValidationBuilder<T> {
     }
 
     public ValidationBuilder validateField(String property, Object value) throws InvalidEntityException {
-        if(objectToBeValidated != null) {
+        if (objectToBeValidated != null) {
             try {
                 Field field = objectToBeValidated.getClass().getDeclaredField(property);
                 field.setAccessible(true);
                 Object valueFromObject = field.get(objectToBeValidated);
-                if((value == null && valueFromObject == null) || (value != null && value.equals(valueFromObject)))
+                if ((value == null && valueFromObject == null) || (value != null && value.equals(valueFromObject)))
                     return this;
                 throw new InvalidEntityException(field);
             } catch (NoSuchFieldException e) {
@@ -90,33 +90,37 @@ public class ValidationBuilder<T> {
         return this;
     }
 
-    public ValidationBuilder validateConflict(ConflictedEntryValidator validate) throws
-            ConflictedEntryException {
+    public ValidationBuilder validateConflict(ConflictedEntryValidator validate) throws ConflictedEntryException {
         ConflictedEntryValidator.ConflictedEntryValidationError validationError = validate.validate();
-        if(validationError != null) {
-            throw new ConflictedEntryException(validationError.getMessage(), validationError.getConflictedEntity(), validationError.getConflictedRecordId());
+        if (validationError != null) {
+            throw new ConflictedEntryException(
+                    validationError.getMessage(),
+                    validationError.getConflictedEntity(),
+                    validationError.getConflictedRecordId());
         }
         return this;
     }
 
     public ValidationBuilder validateNotEmptyArgument() throws EmptyEntityException {
-        if(objectToBeValidated == null) {
+        if (objectToBeValidated == null) {
             throw new EmptyEntityException("Input object is null");
         }
         return this;
     }
 
-    public <DBEntity extends GenericEntity<ID>, ID extends Number> ValidationBuilder validateAgainstRepository(Repository<DBEntity, ID> repository, ID id, boolean shouldExist)
-            throws RepositoryViolationException, EmptyEntityException {
+    public <DBEntity extends GenericEntity<ID>, ID extends Number> ValidationBuilder validateAgainstRepository(
+            Repository<DBEntity, ID> repository,
+            ID id,
+            boolean shouldExist) throws RepositoryViolationException, EmptyEntityException {
 
-        if(id == null) {
+        if (id == null) {
             throw new EmptyEntityException("Id is null");
         }
 
         DBEntity dbEntity = repository.queryById(id);
-        if((!shouldExist && dbEntity != null) || (shouldExist && dbEntity == null)) {
+        if ((!shouldExist && dbEntity != null) || (shouldExist && dbEntity == null)) {
             StringBuilder sb = new StringBuilder("Entity should ");
-            if(!shouldExist) {
+            if (!shouldExist) {
                 sb.append(" not ");
             }
             sb.append("exist in the DB");
@@ -125,9 +129,8 @@ public class ValidationBuilder<T> {
         return this;
     }
 
-    public ValidationBuilder validateCondition(boolean condition, String message)
-            throws InvalidEntityException {
-        if(!condition) {
+    public ValidationBuilder validateCondition(boolean condition, String message) throws InvalidEntityException {
+        if (!condition) {
             throw new InvalidEntityException(message);
         }
         return this;

@@ -48,8 +48,8 @@ public class ProductProviderTest extends AbstractProviderTest<Product> {
     @InjectMocks
     private ProductProviderImpl provider;
 
-    private  Product productMock = prepareNewProduct("amazon");
-    private  Product productMockSecond = prepareNewProduct("nananana");
+    private Product productMock = prepareNewProduct("amazon");
+    private Product productMockSecond = prepareNewProduct("nananana");
 
     @Override
     protected AbstractProvider provider() {
@@ -109,8 +109,7 @@ public class ProductProviderTest extends AbstractProviderTest<Product> {
                 .build();
 
         // then: can't store new product with id already set
-        assertThatThrownBy(() -> provider.store(productDTO))
-                .isInstanceOf(InvalidEntityException.class);
+        assertThatThrownBy(() -> provider.store(productDTO)).isInstanceOf(InvalidEntityException.class);
     }
 
     @Test
@@ -127,8 +126,7 @@ public class ProductProviderTest extends AbstractProviderTest<Product> {
                 .build();
 
         // then
-        assertThatThrownBy(() -> provider.store(productDTO))
-                .isInstanceOf(ConflictedEntryException.class);
+        assertThatThrownBy(() -> provider.store(productDTO)).isInstanceOf(ConflictedEntryException.class);
     }
 
     @Test
@@ -181,8 +179,7 @@ public class ProductProviderTest extends AbstractProviderTest<Product> {
         Page<org.jboss.pnc.dto.Product> all = provider.getAll(0, 10, null, null);
 
         // then
-        assertThat(all.getContent())
-                .hasSize(5);
+        assertThat(all.getContent()).hasSize(5);
     }
 
     @Test
@@ -198,8 +195,7 @@ public class ProductProviderTest extends AbstractProviderTest<Product> {
 
     @Test
     public void testDeleteShouldFail() {
-        assertThatThrownBy(() -> provider.delete("hello-test"))
-                .isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> provider.delete("hello-test")).isInstanceOf(UnsupportedOperationException.class);
     }
 
     private Product prepareNewProduct(String name) {

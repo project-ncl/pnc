@@ -26,11 +26,7 @@ import org.jboss.pnc.model.User;
 public class MockUser {
 
     public static User newTestUser(Integer id) {
-        User user = User.Builder.newBuilder()
-            .id(id)
-            .firstName("Poseidon")
-            .lastName("Neptune")
-            .build();
+        User user = User.Builder.newBuilder().id(id).firstName("Poseidon").lastName("Neptune").build();
         return user;
     }
 

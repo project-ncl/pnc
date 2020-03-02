@@ -22,9 +22,7 @@ import org.jboss.pnc.spi.SshCredentials;
 import java.util.function.Consumer;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 7/22/16
- * Time: 11:10 AM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 7/22/16 Time: 11:10 AM
  */
 public class DebugData {
 

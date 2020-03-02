@@ -65,18 +65,21 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     @Override
     public BuildSetTask build(BuildConfigurationAudited buildConfiguration, User user, BuildOptions buildOptions) {
         logger.warn("Invoking unimplemented method build");
-        return Mockito.mock(BuildSetTask.class);    }
+        return Mockito.mock(BuildSetTask.class);
+    }
 
     @Override
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)  {
+    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions) {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }
 
     @Override
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet,
-                              Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
-                              User user, BuildOptions buildOptions) throws CoreException {
+    public BuildSetTask build(
+            BuildConfigurationSet buildConfigurationSet,
+            Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
+            User user,
+            BuildOptions buildOptions) throws CoreException {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }
@@ -117,7 +120,8 @@ public class BuildCoordinatorMock implements BuildCoordinator {
         logger.info("Called start threads");
     }
 
-    @Override public Optional<BuildTaskContext> getMDCMeta(Integer buildTaskId) {
+    @Override
+    public Optional<BuildTaskContext> getMDCMeta(Integer buildTaskId) {
         return Optional.empty();
     }
 }

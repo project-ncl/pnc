@@ -69,13 +69,29 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     @Setter
     private String tempBuildTimestamp;
 
-    public BuildExecutionConfigurationRest() {}
+    public BuildExecutionConfigurationRest() {
+    }
 
-    public BuildExecutionConfigurationRest(int id, String buildContentId, User user, String buildScript, String name,
-            String scmRepoURL, String scmRevision, String scmTag, String originRepoURL, boolean preBuildSyncEnabled,
-            BuildType buildType, String systemImageId, String systemImageRepositoryUrl, SystemImageType systemImageType,
-            boolean podKeptOnFailure, List<ArtifactRepository> artifactRepositories, Map<String, String> genericParameters,
-            boolean tempBuild, String tempBuildTimestamp) {
+    public BuildExecutionConfigurationRest(
+            int id,
+            String buildContentId,
+            User user,
+            String buildScript,
+            String name,
+            String scmRepoURL,
+            String scmRevision,
+            String scmTag,
+            String originRepoURL,
+            boolean preBuildSyncEnabled,
+            BuildType buildType,
+            String systemImageId,
+            String systemImageRepositoryUrl,
+            SystemImageType systemImageType,
+            boolean podKeptOnFailure,
+            List<ArtifactRepository> artifactRepositories,
+            Map<String, String> genericParameters,
+            boolean tempBuild,
+            String tempBuildTimestamp) {
         this.id = id;
         this.buildContentId = buildContentId;
         this.user = user;
@@ -98,8 +114,10 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     }
 
     public BuildExecutionConfigurationRest(String serialized) throws IOException {
-        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = JsonOutputConverterMapper.readValue(serialized, BuildExecutionConfigurationRest.class);
-        BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionConfigurationRestFromJson.toBuildExecutionConfiguration();
+        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = JsonOutputConverterMapper
+                .readValue(serialized, BuildExecutionConfigurationRest.class);
+        BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionConfigurationRestFromJson
+                .toBuildExecutionConfiguration();
 
         init(buildExecutionConfiguration);
     }
@@ -156,8 +174,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 artifactRepositories,
                 genericParameters,
                 tempBuild,
-                tempBuildTimestamp
-        );
+                tempBuildTimestamp);
     }
 
     public void setId(int id) {

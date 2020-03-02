@@ -36,7 +36,6 @@
 
 package org.jboss.pnc.rest.restmodel.response;
 
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -47,7 +46,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Singleton<T> {
 
-    
     private T content;
 
     public Singleton() {

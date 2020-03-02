@@ -36,9 +36,11 @@ public class OpenshiftStartedEnvironmentTest {
         // given
         ClassLoader classLoader = getClass().getClassLoader();
         String originalJsonMessage = FileUtils.readFileToString(
-                new File(classLoader.getResource("startedEnvironmentOriginalMessage.json").getFile()), Charset.forName("UTF-8"));
+                new File(classLoader.getResource("startedEnvironmentOriginalMessage.json").getFile()),
+                Charset.forName("UTF-8"));
         String expectedSecuredJson = FileUtils.readFileToString(
-                new File(classLoader.getResource("startedEnvironmentSecuredMessage.json").getFile()), Charset.forName("UTF-8"));
+                new File(classLoader.getResource("startedEnvironmentSecuredMessage.json").getFile()),
+                Charset.forName("UTF-8"));
 
         // when
         String securedJson = OpenshiftStartedEnvironment.secureLog(originalJsonMessage);

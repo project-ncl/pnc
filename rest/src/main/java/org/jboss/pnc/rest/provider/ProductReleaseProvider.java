@@ -38,8 +38,11 @@ public class ProductReleaseProvider extends AbstractProvider<ProductRelease, Pro
     private ProductMilestoneRepository productMilestoneRepository;
 
     @Inject
-    public ProductReleaseProvider(ProductReleaseRepository productReleaseRepository, RSQLPredicateProducer rsqlPredicateProducer,
-            SortInfoProducer sortInfoProducer, PageInfoProducer pageInfoProducer,
+    public ProductReleaseProvider(
+            ProductReleaseRepository productReleaseRepository,
+            RSQLPredicateProducer rsqlPredicateProducer,
+            SortInfoProducer sortInfoProducer,
+            PageInfoProducer pageInfoProducer,
             ProductMilestoneRepository productMilestoneRepository) {
         super(productReleaseRepository, rsqlPredicateProducer, sortInfoProducer, pageInfoProducer);
         this.productMilestoneRepository = productMilestoneRepository;
@@ -56,11 +59,15 @@ public class ProductReleaseProvider extends AbstractProvider<ProductRelease, Pro
 
     @Override
     protected Function<? super ProductReleaseRest, ? extends ProductRelease> toDBModel() {
-        return productReleaseRest ->  productReleaseRest.toDBEntityBuilder().build();
+        return productReleaseRest -> productReleaseRest.toDBEntityBuilder().build();
     }
 
-    public CollectionInfo<ProductReleaseRest> getAllForProductVersion(int pageIndex, int pageSize, String sortingRsql,
-            String query, Integer versionId) {
+    public CollectionInfo<ProductReleaseRest> getAllForProductVersion(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Integer versionId) {
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductVersionId(versionId));
     }
 

@@ -45,14 +45,13 @@ public class BuildRecordAliasEndpointTest {
     @Test
     public void testRedirect() {
         int buildRecordId = 100;
-        final Response response = given()
-                .redirects().follow(false)
+        final Response response = given().redirects()
+                .follow(false)
                 .port(8080)
                 .when()
                 .get(String.format("/pnc-rest-new/rest-new/build-records/%d", buildRecordId));
         ResponseAssertion.assertThat(response).hasStatus(301);
-        assertThat(response.getHeader("Location"))
-                .isNotNull()
+        assertThat(response.getHeader("Location")).isNotNull()
                 .isEqualTo(String.format("http://localhost:8080/pnc-rest-new/rest-new/builds/%d", buildRecordId));
     }
 }

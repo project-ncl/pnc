@@ -27,7 +27,10 @@ public class ConflictedEntryException extends DTOValidationException {
     private final String conflictedRecordId;
     private final Class<? extends GenericEntity<?>> conflictedEntity;
 
-    public ConflictedEntryException(String message, Class<? extends GenericEntity<?>> conflictedEntity, String conflictedId) {
+    public ConflictedEntryException(
+            String message,
+            Class<? extends GenericEntity<?>> conflictedEntity,
+            String conflictedId) {
         super(message);
         this.conflictedRecordId = conflictedId;
         this.conflictedEntity = conflictedEntity;

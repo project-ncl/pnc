@@ -25,8 +25,7 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import java.util.Map;
 
 /**
- * SPI interface for Environment driver, which provides support
- * to control different target environments.
+ * SPI interface for Environment driver, which provides support to control different target environments.
  * 
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *

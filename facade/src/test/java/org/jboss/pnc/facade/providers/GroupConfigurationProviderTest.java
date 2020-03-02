@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GroupConfigurationProviderTest extends AbstractProviderTest<BuildConfigurationSet>{
+public class GroupConfigurationProviderTest extends AbstractProviderTest<BuildConfigurationSet> {
 
     @Mock
     protected BuildConfigurationSetRepository repository;
@@ -73,7 +73,9 @@ public class GroupConfigurationProviderTest extends AbstractProviderTest<BuildCo
         return repository;
     }
 
-    private BuildConfigurationSet bcs = prepareBuildConfigSet("UNIQUE", false,
+    private BuildConfigurationSet bcs = prepareBuildConfigSet(
+            "UNIQUE",
+            false,
             mockBuildConfig(1, "CFG"),
             mockBuildConfig(2, "HAPPY CONFIG"));
 
@@ -82,7 +84,8 @@ public class GroupConfigurationProviderTest extends AbstractProviderTest<BuildCo
         final BuildConfigurationSet a = prepareBuildConfigSet("Wu-tang clan", false);
         final BuildConfigurationSet b = prepareBuildConfigSet("Ain't nothing", false);
         final BuildConfigurationSet c = prepareBuildConfigSet("To frick with!", false);
-        List<BuildConfigurationSet> configs = new ArrayList<>(Arrays.asList(new BuildConfigurationSet[] { a, b, c, bcs}));
+        List<BuildConfigurationSet> configs = new ArrayList<>(
+                Arrays.asList(new BuildConfigurationSet[] { a, b, c, bcs }));
         fillRepository(configs);
     }
 
@@ -99,9 +102,8 @@ public class GroupConfigurationProviderTest extends AbstractProviderTest<BuildCo
     public void testGetAll() {
         Page<GroupConfiguration> all = provider.getAll(0, 10, null, null);
 
-        //note: archival is not mocked for getAll
-        assertThat(all.getContent())
-                .hasSize(4)
+        // note: archival is not mocked for getAll
+        assertThat(all.getContent()).hasSize(4)
                 .haveExactly(1, new Condition<>(e -> e.getName().equals(bcs.getName()), "GC Present"));
     }
 
@@ -125,39 +127,40 @@ public class GroupConfigurationProviderTest extends AbstractProviderTest<BuildCo
 
     @Test
     public void testAddConfiguration() {
-        //With
+        // With
         final int bcId = 3773;
         final BuildConfiguration buildConfiguration = mockBuildConfig(bcId, "NEWCOMER");
         when(buildConfigurationRepository.queryById(bcId)).thenReturn(buildConfiguration);
 
-        //When
+        // When
         provider.addConfiguration(bcs.getId().toString(), Integer.toString(bcId));
 
-        //Then
+        // Then
         org.jboss.pnc.dto.GroupConfiguration refreshed = provider.getSpecific(bcs.getId().toString());
-        assertThat(refreshed.getBuildConfigs())
-                .containsKey(buildConfiguration.getId().toString());
+        assertThat(refreshed.getBuildConfigs()).containsKey(buildConfiguration.getId().toString());
     }
 
     @Test
     public void testRemoveConfiguration() {
-        //With
-        org.jboss.pnc.dto.GroupConfiguration groupConfiguration =  provider.getSpecific("1"); //
+        // With
+        org.jboss.pnc.dto.GroupConfiguration groupConfiguration = provider.getSpecific("1"); //
         BuildConfiguration toRemove = bcs.getBuildConfigurations().stream().findFirst().get();
         when(buildConfigurationRepository.queryById(Integer.valueOf(toRemove.getId()))).thenReturn(toRemove);
-        assertThat(groupConfiguration.getBuildConfigs())
-                .containsKey(toRemove.getId().toString());
+        assertThat(groupConfiguration.getBuildConfigs()).containsKey(toRemove.getId().toString());
 
-        //When
+        // When
         provider.removeConfiguration(groupConfiguration.getId(), toRemove.getId().toString());
 
-        //Then
+        // Then
         org.jboss.pnc.dto.GroupConfiguration refreshed = provider.getSpecific(groupConfiguration.getId());
         assertThat(refreshed.getBuildConfigs().values())
-                .doNotHave(new Condition<>(toRemove::equals,"BC is equal to 'toRemove' bc"));
+                .doNotHave(new Condition<>(toRemove::equals, "BC is equal to 'toRemove' bc"));
     }
 
-    private BuildConfigurationSet prepareBuildConfigSet(String name, boolean archived, BuildConfiguration... configurations) {
+    private BuildConfigurationSet prepareBuildConfigSet(
+            String name,
+            boolean archived,
+            BuildConfiguration... configurations) {
         final BuildConfigurationSet buildConfigurationSet = BuildConfigurationSet.Builder.newBuilder()
                 .id(entityId++)
                 .name(name)

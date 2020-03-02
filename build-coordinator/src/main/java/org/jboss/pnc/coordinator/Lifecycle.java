@@ -42,5 +42,4 @@ public class Lifecycle {
         log.info("Core stopped.");
     }
 
-
 }

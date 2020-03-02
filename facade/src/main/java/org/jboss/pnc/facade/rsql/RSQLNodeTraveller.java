@@ -26,30 +26,30 @@ import cz.jirutka.rsql.parser.ast.OrNode;
 
 abstract class RSQLNodeTraveller<T> extends NoArgRSQLVisitorAdapter<T> {
 
-   public abstract T visit(LogicalNode logicalNode);
+    public abstract T visit(LogicalNode logicalNode);
 
-   @Override
-   public abstract T visit(ComparisonNode logicalNode);
+    @Override
+    public abstract T visit(ComparisonNode logicalNode);
 
-   public T visit(Node node) {
-      //remember overloading is chosen based on static type.
-      if(node instanceof LogicalNode) {
-         return visit((LogicalNode) node);
-      } else if(node instanceof ComparisonNode) {
-         return visit((ComparisonNode) node);
-      } else {
-         throw new UnsupportedOperationException("Did you invent 3rd type of the node?");
-      }
-   }
+    public T visit(Node node) {
+        // remember overloading is chosen based on static type.
+        if (node instanceof LogicalNode) {
+            return visit((LogicalNode) node);
+        } else if (node instanceof ComparisonNode) {
+            return visit((ComparisonNode) node);
+        } else {
+            throw new UnsupportedOperationException("Did you invent 3rd type of the node?");
+        }
+    }
 
-   @Override
-   public T visit(AndNode node) {
-      return visit((LogicalNode) node);
-   }
+    @Override
+    public T visit(AndNode node) {
+        return visit((LogicalNode) node);
+    }
 
-   @Override
-   public T visit(OrNode node) {
-      return visit((LogicalNode) node);
-   }
+    @Override
+    public T visit(OrNode node) {
+        return visit((LogicalNode) node);
+    }
 
 }

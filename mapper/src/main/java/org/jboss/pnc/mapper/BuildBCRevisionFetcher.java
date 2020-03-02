@@ -37,9 +37,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 /**
- * Workaround for NCL-4889 and NCL-5257. This class will fetch the audited Build Config from DB if it is missing
- * from the transient filed in BuildRecord entity and will map it to appropriate fields in the
- * Build DTO.
+ * Workaround for NCL-4889 and NCL-5257. This class will fetch the audited Build Config from DB if it is missing from
+ * the transient filed in BuildRecord entity and will map it to appropriate fields in the Build DTO.
  *
  * @author jbrazdil
  */
@@ -68,7 +67,7 @@ public class BuildBCRevisionFetcher {
 
         // If somebody before us already set the BCA we don't need to query it from DB again
         BuildConfigurationAudited bca = build.getBuildConfigurationAudited();
-        if(bca == null){
+        if (bca == null) {
             bca = bcAuditedRepository.queryById(new IdRev(id, revision));
         }
 

@@ -26,9 +26,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import java.io.IOException;
 
 /**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
- * Date: 5/10/16
- * Time: 2:15 PM
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 5/10/16 Time: 2:15 PM
  */
 public class ArtifactUploadUtils {
     public static boolean put(CloseableHttpClient client, String url, String content) throws IOException {

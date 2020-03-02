@@ -24,7 +24,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import javax.enterprise.context.Dependent;
 
 @Dependent
-public interface ProductVersionSpringRepository extends JpaRepository<ProductVersion, Integer>,
-        JpaSpecificationExecutor<ProductVersion> {
+public interface ProductVersionSpringRepository
+        extends JpaRepository<ProductVersion, Integer>, JpaSpecificationExecutor<ProductVersion> {
 
 }

@@ -60,80 +60,83 @@ public class ValidationBuilderTest {
 
     @Test
     public void shouldFailValidation() throws Exception {
-        //given
+        // given
         ValidationTesterClass testedObj = new ValidationTesterClass();
 
-        //when
+        // when
         try {
             ValidationBuilder.validateObject(testedObj, WhenCreatingNew.class).validateAnnotations();
             fail();
         } catch (InvalidEntityException e) {
-            //then
+            // then
             assertThat(e.getField()).isEqualTo("notNullWhenCreateNew");
         }
     }
 
     @Test
     public void shouldValidateOnlyWhenCreatingNewGroup() throws Exception {
-        //given
+        // given
         ValidationTesterClass testedObj = new ValidationTesterClass();
         testedObj.notNullWhenCreateNew = "test";
 
-        //when
-        //then
+        // when
+        // then
         ValidationBuilder.validateObject(testedObj, WhenCreatingNew.class).validateAnnotations();
     }
 
     @Test
     public void shouldValidateNotNullField() throws Exception {
-        //given
+        // given
         ValidationTesterClass testedObj = new ValidationTesterClass();
         testedObj.testField = "test";
 
-        //when
-        //then
+        // when
+        // then
         ValidationBuilder.validateObject(testedObj, WhenCreatingNew.class).validateField("testField", "test");
     }
 
     @Test
     public void shouldValidateNullField() throws Exception {
-        //given
+        // given
         ValidationTesterClass testedObj = new ValidationTesterClass();
 
-        //when
-        //then
+        // when
+        // then
         ValidationBuilder.validateObject(testedObj, WhenCreatingNew.class).validateField("testField", null);
     }
 
     @Test
     public void shouldFailFieldValidation() throws Exception {
-        //given
+        // given
         ValidationTesterClass testedObj = new ValidationTesterClass();
         testedObj.testField = "test";
 
-        //when
+        // when
         try {
             ValidationBuilder.validateObject(testedObj, WhenCreatingNew.class).validateField("testField", null);
             fail();
         } catch (InvalidEntityException e) {
-            //then
+            // then
             assertThat(e.getField()).isEqualTo("testField");
         }
     }
 
     @Test
     public void shouldValidateConflict() throws Exception {
-        //given
+        // given
         ValidationTesterClass testedObj = new ValidationTesterClass();
 
-        //when
+        // when
         try {
-            ValidationBuilder.validateObject(testedObj, WhenCreatingNew.class).validateConflict(
-                    () -> new ConflictedEntryValidator.ConflictedEntryValidationError(1, BuildConfiguration.class, "test")
-            );
+            ValidationBuilder.validateObject(testedObj, WhenCreatingNew.class)
+                    .validateConflict(
+                            () -> new ConflictedEntryValidator.ConflictedEntryValidationError(
+                                    1,
+                                    BuildConfiguration.class,
+                                    "test"));
             fail();
         } catch (ConflictedEntryException e) {
-            //then
+            // then
             assertThat(e.getConflictedEntity()).isEqualTo(BuildConfiguration.class);
             assertThat(e.getConflictedRecordId()).isEqualTo(1);
             assertThat(e.getMessage()).isEqualTo("test");
@@ -142,69 +145,64 @@ public class ValidationBuilderTest {
 
     @Test
     public void shouldValidateNotEmptyArgument() throws Exception {
-        //when
+        // when
         try {
             ValidationBuilder.validateObject(null, WhenCreatingNew.class).validateNotEmptyArgument();
             fail();
         } catch (EmptyEntityException ok) {
-            //then
+            // then
         }
     }
 
     @Test
     public void shouldAllowEmptyValidationObject() throws Exception {
-        //when//then
+        // when//then
         ValidationBuilder.validateObject(WhenCreatingNew.class);
     }
 
     @Test(expected = InvalidEntityException.class)
     public void shouldValidateCondition() throws Exception {
-        //when//then
-        ValidationBuilder.validateObject(WhenCreatingNew.class)
-            .validateCondition(false, "message");
+        // when//then
+        ValidationBuilder.validateObject(WhenCreatingNew.class).validateCondition(false, "message");
     }
 
     @Test
     public void shouldValidateAgainstRepository() throws Exception {
-        //given
+        // given
         Entity testedEntity = new Entity();
         Repository<Entity, Integer> repositoryMock = mock(Repository.class);
         doReturn(testedEntity).when(repositoryMock).queryById(anyInt());
 
-        //when//then
-        ValidationBuilder.validateObject(WhenCreatingNew.class).
-                validateAgainstRepository(repositoryMock, 1, true);
+        // when//then
+        ValidationBuilder.validateObject(WhenCreatingNew.class).validateAgainstRepository(repositoryMock, 1, true);
     }
 
     @Test(expected = RepositoryViolationException.class)
     public void shouldFailWhenNotExpectingEntryToBeThere() throws Exception {
-        //given
+        // given
         Entity testedEntity = new Entity();
         Repository<Entity, Integer> repositoryMock = mock(Repository.class);
         doReturn(testedEntity).when(repositoryMock).queryById(anyInt());
 
-        //when//then
-        ValidationBuilder.validateObject(WhenCreatingNew.class).
-                validateAgainstRepository(repositoryMock, 1, false);
+        // when//then
+        ValidationBuilder.validateObject(WhenCreatingNew.class).validateAgainstRepository(repositoryMock, 1, false);
     }
 
     @Test
     public void shouldValidateIfNoEntryIsExpected() throws Exception {
-        //given
+        // given
         Repository<Entity, Integer> repositoryMock = mock(Repository.class);
 
-        //when//then
-        ValidationBuilder.validateObject(WhenCreatingNew.class).
-                validateAgainstRepository(repositoryMock, 1, false);
+        // when//then
+        ValidationBuilder.validateObject(WhenCreatingNew.class).validateAgainstRepository(repositoryMock, 1, false);
     }
 
     @Test(expected = RepositoryViolationException.class)
     public void shouldFailWhenExpectingEntryAndItsNotThere() throws Exception {
-        //given
+        // given
         Repository<Entity, Integer> repositoryMock = mock(Repository.class);
 
-        //when//then
-        ValidationBuilder.validateObject(WhenCreatingNew.class).
-                validateAgainstRepository(repositoryMock, 1, true);
+        // when//then
+        ValidationBuilder.validateObject(WhenCreatingNew.class).validateAgainstRepository(repositoryMock, 1, true);
     }
 }

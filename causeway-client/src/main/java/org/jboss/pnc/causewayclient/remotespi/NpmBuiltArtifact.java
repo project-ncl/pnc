@@ -44,7 +44,16 @@ public class NpmBuiltArtifact extends BuiltArtifact {
     private final String version;
 
     @Builder
-    public NpmBuiltArtifact(String name, String version, int id, String filename, String architecture, String md5, String artifactPath, String repositoryPath, int size) {
+    public NpmBuiltArtifact(
+            String name,
+            String version,
+            int id,
+            String filename,
+            String architecture,
+            String md5,
+            String artifactPath,
+            String repositoryPath,
+            int size) {
         super(id, filename, architecture, md5, artifactPath, repositoryPath, size);
         this.name = Objects.requireNonNull(name, "Artifact name must be set");
         this.version = Objects.requireNonNull(version, "Artifact version must be set");

@@ -121,9 +121,7 @@ public class BuildResultPushManagerTest {
         Set<Result> results = release(brewBuildId, record);
 
         // then
-        assertThat(results).isNotEmpty()
-                .first()
-                .extracting(Result::getStatus).isEqualTo(BuildPushStatus.ACCEPTED);
+        assertThat(results).isNotEmpty().first().extracting(Result::getStatus).isEqualTo(BuildPushStatus.ACCEPTED);
     }
 
     @Test
@@ -141,13 +139,11 @@ public class BuildResultPushManagerTest {
         Set<Result> results = release(brewBuildId, record);
 
         // then
-        assertThat(results).isNotEmpty()
-                .first()
-                .extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
+        assertThat(results).isNotEmpty().first().extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
     }
 
     @Test
-    public void shouldRejectDeleted(){
+    public void shouldRejectDeleted() {
         // given
         BuildRecord record = buildRecord();
         int brewBuildId = 100;
@@ -161,9 +157,7 @@ public class BuildResultPushManagerTest {
         Set<Result> results = release(brewBuildId, record);
 
         // then
-        assertThat(results).isNotEmpty()
-                .first()
-                .extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
+        assertThat(results).isNotEmpty().first().extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
     }
 
     @Test
@@ -171,14 +165,12 @@ public class BuildResultPushManagerTest {
         // given
         BuildRecord record = buildRecord();
         int brewBuildId = 100;
-        
+
         // when
         Set<Result> results = release(brewBuildId, record);
 
         // then
-        assertThat(results).isNotEmpty()
-                .first()
-                .extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
+        assertThat(results).isNotEmpty().first().extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
         Result result = results.iterator().next();
         assertThat(result.getMessage()).containsIgnoringCase("ExecutionRoot");
     }
@@ -194,13 +186,10 @@ public class BuildResultPushManagerTest {
         Set<Result> results = release(brewBuildId, record);
 
         // then
-        assertThat(results).isNotEmpty()
-                .first()
-                .extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
+        assertThat(results).isNotEmpty().first().extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
         Result result = results.iterator().next();
         assertThat(result.getMessage()).doesNotContain("already");
     }
-
 
     private Set<Result> release(int brewBuildId, BuildRecord... records) {
         Set<String> ids = Arrays.stream(records)

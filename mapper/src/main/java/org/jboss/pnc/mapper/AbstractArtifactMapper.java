@@ -48,8 +48,9 @@ import org.jboss.pnc.mapper.api.IdEntity;
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-@Mapper(config = MapperCentralConfig.class,
-        uses = { TargetRepositoryMapper.class, BuildMapper.IDMapper.class, Configuration.class, BuildMapper.class})
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { TargetRepositoryMapper.class, BuildMapper.IDMapper.class, Configuration.class, BuildMapper.class })
 public abstract class AbstractArtifactMapper implements ArtifactMapper {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractArtifactMapper.class);
@@ -60,42 +61,52 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
     @Override
     @Mapping(target = "deployUrl", ignore = true)
     @Mapping(target = "publicUrl", ignore = true)
-    @Mapping(target = "build", source="buildRecord")
+    @Mapping(target = "build", source = "buildRecord")
     @Mapping(target = "targetRepository", qualifiedBy = Reference.class)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"distributedInProductMilestones",
-            "identifierSha256", "built", "imported", "trusted", "descriptiveString",
-            "dependantBuildRecords"
-    })
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "distributedInProductMilestones", "identifierSha256", "built",
+                    "imported", "trusted", "descriptiveString", "dependantBuildRecords" })
     public abstract Artifact toDTO(org.jboss.pnc.model.Artifact dbEntity);
 
     @Override
     @Mapping(target = "deployUrl", ignore = true)
     @Mapping(target = "publicUrl", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"targetRepository", "buildRecords", "dependantBuildRecords","importDate",
-            "distributedInProductMilestones", "identifierSha256", "built", "imported", "trusted", "descriptiveString"
-    })
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "targetRepository", "buildRecords", "dependantBuildRecords",
+                    "importDate", "distributedInProductMilestones", "identifierSha256", "built", "imported", "trusted",
+                    "descriptiveString" })
     public abstract ArtifactRef toRef(org.jboss.pnc.model.Artifact dbEntity);
 
     @Override
-    @Mapping(target = "buildRecord", source="build", qualifiedBy = IdEntity.class)
+    @Mapping(target = "buildRecord", source = "build", qualifiedBy = IdEntity.class)
     @Mapping(target = "dependantBuildRecords", ignore = true)
-    /* Builder that MapStruct uses when generating mapper has method dependantBuildRecord() which confuses MapStruct as he thinks it is a new property */
+    /*
+     * Builder that MapStruct uses when generating mapper has method dependantBuildRecord() which confuses MapStruct as
+     * he thinks it is a new property
+     */
     @Mapping(target = "dependantBuildRecord", ignore = true)
     @Mapping(target = "distributedInProductMilestones", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = {"deployUrl", "publicUrl"})
+    @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
     public abstract org.jboss.pnc.model.Artifact toEntity(Artifact dtoEntity);
 
     @BeforeMapping
-    protected void fillDeployAndPublicUrl(org.jboss.pnc.model.Artifact artifactDB, @MappingTarget Artifact.Builder artifactDTO) {
-        fillDeployAndPublicUrl(artifactDB,artifactDTO::deployUrl,artifactDTO::publicUrl);
+    protected void fillDeployAndPublicUrl(
+            org.jboss.pnc.model.Artifact artifactDB,
+            @MappingTarget Artifact.Builder artifactDTO) {
+        fillDeployAndPublicUrl(artifactDB, artifactDTO::deployUrl, artifactDTO::publicUrl);
     }
 
     @BeforeMapping
-    void fillDeployAndPublicUrl(org.jboss.pnc.model.Artifact artifactDB, @MappingTarget ArtifactRef.Builder artifactREF) {
+    void fillDeployAndPublicUrl(
+            org.jboss.pnc.model.Artifact artifactDB,
+            @MappingTarget ArtifactRef.Builder artifactREF) {
         fillDeployAndPublicUrl(artifactDB, artifactREF::deployUrl, artifactREF::publicUrl);
     }
 
-    private void fillDeployAndPublicUrl(org.jboss.pnc.model.Artifact artifactDB, Consumer<String> deployUrlSetter, Consumer<String> publicUrlSetter) {
+    private void fillDeployAndPublicUrl(
+            org.jboss.pnc.model.Artifact artifactDB,
+            Consumer<String> deployUrlSetter,
+            Consumer<String> publicUrlSetter) {
         IndyRepoDriverModuleConfig moduleConfig = null;
         try {
             moduleConfig = config.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
@@ -113,19 +124,27 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
             } else {
                 try {
                     if (repositoryType.equals(RepositoryType.MAVEN)) {
-                        deployUrlSetter.accept(UrlUtils.buildUrl(moduleConfig.getInternalRepositoryMvnPath(),
-                                artifactDB.getTargetRepository().getRepositoryPath(),
-                                artifactDB.getDeployPath()));
-                        publicUrlSetter.accept(UrlUtils.buildUrl(moduleConfig.getExternalRepositoryMvnPath(),
-                                artifactDB.getTargetRepository().getRepositoryPath(),
-                                artifactDB.getDeployPath()));
+                        deployUrlSetter.accept(
+                                UrlUtils.buildUrl(
+                                        moduleConfig.getInternalRepositoryMvnPath(),
+                                        artifactDB.getTargetRepository().getRepositoryPath(),
+                                        artifactDB.getDeployPath()));
+                        publicUrlSetter.accept(
+                                UrlUtils.buildUrl(
+                                        moduleConfig.getExternalRepositoryMvnPath(),
+                                        artifactDB.getTargetRepository().getRepositoryPath(),
+                                        artifactDB.getDeployPath()));
                     } else {
-                        deployUrlSetter.accept(UrlUtils.buildUrl(moduleConfig.getInternalRepositoryNpmPath(),
-                                artifactDB.getTargetRepository().getRepositoryPath(),
-                                artifactDB.getDeployPath()));
-                        publicUrlSetter.accept(UrlUtils.buildUrl(moduleConfig.getExternalRepositoryNpmPath(),
-                                artifactDB.getTargetRepository().getRepositoryPath(),
-                                artifactDB.getDeployPath()));
+                        deployUrlSetter.accept(
+                                UrlUtils.buildUrl(
+                                        moduleConfig.getInternalRepositoryNpmPath(),
+                                        artifactDB.getTargetRepository().getRepositoryPath(),
+                                        artifactDB.getDeployPath()));
+                        publicUrlSetter.accept(
+                                UrlUtils.buildUrl(
+                                        moduleConfig.getExternalRepositoryNpmPath(),
+                                        artifactDB.getTargetRepository().getRepositoryPath(),
+                                        artifactDB.getDeployPath()));
                     }
                 } catch (MalformedURLException e) {
                     logger.error("Cannot construct internal artifactDB URL.", e);
