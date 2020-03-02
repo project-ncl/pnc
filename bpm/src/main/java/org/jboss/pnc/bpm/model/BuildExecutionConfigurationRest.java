@@ -69,17 +69,13 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     @Setter
     private String tempBuildTimestamp;
 
-    @Getter
-    @Setter
-    private String completionCallbackUrl;
-
     public BuildExecutionConfigurationRest() {}
 
     public BuildExecutionConfigurationRest(int id, String buildContentId, User user, String buildScript, String name,
             String scmRepoURL, String scmRevision, String scmTag, String originRepoURL, boolean preBuildSyncEnabled,
             BuildType buildType, String systemImageId, String systemImageRepositoryUrl, SystemImageType systemImageType,
             boolean podKeptOnFailure, List<ArtifactRepository> artifactRepositories, Map<String, String> genericParameters,
-            boolean tempBuild, String tempBuildTimestamp, String completionCallbackUrl) {
+            boolean tempBuild, String tempBuildTimestamp) {
         this.id = id;
         this.buildContentId = buildContentId;
         this.user = user;
@@ -99,7 +95,6 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         this.genericParameters = genericParameters;
         this.tempBuild = tempBuild;
         this.tempBuildTimestamp = tempBuildTimestamp;
-        this.completionCallbackUrl = completionCallbackUrl;
     }
 
     public BuildExecutionConfigurationRest(String serialized) throws IOException {
