@@ -42,5 +42,9 @@ public enum JobNotificationType {
     /**
      * Job type representing asynchronous creation of Build Config together with SCM Repository.
      */
-    BUILD_CONFIG_CREATION
+    BUILD_CONFIG_CREATION,
+    /**
+     * Job type representing a change in the generic setting.
+     */
+    GENERIC_SETTING,
 }

@@ -18,8 +18,10 @@
 package org.jboss.pnc.facade.providers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.dto.notification.GenericSettingNotification;
 import org.jboss.pnc.model.GenericSetting;
 import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
+import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.util.Strings;
 
 import javax.annotation.security.PermitAll;
@@ -38,6 +40,9 @@ public class GenericSettingProvider {
     @Inject
     private GenericSettingRepository genericSettingRepository;
 
+    @Inject
+    private Notifier notifier;
+
     @Deprecated
     public GenericSettingProvider() {
     }
@@ -50,6 +55,7 @@ public class GenericSettingProvider {
 
         maintenanceMode.setValue(Boolean.TRUE.toString());
         genericSettingRepository.save(maintenanceMode);
+        notifier.sendMessage(GenericSettingNotification.maintenanceModeChanged(true));
 
         setAnnouncementBanner(reason);
     }
@@ -72,6 +78,7 @@ public class GenericSettingProvider {
 
         maintenanceMode.setValue(Boolean.FALSE.toString());
         genericSettingRepository.save(maintenanceMode);
+        notifier.sendMessage(GenericSettingNotification.maintenanceModeChanged(false));
     }
 
     public boolean isInMaintenanceMode() {
@@ -93,6 +100,7 @@ public class GenericSettingProvider {
         GenericSetting announcementBanner = createGenericParameterIfNotFound(ANNOUNCEMENT_BANNER);
         announcementBanner.setValue(banner);
         genericSettingRepository.save(announcementBanner);
+        notifier.sendMessage(GenericSettingNotification.newAnnoucement(banner));
     }
 
     public String getAnnouncementBanner() {
