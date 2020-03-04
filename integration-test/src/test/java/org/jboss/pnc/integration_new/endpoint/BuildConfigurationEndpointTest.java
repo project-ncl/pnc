@@ -42,6 +42,7 @@ import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.dto.response.AlignmentParameters;
 import org.jboss.pnc.dto.response.Parameter;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.integration_new.setup.Deployments;
@@ -482,9 +483,9 @@ public class BuildConfigurationEndpointTest {
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
 
         for (BuildType buildType : BuildType.values()) {
-            Optional<String> params = client.getBuildTypeDefaultAlignmentParameters(buildType.name());
-            assertThat(params).isPresent();
-            assertThat(!params.get().isEmpty());
+            AlignmentParameters params = client.getBuildTypeDefaultAlignmentParameters(buildType.name());
+            assertThat(params.getParameters()).isNotEmpty();
+            assertThat(params.getBuildType()).isNotEmpty();
         }
     }
 }

@@ -24,6 +24,7 @@ import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
+import org.jboss.pnc.dto.response.AlignmentParameters;
 import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Parameter;
@@ -193,8 +194,8 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     @Override
-    public String getBuildTypeDefaultAlignmentParameters(String buildType) {
-        return alignmentConfig.getAlignmentParameters().get(buildType);
+    public AlignmentParameters getBuildTypeDefaultAlignmentParameters(String buildType) {
+        return new AlignmentParameters(buildType, alignmentConfig.getAlignmentParameters().get(buildType));
     }
 
     private Build triggerBuild(String id, OptionalInt rev, BuildParameters buildParams) {
