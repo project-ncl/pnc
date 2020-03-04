@@ -23,7 +23,7 @@ import org.jboss.arquillian.junit.Arquillian;
 
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.dto.notification.BuildPushResulNotification;
+import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.integration.client.BuildRecordPushRestClient;
 import org.jboss.pnc.integration.client.BuildRecordRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
@@ -85,8 +85,8 @@ public class BuildRecordPushTest extends AbstractTest {
     @Ignore // TODO: unignore after NCL-4964, fails because of switching to BuildPushResult in BuildResultPushManager
     public void shouldPushBuildRecord()
             throws IOException, DeploymentException, TimeoutException, InterruptedException {
-        List<BuildPushResulNotification> results = new ArrayList<>();
-        Consumer<BuildPushResulNotification> onMessage = (result) -> {
+        List<BuildPushResultNotification> results = new ArrayList<>();
+        Consumer<BuildPushResultNotification> onMessage = (result) -> {
             logger.debug("Received notification result {}.", result);
             results.add(result);
         };
@@ -159,13 +159,13 @@ public class BuildRecordPushTest extends AbstractTest {
         pushRestClient.complete(pushResultRest);
     }
 
-    private void connectToWsNotifications(Integer buildRecordId, Consumer<BuildPushResulNotification> onMessage)
+    private void connectToWsNotifications(Integer buildRecordId, Consumer<BuildPushResultNotification> onMessage)
             throws IOException, DeploymentException {
 
         Consumer<String> onMessageInternal = (message) -> {
             try {
-                BuildPushResulNotification buildRecordPushResultRest = JsonOutputConverterMapper
-                        .readValue(message, BuildPushResulNotification.class);
+                BuildPushResultNotification buildRecordPushResultRest = JsonOutputConverterMapper
+                        .readValue(message, BuildPushResultNotification.class);
                 onMessage.accept(buildRecordPushResultRest);
             } catch (IOException e) {
                 throw new RuntimeException(e);
