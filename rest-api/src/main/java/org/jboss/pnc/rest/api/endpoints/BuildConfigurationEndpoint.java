@@ -30,6 +30,7 @@ import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
+import org.jboss.pnc.dto.response.AlignmentParameters;
 import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
@@ -89,7 +90,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface BuildConfigurationEndpoint {
     static final String BC_ID = "ID of the build config";
     static final String REV = "Revision number of the build config";
-    static final String B_TYPE = "Build type specified in build configuration";
+    static final String B_TYPE = "Build type specified in build configuration (MVN, NPM or GRADLE)";
 
     @Operation(
             summary = "Gets all build configs.",
@@ -487,10 +488,10 @@ public interface BuildConfigurationEndpoint {
             responses = { @ApiResponse(
                     responseCode = SUCCESS_CODE,
                     description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = String.class))), })
+                    content = @Content(schema = @Schema(implementation = AlignmentParameters.class))), })
     @GET
     @Path("/default-alignment-parameters/{buildType}")
-    String getBuildTypeDefaultAlignmentParameters(
+    AlignmentParameters getBuildTypeDefaultAlignmentParameters(
             @Parameter(description = B_TYPE) @PathParam("buildType") String buildType);
 
 }
