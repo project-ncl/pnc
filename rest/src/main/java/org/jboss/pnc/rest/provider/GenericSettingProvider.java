@@ -19,6 +19,8 @@ package org.jboss.pnc.rest.provider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.model.GenericSetting;
+import org.jboss.pnc.rest.genericsetting.notifications.GenericSettingNotificationSender;
+import org.jboss.pnc.rest.restmodel.genericsetting.GenericSettingUpdate;
 import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.util.Strings;
 
@@ -38,6 +40,9 @@ public class GenericSettingProvider {
     @Inject
     private GenericSettingRepository genericSettingRepository;
 
+    @Inject
+    private GenericSettingNotificationSender notifier;
+
     @Deprecated
     public GenericSettingProvider() {}
 
@@ -49,6 +54,7 @@ public class GenericSettingProvider {
 
         maintenanceMode.setValue(Boolean.TRUE.toString());
         genericSettingRepository.save(maintenanceMode);
+        notifyMaintenanceModeChanged(maintenanceMode);
 
         setAnnouncementBanner(reason);
     }
@@ -71,6 +77,7 @@ public class GenericSettingProvider {
 
         maintenanceMode.setValue(Boolean.FALSE.toString());
         genericSettingRepository.save(maintenanceMode);
+        notifyMaintenanceModeChanged(maintenanceMode);
     }
 
     public boolean isInMaintenanceMode() {
@@ -92,6 +99,7 @@ public class GenericSettingProvider {
         GenericSetting announcementBanner = createGenericParameterIfNotFound(ANNOUNCEMENT_BANNER);
         announcementBanner.setValue(banner);
         genericSettingRepository.save(announcementBanner);
+        notifyBannerChanged(announcementBanner);
     }
 
     public String getAnnouncementBanner() {
@@ -115,5 +123,23 @@ public class GenericSettingProvider {
         }
 
         return genericSetting;
+    }
+
+    private void notifyBannerChanged(GenericSetting genericSetting) {
+
+        String banner = genericSetting.getValue();
+        notifier.send(
+                new GenericSettingUpdate(GenericSettingUpdate.BANNER_CHANGED, "{\"banner\": \"" + banner + "\"}"));
+    }
+
+    private void notifyMaintenanceModeChanged(GenericSetting maintenance) {
+        String status;
+        if (Boolean.parseBoolean(maintenance.getValue())) {
+            status = "ON";
+        } else {
+            status = "OFF";
+        }
+        notifier.send(
+                new GenericSettingUpdate(GenericSettingUpdate.MAINTENANCE_STATUS_CHANGED, "{\"status\": \"" + status + "\"}"));
     }
 }
