@@ -43,7 +43,7 @@ import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class BuildPushResulNotification extends Notification {
+public class BuildPushResultNotification extends Notification {
 
     private static final String BREW_PUSH_RESULT = "BREW_PUSH_RESULT";
 
@@ -53,7 +53,7 @@ public class BuildPushResulNotification extends Notification {
     private final BuildPushResult buildPushResult;
 
     @JsonCreator
-    public BuildPushResulNotification(@JsonProperty("buildPushResult") BuildPushResult buildPushResult) {
+    public BuildPushResultNotification(@JsonProperty("buildPushResult") BuildPushResult buildPushResult) {
         super(BREW_PUSH, BREW_PUSH_RESULT, FINISHED, IN_PROGRESS);
         this.buildPushResult = buildPushResult;
     }

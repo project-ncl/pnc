@@ -28,7 +28,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
 import org.jboss.pnc.bpm.model.BpmEvent;
-import org.jboss.pnc.dto.notification.BuildPushResulNotification;
+import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
@@ -186,7 +186,7 @@ public class DefaultNotifier implements Notifier {
 
     public void collectBuildPushResultEvent(@Observes BuildPushResult buildPushResult) {
         logger.trace("Observed new BuildPushResult event {}.", buildPushResult);
-        sendMessage(new BuildPushResulNotification(buildPushResult));
+        sendMessage(new BuildPushResultNotification(buildPushResult));
         logger.trace("BuildPushResult event processed {}.", buildPushResult);
     }
 
