@@ -33,6 +33,10 @@
 
     const PAGE_NAME = 'groupBuildsList';
 
+    const DEFAULT_FIELDS = ['status', 'id', 'configurationName', 'startTime', 'endTime', 'username'];
+
+    $ctrl.displayFields = DEFAULT_FIELDS;
+
     // -- Controller API --
     $ctrl.groupBuildsFilteringFields = [{
       id: 'user.username',

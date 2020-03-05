@@ -26,6 +26,7 @@
   sorting-fields="$ctrl.groupBuildsSortingFields" sorting-configs="$ctrl.groupBuildsSortingConfigs"></pnc-toolbar>
 </div>
 <div>
-  <pnc-builds-list group-builds="$ctrl.groupBuildsFilteringPage.data"></pnc-builds-list>
+  <pnc-builds-list group-builds="$ctrl.groupBuildsFilteringPage.data"
+                   display-fields="$ctrl.displayFields"></pnc-builds-list>
   <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.groupBuildsFilteringPage" ng-if="$ctrl.groupBuildsFilteringPage"></pnc-page-controls>
 </div>
