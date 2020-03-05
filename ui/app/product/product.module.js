@@ -53,9 +53,7 @@
       controller: 'ProductListController',
       controllerAs: 'listCtrl',
       resolve: {
-        productList: ['ProductDAO', function(ProductDAO) {
-          return ProductDAO.getAll().$promise;
-        }]
+        productList: ['ProductResource', ProductResource => ProductResource.query().$promise]
       }
     });
 
@@ -104,7 +102,7 @@
           return ProductMilestoneDAO.getClosedMilestone({
             versionId: $stateParams.versionId });
         }]
-        
+
       }
     });
 
