@@ -20,22 +20,19 @@
 
   var module = angular.module('pnc.common.pnc-client.resources');
 
-  module.value('PRODUCT_PATH', '/products/:id');
+  module.value('PRODUCTS_PATH', '/products/:id');
 
-  /**
-   *
-   * @author Alex Creasy
-   */
-  module.factory('Product', [
+  module.factory('ProductResource', [
     '$resource',
     'restConfig',
-    'PRODUCT_PATH',
-    function($resource, restConfig, PRODUCT_PATH) {
-      var ENDPOINT = restConfig.getPncUrl() + PRODUCT_PATH;
+    'PRODUCTS_PATH',
+    ($resource, restConfig, PRODUCTS_PATH) => {
+      const ENDPOINT = restConfig.getPncRestUrl() + PRODUCTS_PATH;
 
-      var resource = $resource(ENDPOINT, {
+      const resource = $resource(ENDPOINT, {
         id: '@id'
-      }, {
+      },
+      {
         query: {
           method: 'GET',
           isPaged: true,
@@ -44,7 +41,7 @@
           method: 'PUT'
         },
         queryProductVersion: {
-          url: ENDPOINT + 'product-versions',
+          url: ENDPOINT + 'versions',
           method: 'GET',
           isPaged: true,
         }
