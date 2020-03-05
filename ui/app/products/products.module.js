@@ -47,6 +47,16 @@
         }
       });
 
+      $stateProvider.state('products.create', {
+        url: '/create',
+        data: {
+          displayName: 'Create Product',
+          title: 'Create Product',
+          requireAuth: true
+        },
+        component: 'pncCreateProductPage'
+    });
+
     }]);
 
                     // module.config(['$stateProvider', function($stateProvider) {

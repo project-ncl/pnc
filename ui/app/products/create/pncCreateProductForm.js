@@ -15,17 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 (function () {
   'use strict';
 
-  angular.module('pnc.projects').component('pncProjectCreatePage', {
-    bindings: {
-    },
-    templateUrl: 'projects/create/pnc-project-create-page.html',
-    controller: ['$state', 'ProjectResource', Controller]
+  angular.module('pnc.products').component('pncCreateProductForm', {
+    templateUrl: 'products/create/pnc-create-product-form.html',
+    controller: ['$state', 'ProductResource', Controller]
   });
 
-  function Controller($state, ProjectResource) {
+  function Controller($state, ProductResource) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -35,15 +34,19 @@
 
     // --------------------
 
-    function create(project) {
-      new ProjectResource(angular.copy(project)).$save().then(function(result) {
-        $state.go('projects.detail', {
-          projectId: result.id
-        });
-      });
+
+    $ctrl.$onInit = () => {
+    };
+
+    function create(product) {
+      ProductResource.save(product).$promise.then(
+        response => $state.go('products.detail', { id: response.id }),
+        error => console.error('Error creating product: %O', error)
+      );
     }
 
     function reset(form) {
+      $ctrl.formData = undefined;
       form.$setPristine();
       form.$setUntouched();
     }

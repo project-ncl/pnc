@@ -18,13 +18,11 @@
 
 -->
 <pnc-header>
-  <pnc-header-title>Products</pnc-header-title>
-  <pnc-header-buttons>
-    <pnc-create-product-button></pnc-create-product-button>
-    <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Product" ui-sref="products.create">
-      <i class="fa fa-file-text-o"></i> Create
-    </button>
-  </pnc-header-buttons>
+  <pnc-header-title>Create Product</pnc-header-title>
 </pnc-header>
 
-<pnc-products-data-table products="$ctrl.products"></pnc-products-data-table>
+<div class="row">
+  <div class="col-md-11 col-lg-10">
+    <pnc-create-product-form></pnc-create-product-form>
+  </div>
+</div>
