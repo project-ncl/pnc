@@ -22,15 +22,12 @@
 
   module.value('ARTIFACT_PATH', '/artifacts/:id');
 
-  module.factory('Artifact', [
+  module.factory('ArtifactResource', [
     '$resource',
     'restConfig',
     'ARTIFACT_PATH',
-    'BuildResource',
-    'rsqlQuery',
-    '$q',
-    function ($resource, restConfig, ARTIFACT_PATH, BuildResource, rsqlQuery, $q) {
-      const ENDPOINT = restConfig.getPncUrl() + ARTIFACT_PATH;
+    function ($resource, restConfig, ARTIFACT_PATH) {
+      const ENDPOINT = restConfig.getPncRestUrl() + ARTIFACT_PATH;
 
 
       const resource = $resource(ENDPOINT, {
@@ -42,18 +39,6 @@
           isPaged: true
         }
       });
-
-      resource.getDependantBuildRecords = function (artifact, params = {}) {
-        if (artifact && artifact.dependantBuildRecordIds && artifact.dependantBuildRecordIds.length === 0) {
-          return $q.when(null);
-        } else {
-          return BuildResource.query(Object.assign(params, { q: rsqlQuery().where('id').in(artifact.dependantBuildRecordIds).end() })).$promise;
-        }
-      };
-
-      resource.prototype.$getDependantBuildRecords = function (params) {
-        return resource.getDependantBuildRecords(this, params);
-      };
 
       return resource;
     }

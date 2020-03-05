@@ -93,7 +93,10 @@
               keycloak.login();
               break;
             case 404:
-              pncNotify.error('Requested resource not found');
+              var notify = rejection.config.error404Notification;
+              if (angular.isUndefined(notify) || notify) {
+                pncNotify.error('Requested resource not found');
+              }
               break;
             default:
               handleError(rejection);

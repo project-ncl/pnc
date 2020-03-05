@@ -40,8 +40,8 @@
         <dd>{{ ($ctrl.artifact.importDate | date : 'short') || 'n/a'}}</dd>
         <dt>Build</dt>
         <dd>
-          <span ng-show="$ctrl.build"><pnc-build-link build="$ctrl.build" short-link="false"></pnc-build-link></span>
-          <span ng-hide="$ctrl.build">n/a</span>
+          <span ng-if="$ctrl.build"><pnc-build-link build="$ctrl.build" short-link="false"></pnc-build-link></span>
+          <span ng-if="!$ctrl.build">n/a</span>
         </dd>
       </dl>
     </div>

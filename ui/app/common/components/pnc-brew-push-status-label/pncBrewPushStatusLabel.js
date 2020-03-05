@@ -46,6 +46,14 @@
           .then(function (pushStatus) {
             $ctrl.pushStatus = pushStatus;
           })
+          .catch(function(error) {
+            // Response Code 404 is valid when there is no result available, see NCL-5336
+            if (error.status === 404) {
+              console.log('No Brew Push Result is available for Build#' + $ctrl.build.id);
+            } else {
+              throw error;
+            }
+          })
           .finally(function () {
             $ctrl.loading = false;
           });
