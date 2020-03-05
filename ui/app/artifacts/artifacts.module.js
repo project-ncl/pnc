@@ -48,9 +48,9 @@
           component: 'pncArtifactsListPage',
           resolve: {
             artifacts: [
-              'Artifact','SortHelper',
-              function (Artifact, sortHelper) {
-                return Artifact.query(sortHelper.getSortQueryString('artifactsList')).$promise;
+              'ArtifactResource','SortHelper',
+              function (ArtifactResource, sortHelper) {
+                return ArtifactResource.query(sortHelper.getSortQueryString('artifactsList')).$promise;
               }
             ]
           }
@@ -66,25 +66,30 @@
           resolve: {
             artifact: [
               '$stateParams',
-              'Artifact',
-              function ($stateParams, Artifact) {
-                return Artifact.get({ id: $stateParams.id }).$promise;
+              'ArtifactResource',
+              function ($stateParams, ArtifactResource) {
+                return ArtifactResource.get({ id: $stateParams.id }).$promise;
               }
             ],
             build: [
               'artifact',
               'BuildResource',
               function(artifact, BuildResource) {
-                if (artifact.buildRecordIds.length === 0) {
+                if (!artifact.build) {
+                  // build is null when given artifact was not built by PNC but it was just a dependency
                   return null;
                 }
-                return BuildResource.get({ id: artifact.buildRecordIds[0] }).$promise;
+                return BuildResource.get({ id: artifact.build.id }).$promise;
               }
             ],
             usages: [
-              'artifact',
-              function (artifact) {
-                return artifact.$getDependantBuildRecords({ pageSize:  10 });
+              '$stateParams',
+              'BuildResource',
+              function ($stateParams, BuildResource) {
+                return BuildResource.getDependantBuilds({ 
+                  id: $stateParams.id,
+                  pageSize: 10
+                }).$promise;
               }
             ]
           }

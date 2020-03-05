@@ -34,9 +34,11 @@
     'BUILD_PATH',
     'BUILD_SSH_CREDENTIALS_PATH',
     'buildStatusHelper',
-    ($resource, $q, restConfig, authService, BUILD_PATH, BUILD_SSH_CREDENTIALS_PATH, buildStatusHelper) => {
+    'ARTIFACT_PATH',
+    ($resource, $q, restConfig, authService, BUILD_PATH, BUILD_SSH_CREDENTIALS_PATH, buildStatusHelper, ARTIFACT_PATH) => {
       const ENDPOINT = restConfig.getPncRestUrl() + BUILD_PATH;
       const BUILD_SSH_CREDENTIALS_ENDPOINT = restConfig.getPncRestUrl() + BUILD_SSH_CREDENTIALS_PATH;
+      const ARTIFACTS_ENDPOINT = restConfig.getPncRestUrl() + ARTIFACT_PATH;
 
       const CANCELABLE_STATUSES = [
         'NEW',
@@ -138,7 +140,8 @@
 
         getBrewPushResult: {
           method: 'GET',
-          url: ENDPOINT + '/brew-push'
+          url: ENDPOINT + '/brew-push',
+          error404Notification: false // Response Code 404 is valid when there is no result available, see NCL-5336
         },
 
         /**
@@ -155,8 +158,13 @@
         brewPushCancel: {
           method: 'DELETE',
           url: ENDPOINT + '/brew-push'
-        }
+        },
 
+        getDependantBuilds: {
+          method: 'GET',
+          url: ARTIFACTS_ENDPOINT + '/dependant-builds',
+          isPaged: true
+        }
       });
 
 
