@@ -21,14 +21,14 @@
   <pnc-build-status-icon build="$ctrl.buildItem"></pnc-build-status-icon>
 
   <a ng-if="$ctrl.build"
-    ui-sref="projects.detail.build-configs.detail({ configurationId: $ctrl.build.buildConfigRevision.id })"
-    ng-click="$event.stopPropagation()">{{$ctrl.build.buildConfigRevision.name}}</a>
+     ui-sref="projects.detail.build-configs.detail({ configurationId: $ctrl.build.buildConfigRevision.id })"
+     ng-click="$event.stopPropagation()">{{$ctrl.build.buildConfigRevision.name}}</a>
   <pnc-group-config-link group-config="$ctrl.groupBuild.groupConfig" ng-if="$ctrl.groupBuild"></pnc-group-config-link>
 
   <span class="fa fa-angle-double-right"></span>
 
   <a ng-if="$ctrl.build"
-    ui-sref="projects.detail.build-configs.detail.builds.detail.default({ projectId: $ctrl.build.project.id, configurationId: $ctrl.build.buildConfigRevision.id, buildId: $ctrl.build.id })"
-    ng-click="$event.stopPropagation()"># {{ $ctrl.build.id }}</a>
+     ui-sref="projects.detail.build-configs.detail.builds.detail.default({ projectId: $ctrl.build.project.id, configurationId: $ctrl.build.buildConfigRevision.id, buildId: $ctrl.build.id })"
+     ng-click="$event.stopPropagation()"># {{ $ctrl.build.id }}</a>
   <a ng-if="$ctrl.groupBuild" ui-sref="group-builds.detail({ id: $ctrl.groupBuild.id })" ng-click="$event.stopPropagation()"># {{ $ctrl.groupBuild.id }}</a>
 </div>
