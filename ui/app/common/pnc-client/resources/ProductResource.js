@@ -37,6 +37,10 @@
           method: 'GET',
           isPaged: true,
         },
+        save: {
+          method: 'POST',
+          successNotification: 'Product created'
+        },
         update: {
           method: 'PUT'
         },

@@ -15,39 +15,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 (function () {
   'use strict';
 
-  angular.module('pnc.projects').component('pncProjectCreatePage', {
-    bindings: {
-    },
-    templateUrl: 'projects/create/pnc-project-create-page.html',
-    controller: ['$state', 'ProjectResource', Controller]
+  angular.module('pnc.products').component('pncCreateProductPage', {
+    templateUrl: 'products/create/pnc-create-product-page.html',
+    controller: [Controller]
   });
 
-  function Controller($state, ProjectResource) {
+  function Controller() {
     const $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.create = create;
-    $ctrl.reset = reset;
+
 
     // --------------------
 
-    function create(project) {
-      new ProjectResource(angular.copy(project)).$save().then(function(result) {
-        $state.go('projects.detail', {
-          projectId: result.id
-        });
-      });
-    }
 
-    function reset(form) {
-      form.$setPristine();
-      form.$setUntouched();
-    }
-
+    $ctrl.$onInit = () => {
+    };
   }
 
 })();
