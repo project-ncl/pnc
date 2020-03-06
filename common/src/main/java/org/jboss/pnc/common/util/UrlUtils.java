@@ -20,6 +20,7 @@ package org.jboss.pnc.common.util;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,6 +35,10 @@ public final class UrlUtils {
 
     public static String buildUrl(final String baseUrl, final Map<String, String> params, final String... parts)
             throws MalformedURLException {
+        if (baseUrl == null) {
+            throw new InvalidParameterException("Base URL is null. Base URL must be specified!");
+        }
+
         if (parts == null || parts.length < 1) {
             return baseUrl;
         }
