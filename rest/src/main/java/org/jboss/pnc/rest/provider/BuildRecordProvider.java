@@ -21,6 +21,8 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.criteria.AuditDisjunction;
+import org.jboss.pnc.common.gerrit.Gerrit;
+import org.jboss.pnc.common.gerrit.GerritException;
 import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.graph.NameUniqueVertex;
@@ -44,6 +46,7 @@ import org.jboss.pnc.rest.restmodel.graph.GraphRest;
 import org.jboss.pnc.rest.restmodel.response.Page;
 import org.jboss.pnc.rest.trigger.BuildConfigurationSetTriggerResult;
 import org.jboss.pnc.rest.utils.RestGraphBuilder;
+import org.jboss.pnc.rest.validation.exceptions.RepositoryViolationException;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -84,6 +87,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -123,6 +127,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
     private BuildExecutor buildExecutor;
     private BuildCoordinator buildCoordinator;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
+    private Gerrit gerrit;
     ProjectRepository projectRepository;
     BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
@@ -142,6 +147,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             BuildExecutor buildExecutor,
             BuildRecordRepository repository,
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
+            Gerrit gerrit,
             ProjectRepository projectRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             EntityManager entityManager) {
@@ -150,6 +156,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         this.buildExecutor = buildExecutor;
         this.repository = repository;
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
+        this.gerrit = gerrit;
         this.projectRepository = projectRepository;
         this.entityManager = entityManager;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
@@ -939,5 +946,30 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                                                   long timestamp) {
         return queryForCollection(pageIndex, pageSize, sort, q, BuildRecordPredicates.temporaryBuild(),
                 BuildRecordPredicates.buildFinishedBefore(new Date(timestamp)));
+    }
+
+    /**
+     * Get the internal scm archive link for a build record. If the scm revision is not specified in the build record
+     * due to a failure, it will return null
+     *
+     * @param id build id
+     *
+     * @return Uri of the internal scm archive link to download
+     * @throws RepositoryViolationException
+     */
+    public URI getInternalScmArchiveLink(int id) throws RepositoryViolationException {
+
+        BuildRecord buildRecord = repository.queryById(id);
+
+        if (buildRecord.getScmRevision() == null) {
+            return null;
+        } else {
+
+            try {
+                return new URI(gerrit.generateGerritGitwebCommitUrl(buildRecord.getScmRepoURL(), buildRecord.getScmRevision()));
+            } catch (GerritException | URISyntaxException e) {
+                throw new RepositoryViolationException(e);
+            }
+        }
     }
 }
