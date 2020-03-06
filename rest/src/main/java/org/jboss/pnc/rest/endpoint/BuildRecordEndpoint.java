@@ -68,6 +68,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -92,6 +94,9 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_DESCRIPT
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SORTING_QUERY_PARAM;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.MOVED_TEMPORARILY_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.MOVED_TEMPORARILY_DESCRIPTION;
+
 
 @Api(value = "/build-records", description = "Records of build executions")
 @Path("/build-records")
@@ -585,6 +590,28 @@ public class BuildRecordEndpoint extends AbstractEndpoint<BuildRecord, BuildReco
     public Response getDependencyGraph(@ApiParam(value = "Build id.", required = true) @PathParam("id") Integer bcId) {
         GraphRest<BuildRecordRest> dependencyGraph = buildRecordProvider.getDependencyGraphRest(bcId);
         return fromSingleton(dependencyGraph);
+    }
+
+    @ApiOperation(value = "Redirects to the SCM archive link")
+    @ApiResponses(value = {
+            @ApiResponse(code = MOVED_TEMPORARILY_CODE, message = MOVED_TEMPORARILY_DESCRIPTION),
+            @ApiResponse(code = NOT_FOUND_CODE, message = NOT_FOUND_DESCRIPTION)
+    })
+    @GET
+    @Path("/{id}/scm-archive")
+    public Response getInternalScmArchiveLink(@ApiParam(value = "BuildRecord id", required = true) @PathParam("id") Integer id) {
+        URI toRedirect;
+        try {
+            toRedirect = buildRecordProvider.getInternalScmArchiveLink(id);
+            if (toRedirect == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            } else {
+                return Response.temporaryRedirect(toRedirect).build();
+            }
+        } catch (RepositoryViolationException e) {
+            logger.error("Failed to compute the internal scm archive link.", e);
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 
 }

@@ -50,6 +50,9 @@ public interface SwaggerConstants {
     public static final String NOT_FOUND_DESCRIPTION = "Can not find specified result";
     public static final int NOT_FOUND_CODE = 404;
 
+    public static final String MOVED_TEMPORARILY_DESCRIPTION = "Redirected to resource";
+    public static final int MOVED_TEMPORARILY_CODE = 302;
+
     public static final String PAGE_INDEX_DESCRIPTION = "Page Index";
     public static final String PAGE_INDEX_QUERY_PARAM = "pageIndex";
     public static final String PAGE_INDEX_DEFAULT_VALUE = "0";
