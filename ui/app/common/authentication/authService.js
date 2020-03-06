@@ -106,6 +106,10 @@
         });
       };
 
+      authService.getUserRole = function () {
+        return keycloak.authenticated ? keycloak.realmAccess.roles : null;
+      };
+
       return authService;
     }
   ]);
