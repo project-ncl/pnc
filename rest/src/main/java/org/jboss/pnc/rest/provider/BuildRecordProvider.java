@@ -966,7 +966,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
         } else {
 
             try {
-                return new URI(gerrit.generateGerritGitwebCommitUrl(buildRecord.getScmRepoURL(), buildRecord.getScmRevision()));
+                return new URI(gerrit.generateDownloadUrlWithGerritGitweb(buildRecord.getScmRepoURL(), buildRecord.getScmRevision()));
             } catch (GerritException | URISyntaxException e) {
                 throw new RepositoryViolationException(e);
             }
