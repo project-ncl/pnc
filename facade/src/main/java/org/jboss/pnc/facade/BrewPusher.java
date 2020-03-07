@@ -19,6 +19,7 @@ package org.jboss.pnc.facade;
 
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushRequest;
+import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 
 /**
@@ -35,5 +36,13 @@ public interface BrewPusher {
 
     BuildPushResult brewPushComplete(int buildId, BuildPushResult buildPushResult) throws ProcessException;
 
+    /**
+     * Gets generated in progress brew push result or the latest completed one. If there is one in progress for given
+     * build id, it takes priority over a completed one. For an in progress it generates an empty result with status
+     * {@link BuildPushStatus#ACCEPTED} meaning that pusher accepted the push request.
+     *
+     * @param buildId build record id
+     * @return generated or loaded push result, {@code null} in case there is no completed nor in progress
+     */
     BuildPushResult getBrewPushResult(int buildId);
 }
