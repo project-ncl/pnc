@@ -25,6 +25,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushRequest;
+import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
@@ -143,8 +144,19 @@ public class BrewPusherImpl implements BrewPusher {
     @Override
     public BuildPushResult getBrewPushResult(int buildId) {
 
-        BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(buildId);
-        return buildPushResultMapper.toDTO(latestForBuildRecord);
+        BuildPushResult result = null;
+        if (buildResultPushManager.getInProgress().contains(buildId)) {
+            result = BuildPushResult.builder()
+                    .buildId(String.valueOf(buildId))
+                    .status(BuildPushStatus.ACCEPTED)
+                    .build();
+        } else {
+            BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(buildId);
+            if (latestForBuildRecord != null) {
+                result = buildPushResultMapper.toDTO(latestForBuildRecord);
+            }
+        }
+        return result;
     }
 
     private String getCompleteCallbackUrl() {
