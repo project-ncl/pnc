@@ -151,7 +151,8 @@ public class BrewPusherImpl implements BrewPusher {
                     .status(BuildPushStatus.ACCEPTED)
                     .build();
         } else {
-            BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(buildId);
+            BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository
+                    .getLatestForBuildRecord(buildId);
             if (latestForBuildRecord != null) {
                 result = buildPushResultMapper.toDTO(latestForBuildRecord);
             }
