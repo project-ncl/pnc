@@ -27,13 +27,13 @@ public class GenericSettingNotification extends Notification {
     public static final String MAINTENANCE_STATUS_CHANGED = "MAINTENANCE_STATUS_CHANGED";
 
     public static GenericSettingNotification newAnnoucement(String message) {
-        return new GenericSettingNotification(ANNOUNCEMENT_BANNER_CHANGED, "{\"banner: \"" + message + "\"}");
+        return new GenericSettingNotification(ANNOUNCEMENT_BANNER_CHANGED, "{\"banner\": \"" + message + "\"}");
     }
 
     public static GenericSettingNotification maintenanceModeChanged(boolean maintenanceMode) {
-
-        String status = maintenanceMode ? "ON" : "OFF";
-        return new GenericSettingNotification(MAINTENANCE_STATUS_CHANGED, "{\"status : \"" + status + "\"}");
+        return new GenericSettingNotification(
+                MAINTENANCE_STATUS_CHANGED,
+                "{\"maintenanceModeEnabled\": " + maintenanceMode + "}");
     }
 
     private GenericSettingNotification(String typeChanged, String message) {
