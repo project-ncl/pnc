@@ -320,8 +320,8 @@ public abstract class AbstractDependentBuildTest {
 
     protected void waitForEmptyBuildQueue() throws InterruptedException, TimeoutException {
         Supplier<String> errorMessage = () -> {
-            return "Tired waiting for BuildQueue to be empty." + "There are still tasks in the queue: "
-                    + buildQueue.getUnfinishedTasks();
+            return "Tired waiting for BuildQueue to be empty. There are still tasks in the queue:\n"
+                    + buildQueue.getDebugInfo();
         };
         Wait.forCondition(() -> buildQueue.isEmpty(), 10, ChronoUnit.SECONDS, errorMessage);
     }
