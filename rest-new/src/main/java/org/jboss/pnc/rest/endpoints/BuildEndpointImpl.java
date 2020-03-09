@@ -34,6 +34,7 @@ import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.validation.BadArtifactQualityException;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -46,6 +47,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -219,6 +221,8 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
         try {
             return brewPusher.brewPush(id, buildPushRequest);
+        } catch (BadArtifactQualityException e) {
+            throw new ClientErrorException(Response.status(403).entity(e.getResponseObject()).build());
         } catch (ProcessException e) {
             throw new RuntimeException(e);
         }

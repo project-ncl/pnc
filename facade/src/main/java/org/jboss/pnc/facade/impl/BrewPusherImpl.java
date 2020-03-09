@@ -18,8 +18,6 @@
 package org.jboss.pnc.facade.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.util.StringUtils;
@@ -28,6 +26,7 @@ import org.jboss.pnc.dto.requests.BuildPushRequest;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.facade.validation.BadArtifactQualityException;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.bpm.causeway.BuildResultPushManager;
 import org.jboss.pnc.bpm.causeway.Result;
@@ -40,8 +39,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 
 import java.util.HashSet;
 import java.util.List;
@@ -120,8 +117,13 @@ public class BrewPusherImpl implements BrewPusher {
                                 .log(r.getMessage())
                                 .build())
                 .collect(Collectors.toList());
+        BuildPushResult result = pushedResponse.get(0);
 
-        return pushedResponse.get(0);
+        if (result.getLog().contains("BLACKLISTED/DELETED")) {
+            throw new BadArtifactQualityException(result);
+        }
+
+        return result;
     }
 
     @Override

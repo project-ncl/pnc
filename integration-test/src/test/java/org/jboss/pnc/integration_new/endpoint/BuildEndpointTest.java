@@ -23,6 +23,7 @@ import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.client.ApacheHttpClient43EngineWithRetry;
+import org.jboss.pnc.client.ArtifactClient;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.ClientBase;
 import org.jboss.pnc.client.ClientException;
@@ -33,6 +34,8 @@ import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.requests.BuildPushRequest;
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
@@ -309,6 +312,30 @@ public class BuildEndpointTest {
         BuildClient client = new BuildClient(
                 RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
 
+    }
+
+    @Test
+    public void shouldReturnForbiddenCodeForPushOfBadQualityArtifact() throws RemoteResourceException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
+        ArtifactClient artifactClient = new ArtifactClient(RestClientConfiguration.asSystem());
+
+        Artifact badQuality = artifactClient.create(
+                Artifact.builder()
+                        .artifactQuality(ArtifactQuality.DELETED)
+                        .filename("builtArtifactInsert2.jar")
+                        .identifier("integration-test:built-artifact:jar:1.0")
+                        .targetRepository(artifactClient.getSpecific("100").getTargetRepository())
+                        .md5("insert-md5-2")
+                        .sha1("insert-2")
+                        .sha256("insert-2")
+                        .size(10L)
+                        .build());
+
+        client.setBuiltArtifacts(build2Id, Collections.singletonList(badQuality.getId()));
+
+        assertThatThrownBy(
+                () -> client.push(build2Id, BuildPushRequest.builder().reimport(true).tagPrefix("test-tag").build()))
+                        .hasCauseInstanceOf(ForbiddenException.class);
     }
 
     private Set<Integer> artifactIds(RemoteCollection<Artifact> artifacts) {
