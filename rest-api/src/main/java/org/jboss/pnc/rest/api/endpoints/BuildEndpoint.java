@@ -79,6 +79,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_COD
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_PUSH_DESCRIPTION;
 
 @Tag(name = "Builds")
 @Path("/builds")
@@ -328,6 +330,10 @@ public interface BuildEndpoint {
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = FORBIDDEN_CODE,
+                            description = FORBIDDEN_PUSH_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPushResultPage.class))),
                     @ApiResponse(
                             responseCode = CONFLICTED_CODE,
                             description = CONFLICTED_DESCRIPTION,
