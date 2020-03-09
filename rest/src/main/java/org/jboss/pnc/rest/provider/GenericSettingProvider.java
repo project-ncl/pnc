@@ -133,13 +133,10 @@ public class GenericSettingProvider {
     }
 
     private void notifyMaintenanceModeChanged(GenericSetting maintenance) {
-        String status;
-        if (Boolean.parseBoolean(maintenance.getValue())) {
-            status = "ON";
-        } else {
-            status = "OFF";
-        }
+        boolean statusBool = Boolean.parseBoolean(maintenance.getValue());
         notifier.send(
-                new GenericSettingUpdate(GenericSettingUpdate.MAINTENANCE_STATUS_CHANGED, "{\"status\": \"" + status + "\"}"));
+                new GenericSettingUpdate(
+                        GenericSettingUpdate.MAINTENANCE_STATUS_CHANGED,
+                        "{\"maintenanceModeEnabled\": " + statusBool + "}"));
     }
 }
