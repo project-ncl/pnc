@@ -103,6 +103,16 @@
       }
     });
 
+     /**
+      * JQuery listener for users to submit form by press enter button
+      */
+    document.getElementById("activateReason").addEventListener("keyup", function(event) {
+      if (event.keyCode === 13) {
+        event.preventDefault();
+        $ctrl.clearMaintenanceValidation();
+        document.getElementById("confirm-maintenance-mode").click();
+      }
+    });
 
     // -- Controller API --
 
