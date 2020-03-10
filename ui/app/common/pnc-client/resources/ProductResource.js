@@ -44,8 +44,8 @@
         update: {
           method: 'PUT'
         },
-        queryProductVersion: {
-          url: ENDPOINT + 'versions',
+        queryProductVersions: {
+          url: ENDPOINT + '/versions',
           method: 'GET',
           isPaged: true,
         }

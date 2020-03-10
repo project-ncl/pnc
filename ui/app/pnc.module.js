@@ -28,6 +28,7 @@
     'pnc.dashboard',
     'pnc.products',
     'pnc.product',
+    'pnc.product-versions',
     'pnc.projects',
     'pnc.build-configs',
     'pnc.builds',

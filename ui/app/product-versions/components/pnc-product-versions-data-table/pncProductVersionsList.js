@@ -40,13 +40,17 @@
        */
       actionsData: '<'
     },
-    templateUrl: 'product/directives/pnc-product-versions-list/pnc-product-versions-list.html',
+    templateUrl: 'product-versions/components/pnc-product-versions-data-table/pnc-product-versions-list.html',
     controller: ['$scope', Controller]
   });
 
 
   function Controller($scope) {
-    var $ctrl = this;
+    const $ctrl = this;
+
+    const DEFAULT_DISPLAY_FIELDS = ['name', 'version'];
+
+    let displayFields;
 
     // -- Controller API --
 
@@ -57,6 +61,7 @@
 
 
     $ctrl.$onInit = function () {
+      displayFields = $ctrl.displayFields || DEFAULT_DISPLAY_FIELDS;
       $scope.actions = $ctrl.actionsData;
     };
 
@@ -65,7 +70,7 @@
     }
 
     function showColumn(property) {
-      return $ctrl.displayFields.includes(property);
+      return displayFields.includes(property);
     }
   }
 

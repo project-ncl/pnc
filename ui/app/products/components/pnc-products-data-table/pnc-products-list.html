@@ -27,7 +27,7 @@
   </thead>
   <tbody>
     <tr ng-repeat="product in $ctrl.products">
-      <td ng-if="::$ctrl.showColumn('name')"><a href ui-sref="products.detail({ id: product.id })">{{ product.name }}</a></td>
+      <td ng-if="::$ctrl.showColumn('name')"><pnc-product-link product="product"></pnc-product-link></td>
       <td ng-if="::$ctrl.showColumn('abbreviation')">{{ product.abbreviation }}</td>
       <td ng-if="::$ctrl.showColumn('description')">{{ product.description }}</td>
       <td ng-if="::$ctrl.showColumn('productCode')">{{ product.productCode }}</td>

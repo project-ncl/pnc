@@ -49,13 +49,47 @@
 
       $stateProvider.state('products.create', {
         url: '/create',
+        component: 'pncCreateProductPage',
         data: {
           displayName: 'Create Product',
           title: 'Create Product',
           requireAuth: true
+        }
+      });
+
+      $stateProvider.state('products.detail', {
+        url: '/{productId}',
+        component: 'pncProductDetailPage',
+        data: {
+          displayName: '{{ product.name }}',
+          title: '{{ product.name }}'
         },
-        component: 'pncCreateProductPage'
-    });
+        resolve: {
+          product: [
+            'ProductResource',
+            '$stateParams',
+            (ProductResource, $stateParams) => ProductResource.get({ id: $stateParams.productId }).$promise
+          ],
+          productVersions: ['product', product => product.$queryProductVersions()]
+        }
+      });
+
+      //   $stateProvider.state('product.detail', {
+  //     url: '/{productId}',
+  //     templateUrl: 'product/views/product.detail.html',
+  //     data: {
+  //        displayName: '{{ productDetail.name }}',
+  //        title: '{{ productDetail.name }}'
+  //     },
+  //     controller: 'ProductDetailController',
+  //     controllerAs: 'detailCtrl',
+  //     resolve: {
+  //       productDetail: ['ProductDAO', '$stateParams', function(ProductDAO, $stateParams) {
+  //         return ProductDAO.get({ productId: $stateParams.productId })
+  //         .$promise;
+  //       }]
+  //     }
+  //   });
 
     }]);
 
@@ -87,22 +121,22 @@
                       //   }
                       // });
 
-  //   $stateProvider.state('product.detail', {
-  //     url: '/{productId}',
-  //     templateUrl: 'product/views/product.detail.html',
-  //     data: {
-  //        displayName: '{{ productDetail.name }}',
-  //        title: '{{ productDetail.name }}'
-  //     },
-  //     controller: 'ProductDetailController',
-  //     controllerAs: 'detailCtrl',
-  //     resolve: {
-  //       productDetail: ['ProductDAO', '$stateParams', function(ProductDAO, $stateParams) {
-  //         return ProductDAO.get({ productId: $stateParams.productId })
-  //         .$promise;
-  //       }]
-  //     }
-  //   });
+                      //   $stateProvider.state('product.detail', {
+                      //     url: '/{productId}',
+                      //     templateUrl: 'product/views/product.detail.html',
+                      //     data: {
+                      //        displayName: '{{ productDetail.name }}',
+                      //        title: '{{ productDetail.name }}'
+                      //     },
+                      //     controller: 'ProductDetailController',
+                      //     controllerAs: 'detailCtrl',
+                      //     resolve: {
+                      //       productDetail: ['ProductDAO', '$stateParams', function(ProductDAO, $stateParams) {
+                      //         return ProductDAO.get({ productId: $stateParams.productId })
+                      //         .$promise;
+                      //       }]
+                      //     }
+                      //   });
 
   //   $stateProvider.state('product.detail.version', {
   //     //parent: 'product.detail',
