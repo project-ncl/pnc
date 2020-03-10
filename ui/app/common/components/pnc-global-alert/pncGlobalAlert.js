@@ -25,10 +25,10 @@
     bindings: {
     },
     templateUrl: 'common/components/pnc-global-alert/pnc-global-alert.html',
-    controller: ['$q', 'GenericSetting', Controller]
+    controller: ['$q', '$scope', 'events', 'GenericSetting', Controller]
   });
 
-  function Controller($q, GenericSetting) {
+  function Controller($q, $scope, events, GenericSetting) {
     var $ctrl = this;
 
     $ctrl.isInMaintenanceMode = false;
@@ -38,10 +38,20 @@
 
     // --------------------
 
-    //    $scope.isInMaintenanceMode = true;
-    //     isInMaintenanceMode = maintenanceMode.inMaintenanceMode();
 
     $ctrl.$onInit = function () {
+
+      $scope.$on(events.MAINTENANCE_MODE_ON, (event) => {
+        $ctrl.isInMaintenanceMode = true;
+        announcementPromise.then(function (bannerMessage) {
+          $ctrl.message = bannerMessage && bannerMessage.banner && bannerMessage.banner !== '' ? ' Reason: ' + result[1].banner : null;
+        });
+      });
+
+      $scope.$on(events.MAINTENANCE_MODE_OFF, (event) => {
+        $ctrl.isInMaintenanceMode = false;
+        $ctrl.message = null;
+      });
 
       var announcementPromise = GenericSetting.getAnnouncementBanner().then(function (res) {
         return res.data;
