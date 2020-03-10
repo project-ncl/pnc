@@ -139,6 +139,7 @@
       }]);
 
       messageBus.connect(restConfig.getPncNotificationsUrl());
+      messageBus.connect(restConfig.getPncGenericSettingsNotificationsUrl());
 
       if (authService.isAuthenticated()) {
         authService.getPncUser().then(function (result) {
