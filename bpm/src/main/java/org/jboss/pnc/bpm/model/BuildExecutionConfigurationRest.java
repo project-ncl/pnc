@@ -69,6 +69,10 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     @Setter
     private String tempBuildTimestamp;
 
+    @Getter
+    @Setter
+    private String completionCallbackUrl;
+
     public BuildExecutionConfigurationRest() {
     }
 
@@ -91,7 +95,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
             List<ArtifactRepository> artifactRepositories,
             Map<String, String> genericParameters,
             boolean tempBuild,
-            String tempBuildTimestamp) {
+            String tempBuildTimestamp,
+            String completionCallbackUrl) {
         this.id = id;
         this.buildContentId = buildContentId;
         this.user = user;
@@ -111,6 +116,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         this.genericParameters = genericParameters;
         this.tempBuild = tempBuild;
         this.tempBuildTimestamp = tempBuildTimestamp;
+        this.completionCallbackUrl = completionCallbackUrl;
     }
 
     public BuildExecutionConfigurationRest(String serialized) throws IOException {
