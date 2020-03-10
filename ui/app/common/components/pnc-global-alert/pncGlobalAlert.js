@@ -25,10 +25,10 @@
     bindings: {
     },
     templateUrl: 'common/components/pnc-global-alert/pnc-global-alert.html',
-    controller: ['$q', 'GenericSetting', Controller]
+    controller: ['$q', '$scope', 'eventTypes', 'GenericSetting', Controller]
   });
 
-  function Controller($q, GenericSetting) {
+  function Controller($q, $scope, eventTypes, GenericSetting) {
     var $ctrl = this;
 
     $ctrl.isInMaintenanceMode = false;
@@ -38,11 +38,7 @@
 
     // --------------------
 
-    //    $scope.isInMaintenanceMode = true;
-    //     isInMaintenanceMode = maintenanceMode.inMaintenanceMode();
-
     $ctrl.$onInit = function () {
-
       var announcementPromise = GenericSetting.getAnnouncementBanner().then(function (res) {
         return res.data;
       });
@@ -60,6 +56,18 @@
           $ctrl.message = bannerMessage && bannerMessage.banner && bannerMessage.banner !== '' ? ' Reason: ' + result[1].banner : null;
         } else {
           $ctrl.isInMaintenanceMode = false;
+          $ctrl.message = null;
+        }
+      });
+
+
+      $scope.$on(eventTypes.MAINTENANCE_STATUS_CHANGED, (event, payload) => {
+        $ctrl.isInMaintenanceMode = payload.maintenanceModeEnabled;
+        if ($ctrl.isInMaintenanceMode) {
+          GenericSetting.getAnnouncementBanner().then(function (bannerMessage) {
+            $ctrl.message = bannerMessage && bannerMessage.data.banner && bannerMessage.data.banner !== '' ? ' Reason: ' + bannerMessage.data.banner : null;
+          });
+        } else {
           $ctrl.message = null;
         }
       });
