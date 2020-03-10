@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
+import org.jboss.pnc.bpm.model.BuildExecutionConfigurationWithCallbackRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
 
@@ -51,11 +52,12 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface BuildTaskEndpoint {
 
     @Operation(
-            summary = "Notifies the completion of externally managed build task process.",
+            summary = "DEPRECATED: use single json instead of form parameters.",
             responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION) })
     @POST
     @Path("/{taskId}/completed")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Deprecated
     public Response buildTaskCompleted(
             @Parameter(description = "Build task id") @PathParam("taskId") int buildId,
             @Parameter(
@@ -92,20 +94,19 @@ public interface BuildTaskEndpoint {
                     description = "Username who triggered the build. If empty current user is used.") @FormParam("usernameTriggered") String usernameTriggered,
             @Parameter(description = "Optional Callback URL") @FormParam("callbackUrl") String callbackUrl);
 
-    @Operation(summary = "Triggers the build execution for a given configuration.",
-            responses = {
-                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+    @Operation(
+            summary = "Triggers the build execution for a given configuration.",
+            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                     @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION),
                     @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION),
-                    @ApiResponse(responseCode = FORBIDDEN_CODE, description = FORBIDDEN_DESCRIPTION),
-            })
+                    @ApiResponse(responseCode = FORBIDDEN_CODE, description = FORBIDDEN_DESCRIPTION), })
     @POST
     @Path("/execute-build")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response build(
             @Parameter(
-                    description = "Build Execution Configuration. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.", required = true)
-            BuildExecutionConfigurationRest buildExecutionConfiguration);
+                    description = "Build Execution Configuration. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.",
+                    required = true) BuildExecutionConfigurationWithCallbackRest buildExecutionConfiguration);
 
     @Operation(
             summary = "Cancel the build execution defined with given executionConfigurationId.",
@@ -115,7 +116,8 @@ public interface BuildTaskEndpoint {
                     @ApiResponse(responseCode = FORBIDDEN_CODE, description = FORBIDDEN_DESCRIPTION), })
     @POST
     @Path("/cancel-build/{buildExecutionConfigurationId}")
-    @Consumes({MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED}) //TODO REMOVE APPLICATION_FORM_URLENCODED
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED }) // TODO REMOVE
+                                                                                     // APPLICATION_FORM_URLENCODED
     public Response cancelBuild(
             @Parameter(
                     description = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.") @PathParam("buildExecutionConfigurationId") int buildExecutionConfigurationId);

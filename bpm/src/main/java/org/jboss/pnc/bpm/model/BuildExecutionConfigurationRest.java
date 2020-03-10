@@ -19,10 +19,13 @@
 package org.jboss.pnc.bpm.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import lombok.Getter;
-import lombok.Setter;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
@@ -31,7 +34,6 @@ import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +42,11 @@ import java.util.Map;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = BuildExecutionConfigurationRest.Builder.class)
 @XmlRootElement(name = "buildExecutionConfiguration")
 public class BuildExecutionConfigurationRest implements BuildExecutionConfiguration {
 
@@ -65,74 +72,13 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
 
     private boolean tempBuild;
 
-    @Getter
-    @Setter
     private String tempBuildTimestamp;
 
-    @Getter
-    @Setter
-    private String completionCallbackUrl;
-
-    public BuildExecutionConfigurationRest() {
-    }
-
-    public BuildExecutionConfigurationRest(
-            int id,
-            String buildContentId,
-            User user,
-            String buildScript,
-            String name,
-            String scmRepoURL,
-            String scmRevision,
-            String scmTag,
-            String originRepoURL,
-            boolean preBuildSyncEnabled,
-            BuildType buildType,
-            String systemImageId,
-            String systemImageRepositoryUrl,
-            SystemImageType systemImageType,
-            boolean podKeptOnFailure,
-            List<ArtifactRepository> artifactRepositories,
-            Map<String, String> genericParameters,
-            boolean tempBuild,
-            String tempBuildTimestamp,
-            String completionCallbackUrl) {
-        this.id = id;
-        this.buildContentId = buildContentId;
-        this.user = user;
-        this.buildScript = buildScript;
-        this.name = name;
-        this.scmRepoURL = scmRepoURL;
-        this.scmRevision = scmRevision;
-        this.scmTag = scmTag;
-        this.originRepoURL = originRepoURL;
-        this.preBuildSyncEnabled = preBuildSyncEnabled;
-        this.buildType = buildType;
-        this.systemImageId = systemImageId;
-        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
-        this.systemImageType = systemImageType;
-        this.podKeptOnFailure = podKeptOnFailure;
-        this.artifactRepositories = artifactRepositories;
-        this.genericParameters = genericParameters;
-        this.tempBuild = tempBuild;
-        this.tempBuildTimestamp = tempBuildTimestamp;
-        this.completionCallbackUrl = completionCallbackUrl;
-    }
-
-    public BuildExecutionConfigurationRest(String serialized) throws IOException {
-        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = JsonOutputConverterMapper
-                .readValue(serialized, BuildExecutionConfigurationRest.class);
-        BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionConfigurationRestFromJson
-                .toBuildExecutionConfiguration();
-
-        init(buildExecutionConfiguration);
+    public static BuildExecutionConfigurationRest valueOf(String serialized) throws IOException {
+        return JsonOutputConverterMapper.readValue(serialized, BuildExecutionConfigurationRest.class);
     }
 
     public BuildExecutionConfigurationRest(BuildExecutionConfiguration buildExecutionConfiguration) {
-        init(buildExecutionConfiguration);
-    }
-
-    private void init(BuildExecutionConfiguration buildExecutionConfiguration) {
         id = buildExecutionConfiguration.getId();
         buildContentId = buildExecutionConfiguration.getBuildContentId();
         buildScript = buildExecutionConfiguration.getBuildScript();
@@ -152,8 +98,8 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
         tempBuild = buildExecutionConfiguration.isTempBuild();
         tempBuildTimestamp = buildExecutionConfiguration.getTempBuildTimestamp();
 
+        artifactRepositories = new ArrayList<>();
         if (buildExecutionConfiguration.getArtifactRepositories() != null) {
-            artifactRepositories = new ArrayList<>(buildExecutionConfiguration.getArtifactRepositories().size());
             for (ArtifactRepository artifactRepository : buildExecutionConfiguration.getArtifactRepositories()) {
                 artifactRepositories.add(new ArtifactRepositoryRest(artifactRepository));
             }
@@ -183,162 +129,15 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
                 tempBuildTimestamp);
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setBuildContentId(String buildContentId) {
-        this.buildContentId = buildContentId;
-    }
-
-    public void setBuildScript(String buildScript) {
-        this.buildScript = buildScript;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setScmRepoURL(String scmRepoURL) {
-        this.scmRepoURL = scmRepoURL;
-    }
-
-    public void setScmRevision(String scmRevision) {
-        this.scmRevision = scmRevision;
-    }
-
-    public void setOriginRepoURL(String originRepoURL) {
-        this.originRepoURL = originRepoURL;
-    }
-
-    public void setPreBuildSyncEnabled(boolean preBuildSyncEnabled) {
-        this.preBuildSyncEnabled = preBuildSyncEnabled;
-    }
-
-    @Override
-    public int getId() {
-        return id;
-    }
-
     @JsonIgnore
     @Override
     public String getUserId() {
         return user.getId();
     }
 
-    @Override
-    public String getBuildContentId() {
-        return buildContentId;
-    }
-
-    @Override
-    public String getBuildScript() {
-        return buildScript;
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getScmRepoURL() {
-        return scmRepoURL;
-    }
-
-    @Override
-    public String getScmRevision() {
-        return scmRevision;
-    }
-
-    @Override
-    public String getScmTag() {
-        return scmTag;
-    }
-
-    @Override
-    public String getOriginRepoURL() {
-        return originRepoURL;
-    }
-
-    @Override
-    public boolean isPreBuildSyncEnabled() {
-        return preBuildSyncEnabled;
-    }
-
-    public BuildType getBuildType() {
-        return buildType;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setBuildType(BuildType buildType) {
-        this.buildType = buildType;
-    }
-
-    @Override
-    public String getSystemImageId() {
-        return systemImageId;
-    }
-
-    public void setSystemImageId(String systemImageId) {
-        this.systemImageId = systemImageId;
-    }
-
-    @Override
-    public String getSystemImageRepositoryUrl() {
-        return systemImageRepositoryUrl;
-    }
-
-    public void setSystemImageRepositoryUrl(String systemImageRepositoryUrl) {
-        this.systemImageRepositoryUrl = systemImageRepositoryUrl;
-    }
-
-    @Override
-    public SystemImageType getSystemImageType() {
-        return systemImageType;
-    }
-
-    @Override
-    public boolean isPodKeptOnFailure() {
-        return podKeptOnFailure;
-    }
-
-    public void setPodKeptOnFailure(boolean podKeptOnFailure) {
-        this.podKeptOnFailure = podKeptOnFailure;
-    }
-
-    public void setSystemImageType(SystemImageType systemImageType) {
-        this.systemImageType = systemImageType;
-    }
-
-    @Override
-    public List<ArtifactRepository> getArtifactRepositories() {
-        return artifactRepositories;
-    }
-
-    public void setArtifactRepositories(List<ArtifactRepositoryRest> artifactRepositoriesRest) {
-        this.artifactRepositories = new ArrayList<>(artifactRepositoriesRest);
-    }
-
-    public void setGenericParameters(Map<String, String> genericParameters) {
-        this.genericParameters = genericParameters;
-    }
-
-    @Override
-    public Map<String, String> getGenericParameters() {
-        return genericParameters;
-    }
-
-    @Override
-    public boolean isTempBuild() {
-        return tempBuild;
+    @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static final class Builder {
     }
 
     @Override
