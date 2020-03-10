@@ -41,18 +41,6 @@
 
     $ctrl.$onInit = function () {
 
-      $scope.$on(events.MAINTENANCE_MODE_ON, (event) => {
-        $ctrl.isInMaintenanceMode = true;
-        announcementPromise.then(function (bannerMessage) {
-          $ctrl.message = bannerMessage && bannerMessage.banner && bannerMessage.banner !== '' ? ' Reason: ' + result[1].banner : null;
-        });
-      });
-
-      $scope.$on(events.MAINTENANCE_MODE_OFF, (event) => {
-        $ctrl.isInMaintenanceMode = false;
-        $ctrl.message = null;
-      });
-
       var announcementPromise = GenericSetting.getAnnouncementBanner().then(function (res) {
         return res.data;
       });
@@ -73,6 +61,19 @@
           $ctrl.message = null;
         }
       });
+
+      $scope.$on(events.MAINTENANCE_MODE_ON, (event) => {
+        $ctrl.isInMaintenanceMode = true;
+        GenericSetting.getAnnouncementBanner().then(function (bannerMessage) {
+          $ctrl.message = bannerMessage && bannerMessage.data.banner && bannerMessage.data.banner !== '' ? ' Reason: ' + bannerMessage.data.banner : null;
+        });
+      });
+
+      $scope.$on(events.MAINTENANCE_MODE_OFF, (event) => {
+        $ctrl.isInMaintenanceMode = false;
+        $ctrl.message = null;
+      });
+
     };
   }
 })();
