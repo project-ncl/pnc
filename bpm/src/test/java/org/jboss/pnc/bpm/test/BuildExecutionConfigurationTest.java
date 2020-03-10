@@ -19,6 +19,7 @@
 package org.jboss.pnc.bpm.test;
 
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -66,8 +67,8 @@ public class BuildExecutionConfigurationTest {
         String buildExecutionConfigurationJson = buildExecutionConfigurationREST.toString();
         log.debug("Json : {}", buildExecutionConfigurationJson);
 
-        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = new BuildExecutionConfigurationRest(
-                buildExecutionConfigurationJson);
+        BuildExecutionConfigurationRest buildExecutionConfigurationRestFromJson = JsonOutputConverterMapper
+                .readValue(buildExecutionConfigurationJson, BuildExecutionConfigurationRest.class);
         BuildExecutionConfiguration buildExecutionConfigurationFromJson = buildExecutionConfigurationRestFromJson
                 .toBuildExecutionConfiguration();
         String message = "Deserialized object does not match the original.";
