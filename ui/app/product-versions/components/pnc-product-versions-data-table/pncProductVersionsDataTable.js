@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.product').component('pncProductVersionsDataTable', {
+  angular.module('pnc.product-versions').component('pncProductVersionsDataTable', {
     bindings: {
       /**
        * page object: the page of ProductVersions to display in the table.
@@ -29,19 +29,19 @@
        */
       displayFields: '<',
       /**
-       * 
+       *
        */
       onEdit: '&',
       /**
-       * Callback function: called when the remove action button (shown on each table row) is clicked. 
-       * The function will be passed the ProductVersion the action was called on. 
-       * You will need to take some action upon the returned object to notify the backend to remove the object. 
+       * Callback function: called when the remove action button (shown on each table row) is clicked.
+       * The function will be passed the ProductVersion the action was called on.
+       * You will need to take some action upon the returned object to notify the backend to remove the object.
        * The callback function should return a promise that is resolved when the remove operation is completed, the
        * page object will be automatically refreshed when this promise resolves.
        */
       onRemove: '&'
     },
-    templateUrl: 'product/directives/pnc-product-versions-data-table/pnc-product-versions-data-table.html',
+    templateUrl: 'product-versions/components/pnc-product-versions-data-table/pnc-product-versions-data-table.html',
     controller: ['paginator', Controller]
   });
 
