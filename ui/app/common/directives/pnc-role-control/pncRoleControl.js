@@ -28,7 +28,7 @@
     return {
       restrict: 'A',
 
-      link: function (scope, ele, attrs, ctrl) {
+      link: function (scope, ele, attrs) {
         let requiredRole = attrs.role;
         if (requiredRole !== null && !hasValidatedRole(requiredRole)) {
           ele.addClass('ng-hide');
