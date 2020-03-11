@@ -48,8 +48,8 @@
       });
 
       $q.all([maintenanceStatusPromise, announcementPromise]).then(function (result) {
-        let inMaintenanceMode = result[0];
-        let bannerMessage = result[1];
+        var inMaintenanceMode = result[0];
+        var bannerMessage = result[1];
 
         if (inMaintenanceMode) {
           $ctrl.isInMaintenanceMode = true;
@@ -61,7 +61,7 @@
       });
 
 
-      $scope.$on(eventTypes.MAINTENANCE_STATUS_CHANGED, (event, payload) => {
+      $scope.$on(eventTypes.MAINTENANCE_STATUS_CHANGED, function (event, payload) {
         $ctrl.isInMaintenanceMode = payload.maintenanceModeEnabled;
         if ($ctrl.isInMaintenanceMode) {
           GenericSetting.getAnnouncementBanner().then(function (bannerMessage) {

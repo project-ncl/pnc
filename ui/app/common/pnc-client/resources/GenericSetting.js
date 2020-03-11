@@ -29,24 +29,20 @@
     'restConfig',
     function ($http, restConfig) {
       var ENDPOINT = restConfig.getPncUrl() + '/generic-setting';
-
-      function inMaintenanceMode() {
-        return $http.get(ENDPOINT + '/in-maintenance-mode');
-      }
-      function activateMaintenanceMode(reason) {
-        return $http.post(ENDPOINT + '/activate-maintenance-mode', reason);
-      }
-      function deactivateMaintenanceMode() {
-        return $http.post(ENDPOINT + '/deactivate-maintenance-mode');
-      }
-      function getAnnouncementBanner() {
-        return $http.get(ENDPOINT + '/announcement-banner');
-      }
-
       return {
-        inMaintenanceMode, activateMaintenanceMode, deactivateMaintenanceMode, getAnnouncementBanner
+        inMaintenanceMode: function () {
+          return $http.get(ENDPOINT + '/in-maintenance-mode');
+        },
+        activateMaintenanceMode: function (reason) {
+          return $http.post(ENDPOINT + '/activate-maintenance-mode', reason);
+        },
+        deactivateMaintenanceMode: function () {
+          return $http.post(ENDPOINT + '/deactivate-maintenance-mode');
+        },
+        getAnnouncementBanner: function () {
+          return $http.get(ENDPOINT + '/announcement-banner');
+        }
       };
-
     }
 
   ]);
