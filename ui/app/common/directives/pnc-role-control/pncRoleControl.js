@@ -21,15 +21,15 @@
   var module = angular.module('pnc.common.directives');
   module.directive('pncRoleControl', ['authService', function (authService) {
     var hasValidatedRole = function (requiredRole) {
-      let userRoles = authService.getUserRole();
+      var userRoles = authService.getUserRole();
       return userRoles !== null && userRoles.includes(requiredRole);
     };
 
     return {
       restrict: 'A',
 
-      link: function (scope, ele, attrs, ctrl) {
-        let requiredRole = attrs.role;
+      link: function (scope, ele, attrs) {
+        var requiredRole = attrs.role;
         if (requiredRole !== null && !hasValidatedRole(requiredRole)) {
           ele.addClass('ng-hide');
         } else {
