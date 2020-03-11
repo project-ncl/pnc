@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 (function () {
+  'use strict';
+
   var module = angular.module('pnc.common.directives');
   module.directive('pncRoleControl', ['authService', function (authService) {
     var hasValidatedRole = function (requiredRole) {
