@@ -22,8 +22,7 @@
     '$log',
     '$rootScope',
     'eventTypes',
-    'pncEventAdaptor',
-    function ($log, $rootScope, eventTypes, pncEventAdaptor) {
+    function ($log, $rootScope, eventTypes) {
       return function (message) {
         if (message.eventType) {
           switch (message.eventType) {
@@ -32,7 +31,6 @@
               $rootScope.$broadcast(event.eventType, JSON.parse(event.payload));
               break;
           }
-
         }
       };
     }
