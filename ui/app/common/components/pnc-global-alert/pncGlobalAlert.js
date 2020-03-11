@@ -62,14 +62,14 @@
         }
       });
 
-      $scope.$on(events.MAINTENANCE_MODE_ON, (event) => {
+      $scope.$on(events.MAINTENANCE_MODE_ON, () => {
         $ctrl.isInMaintenanceMode = true;
         GenericSetting.getAnnouncementBanner().then(function (bannerMessage) {
           $ctrl.message = bannerMessage && bannerMessage.data.banner && bannerMessage.data.banner !== '' ? ' Reason: ' + bannerMessage.data.banner : null;
         });
       });
 
-      $scope.$on(events.MAINTENANCE_MODE_OFF, (event) => {
+      $scope.$on(events.MAINTENANCE_MODE_OFF, () => {
         $ctrl.isInMaintenanceMode = false;
         $ctrl.message = null;
       });

@@ -103,14 +103,14 @@
       }
     });
 
-     /**
-      * JQuery listener for users to submit for by press enter button
-      */
-    document.getElementById("activateReason").addEventListener("keyup", function(event) {
+    /**
+     * JQuery listener for users to submit for by press enter button
+     */
+    document.getElementById('activateReason').addEventListener('keyup', function (event) {
       if (event.keyCode === 13) {
         event.preventDefault();
         $ctrl.clearMaintenanceValidation();
-        document.getElementById("confirm-maintenance-mode").click();
+        document.getElementById('confirm-maintenance-mode').click();
       }
     });
 
