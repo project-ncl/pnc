@@ -50,17 +50,33 @@ public class VertxWebSocketClient implements WebSocketClient {
 
     private static final Logger log = LoggerFactory.getLogger(VertxWebSocketClient.class);
 
+    private final Vertx vertx;
+
     private HttpClient httpClient;
 
     private WebSocket webSocketConnection;
 
     private Set<Dispatcher> dispatchers = new HashSet<>();
 
-    private ObjectMapper objectMapper = JsonOutputConverterMapper.getMapper();
+    private int maximumRetries = 5;
 
-    public VertxWebSocketClient() {
-        Vertx vertx = Vertx.vertx();
-        httpClient = vertx.createHttpClient();
+    private int numberOfRetries = 0;
+
+    private float timeMultiplier = 1.5F;
+
+    private int defaultDelay = 1;
+
+    private int reconnectDelay;
+
+    private static final ObjectMapper objectMapper = JsonOutputConverterMapper.getMapper();
+
+    public VertxWebSocketClient(int maximumRetries, int defaultDelay, int timeMultiplier) {
+        this.vertx = Vertx.vertx();
+        this.httpClient = vertx.createHttpClient();
+        this.timeMultiplier = timeMultiplier;
+        this.maximumRetries = maximumRetries;
+        this.defaultDelay = defaultDelay;
+        reconnectDelay = defaultDelay;
     }
 
     @Override
@@ -87,6 +103,7 @@ public class VertxWebSocketClient implements WebSocketClient {
                         log.debug("Connection to WebSocket server:" + webSocketServerUrl + " successful.");
                         webSocketConnection = result.result();
                         webSocketConnection.textMessageHandler(this::dispatch);
+                        webSocketConnection.endHandler((ignore) -> retryConnection(webSocketServerUrl));
                         //Async operation complete
                         future.complete(null);
                     } else {
@@ -97,6 +114,33 @@ public class VertxWebSocketClient implements WebSocketClient {
         return future;
     }
 
+    private void dispatch(String message) {
+        dispatchers.forEach((dispatcher) -> dispatcher.accept(message));
+    }
+
+    private void retryConnection(String webSocketServerUrl) {
+        if (maximumRetries >= numberOfRetries) {
+            // FIXME how to get this to kill the main thread?
+            throw new RuntimeException(
+                    new ConnectionClosedException(
+                            "Exceeded number of automatic retries to WebSocket server! Reason "
+                                    + webSocketConnection.closeStatusCode() + ": "
+                                    + webSocketConnection.closeReason()));
+        }
+        vertx.setTimer(reconnectDelay, (timerId) -> connectAndReset(webSocketServerUrl));
+        numberOfRetries++;
+        reconnectDelay *= timeMultiplier;
+    }
+
+    private CompletableFuture<Void> connectAndReset(String webSocketServerUrl) {
+        return connect(webSocketServerUrl).thenRun(this::resetDefaults);
+    }
+
+    private void resetDefaults() {
+        reconnectDelay = defaultDelay;
+        numberOfRetries = 0;
+    }
+
     @Override
     public CompletableFuture<Void> disconnect() {
         if(webSocketConnection == null || webSocketConnection.isClosed()) {
@@ -104,6 +148,7 @@ public class VertxWebSocketClient implements WebSocketClient {
             return CompletableFuture.completedFuture(null);
         }
         CompletableFuture<Void> future = new CompletableFuture<>();
+        webSocketConnection.closeHandler(null);
         webSocketConnection.close((result) -> {
             if (result.succeeded()) {
                 log.debug("Connection to WebSocket server successfully closed.");
@@ -114,10 +159,6 @@ public class VertxWebSocketClient implements WebSocketClient {
             }
         });
         return future;
-    }
-
-    private void dispatch(String message) {
-        dispatchers.forEach((dispatcher) -> dispatcher.accept(message));
     }
 
     @Override
@@ -239,5 +280,4 @@ public class VertxWebSocketClient implements WebSocketClient {
             Predicate<SCMRepositoryCreationSuccess>... filters) {
         return catchSingleNotification(SCMRepositoryCreationSuccess.class, filters);
     }
-
 }
