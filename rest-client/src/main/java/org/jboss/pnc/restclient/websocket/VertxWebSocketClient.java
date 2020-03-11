@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.restclient.websocket;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.org.slf4j.internal.Logger;
-import com.sun.org.slf4j.internal.LoggerFactory;
-import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.WebSocket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
@@ -32,14 +33,15 @@ import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.Notification;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.WebSocket;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
@@ -67,18 +69,19 @@ public class VertxWebSocketClient implements WebSocketClient {
             throw new IllegalArgumentException("WebSocketServerUrl is null");
         }
 
+        final URI serverURI;
         try {
-            new URI(webSocketServerUrl);
+            serverURI = new URI(webSocketServerUrl);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("WebSocketServerUrl is not valid URI", e);
         }
 
-        if (webSocketConnection == null || webSocketConnection.isClosed()) {
+        if (webSocketConnection != null && !webSocketConnection.isClosed()) {
             log.trace("Already connected.");
             return CompletableFuture.completedFuture(null);
         }
         CompletableFuture<Void> future = new CompletableFuture<>();
-        httpClient.webSocket(webSocketServerUrl,
+        httpClient.webSocket(serverURI.getHost(), serverURI.getPath(),
                 result -> {
                     if (result.succeeded()) {
                         log.debug("Connection to WebSocket server:" + webSocketServerUrl + " successful.");
@@ -177,7 +180,8 @@ public class VertxWebSocketClient implements WebSocketClient {
     }
 
     @Override
-    public ListenerUnsubscriber onBuildPushResultNotification(Consumer<BuildPushResultNotification> onNotification,
+    public ListenerUnsubscriber onBuildPushResult(
+            Consumer<BuildPushResultNotification> onNotification,
             Predicate<BuildPushResultNotification>... filters) throws ConnectionClosedException {
         return onMessage(BuildPushResultNotification.class, onNotification, filters);
     }
@@ -213,7 +217,7 @@ public class VertxWebSocketClient implements WebSocketClient {
     }
 
     @Override
-    public CompletableFuture<BuildPushResultNotification> catchBuildPushResultNotification(
+    public CompletableFuture<BuildPushResultNotification> catchBuildPushResult(
             Predicate<BuildPushResultNotification>... filters) {
         return catchSingleNotification(BuildPushResultNotification.class, filters);
     }
