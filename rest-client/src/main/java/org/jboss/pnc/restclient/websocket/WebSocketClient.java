@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.restclient.websocket;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
@@ -24,10 +28,6 @@ import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.Notification;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 /**
  * WebSocket client interface that provides functionality for connecting/disconnecting to the WebSocket server specified by its
@@ -62,19 +62,22 @@ public interface WebSocketClient {
     CompletableFuture<Void> disconnect();
 
     /**
-     * This method registers a listener for a Notification. This listener continually intercepts WebSocket messages of a specific
-     * type of Notification defined by notificationClass. Filters are used to filter out messages that are not meant for the
-     * listener to intercept.
+     * This method registers a listener for a Notification. This listener continually intercepts WebSocket messages of a
+     * specific type of Notification defined by notificationClass. Filters are used to filter out messages that are not
+     * meant for the listener to intercept.
      *
-     * The ListenerUnsubscriber is a Runnable that should be run after the user has no need for this listener to intercept
-     * further messages.
+     * The listener can't be blocking.
      *
-     * @param <T>               the notification generic parameter
+     * The ListenerUnsubscriber is a Runnable that should be run after the user has no need for this listener to
+     * intercept further messages.
+     *
+     * @param <T> the notification generic parameter
      * @param notificationClass the notification class
-     * @param listener          the listener
-     * @param filters           the filters
+     * @param listener the listener
+     * @param filters the filters
      * @return the listener unsubscriber
-     * @throws ConnectionClosedException The exception is thrown, when attempting to register a listener on closed connection.
+     * @throws ConnectionClosedException The exception is thrown, when attempting to register a listener on closed
+     *         connection.
      */
     <T extends Notification> ListenerUnsubscriber onMessage(
             Class<T> notificationClass,
@@ -100,10 +103,12 @@ public interface WebSocketClient {
     /**
      * Specific version of {@link #onMessage} method for {@link BuildChangedNotification}.
      *
-     * @param onNotification    listener invoked on notification
-     * @param filters           the filters
+     * @param onNotification listener invoked on notification
+     * @param filters the filters
      * @return the listener unsubscriber
-     * @throws ConnectionClosedException the connection closed exception
+     * @throws ConnectionClosedException The exception is thrown, when attempting to register a listener on closed
+     *         connection.
+     * @see #onMessage
      */
     ListenerUnsubscriber onBuildChangedNotification(Consumer<BuildChangedNotification> onNotification,
             Predicate<BuildChangedNotification>... filters) throws ConnectionClosedException;
@@ -111,10 +116,12 @@ public interface WebSocketClient {
     /**
      * Specific version of {@link #onMessage} method for {@link BuildConfigurationCreation}.
      *
-     * @param onNotification    listener invoked on notification
-     * @param filters           the filters
+     * @param onNotification listener invoked on notification
+     * @param filters the filters
      * @return the listener unsubscriber
-     * @throws ConnectionClosedException the connection closed exception
+     * @throws ConnectionClosedException The exception is thrown, when attempting to register a listener on closed
+     *         connection.
+     * @see #onMessage
      */
     ListenerUnsubscriber onBuildConfigurationCreation(Consumer<BuildConfigurationCreation> onNotification,
             Predicate<BuildConfigurationCreation>... filters) throws ConnectionClosedException;
@@ -122,21 +129,26 @@ public interface WebSocketClient {
     /**
      * Specific version of {@link #onMessage} method for {@link BuildPushResultNotification}.
      *
-     * @param onNotification    listener invoked on notification
-     * @param filters           the filters
+     * @param onNotification listener invoked on notification
+     * @param filters the filters
      * @return the listener unsubscriber
-     * @throws ConnectionClosedException the connection closed exception
+     * @throws ConnectionClosedException The exception is thrown, when attempting to register a listener on closed
+     *         connection.
+     * @see #onMessage
      */
-    ListenerUnsubscriber onBuildPushResultNotification(Consumer<BuildPushResultNotification> onNotification,
+    ListenerUnsubscriber onBuildPushResult(
+            Consumer<BuildPushResultNotification> onNotification,
             Predicate<BuildPushResultNotification>... filters) throws ConnectionClosedException;
 
     /**
      * Specific version of {@link #onMessage} method for {@link GroupBuildChangedNotification}.
      *
-     * @param onNotification    listener invoked on notification
-     * @param filters           the filters
+     * @param onNotification listener invoked on notification
+     * @param filters the filters
      * @return the listener unsubscriber
-     * @throws ConnectionClosedException the connection closed exception
+     * @throws ConnectionClosedException The exception is thrown, when attempting to register a listener on closed
+     *         connection.
+     * @see #onMessage
      */
     ListenerUnsubscriber onGroupBuildChangedNotification(Consumer<GroupBuildChangedNotification> onNotification,
             Predicate<GroupBuildChangedNotification>... filters) throws ConnectionClosedException;
@@ -144,10 +156,12 @@ public interface WebSocketClient {
     /**
      * Specific version of {@link #onMessage} method for {@link RepositoryCreationFailure}.
      *
-     * @param onNotification    listener invoked on notification
-     * @param filters           the filters
+     * @param onNotification listener invoked on notification
+     * @param filters the filters
      * @return the listener unsubscriber
-     * @throws ConnectionClosedException the connection closed exception
+     * @throws ConnectionClosedException The exception is thrown, when attempting to register a listener on closed
+     *         connection.
+     * @see #onMessage
      */
     ListenerUnsubscriber onRepositoryCreationFailure(Consumer<RepositoryCreationFailure> onNotification,
             Predicate<RepositoryCreationFailure>... filters) throws ConnectionClosedException;
@@ -155,10 +169,12 @@ public interface WebSocketClient {
     /**
      * Specific version of {@link #onMessage} method for {@link SCMRepositoryCreationSuccess}.
      *
-     * @param onNotification    listener invoked on notification
-     * @param filters           the filters
+     * @param onNotification listener invoked on notification
+     * @param filters the filters
      * @return the listener unsubscriber
-     * @throws ConnectionClosedException the connection closed exception
+     * @throws ConnectionClosedException The exception is thrown, when attempting to register a listener on closed
+     *         connection.
+     * @see #onMessage
      */
     ListenerUnsubscriber onSCMRepositoryCreationSuccess(Consumer<SCMRepositoryCreationSuccess> onNotification,
             Predicate<SCMRepositoryCreationSuccess>... filters) throws ConnectionClosedException;
@@ -166,8 +182,9 @@ public interface WebSocketClient {
     /**
      * Specific version of {@link #catchSingleNotification} method for {@link BuildChangedNotification}.
      *
-     * @param filters           the filters
+     * @param filters the filters
      * @return the completable future
+     * @see #catchSingleNotification
      */
     CompletableFuture<BuildChangedNotification> catchBuildChangedNotification(
             Predicate<BuildChangedNotification>... filters);
@@ -175,8 +192,9 @@ public interface WebSocketClient {
     /**
      * Specific version of {@link #catchSingleNotification} method for {@link BuildConfigurationCreation}.
      *
-     * @param filters           the filters
+     * @param filters the filters
      * @return the completable future
+     * @see #catchSingleNotification
      */
     CompletableFuture<BuildConfigurationCreation> catchBuildConfigurationCreation(
             Predicate<BuildConfigurationCreation>... filters);
@@ -184,17 +202,19 @@ public interface WebSocketClient {
     /**
      * Specific version of {@link #catchSingleNotification} method for {@link BuildPushResultNotification}.
      *
-     * @param filters           the filters
+     * @param filters the filters
      * @return the completable future
+     * @see #catchSingleNotification
      */
-    CompletableFuture<BuildPushResultNotification> catchBuildPushResultNotification(
+    CompletableFuture<BuildPushResultNotification> catchBuildPushResult(
             Predicate<BuildPushResultNotification>... filters);
 
     /**
      * Specific version of {@link #catchSingleNotification} method for {@link GroupBuildChangedNotification}.
      *
-     * @param filters           the filters
+     * @param filters the filters
      * @return the completable future
+     * @see #catchSingleNotification
      */
     CompletableFuture<GroupBuildChangedNotification> catchGroupBuildChangedNotification(
             Predicate<GroupBuildChangedNotification>... filters);
@@ -202,8 +222,9 @@ public interface WebSocketClient {
     /**
      * Specific version of {@link #catchSingleNotification} method for {@link RepositoryCreationFailure}.
      *
-     * @param filters           the filters
+     * @param filters the filters
      * @return the completable future
+     * @see #catchSingleNotification
      */
     CompletableFuture<RepositoryCreationFailure> catchRepositoryCreationFailure(
             Predicate<RepositoryCreationFailure>... filters);
@@ -211,8 +232,9 @@ public interface WebSocketClient {
     /**
      * Specific version of {@link #catchSingleNotification} method for {@link SCMRepositoryCreationSuccess}.
      *
-     * @param filters           the filters
+     * @param filters the filters
      * @return the completable future
+     * @see #catchSingleNotification
      */
     CompletableFuture<SCMRepositoryCreationSuccess> catchSCMRepositoryCreationSuccess(
             Predicate<SCMRepositoryCreationSuccess>... filters);
