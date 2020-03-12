@@ -20,12 +20,12 @@ package org.jboss.pnc.integration_new.endpoint.notifications;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.mock.dto.BuildMock;
 import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
+import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
@@ -64,6 +64,7 @@ public class WebSocketsNotificationTest {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static NotificationCollector notificationCollector;
+    private final JacksonProvider mapperProvider = new JacksonProvider();
 
     @Inject
     Event<BuildStatusChangedEvent> buildStatusNotificationEvent;
@@ -106,9 +107,9 @@ public class WebSocketsNotificationTest {
                 BuildStatus.NEW,
                 build.getStatus());
 
-        String buildString = JsonOutputConverterMapper.apply(build);
+        String buildString = mapperProvider.getMapper().writeValueAsString(build);
         String expectedJsonResponse = "{\"oldStatus\":\"NEW\",\"build\":" + buildString
-                + ",\"job\":\"BUILD\",\"notificationType\":\"BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldProgress\":\"PENDING\"}";
+                + ",\"job\":\"BUILD\",\"notificationType\":\"BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldProgress\":\"PENDING\",\"message\":null}";
 
         // when
         buildStatusNotificationEvent.fire(buildStatusChangedEvent);
@@ -135,9 +136,9 @@ public class WebSocketsNotificationTest {
                 BuildSetStatus.DONE,
                 groupBuild,
                 "description");
-        String groupBuildString = JsonOutputConverterMapper.apply(groupBuild);
+        String groupBuildString = mapperProvider.getMapper().writeValueAsString(groupBuild);
         String expectedJsonResponse = "{\"groupBuild\":" + groupBuildString
-                + ",\"job\":\"GROUP_BUILD\",\"notificationType\":\"GROUP_BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldProgress\":\"IN_PROGRESS\"}";
+                + ",\"job\":\"GROUP_BUILD\",\"notificationType\":\"GROUP_BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldProgress\":\"IN_PROGRESS\",\"message\":null}";
 
         // when
         buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);

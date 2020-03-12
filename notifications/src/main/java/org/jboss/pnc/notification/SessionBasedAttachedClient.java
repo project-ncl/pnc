@@ -17,10 +17,11 @@
  */
 package org.jboss.pnc.notification;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
@@ -36,6 +37,7 @@ public class SessionBasedAttachedClient implements AttachedClient {
     private final Session session;
     private Notifier notifier;
 
+    private final JacksonProvider mapperProvider = new JacksonProvider();
     private List<Subscription> subscriptions = new ArrayList();
 
     public SessionBasedAttachedClient(Session session, Notifier notifier) {
@@ -56,7 +58,13 @@ public class SessionBasedAttachedClient implements AttachedClient {
     @Override
     public void sendMessage(Object messageBody, MessageCallback callback) {
 
-        session.getAsyncRemote().sendText(JsonOutputConverterMapper.apply(messageBody), new SendHandler() {
+        String message;
+        try {
+            message = mapperProvider.getMapper().writeValueAsString(messageBody);
+        } catch (JsonProcessingException e) {
+            throw new IllegalArgumentException("Could not convert object to JSON", e);
+        }
+        session.getAsyncRemote().sendText(message, new SendHandler() {
             @Override
             public void onResult(SendResult sendResult) {
                 if (!sendResult.isOK()) {

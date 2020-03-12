@@ -31,9 +31,9 @@ import javax.ws.rs.ext.Provider;
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON_PATCH_JSON })
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON_PATCH_JSON })
 public class JacksonProvider implements ContextResolver<ObjectMapper> {
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
-    public JacksonProvider() throws Exception {
+    public JacksonProvider() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
 
@@ -41,6 +41,11 @@ public class JacksonProvider implements ContextResolver<ObjectMapper> {
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 
+    public ObjectMapper getMapper() {
+        return objectMapper;
+    }
+
+    @Override
     public ObjectMapper getContext(Class<?> objectType) {
         return objectMapper;
     }
