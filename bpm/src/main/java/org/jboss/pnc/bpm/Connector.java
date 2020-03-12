@@ -17,13 +17,17 @@
  */
 package org.jboss.pnc.bpm;
 
+import org.jboss.pnc.spi.exception.ProcessManagerException;
+
 import java.util.Map;
 
 /**
  * @author Matej Lazar
  */
 public interface Connector {
-    Long startProcess(String processId, Map<String, Object> processParameters, String accessToken);
+
+    Long startProcess(String processId, Map<String, Object> processParameters, String accessToken)
+            throws ProcessManagerException;
 
     /**
      * Use only for a scheduled cleanup
