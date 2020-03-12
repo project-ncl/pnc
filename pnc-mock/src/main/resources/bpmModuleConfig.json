@@ -6,6 +6,6 @@
     "deploymentId": "",
     "bcCreationProcessId": "",
     "componentBuildProcessId": "",
-    "cancelConnectionRequestTimeout": 10,
+    "httpConnectionRequestTimeout": 10,
     "causewayBaseUrl": "http://pnc-causeway.redhat.com/causeway/rest"
 }

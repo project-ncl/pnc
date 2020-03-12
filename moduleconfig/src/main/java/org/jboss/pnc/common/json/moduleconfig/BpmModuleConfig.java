@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.ToString;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 import java.net.MalformedURLException;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class BpmModuleConfig extends AbstractModuleConfig {
 
     /**
@@ -49,9 +50,24 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private String bcCreationProcessId;
     private String communityBuild;
     private String versionAdjust;
-    private int cancelConnectionRequestTimeout;
-    private int cancelConnectTimeout;
-    private int cancelSocketTimeout;
+
+    @Getter
+    private int httpConnectionRequestTimeout;
+
+    @Getter
+    private int httpConnectTimeout;
+
+    @Getter
+    private int httpSocketTimeout;
+
+    @Getter
+    private final String bpmNewBaseUrl;
+
+    @Getter
+    private final String bpmNewDeploymentId;
+
+    @Getter
+    private final String bpmNewBuildProcessName;
 
     public BpmModuleConfig(
             @JsonProperty("username") String username,
@@ -69,9 +85,12 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("daBaseUrl") String daBaseUrl,
             @JsonProperty("communityBuild") String communityBuild,
             @JsonProperty("versionAdjust") String versionAdjust,
-            @JsonProperty("cancelConnectionRequestTimeout") Integer cancelConnectionRequestTimeout,
-            @JsonProperty("cancelConnectTimeout") Integer cancelConnectTimeout,
-            @JsonProperty("cancelSocketTimeout") Integer cancelSocketTimeout) throws MalformedURLException {
+            @JsonProperty("connectionRequestTimeout") Integer httpConnectionRequestTimeout,
+            @JsonProperty("connectTimeout") Integer httpConnectTimeout,
+            @JsonProperty("socketTimeout") Integer httpSocketTimeout,
+            @JsonProperty("bpmNewBaseUrl") String bpmNewBaseUrl,
+            @JsonProperty("bpmNewDeploymentId") String bpmNewDeploymentId,
+            @JsonProperty("bpmNewBuildProcessName") String bpmNewBuildProcessName) throws MalformedURLException {
         this.username = username;
         this.password = password;
         this.deploymentId = deploymentId;
@@ -87,21 +106,24 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.causewayBaseUrl = causewayBaseUrl;
         this.communityBuild = communityBuild;
         this.versionAdjust = versionAdjust;
-        if (cancelConnectionRequestTimeout == null) {
-            this.cancelConnectionRequestTimeout = 5000; // default to 5 sec
+        if (httpConnectionRequestTimeout == null) {
+            this.httpConnectionRequestTimeout = 5000; // default to 5 sec
         } else {
-            this.cancelConnectionRequestTimeout = cancelConnectionRequestTimeout;
+            this.httpConnectionRequestTimeout = httpConnectionRequestTimeout;
         }
-        if (cancelConnectTimeout == null) {
-            this.cancelConnectTimeout = 5000; // default to 5 sec
+        if (httpConnectTimeout == null) {
+            this.httpConnectTimeout = 5000; // default to 5 sec
         } else {
-            this.cancelConnectTimeout = cancelConnectTimeout;
+            this.httpConnectTimeout = httpConnectTimeout;
         }
-        if (cancelSocketTimeout == null) {
-            this.cancelSocketTimeout = 5000; // default to 5 sec
+        if (httpSocketTimeout == null) {
+            this.httpSocketTimeout = 5000; // default to 5 sec
         } else {
-            this.cancelSocketTimeout = cancelSocketTimeout;
+            this.httpSocketTimeout = httpSocketTimeout;
         }
+        this.bpmNewBaseUrl = bpmNewBaseUrl;
+        this.bpmNewDeploymentId = bpmNewDeploymentId;
+        this.bpmNewBuildProcessName = bpmNewBuildProcessName;
     }
 
     public String getUsername() {
@@ -170,32 +192,6 @@ public class BpmModuleConfig extends AbstractModuleConfig {
 
     public String getCausewayBaseUrl() {
         return causewayBaseUrl;
-    }
-
-    public int getCancelConnectionRequestTimeout() {
-        return cancelConnectionRequestTimeout;
-    }
-
-    public int getCancelConnectTimeout() {
-        return cancelConnectTimeout;
-    }
-
-    public int getCancelSocketTimeout() {
-        return cancelSocketTimeout;
-    }
-
-    @Override
-    public String toString() {
-        return "BpmModuleConfig{" + "username='" + username + '\'' + ", bpmInstanceUrl='" + bpmInstanceUrl + '\''
-                + ", pncBaseUrl='" + pncBaseUrl + '\'' + ", jenkinsBaseUrl='" + jenkinsBaseUrl + '\''
-                + ", aproxBaseUrl='" + aproxBaseUrl + '\'' + ", repourBaseUrl='" + repourBaseUrl + '\''
-                + ", daBaseUrl='" + daBaseUrl + '\'' + ", deploymentId='" + deploymentId + '\''
-                + ", bcCreationProcessId='" + bcCreationProcessId + '\'' + ", componentBuildProcessId='"
-                + componentBuildProcessId + '\'' + ", releaseProcessId='" + releaseProcessId + '\''
-                + ", causewayBaseUrl='" + causewayBaseUrl + '\'' + ", communityBuild='" + communityBuild + '\''
-                + ", versionAdjust='" + versionAdjust + '\'' + ", cancelConnectionRequestTimeout='"
-                + cancelConnectionRequestTimeout + '\'' + ", cancelConnectTimeout='" + cancelConnectTimeout + '\''
-                + ", cancelSocketTimeout='" + cancelSocketTimeout + '\'' + '}';
     }
 
 }
