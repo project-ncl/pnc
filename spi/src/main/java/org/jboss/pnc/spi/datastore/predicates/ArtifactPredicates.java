@@ -81,8 +81,12 @@ public class ArtifactPredicates {
     }
 
     public static Predicate<Artifact> withSha256InAndBuilt(Set<String> sha256s) {
-        return (root, query, cb) -> cb
-                .and(root.get(Artifact_.buildRecord).isNotNull(), root.get(Artifact_.sha256).in(sha256s));
+        if (sha256s == null || sha256s.isEmpty()) {
+            return Predicate.nonMatching();
+        } else {
+            return (root, query, cb) -> cb
+                    .and(root.get(Artifact_.buildRecord).isNotNull(), root.get(Artifact_.sha256).in(sha256s));
+        }
     }
 
     public static Predicate<Artifact> withIds(Set<Integer> ids) {
