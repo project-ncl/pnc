@@ -126,7 +126,8 @@ public class ProcessProgressNotificationTest {
         assertTrue(
                 notificationCollector.getMessages()
                         .get(0)
-                        .startsWith("{\"oldStatus\":\"NEW\",\"build\":{\"id\":\"1\",\"status\":\"SUCCESS\","));
+                        .startsWith(
+                                "{\"oldStatus\":\"NEW\",\"build\":{\"id\":\"1\",\"submitTime\":null,\"startTime\":null,\"endTime\":null,\"progress\":null,\"status\":\"SUCCESS\","));
     }
 
     private void waitForMessages(int numberOfMessages) {

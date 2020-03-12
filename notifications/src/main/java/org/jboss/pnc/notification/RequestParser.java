@@ -20,7 +20,7 @@ package org.jboss.pnc.notification;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.rest.jackson.JacksonProvider;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -29,6 +29,8 @@ import java.io.IOException;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class RequestParser {
+
+    private final JacksonProvider mapperProvider = new JacksonProvider();
 
     @Getter
     private String errorMessage;
@@ -42,7 +44,7 @@ public class RequestParser {
     private Object dataObject;
 
     public boolean parseRequest(String message) throws IOException {
-        ObjectMapper mapper = JsonOutputConverterMapper.getMapper();
+        ObjectMapper mapper = mapperProvider.getMapper();
 
         JsonNode node = null;
         try {

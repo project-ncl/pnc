@@ -23,7 +23,6 @@ import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
@@ -164,14 +163,14 @@ public class DefaultNotifier implements Notifier {
                 } else {
                     String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
                     String errorMessage = "No events for id: " + messagesId;
-                    String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
-                    client.sendMessage(JsonOutputConverterMapper.apply(error), messageCallback);
+                    ErrorResponseRest error = new ErrorResponseRest(statusCode, errorMessage);
+                    client.sendMessage(error, messageCallback);
                 }
             } else {
                 String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
                 String errorMessage = "No process for id: " + messagesId;
-                String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
-                client.sendMessage(JsonOutputConverterMapper.apply(error), messageCallback);
+                ErrorResponseRest error = new ErrorResponseRest(statusCode, errorMessage);
+                client.sendMessage(error, messageCallback);
             }
         }
     }
