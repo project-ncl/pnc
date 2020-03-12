@@ -33,6 +33,9 @@ public class DefaultBuildDriverResult implements BuildDriverResult {
     private Optional<String> outputChecksum;
 
     public DefaultBuildDriverResult(String buildLog, BuildStatus buildStatus, Optional<String> outputChecksum) {
+        if (outputChecksum == null) {
+            throw new NullPointerException("If there is no value Optional.empty have to be used.");
+        }
         this.buildLog = buildLog;
         this.buildStatus = buildStatus;
         this.outputChecksum = outputChecksum;

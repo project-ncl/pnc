@@ -35,6 +35,7 @@ public class BuildDriverResultRest implements BuildDriverResult {
     Optional<String> outputChecksum;
 
     public BuildDriverResultRest() {
+        outputChecksum = Optional.empty();
     }
 
     public BuildDriverResultRest(BuildDriverResult buildDriverResult) {

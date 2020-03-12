@@ -300,7 +300,9 @@ public class DatastoreAdapter {
         buildRecordBuilder.buildLog(errorLog.toString());
 
         userLog.error("Build status: {}.", getBuildStatus(buildResult));
-        log.debug("Storing ERROR result of buildTask.getBuildConfigurationAudited().getName() to datastore.", e);
+        log.debug(
+                "Storing ERROR result of " + buildTask.getBuildConfigurationAudited().getName() + " to datastore.",
+                e);
         return datastore.storeCompletedBuild(buildRecordBuilder, Collections.emptyList(), Collections.emptyList());
     }
 
