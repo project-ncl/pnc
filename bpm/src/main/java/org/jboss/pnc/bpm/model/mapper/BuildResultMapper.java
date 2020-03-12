@@ -48,11 +48,16 @@ public class BuildResultMapper {
                     .toEntity(buildResultRest.getRepositoryManagerResult());
         }
 
+        BuildExecutionConfiguration bec = null;
+        if (buildResultRest.getBuildExecutionConfiguration() != null) {
+            bec = buildResultRest.getBuildExecutionConfiguration().toBuildExecutionConfiguration();
+        }
+
         return new BuildResult(
                 buildResultRest.getCompletionStatus(),
                 ofNullable(buildResultRest.getProcessException()),
                 buildResultRest.getProcessLog(),
-                ofNullable(buildResultRest.getBuildExecutionConfiguration()),
+                ofNullable(bec),
                 ofNullable(buildResultRest.getBuildDriverResult()),
                 ofNullable(repositoryManagerResult),
                 ofNullable(buildResultRest.getEnvironmentDriverResult()),

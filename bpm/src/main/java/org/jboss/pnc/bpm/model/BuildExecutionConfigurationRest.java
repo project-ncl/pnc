@@ -20,6 +20,7 @@ package org.jboss.pnc.bpm.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -48,7 +50,7 @@ import java.util.Map;
 @Builder(builderClassName = "Builder")
 @JsonDeserialize(builder = BuildExecutionConfigurationRest.Builder.class)
 @XmlRootElement(name = "buildExecutionConfiguration")
-public class BuildExecutionConfigurationRest implements BuildExecutionConfiguration {
+public class BuildExecutionConfigurationRest {
 
     private int id;
     private String buildContentId;
@@ -67,7 +69,7 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private String systemImageRepositoryUrl;
     private SystemImageType systemImageType;
     private boolean podKeptOnFailure = false;
-    private List<ArtifactRepository> artifactRepositories;
+    private List<ArtifactRepositoryRest> artifactRepositories;
     private Map<String, String> genericParameters;
 
     private boolean tempBuild;
@@ -75,7 +77,9 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     private String tempBuildTimestamp;
 
     public static BuildExecutionConfigurationRest valueOf(String serialized) throws IOException {
-        return JsonOutputConverterMapper.readValue(serialized, BuildExecutionConfigurationRest.class);
+        TypeReference<BuildExecutionConfigurationRest> type = new TypeReference<BuildExecutionConfigurationRest>() {
+        };
+        return JsonOutputConverterMapper.getMapper().readValue(serialized, type);
     }
 
     public BuildExecutionConfigurationRest(BuildExecutionConfiguration buildExecutionConfiguration) {
@@ -107,6 +111,9 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     }
 
     public BuildExecutionConfiguration toBuildExecutionConfiguration() {
+        List<ArtifactRepository> artifactRepositories = this.artifactRepositories.stream()
+                .map(ArtifactRepositoryRest::toArtifactRepository)
+                .collect(Collectors.toList());
         return BuildExecutionConfiguration.build(
                 id,
                 buildContentId,
@@ -130,7 +137,6 @@ public class BuildExecutionConfigurationRest implements BuildExecutionConfigurat
     }
 
     @JsonIgnore
-    @Override
     public String getUserId() {
         return user.getId();
     }
