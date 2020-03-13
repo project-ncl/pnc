@@ -24,12 +24,12 @@ import lombok.Data;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-public class RepositoryCreationSuccess extends BpmEvent {
+public class RepositoryCloneSuccess extends BpmEvent {
 
     private RepositoryCreationDataWrapper data;
 
     @Override
     public String getEventType() {
-        return "RC_CREATION_SUCCESS";
+        return "RC_REPO_CLONE_SUCCESS";
     }
 }
