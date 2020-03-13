@@ -19,15 +19,21 @@ package org.jboss.pnc.bpm;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +60,17 @@ public class RestConnector implements Connector {
                 bpmConfig.getHttpConnectTimeout(),
                 bpmConfig.getHttpSocketTimeout());
         endpointUrl = new EndpointUrlResolver(bpmConfig.getBpmNewBaseUrl(), bpmConfig.getBpmNewDeploymentId());
-        httpClient = HttpClients.createDefault();
+
+        HttpClientBuilder httpClientBuilder = HttpClients.custom();
+        String username = bpmConfig.getBpmNewUsername();
+        if (!StringUtils.isEmpty(username)) {
+            CredentialsProvider provider = new BasicCredentialsProvider();
+            provider.setCredentials(
+                    AuthScope.ANY,
+                    new UsernamePasswordCredentials(username, bpmConfig.getBpmNewPassword()));
+            httpClientBuilder.setDefaultCredentialsProvider(provider);
+        }
+        httpClient = httpClientBuilder.build();
     }
 
     @Override

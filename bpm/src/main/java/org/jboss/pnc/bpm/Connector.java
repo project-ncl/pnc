@@ -19,12 +19,13 @@ package org.jboss.pnc.bpm;
 
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 
+import java.io.Closeable;
 import java.util.Map;
 
 /**
  * @author Matej Lazar
  */
-public interface Connector {
+public interface Connector extends Closeable {
 
     Long startProcess(String processId, Map<String, Object> processParameters, String accessToken)
             throws ProcessManagerException;
@@ -37,6 +38,7 @@ public interface Connector {
 
     boolean cancel(Long processInstanceId);
 
+    @Override
     void close();
 
 }

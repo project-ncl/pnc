@@ -69,6 +69,12 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     @Getter
     private final String bpmNewBuildProcessName;
 
+    @Getter
+    private final String bpmNewUsername;
+
+    @Getter
+    private final String bpmNewPassword;
+
     public BpmModuleConfig(
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
@@ -90,7 +96,9 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("socketTimeout") Integer httpSocketTimeout,
             @JsonProperty("bpmNewBaseUrl") String bpmNewBaseUrl,
             @JsonProperty("bpmNewDeploymentId") String bpmNewDeploymentId,
-            @JsonProperty("bpmNewBuildProcessName") String bpmNewBuildProcessName) throws MalformedURLException {
+            @JsonProperty("bpmNewBuildProcessName") String bpmNewBuildProcessName,
+            @JsonProperty("bpmNewUsername") String bpmNewUsername,
+            @JsonProperty("bpmNewPassword") String bpmNewPassword) throws MalformedURLException {
         this.username = username;
         this.password = password;
         this.deploymentId = deploymentId;
@@ -124,6 +132,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.bpmNewBaseUrl = bpmNewBaseUrl;
         this.bpmNewDeploymentId = bpmNewDeploymentId;
         this.bpmNewBuildProcessName = bpmNewBuildProcessName;
+        this.bpmNewUsername = bpmNewUsername;
+        this.bpmNewPassword = bpmNewPassword;
     }
 
     public String getUsername() {
