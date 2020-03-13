@@ -137,52 +137,6 @@ public class BpmEndpointTest {
 
     }
 
-    @Test
-    public void shouldNotStartRCCreateTaskWithInternalURLWORepoName() throws Exception {
-        RepositoryCreationUrlAutoRest configuration = configuration(
-                "shouldNotStartRCCreateTaskWithInternalURLWORepoName",
-                INTERNAL_SCM_URL_WO_NAME);
-        assertThrows(
-                () -> bpmEndpoint.startRCreationTaskWithSingleUrl(configuration, null),
-                InvalidEntityException.class);
-    }
-
-    @Test
-    public void shouldNotStartRCCreateTaskWithInvalidInternalURL() throws Exception {
-        RepositoryCreationUrlAutoRest configuration = configuration(
-                "shouldNotStartRCCreateTaskWithInvalidInternalURL",
-                INTERNAL_SCM_URL_WO_NAME);
-        assertThrows(
-                () -> bpmEndpoint.startRCreationTaskWithSingleUrl(configuration, null),
-                InvalidEntityException.class);
-    }
-
-    @Test
-    public void shouldStartRCCreateTaskWithValidInternalURL() throws Exception {
-        RepositoryCreationUrlAutoRest configuration = configuration(
-                "shouldStartRCCreateTaskWithValidInternalURL",
-                VALID_INTERNAL_SCM_URL);
-        Response response = bpmEndpoint.startRCreationTaskWithSingleUrl(configuration, null);
-        assertThat(response.getStatus()).isEqualTo(200);
-    }
-
-    @Test
-    public void shouldNotStartRCCreateTaskWithExistingInternalURL() throws Exception {
-        RepositoryCreationUrlAutoRest configuration = configuration(
-                "shouldStartRCCreateTaskWithExistingInternalURL",
-                EXISTING_INTERNAL_SCM_URL);
-        Response response = bpmEndpoint.startRCreationTaskWithSingleUrl(configuration, null);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-    }
-
-    @Test
-    public void shouldNotStartRCCreateTaskWithExistingExternalURL() throws Exception {
-        RepositoryCreationUrlAutoRest configuration = RepositoryCreationUrlAutoRestMockBuilder
-                .mock("shouldStartRCCreateTaskWithExistingExternalURL", "mvn clean deploy", EXISTING_EXTERNAL_SCM_URL);
-        Response response = bpmEndpoint.startRCreationTaskWithSingleUrl(configuration, null);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
-    }
-
     private RepositoryCreationUrlAutoRest configuration(String name, String internalUrl) {
         return RepositoryCreationUrlAutoRestMockBuilder.mock(name, "mvn clean deploy", internalUrl);
     }

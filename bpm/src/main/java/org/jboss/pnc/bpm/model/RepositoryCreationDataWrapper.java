@@ -23,5 +23,11 @@ import lombok.Data;
 public class RepositoryCreationDataWrapper {
 
     private String message;
-    private String repositoryConfigurationId;
+    private String externalUrl;
+    private String internalUrl;
+    private String preBuildSyncEnabled;
+
+    public boolean isPreBuildSyncEnabled() {
+        return Boolean.parseBoolean(preBuildSyncEnabled);
+    }
 }

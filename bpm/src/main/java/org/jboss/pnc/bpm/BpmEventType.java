@@ -17,14 +17,9 @@
  */
 package org.jboss.pnc.bpm;
 
-import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
-
 import lombok.ToString;
-import org.jboss.pnc.bpm.model.BpmEvent;
-import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
-import org.jboss.pnc.bpm.model.BuildResultRest;
+import org.jboss.pnc.bpm.model.*;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
-import org.jboss.pnc.bpm.model.ProcessProgressUpdate;
 
 import static java.util.Objects.requireNonNull;
 
@@ -48,12 +43,10 @@ public enum BpmEventType { // TODO merge with org.jboss.pnc.spi.notifications.mo
     BUILD_COMPLETE(BuildResultRest.class),
     RC_REPO_CREATION_SUCCESS(BpmStringMapNotificationRest.class),
     RC_REPO_CREATION_ERROR(BpmStringMapNotificationRest.class),
-    RC_REPO_CLONE_SUCCESS(BpmStringMapNotificationRest.class),
+    RC_REPO_CLONE_SUCCESS(RepositoryCloneSuccess.class),
     RC_REPO_CLONE_ERROR(BpmStringMapNotificationRest.class),
 
     // notification for bpm task completion
-    RC_CREATION_SUCCESS(RepositoryCreationSuccess.class),
-    RC_CREATION_ERROR(BpmStringMapNotificationRest.class),
     BCC_CONFIG_SET_ADDITION_SUCCESS(BpmStringMapNotificationRest.class),
     BCC_CONFIG_SET_ADDITION_ERROR(BpmStringMapNotificationRest.class);
 

@@ -22,7 +22,7 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
-import org.jboss.pnc.bpm.model.RepositoryCreationSuccess;
+import org.jboss.pnc.bpm.model.RepositoryCloneSuccess;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
@@ -59,8 +59,6 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
-
-import lombok.Data;
 
 import static org.jboss.pnc.constants.Patterns.INTERNAL_REPOSITORY_NAME;
 import static org.jboss.pnc.enums.JobNotificationType.SCM_REPOSITORY_CREATION;
@@ -187,11 +185,23 @@ public class SCMRepositoryProviderImpl extends
     private SCMRepository getInternalRepository(String scmUrl) {
         validateInternalRepository(scmUrl);
         checkIfRepositoryWithInternalURLExists(scmUrl);
-        RepositoryConfiguration entity = RepositoryConfiguration.Builder.newBuilder()
-                .internalUrl(scmUrl)
-                .preBuildSyncEnabled(false)
-                .build();
-        entity = repository.save(entity);
+        return createSCMRepositoryFromValues(null, scmUrl, false);
+    }
+
+    public SCMRepository createSCMRepositoryFromValues(
+            String externalScmUrl,
+            String internalScmUrl,
+            boolean preBuildSyncEnabled) {
+
+        RepositoryConfiguration.Builder built = RepositoryConfiguration.Builder.newBuilder()
+                .internalUrl(internalScmUrl)
+                .preBuildSyncEnabled(preBuildSyncEnabled);
+
+        if (externalScmUrl != null) {
+            built.externalUrl(externalScmUrl);
+        }
+
+        RepositoryConfiguration entity = repository.save(built.build());
         return mapper.toDTO(entity);
     }
 
@@ -279,13 +289,16 @@ public class SCMRepositoryProviderImpl extends
                 repositoryCreationProcess,
                 userToken);
 
-        Consumer<RepositoryCreationSuccess> successListener = n -> {
+        Consumer<RepositoryCloneSuccess> successListener = n -> {
             final Integer taskId = repositoryCreationTask.getTaskId();
-            Integer repositoryId = Integer.valueOf(n.getData().getRepositoryConfigurationId());
-            RepositoryCreated notification = new RepositoryCreated(taskId, repositoryId);
+            SCMRepository repository = createSCMRepositoryFromValues(
+                    externalURL,
+                    n.getData().getInternalUrl(),
+                    preBuildSyncEnabled);
+            RepositoryCreated notification = new RepositoryCreated(taskId, Integer.parseInt(repository.getId()));
             consumer.accept(notification);
         };
-        repositoryCreationTask.addListener(BpmEventType.RC_CREATION_SUCCESS, MDCWrappers.wrap(successListener));
+        repositoryCreationTask.addListener(BpmEventType.RC_REPO_CLONE_SUCCESS, MDCWrappers.wrap(successListener));
         addErrorListeners(jobType, repositoryCreationTask);
 
         try {
@@ -301,7 +314,6 @@ public class SCMRepositoryProviderImpl extends
                 .wrap((e) -> notifier.sendMessage(mapError(jobType, e, task)));
         task.addListener(BpmEventType.RC_REPO_CREATION_ERROR, doNotifySMNError);
         task.addListener(BpmEventType.RC_REPO_CLONE_ERROR, doNotifySMNError);
-        task.addListener(BpmEventType.RC_CREATION_ERROR, doNotifySMNError);
     }
 
     private RepositoryCreationFailure mapError(
