@@ -43,11 +43,9 @@
     };
 
     function update($data) {
-      const newValues = angular.copy($data);
-      newValues.id = $ctrl.product.id;
-
-      return ProductResource.update(newValues).$promise
-          .catch(err => err.data.errorMessage || 'Unrecognised error from PNC REST API');
+      return ProductResource.safePatch($ctrl.product, $data).$promise.then(
+          resp => console.log(resp),
+          err => err.data.errorMessage || 'Unrecognised error from PNC REST API');
     }
   }
 

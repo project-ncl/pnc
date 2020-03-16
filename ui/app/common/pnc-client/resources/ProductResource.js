@@ -26,7 +26,8 @@
     '$resource',
     'restConfig',
     'PRODUCTS_PATH',
-    ($resource, restConfig, PRODUCTS_PATH) => {
+    'patchHelper',
+    ($resource, restConfig, PRODUCTS_PATH, patchHelper) => {
       const ENDPOINT = restConfig.getPncRestUrl() + PRODUCTS_PATH;
 
       const resource = $resource(ENDPOINT, {
@@ -50,6 +51,8 @@
           isPaged: true,
         }
       });
+
+      patchHelper.assignPatchMethods(resource);
 
       return resource;
     }
