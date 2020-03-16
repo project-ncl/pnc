@@ -22,7 +22,7 @@
 
   module.value('PRODUCT_VERSIONS_PATH', '/product-versions/:id');
 
-  module.factory('ProductVersionsResource', [
+  module.factory('ProductVersionResource', [
     '$resource',
     'restConfig',
     'PRODUCT_VERSIONS_PATH',
