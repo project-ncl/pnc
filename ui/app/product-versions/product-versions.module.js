@@ -22,6 +22,29 @@
     '$stateProvider',
     ($stateProvider) => {
       console.log($stateProvider);
+
+      $stateProvider.state('products.detail.product-versions', {
+        url: '/versions',
+        abstract: true,
+        views: {
+          'content@': {
+            templateUrl: 'common/templates/single-col.tmpl.html'
+          }
+        },
+        data: {
+          proxy: 'products.detail'
+        }
+      });
+
+      $stateProvider.state('products.detail.product-versions.create', {
+        url: '/create',
+        component: 'pncCreateProductVersionPage',
+        data: {
+          displayName: 'Create Product Version',
+          title: 'Create Product Version | {{ product.name }}',
+          requireAuth: true
+        }
+      });
     }
   ]);
 
