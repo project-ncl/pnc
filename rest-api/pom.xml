@@ -162,6 +162,27 @@
                     </execution>
                 </executions>
             </plugin>
+          <plugin>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <!-- Name integration test classes properly (*IT.java, IT*.java)-->
+              <!-- <includes>-->
+              <!--   <include>**/*.java</include>-->
+              <!-- </includes>-->
+              <groups>org.jboss.pnc.test.category.ContainerTest</groups>
+              <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
+              <!-- use classes directory, the default jar does not include all the classes -->
+              <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+            </configuration>
+          </plugin>
         </plugins>
     </build>
   
