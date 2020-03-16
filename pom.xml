@@ -115,7 +115,6 @@
     <version.guava>25.0-jre</version.guava>
     <version.org.apache.httpcomponents.httpclient>4.5.2</version.org.apache.httpcomponents.httpclient>
     <version.org.apache.httpcomponents.httpcore>4.4.4</version.org.apache.httpcomponents.httpcore>
-    <version.org.postgresql>9.3-1102-jdbc41</version.org.postgresql>
     <version.org.json>20141113</version.org.json>
     <version.jclouds>1.8.1</version.jclouds>
     <version.jbpm>6.2.0.Final</version.jbpm>
@@ -962,12 +961,6 @@
         <artifactId>rest-assured</artifactId>
         <version>4.1.2</version>
         <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>${version.org.postgresql}</version>
       </dependency>
 
       <dependency>
