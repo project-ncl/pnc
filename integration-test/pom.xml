@@ -285,22 +285,12 @@
           <name>eap.zip.url</name>
         </property>
       </activation>
-      <properties>
-        <postgresql.server.address>localhost</postgresql.server.address>
-        <postgresql.server.username>newcastle</postgresql.server.username>
-        <postgresql.server.password>newcastle</postgresql.server.password>
-      </properties>
       <dependencies>
         <dependency>
           <groupId>org.hsqldb</groupId>
           <artifactId>hsqldb</artifactId>
           <scope>compile</scope>
           <classifier>jdk8debug</classifier>
-        </dependency>
-        <dependency>
-          <groupId>org.postgresql</groupId>
-          <artifactId>postgresql</artifactId>
-          <scope>compile</scope>
         </dependency>
       </dependencies>
       <build>
@@ -360,74 +350,6 @@
                 </configuration>
               </execution>
               <!-- End HSQLDB configuraiton -->
-              <!-- Postgresql JDBC driver installation and datasource configuration -->
-              <execution>
-                <id>deploy-postgresql-jdbc-driver</id>
-                <phase>test-compile</phase>
-                <goals>
-                  <goal>deploy-artifact</goal>
-                </goals>
-                <configuration>
-                  <groupId>org.postgresql</groupId>
-                  <artifactId>postgresql</artifactId>
-                  <name>postgresql-jdbc.jar</name>
-                </configuration>
-              </execution>
-              <execution>
-                <id>add-postgresql-datasource</id>
-                <phase>test-compile</phase>
-                <goals>
-                  <goal>add-resource</goal>
-                </goals>
-                <configuration>
-                  <address>subsystem=datasources</address>
-                  <resources>
-                    <resource>
-                      <address>xa-data-source=java:jboss/datasources/NewcastleDS</address>
-                      <properties>
-                        <xa-datasource-class>org.postgresql.xa.PGXADataSource</xa-datasource-class>
-                        <jndi-name>java:jboss/datasources/NewcastleDS</jndi-name>
-                        <enabled>true</enabled>
-                        <driver-name>postgresql-jdbc.jar</driver-name>
-                      </properties>
-                      <resources>
-                        <resource>
-                          <address>
-                            xa-datasource-properties=DatabaseName
-                          </address>
-                          <properties>
-                            <value>newcastle</value>
-                          </properties>
-                        </resource>
-                        <resource>
-                          <address>
-                            xa-datasource-properties=ServerName
-                          </address>
-                          <properties>
-                            <value>${postgresql.server.address}</value>
-                          </properties>
-                        </resource>
-                        <resource>
-                          <address>
-                            xa-datasource-properties=User
-                          </address>
-                          <properties>
-                            <value>${postgresql.server.username}</value>
-                          </properties>
-                        </resource>
-                        <resource>
-                          <address>
-                            xa-datasource-properties=Password
-                          </address>
-                          <properties>
-                            <value>${postgresql.server.password}</value>
-                          </properties>
-                        </resource>
-                      </resources>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
               <execution>
                 <id>change-logging-level</id>
                 <phase>test-compile</phase>
@@ -468,7 +390,6 @@
                   </execute-commands>
                 </configuration>
               </execution>
-              <!-- End PostgreSQL configuration -->
               <execution>
                 <id>shutdown-server</id>
                 <phase>test-compile</phase>
