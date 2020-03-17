@@ -240,7 +240,7 @@
                 <goals>
                   <goal>run</goal>
                 </goals>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <configuration>
                   <target>
                     <!-- If JBOSS_HOME is set it causes obscure errors with CLI in -->
@@ -301,7 +301,7 @@
             <executions>
               <execution>
                 <id>start-server</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>start</goal>
                 </goals>
@@ -315,7 +315,7 @@
               <!-- HSQLDB JDBC driver installation and datasource configuration -->
               <execution>
                 <id>deploy-hsql-jdbc-driver</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>deploy-artifact</goal>
                 </goals>
@@ -328,7 +328,7 @@
               </execution>
               <execution>
                 <id>add-hsql-datasource</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>add-resource</goal>
                 </goals>
@@ -352,7 +352,7 @@
               <!-- End HSQLDB configuraiton -->
               <execution>
                 <id>change-logging-level</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>execute-commands</goal>
                 </goals>
@@ -392,7 +392,7 @@
               </execution>
               <execution>
                 <id>shutdown-server</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>shutdown</goal>
                 </goals>
