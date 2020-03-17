@@ -40,7 +40,7 @@
         },
         save: {
           method: 'POST',
-          successNotification: 'Product Version created'
+          successNotification: 'ProductVersion created'
         },
         update: {
           method: 'PUT'
