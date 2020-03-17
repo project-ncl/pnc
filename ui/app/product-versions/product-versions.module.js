@@ -45,6 +45,24 @@
           requireAuth: true
         }
       });
+
+      $stateProvider.state('products.detail.product-versions.detail', {
+        url: '/{productVersionId}',
+        component: 'pncProductVersionDetailPage',
+        data: {
+          displayName: '{{ productVersion.version }}',
+          title: '{{ productVersion.version }}'
+        },
+        resolve: {
+          productVersion: [
+            '$stateParams',
+            'ProductVersionResource',
+            ($stateParams, ProductVersionResource) => {
+              return ProductVersionResource.get({ id: $stateParams.productVersionId }).$promise;
+            }
+          ]
+        }
+      });
     }
   ]);
 

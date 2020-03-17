@@ -28,12 +28,12 @@
   <tbody>
     <tr ng-repeat="productVersion in $ctrl.productVersions">
       <td ng-if="::$ctrl.showColumn('name')" class="shrink-to-fit">
-        <a ui-sref="" href>
+        <a ui-sref="products.detail({ productId: productVersion.product.id })" href>
           {{ productVersion.product.name }}
         </a>
       </td>
       <td ng-if="::$ctrl.showColumn('version')">
-        <a ui-sref="" href>
+        <a ui-sref="products.detail.product-versions.detail({ productId: productVersion.product.id, productVersionId: productVersion.id })" href>
           {{ productVersion.version }}
         </a>
       </td>
