@@ -119,7 +119,7 @@
                 <goals>
                   <goal>run</goal>
                 </goals>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <configuration>
                   <target>
                     <!-- If JBOSS_HOME is set it causes obscure errors with CLI in -->
@@ -158,7 +158,7 @@
             <executions>
               <execution>
                 <id>start-server</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>start</goal>
                 </goals>
@@ -171,7 +171,7 @@
               </execution>
                 <execution>
                 <id>configure-logging</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>execute-commands</goal>
                 </goals>
@@ -200,7 +200,7 @@
               </execution>
               <execution>
                 <id>configure-amq</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>execute-commands</goal>
                 </goals>
@@ -220,14 +220,14 @@
               </execution>
               <execution>
                 <id>restart-shutdown</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>shutdown</goal>
                 </goals>
               </execution>
               <execution>
                 <id>restart-start</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>start</goal>
                 </goals>
@@ -242,7 +242,7 @@
               </execution>
               <execution>
                 <id>configure-amq-step02</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>execute-commands</goal>
                 </goals>
@@ -277,7 +277,7 @@
               </execution>
               <execution>
                 <id>add-jms-topic</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>add-resource</goal>
                 </goals>
@@ -295,7 +295,7 @@
               </execution>
               <execution>
                 <id>shutdown-server</id>
-                <phase>test-compile</phase>
+                <phase>pre-integration-test</phase>
                 <goals>
                   <goal>shutdown</goal>
                 </goals>
