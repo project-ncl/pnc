@@ -30,20 +30,26 @@ import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 
 /**
- * WebSocket client interface that provides functionality for connecting/disconnecting to the WebSocket server specified by its
- * URL.
- * Furthermore, the client provides API for adding listeners that intercept notifications and API for catching single notification.
+ * WebSocket client interface that provides functionality for connecting/disconnecting to the WebSocket server specified
+ * by its URL. Furthermore, the client provides API for adding listeners that intercept notifications and API for
+ * catching single notification.
+ *
+ * The client has an ability to automatically reconnect in the background to achieve resiliency. The user can manipulate
+ * this feature with a set of attributes which can be set during creation of the client:
+ *          - maximumRetries: number of attempted retries before client throws an exception
+ *          - initialDelay: amount of milliseconds client waits before attempting to reconnect
+ *          - delayMultiplier: a multiplier that increases delay between reconnect attempts
  *
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 public interface WebSocketClient {
 
     /**
-     * Connects to the WebSocket server specified by webSocketServerUrl. The operation is asynchronous and returns CompletableFuture,
-     * with an option to wait until this operation concludes.
+     * Connects to the WebSocket server specified by webSocketServerUrl. The operation is asynchronous and returns
+     * CompletableFuture, with an option to wait until this operation concludes.
      *
-     * If the operation fails, the CompletableFuture will complete exceptionally. If the client is already connected to a WebSocket
-     * server, the method immediately returns.
+     * If the operation fails, the CompletableFuture will complete exceptionally. If the client is already connected to
+     * a WebSocket server, the method immediately returns.
      *
      * @param webSocketServerUrl the web socket server url
      * @return the completable future
@@ -51,8 +57,8 @@ public interface WebSocketClient {
     CompletableFuture<Void> connect(String webSocketServerUrl);
 
     /**
-     * Disconnects the client from WebSocket server. The operation is asynchronous and returns CompletableFuture,
-     * with an option to wait until this operation concludes.
+     * Disconnects the client from WebSocket server. The operation is asynchronous and returns CompletableFuture, with
+     * an option to wait until this operation concludes.
      *
      * If the operation fails, the CompletableFuture will complete exceptionally. If the client is already disconnected,
      * the method immediately returns.
@@ -85,20 +91,23 @@ public interface WebSocketClient {
             Predicate<T>... filters) throws ConnectionClosedException;
 
     /**
-     * This method is used to intercept one specific Notification defined by notificationClass. Filters are used to filter out
-     * unnecessary Notifications. The method is asynchronous and returns CompletableFuture with the caught notification as payload.
+     * This method is used to intercept one specific Notification defined by notificationClass. Filters are used to
+     * filter out unnecessary Notifications. The method is asynchronous and returns CompletableFuture with the caught
+     * notification as payload.
      *
      * If the connection is closed when invoking this method, the CompletableFuture will complete exceptionally.
      *
-     * It is recommended to use timeouts with CompletableFuture as the Notification may have arrived before the connection was
-     * created or the Notification may never arrive.
+     * It is recommended to use timeouts with CompletableFuture as the Notification may have arrived before the
+     * connection was created or the Notification may never arrive.
      *
-     * @param <T>               the notification generic parameter
+     * @param <T> the notification generic parameter
      * @param notificationClass the notification class
-     * @param filters           the filters
+     * @param filters the filters
      * @return the completable future
      */
-    <T extends Notification> CompletableFuture<T> catchSingleNotification(Class<T> notificationClass, Predicate<T>... filters);
+    <T extends Notification> CompletableFuture<T> catchSingleNotification(
+            Class<T> notificationClass,
+            Predicate<T>... filters);
 
     /**
      * Specific version of {@link #onMessage} method for {@link BuildChangedNotification}.
@@ -110,7 +119,8 @@ public interface WebSocketClient {
      *         connection.
      * @see #onMessage
      */
-    ListenerUnsubscriber onBuildChangedNotification(Consumer<BuildChangedNotification> onNotification,
+    ListenerUnsubscriber onBuildChangedNotification(
+            Consumer<BuildChangedNotification> onNotification,
             Predicate<BuildChangedNotification>... filters) throws ConnectionClosedException;
 
     /**
@@ -123,7 +133,8 @@ public interface WebSocketClient {
      *         connection.
      * @see #onMessage
      */
-    ListenerUnsubscriber onBuildConfigurationCreation(Consumer<BuildConfigurationCreation> onNotification,
+    ListenerUnsubscriber onBuildConfigurationCreation(
+            Consumer<BuildConfigurationCreation> onNotification,
             Predicate<BuildConfigurationCreation>... filters) throws ConnectionClosedException;
 
     /**
@@ -150,7 +161,8 @@ public interface WebSocketClient {
      *         connection.
      * @see #onMessage
      */
-    ListenerUnsubscriber onGroupBuildChangedNotification(Consumer<GroupBuildChangedNotification> onNotification,
+    ListenerUnsubscriber onGroupBuildChangedNotification(
+            Consumer<GroupBuildChangedNotification> onNotification,
             Predicate<GroupBuildChangedNotification>... filters) throws ConnectionClosedException;
 
     /**
@@ -163,7 +175,8 @@ public interface WebSocketClient {
      *         connection.
      * @see #onMessage
      */
-    ListenerUnsubscriber onRepositoryCreationFailure(Consumer<RepositoryCreationFailure> onNotification,
+    ListenerUnsubscriber onRepositoryCreationFailure(
+            Consumer<RepositoryCreationFailure> onNotification,
             Predicate<RepositoryCreationFailure>... filters) throws ConnectionClosedException;
 
     /**
@@ -176,7 +189,8 @@ public interface WebSocketClient {
      *         connection.
      * @see #onMessage
      */
-    ListenerUnsubscriber onSCMRepositoryCreationSuccess(Consumer<SCMRepositoryCreationSuccess> onNotification,
+    ListenerUnsubscriber onSCMRepositoryCreationSuccess(
+            Consumer<SCMRepositoryCreationSuccess> onNotification,
             Predicate<SCMRepositoryCreationSuccess>... filters) throws ConnectionClosedException;
 
     /**

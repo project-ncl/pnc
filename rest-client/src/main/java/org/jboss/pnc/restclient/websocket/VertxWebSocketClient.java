@@ -46,9 +46,11 @@ import io.vertx.core.http.WebSocket;
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-public class VertxWebSocketClient implements WebSocketClient {
+public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     private static final Logger log = LoggerFactory.getLogger(VertxWebSocketClient.class);
+
+    private static final ObjectMapper objectMapper = JsonOutputConverterMapper.getMapper();
 
     private final Vertx vertx;
 
@@ -58,25 +60,41 @@ public class VertxWebSocketClient implements WebSocketClient {
 
     private Set<Dispatcher> dispatchers = new HashSet<>();
 
+    private Set<CompletableFuture<Notification>> singleNotificationFutures = new HashSet<>();
+
+    /**
+     * number of attempted retries before client throws an exception
+     */
     private int maximumRetries = 5;
 
     private int numberOfRetries = 0;
 
-    private float timeMultiplier = 1.5F;
+    /**
+     * a multiplier that increases delay between reconnect attempts
+     */
+    private float delayMultiplier = 1.5F;
 
-    private int defaultDelay = 1;
+    /**
+     * amount of milliseconds client waits before attempting to reconnect
+     */
+    private int initialDelay = 250;
 
     private int reconnectDelay;
 
-    private static final ObjectMapper objectMapper = JsonOutputConverterMapper.getMapper();
 
-    public VertxWebSocketClient(int maximumRetries, int defaultDelay, int timeMultiplier) {
+    public VertxWebSocketClient() {
         this.vertx = Vertx.vertx();
         this.httpClient = vertx.createHttpClient();
-        this.timeMultiplier = timeMultiplier;
+        reconnectDelay = initialDelay;
+    }
+
+    public VertxWebSocketClient(int maximumRetries, int initialDelay, int delayMultiplier) {
+        this.vertx = Vertx.vertx();
+        this.httpClient = vertx.createHttpClient();
+        this.delayMultiplier = delayMultiplier;
         this.maximumRetries = maximumRetries;
-        this.defaultDelay = defaultDelay;
-        reconnectDelay = defaultDelay;
+        this.initialDelay = initialDelay;
+        reconnectDelay = initialDelay;
     }
 
     @Override
@@ -97,20 +115,22 @@ public class VertxWebSocketClient implements WebSocketClient {
             return CompletableFuture.completedFuture(null);
         }
         CompletableFuture<Void> future = new CompletableFuture<>();
-        httpClient.webSocket(serverURI.getHost(), serverURI.getPath(),
-                result -> {
-                    if (result.succeeded()) {
-                        log.debug("Connection to WebSocket server:" + webSocketServerUrl + " successful.");
-                        webSocketConnection = result.result();
-                        webSocketConnection.textMessageHandler(this::dispatch);
-                        webSocketConnection.endHandler((ignore) -> retryConnection(webSocketServerUrl));
-                        //Async operation complete
-                        future.complete(null);
-                    } else {
-                        log.error("Connection to WebSocket server:" + webSocketServerUrl + " unsuccessful.", result.cause());
-                        future.completeExceptionally(result.cause());
-                    }
-                });
+        // in case no port was given, default to http port 80
+        int port = serverURI.getPort() == -1 ? 80 : serverURI.getPort();
+        httpClient.webSocket(port, serverURI.getHost(), serverURI.getPath(), result -> {
+            if (result.succeeded()) {
+                log.debug("Connection to WebSocket server:" + webSocketServerUrl + " successful.");
+                resetDefaults();
+                webSocketConnection = result.result();
+                webSocketConnection.textMessageHandler(this::dispatch);
+                webSocketConnection.closeHandler((ignore) -> retryConnection(webSocketServerUrl));
+                // Async operation complete
+                future.complete(null);
+            } else {
+                log.error("Connection to WebSocket server:" + webSocketServerUrl + " unsuccessful.", result.cause());
+                future.completeExceptionally(result.cause());
+            }
+        });
         return future;
     }
 
@@ -120,16 +140,18 @@ public class VertxWebSocketClient implements WebSocketClient {
 
     private void retryConnection(String webSocketServerUrl) {
         if (maximumRetries >= numberOfRetries) {
-            // FIXME how to get this to kill the main thread?
-            throw new RuntimeException(
+            RuntimeException exception = new RuntimeException(
                     new ConnectionClosedException(
                             "Exceeded number of automatic retries to WebSocket server! Reason "
                                     + webSocketConnection.closeStatusCode() + ": "
                                     + webSocketConnection.closeReason()));
+            //kill futures waiting for notification
+            singleNotificationFutures.forEach(future -> future.completeExceptionally(exception));
+            throw exception;
         }
         vertx.setTimer(reconnectDelay, (timerId) -> connectAndReset(webSocketServerUrl));
         numberOfRetries++;
-        reconnectDelay *= timeMultiplier;
+        reconnectDelay *= delayMultiplier;
     }
 
     private CompletableFuture<Void> connectAndReset(String webSocketServerUrl) {
@@ -137,14 +159,14 @@ public class VertxWebSocketClient implements WebSocketClient {
     }
 
     private void resetDefaults() {
-        reconnectDelay = defaultDelay;
+        reconnectDelay = initialDelay;
         numberOfRetries = 0;
     }
 
     @Override
     public CompletableFuture<Void> disconnect() {
-        if(webSocketConnection == null || webSocketConnection.isClosed()) {
-            //already disconnected
+        if (webSocketConnection == null || webSocketConnection.isClosed()) {
+            // already disconnected
             return CompletableFuture.completedFuture(null);
         }
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -162,25 +184,27 @@ public class VertxWebSocketClient implements WebSocketClient {
     }
 
     @Override
-    public <T extends Notification> ListenerUnsubscriber onMessage(Class<T> notificationClass, Consumer<T> listener,
+    public <T extends Notification> ListenerUnsubscriber onMessage(
+            Class<T> notificationClass,
+            Consumer<T> listener,
             Predicate<T>... filters) throws ConnectionClosedException {
         if (webSocketConnection == null || webSocketConnection.isClosed()) {
             throw new ConnectionClosedException("Connection to WebSocket is closed.");
         }
-        //add JSON message mapping before executing the listener
+        // add JSON message mapping before executing the listener
         Dispatcher dispatcher = (stringMessage) -> {
             T notification;
             try {
                 notification = objectMapper.readValue(stringMessage, notificationClass);
                 for (Predicate<T> filter : filters) {
                     if (filter != null && !filter.test(notification)) {
-                        //does not satisfy a predicate
+                        // does not satisfy a predicate
                         return;
                     }
                 }
             } catch (JsonProcessingException e) {
-                //could not parse to particular class of notification, unknown or different type of notification
-                //ignoring the message
+                // could not parse to particular class of notification, unknown or different type of notification
+                // ignoring the message
                 return;
             }
             listener.accept(notification);
@@ -189,18 +213,19 @@ public class VertxWebSocketClient implements WebSocketClient {
         return () -> dispatchers.remove(dispatcher);
     }
 
-
     @Override
-    public <T extends Notification> CompletableFuture<T> catchSingleNotification(Class<T> notificationClass,
+    public <T extends Notification> CompletableFuture<T> catchSingleNotification(
+            Class<T> notificationClass,
             Predicate<T>... filters) {
         CompletableFuture<T> future = new CompletableFuture<>();
         ListenerUnsubscriber unsubscriber = null;
+        singleNotificationFutures.add((CompletableFuture<Notification>) future);
 
         try {
             unsubscriber = onMessage(notificationClass, future::complete, filters);
         } catch (ConnectionClosedException e) {
             future.completeExceptionally(e);
-            //in this case we have to set unsubscriber manually
+            // in this case we have to set unsubscriber manually to avoid NPE
             unsubscriber = () -> {};
         }
 
@@ -209,13 +234,15 @@ public class VertxWebSocketClient implements WebSocketClient {
     }
 
     @Override
-    public ListenerUnsubscriber onBuildChangedNotification(Consumer<BuildChangedNotification> onNotification,
+    public ListenerUnsubscriber onBuildChangedNotification(
+            Consumer<BuildChangedNotification> onNotification,
             Predicate<BuildChangedNotification>... filters) throws ConnectionClosedException {
         return onMessage(BuildChangedNotification.class, onNotification, filters);
     }
 
     @Override
-    public ListenerUnsubscriber onBuildConfigurationCreation(Consumer<BuildConfigurationCreation> onNotification,
+    public ListenerUnsubscriber onBuildConfigurationCreation(
+            Consumer<BuildConfigurationCreation> onNotification,
             Predicate<BuildConfigurationCreation>... filters) throws ConnectionClosedException {
         return onMessage(BuildConfigurationCreation.class, onNotification, filters);
     }
@@ -229,18 +256,21 @@ public class VertxWebSocketClient implements WebSocketClient {
 
     @Override
     public ListenerUnsubscriber onGroupBuildChangedNotification(
-            Consumer<GroupBuildChangedNotification> onNotification, Predicate<GroupBuildChangedNotification>... filters) throws ConnectionClosedException {
+            Consumer<GroupBuildChangedNotification> onNotification,
+            Predicate<GroupBuildChangedNotification>... filters) throws ConnectionClosedException {
         return onMessage(GroupBuildChangedNotification.class, onNotification, filters);
     }
 
     @Override
-    public ListenerUnsubscriber onRepositoryCreationFailure(Consumer<RepositoryCreationFailure> onNotification,
+    public ListenerUnsubscriber onRepositoryCreationFailure(
+            Consumer<RepositoryCreationFailure> onNotification,
             Predicate<RepositoryCreationFailure>... filters) throws ConnectionClosedException {
         return onMessage(RepositoryCreationFailure.class, onNotification, filters);
     }
 
     @Override
-    public ListenerUnsubscriber onSCMRepositoryCreationSuccess(Consumer<SCMRepositoryCreationSuccess> onNotification,
+    public ListenerUnsubscriber onSCMRepositoryCreationSuccess(
+            Consumer<SCMRepositoryCreationSuccess> onNotification,
             Predicate<SCMRepositoryCreationSuccess>... filters) throws ConnectionClosedException {
         return onMessage(SCMRepositoryCreationSuccess.class, onNotification, filters);
     }
@@ -279,5 +309,10 @@ public class VertxWebSocketClient implements WebSocketClient {
     public CompletableFuture<SCMRepositoryCreationSuccess> catchSCMRepositoryCreationSuccess(
             Predicate<SCMRepositoryCreationSuccess>... filters) {
         return catchSingleNotification(SCMRepositoryCreationSuccess.class, filters);
+    }
+
+    @Override
+    public void close() throws Exception {
+        disconnect();
     }
 }

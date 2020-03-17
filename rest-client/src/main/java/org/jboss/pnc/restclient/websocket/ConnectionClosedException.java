@@ -38,7 +38,11 @@ public class ConnectionClosedException extends Exception {
         super(cause);
     }
 
-    public ConnectionClosedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public ConnectionClosedException(
+            String message,
+            Throwable cause,
+            boolean enableSuppression,
+            boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }
