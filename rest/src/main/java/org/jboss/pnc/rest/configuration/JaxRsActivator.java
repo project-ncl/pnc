@@ -37,7 +37,6 @@ import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductReleaseEndpoint;
 import org.jboss.pnc.rest.endpoint.ProductVersionEndpoint;
 import org.jboss.pnc.rest.endpoint.ProjectEndpoint;
-import org.jboss.pnc.rest.endpoint.RepositoryConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.RunningBuildRecordEndpoint;
 import org.jboss.pnc.rest.endpoint.UserEndpoint;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
@@ -93,7 +92,6 @@ public class JaxRsActivator extends Application {
         resources.add(ProductMilestoneEndpoint.class);
         resources.add(ProductReleaseEndpoint.class);
         resources.add(ProjectEndpoint.class);
-        resources.add(RepositoryConfigurationEndpoint.class);
         resources.add(BuildConfigurationEndpoint.class);
         resources.add(BuildConfigurationSetEndpoint.class);
         resources.add(BuildConfigSetRecordEndpoint.class);
