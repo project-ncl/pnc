@@ -31,7 +31,7 @@ import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
-public class AdvancedBuildConfigurationClient extends BuildConfigurationClient implements AutoCloseable{
+public class AdvancedBuildConfigurationClient extends BuildConfigurationClient implements AutoCloseable {
 
     private WebSocketClient webSocketClient;
 
