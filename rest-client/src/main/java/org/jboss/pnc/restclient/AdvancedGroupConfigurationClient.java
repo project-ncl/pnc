@@ -32,7 +32,7 @@ import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
-public class AdvancedGroupConfigurationClient extends GroupConfigurationClient implements AutoCloseable{
+public class AdvancedGroupConfigurationClient extends GroupConfigurationClient implements AutoCloseable {
     private WebSocketClient webSocketClient;
 
     public AdvancedGroupConfigurationClient(Configuration configuration) {

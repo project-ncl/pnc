@@ -81,7 +81,6 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     private int reconnectDelay;
 
-
     public VertxWebSocketClient() {
         this.vertx = Vertx.vertx();
         this.httpClient = vertx.createHttpClient();
@@ -145,7 +144,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
                             "Exceeded number of automatic retries to WebSocket server! Reason "
                                     + webSocketConnection.closeStatusCode() + ": "
                                     + webSocketConnection.closeReason()));
-            //kill futures waiting for notification
+            // kill futures waiting for notification
             singleNotificationFutures.forEach(future -> future.completeExceptionally(exception));
             throw exception;
         }

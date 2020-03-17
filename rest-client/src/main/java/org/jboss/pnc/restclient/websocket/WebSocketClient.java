@@ -36,9 +36,12 @@ import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
  *
  * The client has an ability to automatically reconnect in the background to achieve resiliency. The user can manipulate
  * this feature with a set of attributes which can be set during creation of the client:
- *          - maximumRetries: number of attempted retries before client throws an exception
- *          - initialDelay: amount of milliseconds client waits before attempting to reconnect
- *          - delayMultiplier: a multiplier that increases delay between reconnect attempts
+ *
+ * - maximumRetries: number of attempted retries before client throws an exception
+ *
+ * - initialDelay: amount of milliseconds client waits before attempting to reconnect
+ *
+ * - delayMultiplier: a multiplier that increases delay between reconnect attempts
  *
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
