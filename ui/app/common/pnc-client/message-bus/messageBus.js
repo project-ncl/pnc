@@ -50,17 +50,13 @@
       messageBus.onGroupBuildProgressChange(newGroupBuildProgressEventHandler(events.GROUP_BUILD_PROGRESS_CHANGED));
       messageBus.onGroupBuildStatusChange(newGroupBuildProgressEventHandler(events.GROUP_BUILD_STATUS_CHANGED));
 
-      function newGenericSettingProgressEventHandler(eventType) {
-        $rootScope.$broadcast(eventType);
-      }
-
       messageBus.onGenericSettingMaintenanceChanged(notification => {
         if (notification.message) {
           let message = JSON.parse(notification.message);
           if (message.maintenanceModeEnabled) {
-            newGenericSettingProgressEventHandler(events.MAINTENANCE_MODE_ON);
+            $rootScope.$broadcast(events.MAINTENANCE_MODE_ON);
           } else {
-            newGenericSettingProgressEventHandler(events.MAINTENANCE_MODE_OFF);
+            $rootScope.$broadcast(events.MAINTENANCE_MODE_OFF);
           }
         }
       });

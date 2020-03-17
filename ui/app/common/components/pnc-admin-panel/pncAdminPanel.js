@@ -25,7 +25,6 @@
     bindings: {
     },
     templateUrl: 'common/components/pnc-admin-panel/pnc-admin-panel.html',
-    transclude: true,
     controller: ['GenericSetting', Controller]
   });
 
