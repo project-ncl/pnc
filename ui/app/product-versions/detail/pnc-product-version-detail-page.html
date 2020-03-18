@@ -121,12 +121,14 @@
         </button>
       </pnc-header-buttons>
     </pnc-header>
+    <pnc-group-configs-data-table page="$ctrl.groupConfigs"></pnc-group-configs-data-table>
   </div>
 
   <div class="col-lg-6">
     <pnc-header sub-header="true">
       <pnc-header-title>Build Configs</pnc-header-title>
     </pnc-header>
+    <pnc-build-configs-data-table page="$ctrl.buildConfigs" on-edit="$ctrl.editBuildConfigs"></pnc-build-configs-data-table>
   </div>
 </div>
 
