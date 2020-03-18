@@ -31,29 +31,25 @@ import org.jboss.pnc.dto.requests.BuildPushRequest;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
-public class AdvancedBuildClient extends BuildClient implements AutoCloseable {
-
-    private WebSocketClient webSocketClient;
+public class AdvancedBuildClient extends BuildClient {
 
     public AdvancedBuildClient(Configuration configuration) {
         super(configuration);
-        this.webSocketClient = new VertxWebSocketClient();
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notification");
     }
 
     public CompletableFuture<BuildPushResult> waitForBrewPush(String buildId) {
+        WebSocketClient webSocketClient = new VertxWebSocketClient();
+
+        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notification");
+
         return webSocketClient.catchBuildPushResult(withBuildId(buildId), withPushCompleted())
-                .thenApply(BuildPushResultNotification::getBuildPushResult);
+                .thenApply(BuildPushResultNotification::getBuildPushResult)
+                .whenComplete((x, y) -> webSocketClient.disconnect());
     }
 
     public CompletableFuture<BuildPushResult> executeBrewPush(String buildConfigId, BuildPushRequest parameters)
             throws RemoteResourceException {
         BuildPushResult push = super.push(buildConfigId, parameters);
         return waitForBrewPush(push.getBuildId());
-    }
-
-    @Override
-    public void close() throws Exception {
-        webSocketClient.disconnect();
     }
 }
