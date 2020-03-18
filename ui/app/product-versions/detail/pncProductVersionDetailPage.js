@@ -20,7 +20,9 @@
 
   angular.module('pnc.product-versions').component('pncProductVersionDetailPage', {
     bindings: {
-      productVersion: '<'
+      productVersion: '<',
+      buildConfigs: '<',
+      groupConfigs: '<'
     },
     templateUrl: 'product-versions/detail/pnc-product-version-detail-page.html',
     controller: ['ProductVersionResource', Controller]
@@ -34,10 +36,13 @@
 
     $ctrl.getFullName = getFullName;
     $ctrl.save = save;
+    $ctrl.editBuildConfigs = editBuildConfigs;
+    $ctrl.editGroupConfigs = editGroupConfigs;
 
     // --------------------
 
     $ctrl.$onInit = () => {
+      console.log('test: %O', Object.values($ctrl.productVersion.buildConfigs));
     };
 
     function getFullName() {
@@ -51,6 +56,23 @@
 
       return ProductVersionResource.safePatch($ctrl.productVersion, $data).$promise
           .catch(err => err.data.errorMessage || 'Unrecognised error from PNC REST API');
+    }
+
+    function editBuildConfigs(result) {
+      console.log('EDIT BCs: %O', result);
+      const updated = {
+        buildConfigs: _.keyBy(result, 'id')
+      };
+      ProductVersionResource.safePatch($ctrl.productVersion, updated);
+    }
+
+    function editGroupConfigs(result) {
+      console.log('EDIT GCs: %O', result);
+        const updated = {
+          groupConfigs: _.keyBy(result, 'id')
+        };
+
+        ProductVersionResource.safePatch($ctrl.productVersion, updated);
     }
   }
 

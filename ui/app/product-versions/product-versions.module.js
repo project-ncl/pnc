@@ -60,6 +60,20 @@
             ($stateParams, ProductVersionResource) => {
               return ProductVersionResource.get({ id: $stateParams.productVersionId }).$promise;
             }
+          ],
+          buildConfigs: [
+            '$stateParams',
+            'ProductVersionResource',
+            ($stateParams, ProductVersionResource) => {
+              return ProductVersionResource.queryBuildConfigs({ id: $stateParams.productVersionId }).$promise;
+            }
+          ],
+          groupConfigs: [
+            '$stateParams',
+            'ProductVersionResource',
+            ($stateParams, ProductVersionResource) => {
+              return ProductVersionResource.queryGroupConfigs({ id: $stateParams.productVersionId }).$promise;
+            }
           ]
         }
       });
