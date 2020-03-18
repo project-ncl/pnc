@@ -25,10 +25,11 @@
 
   module.factory('BuildConfigResource', [
     '$resource',
+    '$http',
     'restConfig',
     'patchHelper',
     'BUILD_CONFIG_PATH',
-    ($resource, restConfig, patchHelper, BUILD_CONFIG_PATH) => {
+    ($resource, $http, restConfig, patchHelper, BUILD_CONFIG_PATH) => {
       const ENDPOINT = restConfig.getPncRestUrl() + BUILD_CONFIG_PATH;
 
       const resource = $resource(ENDPOINT, {
@@ -85,6 +86,12 @@
           successNotification: false
         }
       });
+
+      resource.getAlignmentParameters = function(buildType) {
+        return $http.get(restConfig.getPncRestUrl() + '/build-configs/default-alignment-parameters/' + buildType).then(function (r) {
+          return r.data.parameters;
+        });
+      };
 
       patchHelper.assignPatchMethods(resource);
 
