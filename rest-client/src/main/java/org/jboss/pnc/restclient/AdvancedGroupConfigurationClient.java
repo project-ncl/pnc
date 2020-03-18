@@ -32,18 +32,20 @@ import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
-public class AdvancedGroupConfigurationClient extends GroupConfigurationClient implements AutoCloseable {
-    private WebSocketClient webSocketClient;
+public class AdvancedGroupConfigurationClient extends GroupConfigurationClient {
 
     public AdvancedGroupConfigurationClient(Configuration configuration) {
         super(configuration);
-        this.webSocketClient = new VertxWebSocketClient();
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notification");
     }
 
     public CompletableFuture<GroupBuild> waitForGroupBuild(String buildId) {
+        WebSocketClient webSocketClient = new VertxWebSocketClient();
+
+        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notification");
+
         return webSocketClient.catchGroupBuildChangedNotification(withGBuildId(buildId), withGBuildCompleted())
-                .thenApply(GroupBuildChangedNotification::getGroupBuild);
+                .thenApply(GroupBuildChangedNotification::getGroupBuild)
+                .whenCompleteAsync((x, y) -> webSocketClient.disconnect());
     }
 
     public CompletableFuture<GroupBuild> executeGroupBuild(String groupConfigId, GroupBuildParameters parameters)
@@ -52,8 +54,4 @@ public class AdvancedGroupConfigurationClient extends GroupConfigurationClient i
         return waitForGroupBuild(groupBuild.getId());
     }
 
-    @Override
-    public void close() throws Exception {
-        webSocketClient.disconnect().get();
-    }
 }

@@ -31,29 +31,25 @@ import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
-public class AdvancedBuildConfigurationClient extends BuildConfigurationClient implements AutoCloseable {
-
-    private WebSocketClient webSocketClient;
+public class AdvancedBuildConfigurationClient extends BuildConfigurationClient {
 
     public AdvancedBuildConfigurationClient(Configuration configuration) {
         super(configuration);
-        this.webSocketClient = new VertxWebSocketClient();
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notification");
     }
 
     public CompletableFuture<Build> waitForBuild(String buildId) {
+        WebSocketClient webSocketClient = new VertxWebSocketClient();
+
+        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notification");
+
         return webSocketClient.catchBuildChangedNotification(withBuildId(buildId), withBuildCompleted())
-                .thenApply(BuildChangedNotification::getBuild);
+                .thenApply(BuildChangedNotification::getBuild)
+                .whenComplete((x, y) -> webSocketClient.disconnect());
     }
 
     public CompletableFuture<Build> executeBuild(String buildConfigId, BuildParameters parameters)
             throws RemoteResourceException {
         Build build = super.trigger(buildConfigId, parameters);
         return waitForBuild(build.getId());
-    }
-
-    @Override
-    public void close() throws Exception {
-        webSocketClient.disconnect().get();
     }
 }
