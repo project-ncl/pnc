@@ -117,6 +117,21 @@ public class ProductVersionProviderImpl
             throw new InvalidEntityException(
                     "Product with id: " + restEntity.getProduct().getId() + " does not exist.");
         }
+
+        Set<org.jboss.pnc.model.ProductVersion> productVersionList = product.getProductVersions();
+
+        if (productVersionList == null) {
+            return;
+        }
+        productVersionList.stream()
+                .filter(pv -> pv.getVersion().equals(restEntity.getVersion()))
+                .findFirst()
+                .ifPresent(pv -> {
+                    throw new ConflictedEntryException(
+                            "Product version with version " + restEntity.getVersion() + " already exists",
+                            org.jboss.pnc.model.ProductVersion.class,
+                            pv.getId().toString());
+                });
     }
 
     @Override

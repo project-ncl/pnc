@@ -22,6 +22,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
@@ -39,12 +40,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -134,6 +130,25 @@ public class ProductVersionProviderTest extends AbstractProviderTest<ProductVers
         assertThat(stored.getProduct().getId()).isEqualTo(prodId.toString());
         assertThat(stored.getAttributes()).isNotNull();
         assertThat(stored.getAttributes().get(Attributes.BREW_TAG_PREFIX)).isNotNull();
+    }
+
+    @Test
+    public void testStoreDuplicateShouldThrowException() {
+
+        Set<ProductVersion> productVersionSet = new HashSet<>();
+        productVersionSet.add(pv);
+
+        final Product productDB = prepareProduct(pv.getProduct().getId(), pv.getProduct().getAbbreviation());
+        productDB.setProductVersions(productVersionSet);
+        when(productRepository.queryById(pv.getProduct().getId())).thenReturn(productDB);
+
+        org.jboss.pnc.dto.ProductVersion duplicate = org.jboss.pnc.dto.ProductVersion.builder()
+                .version(pv.getVersion())
+                .product(ProductRef.refBuilder().id(pv.getProduct().getId().toString()).build())
+                .productMilestones(Collections.emptyMap())
+                .build();
+
+        assertThatThrownBy(() -> provider.store(duplicate)).isInstanceOf(ConflictedEntryException.class);
     }
 
     @Test
