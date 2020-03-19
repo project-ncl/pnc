@@ -431,8 +431,8 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                         || "".equals(search)
                         || String.valueOf(task.getId()).contains(search)
                         || (task.getBuildConfigurationAudited() != null
-                        && task.getBuildConfigurationAudited().getName() != null
-                        && task.getBuildConfigurationAudited().getName().contains(search)))
+                        && task.getBuildConfigurationAudited().getBuildConfiguration().getName() != null
+                        && task.getBuildConfigurationAudited().getBuildConfiguration().getName().contains(search)))
                 .sorted((t1, t2) -> t1.getId() - t2.getId())
                 .map(submittedBuild -> createNewBuildRecordRest(submittedBuild))
                 .skip(pageIndex * pageSize)

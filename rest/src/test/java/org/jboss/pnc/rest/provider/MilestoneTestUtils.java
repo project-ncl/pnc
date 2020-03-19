@@ -51,7 +51,7 @@ public class MilestoneTestUtils {
         record.setScmTag(randomAlphabetic(5));
 
         BuildConfigurationAudited buildConfigurationAudited = Mockito.mock(BuildConfigurationAudited.class);
-        Mockito.when(buildConfigurationAudited.getName()).thenReturn(randomAlphabetic(20));
+        Mockito.when(buildConfigurationAudited.getBuildConfiguration().getName()).thenReturn(randomAlphabetic(20));
 
         record.setBuildConfigurationAudited(buildConfigurationAudited);
         repositoryMock.save(record);

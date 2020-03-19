@@ -164,9 +164,9 @@ public class BuildConfigurationProviderTest {
         bca.setIdRev(new IdRev(EXISTING_ID, rev));
         bca.setBuildEnvironment(BuildEnvironment.Builder.newBuilder().id(environmentID).build());
         bca.setBuildScript(buildScript);
-        bca.setDescription(description);
+        bca.getBuildConfiguration().setDescription(description);
         bca.setGenericParameters(parameters);
-        bca.setName(name);
+        bca.getBuildConfiguration().setName(name);
         bca.setProject(Project.Builder.newBuilder().id(projectID).build());
         bca.setRepositoryConfiguration(RepositoryConfiguration.Builder.newBuilder().id(repositoryID).build());
         bca.setScmRevision(scmRevision);

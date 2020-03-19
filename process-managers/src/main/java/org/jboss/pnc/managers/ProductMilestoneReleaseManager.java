@@ -277,7 +277,7 @@ public class ProductMilestoneReleaseManager {
         stringBuilder.append("\n-------------------------------------------------------------------------\n");
         String buildMessage =
                 String.format("%s [buildRecordId: %d, built from %s revision %s tag %s] import %s. Brew build id: %d, Brew build url: %s\n",
-                        orNull(buildConfiguration, BuildConfigurationAudited::getName),
+                        ((buildConfiguration != null && buildConfiguration.getBuildConfiguration() != null) ? buildConfiguration.getBuildConfiguration().getName() : null),
                         orNull(record, BuildRecord::getId),
                         orNull(record, BuildRecord::getScmRepoURL),
                         orNull(record, BuildRecord::getScmRevision),

@@ -137,7 +137,7 @@ public class BuildRecordRest implements GenericRestEntity<Integer> {
         this.buildConfigurationRev = buildRecord.getBuildConfigurationRev();
 
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
-                () -> buildConfigurationName = buildRecord.getBuildConfigurationAudited().getName());
+                () -> buildConfigurationName = buildRecord.getBuildConfigurationAudited().getBuildConfiguration().getName());
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),
                 () -> projectId = buildRecord.getBuildConfigurationAudited().getProject().getId());
         performIfNotNull(buildRecord.getBuildConfigurationAudited(),

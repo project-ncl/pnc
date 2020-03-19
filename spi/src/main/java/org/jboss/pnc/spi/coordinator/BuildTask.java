@@ -268,7 +268,7 @@ public class BuildTask {
 
     @Override
     public String toString() {
-        return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", project name: " + buildConfigurationAudited.getProject().getName() + ", status: " + status;
+        return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getBuildConfiguration().getName() + ", project name: " + buildConfigurationAudited.getProject().getName() + ", status: " + status;
     }
 
     public static BuildTask build(BuildConfigurationAudited buildConfigurationAudited,

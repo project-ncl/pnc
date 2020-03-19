@@ -96,6 +96,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
+    @NotAudited
     @NotNull
     @Size(max=255)
     private String name;
@@ -119,6 +120,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Size(max=255)
     private String scmRevision;
 
+    @NotAudited
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String description;

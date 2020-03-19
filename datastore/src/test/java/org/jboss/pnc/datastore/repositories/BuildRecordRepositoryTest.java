@@ -189,7 +189,7 @@ public class BuildRecordRepositoryTest {
 
         Vertex<BuildRecord> vertex2 = dependencyGraph.getGraph().findVertexByName(100002 + "");
         BuildRecord buildRecord = vertex2.getData();
-        assertNotNull(buildRecord.getBuildConfigurationAudited().getName());
+        assertNotNull(buildRecord.getBuildConfigurationAudited().getBuildConfiguration().getName());
         assertEquals(3, vertex2.getOutgoingEdgeCount());
         assertEquals(2, vertex2.getIncomingEdgeCount());
 

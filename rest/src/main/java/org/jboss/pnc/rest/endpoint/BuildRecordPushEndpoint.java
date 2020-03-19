@@ -214,7 +214,7 @@ public class BuildRecordPushEndpoint extends AbstractEndpoint<BuildRecordPushRes
     private String getBuildConfigurationName(IdRev idRev) {
         BuildConfigurationAudited buildConfiguration = buildConfigurationAuditedRepository.queryById(idRev);
         if (buildConfiguration != null) {
-            return buildConfiguration.getName();
+            return buildConfiguration.getBuildConfiguration().getName();
         } else {
             logger.warn("Did not find buildConfiguration audited by idRev: {}.", idRev);
             return null;

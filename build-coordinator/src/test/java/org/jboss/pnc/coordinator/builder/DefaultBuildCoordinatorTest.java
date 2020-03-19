@@ -215,7 +215,7 @@ public class DefaultBuildCoordinatorTest {
         BuildConfigurationAudited bca = mockDatastoreWithBCAudited(BC_1, 5);
         BuildConfigurationAudited bcaDep = mockDatastoreWithBCAudited(BC_2, 2);
         BuildConfigurationAudited reqBCA = toBuildConfigurationAudited(BC_1, 4);
-        reqBCA.setName("build-config-changed");
+        reqBCA.getBuildConfiguration().setName("build-config-changed");
 
 
         BuildSetTask buildSetTask = coordinator.build(reqBCA, USER, BUILD_OPTIONS);
@@ -227,7 +227,7 @@ public class DefaultBuildCoordinatorTest {
         assertNotNull(buildSetTask.getBuildTask(bcaDep));
         assertNull(buildSetTask.getBuildTask(bca));
         assertEquals(4, buildTask.getBuildConfigurationAudited().getRev().intValue());
-        assertEquals("build-config-changed", buildTask.getBuildConfigurationAudited().getName());
+        assertEquals("build-config-changed", buildTask.getBuildConfigurationAudited().getBuildConfiguration().getName());
         assertSame(BUILD_OPTIONS, buildSetTask.getBuildOptions());
     }
 
@@ -255,7 +255,7 @@ public class DefaultBuildCoordinatorTest {
         BuildConfigurationAudited bcaDep = mockDatastoreWithBCAudited(BC_2, 2);
         BuildConfigurationAudited bca3 = mockDatastoreWithBCAudited(BC_3, 9);
         BuildConfigurationAudited reqBCA = toBuildConfigurationAudited(BC_1, 4);
-        reqBCA.setName("build-config-changed");
+        reqBCA.getBuildConfiguration().setName("build-config-changed");
 
         when(datastore.getBuildConfigurations(BCS)).thenReturn(BCS.getBuildConfigurations());
 
@@ -271,7 +271,7 @@ public class DefaultBuildCoordinatorTest {
         assertNull(buildSetTask.getBuildTask(bcaDep)); // Dependencies outside group are not build
         assertNotNull(buildSetTask.getBuildTask(bca3));
         assertEquals(4, buildTask.getBuildConfigurationAudited().getRev().intValue());
-        assertEquals("build-config-changed", buildTask.getBuildConfigurationAudited().getName());
+        assertEquals("build-config-changed", buildTask.getBuildConfigurationAudited().getBuildConfiguration().getName());
         assertSame(BUILD_OPTIONS, buildSetTask.getBuildOptions());
     }
 

@@ -534,8 +534,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         BuildConfigurationRevisionRef buildConfigurationRevisionRef = new BuildConfigurationRevisionRef(
                 buildConfigurationAudited.getId(),
                 buildConfigurationAudited.getRev(),
-                buildConfigurationAudited.getName(),
-                buildConfigurationAudited.getDescription(),
+                buildConfigurationAudited.getBuildConfiguration().getName(),
+                buildConfigurationAudited.getBuildConfiguration().getDescription(),
                 buildConfigurationAudited.getBuildScript(),
                 buildConfigurationAudited.getScmRevision()
         );
@@ -873,11 +873,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         if (failedTask.getStatus() == BuildCoordinationStatus.CANCELLED) {
             updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.CANCELLED,
-                    "Dependent build " + failedTask.getBuildConfigurationAudited().getName() + " was cancelled");
+                    "Dependent build " + failedTask.getBuildConfigurationAudited().getBuildConfiguration().getName() + " was cancelled");
         }
         else {
             updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
-                    "Dependent build " + failedTask.getBuildConfigurationAudited().getName() + " failed.");
+                    "Dependent build " + failedTask.getBuildConfigurationAudited().getBuildConfiguration().getName() + " failed.");
         }
         log.trace("Status of build task {} updated.", dependentTask);
         storeRejectedTask(dependentTask);

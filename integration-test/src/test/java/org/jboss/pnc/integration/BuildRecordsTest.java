@@ -147,7 +147,7 @@ public class BuildRecordsTest {
     @Transactional
     public void shouldInsertValuesIntoDB() {
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(100, 1));
-        buildConfigName = buildConfigurationAudited.getName();
+        buildConfigName = buildConfigurationAudited.getBuildConfiguration().getName();
         BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId());
         TargetRepository targetRepository = targetRepositoryRepository.queryByIdentifierAndPath("indy-maven", "builds-untested");
 
