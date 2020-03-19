@@ -117,9 +117,7 @@ public class BuildTriggerer {
                             URL callBackUrl)
             throws BuildConflictException, CoreException {
 
-        if (genericSettingProvider.isInMaintenanceMode()) {
-            throw new BuildConflictException("PNC is in maintenance mode");
-        }
+        throwCoreExceptionIfInMaintenanceMode();
 
         Consumer<BuildCoordinationStatusChangedEvent> onStatusUpdate = (statusChangedEvent) -> {
             if (statusChangedEvent.getNewStatus().isCompleted()) {
@@ -147,9 +145,7 @@ public class BuildTriggerer {
                             BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
 
-        if (genericSettingProvider.isInMaintenanceMode()) {
-            throw new BuildConflictException("PNC is in maintenance mode");
-        }
+        throwCoreExceptionIfInMaintenanceMode();
 
         BuildConfigurationSetTriggerResult result =
                 doTriggerBuild(configurationId, buildConfigurationRevision, currentUser, buildOptions);
@@ -194,9 +190,7 @@ public class BuildTriggerer {
             URL callBackUrl)
             throws CoreException {
 
-        if (genericSettingProvider.isInMaintenanceMode()) {
-            throw new CoreException("PNC is in maintenance mode");
-        }
+        throwCoreExceptionIfInMaintenanceMode();
 
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = buildSetStatusChangedEventConsumer(callBackUrl);
 
@@ -211,9 +205,7 @@ public class BuildTriggerer {
             BuildOptions buildOptions)
             throws CoreException {
 
-        if (genericSettingProvider.isInMaintenanceMode()) {
-            throw new CoreException("PNC is in maintenance mode");
-        }
+        throwCoreExceptionIfInMaintenanceMode();
 
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetId);
         Preconditions.checkArgument(buildConfigurationSet != null,
@@ -234,9 +226,7 @@ public class BuildTriggerer {
             URL callBackUrl)
             throws CoreException, InvalidEntityException {
 
-        if (genericSettingProvider.isInMaintenanceMode()) {
-            throw new CoreException("PNC is in maintenance mode");
-        }
+        throwCoreExceptionIfInMaintenanceMode();
 
         Consumer<BuildSetStatusChangedEvent> onStatusUpdate = buildSetStatusChangedEventConsumer(callBackUrl);
 
@@ -251,9 +241,7 @@ public class BuildTriggerer {
             BuildOptions buildOptions)
             throws CoreException, InvalidEntityException {
 
-        if (genericSettingProvider.isInMaintenanceMode()) {
-            throw new CoreException("PNC is in maintenance mode");
-        }
+        throwCoreExceptionIfInMaintenanceMode();
 
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(buildConfigurationSetAuditedRest.getId());
         Preconditions.checkArgument(buildConfigurationSet != null,
@@ -300,4 +288,17 @@ public class BuildTriggerer {
         return buildCoordinator.getMDCMeta(buildTaskId);
     }
 
+    private void throwCoreExceptionIfInMaintenanceMode() throws CoreException {
+
+        if (genericSettingProvider.isInMaintenanceMode()) {
+
+            String reason = genericSettingProvider.getAnnouncementBanner();
+
+            if (reason == null) {
+                reason = "";
+            }
+
+            throw new CoreException("PNC is in maintenance mode: " + reason);
+        }
+    }
 }
