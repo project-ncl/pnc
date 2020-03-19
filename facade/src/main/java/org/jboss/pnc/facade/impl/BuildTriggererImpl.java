@@ -101,9 +101,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     public int triggerBuild(final int buildConfigId, OptionalInt buildConfigurationRevision, BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
 
-        if (genericSettingProvider.isInMaintenanceMode()) {
-            throw new BuildConflictException("PNC is in maintenance mode");
-        }
+        throwCoreExceptionIfInMaintenanceMode();
 
         BuildSetTask result = doTriggerBuild(buildConfigId, buildConfigurationRevision, buildOptions);
         return selectBuildRecordIdOf(result.getBuildTasks(), buildConfigId);
@@ -113,9 +111,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     public int triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
 
-        if (genericSettingProvider.isInMaintenanceMode()) {
-            throw new BuildConflictException("PNC is in maintenance mode");
-        }
+        throwCoreExceptionIfInMaintenanceMode();
 
         BuildSetTask result = doTriggerGroupBuild(groupConfigId, revs, buildOptions);
         return result.getId();
@@ -243,4 +239,18 @@ public class BuildTriggererImpl implements BuildTriggerer {
                 .findAny()
                 .orElseThrow(() -> new CoreException("No build id for the triggered configuration"));
     }
+
+    private void throwCoreExceptionIfInMaintenanceMode() throws BuildConflictException {
+
+        if (genericSettingProvider.isInMaintenanceMode()) {
+            String reason = genericSettingProvider.getAnnouncementBanner();
+
+            if (reason == null) {
+                reason = "";
+            }
+
+            throw new BuildConflictException("PNC is in maintenance mode: " + reason);
+        }
+    }
+
 }
