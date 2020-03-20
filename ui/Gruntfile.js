@@ -120,7 +120,8 @@ module.exports = function (grunt) {
           'trafficLightsUrl': getOpt('grafana-traffic-lights-url', 'PNC_UI_GRAFANA_TRAFFIC_LIGHTS_URL'),
           'statusMapUrl': getOpt('grafana-status-map-url', 'PNC_UI_GRAFANA_STATUS_MAP_URL')
         },
-        'bifrostUrl': getOpt('bifrost-url', 'PNC_UI_BIFROST_URL')
+        'bifrostUrl': getOpt('bifrost-url', 'PNC_UI_BIFROST_URL'),
+        'kafkaStoreUrl': getOpt('kafka-store-url', 'PNC_UI_KAFKA_STORE_URL')
       };
     }
 

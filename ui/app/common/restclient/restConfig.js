@@ -31,6 +31,7 @@
     var pncRestUrl = '/pnc-rest-new/rest-new';
     var pncNotificationsUrl = 'ws://' + window.location.host + '/pnc-rest/ws/build-records/notifications';
     var daUrl;
+    var kafkaStoreUrl;
 
     this.setPncUrl = function (url) {
       pncUrl = url;
@@ -46,6 +47,10 @@
 
     this.setDaUrl = function (url) {
       daUrl = url;
+    };
+
+    this.setKafkaStoreUrl = function (url) {
+      kafkaStoreUrl = url;
     };
 
     this.$get = function () {
@@ -65,6 +70,10 @@
 
       restConfig.getDaUrl = function () {
         return daUrl;
+      };
+
+      restConfig.getKafkaStoreUrl = function() {
+        return kafkaStoreUrl;
       };
 
       return restConfig;

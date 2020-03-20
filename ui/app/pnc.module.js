@@ -116,6 +116,7 @@
 
       restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
       restConfigProvider.setDaUrl(pncProperties.daUrl);
+      restConfigProvider.setKafkaStoreUrl(pncProperties.kafkaStoreUrl);
 
       daConfigProvider.setDaUrl(pncProperties.daUrl);
 
