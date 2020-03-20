@@ -34,11 +34,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils.addManifestDependencies;
+
 public class DeploymentFactory {
 
     private static Logger logger = LoggerFactory.getLogger(DeploymentFactory.class);
 
     public static Archive<?> createDatastoreDeployment() {
+
         JavaArchive datastoreJar = ShrinkWrap.create(JavaArchive.class, "datastore.jar")
                 .addPackages(true, "org.jboss.pnc.datastore")
                 .addAsManifestResource("test-persistence.xml", "persistence.xml")
@@ -86,6 +89,8 @@ public class DeploymentFactory {
                 .addAsLibrary(mockJar)
                 .addAsLibrary(modelJar, "model.jar");
 
+        addManifestDependencies(enterpriseArchive, "com.google.guava  export meta-inf");
+
         logger.info("Deployment: {}", enterpriseArchive.toString(true));
 
         return enterpriseArchive;
@@ -103,4 +108,5 @@ public class DeploymentFactory {
             return true;
         }
     }
+
 }
