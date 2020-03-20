@@ -35,35 +35,29 @@ import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.Node;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
-import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.importer.ArchiveImportException;
 import org.jboss.shrinkwrap.api.importer.ZipImporter;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.jboss.shrinkwrap.impl.base.asset.ZipFileEntryAsset;
-import org.jboss.shrinkwrap.impl.base.path.PathUtil;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.jar.Manifest;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
 import static org.jboss.pnc.AbstractTest.AUTH_JAR;
 import static org.jboss.pnc.AbstractTest.EXECUTOR_JAR;
+import static org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils.addManifestDependencies;
 
 public class Deployments {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -155,32 +149,12 @@ public class Deployments {
         }
 
         addKeycloakServiceClientMock(ear);
-
-        updateManifest(ear);
+        /** jdk.unsupported is required by Mockito to run with Java 11. */
+        addManifestDependencies(ear, "jdk.unsupported");
 
         logger.info("Ear archive listing: {}", ear.toString(true));
 
         return ear;
-    }
-
-    private static void updateManifest(EnterpriseArchive ear) {
-        Node node = ear.get(PathUtil.composeAbsoluteContext("META-INF", "MANIFEST.MF"));
-        ZipFileEntryAsset manifest = (ZipFileEntryAsset) node.getAsset();
-        try (InputStream inputStream = manifest.openStream()) {
-            Manifest newManifest = new Manifest(inputStream);
-            String dependencies = newManifest.getMainAttributes().getValue("Dependencies");
-            /** jdk.unsupported is required by Mockito to run with Java 11. */
-            newManifest.getMainAttributes().putValue("Dependencies", dependencies + ", jdk.unsupported");
-            try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                newManifest.write(bos);
-                String manifestContent = new String(bos.toByteArray(), StandardCharsets.UTF_8);
-                ear.addAsManifestResource(new StringAsset(manifestContent), "MANIFEST.MF");
-            } catch (IOException e) {
-                throw new RuntimeException("Cannot write MANIFEST.MF", e);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot read MANIFEST.MF", e);
-        }
     }
 
     /**
