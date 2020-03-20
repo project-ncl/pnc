@@ -19,7 +19,6 @@
 package org.jboss.pnc.coordinator.builder;
 
 import org.jboss.pnc.common.mdc.MDCUtils;
-import org.jboss.pnc.common.util.ProcessStageUtils;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;

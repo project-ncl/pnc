@@ -48,8 +48,6 @@ public class BuildConfigurationAudited {
 
     private String scmRevision;
 
-    private String description;
-
     private Project project;
 
     private BuildType buildType;
@@ -120,14 +118,6 @@ public class BuildConfigurationAudited {
 
     public void setScmRevision(String scmRevision) {
         this.scmRevision = scmRevision;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Project getProject() {
@@ -206,10 +196,8 @@ public class BuildConfigurationAudited {
             configurationAudited.setRev(rev);
             configurationAudited.setIdRev(new IdRev(buildConfiguration.getId(), rev));
             configurationAudited.setBuildScript(buildConfiguration.getBuildScript());
-            configurationAudited.setDescription(buildConfiguration.getDescription());
             configurationAudited.setBuildEnvironment(buildConfiguration.getBuildEnvironment());
             configurationAudited.setName(buildConfiguration.getName());
-            configurationAudited.setDescription(buildConfiguration.getDescription());
             configurationAudited.setScmRevision(buildConfiguration.getScmRevision());
             configurationAudited.setGenericParameters(buildConfiguration.getGenericParameters());
             configurationAudited.setProject(buildConfiguration.getProject());
