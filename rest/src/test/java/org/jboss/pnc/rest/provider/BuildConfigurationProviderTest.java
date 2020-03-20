@@ -64,7 +64,6 @@ public class BuildConfigurationProviderTest {
     private static final String SCM_REVISION = "master";
     private static final String CONFIG_NAME = "config";
     private static final String BUILD_SCRIPT = "mvn clean";
-    private static final String DESCRIPTION = "Some Configuration";
 
     private static final RepositoryConfigurationRest REPOSITORY = createRepository(REPOSITORY_ID);
     private static final ProjectRest PROJECT = createProject(PROJECT_ID);
@@ -103,39 +102,39 @@ public class BuildConfigurationProviderTest {
 
     @Test
     public void testGetLatestAuditedMatchingBCRest(){
-        Map<String, String> params = new HashMap();
+        Map<String, String> params = new HashMap<String, String>();
         params.put("Key", "Value");
 
         BuildConfigurationAudited matching1 = createBuildConfigurationAudited(1,
-                ENVIRONMENT_ID, BUILD_SCRIPT, null, params, CONFIG_NAME, PROJECT_ID,
+                ENVIRONMENT_ID, BUILD_SCRIPT, params, CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
         BuildConfigurationAudited matching2 = createBuildConfigurationAudited(2,
-                ENVIRONMENT_ID, BUILD_SCRIPT, null, params, CONFIG_NAME, PROJECT_ID,
+                ENVIRONMENT_ID, BUILD_SCRIPT, params, CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
 
         BuildConfigurationAudited mismatching3 = createBuildConfigurationAudited(3,
-                ENVIRONMENT_ID+1, BUILD_SCRIPT, DESCRIPTION, params, CONFIG_NAME, PROJECT_ID,
+                ENVIRONMENT_ID+1, BUILD_SCRIPT, params, CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
         BuildConfigurationAudited mismatching4 = createBuildConfigurationAudited(4,
-                ENVIRONMENT_ID, BUILD_SCRIPT+"a", DESCRIPTION, params, CONFIG_NAME, PROJECT_ID,
+                ENVIRONMENT_ID, BUILD_SCRIPT+"a", params, CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
         BuildConfigurationAudited mismatching5 = createBuildConfigurationAudited(5,
-                ENVIRONMENT_ID, BUILD_SCRIPT, DESCRIPTION+"a", params, CONFIG_NAME, PROJECT_ID,
+                ENVIRONMENT_ID, BUILD_SCRIPT, params, CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
         BuildConfigurationAudited mismatching6 = createBuildConfigurationAudited(6,
-                ENVIRONMENT_ID, BUILD_SCRIPT, DESCRIPTION, new HashMap(), CONFIG_NAME, PROJECT_ID,
+                ENVIRONMENT_ID, BUILD_SCRIPT, new HashMap<String, String>(), CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
         BuildConfigurationAudited mismatching7 = createBuildConfigurationAudited(7,
-                ENVIRONMENT_ID, BUILD_SCRIPT, DESCRIPTION, params, CONFIG_NAME+"a", PROJECT_ID,
+                ENVIRONMENT_ID, BUILD_SCRIPT, params, CONFIG_NAME+"a", PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
         BuildConfigurationAudited mismatching8 = createBuildConfigurationAudited(8,
-                ENVIRONMENT_ID, BUILD_SCRIPT, DESCRIPTION, params, CONFIG_NAME, PROJECT_ID+1,
+                ENVIRONMENT_ID, BUILD_SCRIPT, params, CONFIG_NAME, PROJECT_ID+1,
                 REPOSITORY_ID, SCM_REVISION);
         BuildConfigurationAudited mismatching9 = createBuildConfigurationAudited(9,
-                ENVIRONMENT_ID, BUILD_SCRIPT, DESCRIPTION, params, CONFIG_NAME, PROJECT_ID,
+                ENVIRONMENT_ID, BUILD_SCRIPT, params, CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID+1, SCM_REVISION);
         BuildConfigurationAudited mismatching10 = createBuildConfigurationAudited(10,
-                ENVIRONMENT_ID, BUILD_SCRIPT, DESCRIPTION, params, CONFIG_NAME, PROJECT_ID,
+                ENVIRONMENT_ID, BUILD_SCRIPT, params, CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION+"a");
 
         List<BuildConfigurationAudited> bcas = Arrays.asList(mismatching10, mismatching9,
@@ -156,7 +155,7 @@ public class BuildConfigurationProviderTest {
     }
 
     private BuildConfigurationAudited createBuildConfigurationAudited(int rev, int environmentID,
-            String buildScript, String description, Map<String, String> parameters, String name,
+            String buildScript, Map<String, String> parameters, String name,
             int projectID, int repositoryID, String scmRevision) {
         BuildConfigurationAudited bca = new BuildConfigurationAudited();
         bca.setId(EXISTING_ID);
@@ -164,7 +163,6 @@ public class BuildConfigurationProviderTest {
         bca.setIdRev(new IdRev(EXISTING_ID, rev));
         bca.setBuildEnvironment(BuildEnvironment.Builder.newBuilder().id(environmentID).build());
         bca.setBuildScript(buildScript);
-        bca.setDescription(description);
         bca.setGenericParameters(parameters);
         bca.setName(name);
         bca.setProject(Project.Builder.newBuilder().id(projectID).build());

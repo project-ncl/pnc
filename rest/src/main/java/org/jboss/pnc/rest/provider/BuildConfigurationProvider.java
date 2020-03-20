@@ -306,7 +306,6 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                 equalsWithNull(audited.getBuildScript(), rest.getBuildScript()) &&
                 equalsId(audited.getRepositoryConfiguration(), rest.getRepositoryConfiguration()) &&
                 equalsWithNull(audited.getScmRevision(), rest.getScmRevision()) &&
-                equalsWithNull(audited.getDescription(), rest.getDescription()) &&
                 equalsId(audited.getProject(), rest.getProject()) &&
                 equalsId(audited.getBuildEnvironment(), rest.getEnvironment()) &&
                 audited.getGenericParameters().equals(rest.getGenericParameters());

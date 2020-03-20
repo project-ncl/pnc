@@ -535,7 +535,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 buildConfigurationAudited.getId(),
                 buildConfigurationAudited.getRev(),
                 buildConfigurationAudited.getName(),
-                buildConfigurationAudited.getDescription(),
+                null,
                 buildConfigurationAudited.getBuildScript(),
                 buildConfigurationAudited.getScmRevision()
         );
