@@ -31,7 +31,6 @@ import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.ArchivePath;
 import org.jboss.shrinkwrap.api.Assignable;
 import org.jboss.shrinkwrap.api.Filter;
-import org.jboss.shrinkwrap.api.GenericArchive;
 import org.jboss.shrinkwrap.api.Node;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.Asset;
@@ -51,6 +50,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
@@ -62,19 +62,42 @@ import static org.jboss.pnc.test.arquillian.ShrinkwrapDeployerUtils.addManifestD
 public class Deployments {
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static EnterpriseArchive baseEar() {
-        EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class);
+    private static final PomEquippedResolveStage resolver = Maven.resolver().loadPomFromFile("pom.xml");
 
+    private static final Map<String, File[]> instanceHolder = new ConcurrentHashMap<>();
+
+    private static File getBaseEar() {
+        File[] files = instanceHolder.computeIfAbsent(
+                "EAR",
+                (k) -> resolver.resolve("org.jboss.pnc:ear-package:ear:?").withoutTransitivity().asFile());
+        return Arrays.stream(files)
+                .filter(f -> f.getName().contains("ear-package"))
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("ear-package archive not found."));
+    }
+
+    private static File[] getTestCommon() {
+        return instanceHolder.computeIfAbsent("TEST-COMMON", (k) -> {
+            logger.info("Resolving org.jboss.pnc:test-common.");
+            return resolver.resolve("org.jboss.pnc:test-common:?").withTransitivity().asFile();
+        });
+    }
+
+    private static File[] getMockito() {
+        return instanceHolder.computeIfAbsent(
+                "MOCKITO",
+                (k) -> resolver.resolve("org.mockito:mockito-core").withTransitivity().asFile());
+    }
+
+    public static EnterpriseArchive baseEar() {
         ArquillianDeploymentFactory arquillianDeploymentFactory = new ArquillianDeploymentFactory();
         if (useTargetBuilds()) {
             logger.info("Create test ear from build target");
             return arquillianDeploymentFactory.createDeployment();
         }
 
-        PomEquippedResolveStage mavenResolver = Maven.resolver().loadPomFromFile(new File("pom.xml"));
-
-        addEar(ear, mavenResolver);
-        addTestCommonWithoutTransitives(ear, mavenResolver);
+        EnterpriseArchive ear = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, getBaseEar());
+        ear.addAsLibraries(getTestCommon());
 
         setTestableWar(ear);
 
@@ -121,24 +144,20 @@ public class Deployments {
     }
 
     public static EnterpriseArchive baseEarWithTestDependencies() {
-        EnterpriseArchive ear = ShrinkWrap.create(EnterpriseArchive.class);
-
         ArquillianDeploymentFactory arquillianDeploymentFactory = new ArquillianDeploymentFactory();
         if (useTargetBuilds()) {
             logger.info("Create test ear with test dependencies from build target");
             return arquillianDeploymentFactory.createDeploymentWithTestDependencies();
         }
-        PomEquippedResolveStage mavenResolver = Maven.resolver().loadPomFromFile(new File("pom.xml"));
 
-        addEar(ear, mavenResolver);
-        addTestCommonWithTransitives(ear, mavenResolver);
+        EnterpriseArchive ear = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, getBaseEar());
+        ear.addAsLibraries(getTestCommon());
 
         setTestableWar(ear);
 
         addTestPersistenceXml(ear);
 
-        addMockito(ear, mavenResolver);
-        addRestassured(ear, mavenResolver);
+        ear.addAsLibraries(getMockito());
 
         addTestApplicaitonXml(ear);
 
@@ -166,16 +185,6 @@ public class Deployments {
         ear.setApplicationXML("application.xml");
     }
 
-    private static void addMockito(EnterpriseArchive archive, PomEquippedResolveStage mavenResolver) {
-        File[] libs = mavenResolver.resolve("org.mockito:mockito-core").withTransitivity().asFile();
-        archive.addAsLibraries(libs);
-    }
-
-    private static void addRestassured(EnterpriseArchive archive, PomEquippedResolveStage mavenResolver) {
-        File[] libs = mavenResolver.resolve("io.rest-assured:rest-assured").withTransitivity().asFile();
-        archive.addAsLibraries(libs);
-    }
-
     private static boolean useTargetBuilds() {
         return System.getProperty("useTargetBuilds") != null;
     }
@@ -188,42 +197,10 @@ public class Deployments {
         ear.addAsModule(archiveToTest(restWar));
     }
 
-    private static void addEar(Archive<?> webArchive, PomEquippedResolveStage mavenResolver) {
-        File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:ear-package:ear:?")
-                .withoutTransitivity()
-                .asFile();
-
-        Arrays.stream(manuallyAddedLibs).forEach(lib -> {
-            webArchive.merge(
-                    ShrinkWrap.create(ZipImporter.class)
-                            .importFrom(lib, (path) -> include(path))
-                            .as(GenericArchive.class));
-        });
-    }
-
-    private static boolean include(ArchivePath archivePath) {
-        String path = archivePath.get();
-        // do not include messaging, at least until it is updated to the same version as provided by EAP (JMS 2)
-        boolean matches = path.matches(".*messaging\\.jar");
-        if (!matches) {
-            matches = path.matches(".*application\\.xml");
-        }
-
-        logger.trace("ArchivePath {} matches filter: {}", path, matches);
-        return !matches;
-    }
-
     private static void addTestCommonWithTransitives(
             EnterpriseArchive webArchive,
             PomEquippedResolveStage mavenResolver) {
         File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:test-common").withTransitivity().asFile();
-        webArchive.addAsLibraries(manuallyAddedLibs);
-    }
-
-    private static void addTestCommonWithoutTransitives(
-            EnterpriseArchive webArchive,
-            PomEquippedResolveStage mavenResolver) {
-        File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:test-common").withoutTransitivity().asFile();
         webArchive.addAsLibraries(manuallyAddedLibs);
     }
 

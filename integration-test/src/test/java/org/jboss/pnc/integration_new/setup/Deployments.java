@@ -30,11 +30,15 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
+import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
 import static org.jboss.pnc.AbstractTest.AUTH_JAR;
@@ -45,15 +49,36 @@ import static org.jboss.pnc.AbstractTest.EXECUTOR_JAR;
  */
 public class Deployments {
 
-    private static final PomEquippedResolveStage mavenResolver = Maven.resolver().loadPomFromFile(new File("pom.xml"));
-
     public static final Logger logger = LoggerFactory.getLogger(Deployments.class);
 
+    private static final PomEquippedResolveStage resolver = Maven.resolver()
+            .loadPomFromFile("pom.xml")
+            .importDependencies(ScopeType.TEST);
+    private static final Map<String, File[]> instanceHolder = new ConcurrentHashMap<>();
+
+    private static File getBaseEar() {
+        File[] files = instanceHolder.computeIfAbsent(
+                "EAR",
+                (k) -> resolver.resolve("org.jboss.pnc:ear-package:ear:?").withoutTransitivity().asFile());
+        return Arrays.stream(files)
+                .filter(f -> f.getName().contains("ear-package"))
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("ear-package archive not found."));
+    }
+
+    private static File getTestCommon() {
+        File[] files = instanceHolder.computeIfAbsent("TEST-COMMON", (k) -> {
+            logger.info("Resolving org.jboss.pnc:test-common.");
+            return resolver.resolve("org.jboss.pnc:test-common:?").withoutTransitivity().asFile();
+        });
+        return Arrays.stream(files)
+                .filter(f -> f.getName().contains("test-common"))
+                .findAny()
+                .orElseThrow(() -> new RuntimeException("test-common archive not found."));
+    }
+
     public static EnterpriseArchive testEar() {
-
-        File earArchive = mavenResolver.resolve("org.jboss.pnc:ear-package:ear:?").withoutTransitivity().asSingleFile();
-
-        EnterpriseArchive ear = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, earArchive);
+        EnterpriseArchive ear = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, getBaseEar());
 
         WebArchive restWar = prepareRestArchive(ear);
         ear.addAsModule(archiveToTest(restWar));
@@ -72,7 +97,7 @@ public class Deployments {
 
     public static EnterpriseArchive testEarForInContainerTest() {
         EnterpriseArchive ear = testEar();
-        addTestCommonWithoutTransitives(ear);
+        ear.addAsLibraries(getTestCommon());
         return ear;
     }
 
@@ -158,10 +183,5 @@ public class Deployments {
 
         enterpriseArchive.addAsModule(jar);
 
-    }
-
-    private static void addTestCommonWithoutTransitives(EnterpriseArchive webArchive) {
-        File[] manuallyAddedLibs = mavenResolver.resolve("org.jboss.pnc:test-common").withoutTransitivity().asFile();
-        webArchive.addAsLibraries(manuallyAddedLibs);
     }
 }
