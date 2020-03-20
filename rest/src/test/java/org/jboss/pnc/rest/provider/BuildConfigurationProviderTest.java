@@ -118,9 +118,6 @@ public class BuildConfigurationProviderTest {
         BuildConfigurationAudited mismatching4 = createBuildConfigurationAudited(4,
                 ENVIRONMENT_ID, BUILD_SCRIPT+"a", params, CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
-        BuildConfigurationAudited mismatching5 = createBuildConfigurationAudited(5,
-                ENVIRONMENT_ID, BUILD_SCRIPT, params, CONFIG_NAME, PROJECT_ID,
-                REPOSITORY_ID, SCM_REVISION);
         BuildConfigurationAudited mismatching6 = createBuildConfigurationAudited(6,
                 ENVIRONMENT_ID, BUILD_SCRIPT, new HashMap<String, String>(), CONFIG_NAME, PROJECT_ID,
                 REPOSITORY_ID, SCM_REVISION);
@@ -138,7 +135,7 @@ public class BuildConfigurationProviderTest {
                 REPOSITORY_ID, SCM_REVISION+"a");
 
         List<BuildConfigurationAudited> bcas = Arrays.asList(mismatching10, mismatching9,
-                mismatching8, mismatching7, mismatching6, mismatching5, mismatching4, mismatching3,
+                mismatching8, mismatching7, mismatching6, mismatching4, mismatching3,
                 matching2, matching1);
         when(auditedBCRepository.findAllByIdOrderByRevDesc(EXISTING_ID)).thenReturn(bcas);
 
