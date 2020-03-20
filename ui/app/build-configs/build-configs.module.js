@@ -253,6 +253,27 @@
           ]
         }
       });
+
+      $stateProvider.state('projects.detail.build-configs.detail.build-metrics', {
+        url: '/build-metrics',
+        component: 'pncBuildConfigBuildMetricsTab',
+        data: {
+          displayName: 'Build Metrics'
+        },
+        resolve: {
+          builds: [
+            'BuildResource',
+            '$stateParams',
+            function (BuildResource, $stateParams) {
+              return BuildResource.getByConfiguration({
+                id: $stateParams.configurationId,
+                pageSize: 200
+              }).$promise;
+            }
+          ]
+        }
+      });
+
     }
   ]);
 

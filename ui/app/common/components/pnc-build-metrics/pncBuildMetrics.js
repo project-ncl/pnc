@@ -32,10 +32,10 @@
       componentId: '@?'
     },
     templateUrl: 'common/components/pnc-build-metrics/pnc-build-metrics.html',
-    controller: ['BuildRecord', Controller]
+    controller: ['BuildResource', Controller]
   });
 
-  function Controller(BuildRecord) {
+  function Controller(BuildResource) {
     var $ctrl = this;
     var chart = null;
     var canvasElement = null;
@@ -239,7 +239,7 @@
         return build.id.toString();
       });
 
-      return BuildRecord.getBuildMetrics(buildIds).then(function(buildMetricsDatasetsResult) {
+      return BuildResource.getBuildMetrics(buildIds).then(function(buildMetricsDatasetsResult) {
         canvasElement = document.getElementById($ctrl.componentId);
         var adaptedMetric;
 
@@ -422,11 +422,14 @@
 
           var heightTmp = 0;
           var MIN_HEIGHT = 290;
-          var MIN_HEIGHT_SINGLE_BUILD = 300;
+          var MIN_HEIGHT_SINGLE_BUILD = 400;
   
           if ($ctrl.chartType === 'horizontalBar') {
             heightTmp = buildMetricsData.datasets[0].data.length * 30;
             canvasElement.parentElement.style.height = ((heightTmp < MIN_HEIGHT) ? (isSingleBuild ? MIN_HEIGHT_SINGLE_BUILD : MIN_HEIGHT) : heightTmp) + 'px';
+            if (isSingleBuild) {
+              chartConfig.options.layout.padding.bottom = 100;
+            }
           } else {
             canvasElement.parentElement.style.height = '300px';
           }

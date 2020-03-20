@@ -22,6 +22,7 @@
 
   module.value('BUILD_PATH', '/builds/:id');
   module.value('BUILD_SSH_CREDENTIALS_PATH', '/builds/ssh-credentials/:id');
+  module.value('KAFKA_STORE_BUILDS', '/builds');
 
   /**
    * @author Martin Kelnar
@@ -29,16 +30,21 @@
   module.factory('BuildResource', [
     '$resource',
     '$q',
+    '$http',
     'restConfig',
     'authService',
     'BUILD_PATH',
     'BUILD_SSH_CREDENTIALS_PATH',
     'buildStatusHelper',
     'ARTIFACT_PATH',
-    ($resource, $q, restConfig, authService, BUILD_PATH, BUILD_SSH_CREDENTIALS_PATH, buildStatusHelper, ARTIFACT_PATH) => {
+    'BUILD_CONFIG_PATH',
+    'KAFKA_STORE_BUILDS',
+    ($resource, $q, $http, restConfig, authService, BUILD_PATH, BUILD_SSH_CREDENTIALS_PATH, buildStatusHelper, ARTIFACT_PATH, BUILD_CONFIG_PATH, KAFKA_STORE_BUILDS) => {
       const ENDPOINT = restConfig.getPncRestUrl() + BUILD_PATH;
       const BUILD_SSH_CREDENTIALS_ENDPOINT = restConfig.getPncRestUrl() + BUILD_SSH_CREDENTIALS_PATH;
       const ARTIFACTS_ENDPOINT = restConfig.getPncRestUrl() + ARTIFACT_PATH;
+      const BUILD_CONFIGS_ENDPOINT = restConfig.getPncRestUrl() + BUILD_CONFIG_PATH;
+      const KAFKA_STORE_BUILDS_ENDPOINT = restConfig.getKafkaStoreUrl() + KAFKA_STORE_BUILDS;
 
       const CANCELABLE_STATUSES = [
         'NEW',
@@ -62,9 +68,16 @@
           }
         },
 
-        // getLastByConfiguration should be part of the BuildConfigResource
+        // getLastByConfiguration is not implemented yet
 
-        // getByConfiguration should be part of the BuildConfigResource
+        getByConfiguration: {
+          method: 'GET',
+          isPaged: true,
+          url: BUILD_CONFIGS_ENDPOINT + '/builds',
+          params: {
+            sort: '=desc=submitTime'
+          }
+        },
 
         queryByUser: {
           method: 'GET',
@@ -173,6 +186,15 @@
           return resource._getSshCredentials(params);
         }
       });
+
+
+      resource.getBuildMetrics = function(buildIds) {
+        return $http.post(KAFKA_STORE_BUILDS_ENDPOINT, {
+          buildIds: buildIds
+        }, {
+          successNotification: false
+        });
+      }; 
 
 
       resource.prototype.$isSuccess = function () {

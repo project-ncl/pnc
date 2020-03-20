@@ -124,6 +124,15 @@
         }
       });
 
+      $stateProvider.state('projects.detail.build-configs.detail.builds.detail.build-metrics', {
+        url: '/build-metrics',
+        component: 'pncBuildDetailBuildMetricsPage',
+        data: {
+          displayName: 'Build Metrics',
+          title: '#{{ build.id }} {{ build.buildConfigRevision.name }} | Build Metrics'
+        }
+      });
+
       $stateProvider.state('projects.detail.build-configs.detail.builds.detail.build-log', {
         url: '/build-log',
         component: 'pncBuildDetailBuildLogPage',
