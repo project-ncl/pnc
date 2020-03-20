@@ -187,6 +187,32 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <additionalClasspathElements>
+            <additionalClasspathElement>${project.basedir}/ear-package/target/ear-package-${project.version}.ear</additionalClasspathElement>
+          </additionalClasspathElements>
+          <includes>
+            <include>**/*.java</include> <!--TODO rename tests to follow the convention. (*IT.java, IT*.java) -->
+          </includes>
+          <groups>org.jboss.pnc.test.category.ContainerTest</groups>
+          <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
   <profiles>
     <profile>
