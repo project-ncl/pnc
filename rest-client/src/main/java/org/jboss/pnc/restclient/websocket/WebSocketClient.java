@@ -45,7 +45,7 @@ import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
  *
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-public interface WebSocketClient {
+public interface WebSocketClient extends AutoCloseable {
 
     /**
      * Connects to the WebSocket server specified by webSocketServerUrl. The operation is asynchronous and returns
@@ -255,4 +255,12 @@ public interface WebSocketClient {
      */
     CompletableFuture<SCMRepositoryCreationSuccess> catchSCMRepositoryCreationSuccess(
             Predicate<SCMRepositoryCreationSuccess>... filters);
+
+    /**
+     * Safely disconnects and closes the WebSocket client.
+     *
+     * @throws Exception exception
+     */
+    @Override
+    void close() throws Exception;
 }

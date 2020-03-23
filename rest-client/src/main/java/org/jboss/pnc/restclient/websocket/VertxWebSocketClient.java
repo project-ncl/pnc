@@ -118,7 +118,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
         int port = serverURI.getPort() == -1 ? 80 : serverURI.getPort();
         httpClient.webSocket(port, serverURI.getHost(), serverURI.getPath(), result -> {
             if (result.succeeded()) {
-                log.debug("Connection to WebSocket server:" + webSocketServerUrl + " successful.");
+                log.debug("Connection to WebSocket server: " + webSocketServerUrl + " successful.");
                 resetDefaults();
                 webSocketConnection = result.result();
                 webSocketConnection.textMessageHandler(this::dispatch);
@@ -126,7 +126,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
                 // Async operation complete
                 future.complete(null);
             } else {
-                log.error("Connection to WebSocket server:" + webSocketServerUrl + " unsuccessful.", result.cause());
+                log.error("Connection to WebSocket server: " + webSocketServerUrl + " unsuccessful.", result.cause());
                 future.completeExceptionally(result.cause());
             }
         });
@@ -179,7 +179,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
                 future.completeExceptionally(result.cause());
             }
         });
-        return future;
+        return future.whenComplete((x, y) -> vertx.close());
     }
 
     @Override
@@ -312,6 +312,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        disconnect();
+        disconnect().join();
+        vertx.close();
     }
 }

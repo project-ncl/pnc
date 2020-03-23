@@ -18,7 +18,7 @@
 package org.jboss.pnc.restclient;
 
 import static org.jboss.pnc.restclient.websocket.predicates.GroupBuildChangedNotificationPredicates.withGBuildCompleted;
-import static org.jboss.pnc.restclient.websocket.predicates.GroupBuildChangedNotificationPredicates.withGBuildId;
+import static org.jboss.pnc.restclient.websocket.predicates.GroupBuildChangedNotificationPredicates.withGConfigId;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -38,20 +38,21 @@ public class AdvancedGroupConfigurationClient extends GroupConfigurationClient {
         super(configuration);
     }
 
-    public CompletableFuture<GroupBuild> waitForGroupBuild(String buildId) {
+    public CompletableFuture<GroupBuild> waitForGroupBuild(String buildConfigId) {
         WebSocketClient webSocketClient = new VertxWebSocketClient();
 
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notification");
+        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
 
-        return webSocketClient.catchGroupBuildChangedNotification(withGBuildId(buildId), withGBuildCompleted())
+        return webSocketClient.catchGroupBuildChangedNotification(withGConfigId(buildConfigId), withGBuildCompleted())
                 .thenApply(GroupBuildChangedNotification::getGroupBuild)
-                .whenCompleteAsync((x, y) -> webSocketClient.disconnect());
+                .whenCompleteAsync((x, y) -> webSocketClient.disconnect().join());
     }
 
     public CompletableFuture<GroupBuild> executeGroupBuild(String groupConfigId, GroupBuildParameters parameters)
             throws RemoteResourceException {
-        GroupBuild groupBuild = super.trigger(groupConfigId, parameters, GroupBuildRequest.builder().build());
-        return waitForGroupBuild(groupBuild.getId());
+        CompletableFuture<GroupBuild> future = waitForGroupBuild(groupConfigId);
+        super.trigger(groupConfigId, parameters, GroupBuildRequest.builder().build());
+        return future;
     }
 
 }

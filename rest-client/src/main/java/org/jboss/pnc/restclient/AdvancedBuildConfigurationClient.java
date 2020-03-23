@@ -18,7 +18,7 @@
 package org.jboss.pnc.restclient;
 
 import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildCompleted;
-import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildId;
+import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildConfiguration;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -37,19 +37,21 @@ public class AdvancedBuildConfigurationClient extends BuildConfigurationClient {
         super(configuration);
     }
 
-    public CompletableFuture<Build> waitForBuild(String buildId) {
+    public CompletableFuture<Build> waitForBuild(String buildConfigId) {
         WebSocketClient webSocketClient = new VertxWebSocketClient();
 
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notification");
+        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
 
-        return webSocketClient.catchBuildChangedNotification(withBuildId(buildId), withBuildCompleted())
+        return webSocketClient
+                .catchBuildChangedNotification(withBuildConfiguration(buildConfigId), withBuildCompleted())
                 .thenApply(BuildChangedNotification::getBuild)
-                .whenComplete((x, y) -> webSocketClient.disconnect());
+                .whenComplete((x, y) -> webSocketClient.disconnect().join());
     }
 
     public CompletableFuture<Build> executeBuild(String buildConfigId, BuildParameters parameters)
             throws RemoteResourceException {
-        Build build = super.trigger(buildConfigId, parameters);
-        return waitForBuild(build.getId());
+        CompletableFuture<Build> future = waitForBuild(buildConfigId);
+        super.trigger(buildConfigId, parameters);
+        return future;
     }
 }

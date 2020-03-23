@@ -27,6 +27,10 @@ public final class GroupBuildChangedNotificationPredicates {
     private GroupBuildChangedNotificationPredicates() {
     }
 
+    public static Predicate<GroupBuildChangedNotification> withGConfigId(String groupConfigId) {
+        return (notification) -> notification.getGroupBuild().getGroupConfig().getId().equals(groupConfigId);
+    }
+
     public static Predicate<GroupBuildChangedNotification> withGBuildId(String groupBuildId) {
         return (notification) -> notification.getGroupBuild().getId().equals(groupBuildId);
     }
