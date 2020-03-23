@@ -50,6 +50,8 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     private String name;
 
+    private String description;
+
     private String buildScript;
 
     @Setter
@@ -130,6 +132,14 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getBuildScript() {
