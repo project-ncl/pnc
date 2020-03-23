@@ -40,11 +40,11 @@ public class AdvancedBuildClient extends BuildClient {
     public CompletableFuture<BuildPushResult> waitForBrewPush(String buildId) {
         WebSocketClient webSocketClient = new VertxWebSocketClient();
 
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notification");
+        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
 
         return webSocketClient.catchBuildPushResult(withBuildId(buildId), withPushCompleted())
                 .thenApply(BuildPushResultNotification::getBuildPushResult)
-                .whenComplete((x, y) -> webSocketClient.disconnect());
+                .whenComplete((x, y) -> webSocketClient.disconnect().join());
     }
 
     public CompletableFuture<BuildPushResult> executeBrewPush(String buildConfigId, BuildPushRequest parameters)
