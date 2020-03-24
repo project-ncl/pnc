@@ -27,6 +27,7 @@ import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.BadArtifactQualityException;
+import org.jboss.pnc.facade.validation.PushAlreadyRunningException;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.bpm.causeway.BuildResultPushManager;
 import org.jboss.pnc.bpm.causeway.Result;
@@ -120,7 +121,12 @@ public class BrewPusherImpl implements BrewPusher {
         BuildPushResult result = pushedResponse.get(0);
 
         if (result.getLog().contains("BLACKLISTED/DELETED")) {
-            throw new BadArtifactQualityException(result);
+            throw new BadArtifactQualityException(
+                    "Build contains artifacts of insufficient quality: BLACKLISTED/DELETED.",
+                    result);
+        }
+        if (result.getLog().contains("already running")) {
+            throw new PushAlreadyRunningException("A push for this buildRecord is already running.", result);
         }
 
         return result;

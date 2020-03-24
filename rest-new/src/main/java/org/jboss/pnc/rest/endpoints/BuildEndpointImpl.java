@@ -28,6 +28,7 @@ import org.jboss.pnc.dto.requests.BuildPushRequest;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
+import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.BuildTriggerer;
@@ -35,6 +36,7 @@ import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.validation.BadArtifactQualityException;
+import org.jboss.pnc.facade.validation.PushAlreadyRunningException;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -222,7 +224,23 @@ public class BuildEndpointImpl implements BuildEndpoint {
         try {
             return brewPusher.brewPush(id, buildPushRequest);
         } catch (BadArtifactQualityException e) {
-            throw new ClientErrorException(Response.status(403).entity(e.getResponseObject()).build());
+            throw new ClientErrorException(
+                    Response.status(403)
+                            .entity(
+                                    ErrorResponse.builder()
+                                            .errorMessage(e.getMessage())
+                                            .details(e.getResponseObject())
+                                            .build())
+                            .build());
+        } catch (PushAlreadyRunningException e) {
+            throw new ClientErrorException(
+                    Response.status(409)
+                            .entity(
+                                    ErrorResponse.builder()
+                                            .errorMessage(e.getMessage())
+                                            .details(e.getResponseObject())
+                                            .build())
+                            .build());
         } catch (ProcessException e) {
             throw new RuntimeException(e);
         }

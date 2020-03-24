@@ -325,7 +325,7 @@ public interface BuildEndpoint {
                     @ApiResponse(
                             responseCode = ACCEPTED_CODE,
                             description = ACCEPTED_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushResultPage.class))),
+                            content = @Content(schema = @Schema(implementation = BuildPushResult.class))),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -333,7 +333,7 @@ public interface BuildEndpoint {
                     @ApiResponse(
                             responseCode = FORBIDDEN_CODE,
                             description = FORBIDDEN_PUSH_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPushResultPage.class))),
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(
                             responseCode = CONFLICTED_CODE,
                             description = CONFLICTED_DESCRIPTION,
