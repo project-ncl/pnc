@@ -21,6 +21,9 @@ import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotifica
 import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildConfiguration;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.Configuration;
@@ -33,19 +36,19 @@ import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
 public class AdvancedBuildConfigurationClient extends BuildConfigurationClient {
 
+    private WebSocketClient webSocketClient = new VertxWebSocketClient();
+
     public AdvancedBuildConfigurationClient(Configuration configuration) {
         super(configuration);
     }
 
     public CompletableFuture<Build> waitForBuild(String buildConfigId) {
-        WebSocketClient webSocketClient = new VertxWebSocketClient();
-
         webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
 
         return webSocketClient
                 .catchBuildChangedNotification(withBuildConfiguration(buildConfigId), withBuildCompleted())
                 .thenApply(BuildChangedNotification::getBuild)
-                .whenComplete((x, y) -> webSocketClient.disconnect().join());
+                .whenComplete((x, y) -> webSocketClient.disconnect());
     }
 
     public CompletableFuture<Build> executeBuild(String buildConfigId, BuildParameters parameters)
@@ -53,5 +56,16 @@ public class AdvancedBuildConfigurationClient extends BuildConfigurationClient {
         CompletableFuture<Build> future = waitForBuild(buildConfigId);
         super.trigger(buildConfigId, parameters);
         return future;
+    }
+
+    public Build executeBuild(String buildConfigId, BuildParameters parameters, long timeout, TimeUnit timeUnit)
+            throws RemoteResourceException {
+        try {
+            return executeBuild(buildConfigId, parameters).get(timeout, timeUnit);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
+        } finally {
+            webSocketClient.disconnect();
+        }
     }
 }

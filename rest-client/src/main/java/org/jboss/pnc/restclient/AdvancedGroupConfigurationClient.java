@@ -21,6 +21,9 @@ import static org.jboss.pnc.restclient.websocket.predicates.GroupBuildChangedNot
 import static org.jboss.pnc.restclient.websocket.predicates.GroupBuildChangedNotificationPredicates.withGConfigId;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.GroupConfigurationClient;
@@ -34,18 +37,19 @@ import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
 public class AdvancedGroupConfigurationClient extends GroupConfigurationClient {
 
+    private WebSocketClient webSocketClient = new VertxWebSocketClient();
+
     public AdvancedGroupConfigurationClient(Configuration configuration) {
         super(configuration);
     }
 
     public CompletableFuture<GroupBuild> waitForGroupBuild(String buildConfigId) {
-        WebSocketClient webSocketClient = new VertxWebSocketClient();
 
         webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
 
         return webSocketClient.catchGroupBuildChangedNotification(withGConfigId(buildConfigId), withGBuildCompleted())
                 .thenApply(GroupBuildChangedNotification::getGroupBuild)
-                .whenCompleteAsync((x, y) -> webSocketClient.disconnect().join());
+                .whenCompleteAsync((x, y) -> webSocketClient.disconnect());
     }
 
     public CompletableFuture<GroupBuild> executeGroupBuild(String groupConfigId, GroupBuildParameters parameters)
@@ -53,6 +57,20 @@ public class AdvancedGroupConfigurationClient extends GroupConfigurationClient {
         CompletableFuture<GroupBuild> future = waitForGroupBuild(groupConfigId);
         super.trigger(groupConfigId, parameters, GroupBuildRequest.builder().build());
         return future;
+    }
+
+    public GroupBuild executeGroupBuild(
+            String groupConfigId,
+            GroupBuildParameters parameters,
+            long timeout,
+            TimeUnit timeUnit) throws RemoteResourceException {
+        try {
+            return executeGroupBuild(groupConfigId, parameters).get(timeout, timeUnit);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
+        } finally {
+            webSocketClient.disconnect();
+        }
     }
 
 }

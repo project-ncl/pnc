@@ -21,6 +21,9 @@ import static org.jboss.pnc.restclient.websocket.predicates.BuildPushResultNotif
 import static org.jboss.pnc.restclient.websocket.predicates.BuildPushResultNotificationPredicates.withPushCompleted;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.Configuration;
@@ -33,23 +36,38 @@ import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
 public class AdvancedBuildClient extends BuildClient {
 
+    private WebSocketClient webSocketClient = new VertxWebSocketClient();
+
     public AdvancedBuildClient(Configuration configuration) {
         super(configuration);
     }
 
     public CompletableFuture<BuildPushResult> waitForBrewPush(String buildId) {
-        WebSocketClient webSocketClient = new VertxWebSocketClient();
 
         webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
 
         return webSocketClient.catchBuildPushResult(withBuildId(buildId), withPushCompleted())
                 .thenApply(BuildPushResultNotification::getBuildPushResult)
-                .whenComplete((x, y) -> webSocketClient.disconnect().join());
+                .whenComplete((x, y) -> webSocketClient.disconnect());
     }
 
     public CompletableFuture<BuildPushResult> executeBrewPush(String buildConfigId, BuildPushRequest parameters)
             throws RemoteResourceException {
         BuildPushResult push = super.push(buildConfigId, parameters);
         return waitForBrewPush(push.getBuildId());
+    }
+
+    public BuildPushResult executeBrewPush(
+            String buildConfigId,
+            BuildPushRequest parameters,
+            long timeout,
+            TimeUnit timeUnit) throws RemoteResourceException {
+        try {
+            return executeBrewPush(buildConfigId, parameters).get(timeout, timeUnit);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
+        } finally {
+            webSocketClient.disconnect();
+        }
     }
 }
