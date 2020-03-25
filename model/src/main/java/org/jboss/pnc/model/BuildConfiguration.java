@@ -156,11 +156,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Column(columnDefinition = "timestamp with time zone")
     private Date lastModificationTime;
 
-    @PreUpdate
-    void onUpdate() {
-        lastModificationTime = new Date();
-    }
-
     /**
      * Normally set to true.
      * If BuildConfiguration is no longer to be used (is archived) - this is set to **null**

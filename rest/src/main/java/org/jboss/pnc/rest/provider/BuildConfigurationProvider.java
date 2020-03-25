@@ -50,9 +50,12 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -141,6 +144,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         super.validateBeforeUpdating(id, buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(buildConfigurationRest.getId(), buildConfigurationRest.getDependencyIds());
+        applyLastModificationDate(buildConfigurationRest);
     }
 
     private void validateRepositoryConfigurationId(RepositoryConfigurationRest repositoryConfiguration) throws InvalidEntityException {
@@ -179,6 +183,24 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             }
             return null;
         });
+    }
+
+    private void applyLastModificationDate(BuildConfigurationRest buildConfigurationRest) {
+
+        BuildConfiguration buildConfig = repository.queryById(buildConfigurationRest.getId());
+        // Modify lastModificationDate only if audited fields change
+        if (!equalsWithNull(buildConfigurationRest.getBuildScript(), buildConfig.getBuildScript()) ||
+                !equalsWithNull(buildConfigurationRest.getName(), buildConfig.getName()) ||
+                !equalsWithNull(buildConfigurationRest.getScmRevision(), buildConfig.getScmRevision()) ||
+                !equalsWithNull(buildConfigurationRest.getBuildType(), buildConfig.getBuildType()) ||
+                !equalsWithNull(buildConfigurationRest.isArchived(), buildConfig.isArchived()) ||
+                !equalsId(buildConfig.getRepositoryConfiguration(), buildConfigurationRest.getRepositoryConfiguration()) ||
+                !equalsId(buildConfig.getProject(), buildConfigurationRest.getProject()) ||
+                !equalsId(buildConfig.getBuildEnvironment(), buildConfigurationRest.getEnvironment()) ||
+                !buildConfigurationRest.getGenericParameters().equals(buildConfig.getGenericParameters())) {
+
+            buildConfigurationRest.setLastModificationTime(new Date());
+        }
     }
 
     @Override
