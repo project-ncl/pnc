@@ -443,7 +443,7 @@ public class MavenRepositorySession implements RepositorySession {
                 PathsPromoteRequest req = new PathsPromoteRequest(source, target, sourceToPaths.getValue())
                         .setPurgeSource(false);
                 // set read-only only the generic http proxy hosted repos, not shared-imports
-                boolean readonly = GENERIC_PKG_KEY.equals(target.getPackageType());
+                boolean readonly = !isTempBuild && GENERIC_PKG_KEY.equals(target.getPackageType());
 
                 StopWatch stopWatchDoPromote = StopWatch.createStarted();
                 try {
@@ -458,7 +458,8 @@ public class MavenRepositorySession implements RepositorySession {
                             req.getPaths().size(),
                             req.getSource(),
                             req.getTarget());
-                    doPromoteByPath(req, readonly);
+
+                    doPromoteByPath(req, false, readonly);
 
                     logger.info(
                             "END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
@@ -762,11 +763,13 @@ public class MavenRepositorySession implements RepositorySession {
      *
      * @param req The promotion request to process, which contains source and target store keys, and (optionally) the
      *        set of paths to promote
-     * @param setReadonly flag telling if the target repo should be set to readOnly
+     * @param setSourceRO flag telling if the source repo should be set to readOnly
+     * @param setTargetRO flag telling if the target repo should be set to readOnly
      * @throws RepositoryManagerException When either the client API throws an exception due to something unexpected in
      *         transport, or if the promotion process results in an error.
      */
-    private void doPromoteByPath(PathsPromoteRequest req, boolean setReadonly) throws RepositoryManagerException {
+    private void doPromoteByPath(PathsPromoteRequest req, boolean setSourceRO, boolean setTargetRO)
+            throws RepositoryManagerException {
         IndyPromoteClientModule promoter;
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
@@ -780,35 +783,11 @@ public class MavenRepositorySession implements RepositorySession {
         try {
             PathsPromoteResult result = promoter.promoteByPath(req);
             if (result.succeeded()) {
-                if (setReadonly && !isTempBuild) {
-                    HostedRepository hosted = serviceAccountIndy.stores().load(req.getTarget(), HostedRepository.class);
-                    hosted.setReadonly(true);
-                    try {
-                        serviceAccountIndy.stores()
-                                .update(hosted, "Setting readonly after successful build and promotion.");
-                    } catch (IndyClientException ex) {
-                        try {
-                            promoter.rollbackPathPromote(result);
-                        } catch (IndyClientException ex2) {
-                            logger.error(
-                                    "Failed to set readonly flag on repo: %s. Reason given was: %s.",
-                                    ex,
-                                    req.getTarget(),
-                                    ex.getMessage());
-                            throw new RepositoryManagerException(
-                                    "Subsequently also failed to rollback the promotion of paths from %s to %s. Reason "
-                                            + "given was: %s",
-                                    ex2,
-                                    req.getSource(),
-                                    req.getTarget(),
-                                    ex2.getMessage());
-                        }
-                        throw new RepositoryManagerException(
-                                "Failed to set readonly flag on repo: %s. Reason given was: %s",
-                                ex,
-                                req.getTarget(),
-                                ex.getMessage());
-                    }
+                if (setSourceRO) {
+                    setHostedReadOnly(req.getSource(), promoter, result);
+                }
+                if (setTargetRO) {
+                    setHostedReadOnly(req.getTarget(), promoter, result);
                 }
             } else {
                 String error = getValidationError(result);
@@ -820,6 +799,47 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     /**
+     * Sets readonly flag on a hosted repo after promotion. If it fails, it rolls back the promotion and throws
+     * RepositoryManagerException.
+     *
+     * @param key the hosted repo key to be set readonly
+     * @param promoter promote client module used for potential rollback
+     * @param result the promotion result used for potential rollback
+     * @throws IndyClientException in case the repo data cannot be loaded
+     * @throws RepositoryManagerException in case the repo update fails
+     */
+    private void setHostedReadOnly(StoreKey key, IndyPromoteClientModule promoter, PathsPromoteResult result)
+            throws IndyClientException, RepositoryManagerException {
+        HostedRepository hosted = serviceAccountIndy.stores().load(key, HostedRepository.class);
+        hosted.setReadonly(true);
+        try {
+            serviceAccountIndy.stores().update(hosted, "Setting readonly after successful build and promotion.");
+        } catch (IndyClientException ex) {
+            try {
+                promoter.rollbackPathPromote(result);
+            } catch (IndyClientException ex2) {
+                logger.error(
+                        "Failed to set readonly flag on repo: %s. Reason given was: %s.",
+                        ex,
+                        key,
+                        ex.getMessage());
+                throw new RepositoryManagerException(
+                        "Subsequently also failed to rollback the promotion of paths from %s to %s. Reason "
+                                + "given was: %s",
+                        ex2,
+                        result.getRequest().getSource(),
+                        result.getRequest().getTarget(),
+                        ex2.getMessage());
+            }
+            throw new RepositoryManagerException(
+                    "Failed to set readonly flag on repo: %s. Reason given was: %s",
+                    ex,
+                    key,
+                    ex.getMessage());
+        }
+    }
+
+    /**
      * Promote the build output to the consolidated build repo (using path promotion, where the build repo contents are
      * added to the repo's contents) and marks the build output as readonly.
      *
@@ -827,60 +847,21 @@ public class MavenRepositorySession implements RepositorySession {
      */
     public void promoteToBuildContentSet(List<Artifact> uploads) throws RepositoryManagerException {
         userLog.info("Validating and promoting built artifacts");
-        IndyPromoteClientModule promoter;
-        try {
-            promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
-        } catch (IndyClientException e) {
-            throw new RepositoryManagerException(
-                    "Failed to retrieve Indy promote client module. Reason: %s",
-                    e,
-                    e.getMessage());
-        }
 
-        StoreKey buildRepoKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
-        PromoteRequest<?> request = null;
-        try {
-            StoreKey buildTarget = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildPromotionTarget);
-            Set<String> paths = new HashSet<>();
-            for (Artifact a : uploads) {
-                if (a.getTargetRepository().getRepositoryType() == TargetRepository.Type.MAVEN) {
-                    paths.add(a.getDeployPath());
-                    paths.add(a.getDeployPath() + ".md5");
-                    paths.add(a.getDeployPath() + ".sha1");
-                }
-            }
-            request = new PathsPromoteRequest(buildRepoKey, buildTarget, paths);
-            PathsPromoteRequest ppReq = (PathsPromoteRequest) request;
+        StoreKey source = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
+        StoreKey target = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildPromotionTarget);
+        Set<String> paths = new HashSet<>();
 
-            PathsPromoteResult result = promoter.promoteByPath(ppReq);
-            if (result.succeeded()) {
-                if (!isTempBuild) {
-                    HostedRepository buildRepo = serviceAccountIndy.stores().load(buildRepoKey, HostedRepository.class);
-                    buildRepo.setReadonly(true);
-                    try {
-                        serviceAccountIndy.stores()
-                                .update(buildRepo, "Setting readonly after successful build and promotion.");
-                    } catch (IndyClientException ex) {
-                        logger.error(
-                                "Failed to set readonly flag on repo: %s. Reason given was: %s."
-                                        + " But the promotion to consolidated repo %s succeeded.",
-                                ex,
-                                buildRepoKey,
-                                ex.getMessage(),
-                                buildPromotionTarget);
-                    }
-                }
-            } else {
-                String reason = getValidationError(result);
-                throw new RepositoryManagerException(
-                        "Failed to promote files from %s to target %s. Reason given was: %s",
-                        request.getSource(),
-                        ppReq.getTarget(),
-                        reason);
+        for (Artifact a : uploads) {
+            if (a.getTargetRepository().getRepositoryType() == TargetRepository.Type.MAVEN) {
+                paths.add(a.getDeployPath());
+                paths.add(a.getDeployPath() + ".md5");
+                paths.add(a.getDeployPath() + ".sha1");
             }
-        } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, request, e.getMessage());
         }
+        PathsPromoteRequest request = new PathsPromoteRequest(source, target, paths);
+
+        doPromoteByPath(request, !isTempBuild, false);
     }
 
     /**
