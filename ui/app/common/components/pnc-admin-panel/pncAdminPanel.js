@@ -26,10 +26,10 @@
     },
     templateUrl: 'common/components/pnc-admin-panel/pnc-admin-panel.html',
     transclude: true,
-    controller: ['GenericSetting', Controller]
+    controller: ['GenericSetting', '$scope', 'eventTypes', Controller]
   });
 
-  function Controller(GenericSetting) {
+  function Controller(GenericSetting, $scope, eventTypes) {
     var $ctrl = this;
 
     $ctrl.data = {
@@ -70,7 +70,7 @@
       if ($ctrl.validateActivateFormGroup()) {
         GenericSetting.activateMaintenanceMode($ctrl.data.reason).then(function (res) {
           if (res.status === 200) {
-            $('#maintenance-switch').bootstrapSwitch('state', true, true);
+            changeMaintenanceSwitch(true);
             $ctrl.data.reason = null;
             $('#activateMaintenance').modal('hide');
           }
@@ -84,10 +84,17 @@
     var deactivateMaintenanceMode = function () {
       GenericSetting.deactivateMaintenanceMode().then(function (res) {
         if (res.status === 200) {
-          $('#maintenance-switch').bootstrapSwitch('state', false, true);
+          changeMaintenanceSwitch(false);
         }
       });
     };
+
+    /**
+     * Change the status of the maintenance switch button according to the state passed in
+     */
+    var changeMaintenanceSwitch = function (state) {
+      $('#maintenance-switch').bootstrapSwitch('state', state, true);
+    }
 
     /**
      * JQuery listener to be triggered when maintenance switch is toggled.
@@ -95,7 +102,7 @@
      * - If attempted to switch off, run deactivateMaintenanceMode().
      */
     $('#maintenance-switch').on('switchChange.bootstrapSwitch', function (event, state) {
-      $('#maintenance-switch').bootstrapSwitch('state', !state, true);
+      changeMaintenanceSwitch(!state);
       if (state) {
         $('#activateMaintenance').modal();
       } else {
@@ -103,10 +110,10 @@
       }
     });
 
-     /**
-      * JQuery listener for users to submit form by press enter button
-      */
-    document.getElementById('activateReason').addEventListener('keyup', function(event) {
+    /**
+     * JQuery listener for users to submit form by press enter button
+     */
+    document.getElementById('activateReason').addEventListener('keyup', function (event) {
       if (event.keyCode === 13) {
         event.preventDefault();
         $ctrl.clearMaintenanceValidation();
@@ -121,11 +128,11 @@
 
     $ctrl.$onInit = function () {
       GenericSetting.inMaintenanceMode().then(function (res) {
-        if (res.data) {
-          $('#maintenance-switch').bootstrapSwitch('state', true, true);
-        } else {
-          $('#maintenance-switch').bootstrapSwitch('state', false, true);
-        }
+        changeMaintenanceSwitch(res.data);
+      });
+
+      $scope.$on(eventTypes.MAINTENANCE_STATUS_CHANGED, function (event, payload) {
+        changeMaintenanceSwitch(payload.maintenanceModeEnabled);
       });
 
     };
