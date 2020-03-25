@@ -148,10 +148,12 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @ManyToMany(mappedBy = "buildConfigurations")
     private Set<BuildConfigurationSet> buildConfigurationSets;
 
+    @NotAudited
     @NotNull
     @Column(columnDefinition = "timestamp with time zone", updatable=false)
     private Date creationTime;
 
+    @NotAudited
     @NotNull
     @Column(columnDefinition = "timestamp with time zone")
     private Date lastModificationTime;

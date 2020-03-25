@@ -18,3 +18,6 @@
 
 
 alter table buildconfiguration_aud drop column description;
+alter table buildconfiguration_aud drop column lastmodificationtime;
+alter table buildconfiguration_aud drop column creationTime;
+
