@@ -36,8 +36,6 @@ import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
 import org.commonjava.indy.promote.model.AbstractPromoteResult;
-import org.commonjava.indy.promote.model.GroupPromoteRequest;
-import org.commonjava.indy.promote.model.GroupPromoteResult;
 import org.commonjava.indy.promote.model.PathsPromoteRequest;
 import org.commonjava.indy.promote.model.PathsPromoteResult;
 import org.commonjava.indy.promote.model.PromoteRequest;
@@ -791,7 +789,8 @@ public class IndyRepositorySession implements RepositorySession {
                                     req.getTarget(),
                                     ex.getMessage());
                             throw new RepositoryManagerException(
-                                    "Subsequently also failed to rollback the promotion of paths from %s to %s. Reason given was: %s",
+                                    "Subsequently also failed to rollback the promotion of paths from %s to %s. Reason "
+                                            + "given was: %s",
                                     ex2,
                                     req.getSource(),
                                     req.getTarget(),
@@ -834,34 +833,22 @@ public class IndyRepositorySession implements RepositorySession {
         StoreKey buildRepoKey = new StoreKey(packageType, StoreType.hosted, buildContentId);
         PromoteRequest<?> request = null;
         try {
-            if (isTempBuild) {
-                request = new GroupPromoteRequest(buildRepoKey, buildPromotionTarget);
-                GroupPromoteRequest gpReq = (GroupPromoteRequest) request;
-                GroupPromoteResult result = promoter.promoteToGroup(gpReq);
-                if (!result.succeeded()) {
-                    String reason = getValidationError(result);
-                    throw new RepositoryManagerException(
-                            "Failed to promote: %s to group: %s. Reason given was: %s",
-                            request.getSource(),
-                            gpReq.getTargetGroup(),
-                            reason);
+            StoreKey buildTarget = new StoreKey(packageType, StoreType.hosted, buildPromotionTarget);
+            Set<String> paths = new HashSet<>();
+            boolean promoteChecksums = MAVEN_PKG_KEY.equals(packageType);
+            for (Artifact a : uploads) {
+                paths.add(a.getDeployPath());
+                if (promoteChecksums) {
+                    paths.add(a.getDeployPath() + ".md5");
+                    paths.add(a.getDeployPath() + ".sha1");
                 }
-            } else {
-                StoreKey buildTarget = new StoreKey(packageType, StoreType.hosted, buildPromotionTarget);
-                Set<String> paths = new HashSet<>();
-                boolean promoteChecksums = MAVEN_PKG_KEY.equals(packageType);
-                for (Artifact a : uploads) {
-                    paths.add(a.getDeployPath());
-                    if (promoteChecksums) {
-                        paths.add(a.getDeployPath() + ".md5");
-                        paths.add(a.getDeployPath() + ".sha1");
-                    }
-                }
-                request = new PathsPromoteRequest(buildRepoKey, buildTarget, paths);
-                PathsPromoteRequest ppReq = (PathsPromoteRequest) request;
+            }
+            request = new PathsPromoteRequest(buildRepoKey, buildTarget, paths);
+            PathsPromoteRequest ppReq = (PathsPromoteRequest) request;
 
-                PathsPromoteResult result = promoter.promoteByPath(ppReq);
-                if (result.succeeded()) {
+            PathsPromoteResult result = promoter.promoteByPath(ppReq);
+            if (result.succeeded()) {
+                if (!isTempBuild) {
                     HostedRepository buildRepo = serviceAccountIndy.stores().load(buildRepoKey, HostedRepository.class);
                     buildRepo.setReadonly(true);
                     try {
@@ -876,14 +863,14 @@ public class IndyRepositorySession implements RepositorySession {
                                 ex.getMessage(),
                                 buildPromotionTarget);
                     }
-                } else {
-                    String reason = getValidationError(result);
-                    throw new RepositoryManagerException(
-                            "Failed to promote files from %s to target %s. Reason given was: %s",
-                            request.getSource(),
-                            ppReq.getTarget(),
-                            reason);
                 }
+            } else {
+                String reason = getValidationError(result);
+                throw new RepositoryManagerException(
+                        "Failed to promote files from %s to target %s. Reason given was: %s",
+                        request.getSource(),
+                        ppReq.getTarget(),
+                        reason);
             }
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, request, e.getMessage());
