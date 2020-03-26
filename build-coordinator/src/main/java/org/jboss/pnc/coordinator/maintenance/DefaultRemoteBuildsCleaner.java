@@ -27,6 +27,11 @@ import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.TaggedBuild;
 import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
@@ -39,6 +44,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -58,8 +64,11 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
 
+    private final String tempBuildPromotionGroup;
+
     @Inject
     public DefaultRemoteBuildsCleaner(
+            Configuration configuration,
             IndyFactory indyFactory,
             KeycloakServiceClient serviceClient,
             CausewayClient causewayClient,
@@ -68,11 +77,24 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         this.serviceClient = serviceClient;
         this.causewayClient = causewayClient;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
+
+        IndyRepoDriverModuleConfig config;
+        try {
+            config = configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
+        } catch (ConfigurationParseException e) {
+            throw new IllegalStateException(
+                    "Cannot read configuration for " + IndyRepoDriverModuleConfig.class.getName() + ".",
+                    e);
+        }
+        this.tempBuildPromotionGroup = config.getTempBuildPromotionGroup();
     }
 
     @Override
     public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
-        Result result = deleteBuildsFromIndy(buildRecord.getBuildContentId(), authToken);
+        Result result = deleteBuildsFromIndy(
+                buildRecord.getBuildContentId(),
+                buildRecord.getBuiltArtifacts(),
+                authToken);
         if (!result.isSuccess()) {
             return result;
         }
@@ -105,7 +127,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         return new Result(buildRecordId.toString(), ResultStatus.SUCCESS);
     }
 
-    private Result deleteBuildsFromIndy(String buildContentId, String authToken) {
+    private Result deleteBuildsFromIndy(String buildContentId, Set<Artifact> artifacts, String authToken) {
         Result result;
         if (buildContentId == null) {
             logger.debug("Build contentId is null. Nothing to be deleted from Indy.");
@@ -117,6 +139,12 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
         Indy indy = indyFactory.get(authToken);
         try {
+            // delete artifacts from consolidated repository
+            StoreKey consTempBuildsSK = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, tempBuildPromotionGroup);
+            for (Artifact artifact : artifacts) {
+                indy.content().delete(consTempBuildsSK, artifact.getDeployPath());
+            }
+
             // delete the content
             StoreKey storeKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
             indy.stores().delete(storeKey, "Scheduled cleanup of temporary builds.");
