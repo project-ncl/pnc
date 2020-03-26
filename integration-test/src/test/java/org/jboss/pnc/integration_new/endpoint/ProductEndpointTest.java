@@ -106,8 +106,6 @@ public class ProductEndpointTest {
                 .name("New Product")
                 .abbreviation("NP")
                 .description("The newst product of them all")
-                .pgmSystemName("TheNewP")
-                .productCode("NP")
                 .productVersions(Collections.emptyMap())
                 .build();
         Product created = client.createNew(product);
@@ -126,8 +124,6 @@ public class ProductEndpointTest {
                 .name("New Ab re via ted product")
                 .abbreviation("abb re viation")
                 .description("The newst product of them all. Now with spaces.")
-                .pgmSystemName("TheNewP")
-                .productCode("NP")
                 .build();
         try {
             client.createNew(product);
@@ -147,8 +143,6 @@ public class ProductEndpointTest {
                 .name("The Same Thing")
                 .abbreviation("TST")
                 .description("Let's keep doing the same thing over and over. Nobody will notice.")
-                .pgmSystemName("TheSameP")
-                .productCode("TST")
                 .build();
         Product created = client.createNew(product);
         assertThat(created.getId()).isNotEmpty();
@@ -190,15 +184,15 @@ public class ProductEndpointTest {
         // given
         ProductClient client = new ProductClient(RestClientConfiguration.asUser());
         Product original = client.getSpecific(productId);
-        final String newPGMsystemName = "newPGMsystemName";
+        final String newProductAbbreviation = "newAbb";
 
         // when
-        client.patch(productId, new ProductPatchBuilder().replacePgmSystemName(newPGMsystemName));
+        client.patch(productId, new ProductPatchBuilder().replaceAbbreviation(newProductAbbreviation));
         Product patched = client.getSpecific(original.getId());
 
         // then
-        assertThat(patched).isEqualToIgnoringGivenFields(original, "pgmSystemName");
-        assertThat(patched.getPgmSystemName()).isEqualTo(newPGMsystemName);
+        assertThat(patched).isEqualToIgnoringGivenFields(original, "abbreviation");
+        assertThat(patched.getAbbreviation()).isEqualTo(newProductAbbreviation);
     }
 
     @Test

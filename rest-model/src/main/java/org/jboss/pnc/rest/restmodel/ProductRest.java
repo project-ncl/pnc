@@ -49,10 +49,6 @@ public class ProductRest implements GenericRestEntity<Integer> {
     @Pattern(regexp = "[a-zA-Z0-9-]+", groups = { WhenCreatingNew.class, WhenUpdating.class })
     private String abbreviation;
 
-    private String productCode;
-
-    private String pgmSystemName;
-
     private List<Integer> productVersionIds;
 
     @Getter
@@ -67,8 +63,6 @@ public class ProductRest implements GenericRestEntity<Integer> {
         this.name = product.getName();
         this.description = product.getDescription();
         this.abbreviation = product.getAbbreviation();
-        this.productCode = product.getProductCode();
-        this.pgmSystemName = product.getPgmSystemName();
         this.productVersionIds = nullableStreamOf(product.getProductVersions()).map(ProductVersion::getId)
                 .collect(Collectors.toList());
         this.productVersionRefs = nullableStreamOf(product.getProductVersions()).map(ProductVersionRefRest::new)
@@ -109,22 +103,6 @@ public class ProductRest implements GenericRestEntity<Integer> {
         this.abbreviation = abbreviation;
     }
 
-    public String getProductCode() {
-        return productCode;
-    }
-
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
-    }
-
-    public String getPgmSystemName() {
-        return pgmSystemName;
-    }
-
-    public void setPgmSystemName(String pgmSystemName) {
-        this.pgmSystemName = pgmSystemName;
-    }
-
     public List<Integer> getProductVersionIds() {
         return productVersionIds;
     }
@@ -138,9 +116,7 @@ public class ProductRest implements GenericRestEntity<Integer> {
                 .id(id)
                 .name(name)
                 .description(description)
-                .abbreviation(abbreviation)
-                .productCode(productCode)
-                .pgmSystemName(pgmSystemName);
+                .abbreviation(abbreviation);
 
         nullableStreamOf(productVersionIds).forEach(productVersionId -> {
             ProductVersion.Builder productVersionBuilder = ProductVersion.Builder.newBuilder().id(productVersionId);

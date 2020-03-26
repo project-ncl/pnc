@@ -54,10 +54,6 @@ public class ProductRSQLMapper extends AbstractRSQLMapper<Integer, Product> {
                 return Product_.description;
             case "abbreviation":
                 return Product_.abbreviation;
-            case "productCode":
-                return Product_.productCode;
-            case "pgmSystemName":
-                return Product_.pgmSystemName;
             default:
                 return null;
         }
