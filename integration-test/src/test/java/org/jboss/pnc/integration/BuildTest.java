@@ -58,7 +58,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -276,20 +278,27 @@ public class BuildTest {
     public void shouldNotTriggerANewPersistentBuildWithoutForceIfOnlyDescriptionChanged() {
         BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.getByName("maven-plugin-test").getValue();
         BuildOptions persistent = new BuildOptions();
+        
+        String oldDescription = new String(buildConfiguration.getDescription());
+        String oldBuildScript = new String(buildConfiguration.getBuildScript());
+        String oldName = new String(buildConfiguration.getName());
+        String oldScmRevision = new String(buildConfiguration.getScmRevision());
+        Integer oldProjectId = new Integer(buildConfiguration.getProject().getId());
+        Integer oldRepoConfigId = new Integer(buildConfiguration.getRepositoryConfiguration().getId());
+        Integer oldEnvId = new Integer(buildConfiguration.getEnvironment().getId());
+        Date oldLastModDate = new Date(buildConfiguration.getLastModificationTime().getTime());
+        Map<String, String> oldGenericParams = new HashMap<String, String>(buildConfiguration.getGenericParameters());
 
         BuildConfigurationRest updatedBuildConfiguration = updateBCDescription(buildConfiguration, "Random Description to be able to trigger build again so that persistent build will be first on this revision");
-        assertThat(buildConfiguration.getBuildScript()).isEqualTo(updatedBuildConfiguration.getBuildScript());
-        assertThat(buildConfiguration.getName()).isEqualTo(updatedBuildConfiguration.getName());
-        assertThat(buildConfiguration.getScmRevision()).isEqualTo(updatedBuildConfiguration.getScmRevision());
-        assertThat(buildConfiguration.getBuildType()).isEqualTo(updatedBuildConfiguration.getBuildType());
-        assertThat(buildConfiguration.isArchived()).isEqualTo(updatedBuildConfiguration.isArchived());
-        assertThat(buildConfiguration.getRepositoryConfiguration().getId()).isEqualTo(updatedBuildConfiguration.getRepositoryConfiguration().getId());
-        assertThat(buildConfiguration.getProject().getId()).isEqualTo(updatedBuildConfiguration.getProject().getId());
-        assertThat(buildConfiguration.getEnvironment().getId()).isEqualTo(updatedBuildConfiguration.getEnvironment().getId());
-        assertThat(buildConfiguration.getGenericParameters()).isEqualTo(updatedBuildConfiguration.getGenericParameters());
-        assertThat(buildConfiguration.getDescription()).isNotEqualTo(updatedBuildConfiguration.getDescription());
-
-        assertThat(buildConfiguration.getLastModificationTime()).isEqualTo(updatedBuildConfiguration.getLastModificationTime());
+        assertThat(oldBuildScript).isEqualTo(updatedBuildConfiguration.getBuildScript());
+        assertThat(oldName).isEqualTo(updatedBuildConfiguration.getName());
+        assertThat(oldScmRevision).isEqualTo(updatedBuildConfiguration.getScmRevision());
+        assertThat(oldRepoConfigId).isEqualTo(updatedBuildConfiguration.getRepositoryConfiguration().getId());
+        assertThat(oldProjectId).isEqualTo(updatedBuildConfiguration.getProject().getId());
+        assertThat(oldEnvId).isEqualTo(updatedBuildConfiguration.getEnvironment().getId());
+        assertThat(oldGenericParams).isEqualTo(updatedBuildConfiguration.getGenericParameters());
+        assertThat(oldDescription).isNotEqualTo(updatedBuildConfiguration.getDescription());
+        assertThat(oldLastModDate).isEqualTo(updatedBuildConfiguration.getLastModificationTime());
 
 
         RestResponse<BuildRecordRest> buildRecord = triggerBCBuild(updatedBuildConfiguration, Optional.empty(), persistent);
