@@ -279,15 +279,15 @@ public class BuildTest {
         BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.getByName("maven-plugin-test").getValue();
         BuildOptions persistent = new BuildOptions();
         
-        String oldDescription = new String(buildConfiguration.getDescription());
-        String oldBuildScript = new String(buildConfiguration.getBuildScript());
-        String oldName = new String(buildConfiguration.getName());
-        String oldScmRevision = new String(buildConfiguration.getScmRevision());
-        Integer oldProjectId = new Integer(buildConfiguration.getProject().getId());
-        Integer oldRepoConfigId = new Integer(buildConfiguration.getRepositoryConfiguration().getId());
-        Integer oldEnvId = new Integer(buildConfiguration.getEnvironment().getId());
-        Date oldLastModDate = new Date(buildConfiguration.getLastModificationTime().getTime());
-        Map<String, String> oldGenericParams = new HashMap<String, String>(buildConfiguration.getGenericParameters());
+        String oldDescription = buildConfiguration.getDescription() != null ? new String(buildConfiguration.getDescription()) : null;
+        String oldBuildScript = buildConfiguration.getBuildScript() != null ? new String(buildConfiguration.getBuildScript()): null;
+        String oldName = buildConfiguration.getName() != null ? new String(buildConfiguration.getName()): null;
+        String oldScmRevision = buildConfiguration.getScmRevision() != null ? new String(buildConfiguration.getScmRevision()): null;
+        Integer oldProjectId = buildConfiguration.getProject() != null ? new Integer(buildConfiguration.getProject().getId()) : null;
+        Integer oldRepoConfigId = buildConfiguration.getRepositoryConfiguration() != null ? new Integer(buildConfiguration.getRepositoryConfiguration().getId()) : null;
+        Integer oldEnvId = buildConfiguration.getEnvironment() != null ? new Integer(buildConfiguration.getEnvironment().getId()) : null;
+        Date oldLastModDate = buildConfiguration.getLastModificationTime() != null ? new Date(buildConfiguration.getLastModificationTime().getTime()) : null;
+        Map<String, String> oldGenericParams = buildConfiguration.getGenericParameters() != null ? new HashMap<String, String>(buildConfiguration.getGenericParameters()) : null;
 
         BuildConfigurationRest updatedBuildConfiguration = updateBCDescription(buildConfiguration, "Random Description to be able to trigger build again so that persistent build will be first on this revision");
         assertThat(oldBuildScript).isEqualTo(updatedBuildConfiguration.getBuildScript());
