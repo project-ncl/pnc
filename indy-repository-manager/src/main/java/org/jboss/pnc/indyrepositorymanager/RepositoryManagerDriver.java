@@ -95,7 +95,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private final String BUILD_PROMOTION_TARGET;
 
-    private final String TEMP_BUILD_PROMOTION_GROUP;
+    private final String TEMP_BUILD_PROMOTION_TARGET;
 
     private String baseUrl;
 
@@ -109,7 +109,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
         this.DEFAULT_REQUEST_TIMEOUT = 0;
         this.BUILD_PROMOTION_TARGET = "";
-        this.TEMP_BUILD_PROMOTION_GROUP = "";
+        this.TEMP_BUILD_PROMOTION_TARGET = "";
     }
 
     @Inject
@@ -124,7 +124,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
         this.DEFAULT_REQUEST_TIMEOUT = config.getDefaultRequestTimeout();
         this.BUILD_PROMOTION_TARGET = config.getBuildPromotionTarget();
-        this.TEMP_BUILD_PROMOTION_GROUP = config.getTempBuildPromotionGroup();
+        this.TEMP_BUILD_PROMOTION_TARGET = config.getTempBuildPromotionGroup();
 
         baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
@@ -237,7 +237,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
 
         boolean tempBuild = buildExecution.isTempBuild();
-        String buildPromotionGroup = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
+        String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_TARGET : BUILD_PROMOTION_TARGET;
         return new IndyRepositorySession(
                 indy,
                 serviceAccountIndy,
@@ -246,7 +246,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 new IndyRepositoryConnectionInfo(url, deployUrl),
                 internalRepoPatterns,
                 ignoredPathPatterns,
-                buildPromotionGroup,
+                buildPromotionTarget,
                 tempBuild);
     }
 
@@ -275,7 +275,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         Indy indy = init(null);
 
-        String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
+        String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_TARGET : BUILD_PROMOTION_TARGET;
         String packageType = getIndyPackageTypeKey(buildType.getRepoType());
 
         IndyRepositorySession session = new IndyRepositorySession(
@@ -470,7 +470,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * <li>shared-imports (Hosted Repo)</li>
      * <li>public (Group)</li>
      * </ol>
-     * 
+     *
      * @param pakageType package type key used by Indy
      */
     private void addGlobalConstituents(String pakageType, Group group, boolean tempBuild) {
