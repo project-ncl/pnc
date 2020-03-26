@@ -21,8 +21,10 @@ import org.apache.commons.io.IOUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
+import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
+import org.commonjava.indy.model.core.dto.StoreListingDTO;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.TaggedBuild;
@@ -44,6 +46,8 @@ import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
+
+import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -147,6 +151,25 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             // delete the content
             StoreKey storeKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
             indy.stores().delete(storeKey, "Scheduled cleanup of temporary builds.");
+
+            // delete generic http repos
+            List<Group> genericGroups;
+            try {
+                StoreListingDTO<Group> groupListing = indy.stores().listGroups(GENERIC_PKG_KEY);
+                genericGroups = groupListing.getItems();
+
+                for (Group genericGroup : genericGroups) {
+                    if (genericGroup.getName().startsWith("g-")
+                            && genericGroup.getName().endsWith("-" + buildContentId)) {
+                        for (StoreKey constituent : genericGroup.getConstituents()) {
+                            indy.stores().delete(constituent, "Scheduled cleanup of temporary builds.");
+                        }
+                        indy.stores().delete(genericGroup.getKey(), "Scheduled cleanup of temporary builds.");
+                    }
+                }
+            } catch (IndyClientException e) {
+                logger.error("Error in loading generic http groups: " + e, e);
+            }
 
             // delete the tracking record
             IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
