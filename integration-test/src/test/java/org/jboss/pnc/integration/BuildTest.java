@@ -278,36 +278,34 @@ public class BuildTest {
     public void shouldNotTriggerANewPersistentBuildWithoutForceIfOnlyDescriptionChanged() {
         BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.getByName("maven-plugin-test").getValue();
         BuildOptions persistent = new BuildOptions();
+        persistent.setRebuildMode(RebuildMode.FORCE);
         
+        // Trigger force build
+        RestResponse<BuildRecordRest> forcedPersistentBuild = triggerBCBuild(buildConfiguration, Optional.empty(), persistent);
+        assertThat(forcedPersistentBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        ResponseUtils.waitSynchronouslyFor(() -> {
+            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(forcedPersistentBuild.getValue().getId(),
+                    false);
+            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.DONE);
+        } , 15, TimeUnit.SECONDS);
+        
+        // Update only description, should not create a new revision and keep same lastModificationTime
         String oldDescription = buildConfiguration.getDescription() != null ? new String(buildConfiguration.getDescription()) : null;
-        String oldBuildScript = buildConfiguration.getBuildScript() != null ? new String(buildConfiguration.getBuildScript()): null;
-        String oldName = buildConfiguration.getName() != null ? new String(buildConfiguration.getName()): null;
-        String oldScmRevision = buildConfiguration.getScmRevision() != null ? new String(buildConfiguration.getScmRevision()): null;
-        Integer oldProjectId = buildConfiguration.getProject() != null ? new Integer(buildConfiguration.getProject().getId()) : null;
-        Integer oldRepoConfigId = buildConfiguration.getRepositoryConfiguration() != null ? new Integer(buildConfiguration.getRepositoryConfiguration().getId()) : null;
-        Integer oldEnvId = buildConfiguration.getEnvironment() != null ? new Integer(buildConfiguration.getEnvironment().getId()) : null;
         Date oldLastModDate = buildConfiguration.getLastModificationTime() != null ? new Date(buildConfiguration.getLastModificationTime().getTime()) : null;
-        Map<String, String> oldGenericParams = buildConfiguration.getGenericParameters() != null ? new HashMap<String, String>(buildConfiguration.getGenericParameters()) : null;
-
         BuildConfigurationRest updatedBuildConfiguration = updateBCDescription(buildConfiguration, "Random Description to be able to trigger build again so that persistent build will be first on this revision");
-        assertThat(oldBuildScript).isEqualTo(updatedBuildConfiguration.getBuildScript());
-        assertThat(oldName).isEqualTo(updatedBuildConfiguration.getName());
-        assertThat(oldScmRevision).isEqualTo(updatedBuildConfiguration.getScmRevision());
-        assertThat(oldRepoConfigId).isEqualTo(updatedBuildConfiguration.getRepositoryConfiguration().getId());
-        assertThat(oldProjectId).isEqualTo(updatedBuildConfiguration.getProject().getId());
-        assertThat(oldEnvId).isEqualTo(updatedBuildConfiguration.getEnvironment().getId());
-        assertThat(oldGenericParams).isEqualTo(updatedBuildConfiguration.getGenericParameters());
         assertThat(oldDescription).isNotEqualTo(updatedBuildConfiguration.getDescription());
         assertThat(oldLastModDate).isEqualTo(updatedBuildConfiguration.getLastModificationTime());
 
-
+        // Trigger a new build without force, should not build again
+        persistent = new BuildOptions();
         RestResponse<BuildRecordRest> buildRecord = triggerBCBuild(updatedBuildConfiguration, Optional.empty(), persistent);
         assertThat(buildRecord.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        
         ResponseUtils.waitSynchronouslyFor(() -> {
             RestResponse<BuildRecordRest> record = buildRecordRestClient.get(buildRecord.getValue().getId(),
                     false);
             return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
-        }, 30, TimeUnit.SECONDS);
+        }, 15, TimeUnit.SECONDS);
 
         RestResponse<BuildRecordRest> response = buildRecordRestClient.get(buildRecord.getValue().getId());
         assertThat(response.getValue().getStatus()).isEqualTo(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
