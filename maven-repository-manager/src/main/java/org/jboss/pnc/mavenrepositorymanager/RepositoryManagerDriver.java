@@ -72,8 +72,8 @@ import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.DRIV
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.TEMPORARY_BUILDS_GROUP;
 
 /**
- * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/indy">Indy</a> instance to
- * support repositories for Maven-ish builds.
+ * Implementation of {@link RepositoryManager} that manages an <a href="https://github.com/jdcasey/indy">Indy</a>
+ * instance to support repositories for Maven-ish builds.
  * <p>
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
  *
@@ -92,7 +92,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private final String BUILD_PROMOTION_TARGET;
 
-    private final String TEMP_BUILD_PROMOTION_GROUP;
+    private final String TEMP_BUILD_PROMOTION_TARGET;
 
     private String baseUrl;
 
@@ -104,21 +104,20 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
         this.DEFAULT_REQUEST_TIMEOUT = 0;
         this.BUILD_PROMOTION_TARGET = "";
-        this.TEMP_BUILD_PROMOTION_GROUP = "";
+        this.TEMP_BUILD_PROMOTION_TARGET = "";
     }
 
     @Inject
     public RepositoryManagerDriver(Configuration configuration) {
         MavenRepoDriverModuleConfig config;
         try {
-            config = configuration
-                    .getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
+            config = configuration.getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
         } catch (ConfigurationParseException e) {
             throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
         }
         this.DEFAULT_REQUEST_TIMEOUT = config.getDefaultRequestTimeout();
         this.BUILD_PROMOTION_TARGET = config.getBuildPromotionTarget();
-        this.TEMP_BUILD_PROMOTION_GROUP = config.getTempBuildPromotionGroup();
+        this.TEMP_BUILD_PROMOTION_TARGET = config.getTempBuildPromotionGroup();
 
         baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
@@ -153,10 +152,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     .withMaxConnections(1)
                     .build();
 
-            IndyClientModule[] modules = new IndyClientModule[] {
-                    new IndyFoloAdminClientModule(),
-                    new IndyFoloContentClientModule(),
-                    new IndyPromoteClientModule() };
+            IndyClientModule[] modules = new IndyClientModule[] { new IndyFoloAdminClientModule(),
+                    new IndyFoloContentClientModule(), new IndyPromoteClientModule() };
 
             return new Indy(siteConfig, authenticator, new IndyObjectMapper(true), modules);
         } catch (IndyClientException e) {
@@ -173,18 +170,19 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     /**
-     * Use the Indy client API to setup global and build-set level repos and groups, then setup the repo/group needed for this
-     * build. Calculate the URL to use for resolving artifacts using the AProx Folo API (Folo is an artifact activity-tracker).
-     * Return a new session ({@link MavenRepositorySession}) containing this information.
+     * Use the Indy client API to setup global and build-set level repos and groups, then setup the repo/group needed
+     * for this build. Calculate the URL to use for resolving artifacts using the AProx Folo API (Folo is an artifact
+     * activity-tracker). Return a new session ({@link MavenRepositorySession}) containing this information.
      *
-     * @throws RepositoryManagerException In the event one or more repositories or groups can't be created to support the build
-     *                                    (or product, or shared-releases).
+     * @throws RepositoryManagerException In the event one or more repositories or groups can't be created to support
+     *         the build (or product, or shared-releases).
      */
     @Override
-    public RepositorySession createBuildRepository(BuildExecution buildExecution,
-                                                   String accessToken,
-                                                   String serviceAccountToken,
-                                                   Map<String, String> genericParameters) throws RepositoryManagerException {
+    public RepositorySession createBuildRepository(
+            BuildExecution buildExecution,
+            String accessToken,
+            String serviceAccountToken,
+            Map<String, String> genericParameters) throws RepositoryManagerException {
         Indy indy = init(accessToken);
         Indy serviceAccountIndy = init(serviceAccountToken);
         String buildId = buildExecution.getBuildContentId();
@@ -192,7 +190,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
         try {
             setupBuildRepos(buildExecution, serviceAccountIndy, genericParameters);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to setup repository or repository group for this build: %s", e,
+            throw new RepositoryManagerException(
+                    "Failed to setup repository or repository group for this build: %s",
+                    e,
                     e.getMessage());
         }
 
@@ -212,14 +212,23 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             logger.info("Using '{}' for Maven repository access in build: {}", url, buildId);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve AProx client module for the artifact tracker: %s", e,
+            throw new RepositoryManagerException(
+                    "Failed to retrieve AProx client module for the artifact tracker: %s",
+                    e,
                     e.getMessage());
         }
 
         boolean tempBuild = buildExecution.isTempBuild();
-        String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
-        return new MavenRepositorySession(indy, serviceAccountIndy, buildId, new MavenRepositoryConnectionInfo(url, deployUrl),
-                internalRepoPatterns, ignoredPathSuffixes, buildPromotionTarget, tempBuild);
+        String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_TARGET : BUILD_PROMOTION_TARGET;
+        return new MavenRepositorySession(
+                indy,
+                serviceAccountIndy,
+                buildId,
+                new MavenRepositoryConnectionInfo(url, deployUrl),
+                internalRepoPatterns,
+                ignoredPathSuffixes,
+                buildPromotionTarget,
+                tempBuild);
     }
 
     @Override
@@ -227,17 +236,24 @@ public class RepositoryManagerDriver implements RepositoryManager {
             throws RepositoryManagerException {
         Indy indy = init(null);
 
-        String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_GROUP : BUILD_PROMOTION_TARGET;
-        MavenRepositorySession session = new MavenRepositorySession(indy, indy, buildContentId, null,
-                internalRepoPatterns, ignoredPathSuffixes, buildPromotionTarget, tempBuild);
+        String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_TARGET : BUILD_PROMOTION_TARGET;
+        MavenRepositorySession session = new MavenRepositorySession(
+                indy,
+                indy,
+                buildContentId,
+                null,
+                internalRepoPatterns,
+                ignoredPathSuffixes,
+                buildPromotionTarget,
+                tempBuild);
         return session.extractBuildArtifacts(null, false);
     }
 
     /**
      * Create the hosted repository and group necessary to support a single build. The hosted repository holds artifacts
      * uploaded from the build, and the group coordinates access to this hosted repository, along with content from the
-     * product-level content group with which this build is associated. The group also provides a tracking target, so the
-     * repository manager can keep track of downloads and uploads for the build.
+     * product-level content group with which this build is associated. The group also provides a tracking target, so
+     * the repository manager can keep track of downloads and uploads for the build.
      *
      * @param execution The execution object, which contains the content id for creating the repo, and the build id.
      * @throws IndyClientException
@@ -262,8 +278,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
                 buildArtifacts.setDescription(String.format("Build output for PNC build #%s", id));
 
-                indy.stores().create(buildArtifacts,
-                        "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ")", HostedRepository.class);
+                indy.stores()
+                        .create(
+                                buildArtifacts,
+                                "Creating hosted repository for build: " + id + " (repo: " + buildContentId + ")",
+                                HostedRepository.class);
             }
 
             Group buildGroup = new Group(MAVEN_PKG_KEY, buildContentId);
@@ -277,14 +296,19 @@ public class RepositoryManagerDriver implements RepositoryManager {
             addGlobalConstituents(buildGroup, tempBuild);
 
             // add extra repositories removed from poms by the adjust process and set in BC by user
-            List<ArtifactRepository> extraDependencyRepositories = extractExtraRepositoriesFromGenericParameters(genericParameters);
+            List<ArtifactRepository> extraDependencyRepositories = extractExtraRepositoriesFromGenericParameters(
+                    genericParameters);
             if (execution.getArtifactRepositories() != null) {
                 extraDependencyRepositories.addAll(execution.getArtifactRepositories());
             }
             addExtraConstituents(extraDependencyRepositories, id, buildContentId, indy, buildGroup);
 
-            indy.stores().create(buildGroup, "Creating repository group for resolving artifacts in build: " + id
-                    + " (repo: " + buildContentId + ")", Group.class);
+            indy.stores()
+                    .create(
+                            buildGroup,
+                            "Creating repository group for resolving artifacts in build: " + id + " (repo: "
+                                    + buildContentId + ")",
+                            Group.class);
         }
     }
 
@@ -294,40 +318,33 @@ public class RepositoryManagerDriver implements RepositoryManager {
             return new ArrayList<>();
         }
 
-        return Arrays.stream(extraReposString.split("\n"))
-                .map((repoString) -> {
-                    try {
-                        String id = new URL(repoString)
-                                .getHost()
-                                .replaceAll("\\.", "-");
-                        return ArtifactRepository.build(id, id, repoString.trim(), true, false);
-                    } catch (MalformedURLException e) {
-                        userLog.warn("Malformed repository URL entered: " + repoString + ". Skipping.");
-                        return null;
-                    }
-                })
-                .filter((x) -> x != null)
-                .collect(Collectors.toList());
+        return Arrays.stream(extraReposString.split("\n")).map((repoString) -> {
+            try {
+                String id = new URL(repoString).getHost().replaceAll("\\.", "-");
+                return ArtifactRepository.build(id, id, repoString.trim(), true, false);
+            } catch (MalformedURLException e) {
+                userLog.warn("Malformed repository URL entered: " + repoString + ". Skipping.");
+                return null;
+            }
+        }).filter((x) -> x != null).collect(Collectors.toList());
     }
 
     /**
      * Adds extra remote repositories to the build group that are requested for the particular build. For a Maven build
      * these are repositories defined in the root pom removed by PME by the adjust process.
      *
-     * @param repositories
-     *            the list of repositories to be added
-     * @param buildId
-     *            build ID
-     * @param buildContentId
-     *            build content ID
-     * @param indy
-     *            Indy client
-     * @param buildGroup
-     *            target build group in which the repositories are added
-     * @throws IndyClientException
-     *             in case of an issue when communicating with the repository manager
+     * @param repositories the list of repositories to be added
+     * @param buildId build ID
+     * @param buildContentId build content ID
+     * @param indy Indy client
+     * @param buildGroup target build group in which the repositories are added
+     * @throws IndyClientException in case of an issue when communicating with the repository manager
      */
-    private void addExtraConstituents(List<ArtifactRepository> repositories, int buildId, String buildContentId, Indy indy,
+    private void addExtraConstituents(
+            List<ArtifactRepository> repositories,
+            int buildId,
+            String buildContentId,
+            Indy indy,
             Group buildGroup) throws IndyClientException {
         if (repositories != null && !repositories.isEmpty()) {
             StoreListingDTO<RemoteRepository> existingRepos = indy.stores().listRemoteRepositories(MAVEN_PKG_KEY);
@@ -351,15 +368,23 @@ public class RepositoryManagerDriver implements RepositoryManager {
                         remoteKey = new StoreKey(MAVEN_PKG_KEY, StoreType.remote, remoteName + "-" + i++);
                     }
 
-                    RemoteRepository remoteRepo = new RemoteRepository(MAVEN_PKG_KEY, remoteKey.getName(), repository.getUrl());
+                    RemoteRepository remoteRepo = new RemoteRepository(
+                            MAVEN_PKG_KEY,
+                            remoteKey.getName(),
+                            repository.getUrl());
                     remoteRepo.setAllowReleases(repository.getReleases());
                     remoteRepo.setAllowSnapshots(repository.getSnapshots());
-                    remoteRepo.setDescription("Implicitly created repo for: " + repository.getName() + " ("
-                            + repository.getId() + ") from repository declaration removed by PME in build "
-                            + buildId + " (repo: " + buildContentId + ")");
-                    indy.stores().create(remoteRepo, "Creating extra remote repository " + repository.getName() + " ("
-                            + repository.getId() + ") for build: " + buildId + " (repo: " + buildContentId + ")",
-                            RemoteRepository.class);
+                    remoteRepo.setDescription(
+                            "Implicitly created repo for: " + repository.getName() + " (" + repository.getId()
+                                    + ") from repository declaration removed by PME in build " + buildId + " (repo: "
+                                    + buildContentId + ")");
+                    indy.stores()
+                            .create(
+                                    remoteRepo,
+                                    "Creating extra remote repository " + repository.getName() + " ("
+                                            + repository.getId() + ") for build: " + buildId + " (repo: "
+                                            + buildContentId + ")",
+                                    RemoteRepository.class);
                 }
 
                 buildGroup.addConstituent(remoteKey);
@@ -377,7 +402,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
         char[] result = new char[name.length()];
         for (int i = 0; i < name.length(); i++) {
             char checkedChar = name.charAt(i);
-            if (Character.isLetterOrDigit(checkedChar) || checkedChar == '+' || checkedChar == '-' || checkedChar == '.') {
+            if (Character.isLetterOrDigit(checkedChar) || checkedChar == '+' || checkedChar == '-'
+                    || checkedChar == '.') {
                 result[i] = checkedChar;
             } else {
                 result[i] = '_';
@@ -394,6 +420,12 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * <li>shared-imports (Hosted Repo)</li>
      * <li>public (Group)</li>
      * </ol>
+     * <<<<<<<
+     * HEAD:maven-repository-manager/src/main/java/org/jboss/pnc/mavenrepositorymanager/RepositoryManagerDriver.java
+     * =======
+     *
+     * @param pakageType package type key used by Indy >>>>>>> dafac2319... Rename TEMP_BUILD_PROMOTION_GROUP to
+     *        TEMP_BUILD_PROMOTION_TARGET:indy-repository-manager/src/main/java/org/jboss/pnc/indyrepositorymanager/RepositoryManagerDriver.java
      */
     private void addGlobalConstituents(Group group, boolean tempBuild) {
         if (tempBuild) {
@@ -413,8 +445,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * Promote the hosted repository associated with a given project build to an arbitrary repository group.
      *
      * @return The promotion instance, which won't actually trigger promotion until its
-     * {@link RunningRepositoryPromotion#monitor(java.util.function.Consumer, java.util.function.Consumer)} method is
-     * called.
+     *         {@link RunningRepositoryPromotion#monitor(java.util.function.Consumer, java.util.function.Consumer)}
+     *         method is called.
      */
     @Override
     public RunningRepositoryPromotion promoteBuild(BuildRecord buildRecord, String toGroup, String accessToken)
