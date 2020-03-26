@@ -27,6 +27,11 @@ import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.TaggedBuild;
 import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
+import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.MavenRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.spi.coordinator.Result;
@@ -38,6 +43,7 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -57,8 +63,11 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
 
+    private final String tempBuildPromotionGroup;
+
     @Inject
     public DefaultRemoteBuildsCleaner(
+            Configuration configuration,
             IndyFactory indyFactory,
             KeycloakServiceClient serviceClient,
             CausewayClient causewayClient,
@@ -67,11 +76,24 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         this.serviceClient = serviceClient;
         this.causewayClient = causewayClient;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
+
+        MavenRepoDriverModuleConfig config;
+        try {
+            config = configuration.getModuleConfig(new PncConfigProvider<>(MavenRepoDriverModuleConfig.class));
+        } catch (ConfigurationParseException e) {
+            throw new IllegalStateException(
+                    "Cannot read configuration for " + MavenRepoDriverModuleConfig.class.getName() + ".",
+                    e);
+        }
+        this.tempBuildPromotionGroup = config.getTempBuildPromotionGroup();
     }
 
     @Override
     public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
-        Result result = deleteBuildsFromIndy(buildRecord.getBuildContentId(), authToken);
+        Result result = deleteBuildsFromIndy(
+                buildRecord.getBuildContentId(),
+                buildRecord.getBuiltArtifacts(),
+                authToken);
         if (!result.isSuccess()) {
             return result;
         }
@@ -84,38 +106,56 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private Result requestDeleteViaCauseway(BuildRecord buildRecord) {
         Integer buildRecordId = buildRecord.getId();
-        List<BuildRecordPushResult> toRemove = buildRecordPushResultRepository.getAllSuccessfulForBuildRecord(buildRecordId);
+        List<BuildRecordPushResult> toRemove = buildRecordPushResultRepository
+                .getAllSuccessfulForBuildRecord(buildRecordId);
 
         for (BuildRecordPushResult pushResult : toRemove) {
             boolean success = causewayUntag(pushResult.getTagPrefix(), pushResult.getBrewBuildId());
             if (!success) {
-                logger.error("Failed to un-tag pushed build record. BuildRecord.id: {}; brewBuildId: {}; tagPrefix: {};",
-                        buildRecordId, pushResult.getBrewBuildId(), pushResult.getTagPrefix());
-                return new Result(buildRecordId.toString(), Result.Status.FAILED, "Failed to un-tag pushed build record.");
+                logger.error(
+                        "Failed to un-tag pushed build record. BuildRecord.id: {}; brewBuildId: {}; tagPrefix: {};",
+                        buildRecordId,
+                        pushResult.getBrewBuildId(),
+                        pushResult.getTagPrefix());
+                return new Result(
+                        buildRecordId.toString(),
+                        Result.Status.FAILED,
+                        "Failed to un-tag pushed build record.");
             }
         }
         return new Result(buildRecordId.toString(), Result.Status.SUCCESS);
     }
 
-    private Result deleteBuildsFromIndy(String buildContentId, String authToken) {
+    private Result deleteBuildsFromIndy(String buildContentId, Set<Artifact> artifacts, String authToken) {
         Result result;
         if (buildContentId == null) {
             logger.debug("Build contentId is null. Nothing to be deleted from Indy.");
-            return new Result(buildContentId, Result.Status.SUCCESS, "BuildContentId is null. Nothing to be deleted from Indy.");
+            return new Result(
+                    buildContentId,
+                    Result.Status.SUCCESS,
+                    "BuildContentId is null. Nothing to be deleted from Indy.");
         }
 
         Indy indy = indyFactory.get(authToken);
         try {
-            //delete the content
+            // delete artifacts from consolidated repository
+            StoreKey consTempBuildsSK = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, tempBuildPromotionGroup);
+            for (Artifact artifact : artifacts) {
+                indy.content().delete(consTempBuildsSK, artifact.getDeployPath());
+            }
+
+            // delete the content
             StoreKey storeKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
             indy.stores().delete(storeKey, "Scheduled cleanup of temporary builds.");
 
-            //delete the tracking record
+            // delete the tracking record
             IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
             foloAdmin.clearTrackingRecord(buildContentId);
             result = new Result(buildContentId, Result.Status.SUCCESS);
         } catch (IndyClientException e) {
-            String description = MessageFormat.format("Failed to delete temporary hosted repository identified by buildContentId {0}.", buildContentId);
+            String description = MessageFormat.format(
+                    "Failed to delete temporary hosted repository identified by buildContentId {0}.",
+                    buildContentId);
             logger.error(description, e);
             result = new Result(buildContentId, Result.Status.FAILED, description);
         } finally {
