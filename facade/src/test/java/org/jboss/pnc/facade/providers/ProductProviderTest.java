@@ -82,8 +82,6 @@ public class ProductProviderTest extends AbstractProviderTest<Product> {
                 .name("dustin")
                 .description("hello")
                 .abbreviation("dustin-the-great")
-                .pgmSystemName("boom")
-                .productCode("codename-dustin")
                 .build();
 
         org.jboss.pnc.dto.Product productDTOSaved = provider.store(productDTO);
@@ -94,8 +92,6 @@ public class ProductProviderTest extends AbstractProviderTest<Product> {
         assertThat(productDTOSaved.getName()).isEqualTo(productDTO.getName());
         assertThat(productDTOSaved.getDescription()).isEqualTo(productDTO.getDescription());
         assertThat(productDTOSaved.getAbbreviation()).isEqualTo(productDTO.getAbbreviation());
-        assertThat(productDTOSaved.getPgmSystemName()).isEqualTo(productDTO.getPgmSystemName());
-        assertThat(productDTOSaved.getProductCode()).isEqualTo(productDTO.getProductCode());
     }
 
     @Test

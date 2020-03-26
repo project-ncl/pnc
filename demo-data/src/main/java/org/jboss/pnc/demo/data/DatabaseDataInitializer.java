@@ -265,8 +265,6 @@ public class DatabaseDataInitializer {
                 .name(PNC_PRODUCT_NAME)
                 .abbreviation("PNC")
                 .description("Example Product for Project Newcastle Demo")
-                .productCode("PNC")
-                .pgmSystemName("newcastle")
                 .build();
         product = productRepository.save(product);
 

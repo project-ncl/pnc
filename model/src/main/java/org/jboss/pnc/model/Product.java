@@ -51,9 +51,7 @@ import org.jboss.pnc.constants.Patterns;
 @Entity
 @Table(
         uniqueConstraints = { @UniqueConstraint(name = "uk_product_abbreviation", columnNames = "abbreviation"),
-                @UniqueConstraint(name = "uk_product_productcode", columnNames = "productcode"),
-                @UniqueConstraint(name = "uk_product_name", columnNames = "name"),
-                @UniqueConstraint(name = "uk_product_pgmsystemname", columnNames = "pgmsystemname") })
+                @UniqueConstraint(name = "uk_product_name", columnNames = "name") })
 public class Product implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -9022966336791211855L;
@@ -80,14 +78,6 @@ public class Product implements GenericEntity<Integer> {
     @Size(max = 20)
     @Pattern(regexp = Patterns.PRODUCT_ABBREVIATION)
     private String abbreviation;
-
-    @Column(unique = true)
-    @Size(max = 50)
-    private String productCode;
-
-    @Column(unique = true)
-    @Size(max = 50)
-    private String pgmSystemName;
 
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "product", cascade = { CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE })
@@ -161,28 +151,6 @@ public class Product implements GenericEntity<Integer> {
     }
 
     /**
-     * @return Product code in internal systems
-     */
-    public String getProductCode() {
-        return productCode;
-    }
-
-    public void setProductCode(String productCode) {
-        this.productCode = StringUtils.nullIfBlank(productCode);
-    }
-
-    /**
-     * @return Name of the product used by program management planning system
-     */
-    public String getPgmSystemName() {
-        return pgmSystemName;
-    }
-
-    public void setPgmSystemName(String pgmSystemName) {
-        this.pgmSystemName = StringUtils.nullIfBlank(pgmSystemName);
-    }
-
-    /**
      * @return the productVersions
      */
     public Set<ProductVersion> getProductVersions() {
@@ -216,10 +184,6 @@ public class Product implements GenericEntity<Integer> {
 
         private String abbreviation;
 
-        private String productCode;
-
-        private String pgmSystemName;
-
         private Set<ProductVersion> productVersions;
 
         private Builder() {
@@ -236,8 +200,6 @@ public class Product implements GenericEntity<Integer> {
             product.setName(name);
             product.setDescription(description);
             product.setAbbreviation(abbreviation);
-            product.setProductCode(productCode);
-            product.setPgmSystemName(pgmSystemName);
 
             // Set the bi-directional mapping
             for (ProductVersion productVersion : productVersions) {
@@ -265,16 +227,6 @@ public class Product implements GenericEntity<Integer> {
 
         public Builder abbreviation(String abbreviation) {
             this.abbreviation = abbreviation;
-            return this;
-        }
-
-        public Builder productCode(String productCode) {
-            this.productCode = productCode;
-            return this;
-        }
-
-        public Builder pgmSystemName(String pgmSystemName) {
-            this.pgmSystemName = pgmSystemName;
             return this;
         }
 

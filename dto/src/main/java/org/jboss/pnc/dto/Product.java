@@ -50,10 +50,8 @@ public class Product extends ProductRef {
             String id,
             String name,
             String description,
-            String abbreviation,
-            String productCode,
-            String pgmSystemName) {
-        super(id, name, description, abbreviation, productCode, pgmSystemName);
+            String abbreviation) {
+        super(id, name, description, abbreviation);
         this.productVersions = productVersions;
     }
 
