@@ -93,7 +93,7 @@
      */
     var changeMaintenanceSwitch = function (state) {
       $('#maintenance-switch').bootstrapSwitch('state', state, true);
-    }
+    };
 
     /**
      * JQuery listener to be triggered when maintenance switch is toggled.
