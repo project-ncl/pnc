@@ -75,14 +75,14 @@ import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG
 import static org.jboss.pnc.mavenrepositorymanager.MavenRepositoryConstants.SHARED_IMPORTS_ID;
 
 /**
- * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to an
- * Indy server instance for repository management). This session contains connection information for rendering Maven
- * settings.xml files and the like, along with the components necessary to extract the artifacts (dependencies, build uploads)
- * for the associated build.
+ * {@link RepositorySession} implementation that works with the Maven {@link RepositoryManagerDriver} (which connects to
+ * an Indy server instance for repository management). This session contains connection information for rendering Maven
+ * settings.xml files and the like, along with the components necessary to extract the artifacts (dependencies, build
+ * uploads) for the associated build.
  *
- * Artifact extraction also implies promotion of imported dependencies to a shared-imports Maven repository for safe keeping. In
- * the case of composed (chained) builds, it also implies promotion of the build output to the associated build-set repository
- * group, to expose them for use in successive builds in the chain.
+ * Artifact extraction also implies promotion of imported dependencies to a shared-imports Maven repository for safe
+ * keeping. In the case of composed (chained) builds, it also implies promotion of the build output to the associated
+ * build-set repository group, to expose them for use in successive builds in the chain.
  */
 public class MavenRepositorySession implements RepositorySession {
 
@@ -104,18 +104,26 @@ public class MavenRepositorySession implements RepositorySession {
 
     private String buildPromotionTarget;
 
-
     @Deprecated
-    public MavenRepositorySession(Indy indy, String buildContentId, boolean isSetBuild,
-                                  MavenRepositoryConnectionInfo info) {
+    public MavenRepositorySession(
+            Indy indy,
+            String buildContentId,
+            boolean isSetBuild,
+            MavenRepositoryConnectionInfo info) {
         this.indy = indy;
         this.buildContentId = buildContentId;
         this.connectionInfo = info;
     }
 
-    public MavenRepositorySession(Indy indy, Indy serviceAccountIndy, String buildContentId,
-            MavenRepositoryConnectionInfo info, List<String> internalRepoPatterns,
-            Set<String> ignoredPathSuffixes, String buildPromotionTarget, boolean isTempBuild) {
+    public MavenRepositorySession(
+            Indy indy,
+            Indy serviceAccountIndy,
+            String buildContentId,
+            MavenRepositoryConnectionInfo info,
+            List<String> internalRepoPatterns,
+            Set<String> ignoredPathSuffixes,
+            String buildPromotionTarget,
+            boolean isTempBuild) {
         this.indy = indy;
         this.serviceAccountIndy = serviceAccountIndy;
         this.buildContentId = buildContentId;
@@ -123,7 +131,7 @@ public class MavenRepositorySession implements RepositorySession {
         this.ignoredPathSuffixes = ignoredPathSuffixes;
         this.connectionInfo = info;
         this.buildPromotionTarget = buildPromotionTarget;
-        this.isTempBuild = isTempBuild; //TODO define based on buildPromotionGroup
+        this.isTempBuild = isTempBuild; // TODO define based on buildPromotionGroup
     }
 
     @Override
@@ -147,13 +155,15 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     /**
-     * Retrieve tracking report from repository manager. Add each tracked download to the dependencies of the build result. Add
-     * each tracked upload to the built artifacts of the build result. Promote uploaded artifacts to the product-level storage.
-     * Finally delete the group associated with the completed build.
+     * Retrieve tracking report from repository manager. Add each tracked download to the dependencies of the build
+     * result. Add each tracked upload to the built artifacts of the build result. Promote uploaded artifacts to the
+     * product-level storage. Finally delete the group associated with the completed build.
+     *
      * @param promote flag if promotion for the collected artifacts and dependencies should be done
      */
     @Override
-    public RepositoryManagerResult extractBuildArtifacts(BuildExecutionSession buildExecutionSession,
+    public RepositoryManagerResult extractBuildArtifacts(
+            BuildExecutionSession buildExecutionSession,
             final boolean promote) throws RepositoryManagerException {
 
         TrackedContentDTO report = sealAndGetTrackingReport(buildExecutionSession, promote);
@@ -161,30 +171,36 @@ public class MavenRepositorySession implements RepositorySession {
         Comparator<Artifact> comp = (one, two) -> one.getIdentifier().compareTo(two.getIdentifier());
 
         executeBuildExecutionNotificationIfNotNull(
-                buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_PROCESSING_BUILT_ARTIFACTS);
+                buildExecutionSession,
+                BuildExecutionStatus.REPOSITORY_MANAGER_PROCESSING_BUILT_ARTIFACTS);
         List<Artifact> uploads = collectUploads(report);
         Collections.sort(uploads, comp);
 
         executeBuildExecutionNotificationIfNotNull(
-                buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_PROCESSING_DEPENDENCIES);
+                buildExecutionSession,
+                BuildExecutionStatus.REPOSITORY_MANAGER_PROCESSING_DEPENDENCIES);
         List<Artifact> downloads = processDownloads(report, promote);
         Collections.sort(downloads, comp);
 
         if (promote) {
             executeBuildExecutionNotificationIfNotNull(
-                    buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_REMOVE_BUILD_AGGREGATION_GROUP);
+                    buildExecutionSession,
+                    BuildExecutionStatus.REPOSITORY_MANAGER_REMOVE_BUILD_AGGREGATION_GROUP);
             deleteBuildGroup();
         }
 
-        logger.info("Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
-                StringUtils.join(uploads, "\n  "), StringUtils.join(downloads, "\n  "));
+        logger.info(
+                "Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
+                StringUtils.join(uploads, "\n  "),
+                StringUtils.join(downloads, "\n  "));
 
         String log = "";
         CompletionStatus status = CompletionStatus.SUCCESS;
 
         if (promote) {
             executeBuildExecutionNotificationIfNotNull(
-                    buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_PROMOTION_BUILD_CONTENT_SET);
+                    buildExecutionSession,
+                    BuildExecutionStatus.REPOSITORY_MANAGER_PROMOTION_BUILD_CONTENT_SET);
             logger.info("BEGIN: promotion to build content set");
             StopWatch stopWatch = StopWatch.createStarted();
 
@@ -206,26 +222,35 @@ public class MavenRepositorySession implements RepositorySession {
         return new MavenRepositoryManagerResult(uploads, downloads, buildContentId, log, status);
     }
 
-    private TrackedContentDTO sealAndGetTrackingReport(BuildExecutionSession buildExecutionSession,
-            boolean seal) throws RepositoryManagerException {
+    private TrackedContentDTO sealAndGetTrackingReport(BuildExecutionSession buildExecutionSession, boolean seal)
+            throws RepositoryManagerException {
 
         TrackedContentDTO report;
         try {
             IndyFoloAdminClientModule foloAdmin = indy.module(IndyFoloAdminClientModule.class);
             if (seal) {
                 userLog.info("Sealing tracking record");
-                executeBuildExecutionNotificationIfNotNull(buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_SEALING_TRACKING_RECORD);
+                executeBuildExecutionNotificationIfNotNull(
+                        buildExecutionSession,
+                        BuildExecutionStatus.REPOSITORY_MANAGER_SEALING_TRACKING_RECORD);
                 boolean sealed = foloAdmin.sealTrackingRecord(buildContentId);
                 if (!sealed) {
-                    throw new RepositoryManagerException("Failed to seal content-tracking record for: %s.", buildContentId);
+                    throw new RepositoryManagerException(
+                            "Failed to seal content-tracking record for: %s.",
+                            buildContentId);
                 }
             }
 
             userLog.info("Getting tracking report");
-            executeBuildExecutionNotificationIfNotNull(buildExecutionSession, BuildExecutionStatus.REPOSITORY_MANAGER_DOWNLOADING_TRACKING_REPORT);
+            executeBuildExecutionNotificationIfNotNull(
+                    buildExecutionSession,
+                    BuildExecutionStatus.REPOSITORY_MANAGER_DOWNLOADING_TRACKING_REPORT);
             report = foloAdmin.getTrackingReport(buildContentId);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve tracking report for: %s. Reason: %s", e, buildContentId,
+            throw new RepositoryManagerException(
+                    "Failed to retrieve tracking report for: %s. Reason: %s",
+                    e,
+                    buildContentId,
                     e.getMessage());
         }
         if (report == null) {
@@ -244,20 +269,30 @@ public class MavenRepositorySession implements RepositorySession {
             StoreKey key = new StoreKey(MAVEN_PKG_KEY, StoreType.group, buildContentId);
             serviceAccountIndy.stores().delete(key, "[Post-Build] Removing build aggregation group: " + buildContentId);
         } catch (IndyClientException e) {
-            logger.info("END: Removing build aggregation group: {}, took: {} seconds", buildContentId, stopWatch.getTime(TimeUnit.SECONDS));
-            throw new RepositoryManagerException("Failed to retrieve Indy stores module. Reason: %s", e, e.getMessage());
+            logger.info(
+                    "END: Removing build aggregation group: {}, took: {} seconds",
+                    buildContentId,
+                    stopWatch.getTime(TimeUnit.SECONDS));
+            throw new RepositoryManagerException(
+                    "Failed to retrieve Indy stores module. Reason: %s",
+                    e,
+                    e.getMessage());
         }
-        logger.info("END: Removing build aggregation group: {}, took: {} seconds", buildContentId, stopWatch.getTime(TimeUnit.SECONDS));
+        logger.info(
+                "END: Removing build aggregation group: {}, took: {} seconds",
+                buildContentId,
+                stopWatch.getTime(TimeUnit.SECONDS));
     }
 
     /**
-     * Promote all build dependencies NOT ALREADY CAPTURED to the hosted repository holding store for the shared imports and
-     * return dependency artifacts meta data.
+     * Promote all build dependencies NOT ALREADY CAPTURED to the hosted repository holding store for the shared imports
+     * and return dependency artifacts meta data.
      *
      * @param report The tracking report that contains info about artifacts downloaded by the build
      * @param promote flag if collected dependencies should be promoted
      * @return List of dependency artifacts meta data
-     * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
+     * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of
+     *         artifacts
      */
     private List<Artifact> processDownloads(final TrackedContentDTO report, final boolean promote)
             throws RepositoryManagerException {
@@ -278,13 +313,15 @@ public class MavenRepositorySession implements RepositorySession {
         return deps;
     }
 
-    private List<Artifact> collectDownloadedArtifacts(TrackedContentDTO report)
-            throws RepositoryManagerException {
+    private List<Artifact> collectDownloadedArtifacts(TrackedContentDTO report) throws RepositoryManagerException {
         IndyContentClientModule content;
         try {
             content = indy.content();
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve Indy content module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException(
+                    "Failed to retrieve Indy content module. Reason: %s",
+                    e,
+                    e.getMessage());
         }
 
         Set<TrackedContentEntryDTO> downloads = report.getDownloads();
@@ -327,7 +364,8 @@ public class MavenRepositorySession implements RepositorySession {
         return deps;
     }
 
-    private Map<StoreKey, Map<StoreKey, Set<String>>> collectDownloadsPromotionMap(Set<TrackedContentEntryDTO> downloads) {
+    private Map<StoreKey, Map<StoreKey, Set<String>>> collectDownloadsPromotionMap(
+            Set<TrackedContentEntryDTO> downloads) {
         Map<StoreKey, Map<StoreKey, Set<String>>> depMap = new HashMap<>();
         Map<String, StoreKey> promotionTargets = new HashMap<>();
         for (TrackedContentEntryDTO download : downloads) {
@@ -391,38 +429,50 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     /**
-     * Promotes by path downloads captured in given map. The key in the map is promotion target store
-     * key. The value is another map, where key is promotion source store key and value is list of
-     * paths to be promoted.
+     * Promotes by path downloads captured in given map. The key in the map is promotion target store key. The value is
+     * another map, where key is promotion source store key and value is list of paths to be promoted.
      *
-     * @param depMap
-     *            dependencies map
-     * @throws RepositoryManagerException
-     *             in case of an error during promotion
+     * @param depMap dependencies map
+     * @throws RepositoryManagerException in case of an error during promotion
      */
-    private void promoteDownloads(Map<StoreKey, Map<StoreKey, Set<String>>> depMap)
-            throws RepositoryManagerException {
+    private void promoteDownloads(Map<StoreKey, Map<StoreKey, Set<String>>> depMap) throws RepositoryManagerException {
         for (Map.Entry<StoreKey, Map<StoreKey, Set<String>>> targetToSources : depMap.entrySet()) {
             StoreKey target = targetToSources.getKey();
             for (Map.Entry<StoreKey, Set<String>> sourceToPaths : targetToSources.getValue().entrySet()) {
                 StoreKey source = sourceToPaths.getKey();
-                PathsPromoteRequest req = new PathsPromoteRequest(source, target, sourceToPaths.getValue()).setPurgeSource(false);
+                PathsPromoteRequest req = new PathsPromoteRequest(source, target, sourceToPaths.getValue())
+                        .setPurgeSource(false);
                 // set read-only only the generic http proxy hosted repos, not shared-imports
                 boolean readonly = GENERIC_PKG_KEY.equals(target.getPackageType());
 
                 StopWatch stopWatchDoPromote = StopWatch.createStarted();
                 try {
-                    logger.info("BEGIN: doPromoteByPath: source: '{}', target: '{}', readonly: {}",
-                            req.getSource().toString(), req.getTarget().toString(), readonly);
+                    logger.info(
+                            "BEGIN: doPromoteByPath: source: '{}', target: '{}', readonly: {}",
+                            req.getSource().toString(),
+                            req.getTarget().toString(),
+                            readonly);
 
-                    userLog.info("Promoting {} dependencies from {} to {}", req.getPaths().size(), req.getSource(), req.getTarget());
+                    userLog.info(
+                            "Promoting {} dependencies from {} to {}",
+                            req.getPaths().size(),
+                            req.getSource(),
+                            req.getTarget());
                     doPromoteByPath(req, readonly);
 
-                    logger.info("END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
-                            req.getSource().toString(), req.getTarget().toString(), readonly, stopWatchDoPromote.getTime(TimeUnit.SECONDS));
+                    logger.info(
+                            "END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
+                            req.getSource().toString(),
+                            req.getTarget().toString(),
+                            readonly,
+                            stopWatchDoPromote.getTime(TimeUnit.SECONDS));
                 } catch (RepositoryManagerException ex) {
-                    logger.info("END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
-                            req.getSource().toString(), req.getTarget().toString(), readonly, stopWatchDoPromote.getTime(TimeUnit.SECONDS));
+                    logger.info(
+                            "END: doPromoteByPath: source: '{}', target: '{}', readonly: {}, took: {} seconds",
+                            req.getSource().toString(),
+                            req.getTarget().toString(),
+                            readonly,
+                            stopWatchDoPromote.getTime(TimeUnit.SECONDS));
                     throw ex;
                 }
             }
@@ -437,7 +487,9 @@ public class MavenRepositorySession implements RepositorySession {
         return promotionTargets.get(packageType);
     }
 
-    private TargetRepository getDownloadsTargetRepository(TrackedContentEntryDTO download, IndyContentClientModule content) throws RepositoryManagerException {
+    private TargetRepository getDownloadsTargetRepository(
+            TrackedContentEntryDTO download,
+            IndyContentClientModule content) throws RepositoryManagerException {
         String identifier;
         String repoPath;
         StoreKey source = download.getStoreKey();
@@ -449,8 +501,8 @@ public class MavenRepositorySession implements RepositorySession {
             identifier = "indy-http";
             repoPath = getGenericTargetRepositoryPath(source);
         } else {
-            throw new RepositoryManagerException("Repository type " + repoType
-                    + " is not supported by Indy repo manager driver.");
+            throw new RepositoryManagerException(
+                    "Repository type " + repoType + " is not supported by Indy repo manager driver.");
         }
         if (!repoPath.endsWith("/")) {
             repoPath += '/';
@@ -487,8 +539,10 @@ public class MavenRepositorySession implements RepositorySession {
         if (remoteName.startsWith("r-")) {
             hostedName = "h-" + remoteName.substring(2);
         } else {
-            logger.warn("Unexpected generic http remote repo name {}. Using it for hosted repo "
-                    + "without change, but it probably doesn't exist.", remoteName);
+            logger.warn(
+                    "Unexpected generic http remote repo name {}. Using it for hosted repo "
+                            + "without change, but it probably doesn't exist.",
+                    remoteName);
             hostedName = remoteName;
         }
         return hostedName;
@@ -498,8 +552,8 @@ public class MavenRepositorySession implements RepositorySession {
         return "/api/content/generic-http/hosted/" + getGenericHostedRepoName(source.getName());
     }
 
-    private TargetRepository getUploadsTargetRepository(TrackedContentEntryDTO upload,
-            IndyContentClientModule content) throws RepositoryManagerException {
+    private TargetRepository getUploadsTargetRepository(TrackedContentEntryDTO upload, IndyContentClientModule content)
+            throws RepositoryManagerException {
         StoreKey storeKey = upload.getStoreKey();
         String pkgType = storeKey.getPackageType();
         TargetRepository.Type repoType = toRepoType(pkgType);
@@ -509,8 +563,8 @@ public class MavenRepositorySession implements RepositorySession {
         } else if (repoType == TargetRepository.Type.NPM) {
             targetKey = storeKey;
         } else {
-            throw new RepositoryManagerException("Repository type " + repoType
-                    + " is not supported for uploads by Indy repo manager driver.");
+            throw new RepositoryManagerException(
+                    "Repository type " + repoType + " is not supported for uploads by Indy repo manager driver.");
         }
 
         String repoPath = "/api/" + content.contentPath(targetKey);
@@ -550,10 +604,10 @@ public class MavenRepositorySession implements RepositorySession {
      *
      * @param report The tracking report that contains info about artifacts uploaded (output) from the build
      * @return List of output artifacts meta data
-     * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of artifacts
+     * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of
+     *         artifacts
      */
-    private List<Artifact> collectUploads(TrackedContentDTO report)
-            throws RepositoryManagerException {
+    private List<Artifact> collectUploads(TrackedContentDTO report) throws RepositoryManagerException {
 
         logger.info("BEGIN: Process artifacts uploaded from build");
         StopWatch stopWatch = StopWatch.createStarted();
@@ -566,7 +620,10 @@ public class MavenRepositorySession implements RepositorySession {
             try {
                 content = indy.content();
             } catch (IndyClientException e) {
-                throw new RepositoryManagerException("Failed to retrieve Indy content module. Reason: %s", e, e.getMessage());
+                throw new RepositoryManagerException(
+                        "Failed to retrieve Indy content module. Reason: %s",
+                        e,
+                        e.getMessage());
             }
 
             for (TrackedContentEntryDTO upload : uploads) {
@@ -598,7 +655,9 @@ public class MavenRepositorySession implements RepositorySession {
                 Artifact artifact = validateArtifact(artifactBuilder.build());
                 builds.add(artifact);
             }
-            logger.info("END: Process artifacts uploaded from build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
+            logger.info(
+                    "END: Process artifacts uploaded from build, took {} seconds",
+                    stopWatch.getTime(TimeUnit.SECONDS));
             return builds;
         }
         logger.info("END: Process artifacts uploaded from build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
@@ -619,7 +678,10 @@ public class MavenRepositorySession implements RepositorySession {
             case MAVEN_PKG_KEY:
                 ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(transfer.getPath());
                 if (pathInfo != null) {
-                    ArtifactRef aref = new SimpleArtifactRef(pathInfo.getProjectId(), pathInfo.getType(), pathInfo.getClassifier());
+                    ArtifactRef aref = new SimpleArtifactRef(
+                            pathInfo.getProjectId(),
+                            pathInfo.getType(),
+                            pathInfo.getClassifier());
                     identifier = aref.toString();
                 }
                 break;
@@ -638,12 +700,17 @@ public class MavenRepositorySession implements RepositorySession {
 
             default:
                 // do not do anything by default
-                logger.warn("Package type {} is not handled by Indy repository session.", transfer.getStoreKey().getPackageType());
+                logger.warn(
+                        "Package type {} is not handled by Indy repository session.",
+                        transfer.getStoreKey().getPackageType());
                 break;
         }
 
         if (identifier == null) {
-            identifier = computeGenericIdentifier(transfer.getOriginUrl(), transfer.getLocalUrl(), transfer.getSha256());
+            identifier = computeGenericIdentifier(
+                    transfer.getOriginUrl(),
+                    transfer.getLocalUrl(),
+                    transfer.getSha256());
         }
 
         return identifier;
@@ -670,8 +737,8 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     /**
-     * Check artifact for any validation errors.  If there are constraint violations, then a RepositoryManagerException is thrown.
-     * Otherwise the artifact is returned.
+     * Check artifact for any validation errors. If there are constraint violations, then a RepositoryManagerException
+     * is thrown. Otherwise the artifact is returned.
      *
      * @param artifact to validate
      * @return the same artifact
@@ -680,18 +747,21 @@ public class MavenRepositorySession implements RepositorySession {
     private Artifact validateArtifact(Artifact artifact) throws RepositoryManagerException {
         Set<ConstraintViolation<Artifact>> violations = validator.validate(artifact);
         if (!violations.isEmpty()) {
-            throw new RepositoryManagerException("Repository manager returned invalid artifact: " + artifact.toString() + " Constraint Violations: %s", violations);
+            throw new RepositoryManagerException(
+                    "Repository manager returned invalid artifact: " + artifact.toString()
+                            + " Constraint Violations: %s",
+                    violations);
         }
         return artifact;
     }
 
     /**
-     * Promotes a set of artifact paths (or everything, if the path-set is missing) from a particular Indy artifact store to
-     * another, and handle the various error conditions that may arise. If the promote call fails, attempt to rollback before
-     * throwing an exception.
+     * Promotes a set of artifact paths (or everything, if the path-set is missing) from a particular Indy artifact
+     * store to another, and handle the various error conditions that may arise. If the promote call fails, attempt to
+     * rollback before throwing an exception.
      *
-     * @param req The promotion request to process, which contains source and target store keys, and (optionally) the set of
-     *        paths to promote
+     * @param req The promotion request to process, which contains source and target store keys, and (optionally) the
+     *        set of paths to promote
      * @param setReadonly flag telling if the target repo should be set to readOnly
      * @throws RepositoryManagerException When either the client API throws an exception due to something unexpected in
      *         transport, or if the promotion process results in an error.
@@ -701,7 +771,10 @@ public class MavenRepositorySession implements RepositorySession {
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve Indy promote client module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException(
+                    "Failed to retrieve Indy promote client module. Reason: %s",
+                    e,
+                    e.getMessage());
         }
 
         try {
@@ -711,12 +784,17 @@ public class MavenRepositorySession implements RepositorySession {
                     HostedRepository hosted = serviceAccountIndy.stores().load(req.getTarget(), HostedRepository.class);
                     hosted.setReadonly(true);
                     try {
-                        serviceAccountIndy.stores().update(hosted, "Setting readonly after successful build and promotion.");
+                        serviceAccountIndy.stores()
+                                .update(hosted, "Setting readonly after successful build and promotion.");
                     } catch (IndyClientException ex) {
                         try {
                             promoter.rollbackPathPromote(result);
                         } catch (IndyClientException ex2) {
-                            logger.error("Failed to set readonly flag on repo: %s. Reason given was: %s.", ex, req.getTarget(), ex.getMessage());
+                            logger.error(
+                                    "Failed to set readonly flag on repo: %s. Reason given was: %s.",
+                                    ex,
+                                    req.getTarget(),
+                                    ex.getMessage());
                             throw new RepositoryManagerException(
                                     "Subsequently also failed to rollback the promotion of paths from %s to %s. Reason "
                                             + "given was: %s",
@@ -725,8 +803,11 @@ public class MavenRepositorySession implements RepositorySession {
                                     req.getTarget(),
                                     ex2.getMessage());
                         }
-                        throw new RepositoryManagerException("Failed to set readonly flag on repo: %s. Reason given was: %s",
-                                ex, req.getTarget(), ex.getMessage());
+                        throw new RepositoryManagerException(
+                                "Failed to set readonly flag on repo: %s. Reason given was: %s",
+                                ex,
+                                req.getTarget(),
+                                ex.getMessage());
                     }
                 }
             } else {
@@ -738,10 +819,9 @@ public class MavenRepositorySession implements RepositorySession {
         }
     }
 
-
     /**
-     * Promote the build output to the consolidated build repo (using path promotion, where the build
-     * repo contents are added to the repo's contents) and marks the build output as readonly.
+     * Promote the build output to the consolidated build repo (using path promotion, where the build repo contents are
+     * added to the repo's contents) and marks the build output as readonly.
      *
      * @param uploads artifacts to be promoted
      */
@@ -751,7 +831,10 @@ public class MavenRepositorySession implements RepositorySession {
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
         } catch (IndyClientException e) {
-            throw new RepositoryManagerException("Failed to retrieve Indy promote client module. Reason: %s", e, e.getMessage());
+            throw new RepositoryManagerException(
+                    "Failed to retrieve Indy promote client module. Reason: %s",
+                    e,
+                    e.getMessage());
         }
 
         StoreKey buildRepoKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
@@ -775,12 +858,16 @@ public class MavenRepositorySession implements RepositorySession {
                     HostedRepository buildRepo = serviceAccountIndy.stores().load(buildRepoKey, HostedRepository.class);
                     buildRepo.setReadonly(true);
                     try {
-                        serviceAccountIndy.stores().update(buildRepo,
-                                "Setting readonly after successful build and promotion.");
+                        serviceAccountIndy.stores()
+                                .update(buildRepo, "Setting readonly after successful build and promotion.");
                     } catch (IndyClientException ex) {
-                        logger.error("Failed to set readonly flag on repo: %s. Reason given was: %s."
-                                + " But the promotion to consolidated repo %s succeeded.", ex, buildRepoKey,
-                                ex.getMessage(), buildPromotionTarget);
+                        logger.error(
+                                "Failed to set readonly flag on repo: %s. Reason given was: %s."
+                                        + " But the promotion to consolidated repo %s succeeded.",
+                                ex,
+                                buildRepoKey,
+                                ex.getMessage(),
+                                buildPromotionTarget);
                     }
                 }
             } else {
@@ -797,8 +884,8 @@ public class MavenRepositorySession implements RepositorySession {
     }
 
     /**
-     * Computes error message from a failed promotion result. It means either error must not be empty
-     * or validations need to contain at least 1 validation error.
+     * Computes error message from a failed promotion result. It means either error must not be empty or validations
+     * need to contain at least 1 validation error.
      *
      * @param result the promotion result
      * @return the error message
@@ -814,7 +901,9 @@ public class MavenRepositorySession implements RepositorySession {
             }
         }
         if ((validations != null) && (validations.getRuleSet() != null)) {
-            sb.append("One or more validation rules failed in rule-set ").append(validations.getRuleSet()).append(":\n");
+            sb.append("One or more validation rules failed in rule-set ")
+                    .append(validations.getRuleSet())
+                    .append(":\n");
 
             if (validations.getValidatorErrors().isEmpty()) {
                 sb.append("(no validation errors received)");
@@ -869,7 +958,9 @@ public class MavenRepositorySession implements RepositorySession {
         IOUtils.closeQuietly(serviceAccountIndy);
     }
 
-    private static void executeBuildExecutionNotificationIfNotNull(BuildExecutionSession session, BuildExecutionStatus status) {
+    private static void executeBuildExecutionNotificationIfNotNull(
+            BuildExecutionSession session,
+            BuildExecutionStatus status) {
         if (session != null) {
             session.setStatus(status);
         }
