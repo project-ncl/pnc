@@ -276,12 +276,12 @@ public class BuildTest {
 
     @Test
     public void shouldNotTriggerANewPersistentBuildWithoutForceIfOnlyDescriptionChanged() {
-        BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.getByName("maven-plugin-test").getValue();
+        BuildConfigurationRest buildConfigurationRest = buildConfigurationRestClient.getByName("maven-plugin-test").getValue();
         BuildOptions persistent = new BuildOptions();
         persistent.setRebuildMode(RebuildMode.FORCE);
         
         // Trigger force build
-        RestResponse<BuildRecordRest> forcedPersistentBuild = triggerBCBuild(buildConfiguration, Optional.empty(), persistent);
+        RestResponse<BuildRecordRest> forcedPersistentBuild = triggerBCBuild(buildConfigurationRest, Optional.empty(), persistent);
         assertThat(forcedPersistentBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
         ResponseUtils.waitSynchronouslyFor(() -> {
             RestResponse<BuildRecordRest> record = buildRecordRestClient.get(forcedPersistentBuild.getValue().getId(),
@@ -290,15 +290,15 @@ public class BuildTest {
         } , 15, TimeUnit.SECONDS);
         
         // Update only description, should not create a new revision and keep same lastModificationTime
-        String oldDescription = buildConfiguration.getDescription() != null ? new String(buildConfiguration.getDescription()) : null;
-        Date oldLastModDate = buildConfiguration.getLastModificationTime() != null ? new Date(buildConfiguration.getLastModificationTime().getTime()) : null;
-        BuildConfigurationRest updatedBuildConfiguration = updateBCDescription(buildConfiguration, "Random Description to be able to trigger build again so that persistent build will be first on this revision");
-        assertThat(oldDescription).isNotEqualTo(updatedBuildConfiguration.getDescription());
-        assertThat(oldLastModDate).isEqualTo(updatedBuildConfiguration.getLastModificationTime());
+        String oldDescription = buildConfigurationRest.getDescription() != null ? new String(buildConfigurationRest.getDescription()) : null;
+        Date oldLastModDate = buildConfigurationRest.getLastModificationTime() != null ? new Date(buildConfigurationRest.getLastModificationTime().getTime()) : null;
+        BuildConfigurationRest updatedBuildConfigurationRest = updateBCDescription(buildConfigurationRest, "Random Description to be able to trigger build again so that persistent build will be first on this revision");
+        assertThat(oldDescription).isNotEqualTo(updatedBuildConfigurationRest.getDescription());
+        assertThat(oldLastModDate).isEqualTo(updatedBuildConfigurationRest.getLastModificationTime());
 
         // Trigger a new build without force, should not build again
         persistent = new BuildOptions();
-        RestResponse<BuildRecordRest> buildRecord = triggerBCBuild(updatedBuildConfiguration, Optional.empty(), persistent);
+        RestResponse<BuildRecordRest> buildRecord = triggerBCBuild(updatedBuildConfigurationRest, Optional.empty(), persistent);
         assertThat(buildRecord.getRestCallResponse().getStatusCode()).isEqualTo(200);
         
         ResponseUtils.waitSynchronouslyFor(() -> {
@@ -313,13 +313,13 @@ public class BuildTest {
     
     @Test
     public void shouldNotTriggerANewTemporaryBuildWithoutForceIfOnlyDescriptionChanged() {
-        BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.getByName("maven-plugin-test").getValue();
+        BuildConfigurationRest buildConfigurationRest = buildConfigurationRestClient.getByName("maven-plugin-test").getValue();
         BuildOptions temporary = new BuildOptions();
         temporary.setRebuildMode(RebuildMode.FORCE);
         temporary.setTemporaryBuild(true);
 
         // Trigger force build
-        RestResponse<BuildRecordRest> forcedTemporaryBuild = triggerBCBuild(buildConfiguration, Optional.empty(), temporary);
+        RestResponse<BuildRecordRest> forcedTemporaryBuild = triggerBCBuild(buildConfigurationRest, Optional.empty(), temporary);
         assertThat(forcedTemporaryBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
         ResponseUtils.waitSynchronouslyFor(() -> {
             RestResponse<BuildRecordRest> record = buildRecordRestClient.get(forcedTemporaryBuild.getValue().getId(),
@@ -328,16 +328,16 @@ public class BuildTest {
         } , 15, TimeUnit.SECONDS);
 
         // Update only description, should not create a new revision and keep same lastModificationTime
-        String oldDescription = buildConfiguration.getDescription() != null ? new String(buildConfiguration.getDescription()) : null;
-        Date oldLastModDate = buildConfiguration.getLastModificationTime() != null ? new Date(buildConfiguration.getLastModificationTime().getTime()) : null;
-        BuildConfigurationRest updatedBuildConfiguration = updateBCDescription(buildConfiguration, "Random Description to be able to trigger build again so that persistent build will be first on this revision");
-        assertThat(oldDescription).isNotEqualTo(updatedBuildConfiguration.getDescription());
-        assertThat(oldLastModDate).isEqualTo(updatedBuildConfiguration.getLastModificationTime());
+        String oldDescription = buildConfigurationRest.getDescription() != null ? new String(buildConfigurationRest.getDescription()) : null;
+        Date oldLastModDate = buildConfigurationRest.getLastModificationTime() != null ? new Date(buildConfigurationRest.getLastModificationTime().getTime()) : null;
+        BuildConfigurationRest updatedBuildConfigurationRest = updateBCDescription(buildConfigurationRest, "Random Description to be able to trigger build again so that persistent build will be first on this revision");
+        assertThat(oldDescription).isNotEqualTo(updatedBuildConfigurationRest.getDescription());
+        assertThat(oldLastModDate).isEqualTo(updatedBuildConfigurationRest.getLastModificationTime());
 
         // Trigger a new build without force, should not build again
         temporary = new BuildOptions();
         temporary.setTemporaryBuild(true);
-        RestResponse<BuildRecordRest> buildRecord = triggerBCBuild(updatedBuildConfiguration, Optional.empty(), temporary);
+        RestResponse<BuildRecordRest> buildRecord = triggerBCBuild(updatedBuildConfigurationRest, Optional.empty(), temporary);
         assertThat(buildRecord.getRestCallResponse().getStatusCode()).isEqualTo(200);
         ResponseUtils.waitSynchronouslyFor(() -> {
             RestResponse<BuildRecordRest> record = buildRecordRestClient.get(buildRecord.getValue().getId(),
@@ -381,91 +381,91 @@ public class BuildTest {
         RestResponse<BuildRecordRest> finalRecord = buildRecordRestClient.get(afterTempPersistentBuild.getValue().getId());
         assertThat(finalRecord.getValue().getStatus()).isNotIn(BuildCoordinationStatus.REJECTED_ALREADY_BUILT, BuildCoordinationStatus.REJECTED);
     }
-//
-//    //NCL-5192
-//    //Replicates NCL-5192 through explicit dependency instead of implicit
-//    @Test
-//    public void dontRebuildTemporaryBuildWhenThereIsNewerPersistentOnSameRev() {
-//        BuildConfigurationRest parent = buildConfigurationRestClient.getByName("pnc-build-agent-0.4").getValue();
-//        BuildConfigurationRest dependency = buildConfigurationRestClient.getByName("termd").getValue();
-//
-//        BuildOptions persistent = new BuildOptions();
-//        BuildOptions temporary = new BuildOptions();
-//        temporary.setTemporaryBuild(true);
-//
-//        // Updating the description only won't create a new revision, as description is not audited anymore
-//        parent.setBuildScript("mvn" + "  clean deploy -DskipTests=true");
-//        BuildConfigurationRest updatedParent = updateBCDescription(parent, "Updating the description only will not create a new revision, as description is not audited anymore");
-//        assertThat(parent.getLastModificationTime()).isNotEqualTo(updatedParent.getLastModificationTime());
-//
-//        // Updating the description only won't create a new revision, as description is not audited anymore
-//        dependency.setBuildScript("mvn" + "  clean deploy -DskipTests=true");
-//        BuildConfigurationRest updatedDependency = updateBCDescription(dependency, "Updating the description only will not create a new revision, as description is not audited anymore");
-//        assertThat(dependency.getLastModificationTime()).isNotEqualTo(updatedDependency.getLastModificationTime());
-//
-//        //Build temporary builds (parent and dependency) on new revision
-//        RestResponse<BuildRecordRest> temporaryBuild = triggerBCBuild(updatedParent,Optional.empty(),temporary);
-//        assertThat(temporaryBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
-//        ResponseUtils.waitSynchronouslyFor(() -> {
-//            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(temporaryBuild.getValue().getId(),
-//                    false);
-//            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.DONE);
-//        } , 15, TimeUnit.SECONDS);
-//
-//        //Build persistent build of dependency on the same revision
-//        RestResponse<BuildRecordRest> dependencyPersistentBuild = triggerBCBuild(updatedDependency,Optional.empty(),persistent);
-//        assertThat(dependencyPersistentBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
-//        ResponseUtils.waitSynchronouslyFor(() -> {
-//            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(dependencyPersistentBuild.getValue().getId(),
-//                    false);
-//            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.DONE);
-//        }, 15, TimeUnit.SECONDS);
-//
-//        //Build temporary build of parent and check it gets REJECTED even if it's dependency has newer record
-//        //(in this case temp build should ignore persistent one)
-//        RestResponse<BuildRecordRest> finalRecord = triggerBCBuild(updatedParent, Optional.empty(), temporary);
-//        assertThat(finalRecord.getRestCallResponse().getStatusCode()).isEqualTo(200);
-//        ResponseUtils.waitSynchronouslyFor(() -> {
-//            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(finalRecord.getValue().getId(),
-//                    false);
-//            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
-//        }, 15, TimeUnit.SECONDS);
-//
-//        RestResponse<BuildRecordRest> response = buildRecordRestClient.get(finalRecord.getValue().getId());
-//        assertThat(response.getValue().getStatus()).isEqualTo(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
-//    }
-//
-//    @Test
-//    public void shouldRejectAfterBuildingTwoTempBuildsOnSameRevision() {
-//        BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.getByName("maven-plugin-test").getValue();
-//        BuildOptions temporary = new BuildOptions();
-//        temporary.setTemporaryBuild(true);
-//        BuildOptions temporary2 = new BuildOptions();
-//        temporary2.setTemporaryBuild(true);
-//
-//        buildConfiguration.setBuildScript("mvn" + "   clean deploy -DskipTests=true");
-//        BuildConfigurationRest updatedBuildConfiguration = updateBCDescription(buildConfiguration, buildConfiguration.getDescription());
-//        assertThat(buildConfiguration.getLastModificationTime()).isNotEqualTo(updatedBuildConfiguration.getLastModificationTime());
-//
-//        RestResponse<BuildRecordRest> temporaryBuild = triggerBCBuild(updatedBuildConfiguration,Optional.empty(),temporary);
-//        assertThat(temporaryBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
-//        ResponseUtils.waitSynchronouslyFor(() -> {
-//            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(temporaryBuild.getValue().getId(),
-//                    false);
-//            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.DONE);
-//        } , 15, TimeUnit.SECONDS);
-//
-//        RestResponse<BuildRecordRest> secondTempBuild = triggerBCBuild(updatedBuildConfiguration,Optional.empty(),temporary2);
-//        assertThat(secondTempBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
-//        ResponseUtils.waitSynchronouslyFor(() -> {
-//            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(secondTempBuild.getValue().getId(),
-//                    false);
-//            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
-//        }, 15, TimeUnit.SECONDS);
-//
-//        RestResponse<BuildRecordRest> finalRecord = buildRecordRestClient.get(secondTempBuild.getValue().getId());
-//        assertThat(finalRecord.getValue().getStatus()).isNotIn(BuildCoordinationStatus.DONE, BuildCoordinationStatus.REJECTED);
-//    }
+
+    //NCL-5192
+    //Replicates NCL-5192 through explicit dependency instead of implicit
+    @Test
+    public void dontRebuildTemporaryBuildWhenThereIsNewerPersistentOnSameRev() {
+        BuildConfigurationRest parent = buildConfigurationRestClient.getByName("pnc-build-agent-0.4").getValue();
+        BuildConfigurationRest dependency = buildConfigurationRestClient.getByName("termd").getValue();
+
+        BuildOptions persistent = new BuildOptions();
+        BuildOptions temporary = new BuildOptions();
+        temporary.setTemporaryBuild(true);
+
+        // Updating the description only won't create a new revision, as description is not audited anymore
+        parent.setBuildScript("mvn" + "  clean deploy -DskipTests=true");
+        BuildConfigurationRest updatedParent = updateBCDescription(parent, "Updating the description only will not create a new revision, as description is not audited anymore");
+        assertThat(parent.getLastModificationTime()).isNotEqualTo(updatedParent.getLastModificationTime());
+
+        // Updating the description only won't create a new revision, as description is not audited anymore
+        dependency.setBuildScript("mvn" + "  clean deploy -DskipTests=true");
+        BuildConfigurationRest updatedDependency = updateBCDescription(dependency, "Updating the description only will not create a new revision, as description is not audited anymore");
+        assertThat(dependency.getLastModificationTime()).isNotEqualTo(updatedDependency.getLastModificationTime());
+
+        //Build temporary builds (parent and dependency) on new revision
+        RestResponse<BuildRecordRest> temporaryBuild = triggerBCBuild(updatedParent,Optional.empty(),temporary);
+        assertThat(temporaryBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        ResponseUtils.waitSynchronouslyFor(() -> {
+            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(temporaryBuild.getValue().getId(),
+                    false);
+            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.DONE);
+        } , 15, TimeUnit.SECONDS);
+
+        //Build persistent build of dependency on the same revision
+        RestResponse<BuildRecordRest> dependencyPersistentBuild = triggerBCBuild(updatedDependency,Optional.empty(),persistent);
+        assertThat(dependencyPersistentBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        ResponseUtils.waitSynchronouslyFor(() -> {
+            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(dependencyPersistentBuild.getValue().getId(),
+                    false);
+            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.DONE);
+        }, 15, TimeUnit.SECONDS);
+
+        //Build temporary build of parent and check it gets REJECTED even if it's dependency has newer record
+        //(in this case temp build should ignore persistent one)
+        RestResponse<BuildRecordRest> finalRecord = triggerBCBuild(updatedParent, Optional.empty(), temporary);
+        assertThat(finalRecord.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        ResponseUtils.waitSynchronouslyFor(() -> {
+            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(finalRecord.getValue().getId(),
+                    false);
+            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
+        }, 15, TimeUnit.SECONDS);
+
+        RestResponse<BuildRecordRest> response = buildRecordRestClient.get(finalRecord.getValue().getId());
+        assertThat(response.getValue().getStatus()).isEqualTo(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
+    }
+
+    @Test
+    public void shouldRejectAfterBuildingTwoTempBuildsOnSameRevision() {
+        BuildConfigurationRest buildConfiguration = buildConfigurationRestClient.getByName("maven-plugin-test").getValue();
+        BuildOptions temporary = new BuildOptions();
+        temporary.setTemporaryBuild(true);
+        BuildOptions temporary2 = new BuildOptions();
+        temporary2.setTemporaryBuild(true);
+
+        buildConfiguration.setBuildScript("mvn" + "   clean deploy -DskipTests=true");
+        BuildConfigurationRest updatedBuildConfiguration = updateBCDescription(buildConfiguration, buildConfiguration.getDescription());
+        assertThat(buildConfiguration.getLastModificationTime()).isNotEqualTo(updatedBuildConfiguration.getLastModificationTime());
+
+        RestResponse<BuildRecordRest> temporaryBuild = triggerBCBuild(updatedBuildConfiguration,Optional.empty(),temporary);
+        assertThat(temporaryBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        ResponseUtils.waitSynchronouslyFor(() -> {
+            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(temporaryBuild.getValue().getId(),
+                    false);
+            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.DONE);
+        } , 15, TimeUnit.SECONDS);
+
+        RestResponse<BuildRecordRest> secondTempBuild = triggerBCBuild(updatedBuildConfiguration,Optional.empty(),temporary2);
+        assertThat(secondTempBuild.getRestCallResponse().getStatusCode()).isEqualTo(200);
+        ResponseUtils.waitSynchronouslyFor(() -> {
+            RestResponse<BuildRecordRest> record = buildRecordRestClient.get(secondTempBuild.getValue().getId(),
+                    false);
+            return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
+        }, 15, TimeUnit.SECONDS);
+
+        RestResponse<BuildRecordRest> finalRecord = buildRecordRestClient.get(secondTempBuild.getValue().getId());
+        assertThat(finalRecord.getValue().getStatus()).isNotIn(BuildCoordinationStatus.DONE, BuildCoordinationStatus.REJECTED);
+    }
 
     private void verifyBuildSetResults(RestResponse<BuildConfigSetRecordRest> response, Integer buildRecordSetId) {
         assertThat(response.getRestCallResponse().getStatusCode()).isEqualTo(200);
@@ -477,9 +477,9 @@ public class BuildTest {
     }
 
     // This custom method is done so to make it visible that the update of only the decription should not cause a new revision to be created, nor the lastModificationDate to be changed
-    private BuildConfigurationRest updateBCDescription(BuildConfigurationRest buildConfigurationChild, String description) {
-        buildConfigurationChild.setDescription(description);
-        RestResponse<BuildConfigurationRest> updatedBuildConfigurationChild = buildConfigurationRestClient.update(buildConfigurationChild.getId(), buildConfigurationChild);
+    private BuildConfigurationRest updateBCDescription(BuildConfigurationRest buildConfigurationRest, String description) {
+        buildConfigurationRest.setDescription(description);
+        RestResponse<BuildConfigurationRest> updatedBuildConfigurationChild = buildConfigurationRestClient.update(buildConfigurationRest.getId(), buildConfigurationRest);
         return updatedBuildConfigurationChild.getValue();
     }
 }
