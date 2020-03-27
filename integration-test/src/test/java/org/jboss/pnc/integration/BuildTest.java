@@ -336,6 +336,7 @@ public class BuildTest {
 
         // Trigger a new build without force, should not build again
         temporary = new BuildOptions();
+        temporary.setTemporaryBuild(true);
         RestResponse<BuildRecordRest> buildRecord = triggerBCBuild(updatedBuildConfiguration, Optional.empty(), temporary);
         assertThat(buildRecord.getRestCallResponse().getStatusCode()).isEqualTo(200);
         ResponseUtils.waitSynchronouslyFor(() -> {

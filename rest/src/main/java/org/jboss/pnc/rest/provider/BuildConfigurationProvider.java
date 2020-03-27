@@ -144,7 +144,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         super.validateBeforeUpdating(id, buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(buildConfigurationRest.getId(), buildConfigurationRest.getDependencyIds());
-        applyLastModificationDate(buildConfigurationRest);
+        changeLastModificationDate(buildConfigurationRest);
     }
 
     private void validateRepositoryConfigurationId(RepositoryConfigurationRest repositoryConfiguration) throws InvalidEntityException {
@@ -185,20 +185,11 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         });
     }
 
-    private void applyLastModificationDate(BuildConfigurationRest buildConfigurationRest) {
+    private void changeLastModificationDate(BuildConfigurationRest buildConfigurationRest) {
 
         BuildConfiguration buildConfig = repository.queryById(buildConfigurationRest.getId());
         // Modify lastModificationDate only if audited fields change
-        if (!equalsWithNull(buildConfigurationRest.getBuildScript(), buildConfig.getBuildScript()) ||
-                !equalsWithNull(buildConfigurationRest.getName(), buildConfig.getName()) ||
-                !equalsWithNull(buildConfigurationRest.getScmRevision(), buildConfig.getScmRevision()) ||
-                !equalsWithNull(buildConfigurationRest.getBuildType(), buildConfig.getBuildType()) ||
-                !equalsWithNull(buildConfigurationRest.isArchived(), buildConfig.isArchived()) ||
-                !equalsId(buildConfig.getRepositoryConfiguration(), buildConfigurationRest.getRepositoryConfiguration()) ||
-                !equalsId(buildConfig.getProject(), buildConfigurationRest.getProject()) ||
-                !equalsId(buildConfig.getBuildEnvironment(), buildConfigurationRest.getEnvironment()) ||
-                !buildConfigurationRest.getGenericParameters().equals(buildConfig.getGenericParameters())) {
-
+        if (!equalAuditedValues(buildConfig, buildConfigurationRest)) {
             buildConfigurationRest.setLastModificationTime(new Date());
         }
     }
@@ -221,7 +212,6 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             BuildConfiguration buildConfigDB = repository.queryById(buildConfigRest.getId());
             // If updating an existing record, need to replace several fields from the rest entity with values from DB
             if (buildConfigDB != null) {
-                builder.lastModificationTime(buildConfigDB.getLastModificationTime()); // Handled by JPA @Version
                 builder.creationTime(buildConfigDB.getCreationTime()); // Immutable after creation
                 if (buildConfigRest.getDependencyIds() == null) {
                     // If the client request does not include a list of dependencies, just keep the current set
@@ -321,6 +311,18 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                 .filter(bca -> equalValues(bca, buildConfigurationRest))
                 .findFirst()
                 .map(buildConfigurationAuditedToRestModel());
+    }
+
+    private boolean equalAuditedValues(BuildConfiguration buildConfig, BuildConfigurationRest rest) {
+        return buildConfig.getName().equals(rest.getName()) &&
+                equalsWithNull(buildConfig.getBuildScript(), rest.getBuildScript()) &&
+                equalsId(buildConfig.getRepositoryConfiguration(), rest.getRepositoryConfiguration()) &&
+                equalsWithNull(buildConfig.getScmRevision(), rest.getScmRevision()) &&
+                equalsId(buildConfig.getProject(), rest.getProject()) &&
+                equalsId(buildConfig.getBuildEnvironment(), rest.getEnvironment()) &&
+                (buildConfig.isArchived() == rest.isArchived()) &&
+                (buildConfig.getBuildType() == rest.getBuildType()) &&
+                buildConfig.getGenericParameters().equals(rest.getGenericParameters());
     }
 
     private boolean equalValues(BuildConfigurationAudited audited, BuildConfigurationRest rest) {
