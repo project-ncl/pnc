@@ -91,7 +91,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
                     "Cannot read configuration for " + IndyRepoDriverModuleConfig.class.getName() + ".",
                     e);
         }
-        this.tempBuildPromotionGroup = config.getTempBuildPromotionGroup();
+        this.tempBuildPromotionGroup = config.getTempBuildPromotionTarget();
     }
 
     @Override

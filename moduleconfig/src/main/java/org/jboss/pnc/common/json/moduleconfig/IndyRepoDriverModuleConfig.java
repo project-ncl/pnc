@@ -108,12 +108,12 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
     private String buildPromotionTarget = "pnc-builds";
 
     /**
-     * Name of the group to which the build repo of a successful TEMPORARY build should be promoted.
+     * Name of the target repo to which the build repo of a successful TEMPORARY build should be promoted.
      */
     @Getter
     @Setter
     @JsonProperty(required = false)
-    private String tempBuildPromotionGroup = "temporary-builds";
+    private String tempBuildPromotionTarget = "temporary-builds";
 
     public IndyRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl) {
         this.baseUrl = baseUrl;
@@ -195,7 +195,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
         /**
          * Gets the list of Maven strings.
-         * 
+         *
          * @return the list of Maven strings or empty list if no value is set (never {@code null})
          */
         public List<String> getMaven() {
@@ -204,7 +204,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
         /**
          * Adds extra members to the list of Maven strings.
-         * 
+         *
          * @param addition added strings
          */
         public void addMaven(List<String> addition) {
@@ -223,7 +223,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
         /**
          * Gets the list of NPM strings.
-         * 
+         *
          * @return the list of NPM strings or empty list if no value is set (never {@code null})
          */
         public List<String> getNpm() {
@@ -232,7 +232,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
         /**
          * Adds extra members to the list of NPM strings.
-         * 
+         *
          * @param addition added strings
          */
         public void addNpm(List<String> addition) {
@@ -247,7 +247,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
         /**
          * Gets the list of Generic-http strings.
-         * 
+         *
          * @return the list of Generic-http strings or empty list if no value is set (never {@code null})
          */
         public List<String> getGeneric() {
@@ -256,7 +256,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
         /**
          * Adds extra members to the list of Generic-http strings.
-         * 
+         *
          * @param addition added strings
          */
         public void addGeneric(List<String> addition) {
@@ -355,7 +355,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
         /**
          * Gets the list of ignored path patterns shared among all package types.
-         * 
+         *
          * @return the list of shared strings or empty list if no value is set (never {@code null})
          */
         @JsonIgnore
