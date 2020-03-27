@@ -476,7 +476,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     private void addGlobalConstituents(String pakageType, Group group, boolean tempBuild) {
         // 1. global builds artifacts
         if (tempBuild) {
-            group.addConstituent(new StoreKey(pakageType, StoreType.group, TEMPORARY_BUILDS_GROUP));
+            group.addConstituent(new StoreKey(pakageType, StoreType.hosted, TEMPORARY_BUILDS_GROUP));
         }
         group.addConstituent(new StoreKey(pakageType, StoreType.group, COMMON_BUILD_GROUP_CONSTITUENTS_GROUP));
     }
