@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +54,10 @@ public class BuildConfigurationAudited {
     private BuildType buildType;
 
     private BuildEnvironment buildEnvironment;
+
+    private Date creationTime;
+
+    private Date lastModificationTime;
 
     private BuildConfiguration buildConfiguration;
 
@@ -144,6 +149,22 @@ public class BuildConfigurationAudited {
         this.buildEnvironment = buildEnvironment;
     }
 
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public Date getLastModificationTime() {
+        return lastModificationTime;
+    }
+
+    public void setLastModificationTime(Date lastModificationTime) {
+        this.lastModificationTime = lastModificationTime;
+    }
+
     public BuildConfiguration getBuildConfiguration() {
         return buildConfiguration;
     }
@@ -203,6 +224,8 @@ public class BuildConfigurationAudited {
             configurationAudited.setProject(buildConfiguration.getProject());
             configurationAudited.setBuildType(buildConfiguration.getBuildType());
             configurationAudited.setRepositoryConfiguration(buildConfiguration.getRepositoryConfiguration());
+            configurationAudited.setCreationTime(buildConfiguration.getCreationTime());
+            configurationAudited.setLastModificationTime(buildConfiguration.getLastModificationTime());
             configurationAudited.buildConfiguration = buildConfiguration;
             return configurationAudited;
         }
