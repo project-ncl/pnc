@@ -314,7 +314,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
     }
 
     private boolean equalAuditedValues(BuildConfiguration buildConfig, BuildConfigurationRest rest) {
-        return buildConfig.getName().equals(rest.getName()) &&
+        return equalsWithNull(buildConfig.getName(), rest.getName()) &&
                 equalsWithNull(buildConfig.getBuildScript(), rest.getBuildScript()) &&
                 equalsId(buildConfig.getRepositoryConfiguration(), rest.getRepositoryConfiguration()) &&
                 equalsWithNull(buildConfig.getScmRevision(), rest.getScmRevision()) &&
