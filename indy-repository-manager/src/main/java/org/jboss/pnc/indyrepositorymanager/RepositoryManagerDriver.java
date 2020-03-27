@@ -124,7 +124,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
         this.DEFAULT_REQUEST_TIMEOUT = config.getDefaultRequestTimeout();
         this.BUILD_PROMOTION_TARGET = config.getBuildPromotionTarget();
-        this.TEMP_BUILD_PROMOTION_TARGET = config.getTempBuildPromotionGroup();
+        this.TEMP_BUILD_PROMOTION_TARGET = config.getTempBuildPromotionTarget();
 
         baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
