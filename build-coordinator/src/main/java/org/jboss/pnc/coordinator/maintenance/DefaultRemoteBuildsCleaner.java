@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.maintenance;
 import org.apache.commons.io.IOUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
+import org.commonjava.indy.client.core.module.IndyStoresClientModule;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
@@ -150,25 +151,25 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
             // delete the content
             StoreKey storeKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
-            indy.stores().delete(storeKey, "Scheduled cleanup of temporary builds.");
+            IndyStoresClientModule indyStores = indy.stores();
+            indyStores.delete(storeKey, "Scheduled cleanup of temporary builds.");
 
             // delete generic http repos
             List<Group> genericGroups;
             try {
-                StoreListingDTO<Group> groupListing = indy.stores().listGroups(GENERIC_PKG_KEY);
+                StoreListingDTO<Group> groupListing = indyStores.listGroups(GENERIC_PKG_KEY);
                 genericGroups = groupListing.getItems();
 
                 for (Group genericGroup : genericGroups) {
                     if (genericGroup.getName().startsWith("g-")
                             && genericGroup.getName().endsWith("-" + buildContentId)) {
-                        for (StoreKey constituent : genericGroup.getConstituents()) {
-                            indy.stores().delete(constituent, "Scheduled cleanup of temporary builds.");
-                        }
-                        indy.stores().delete(genericGroup.getKey(), "Scheduled cleanup of temporary builds.");
+                        deleteRepoGroup(indyStores, genericGroup);
                     }
                 }
             } catch (IndyClientException e) {
-                logger.error("Error in loading generic http groups: " + e, e);
+                String description = MessageFormat
+                        .format("Error in deleting generic http repos for build {0}: {1}", buildContentId, e);
+                logger.error(description, e);
             }
 
             // delete the tracking record
@@ -185,6 +186,18 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             IOUtils.closeQuietly(indy);
         }
         return result;
+    }
+
+    private void deleteRepoGroup(IndyStoresClientModule indyStores, Group group) throws IndyClientException {
+        for (StoreKey constituent : group.getConstituents()) {
+            if (StoreType.group == constituent.getType()) {
+                Group subgroup = indyStores.load(constituent, Group.class);
+                deleteRepoGroup(indyStores, subgroup);
+            } else {
+                indyStores.delete(constituent, "Scheduled cleanup of temporary builds.");
+            }
+        }
+        indyStores.delete(group.getKey(), "Scheduled cleanup of temporary builds.");
     }
 
     private boolean causewayUntag(String tagPrefix, int brewBuildId) {
