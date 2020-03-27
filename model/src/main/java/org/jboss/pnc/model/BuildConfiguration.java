@@ -44,7 +44,6 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.PersistenceException;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
-import javax.persistence.PreUpdate;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -155,11 +154,6 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @NotNull
     @Column(columnDefinition = "timestamp with time zone")
     private Date lastModificationTime;
-
-    @PreUpdate
-    void onUpdate() {
-        lastModificationTime = new Date();
-    }
 
     /**
      * Normally set to true.

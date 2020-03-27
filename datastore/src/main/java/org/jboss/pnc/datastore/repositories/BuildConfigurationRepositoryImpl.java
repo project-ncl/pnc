@@ -20,6 +20,7 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSpringRepository;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 
 import javax.ejb.Stateless;
@@ -53,13 +54,49 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
         if (id != null && id > 0) {
             BuildConfiguration persisted = queryById(id);
 
-            if (!areParametersEqual(persisted, buildConfiguration)) {
+            if (!areParametersEqual(persisted, buildConfiguration) || !equalAuditedValues(persisted, buildConfiguration)) {
                 //always increment the revision of main entity when the child collection is updated
+                //the @PreUpdate method in BuildConfiguration was removed, the calculation of whether the lastModificationTime needs to be changed is done here
                 buildConfiguration.setLastModificationTime(new Date());
             }
         }
 
         return springRepository.save(buildConfiguration);
+    }
+
+    private boolean equalAuditedValues(BuildConfiguration persisted, BuildConfiguration toUpdate) {
+        return equalsWithNull(persisted.getName(), toUpdate.getName()) &&
+                equalsWithNull(persisted.getBuildScript(), toUpdate.getBuildScript()) &&
+                equalsId(persisted.getRepositoryConfiguration(), toUpdate.getRepositoryConfiguration()) &&
+                equalsWithNull(persisted.getScmRevision(), toUpdate.getScmRevision()) &&
+                equalsId(persisted.getProject(), toUpdate.getProject()) &&
+                equalsId(persisted.getBuildEnvironment(), toUpdate.getBuildEnvironment()) &&
+                (persisted.isArchived() == toUpdate.isArchived()) &&
+                (persisted.getBuildType() == toUpdate.getBuildType());
+    }
+
+    private boolean equalsWithNull(Object o1, Object o2) {
+        if(o1 == null) {
+            return o2 == null;
+        } else {
+            return o1.equals(o2);
+        }
+    }
+
+    private boolean equalsId(GenericEntity persisted, GenericEntity toUpdate) {
+        if (persisted == null && toUpdate == null) {
+            return true;
+        }
+
+        if (persisted == null && toUpdate != null) {
+            return false;
+        }
+
+        if (persisted != null && toUpdate == null) {
+            return false;
+        }
+
+        return persisted.getId().equals(toUpdate.getId());
     }
 
     private boolean areParametersEqual(BuildConfiguration persisted, BuildConfiguration newBC) {
