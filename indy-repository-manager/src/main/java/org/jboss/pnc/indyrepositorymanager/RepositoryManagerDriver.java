@@ -319,7 +319,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             boolean tempBuild = execution.isTempBuild();
             if (!indy.stores().exists(hostedKey)) {
                 HostedRepository buildArtifacts = new HostedRepository(packageType, buildContentId);
-                buildArtifacts.setAllowSnapshots(tempBuild);
+                buildArtifacts.setAllowSnapshots(false);
                 buildArtifacts.setAllowReleases(true);
 
                 buildArtifacts.setDescription(String.format("Build output for PNC %s build #%s", packageType, id));
