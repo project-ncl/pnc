@@ -144,7 +144,6 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         super.validateBeforeUpdating(id, buildConfigurationRest);
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(buildConfigurationRest.getId(), buildConfigurationRest.getDependencyIds());
-        changeLastModificationDate(buildConfigurationRest);
     }
 
     private void validateRepositoryConfigurationId(RepositoryConfigurationRest repositoryConfiguration) throws InvalidEntityException {
@@ -185,15 +184,6 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         });
     }
 
-    private void changeLastModificationDate(BuildConfigurationRest buildConfigurationRest) {
-
-        BuildConfiguration buildConfig = repository.queryById(buildConfigurationRest.getId());
-        // Modify lastModificationDate only if audited fields change
-        if (buildConfig != null && !equalAuditedValues(buildConfig, buildConfigurationRest)) {
-            buildConfigurationRest.setLastModificationTime(new Date());
-        }
-    }
-
     @Override
     protected Function<? super BuildConfiguration, ? extends BuildConfigurationRest> toRESTModel() {
         return buildConfiguration -> new BuildConfigurationRest(buildConfiguration);
@@ -212,6 +202,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             BuildConfiguration buildConfigDB = repository.queryById(buildConfigRest.getId());
             // If updating an existing record, need to replace several fields from the rest entity with values from DB
             if (buildConfigDB != null) {
+                builder.lastModificationTime(buildConfigDB.getLastModificationTime()); // Handled by JPA @Version
                 builder.creationTime(buildConfigDB.getCreationTime()); // Immutable after creation
                 if (buildConfigRest.getDependencyIds() == null) {
                     // If the client request does not include a list of dependencies, just keep the current set
@@ -311,18 +302,6 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                 .filter(bca -> equalValues(bca, buildConfigurationRest))
                 .findFirst()
                 .map(buildConfigurationAuditedToRestModel());
-    }
-
-    private boolean equalAuditedValues(BuildConfiguration buildConfig, BuildConfigurationRest rest) {
-        return equalsWithNull(buildConfig.getName(), rest.getName()) &&
-                equalsWithNull(buildConfig.getBuildScript(), rest.getBuildScript()) &&
-                equalsId(buildConfig.getRepositoryConfiguration(), rest.getRepositoryConfiguration()) &&
-                equalsWithNull(buildConfig.getScmRevision(), rest.getScmRevision()) &&
-                equalsId(buildConfig.getProject(), rest.getProject()) &&
-                equalsId(buildConfig.getBuildEnvironment(), rest.getEnvironment()) &&
-                (buildConfig.isArchived() == rest.isArchived()) &&
-                (buildConfig.getBuildType() == rest.getBuildType()) &&
-                buildConfig.getGenericParameters().equals(rest.getGenericParameters());
     }
 
     private boolean equalValues(BuildConfigurationAudited audited, BuildConfigurationRest rest) {
