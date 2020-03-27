@@ -189,7 +189,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
         BuildConfiguration buildConfig = repository.queryById(buildConfigurationRest.getId());
         // Modify lastModificationDate only if audited fields change
-        if (!equalAuditedValues(buildConfig, buildConfigurationRest)) {
+        if (buildConfig != null && !equalAuditedValues(buildConfig, buildConfigurationRest)) {
             buildConfigurationRest.setLastModificationTime(new Date());
         }
     }
