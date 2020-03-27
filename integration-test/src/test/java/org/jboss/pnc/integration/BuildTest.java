@@ -334,13 +334,15 @@ public class BuildTest {
         assertThat(oldDescription).isNotEqualTo(updatedBuildConfiguration.getDescription());
         assertThat(oldLastModDate).isEqualTo(updatedBuildConfiguration.getLastModificationTime());
 
+        // Trigger a new build without force, should not build again
+        temporary = new BuildOptions();
         RestResponse<BuildRecordRest> buildRecord = triggerBCBuild(updatedBuildConfiguration, Optional.empty(), temporary);
         assertThat(buildRecord.getRestCallResponse().getStatusCode()).isEqualTo(200);
         ResponseUtils.waitSynchronouslyFor(() -> {
             RestResponse<BuildRecordRest> record = buildRecordRestClient.get(buildRecord.getValue().getId(),
                     false);
             return record.hasValue() && record.getValue().getStatus().equals(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
-        }, 30, TimeUnit.SECONDS);
+        }, 15, TimeUnit.SECONDS);
 
         RestResponse<BuildRecordRest> response = buildRecordRestClient.get(buildRecord.getValue().getId());
         assertThat(response.getValue().getStatus()).isEqualTo(BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
