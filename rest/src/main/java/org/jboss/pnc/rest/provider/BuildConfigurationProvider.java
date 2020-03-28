@@ -54,6 +54,7 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -303,20 +304,12 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
 
     private boolean equalValues(BuildConfigurationAudited audited, BuildConfigurationRest rest) {
         return audited.getName().equals(rest.getName()) &&
-                equalsWithNull(audited.getBuildScript(), rest.getBuildScript()) &&
+                Objects.equals(audited.getBuildScript(), rest.getBuildScript()) &&
                 equalsId(audited.getRepositoryConfiguration(), rest.getRepositoryConfiguration()) &&
-                equalsWithNull(audited.getScmRevision(), rest.getScmRevision()) &&
+                Objects.equals(audited.getScmRevision(), rest.getScmRevision()) &&
                 equalsId(audited.getProject(), rest.getProject()) &&
                 equalsId(audited.getBuildEnvironment(), rest.getEnvironment()) &&
                 audited.getGenericParameters().equals(rest.getGenericParameters());
-    }
-
-    private boolean equalsWithNull(Object o1, Object o2) {
-        if(o1 == null) {
-            return o2 == null;
-        } else {
-            return o1.equals(o2);
-        }
     }
 
     private boolean equalsId(GenericEntity<Integer> dbEntity,  GenericRestEntity<Integer> restEntity) {

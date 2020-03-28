@@ -286,8 +286,8 @@ public class BuildTest {
         } , 15, TimeUnit.SECONDS);
 
         // Update only description, should not create a new revision and keep same lastModificationTime
-        String oldDescription = buildConfigurationRest.getDescription() != null ? new String(buildConfigurationRest.getDescription()) : null;
-        Date oldLastModDate = buildConfigurationRest.getLastModificationTime() != null ? new Date(buildConfigurationRest.getLastModificationTime().getTime()) : null;
+        String oldDescription = buildConfigurationRest.getDescription();
+        Date oldLastModDate = buildConfigurationRest.getLastModificationTime();
         BuildConfigurationRest updatedBuildConfigurationRest = updateBCDescription(buildConfigurationRest, "Random Description to be able to trigger build again so that persistent build will be first on this revision");
         assertThat(oldDescription).isNotEqualTo(updatedBuildConfigurationRest.getDescription());
         assertThat(oldLastModDate).isEqualTo(updatedBuildConfigurationRest.getLastModificationTime());
@@ -324,8 +324,8 @@ public class BuildTest {
         } , 15, TimeUnit.SECONDS);
 
         // Update only description, should not create a new revision and keep same lastModificationTime
-        String oldDescription = buildConfigurationRest.getDescription() != null ? new String(buildConfigurationRest.getDescription()) : null;
-        Date oldLastModDate = buildConfigurationRest.getLastModificationTime() != null ? new Date(buildConfigurationRest.getLastModificationTime().getTime()) : null;
+        String oldDescription = buildConfigurationRest.getDescription();
+        Date oldLastModDate = buildConfigurationRest.getLastModificationTime();
         BuildConfigurationRest updatedBuildConfigurationRest = updateBCDescription(buildConfigurationRest, "Random Description to be able to trigger build again so that persistent build will be first on this revision");
         assertThat(oldDescription).isNotEqualTo(updatedBuildConfigurationRest.getDescription());
         assertThat(oldLastModDate).isEqualTo(updatedBuildConfigurationRest.getLastModificationTime());
@@ -353,7 +353,7 @@ public class BuildTest {
         temporary.setTemporaryBuild(true);
 
         // Updating the description only won't create a new revision, as description is not audited anymore
-        Date oldLastModDate = buildConfiguration.getLastModificationTime() != null ? new Date(buildConfiguration.getLastModificationTime().getTime()) : null;
+        Date oldLastModDate = buildConfiguration.getLastModificationTime();
         buildConfiguration.setBuildScript("mvn" + " clean deploy -DskipTests=true");
         BuildConfigurationRest updatedBuildConfiguration = updateBCDescription(buildConfiguration, "Updating the description only will not create a new revision, as description is not audited anymore");
         assertThat(oldLastModDate).isNotEqualTo(updatedBuildConfiguration.getLastModificationTime());
