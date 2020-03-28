@@ -28,6 +28,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.Objects;
 
 @Stateless
 public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildConfiguration, Integer> implements
@@ -65,22 +66,14 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
     }
 
     private boolean equalAuditedValues(BuildConfiguration persisted, BuildConfiguration toUpdate) {
-        return equalsWithNull(persisted.getName(), toUpdate.getName()) &&
-                equalsWithNull(persisted.getBuildScript(), toUpdate.getBuildScript()) &&
+        return Objects.equals(persisted.getName(), toUpdate.getName()) &&
+                Objects.equals(persisted.getBuildScript(), toUpdate.getBuildScript()) &&
                 equalsId(persisted.getRepositoryConfiguration(), toUpdate.getRepositoryConfiguration()) &&
-                equalsWithNull(persisted.getScmRevision(), toUpdate.getScmRevision()) &&
+                Objects.equals(persisted.getScmRevision(), toUpdate.getScmRevision()) &&
                 equalsId(persisted.getProject(), toUpdate.getProject()) &&
                 equalsId(persisted.getBuildEnvironment(), toUpdate.getBuildEnvironment()) &&
                 (persisted.isArchived() == toUpdate.isArchived()) &&
                 (persisted.getBuildType() == toUpdate.getBuildType());
-    }
-
-    private boolean equalsWithNull(Object o1, Object o2) {
-        if(o1 == null) {
-            return o2 == null;
-        } else {
-            return o1.equals(o2);
-        }
     }
 
     private boolean equalsId(GenericEntity persisted, GenericEntity toUpdate) {
@@ -88,11 +81,7 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
             return true;
         }
 
-        if (persisted == null && toUpdate != null) {
-            return false;
-        }
-
-        if (persisted != null && toUpdate == null) {
+        if (persisted == null || toUpdate == null) {
             return false;
         }
 
@@ -104,11 +93,7 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
             return true;
         }
 
-        if (persisted.getGenericParameters() == null && newBC.getGenericParameters() != null) {
-            return false;
-        }
-
-        if (persisted.getGenericParameters() != null && newBC.getGenericParameters() == null) {
+        if (persisted.getGenericParameters() == null || newBC.getGenericParameters() == null) {
             return false;
         }
 
