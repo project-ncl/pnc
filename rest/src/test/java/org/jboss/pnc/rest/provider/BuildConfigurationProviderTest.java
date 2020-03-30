@@ -62,7 +62,6 @@ public class BuildConfigurationProviderTest {
     private static final String SCM_REVISION = "master";
     private static final String CONFIG_NAME = "config";
     private static final String BUILD_SCRIPT = "mvn clean";
-    private static final String DESCRIPTION = "Some Configuration";
 
     private static final RepositoryConfigurationRest REPOSITORY = createRepository(REPOSITORY_ID);
     private static final ProjectRest PROJECT = createProject(PROJECT_ID);
@@ -108,7 +107,6 @@ public class BuildConfigurationProviderTest {
                 1,
                 ENVIRONMENT_ID,
                 BUILD_SCRIPT,
-                null,
                 params,
                 CONFIG_NAME,
                 PROJECT_ID,
@@ -118,7 +116,6 @@ public class BuildConfigurationProviderTest {
                 2,
                 ENVIRONMENT_ID,
                 BUILD_SCRIPT,
-                null,
                 params,
                 CONFIG_NAME,
                 PROJECT_ID,
@@ -129,7 +126,6 @@ public class BuildConfigurationProviderTest {
                 3,
                 ENVIRONMENT_ID + 1,
                 BUILD_SCRIPT,
-                DESCRIPTION,
                 params,
                 CONFIG_NAME,
                 PROJECT_ID,
@@ -139,17 +135,6 @@ public class BuildConfigurationProviderTest {
                 4,
                 ENVIRONMENT_ID,
                 BUILD_SCRIPT + "a",
-                DESCRIPTION,
-                params,
-                CONFIG_NAME,
-                PROJECT_ID,
-                REPOSITORY_ID,
-                SCM_REVISION);
-        BuildConfigurationAudited mismatching5 = createBuildConfigurationAudited(
-                5,
-                ENVIRONMENT_ID,
-                BUILD_SCRIPT,
-                DESCRIPTION + "a",
                 params,
                 CONFIG_NAME,
                 PROJECT_ID,
@@ -159,7 +144,6 @@ public class BuildConfigurationProviderTest {
                 6,
                 ENVIRONMENT_ID,
                 BUILD_SCRIPT,
-                DESCRIPTION,
                 new HashMap(),
                 CONFIG_NAME,
                 PROJECT_ID,
@@ -169,7 +153,6 @@ public class BuildConfigurationProviderTest {
                 7,
                 ENVIRONMENT_ID,
                 BUILD_SCRIPT,
-                DESCRIPTION,
                 params,
                 CONFIG_NAME + "a",
                 PROJECT_ID,
@@ -179,7 +162,6 @@ public class BuildConfigurationProviderTest {
                 8,
                 ENVIRONMENT_ID,
                 BUILD_SCRIPT,
-                DESCRIPTION,
                 params,
                 CONFIG_NAME,
                 PROJECT_ID + 1,
@@ -189,7 +171,6 @@ public class BuildConfigurationProviderTest {
                 9,
                 ENVIRONMENT_ID,
                 BUILD_SCRIPT,
-                DESCRIPTION,
                 params,
                 CONFIG_NAME,
                 PROJECT_ID,
@@ -199,7 +180,6 @@ public class BuildConfigurationProviderTest {
                 10,
                 ENVIRONMENT_ID,
                 BUILD_SCRIPT,
-                DESCRIPTION,
                 params,
                 CONFIG_NAME,
                 PROJECT_ID,
@@ -212,7 +192,6 @@ public class BuildConfigurationProviderTest {
                 mismatching8,
                 mismatching7,
                 mismatching6,
-                mismatching5,
                 mismatching4,
                 mismatching3,
                 matching2,
@@ -233,7 +212,6 @@ public class BuildConfigurationProviderTest {
             int rev,
             int environmentID,
             String buildScript,
-            String description,
             Map<String, String> parameters,
             String name,
             int projectID,
@@ -245,7 +223,6 @@ public class BuildConfigurationProviderTest {
         bca.setIdRev(new IdRev(EXISTING_ID, rev));
         bca.setBuildEnvironment(BuildEnvironment.Builder.newBuilder().id(environmentID).build());
         bca.setBuildScript(buildScript);
-        bca.setDescription(description);
         bca.setGenericParameters(parameters);
         bca.setName(name);
         bca.setProject(Project.Builder.newBuilder().id(projectID).build());

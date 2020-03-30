@@ -381,7 +381,6 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         buildConfiguration.setBuildScript(buildConfigurationAudited.getBuildScript());
         buildConfiguration.setRepositoryConfiguration(buildConfigurationAudited.getRepositoryConfiguration());
         buildConfiguration.setScmRevision(buildConfigurationAudited.getScmRevision());
-        buildConfiguration.setDescription(buildConfigurationAudited.getDescription());
         buildConfiguration.setBuildType(buildConfigurationAudited.getBuildType());
         buildConfiguration.setBuildEnvironment(buildConfigurationAudited.getBuildEnvironment());
         buildConfiguration.setGenericParameters(buildConfigurationAudited.getGenericParameters());
@@ -394,7 +393,6 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                 && equalsWithNull(audited.getBuildScript(), rest.getBuildScript())
                 && equalsId(audited.getRepositoryConfiguration(), rest.getRepositoryConfiguration())
                 && equalsWithNull(audited.getScmRevision(), rest.getScmRevision())
-                && equalsWithNull(audited.getDescription(), rest.getDescription())
                 && equalsId(audited.getProject(), rest.getProject())
                 && equalsId(audited.getBuildEnvironment(), rest.getEnvironment())
                 && audited.getGenericParameters().equals(rest.getGenericParameters());

@@ -123,6 +123,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Size(max = 255)
     private String scmRevision;
 
+    @NotAudited
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String description;
