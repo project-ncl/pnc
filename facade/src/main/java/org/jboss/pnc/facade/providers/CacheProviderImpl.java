@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
-
 import java.util.Map;
 import java.util.SortedMap;
 
@@ -70,7 +68,6 @@ public class CacheProviderImpl implements CacheProvider {
         return cacheHandlerRepository.getGenericStats();
     }
 
-    @RolesAllowed(SYSTEM_USER)
     @Override
     public void clearAllCache() {
         logger.debug("Evict all content from second level cache");
