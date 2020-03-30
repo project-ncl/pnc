@@ -41,7 +41,7 @@
     $ctrl.$onInit = function () {
       // set if bindings are empty
       $ctrl.displayFields = $ctrl.displayFields || DEFAULT_FIELDS;
-      $ctrl.paginator = paginator($ctrl.page);
+      $ctrl.paginator = $ctrl.page ? paginator($ctrl.page) : null;
     };
 
   }
