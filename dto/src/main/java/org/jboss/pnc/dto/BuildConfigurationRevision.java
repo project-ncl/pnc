@@ -57,13 +57,12 @@ public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
             String id,
             Integer rev,
             String name,
-            String description,
             String buildScript,
             String scmRevision,
             Instant creationTime,
             Instant modificationTime,
             BuildType buildType) {
-        super(id, rev, name, description, buildScript, scmRevision, creationTime, modificationTime, buildType);
+        super(id, rev, name, buildScript, scmRevision, creationTime, modificationTime, buildType);
         this.scmRepository = scmRepository;
         this.project = project;
         this.environment = environment;
