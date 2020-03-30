@@ -34,13 +34,18 @@ import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
+import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.restmodel.BuildRecordRest;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -50,7 +55,9 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -185,11 +192,16 @@ public class BuildTest {
                 .iterator()
                 .next();
 
+        // Updating the description only won't create a new revision, as description is not audited anymore
+        Instant oldLastModDate = buildConfiguration.getModificationTime();
         BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder()
                 .description(
                         "Random Description to be able to trigger build again so that temporary build will be first on this revision")
+                .buildScript("mvn" + " clean deploy -DskipTests=true")
                 .build();
+
         buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
+        assertThat(oldLastModDate).isNotEqualTo(updatedConfiguration.getModificationTime());
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
 
@@ -216,16 +228,22 @@ public class BuildTest {
                 .iterator()
                 .next();
 
+        Instant oldLastModDateParent = parent.getModificationTime();
         BuildConfiguration updatedParent = parent.toBuilder()
                 .description(
                         "Random Description to be able to trigger build again so that temporary build will be first on this revision")
+                .buildScript("mvn" + "  clean deploy -DskipTests=true")
                 .build();
         buildConfigurationClient.update(updatedParent.getId(), updatedParent);
+        assertThat(oldLastModDateParent).isNotEqualTo(updatedParent.getModificationTime());
 
+        Instant oldLastModDateDependency = parent.getModificationTime();
         BuildConfiguration updatedDependency = dependency.toBuilder()
                 .description("Random Description so it rebuilds")
+                .buildScript("mvn" + "   clean deploy -DskipTests=true")
                 .build();
         buildConfigurationClient.update(updatedDependency.getId(), updatedDependency);
+        assertThat(oldLastModDateDependency).isNotEqualTo(updatedDependency.getModificationTime());
 
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
@@ -248,6 +266,103 @@ public class BuildTest {
         Build finalRecord = buildConfigurationClient.trigger(parent.getId(), getTemporaryParameters());
         ResponseUtils.waitSynchronouslyFor(
                 () -> buildToFinish(finalRecord.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
+                15,
+                TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void shouldRejectAfterBuildingTwoTempBuildsOnSameRevision() throws ClientException {
+        BuildConfiguration buildConfiguration = buildConfigurationClient
+                .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
+                .iterator()
+                .next();
+
+        // Updating the description only won't create a new revision, as description is not audited anymore
+        Instant oldLastModDate = buildConfiguration.getModificationTime();
+        BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder()
+                .description(
+                        "Random Description to be able to trigger build again so that temporary build will be first on this revision")
+                .buildScript("mvn" + "  clean deploy -DskipTests=true")
+                .build();
+
+        buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
+        assertThat(oldLastModDate).isNotEqualTo(updatedConfiguration.getModificationTime());
+        EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
+        EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
+
+        Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), getTemporaryParameters());
+        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
+
+        Build build2 = buildConfigurationClient
+                .trigger(buildConfiguration.getId(), getTemporaryParameters());
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildToFinish(afterTempPersistentBuild.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
+                15,
+                TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void shouldNotTriggerANewPersistentBuildWithoutForceIfOnlyDescriptionChanged() {
+        BuildConfiguration buildConfiguration = buildConfigurationClient
+                .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
+                .iterator()
+                .next();
+
+        EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
+        EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
+
+        // Build persistent builds (parent and dependency) on new revision
+        Build persistentBuild = buildConfigurationClient.trigger(buildConfiguration.getId(), getPersistentParameters(true));
+        ResponseUtils
+                .waitSynchronouslyFor(() -> buildToFinish(persistentBuild.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
+
+        // Updating the description only won't create a new revision, as description is not audited anymore
+        Instant oldLastModDate = buildConfiguration.getModificationTime();
+        BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder()
+                .description(
+                        "Random Description to be able to trigger build again so that persistent build will be first on this revision")
+                .build();
+
+        buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
+        assertThat(oldLastModDate).isEqualTo(updatedConfiguration.getModificationTime());
+
+        Build build2 = buildConfigurationClient
+                .trigger(updatedConfiguration.getId(), getPersistentParameters());
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildToFinish(build2.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
+                15,
+                TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void shouldNotTriggerANewTemporaryBuildWithoutForceIfOnlyDescriptionChanged() {
+        BuildConfiguration buildConfiguration = buildConfigurationClient
+                .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
+                .iterator()
+                .next();
+
+        EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
+        EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
+
+        // Build temporary builds (parent and dependency) on new revision
+        Build persistentBuild = buildConfigurationClient.trigger(buildConfiguration.getId(), getTemporaryParameters(true));
+        ResponseUtils
+                .waitSynchronouslyFor(() -> buildToFinish(persistentBuild.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
+
+        // Updating the description only won't create a new revision, as description is not audited anymore
+        Instant oldLastModDate = buildConfiguration.getModificationTime();
+        BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder()
+                .description(
+                        "Random Description to be able to trigger build again so that temporary build will be first on this revision")
+                .build();
+
+        buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
+        assertThat(oldLastModDate).isEqualTo(updatedConfiguration.getModificationTime());
+
+        Build build2 = buildConfigurationClient
+                .trigger(updatedConfiguration.getId(), getTemporaryParameters());
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildToFinish(build2.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
                 15,
                 TimeUnit.SECONDS);
     }
@@ -289,6 +404,7 @@ public class BuildTest {
         BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder()
                 .description(
                         "Random Description to be able to trigger build again so that temporary build will be first on this revision")
+                .buildScript("mvn" + "   clean deploy -DskipTests=true")
                 .build();
         buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
 

@@ -20,6 +20,7 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSpringRepository;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 
 import javax.ejb.Stateless;
@@ -27,6 +28,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.util.Date;
+import java.util.Objects;
 
 @Stateless
 public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildConfiguration, Integer>
@@ -51,12 +53,36 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
         Integer id = buildConfiguration.getId();
         BuildConfiguration persisted = queryById(id);
         if (persisted != null) {
-            if (!areParametersEqual(persisted, buildConfiguration)) {
-                // always increment the revision of main entity when the child collection is updated
+            if (!areParametersEqual(persisted, buildConfiguration) || !equalAuditedValues(persisted, buildConfiguration)) {
+                //always increment the revision of main entity when the child collection is updated
+                //the @PreUpdate method in BuildConfiguration was removed, the calculation of whether the lastModificationTime needs to be changed is done here
                 buildConfiguration.setLastModificationTime(new Date());
             }
         }
         return springRepository.save(buildConfiguration);
+    }
+
+    private boolean equalAuditedValues(BuildConfiguration persisted, BuildConfiguration toUpdate) {
+        return Objects.equals(persisted.getName(), toUpdate.getName()) &&
+                Objects.equals(persisted.getBuildScript(), toUpdate.getBuildScript()) &&
+                equalsId(persisted.getRepositoryConfiguration(), toUpdate.getRepositoryConfiguration()) &&
+                Objects.equals(persisted.getScmRevision(), toUpdate.getScmRevision()) &&
+                equalsId(persisted.getProject(), toUpdate.getProject()) &&
+                equalsId(persisted.getBuildEnvironment(), toUpdate.getBuildEnvironment()) &&
+                (persisted.isArchived() == toUpdate.isArchived()) &&
+                (persisted.getBuildType() == toUpdate.getBuildType());
+    }
+
+    private boolean equalsId(GenericEntity<Integer> persisted, GenericEntity<Integer> toUpdate) {
+        if (persisted == null && toUpdate == null) {
+            return true;
+        }
+
+        if (persisted == null || toUpdate == null) {
+            return false;
+        }
+
+        return persisted.getId().equals(toUpdate.getId());
     }
 
     private boolean areParametersEqual(BuildConfiguration persisted, BuildConfiguration newBC) {
@@ -64,11 +90,7 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
             return true;
         }
 
-        if (persisted.getGenericParameters() == null && newBC.getGenericParameters() != null) {
-            return false;
-        }
-
-        if (persisted.getGenericParameters() != null && newBC.getGenericParameters() == null) {
+        if (persisted.getGenericParameters() == null || newBC.getGenericParameters() == null) {
             return false;
         }
 
