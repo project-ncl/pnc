@@ -209,7 +209,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
                         logger.debug("Force cancelling build ...");
                         prepareBuildFuture.cancel(true);
                     }, internalCancelTimeoutMillis, TimeUnit.MILLISECONDS);
-                remoteInvocation.addOnClose(() -> forceCancel_.cancel(false));
+                remoteInvocation.addPreClose(() -> forceCancel_.cancel(false));
             });
         } else {
             logger.debug("Skipping script uploading (cancel flag) ...");
@@ -238,7 +238,7 @@ public class TermdBuildDriver implements BuildDriver { //TODO rename class
             }
         };
         ScheduledFuture<?> livenessMonitor = scheduledExecutorService.scheduleWithFixedDelay(isAlive, livenessProbeFrequency, livenessProbeFrequency, TimeUnit.MILLISECONDS);
-        remoteInvocation.addOnClose(() -> livenessMonitor.cancel(false));
+        remoteInvocation.addPreClose(() -> livenessMonitor.cancel(false));
         return completableFuture;
     }
 
