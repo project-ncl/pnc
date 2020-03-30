@@ -53,7 +53,7 @@ class RemoteInvocation implements Closeable {
 
     private boolean canceled = false;
 
-    private Set<Runnable> closeListeners = new HashSet<>();
+    private Set<Runnable> preCloseListeners = new HashSet<>();
 
     public RemoteInvocation(
             ClientFactory buildAgentClientFactory,
@@ -130,6 +130,12 @@ class RemoteInvocation implements Closeable {
 
     @Override
     public void close() {
+        try {
+            preCloseListeners.forEach(Runnable::run);
+        } catch (Exception e) { // make sure close is not interrupted
+            logger.error("Error in pre-close operation.", e);
+        }
+
         if (buildAgentClient != null) {
             logger.debug("Closing build agent client.");
             try {
@@ -142,15 +148,14 @@ class RemoteInvocation implements Closeable {
             // cancel has been requested
             logger.debug("There is no buildAgentClient probably cancel has been requested.");
         }
-        closeListeners.forEach(Runnable::run);
     }
 
     public boolean isCanceled() {
         return canceled;
     }
 
-    public void addOnClose(Runnable task) {
-        closeListeners.add(task);
+    public void addPreClose(Runnable task) {
+        preCloseListeners.add(task);
     }
 
     public boolean isAlive() {
