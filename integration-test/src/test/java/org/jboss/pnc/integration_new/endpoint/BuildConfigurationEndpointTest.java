@@ -407,14 +407,14 @@ public class BuildConfigurationEndpointTest {
     @Test
     public void shouldCreateBuildConfigRevision() throws ClientException {
         final String description = "Updated description.";
-        final String name = "Updated name";
+        final String updatedName = UUID.randomUUID().toString();
         final String buildScript = "mvn deploy # Updated script";
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         BuildConfiguration bc = client.getSpecific(configurationId);
 
         Instant modTime = bc.getModificationTime();
-        BuildConfiguration newBC1 = bc.toBuilder().name(name).description(description).build();
+        BuildConfiguration newBC1 = bc.toBuilder().name(updatedName).description(description).build();
         BuildConfiguration newBC2 = bc.toBuilder().buildScript(buildScript).build();
 
         BuildConfigurationRevision newRevision1 = client.createRevision(configurationId, newBC1);
@@ -422,7 +422,7 @@ public class BuildConfigurationEndpointTest {
 
         assertNotEquals(modTime, newRevision1.getModificationTime());
         assertNotEquals(modTime, newRevision2.getModificationTime());
-        assertEquals(name, newRevision1.getName());
+        assertEquals(updatedName, newRevision1.getName());
         assertEquals(bc.getBuildScript(), newRevision1.getBuildScript());
         assertEquals(bc.getEnvironment(), newRevision2.getEnvironment());
         assertEquals(buildScript, newRevision2.getBuildScript());
@@ -476,12 +476,12 @@ public class BuildConfigurationEndpointTest {
     @Test
     public void shouldNotCreateBuildConfigRevision() throws ClientException {
         final String description = "Updated description again.";
-        final String name = "Updated name";
+        final String updatedName = UUID.randomUUID().toString();
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         BuildConfiguration bc = client.getSpecific(configuration2Id);
 
-        BuildConfiguration newBC1 = bc.toBuilder().name(name).description(description).build();
+        BuildConfiguration newBC1 = bc.toBuilder().name(updatedName).description(description).build();
         BuildConfiguration newBC2 = bc.toBuilder().description(description).build();
 
         BuildConfigurationRevision newRevision1 = client.createRevision(configuration2Id, newBC1);
