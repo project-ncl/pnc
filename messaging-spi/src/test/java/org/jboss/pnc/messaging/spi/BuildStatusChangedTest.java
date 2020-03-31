@@ -95,7 +95,6 @@ public class BuildStatusChangedTest {
                 .id("1")
                 .rev(1)
                 .name("name")
-                .description("desc")
                 .buildScript("true")
                 .scmRevision("awqs21")
                 .build();

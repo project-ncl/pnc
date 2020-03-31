@@ -73,7 +73,6 @@ public class BuildConfigRevisionHelper {
                 && Objects.equals(audited.getBuildScript(), query.getBuildScript())
                 && equalsId(audited.getRepositoryConfiguration(), query.getRepositoryConfiguration())
                 && Objects.equals(audited.getScmRevision(), query.getScmRevision())
-                && Objects.equals(audited.getDescription(), query.getDescription())
                 && equalsId(audited.getProject(), query.getProject())
                 && equalsId(audited.getBuildEnvironment(), query.getBuildEnvironment())
                 && audited.getGenericParameters().equals(query.getGenericParameters());
