@@ -69,6 +69,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -261,6 +262,7 @@ public class BuildConfigurationEndpointTest {
 
         BuildConfiguration buildConfiguration = client.getAll().iterator().next();
         String newDescription = "Testing patch support.";
+        Instant modTime = buildConfiguration.getModificationTime();
 
         String id = buildConfiguration.getId();
 
@@ -270,6 +272,7 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration updated = client.patch(id, builder);
 
         Assert.assertEquals(newDescription, updated.getDescription());
+        Assert.assertEquals(modTime, updated.getModificationTime());
         Assertions.assertThat(updated.getParameters()).contains(addElements.entrySet().toArray(new Map.Entry[1]));
 
         String newDescription2 = "Testing patch support 2.";
@@ -401,20 +404,24 @@ public class BuildConfigurationEndpointTest {
     @Test
     public void shouldCreateBuildConfigRevision() throws ClientException {
         final String description = "Updated description.";
+        final String name = "Updated name.";
         final String buildScript = "mvn deploy # Updated script";
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         BuildConfiguration bc = client.getSpecific(configurationId);
 
-        BuildConfiguration newBC1 = bc.toBuilder().description(description).build();
+        Instant modTime = bc.getModificationTime();
+        BuildConfiguration newBC1 = bc.toBuilder().name(name).description(description).build();
         BuildConfiguration newBC2 = bc.toBuilder().buildScript(buildScript).build();
 
         BuildConfigurationRevision newRevision1 = client.createRevision(configurationId, newBC1);
         BuildConfigurationRevision newRevision2 = client.createRevision(configurationId, newBC2);
 
-        assertEquals(description, newRevision1.getDescription());
+        assertNotEquals(modTime, newRevision1.getModificationTime());
+        assertNotEquals(modTime, newRevision2.getModificationTime());
+        assertEquals(name, newRevision1.getName());
         assertEquals(bc.getBuildScript(), newRevision1.getBuildScript());
-        assertEquals(bc.getDescription(), newRevision2.getDescription());
+        assertEquals(bc.getEnvironment(), newRevision2.getEnvironment());
         assertEquals(buildScript, newRevision2.getBuildScript());
         assertThat(newRevision1.getRev()).isLessThan(newRevision2.getRev());
     }
