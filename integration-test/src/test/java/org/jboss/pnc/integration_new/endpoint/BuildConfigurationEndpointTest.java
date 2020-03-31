@@ -439,6 +439,7 @@ public class BuildConfigurationEndpointTest {
     }
 
     @Test
+    @InSequence(50)
     public void shouldRestoreBuildConfigurationRevision() throws Exception {
         // given
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
@@ -457,8 +458,9 @@ public class BuildConfigurationEndpointTest {
         }
 
         // when
+        String newDescription = "shouldRestoreBuildConfigurationRevision Updated";
         BuildConfiguration toUpdate = original.toBuilder()
-                .description("shouldRestoreBuildConfigurationRevision Updated")
+                .description(newDescription)
                 .build();
         client.update(configurationId, toUpdate);
         assertThat(toUpdate.getDescription()).isNotEqualTo(description);
@@ -483,7 +485,7 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration bc = client.getSpecific(configuration2Id);
 
         BuildConfiguration newBC1 = bc.toBuilder().name(updatedName).description(description).build();
-        BuildConfiguration newBC2 = bc.toBuilder().description(description).build();
+        BuildConfiguration newBC2 = newBC1.toBuilder().description(description).build();
 
         BuildConfigurationRevision newRevision1 = client.createRevision(configuration2Id, newBC1);
         BuildConfigurationRevision newRevision2 = client.createRevision(configuration2Id, newBC2);
