@@ -407,7 +407,7 @@ public class BuildConfigurationEndpointTest {
     @Test
     public void shouldCreateBuildConfigRevision() throws ClientException {
         final String description = "Updated description.";
-        final String updatedName = UUID.randomUUID().toString();
+        final String updatedName = "thisisanupdatedname";
         final String buildScript = "mvn deploy # Updated script";
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
@@ -443,6 +443,7 @@ public class BuildConfigurationEndpointTest {
         // given
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         BuildConfiguration original = client.getSpecific(configurationId);
+        String description = original.getDescription();
 
         Iterator<BuildConfigurationRevision> it = client.getRevisions(configurationId).iterator();
 
@@ -460,15 +461,15 @@ public class BuildConfigurationEndpointTest {
                 .description("shouldRestoreBuildConfigurationRevision Updated")
                 .build();
         client.update(configurationId, toUpdate);
-        BuildConfiguration updated = client.getSpecific(configurationId);
-        assertThat(updated.getDescription()).isNotEqualTo(original.getDescription());
+        assertThat(toUpdate.getDescription()).isNotEqualTo(description);
 
         // and when
         BuildConfiguration restored = client.restoreRevision(configurationId, originalRev.getRev());
         BuildConfiguration retrieved = client.getSpecific(configurationId);
 
         // then
-        assertThat(restored.getDescription()).isNotEqualTo(updated.getDescription());
+        // we don't audit anymore the description, so it cannot be restored from a previous revision
+        assertThat(restored.getDescription()).isEqualTo(toUpdate.getDescription());
         assertThat(restored).isEqualToIgnoringGivenFields(original, "modificationTime");
         assertThat(retrieved).isEqualToIgnoringGivenFields(restored, "modificationTime");
     }
@@ -476,7 +477,7 @@ public class BuildConfigurationEndpointTest {
     @Test
     public void shouldNotCreateBuildConfigRevision() throws ClientException {
         final String description = "Updated description again.";
-        final String updatedName = UUID.randomUUID().toString();
+        final String updatedName = "yetanotherupdatedname";
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         BuildConfiguration bc = client.getSpecific(configuration2Id);
