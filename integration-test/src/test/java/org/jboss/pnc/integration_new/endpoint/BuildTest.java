@@ -235,6 +235,7 @@ public class BuildTest {
                 .buildScript("mvn" + "  clean deploy -DskipTests=true")
                 .build();
         buildConfigurationClient.update(updatedParent.getId(), updatedParent);
+        updatedParent = buildConfigurationClient.getSpecific(updatedParent.getId());
         assertThat(oldLastModDateParent).isNotEqualTo(updatedParent.getModificationTime());
 
         Instant oldLastModDateDependency = parent.getModificationTime();
