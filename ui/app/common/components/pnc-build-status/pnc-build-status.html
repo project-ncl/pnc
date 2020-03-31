@@ -26,6 +26,7 @@
 
     <span title="End Time">{{ $ctrl.item.endTime | date:'medium' }}</span>
     <span title="Start Time" ng-hide="$ctrl.item.endTime">{{ $ctrl.item.startTime | date:'medium' }}</span>
+    <span title="Submit Time" ng-hide="$ctrl.item.endTime || $ctrl.item.startTime">{{ $ctrl.item.submitTime | date:'medium' }}</span>
     <span ng-show="$ctrl.item.username">,</span>
     <span class="text-bold">{{ $ctrl.item.user.username }}</span>
   </div>
