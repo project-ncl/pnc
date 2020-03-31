@@ -277,26 +277,26 @@ public class BuildTest {
                 .iterator()
                 .next();
 
-        // Updating the description only won't create a new revision, as description is not audited anymore
-        Instant oldLastModDate = buildConfiguration.getModificationTime();
         BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder()
                 .description(
                         "Random Description to be able to trigger build again so that temporary build will be first on this revision")
-                .buildScript("mvn" + "  clean deploy -DskipTests=true")
+                .buildScript("mvn" + "   clean deploy -DskipTests=true")
                 .build();
-
         buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
-        assertThat(oldLastModDate).isNotEqualTo(updatedConfiguration.getModificationTime());
-        EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
-        EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
 
-        Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), getTemporaryParameters());
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
-
-        Build build2 = buildConfigurationClient
-                .trigger(buildConfiguration.getId(), getTemporaryParameters());
+        Build temporaryBuild = buildConfigurationClient.trigger(updatedConfiguration.getId(), getTemporaryParameters());
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(afterTempPersistentBuild.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
+                () -> buildToFinish(temporaryBuild.getId(), EnumSet.of(BuildStatus.SUCCESS), null),
+                15,
+                TimeUnit.SECONDS);
+
+        Build secondTempBuild = buildConfigurationClient
+                .trigger(updatedConfiguration.getId(), getTemporaryParameters());
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildToFinish(
+                        secondTempBuild.getId(),
+                        EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED),
+                        EnumSet.of(BuildStatus.SUCCESS, BuildStatus.REJECTED)),
                 15,
                 TimeUnit.SECONDS);
     }
@@ -392,37 +392,6 @@ public class BuildTest {
             buildParameters.setRebuildMode(RebuildMode.FORCE);
 
         return buildParameters;
-    }
-
-    @Test
-    public void shouldRejectAfterBuildingTwoTempBuildsOnSameRevision() throws ClientException {
-        BuildConfiguration buildConfiguration = buildConfigurationClient
-                .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
-                .iterator()
-                .next();
-
-        BuildConfiguration updatedConfiguration = buildConfiguration.toBuilder()
-                .description(
-                        "Random Description to be able to trigger build again so that temporary build will be first on this revision")
-                .buildScript("mvn" + "   clean deploy -DskipTests=true")
-                .build();
-        buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
-
-        Build temporaryBuild = buildConfigurationClient.trigger(updatedConfiguration.getId(), getTemporaryParameters());
-        ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(temporaryBuild.getId(), EnumSet.of(BuildStatus.SUCCESS), null),
-                15,
-                TimeUnit.SECONDS);
-
-        Build secondTempBuild = buildConfigurationClient
-                .trigger(updatedConfiguration.getId(), getTemporaryParameters());
-        ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(
-                        secondTempBuild.getId(),
-                        EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED),
-                        EnumSet.of(BuildStatus.SUCCESS, BuildStatus.REJECTED)),
-                15,
-                TimeUnit.SECONDS);
     }
 
     private Boolean buildToFinish(String id) {
