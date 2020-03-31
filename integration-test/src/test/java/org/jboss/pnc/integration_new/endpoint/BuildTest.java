@@ -201,6 +201,7 @@ public class BuildTest {
                 .build();
 
         buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
+        updatedConfiguration = buildConfigurationClient.getSpecific(updatedConfiguration.getId());
         assertThat(oldLastModDate).isNotEqualTo(updatedConfiguration.getModificationTime());
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
