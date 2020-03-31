@@ -302,7 +302,7 @@ public class BuildTest {
     }
 
     @Test
-    public void shouldNotTriggerANewPersistentBuildWithoutForceIfOnlyDescriptionChanged() {
+    public void shouldNotTriggerANewPersistentBuildWithoutForceIfOnlyDescriptionChanged() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
                 .iterator()
@@ -335,7 +335,7 @@ public class BuildTest {
     }
 
     @Test
-    public void shouldNotTriggerANewTemporaryBuildWithoutForceIfOnlyDescriptionChanged() {
+    public void shouldNotTriggerANewTemporaryBuildWithoutForceIfOnlyDescriptionChanged() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
                 .iterator()
