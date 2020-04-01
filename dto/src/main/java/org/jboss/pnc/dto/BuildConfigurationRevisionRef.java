@@ -50,8 +50,6 @@ public class BuildConfigurationRevisionRef implements DTOEntity {
 
     protected final String name;
 
-    protected final String description;
-
     protected final String buildScript;
 
     protected final String scmRevision;

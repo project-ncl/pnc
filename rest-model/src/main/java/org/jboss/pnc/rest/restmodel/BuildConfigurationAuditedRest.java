@@ -50,8 +50,6 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     private String name;
 
-    private String description;
-
     private String buildScript;
 
     @Setter
@@ -85,7 +83,6 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.id = buildConfigurationAudited.getIdRev().getId();
         this.rev = buildConfigurationAudited.getRev();
         this.name = buildConfigurationAudited.getName();
-        this.description = buildConfigurationAudited.getDescription();
         this.buildScript = buildConfigurationAudited.getBuildScript();
         this.scmRevision = buildConfigurationAudited.getScmRevision();
         this.creationTime = buildConfigurationAudited.getCreationTime();
@@ -139,14 +136,6 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getBuildScript() {
@@ -219,7 +208,6 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         BuildConfiguration.Builder buildConfigBuilder = BuildConfiguration.Builder.newBuilder()
                 .id(id)
                 .name(name)
-                .description(description)
                 .buildScript(buildScript)
                 .scmRevision(scmRevision)
                 .creationTime(creationTime)
