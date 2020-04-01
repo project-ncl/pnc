@@ -17,15 +17,7 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,7 +27,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:04 PM
@@ -83,8 +83,7 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
                 .filter(br -> br.getBuildConfigurationId().equals(configurationId))
                 .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
                 .filter(br -> !(temporaryBuild == false && br.isTemporaryBuild()))
-                .sorted(Comparator.comparing(BuildRecord::getId).reversed())
-                .findFirst()
+                .max(Comparator.comparing(BuildRecord::getId))
                 .orElse(null);
     }
 
@@ -118,8 +117,7 @@ public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> imple
                 .filter(
                         buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev()
                                 .equals(buildConfigurationAuditedIdRev))
-                .sorted(Comparator.comparing(BuildRecord::getId).reversed())
-                .findFirst();
+                .max(Comparator.comparing(BuildRecord::getId));
         return first.orElse(null);
     }
 
