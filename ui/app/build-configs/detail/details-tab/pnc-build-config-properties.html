@@ -23,28 +23,28 @@
     <dd>
       <a ui-sref="projects.detail({projectId: $ctrl.buildConfig.project.id})" ng-bind="$ctrl.buildConfig.project.name" href></a>
     </dd>
-    <dt>Created</dt>
-    <dd>{{ $ctrl.buildConfig.creationTime | date : 'medium' }}</dd>
-    <dt>Modified</dt>
-    <dd>{{ $ctrl.buildConfig.modificationTime | date : 'medium' }}</dd>
-    <dt>Description</dt>
-    <dd>{{ $ctrl.buildConfig.description }}</dd>
-    <dt>Build Type</dt>
-    <dd>{{ $ctrl.buildConfig.buildType }}</dd>
-    <dt>Environment</dt>
-    <dd>{{ $ctrl.buildConfig.environment.name }}</dd>
-    <dt>SCM Repository</dt>
-    <dd>
+    <dt ng-hide="$ctrl.hideField('creationTime')">Created</dt>
+    <dd ng-hide="$ctrl.hideField('creationTime')">{{ $ctrl.buildConfig.creationTime | date : 'medium' }}</dd>
+    <dt ng-hide="$ctrl.hideField('modificationTime')">Modified</dt>
+    <dd ng-hide="$ctrl.hideField('modificationTime')">{{ $ctrl.buildConfig.modificationTime | date : 'medium' }}</dd>
+    <dt ng-hide="$ctrl.hideField('description')">Description</dt>
+    <dd ng-hide="$ctrl.hideField('description')">{{ $ctrl.buildConfig.description }}</dd>
+    <dt ng-hide="$ctrl.hideField('buildType')">Build Type</dt>
+    <dd ng-hide="$ctrl.hideField('buildType')">{{ $ctrl.buildConfig.buildType }}</dd>
+    <dt ng-hide="$ctrl.hideField('environment')">Environment</dt>
+    <dd ng-hide="$ctrl.hideField('environment')">{{ $ctrl.buildConfig.environment.name }}</dd>
+    <dt ng-hide="$ctrl.hideField('scmRepository')">SCM Repository</dt>
+    <dd ng-hide="$ctrl.hideField('scmRepository')">
       <pnc-scm-repository-link scm-repository="$ctrl.buildConfig.scmRepository"></pnc-scm-repository-link>
     </dd>
-    <dt>Revision</dt>
-    <dd>{{ $ctrl.buildConfig.scmRevision }}</dd>
-    <dt>Build Script</dt>
-    <dd>
+    <dt ng-hide="$ctrl.hideField('scmRevision')">Revision</dt>
+    <dd ng-hide="$ctrl.hideField('scmRevision')">{{ $ctrl.buildConfig.scmRevision }}</dd>
+    <dt ng-hide="$ctrl.hideField('buildScript')">Build Script</dt>
+    <dd ng-hide="$ctrl.hideField('buildScript')">
       <pre class="build-script" id="input-build-script">{{ $ctrl.buildConfig.buildScript || 'Empty' }}</pre>
     </dd>
-    <dt>Parameters</dt>
-    <dd>
+    <dt ng-hide="$ctrl.hideField('parameters')">Parameters</dt>
+    <dd ng-hide="$ctrl.hideField('parameters')">
       <div ng-repeat="(key, value) in $ctrl.buildConfig.parameters">
         <span>{{ key }}</span><br>
         <span class="text-monospace">
