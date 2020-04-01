@@ -20,7 +20,8 @@
 
   angular.module('pnc.build-configs').component('pncBuildConfigProperties', {
     bindings: {
-      buildConfig: '<'
+      buildConfig: '<',
+      hideFields: '<'
     },
     templateUrl: 'build-configs/detail/details-tab/pnc-build-config-properties.html',
     controller: [Controller]
@@ -32,13 +33,17 @@
 
     // -- Controller API --
 
-
+    $ctrl.hideField = hideField;
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
     };
+
+    function hideField(field) {
+        return $ctrl.hideFields && $ctrl.hideFields.includes(field);
+      }
   }
 
 })();
