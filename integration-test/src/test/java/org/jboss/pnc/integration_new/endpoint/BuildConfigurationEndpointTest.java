@@ -472,8 +472,8 @@ public class BuildConfigurationEndpointTest {
         // then
         // we don't audit anymore the description, so it cannot be restored from a previous revision
         assertThat(restored.getDescription()).isEqualTo(toUpdate.getDescription());
-        assertThat(restored).isEqualToIgnoringGivenFields(original, "modificationTime");
-        assertThat(retrieved).isEqualToIgnoringGivenFields(restored, "modificationTime");
+        assertThat(restored).isEqualToIgnoringGivenFields(original, "description", "modificationTime");
+        assertThat(retrieved).isEqualToIgnoringGivenFields(restored, "description", "modificationTime");
     }
 
     @Test
