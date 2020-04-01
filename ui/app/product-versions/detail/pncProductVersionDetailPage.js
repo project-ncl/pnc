@@ -38,6 +38,7 @@
     $ctrl.save = save;
     $ctrl.editBuildConfigs = editBuildConfigs;
     $ctrl.editGroupConfigs = editGroupConfigs;
+    $ctrl.fetchGroupConfigRefs = fetchGroupConfigRefs;
 
     // --------------------
 
@@ -74,6 +75,13 @@
 
         ProductVersionResource.safePatch($ctrl.productVersion, updated);
     }
+
+    function fetchGroupConfigRefs() {
+      return $ctrl.productVersion.$get().then(productVersion => {
+        return Object.values(productVersion.groupConfigs);
+      });
+    }
   }
+
 
 })();

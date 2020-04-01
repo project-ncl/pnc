@@ -19,9 +19,10 @@
   'use strict';
 
   angular.module('pnc.common.select-modals').service('modalEditService', [
+    '$uibModal',
     'modalSelectService',
     'BuildConfigurationSet',
-    function (modalSelectService, BuildConfigurationSet) {
+    function ($uibModal, modalSelectService, BuildConfigurationSet) {
 
      /**
       *
@@ -34,6 +35,7 @@
           return BuildConfigurationSet.updateBuildConfigurations({ id: buildGroup.id }, result).$promise;
         });
       };
+
     }
   ]);
 

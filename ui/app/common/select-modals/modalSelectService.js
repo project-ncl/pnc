@@ -63,6 +63,30 @@
         });
       };
 
+      this.openForGroupConfigsMap = function (config) {
+        const _config = Object.assign({}, config);
+
+        _config.selected = Object.values(config.selected);
+
+        const modal = $uibModal.open({
+          animation: true,
+          size: 'md',
+          templateUrl: 'common/select-modals/build-group-multi-select.html',
+          controller: 'BuildGroupMultiSelectController',
+          controllerAs: 'ctrl',
+          bindToController: true,
+          resolve: {
+            modalConfig: function () {
+              return $q.when(config);
+            }
+          }
+        });
+
+        modal.result = modal.result.then(res => _.keyBy(res, 'id'));
+
+        return modal;
+      };
+
       /**
        *
        *

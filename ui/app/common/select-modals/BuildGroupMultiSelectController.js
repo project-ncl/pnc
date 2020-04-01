@@ -110,7 +110,7 @@
       ctrl.actionButtons = [
         {
           name: 'Remove',
-          title: 'Remove this Build Group',
+          title: 'Remove this Group Config',
           actionFn: function (action, object) {
             if (action.name === 'Remove') {
               ctrl.removeGroup(object);

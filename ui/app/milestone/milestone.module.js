@@ -22,7 +22,6 @@
     'ui.router',
     'ui.bootstrap',
     'patternfly',
-    'pnc.product',
     'pnc.common.restclient',
     'pnc.common.util'
   ]);

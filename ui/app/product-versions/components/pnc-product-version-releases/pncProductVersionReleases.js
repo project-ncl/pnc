@@ -19,19 +19,27 @@
 
 (function () {
 
-  var module = angular.module('pnc.builds');
+  var module = angular.module('pnc.product-versions');
 
   /**
    * @author Jakub Senko
    */
-  module.directive('pncProductVersionMilestones', [
+  module.directive('pncProductVersionReleases', [
     function () {
+
       return {
         restrict: 'E',
-        templateUrl: 'product/directives/pncProductVersionMilestones/pnc-product-version-milestones.html',
+        templateUrl: 'product-versions/components/pnc-product-version-releases/pnc-product-version-releases.html',
         scope: {
-          version: '=',
-          product: '='
+          version: '='
+        },
+        link: function (scope) {
+
+          var productmilestones = scope.version.productMilestones;
+          scope.versionMilestoneNames = {};
+          angular.forEach(productmilestones, function(versionMilestone) {
+            scope.versionMilestoneNames[versionMilestone.id] = versionMilestone.version;
+          });
         }
       };
     }
