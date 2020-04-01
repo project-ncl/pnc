@@ -17,18 +17,19 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/29/16 Time: 7:03 AM
@@ -36,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SuppressWarnings({ "WeakerAccess", "unchecked" })
 public class RepositoryMock<EntityType extends GenericEntity<Integer>> implements Repository<EntityType, Integer> {
     private final AtomicInteger idSequence = new AtomicInteger(0);
-    protected final List<EntityType> data = new ArrayList<>();
+    protected final List<EntityType> data = new CopyOnWriteArrayList<>();
 
     @Override
     public EntityType save(EntityType entity) {

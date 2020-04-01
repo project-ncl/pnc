@@ -49,13 +49,12 @@ import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repour.RepourResult;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +62,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
@@ -167,7 +165,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     buildQueue.getUnfinishedTasks());
 
             buildQueue.enqueueTaskSet(buildSetTask);
-            buildSetTask.getBuildTasks().forEach(this::addTaskToBuildQueue);
+            buildSetTask.getBuildTasks().stream().sorted(this::dependantsFirst).forEach(this::addTaskToBuildQueue);
 
             return buildSetTask;
         }
@@ -321,10 +319,21 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 buildSetTask.getBuildTasks()
                         .stream()
                         .filter(this::rejectAlreadySubmitted)
+                        .sorted(this::dependantsFirst)
                         .forEach(this::addTaskToBuildQueue);
             }
 
         }
+    }
+
+    private int dependantsFirst(BuildTask task1, BuildTask task2) {
+        if (task1.getDependencies().contains(task2)) {
+            return -1;
+        }
+        if (task1.getDependants().contains(task2)) {
+            return 1;
+        }
+        return 0;
     }
 
     private void addTaskToBuildQueue(BuildTask buildTask) {
@@ -335,6 +344,15 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             log.debug("Skipping buildTask {}, its buildConfiguration is already in the buildQueue.", buildTask);
             return;
         }
+
+        if (!(buildTask.getStatus().equals(BuildCoordinationStatus.NEW)
+                || buildTask.getStatus().equals(BuildCoordinationStatus.ENQUEUED))) {
+            log.debug(
+                    "Skipping buildTask {}, it was modified modified/finished by another thread. Avoiding race condition.",
+                    buildTask);
+            return;
+        }
+
         log.debug("Adding buildTask {} to buildQueue.", buildTask);
 
         if (buildTask.readyToBuild()) {
