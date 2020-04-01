@@ -375,7 +375,6 @@ public class BuildConfigurationProviderImpl
                 && Objects.equals(audited.getBuildScript(), query.getBuildScript())
                 && equalsId(audited.getRepositoryConfiguration(), query.getRepositoryConfiguration())
                 && Objects.equals(audited.getScmRevision(), query.getScmRevision())
-                && Objects.equals(audited.getDescription(), query.getDescription())
                 && equalsId(audited.getProject(), query.getProject())
                 && equalsId(audited.getBuildEnvironment(), query.getBuildEnvironment())
                 && audited.getGenericParameters().equals(query.getGenericParameters());
@@ -460,7 +459,6 @@ public class BuildConfigurationProviderImpl
         originalBC.setBuildScript(buildConfigurationAudited.getBuildScript());
         originalBC.setRepositoryConfiguration(buildConfigurationAudited.getRepositoryConfiguration());
         originalBC.setScmRevision(buildConfigurationAudited.getScmRevision());
-        originalBC.setDescription(buildConfigurationAudited.getDescription());
         originalBC.setBuildType(buildConfigurationAudited.getBuildType());
         originalBC.setBuildEnvironment(buildConfigurationAudited.getBuildEnvironment());
         originalBC.setGenericParameters(buildConfigurationAudited.getGenericParameters());
