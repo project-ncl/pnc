@@ -30,6 +30,7 @@
       // productList: { field: { id: 'name', title: 'Name' }, asc: true },
       // buildConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
       groupConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
+      groupConfigsDataTable: { field: { id: 'name', title: 'Name' }, asc: true },
       scmRepositoriesList: { field: { id: 'internalUrl', title: 'Internal URL' }, asc: true },
       artifactsList: { field: { id: 'identifier', title: 'Identifier' }, asc: true },
       buildsList: { field: { id: 'submitTime', title: 'Submit Time' }, asc: false },

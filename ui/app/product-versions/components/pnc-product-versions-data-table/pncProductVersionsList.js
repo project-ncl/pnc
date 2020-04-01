@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.product').component('pncProductVersionsList', {
+  angular.module('pnc.product-versions').component('pncProductVersionsList', {
     bindings: {
       /**
        * array of ProductVersions: The list of ProductVersions to display.

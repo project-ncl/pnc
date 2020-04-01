@@ -18,8 +18,11 @@
 
 -->
 <div class="row">
-  <pnc-toolbar filtering-page="$ctrl.filterPage" filtering-fields="$ctrl.filterFields"
-    sorting-fields="$ctrl.groupConfigsSortingFields" sorting-configs="$ctrl.groupConfigsSortingConfigs"></pnc-toolbar>
+  <pnc-toolbar filtering-page="$ctrl.filterPage"
+               filtering-fields="$ctrl.filterFields"
+               sorting-fields="$ctrl.sortingFields"
+               sorting-configs="$ctrl.sortingConfigs"
+               actions-config="$ctrl.toolbarActions"></pnc-toolbar>
 </div>
 <div>
   <pnc-group-configs-list group-configs="$ctrl.filterPage.data"></pnc-group-configs-list>

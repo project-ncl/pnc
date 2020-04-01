@@ -15,34 +15,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+'use strict';
 
 (function () {
-  'use strict';
 
-  angular.module('pnc.product').component('pncProductVersionLink', {
-    bindings: {
-      /**
-       * ProductVersion resource object to link to, or alternatively pass an object literal
-       * with the id of the ProductVersion to link to... e.g. { id: 5 }
-       */
-      productVersion: '<'
-    },
-    transclude: true, 
-    templateUrl: 'product/directives/pnc-product-version-link/pnc-product-version-link.html',
-    controller: [Controller]
-  });
+  var module = angular.module('pnc.product-versions');
 
-  function Controller() {
-    const $ctrl = this;
-
-    // -- Controller API --
-
-
-    // --------------------
-
-
-    $ctrl.$onInit = () => {
-    };
-  }
+  /**
+   * @author Jakub Senko
+   */
+  module.directive('pncProductVersionMilestones', [
+    function () {
+      return {
+        restrict: 'E',
+        templateUrl: 'product-versions/components/pnc-product-version-milestones/pnc-product-version-milestones.html',
+        scope: {
+          version: '=',
+          product: '='
+        }
+      };
+    }
+  ]);
 
 })();

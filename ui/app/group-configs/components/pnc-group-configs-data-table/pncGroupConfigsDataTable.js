@@ -21,37 +21,88 @@
   angular.module('pnc.group-configs').component('pncGroupConfigsDataTable', {
     bindings: {
       page: '<',
+      fetchSelected: '&',
       // displayFields: '<',
       // hideActions: '@',
       // onRemove: '&',
-      // onEdit: '&'
+      onEdit: '&'
     },
     templateUrl: 'group-configs/components/pnc-group-configs-data-table/pnc-group-configs-data-table.html',
-    controller: ['filteringPaginator', 'SortHelper', Controller]
+    controller: ['$q', 'filteringPaginator', 'SortHelper', 'modalSelectService', Controller]
   });
 
 
-  function Controller(filteringPaginator, sortHelper) {
+  function Controller($q, filteringPaginator, sortHelper, modalSelectService) {
     const $ctrl = this;
 
     const PAGE_NAME = 'groupConfigsDataTable';
 
     // -- Controller API --
 
-
+    $ctrl.edit = edit;
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
       $ctrl.filterPage = filteringPaginator($ctrl.page);
+
       $ctrl.displayFields = ['name', 'buildStatus'];
-      $ctrl.groupConfigsSortingFields = [{
+
+      $ctrl.filterFields = [{
+        id: 'name',
+        title: 'Name',
+        placeholder: 'Filter by Name',
+        filterType: 'text'
+      }];
+
+      $ctrl.sortingFields = [{
         id: 'name',
         title: 'Name'
       }];
-      $ctrl.groupConfigsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
+
+      $ctrl.sortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
+
+      $ctrl.toolbarActions = generateToolbarActions();
+
     };
+
+    function edit() {
+      $ctrl.fetchSelected().then(selected => {
+        modalSelectService.openForBuildGroups({
+          title: 'Add or Remove Group Configs from Product Version',
+          selected: selected
+        }).result.then(res => console.log('Modal Result: %O', res));
+      });
+      // $q.when()
+      //   .then(() => {
+      //     if ($ctrl.fetchSelected) {
+      //       return $ctrl.fetchSelected()
+      //     }
+      //   })
+
+      // if ($ctrl.fetchSelected) {
+
+      // }
+      // modalSelectService.openForBuildGroups({
+      //   title: 'Add or Remove Group Configs from Product Version',
+      //   selected: $ctrl.groupConfigRefs
+      // }).result.then(res => console.log('Modal Result: %O', res));
+      //console.log('Edit Group Configs: %O', updates);
+    }
+
+    function generateToolbarActions() {
+      const actions = [];
+      if ($ctrl.onEdit()) {
+        actions.push({
+          name: 'Edit',
+          title: 'Add or remove Group Configs to the list',
+          actionFn: edit
+        });
+      }
+
+      return actions.length > 0 ? { primaryActions: actions } : undefined;
+    }
   }
 
 })();
