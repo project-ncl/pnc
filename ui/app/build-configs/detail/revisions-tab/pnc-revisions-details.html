@@ -23,5 +23,5 @@
       <button type="button" class="btn btn-default" uib-tooltip="Restore current revision" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="$ctrl.restore()" pnc-requires-auth><i class="pficon pficon-restart"></i> Restore</button>
       </div>
     </div>
-  <pnc-build-config-properties hide-fields="description" build-config="$ctrl.revision"></pnc-build-config-properties>
+  <pnc-build-config-properties hide-fields="$ctrl.hideFields" build-config="$ctrl.revision"></pnc-build-config-properties>
 </div>
