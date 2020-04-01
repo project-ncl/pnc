@@ -69,6 +69,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -104,6 +105,7 @@ public class BuildConfigurationEndpointTest {
             + "dependencyExclusion.org.jboss.integration-platform:jboss-integration-platform-bom@*=6.0.6.Final-redhat-3";
 
     private static String configurationId;
+    private static String configuration2Id;
     private static String configuration3Id;
     private static String configuration4Id;
     private static String productId;
@@ -123,7 +125,7 @@ public class BuildConfigurationEndpointTest {
         BuildConfigurationClient bcc = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
         Iterator<BuildConfiguration> it = bcc.getAll().iterator();
         configurationId = it.next().getId();
-        it.next();
+        configuration2Id = it.next().getId();
         configuration3Id = it.next().getId();
         configuration4Id = it.next().getId();
 
@@ -225,13 +227,14 @@ public class BuildConfigurationEndpointTest {
         final String updatedName = UUID.randomUUID().toString();
         final String updatedProjectId = String.valueOf(projectId);
         final String updatedGenParamValue = PME_PARAMS_LONG;
+        final Instant modificationTime = Instant.ofEpochMilli(155382545038L);
 
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()
                 .id(configurationId)
                 .name(updatedName)
                 .buildScript(updatedBuildScript)
                 .creationTime(Instant.ofEpochMilli(1518382545038L))
-                .modificationTime(Instant.ofEpochMilli(155382545038L))
+                .modificationTime(modificationTime)
                 .project(ProjectRef.refBuilder().id(updatedProjectId).build())
                 .environment(Environment.builder().id(environmentId).build())
                 .parameters(Collections.singletonMap(PARAMETER_KEY, updatedGenParamValue))
@@ -252,6 +255,7 @@ public class BuildConfigurationEndpointTest {
         assertThat(updatedBC.getProject().getId()).isEqualTo(updatedProjectId);
         assertThat(updatedBC.getParameters().get(PARAMETER_KEY)).isEqualTo(updatedGenParamValue);
         assertThat(updatedBC.getEnvironment().getId()).isEqualTo(environmentId);
+        assertThat(modificationTime).isNotEqualTo(updatedBC.getModificationTime());
     }
 
     @Test
@@ -261,6 +265,7 @@ public class BuildConfigurationEndpointTest {
 
         BuildConfiguration buildConfiguration = client.getAll().iterator().next();
         String newDescription = "Testing patch support.";
+        Instant modTime = buildConfiguration.getModificationTime();
 
         String id = buildConfiguration.getId();
 
@@ -270,6 +275,7 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration updated = client.patch(id, builder);
 
         Assert.assertEquals(newDescription, updated.getDescription());
+        Assert.assertNotEquals(modTime, updated.getModificationTime());
         Assertions.assertThat(updated.getParameters()).contains(addElements.entrySet().toArray(new Map.Entry[1]));
 
         String newDescription2 = "Testing patch support 2.";
@@ -401,20 +407,24 @@ public class BuildConfigurationEndpointTest {
     @Test
     public void shouldCreateBuildConfigRevision() throws ClientException {
         final String description = "Updated description.";
+        final String updatedName = "thisisanupdatedname";
         final String buildScript = "mvn deploy # Updated script";
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         BuildConfiguration bc = client.getSpecific(configurationId);
 
-        BuildConfiguration newBC1 = bc.toBuilder().description(description).build();
+        Instant modTime = bc.getModificationTime();
+        BuildConfiguration newBC1 = bc.toBuilder().name(updatedName).description(description).build();
         BuildConfiguration newBC2 = bc.toBuilder().buildScript(buildScript).build();
 
         BuildConfigurationRevision newRevision1 = client.createRevision(configurationId, newBC1);
         BuildConfigurationRevision newRevision2 = client.createRevision(configurationId, newBC2);
 
-        assertEquals(description, newRevision1.getDescription());
+        assertNotEquals(modTime, newRevision1.getModificationTime());
+        assertNotEquals(modTime, newRevision2.getModificationTime());
+        assertEquals(updatedName, newRevision1.getName());
         assertEquals(bc.getBuildScript(), newRevision1.getBuildScript());
-        assertEquals(bc.getDescription(), newRevision2.getDescription());
+        assertEquals(bc.getEnvironment(), newRevision2.getEnvironment());
         assertEquals(buildScript, newRevision2.getBuildScript());
         assertThat(newRevision1.getRev()).isLessThan(newRevision2.getRev());
     }
@@ -429,10 +439,12 @@ public class BuildConfigurationEndpointTest {
     }
 
     @Test
+    @InSequence(50)
     public void shouldRestoreBuildConfigurationRevision() throws Exception {
         // given
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         BuildConfiguration original = client.getSpecific(configurationId);
+        String description = original.getDescription();
 
         Iterator<BuildConfigurationRevision> it = client.getRevisions(configurationId).iterator();
 
@@ -446,21 +458,37 @@ public class BuildConfigurationEndpointTest {
         }
 
         // when
-        BuildConfiguration toUpdate = original.toBuilder()
-                .description("shouldRestoreBuildConfigurationRevision Updated")
-                .build();
+        String newDescription = "shouldRestoreBuildConfigurationRevision Updated";
+        BuildConfiguration toUpdate = original.toBuilder().description(newDescription).build();
         client.update(configurationId, toUpdate);
-        BuildConfiguration updated = client.getSpecific(configurationId);
-        assertThat(updated.getDescription()).isNotEqualTo(original.getDescription());
+        assertThat(toUpdate.getDescription()).isNotEqualTo(description);
 
         // and when
         BuildConfiguration restored = client.restoreRevision(configurationId, originalRev.getRev());
         BuildConfiguration retrieved = client.getSpecific(configurationId);
 
         // then
-        assertThat(restored.getDescription()).isNotEqualTo(updated.getDescription());
-        assertThat(restored).isEqualToIgnoringGivenFields(original, "modificationTime");
-        assertThat(retrieved).isEqualToIgnoringGivenFields(restored, "modificationTime");
+        // we don't audit anymore the description, so it cannot be restored from a previous revision
+        assertThat(restored.getDescription()).isEqualTo(toUpdate.getDescription());
+        assertThat(restored).isEqualToIgnoringGivenFields(original, "description", "modificationTime");
+        assertThat(retrieved).isEqualToIgnoringGivenFields(restored, "description", "modificationTime");
+    }
+
+    @Test
+    public void shouldNotCreateBuildConfigRevision() throws ClientException {
+        final String description = "Updated description again.";
+        final String updatedName = "yetanotherupdatedname";
+
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        BuildConfiguration bc = client.getSpecific(configuration2Id);
+
+        BuildConfiguration newBC1 = bc.toBuilder().name(updatedName).description(description).build();
+        BuildConfiguration newBC2 = newBC1.toBuilder().description(description).build();
+
+        BuildConfigurationRevision newRevision1 = client.createRevision(configuration2Id, newBC1);
+        BuildConfigurationRevision newRevision2 = client.createRevision(configuration2Id, newBC2);
+
+        assertEquals(newRevision1.getRev(), newRevision2.getRev());
     }
 
     @Test

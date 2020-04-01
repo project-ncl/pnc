@@ -233,8 +233,8 @@ public class BuildEndpointTest {
         BuildConfigurationRevision bcRevision = client.getBuildConfigurationRevision(buildId);
 
         // then
-        assertThat(bcRevision.getDescription()).isEqualTo("Test build config for project newcastle"); // from
-                                                                                                      // DatabaseDataInitializer
+        assertThat(bcRevision.getScmRevision()).isEqualTo("*/v0.2"); // from
+                                                                     // DatabaseDataInitializer
     }
 
     @Test
