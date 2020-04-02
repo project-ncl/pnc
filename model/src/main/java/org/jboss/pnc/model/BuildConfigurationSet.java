@@ -71,6 +71,7 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildconfigurationset_productversion"))
     private ProductVersion productVersion;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany
     @JoinTable(name = "build_configuration_set_map", joinColumns = {
             @JoinColumn(
@@ -93,6 +94,7 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     )
     private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildConfigurationSet")
     private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
 

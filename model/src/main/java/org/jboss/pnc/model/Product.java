@@ -88,6 +88,7 @@ public class Product implements GenericEntity<Integer> {
     @Size(max=50)
     private String pgmSystemName;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "product", cascade = { CascadeType.REFRESH, CascadeType.DETACH,
             CascadeType.REMOVE })
     private Set<ProductVersion> productVersions;

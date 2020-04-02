@@ -99,6 +99,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     @Enumerated(EnumType.STRING)
     private SystemImageType systemImageType;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="build_environment_attributes", joinColumns=@JoinColumn(name="build_environment_id", foreignKey = @ForeignKey(name = "fk_build_environment_attributes_buildenvironment")))
     @MapKeyColumn(name="name")

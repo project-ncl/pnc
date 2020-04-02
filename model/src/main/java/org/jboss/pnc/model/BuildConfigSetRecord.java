@@ -113,6 +113,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      * The detailed records of the builds that were executed as part of the execution of this set
      * 
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildConfigSetRecord")
     private Set<BuildRecord> buildRecords;
 
@@ -128,6 +129,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      * Example attributes
      * POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="build_config_set_record_attributes", joinColumns=@JoinColumn(name="build_config_set_record_id", foreignKey = @ForeignKey(name = "fk_build_config_set_record_attributes_build_config_set_record")))
     @MapKeyColumn(name="key")

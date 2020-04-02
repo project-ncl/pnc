@@ -111,6 +111,7 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
      */
     private boolean preBuildSyncEnabled = true;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "repositoryConfiguration")
     private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 
