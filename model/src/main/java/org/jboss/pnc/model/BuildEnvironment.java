@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -47,6 +50,8 @@ import java.util.Map;
  *
  * @author avibelli
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name="uk_buildenvironment_name", columnNames = "name"),
        indexes = {

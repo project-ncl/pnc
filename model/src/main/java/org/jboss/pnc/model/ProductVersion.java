@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.jboss.util.StringPropertyReplacer;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -52,6 +55,8 @@ import java.util.Set;
  *
  * @author avibelli
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name = "uk_productversion_version_prod_id", columnNames = {"version", "product_id"}),
        indexes = {

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -38,6 +39,10 @@ import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,6 +53,8 @@ import java.util.Set;
  * This class contains a summary of the build results of the execution of a build config set. This includes the start and end
  * time, links to the build records for the executed builds, and the overall status (success/failure) of the set execution.
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = {
            @Index(name = "idx_buildconfigsetrecord_buildconfigset", columnList = "buildconfigurationset_id"),
