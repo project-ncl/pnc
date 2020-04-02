@@ -89,6 +89,7 @@ public class Project implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_project_license"))
     private License license;
 
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "project", cascade = { CascadeType.REFRESH, CascadeType.REMOVE })
     private Set<BuildConfiguration> buildConfigurations;
 
