@@ -48,9 +48,9 @@
           component: 'pncArtifactsListPage',
           resolve: {
             artifacts: [
-              'ArtifactResource','SortHelper',
-              function (ArtifactResource, sortHelper) {
-                return ArtifactResource.query(sortHelper.getSortQueryString('artifactsList')).$promise;
+              'ArtifactResource', 'SortHelper',
+              function (ArtifactResource, SortHelper) {
+                return ArtifactResource.query(SortHelper.getSortQueryString('artifactsList')).$promise;
               }
             ]
           }
@@ -86,7 +86,7 @@
               '$stateParams',
               'BuildResource',
               function ($stateParams, BuildResource) {
-                return BuildResource.getDependantBuilds({ 
+                return BuildResource.getDependantBuilds({
                   id: $stateParams.id,
                   pageSize: 10
                 }).$promise;

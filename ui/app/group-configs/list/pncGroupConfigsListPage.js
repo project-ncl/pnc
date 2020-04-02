@@ -27,7 +27,7 @@
     controller: ['filteringPaginator', 'SortHelper', Controller]
   });
 
-  function Controller(filteringPaginator, sortHelper) {
+  function Controller(filteringPaginator, SortHelper) {
     const $ctrl = this;
 
     const PAGE_NAME = 'groupConfigsList';
@@ -53,7 +53,7 @@
         filterType: 'text'
       }];
 
-      $ctrl.groupConfigsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
+      $ctrl.groupConfigsSortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
 
     };
   }

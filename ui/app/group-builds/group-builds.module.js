@@ -49,8 +49,8 @@
           resolve: {
             groupBuilds: [
               'GroupBuildResource', 'SortHelper',
-              function (GroupBuildResource, sortHelper) {
-                return GroupBuildResource.query(sortHelper.getSortQueryString('groupBuildsList')).$promise;
+              function (GroupBuildResource, SortHelper) {
+                return GroupBuildResource.query(SortHelper.getSortQueryString('groupBuildsList')).$promise;
               }
             ]
           }

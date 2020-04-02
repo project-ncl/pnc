@@ -27,11 +27,13 @@
       products: '<'
     },
     templateUrl: 'products/components/pnc-products-data-table/pnc-products-data-table.html',
-    controller: ['filteringPaginator', Controller]
+    controller: ['filteringPaginator', 'SortHelper', Controller]
   });
 
-  function Controller(filteringPaginator) {
+  function Controller(filteringPaginator, SortHelper) {
     const $ctrl = this;
+
+    const PAGE_NAME = 'productsList';
 
     // -- Controller API --
 
@@ -50,6 +52,25 @@
           filterType: 'text'
         }
       ];
+
+      $ctrl.productsSortingFields = [{
+        id: 'name',
+        title: 'Name'
+      },
+      {
+        id: 'abbreviation',
+        title: 'Abbreviation'
+      },
+      {
+        id: 'productCode',
+        title: 'Product Code'
+      },
+      {
+        id: 'pgmSystemName',
+        title: 'PGM System Name'
+      }];
+
+      $ctrl.productsSortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
     };
   }
 

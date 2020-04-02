@@ -51,7 +51,7 @@
         },
         resolve: {
           projects: ['ProjectResource', 'SortHelper',
-            (ProjectResource, sortHelper) => ProjectResource.query(sortHelper.getSortQueryString('projectsList')).$promise]
+            (ProjectResource, SortHelper) => ProjectResource.query(SortHelper.getSortQueryString('projectsList')).$promise]
         }
       });
 

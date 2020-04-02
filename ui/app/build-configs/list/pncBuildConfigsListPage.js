@@ -36,7 +36,7 @@
     // --------------------
 
     $ctrl.$onInit = () => {
-      $ctrl.displayFields = ['name', 'project', 'buildStatus'];
+      $ctrl.displayFields = ['name', 'project', 'creationTime', 'modificationTime', 'buildStatus'];
     };
 
   }

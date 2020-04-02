@@ -26,7 +26,7 @@
     controller: ['$scope', 'events', 'filteringPaginator', 'SortHelper', Controller]
   });
 
-  function Controller($scope, events, filteringPaginator, sortHelper) {
+  function Controller($scope, events, filteringPaginator, SortHelper) {
 
     const $ctrl = this;
     const PAGE_NAME = 'buildsList';
@@ -90,7 +90,7 @@
 
     $ctrl.$onInit = function () {
       $ctrl.buildsFilteringPage = filteringPaginator($ctrl.builds);
-      $ctrl.buildsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
+      $ctrl.buildsSortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
 
       $scope.$on(events.BUILD_PROGRESS_CHANGED, () => $ctrl.buildsFilteringPage.refresh());
 
