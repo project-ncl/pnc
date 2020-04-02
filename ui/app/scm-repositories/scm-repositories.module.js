@@ -48,8 +48,8 @@
         title: 'SCM Repositories'
       },
       resolve: {
-        scmRepositories: ['ScmRepositoryResource', 'SortHelper', function (ScmRepositoryResource, sortHelper) {
-          return ScmRepositoryResource.query(sortHelper.getSortQueryString('scmRepositoriesList')).$promise;
+        scmRepositories: ['ScmRepositoryResource', 'SortHelper', function (ScmRepositoryResource, SortHelper) {
+          return ScmRepositoryResource.query(SortHelper.getSortQueryString('scmRepositoriesList')).$promise;
         }]
       }
     });

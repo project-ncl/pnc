@@ -27,13 +27,15 @@
       onEdit: '&'
     },
     templateUrl: 'build-configs/directives/pnc-build-configs-data-table/pnc-build-configs-data-table.html',
-    controller: ['$scope', '$q', 'modalSelectService', 'filteringPaginator', Controller]
+    controller: ['$scope', '$q', 'modalSelectService', 'filteringPaginator', 'SortHelper', Controller]
   });
 
 
-  function Controller($scope, $q, modalSelectService, filteringPaginator) {
+  function Controller($scope, $q, modalSelectService, filteringPaginator, SortHelper) {
     var $ctrl = this;
     const DEFAULT_FIELDS = ['name', 'project', 'buildStatus'];
+
+    const PAGE_NAME = 'buildConfigsList';
 
     // -- Controller API --
 
@@ -60,6 +62,26 @@
           filterType: 'text'
         }
       ];
+
+      $ctrl.sortingFields = [{
+        id: 'name',
+        title: 'Name'
+      },
+      {
+        id: 'project.name',
+        title: 'Project'
+      },
+      {
+        id: 'creationTime',
+        title: 'Created'
+      },
+      {
+        id: 'modificationTime',
+        title: 'Modified'
+      }];
+
+      $ctrl.sortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
+
 
       $ctrl.toolbarActions = generateToolbarActions();
     };

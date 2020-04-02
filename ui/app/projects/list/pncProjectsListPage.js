@@ -29,7 +29,7 @@
     controller: ['filteringPaginator', 'SortHelper', Controller]
   });
 
-  function Controller(filteringPaginator,sortHelper) {
+  function Controller(filteringPaginator,SortHelper) {
     const $ctrl = this;
 
     const PAGE_NAME = 'projectsList';
@@ -61,7 +61,7 @@
     $ctrl.$onInit = () => {
       $ctrl.projectsFilteringPage = filteringPaginator($ctrl.projects);
 
-      $ctrl.projectsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
+      $ctrl.projectsSortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
     };
 
   }

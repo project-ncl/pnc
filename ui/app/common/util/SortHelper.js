@@ -27,8 +27,8 @@
     /* default setting for sort configuration */
     const DEFAULT_SORT_CONFIG = {
       projectsList: { field: { id: 'name', title: 'Name' }, asc: true },
-      // productList: { field: { id: 'name', title: 'Name' }, asc: true },
-      // buildConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
+      productsList: { field: { id: 'name', title: 'Name' }, asc: true },
+      buildConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
       groupConfigsList: { field: { id: 'name', title: 'Name' }, asc: true },
       groupConfigsDataTable: { field: { id: 'name', title: 'Name' }, asc: true },
       scmRepositoriesList: { field: { id: 'internalUrl', title: 'Internal URL' }, asc: true },

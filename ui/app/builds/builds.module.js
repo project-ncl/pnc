@@ -55,7 +55,7 @@
         resolve: {
           builds: [
             'BuildResource', 'SortHelper',
-            (BuildResource, sortHelper) => BuildResource.query(sortHelper.getSortQueryString('buildsList')).$promise
+            (BuildResource, SortHelper) => BuildResource.query(SortHelper.getSortQueryString('buildsList')).$promise
           ]
         }
       });

@@ -28,7 +28,7 @@
   });
 
 
-  function Controller(filteringPaginator,sortHelper) {
+  function Controller(filteringPaginator,SortHelper) {
     const $ctrl = this;
 
     const PAGE_NAME = 'groupBuildsList';
@@ -93,7 +93,7 @@
     $ctrl.$onInit = function () {
       $ctrl.groupBuildsFilteringPage = filteringPaginator($ctrl.groupBuilds);
 
-      $ctrl.groupBuildsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
+      $ctrl.groupBuildsSortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
 
 
       /* NCL-4433 group builds need to be updated

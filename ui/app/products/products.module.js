@@ -39,7 +39,7 @@
         url: '',
         component: 'pncProductsListPage',
         resolve: {
-          products: ['ProductResource', ProductResource => ProductResource.query().$promise]
+          products: ['ProductResource', 'SortHelper', (ProductResource, SortHelper) => ProductResource.query(SortHelper.getSortQueryString('productsList')).$promise]
         },
         data: {
           displayName: 'Products',

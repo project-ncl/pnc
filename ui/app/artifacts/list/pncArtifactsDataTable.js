@@ -34,7 +34,7 @@
   });
 
 
-  function Controller(filteringPaginator,sortHelper) {
+  function Controller(filteringPaginator, SortHelper) {
     const $ctrl = this;
 
     const PAGE_NAME = 'artifactsList';
@@ -112,7 +112,7 @@
     $ctrl.$onInit = () => {
       $ctrl.artifactsFilteringPage = filteringPaginator($ctrl.artifacts);
 
-      $ctrl.artifactsSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
+      $ctrl.artifactsSortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
     };
 
   }

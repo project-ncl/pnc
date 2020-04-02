@@ -56,7 +56,7 @@
         resolve: {
           groupConfigsPage: [
             'GroupConfigResource', 'SortHelper',
-            (GroupConfigResource, sortHelper) => GroupConfigResource.query(sortHelper.getSortQueryString('groupConfigsList')).$promise
+            (GroupConfigResource, SortHelper) => GroupConfigResource.query(SortHelper.getSortQueryString('groupConfigsList')).$promise
           ]
         },
         data: {

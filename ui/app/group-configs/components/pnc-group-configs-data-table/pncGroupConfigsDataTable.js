@@ -32,7 +32,7 @@
   });
 
 
-  function Controller($q, filteringPaginator, sortHelper, modalSelectService) {
+  function Controller($q, filteringPaginator, SortHelper, modalSelectService) {
     const $ctrl = this;
 
     const PAGE_NAME = 'groupConfigsDataTable';
@@ -61,7 +61,7 @@
         title: 'Name'
       }];
 
-      $ctrl.sortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
+      $ctrl.sortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
 
       $ctrl.toolbarActions = generateToolbarActions();
 

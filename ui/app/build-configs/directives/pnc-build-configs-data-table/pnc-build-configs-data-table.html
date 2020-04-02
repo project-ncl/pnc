@@ -49,7 +49,7 @@
 </script>
 
 <div class="row">
-  <pnc-toolbar filtering-page="$ctrl.filterPage" filtering-fields="$ctrl.filterFields" actions-config="$ctrl.toolbarActions"></pnc-toolbar>
+  <pnc-toolbar filtering-page="$ctrl.filterPage" filtering-fields="$ctrl.filterFields" sorting-fields="$ctrl.sortingFields" sorting-configs="$ctrl.sortingConfigs" actions-config="$ctrl.toolbarActions"></pnc-toolbar>
 </div>
 <div>
   <pnc-build-configs-list build-configs="$ctrl.filterPage.data" display-fields="$ctrl.displayFields" ng-attr-actions-template-url="{{ !$ctrl.hideActions && 'pnc-build-configs-data-table-actions.html' || undefined }}" actions-data="$ctrl.actions"></pnc-build-configs-list>

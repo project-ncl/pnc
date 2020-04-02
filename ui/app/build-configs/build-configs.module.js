@@ -54,8 +54,8 @@
           title: 'Build Configs'
         },
         resolve: {
-          buildConfigs: ['BuildConfigResource', (BuildConfigResource) => {
-            return BuildConfigResource.query().$promise;
+          buildConfigs: ['BuildConfigResource', 'SortHelper', (BuildConfigResource, SortHelper) => {
+            return BuildConfigResource.query(SortHelper.getSortQueryString('buildConfigsList')).$promise;
           }]
         }
       });

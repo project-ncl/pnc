@@ -18,7 +18,9 @@
 
 -->
 <div class="row">
-  <pnc-toolbar filtering-page="$ctrl.filterPage" filtering-fields="$ctrl.filterFields" actions-config="$ctrl.toolbarActions"></pnc-toolbar>
+  <pnc-toolbar sorting-fields="$ctrl.productsSortingFields" sorting-configs="$ctrl.productsSortingConfigs"
+    filtering-page="$ctrl.filterPage" filtering-fields="$ctrl.filterFields" actions-config="$ctrl.toolbarActions">
+  </pnc-toolbar>
 </div>
 <pnc-products-list products="$ctrl.filterPage.data"></pnc-products-list>
 <pnc-page-controls class="pull-right m-t-10 m-b-10" pnc-page="$ctrl.filterPage" ng-if="$ctrl.filterPage"></pnc-page-controls>

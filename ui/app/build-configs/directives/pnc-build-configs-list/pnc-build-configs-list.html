@@ -22,7 +22,7 @@
     <th ng-if="::$ctrl.showColumn('name')">Name</th>
     <th ng-if="::$ctrl.showColumn('project')">Project</th>
     <th ng-if="::$ctrl.showColumn('creationTime')">Created</th>
-    <th ng-if="::$ctrl.showColumn('lastModificationTime')">Modified</th>
+    <th ng-if="::$ctrl.showColumn('modificationTime')">Modified</th>
     <th ng-if="::$ctrl.showColumn('buildStatus')">Build Status</th>
     <th ng-if="::$ctrl.actionsTemplateUrl">Actions</th>
   </thead>
@@ -39,7 +39,7 @@
         </a>
       </td>
       <td ng-if="::$ctrl.showColumn('creationTime')">{{ buildConfig.creationTime | date:'medium' }}</td>
-      <td ng-if="::$ctrl.showColumn('lastModificationTime')">{{ buildConfig.lastModificationTime | date:'medium' }}</td>
+      <td ng-if="::$ctrl.showColumn('modificationTime')">{{ buildConfig.modificationTime | date:'medium' }}</td>
       <td ng-if="::$ctrl.showColumn('buildStatus')">
         <pnc-latest-build build-config="buildConfig"></pnc-latest-build>
       </td>

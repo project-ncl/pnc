@@ -29,7 +29,7 @@
     controller: ['filteringPaginator', 'SortHelper', Controller]
   });
 
-  function Controller(filteringPaginator, sortHelper) {
+  function Controller(filteringPaginator, SortHelper) {
     var $ctrl = this;
 
     const PAGE_NAME = 'scmRepositoriesList';
@@ -63,7 +63,7 @@
     $ctrl.$onInit = function () {
       $ctrl.scmRepositoriesFilteringPage = filteringPaginator($ctrl.scmRepositories);
 
-      $ctrl.scmRepositoriesSortingConfigs = sortHelper.getSortConfig(PAGE_NAME);
+      $ctrl.scmRepositoriesSortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
 
     };
 
