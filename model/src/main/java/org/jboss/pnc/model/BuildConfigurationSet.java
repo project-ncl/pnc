@@ -94,7 +94,6 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     )
     private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildConfigurationSet")
     private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
 
