@@ -160,7 +160,6 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The product milestone releases which distribute this artifact
      */
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "distributedArtifacts")
     private Set<ProductMilestone> distributedInProductMilestones;
 
