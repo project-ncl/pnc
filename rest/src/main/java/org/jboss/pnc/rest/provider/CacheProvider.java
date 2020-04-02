@@ -62,7 +62,7 @@ public class CacheProvider {
         return cacheHandlerRepository.getGenericStats();
     }
 
-    @RolesAllowed("system-user")
+    //@RolesAllowed("system-user")
     public void clearAllCache() {
         log.info("Evicting all content from second level cache...");
         cacheHandlerRepository.clearCache();
