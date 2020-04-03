@@ -108,7 +108,9 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
     }
 
     @Override
-    public List<IdRev> searchIdRevForBuildConfigurationNameOrProjectName(List<Project> projectsMatchingName, String name) {
+    public List<IdRev> searchIdRevForBuildConfigurationNameOrProjectName(
+            List<Project> projectsMatchingName,
+            String name) {
         throw new UnsupportedOperationException("Not implemented yet.");
     }
 

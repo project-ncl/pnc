@@ -218,10 +218,12 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
     }
 
     @Override
-    public List<IdRev> searchIdRevForBuildConfigurationNameOrProjectName(List<Project> projectsMatchingName, String name) {
+    public List<IdRev> searchIdRevForBuildConfigurationNameOrProjectName(
+            List<Project> projectsMatchingName,
+            String name) {
         AuditDisjunction disjunction = AuditEntity.disjunction();
         projectsMatchingName.forEach(project -> {
-                disjunction.add(AuditEntity.relatedId("project").eq(project.getId()));
+            disjunction.add(AuditEntity.relatedId("project").eq(project.getId()));
         });
         disjunction.add(AuditEntity.property("name").like(name));
 
