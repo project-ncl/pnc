@@ -70,8 +70,9 @@ public class CacheProviderImpl implements CacheProvider {
 
     @Override
     public void clearAllCache() {
-        logger.debug("Evict all content from second level cache");
+        logger.info("Evicting all content from second level cache...");
         cacheHandlerRepository.clearCache();
+        logger.info("Second level cache evicted");
     }
 
 }
