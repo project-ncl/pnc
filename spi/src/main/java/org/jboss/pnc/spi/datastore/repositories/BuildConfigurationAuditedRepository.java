@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Project;
 
 import java.util.List;
 import java.util.Map;
@@ -51,4 +52,8 @@ public interface BuildConfigurationAuditedRepository {
     List<BuildConfigurationAudited> searchForBuildConfigurationName(String buildConfigurationName);
 
     List<IdRev> searchIdRevForBuildConfigurationName(String buildConfigurationName);
+
+    List<IdRev> searchIdRevForBuildConfigurationNameOrProjectName(List<Project> projectsMatchingName, String name);
+
+    List<IdRev> searchIdRevForProjectId(Integer projectId);
 }

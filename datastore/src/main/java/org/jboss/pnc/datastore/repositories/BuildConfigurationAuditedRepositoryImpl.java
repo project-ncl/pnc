@@ -20,11 +20,13 @@ package org.jboss.pnc.datastore.repositories;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.criteria.AuditDisjunction;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
@@ -36,7 +38,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -206,6 +207,44 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
                 .createQuery()
                 .forRevisionsOfEntity(BuildConfiguration.class, false, false)
                 .add(AuditEntity.property("name").like(buildConfigurationName))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        return result.stream().map(o -> {
+            BuildConfiguration buildConfiguration = (BuildConfiguration) o[0];
+            DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) o[1];
+            return new IdRev(buildConfiguration.getId(), revisionEntity.getId());
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<IdRev> searchIdRevForBuildConfigurationNameOrProjectName(List<Project> projectsMatchingName, String name) {
+        AuditDisjunction disjunction = AuditEntity.disjunction();
+        projectsMatchingName.forEach(project -> {
+                disjunction.add(AuditEntity.relatedId("project").eq(project.getId()));
+        });
+        disjunction.add(AuditEntity.property("name").like(name));
+
+        List<Object[]> result = AuditReaderFactory.get(entityManager)
+                .createQuery()
+                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
+                .add(disjunction)
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        return result.stream().map(o -> {
+            BuildConfiguration buildConfiguration = (BuildConfiguration) o[0];
+            DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) o[1];
+            return new IdRev(buildConfiguration.getId(), revisionEntity.getId());
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<IdRev> searchIdRevForProjectId(Integer projectId) {
+        List<Object[]> result = AuditReaderFactory.get(entityManager)
+                .createQuery()
+                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
+                .add(AuditEntity.relatedId("project").eq(projectId))
                 .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList();
 

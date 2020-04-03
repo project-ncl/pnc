@@ -17,10 +17,6 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.hibernate.envers.AuditReaderFactory;
-import org.hibernate.envers.DefaultRevisionEntity;
-import org.hibernate.envers.query.AuditEntity;
-import org.hibernate.envers.query.criteria.AuditDisjunction;
 import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.graph.NameUniqueVertex;
@@ -550,14 +546,18 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             String sortingRsql,
             String query,
             Integer projectId) {
-        List<Object[]> buildConfigurationRevisions = AuditReaderFactory.get(entityManager)
-                .createQuery()
-                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
-                .add(AuditEntity.relatedId("project").eq(projectId))
-                .addOrder(AuditEntity.revisionNumber().desc())
-                .getResultList();
 
-        return queryForBuildRecords(pageIndex, pageSize, sortingRsql, query, buildConfigurationRevisions);
+        List<IdRev> buildConfigurationsWithProjectIdRevs = buildConfigurationAuditedRepository.searchIdRevForProjectId(projectId);
+        if (buildConfigurationsWithProjectIdRevs.isEmpty()) {
+            return new CollectionInfo<>(0, 0, 0, Collections.EMPTY_SET);
+        }
+
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withBuildConfigurationIdRev(buildConfigurationsWithProjectIdRevs));
     }
 
     public CollectionInfo<BuildRecordRest> getAllForConfigurationOrProjectName(
@@ -569,49 +569,17 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
         List<Project> projectsMatchingName = projectRepository
                 .queryWithPredicates(ProjectPredicates.searchByProjectName(name));
-
-        AuditDisjunction disjunction = AuditEntity.disjunction();
-        projectsMatchingName.forEach(project -> {
-            disjunction.add(AuditEntity.relatedId("project").eq(project.getId()));
-        });
-        disjunction.add(AuditEntity.property("name").like(name));
-
-        List<Object[]> buildConfigurationRevisions = AuditReaderFactory.get(entityManager)
-                .createQuery()
-                .forRevisionsOfEntity(BuildConfiguration.class, false, false)
-                .add(disjunction)
-                .addOrder(AuditEntity.revisionNumber().desc())
-                .getResultList();
-
-        return queryForBuildRecords(pageIndex, pageSize, sortingRsql, query, buildConfigurationRevisions);
-    }
-
-    private CollectionInfo<BuildRecordRest> queryForBuildRecords(
-            int pageIndex,
-            int pageSize,
-            String sortingRsql,
-            String query,
-            List<Object[]> buildConfigurationRevisions) {
-        List<IdRev> buildConfigurationsWithProjectIdRevs = buildConfigurationRevisions.stream()
-                .map(o -> toIdRev(o[0], o[1]))
-                .collect(Collectors.toList());
-
+        List<IdRev> buildConfigurationsWithProjectIdRevs = buildConfigurationAuditedRepository.searchIdRevForBuildConfigurationNameOrProjectName(projectsMatchingName, name);
         if (buildConfigurationsWithProjectIdRevs.isEmpty()) {
             return new CollectionInfo<>(0, 0, 0, Collections.EMPTY_SET);
-        } else {
-            return queryForCollection(
-                    pageIndex,
-                    pageSize,
-                    sortingRsql,
-                    query,
-                    withBuildConfigurationIdRev(buildConfigurationsWithProjectIdRevs));
         }
-    }
 
-    private IdRev toIdRev(Object entity, Object revision) {
-        BuildConfiguration buildConfiguration = (BuildConfiguration) entity;
-        DefaultRevisionEntity revisionEntity = (DefaultRevisionEntity) revision;
-        return new IdRev(buildConfiguration.getId(), revisionEntity.getId());
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withBuildConfigurationIdRev(buildConfigurationsWithProjectIdRevs));
     }
 
     public CollectionInfo<BuildRecordRest> getAllBuildRecordsWithArtifactsDistributedInProductMilestone(

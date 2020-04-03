@@ -78,6 +78,7 @@
       <property name="hibernate.cache.use_second_level_cache" value="true" />
       <property name="hibernate.cache.use_query_cache" value="false" />
       <property name="hibernate.cache.region_prefix" value=""/>
+      <property name="hibernate.cache.infinispan.statistics" value="true"/>
 
       <!-- Use Infinispan second level cache provider -->
       <property name="hibernate.cache.region.factory_class"
