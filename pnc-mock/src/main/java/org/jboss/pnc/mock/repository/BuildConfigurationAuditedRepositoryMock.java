@@ -20,6 +20,7 @@ package org.jboss.pnc.mock.repository;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Project;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 
 import java.util.ArrayList;
@@ -101,4 +102,15 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
     public List<IdRev> searchIdRevForBuildConfigurationName(String buildConfigurationName) {
         throw new UnsupportedOperationException("Not implemented yet.");
     }
+
+    @Override
+    public List<IdRev> searchIdRevForBuildConfigurationNameOrProjectName(List<Project> projectsMatchingName, String name) {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
+    @Override
+    public List<IdRev> searchIdRevForProjectId(Integer projectId) {
+        throw new UnsupportedOperationException("Not implemented yet.");
+    }
+
 }
