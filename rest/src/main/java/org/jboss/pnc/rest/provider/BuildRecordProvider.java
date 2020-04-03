@@ -547,7 +547,8 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
             String query,
             Integer projectId) {
 
-        List<IdRev> buildConfigurationsWithProjectIdRevs = buildConfigurationAuditedRepository.searchIdRevForProjectId(projectId);
+        List<IdRev> buildConfigurationsWithProjectIdRevs = buildConfigurationAuditedRepository
+                .searchIdRevForProjectId(projectId);
         if (buildConfigurationsWithProjectIdRevs.isEmpty()) {
             return new CollectionInfo<>(0, 0, 0, Collections.EMPTY_SET);
         }
@@ -569,7 +570,8 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
 
         List<Project> projectsMatchingName = projectRepository
                 .queryWithPredicates(ProjectPredicates.searchByProjectName(name));
-        List<IdRev> buildConfigurationsWithProjectIdRevs = buildConfigurationAuditedRepository.searchIdRevForBuildConfigurationNameOrProjectName(projectsMatchingName, name);
+        List<IdRev> buildConfigurationsWithProjectIdRevs = buildConfigurationAuditedRepository
+                .searchIdRevForBuildConfigurationNameOrProjectName(projectsMatchingName, name);
         if (buildConfigurationsWithProjectIdRevs.isEmpty()) {
             return new CollectionInfo<>(0, 0, 0, Collections.EMPTY_SET);
         }
