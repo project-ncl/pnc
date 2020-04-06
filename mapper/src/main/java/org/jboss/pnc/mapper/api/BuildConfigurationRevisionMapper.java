@@ -65,7 +65,7 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "lastModificationTime", source = "modificationTime")
     @Mapping(target = "genericParameters", source = "parameters")
     @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
-    @Mapping(target = "lastModificationUser", source = "lastModificationUser", qualifiedBy = IdEntity.class)
+    @Mapping(target = "lastModificationUser", source = "modificationUser", qualifiedBy = IdEntity.class)
     BuildConfigurationAudited toEntity(BuildConfigurationRevision dtoEntity);
 
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
