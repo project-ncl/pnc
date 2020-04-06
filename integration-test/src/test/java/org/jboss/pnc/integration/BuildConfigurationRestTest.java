@@ -137,8 +137,6 @@ public class BuildConfigurationRestTest extends AbstractTest {
     @Before
     public void prepareData() throws Exception {
 
-        new UserRestClient().getLoggedUser();
-
         if (!isInitialized.getAndSet(true)) {
             given().headers(testHeaders)
                     .contentType(ContentType.JSON)
@@ -224,7 +222,10 @@ public class BuildConfigurationRestTest extends AbstractTest {
         }
         if (userRestClient == null) {
             userRestClient = new UserRestClient();
+            userRestClient.createUser("admin");
+            userRestClient.createUser("user");
         }
+        new UserRestClient().getLoggedUser();
     }
 
     @Test
