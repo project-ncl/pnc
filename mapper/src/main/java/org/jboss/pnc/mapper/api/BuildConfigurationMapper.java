@@ -20,6 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.dto.User;
 import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper.IDMapper;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -83,8 +84,8 @@ public interface BuildConfigurationMapper
     @Mapping(target = "project", resultType = ProjectRef.class)
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "parameters", source = "genericParameters")
-    @Mapping(target = "creationUser", qualifiedBy = Reference.class)
-    @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
+    @Mapping(target = "creationUser", resultType = User.class)
+    @Mapping(target = "modificationUser", source = "lastModificationUser", resultType = User.class)
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "dependants", "active", "indirectDependencies", "allDependencies",
                     "currentProductMilestone" })
