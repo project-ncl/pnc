@@ -36,7 +36,6 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
-import org.jboss.pnc.facade.providers.api.UserProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider.RepositoryCreated;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -48,6 +47,7 @@ import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
+import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.GenericEntity;
@@ -130,7 +130,7 @@ public class BuildConfigurationProviderImpl
     private UserService userService;
 
     @Inject
-    private UserProvider userProvider;
+    private UserMapper userMapper;
 
     private static final SCMRepository FAKE_REPOSITORY = SCMRepository.builder().id("-1").build();
 
@@ -144,7 +144,7 @@ public class BuildConfigurationProviderImpl
         validateBeforeSaving(restEntity);
         Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
         org.jboss.pnc.model.User currentUser = userService.currentUser();
-        User user = userProvider.getSpecific(String.valueOf(currentUser.getId()));
+        User user = userMapper.toDTO(currentUser);
         restEntity.setCreationUser(user);
         restEntity.setModificationUser(user);
         return super.store(restEntity.toBuilder().id(id.toString()).build(), false);
@@ -153,7 +153,7 @@ public class BuildConfigurationProviderImpl
     @Override
     public BuildConfiguration update(String id, BuildConfiguration restEntity) {
         org.jboss.pnc.model.User currentUser = userService.currentUser();
-        User user = userProvider.getSpecific(String.valueOf(currentUser.getId()));
+        User user = userMapper.toDTO(currentUser);
         restEntity.setModificationUser(user);
         return super.update(id, restEntity);
     }
