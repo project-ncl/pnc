@@ -17,15 +17,12 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.GroupConfiguration;
-import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.AlignmentParameters;
 import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
@@ -37,7 +34,6 @@ import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericPara
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
-import org.jboss.pnc.facade.providers.api.UserProvider;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.rest.api.endpoints.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
@@ -52,9 +48,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Context;
 
 import java.util.OptionalInt;
 import java.util.Set;
@@ -82,15 +76,6 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     @Inject
     private AlignmentConfig alignmentConfig;
 
-    @Inject
-    private AuthenticationProvider authenticationProvider;
-
-    @Inject
-    private UserProvider userProvider;
-
-    @Context
-    private HttpServletRequest httpServletRequest;
-
     private EndpointHelper<Integer, BuildConfiguration, BuildConfigurationRef> endpointHelper;
 
     @PostConstruct
@@ -105,10 +90,6 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public BuildConfiguration createNew(BuildConfiguration buildConfiguration) {
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        User currentUser = userProvider.getOrCreateNewUser(loginInUser.getUserName());
-        buildConfiguration.setCreationUser(currentUser);
-        buildConfiguration.setModificationUser(currentUser);
         return endpointHelper.create(buildConfiguration);
     }
 
@@ -119,17 +100,11 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public void update(String id, BuildConfiguration buildConfiguration) {
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        User currentUser = userProvider.getOrCreateNewUser(loginInUser.getUserName());
-        buildConfiguration.setModificationUser(currentUser);
         endpointHelper.update(id, buildConfiguration);
     }
 
     @Override
     public BuildConfiguration patchSpecific(String id, BuildConfiguration buildConfiguration) {
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        User currentUser = userProvider.getOrCreateNewUser(loginInUser.getUserName());
-        buildConfiguration.setModificationUser(currentUser);
         return endpointHelper.update(id, buildConfiguration);
     }
 
@@ -146,9 +121,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public BuildConfiguration clone(String id) {
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        User currentUser = userProvider.getOrCreateNewUser(loginInUser.getUserName());
-        return buildConfigurationProvider.clone(id, currentUser);
+        return buildConfigurationProvider.clone(id);
     }
 
     @Override
@@ -173,16 +146,12 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public void addDependency(String id, BuildConfigurationRef dependency) {
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        User currentUser = userProvider.getOrCreateNewUser(loginInUser.getUserName());
-        buildConfigurationProvider.addDependency(id, dependency.getId(), currentUser);
+        buildConfigurationProvider.addDependency(id, dependency.getId());
     }
 
     @Override
     public void removeDependency(String id, String dependencyId) {
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        User currentUser = userProvider.getOrCreateNewUser(loginInUser.getUserName());
-        buildConfigurationProvider.removeDependency(id, dependencyId, currentUser);
+        buildConfigurationProvider.removeDependency(id, dependencyId);
     }
 
     @Override
@@ -193,9 +162,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public BuildConfigurationRevision createRevision(String id, BuildConfiguration buildConfiguration) {
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        User currentUser = userProvider.getOrCreateNewUser(loginInUser.getUserName());
-        return buildConfigurationProvider.createRevision(id, buildConfiguration, currentUser);
+        return buildConfigurationProvider.createRevision(id, buildConfiguration);
     }
 
     @Override
@@ -210,9 +177,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public BuildConfiguration restoreRevision(String id, int rev) {
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        User currentUser = userProvider.getOrCreateNewUser(loginInUser.getUserName());
-        return buildConfigurationProvider.restoreRevision(id, rev, currentUser)
+        return buildConfigurationProvider.restoreRevision(id, rev)
                 .orElseThrow(
                         () -> new NotFoundException(
                                 "BuildConfigurationAudited with [id=" + id + ", rev=" + rev + "] does not exists"));
