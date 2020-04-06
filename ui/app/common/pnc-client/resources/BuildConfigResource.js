@@ -24,12 +24,13 @@
 
 
   module.factory('BuildConfigResource', [
+    '$log',
     '$resource',
     '$http',
     'restConfig',
     'patchHelper',
     'BUILD_CONFIG_PATH',
-    ($resource, $http, restConfig, patchHelper, BUILD_CONFIG_PATH) => {
+    ($log, $resource, $http, restConfig, patchHelper, BUILD_CONFIG_PATH) => {
       const ENDPOINT = restConfig.getPncRestUrl() + BUILD_CONFIG_PATH;
 
       const resource = $resource(ENDPOINT, {
@@ -93,7 +94,26 @@
         });
       };
 
+      resource.safePatchRemovingParameters = function (original, modified) {
+        let patch = patchHelper.createJsonPatch(original, modified, false);
+        patch = updatePatchRemovedParameters(original, modified, patch);
+        return resource.patch({ id: original.id }, patch);
+      };
+
       patchHelper.assignPatchMethods(resource);
+
+      function updatePatchRemovedParameters(original, modified, patch){
+        for(let key in original.parameters) {
+          if (!(key in modified.parameters)){
+            let op = {op: 'remove'};
+            op.path = '/parameters/' + key;
+            patch.push(op);
+          }
+        }
+        $log.debug('updatePatchRemovedParameters -> patch: %O', patch);
+
+        return patch;
+      }
 
       return resource;
     }
