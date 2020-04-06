@@ -324,7 +324,9 @@ public class BuildConfigurationEndpointTest {
                 "creationTime",
                 "modificationTime",
                 "modificationTime",
-                "productVersion");
+                "productVersion",
+                "creationUser",
+                "modificationUser");
         assertThat(retrieved)
                 .isEqualToIgnoringGivenFields(clone, "modificationTime", "creationUser", "modificationUser"); // close
                                                                                                               // of
