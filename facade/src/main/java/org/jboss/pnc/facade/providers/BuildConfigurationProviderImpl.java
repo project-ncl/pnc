@@ -145,17 +145,16 @@ public class BuildConfigurationProviderImpl
         Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
         org.jboss.pnc.model.User currentUser = userService.currentUser();
         User user = userMapper.toDTO(currentUser);
-        restEntity.setCreationUser(user);
-        restEntity.setModificationUser(user);
-        return super.store(restEntity.toBuilder().id(id.toString()).build(), false);
+        return super.store(
+                restEntity.toBuilder().id(id.toString()).creationUser(user).modificationUser(user).build(),
+                false);
     }
 
     @Override
     public BuildConfiguration update(String id, BuildConfiguration restEntity) {
         org.jboss.pnc.model.User currentUser = userService.currentUser();
         User user = userMapper.toDTO(currentUser);
-        restEntity.setModificationUser(user);
-        return super.update(id, restEntity);
+        return super.update(id, restEntity.toBuilder().id(id.toString()).modificationUser(user).build());
     }
 
     @Override

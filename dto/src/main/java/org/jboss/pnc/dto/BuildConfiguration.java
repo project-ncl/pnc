@@ -72,9 +72,9 @@ public class BuildConfiguration extends BuildConfigurationRef {
     @PatchSupport({ ADD, REMOVE, REPLACE })
     private final Map<String, String> parameters;
 
-    private User creationUser;
+    private final User creationUser;
 
-    private User modificationUser;
+    private final User modificationUser;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private BuildConfiguration(
