@@ -62,9 +62,11 @@
       };
 
       $scope.$watch('$ctrl.buildType', function (newBuildType) {
-        BuildConfigResource.getAlignmentParameters(newBuildType).then(function(parameters){
-          addParam('ALIGNMENT_PARAMETERS', parameters);
-        });
+        if (newBuildType) {
+          BuildConfigResource.getAlignmentParameters(newBuildType).then(function (parameters) {
+            addParam('ALIGNMENT_PARAMETERS', parameters);
+          });
+        }
       });
     };
 

@@ -55,16 +55,16 @@
 
 
     $ctrl.$onInit = function () {
+      $ctrl.formData = fromBuildConfig($ctrl.buildConfig);
       // Ensure this components copy of the BC can't be updated from outside.
       $ctrl.buildConfig = angular.copy($ctrl.buildConfig);
-      $ctrl.formData = fromBuildConfig($ctrl.buildConfig);
     };
 
     function submit() {
       $ctrl.working = true;
       var buildConfig = toBuildConfig($ctrl.formData, $ctrl.buildConfig);
 
-      BuildConfigResource.safePatch($ctrl.buildConfig, buildConfig).$promise
+      BuildConfigResource.safePatchRemovingParameters($ctrl.buildConfig, buildConfig).$promise
           .then(resp => $ctrl.onSuccess({ buildConfig: resp}))
           .finally(() => $ctrl.working = false);
       console.log('UPDATE BC -> formData: %O | buildConfig: %O', $ctrl.formData, buildConfig);
