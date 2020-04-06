@@ -17,8 +17,23 @@
  */
 package org.jboss.pnc.integration;
 
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
+import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.ws.rs.core.Response.Status;
+
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -52,21 +67,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Response.Status;
-import java.io.IOException;
-import java.lang.invoke.MethodHandles;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -223,9 +225,6 @@ public class BuildConfigurationRestTest extends AbstractTest {
         if (userRestClient == null) {
             userRestClient = new UserRestClient();
         }
-
-        userRestClient.createUser("admin");
-        userRestClient.createUser("user");
     }
 
     @Test

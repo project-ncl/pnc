@@ -137,10 +137,10 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
 
         performIfNotNull(
                 buildConfiguration.getCreationUser(),
-                () -> creationUser = new UserRest(buildConfiguration.getCreationUser()));
+                () -> this.creationUser = new UserRest(buildConfiguration.getCreationUser()));
         performIfNotNull(
                 buildConfiguration.getLastModificationUser(),
-                () -> lastModificationUser = new UserRest(buildConfiguration.getLastModificationUser()));
+                () -> this.lastModificationUser = new UserRest(buildConfiguration.getLastModificationUser()));
     }
 
     @Override
