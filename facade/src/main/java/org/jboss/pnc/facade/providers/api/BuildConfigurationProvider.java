@@ -23,6 +23,7 @@ import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.User;
 
 import java.util.Optional;
 
@@ -57,11 +58,11 @@ public interface BuildConfigurationProvider
             String query,
             String scmRepositoryId);
 
-    BuildConfiguration clone(String buildConfigurationId);
+    BuildConfiguration clone(String buildConfigurationId, User currentUser);
 
-    void addDependency(String configId, String dependencyId);
+    void addDependency(String configId, String dependencyId, User currentUser);
 
-    void removeDependency(String configId, String dependencyId);
+    void removeDependency(String configId, String dependencyId, User currentUser);
 
     Page<BuildConfiguration> getDependencies(
             int pageIndex,
@@ -74,9 +75,9 @@ public interface BuildConfigurationProvider
 
     BuildConfigurationRevision getRevision(String id, Integer rev);
 
-    BuildConfigurationRevision createRevision(String id, BuildConfiguration buildConfiguration);
+    BuildConfigurationRevision createRevision(String id, BuildConfiguration buildConfiguration, User currentUser);
 
     BuildConfigCreationResponse createWithScm(BuildConfigWithSCMRequest request);
 
-    Optional<BuildConfiguration> restoreRevision(String id, int rev);
+    Optional<BuildConfiguration> restoreRevision(String id, int rev, User currentUser);
 }

@@ -72,6 +72,10 @@ public class BuildConfiguration extends BuildConfigurationRef {
     @PatchSupport({ ADD, REMOVE, REPLACE })
     private final Map<String, String> parameters;
 
+    private User creationUser;
+
+    private User modificationUser;
+
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private BuildConfiguration(
             SCMRepository scmRepository,
@@ -89,7 +93,9 @@ public class BuildConfiguration extends BuildConfigurationRef {
             Instant creationTime,
             Instant modificationTime,
             boolean archived,
-            BuildType buildType) {
+            BuildType buildType,
+            User creationUser,
+            User modificationUser) {
         super(id, name, description, buildScript, scmRevision, creationTime, modificationTime, archived, buildType);
         this.scmRepository = scmRepository;
         this.project = project;
@@ -98,6 +104,8 @@ public class BuildConfiguration extends BuildConfigurationRef {
         this.productVersion = productVersion;
         this.groupConfigs = groupConfigs;
         this.parameters = parameters;
+        this.creationUser = creationUser;
+        this.modificationUser = modificationUser;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

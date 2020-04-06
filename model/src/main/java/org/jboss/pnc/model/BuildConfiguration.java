@@ -87,7 +87,9 @@ import org.jboss.pnc.enums.BuildType;
                 @Index(name = "idx_buildconfiguration_project", columnList = "project_id"),
                 @Index(
                         name = "idx_buildconfiguration_repositoryconfiguration",
-                        columnList = "repositoryconfiguration_id") })
+                        columnList = "repositoryconfiguration_id"),
+                @Index(name = "idx_buildconfiguration_creation_user", columnList = "creationuser_id"),
+                @Index(name = "idx_buildconfiguration_modification_user", columnList = "lastmodificationuser_id") })
 public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
     private static final long serialVersionUID = -5890729679489304114L;
@@ -207,6 +209,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @MapKeyColumn(length = 50, name = "key", nullable = false)
     @Column(name = "value", nullable = false, length = 8192)
     private Map<String, String> genericParameters = new HashMap<>();
+
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_build_configuration_creation_user"), updatable = false)
+    private User creationUser;
+
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_build_configuration_modification_user"), updatable = true)
+    private User lastModificationUser;
 
     /**
      * Instantiates a new project build configuration.
@@ -583,6 +593,22 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.buildType = buildType;
     }
 
+    public User getCreationUser() {
+        return creationUser;
+    }
+
+    public void setCreationUser(User creationUser) {
+        this.creationUser = creationUser;
+    }
+
+    public User getLastModificationUser() {
+        return lastModificationUser;
+    }
+
+    public void setLastModificationUser(User lastModificationUser) {
+        this.lastModificationUser = lastModificationUser;
+    }
+
     @Override
     public String toString() {
         return "BuildConfiguration " + getId() + " [project=" + getProject() + ", name=" + getName() + ", active="
@@ -637,6 +663,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         clone.buildType = buildType;
         clone.repositoryConfiguration = repositoryConfiguration;
         clone.scmRevision = scmRevision;
+        clone.creationUser = null;
+        clone.lastModificationUser = null;
         return clone;
     }
 
@@ -735,6 +763,10 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private Map<String, String> genericParameters = new HashMap<>();
 
+        private User creationUser;
+
+        private User lastModificationUser;
+
         private Builder() {
             dependencies = new HashSet<>();
             dependants = new HashSet<>();
@@ -785,6 +817,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
                 }
             }
             buildConfiguration.setDependants(dependants);
+            buildConfiguration.setCreationUser(creationUser);
+            buildConfiguration.setLastModificationUser(lastModificationUser);
 
             return buildConfiguration;
         }
@@ -879,6 +913,15 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             return this;
         }
 
+        public Builder creationUser(User creationUser) {
+            this.creationUser = creationUser;
+            return this;
+        }
+
+        public Builder lastModificationUser(User lastModificationUser) {
+            this.lastModificationUser = lastModificationUser;
+            return this;
+        }
     }
 
 }

@@ -48,6 +48,10 @@ public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
 
     private final Map<String, String> parameters;
 
+    private final User creationUser;
+
+    private final User modificationUser;
+
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private BuildConfigurationRevision(
             SCMRepository scmRepository,
@@ -61,12 +65,16 @@ public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
             String scmRevision,
             Instant creationTime,
             Instant modificationTime,
-            BuildType buildType) {
+            BuildType buildType,
+            User creationUser,
+            User modificationUser) {
         super(id, rev, name, buildScript, scmRevision, creationTime, modificationTime, buildType);
         this.scmRepository = scmRepository;
         this.project = project;
         this.environment = environment;
         this.parameters = parameters;
+        this.creationUser = creationUser;
+        this.modificationUser = modificationUser;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

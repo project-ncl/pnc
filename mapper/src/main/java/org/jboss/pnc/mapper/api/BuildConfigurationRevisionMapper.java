@@ -31,7 +31,7 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class },
+        uses = { ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class, UserMapper.class },
         imports = IdRev.class)
 public interface BuildConfigurationRevisionMapper {
 
@@ -41,6 +41,8 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "project", resultType = ProjectRef.class)
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @Mapping(target = "parameters", source = "genericParameters")
+    @Mapping(target = "creationUser", qualifiedBy = Reference.class)
+    @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
     @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "buildRecords", "buildConfiguration" })
     BuildConfigurationRevision toDTO(BuildConfigurationAudited dbEntity);
 
@@ -62,12 +64,14 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "buildConfiguration", ignore = true)
     @Mapping(target = "lastModificationTime", source = "modificationTime")
     @Mapping(target = "genericParameters", source = "parameters")
+    @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
+    @Mapping(target = "lastModificationUser", source = "lastModificationUser", qualifiedBy = IdEntity.class)
     BuildConfigurationAudited toEntity(BuildConfigurationRevision dtoEntity);
 
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "idRev", "buildRecords", "buildConfiguration", "repositoryConfiguration",
-                    "buildEnvironment", "project", "genericParameters" })
+                    "buildEnvironment", "project", "genericParameters", "creationUser", "lastModificationUser" })
     BuildConfigurationRevisionRef toRef(BuildConfigurationAudited dbEntity);
 }

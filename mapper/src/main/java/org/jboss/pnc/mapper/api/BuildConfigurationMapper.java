@@ -34,7 +34,7 @@ import org.mapstruct.Mapping;
 @Mapper(
         config = MapperCentralConfig.class,
         uses = { ProjectMapper.class, ProductVersionMapper.class, EnvironmentMapper.class, IDMapper.class,
-                SCMRepositoryMapper.class, MapSetMapper.class })
+                SCMRepositoryMapper.class, MapSetMapper.class, UserMapper.class })
 public interface BuildConfigurationMapper
         extends EntityMapper<Integer, BuildConfiguration, org.jboss.pnc.dto.BuildConfiguration, BuildConfigurationRef> {
 
@@ -49,6 +49,8 @@ public interface BuildConfigurationMapper
     @Mapping(target = "indirectDependencies", ignore = true)
     @Mapping(target = "allDependencies", ignore = true)
     @Mapping(target = "genericParameters", source = "parameters")
+    @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
+    @Mapping(target = "lastModificationUser", source = "modificationUser", qualifiedBy = IdEntity.class)
     BuildConfiguration toEntity(org.jboss.pnc.dto.BuildConfiguration dtoEntity);
 
     @Override
@@ -67,7 +69,8 @@ public interface BuildConfigurationMapper
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "repositoryConfiguration", "project", "productVersion",
                     "buildEnvironment", "buildConfigurationSets", "dependencies", "indirectDependencies",
-                    "allDependencies", "dependants", "currentProductMilestone", "active", "genericParameters" })
+                    "allDependencies", "dependants", "currentProductMilestone", "active", "genericParameters",
+                    "creationUser", "lastModificationUser" })
     BuildConfigurationRef toRef(BuildConfiguration dbEntity);
 
     @Override
@@ -80,6 +83,8 @@ public interface BuildConfigurationMapper
     @Mapping(target = "project", resultType = ProjectRef.class)
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "parameters", source = "genericParameters")
+    @Mapping(target = "creationUser", qualifiedBy = Reference.class)
+    @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "dependants", "active", "indirectDependencies", "allDependencies",
                     "currentProductMilestone" })
