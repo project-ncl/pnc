@@ -84,8 +84,8 @@ public interface BuildConfigurationMapper
     @Mapping(target = "project", resultType = ProjectRef.class)
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "parameters", source = "genericParameters")
-    @Mapping(target = "creationUser", resultType = User.class)
-    @Mapping(target = "modificationUser", source = "lastModificationUser", resultType = User.class)
+    @Mapping(target = "creationUser", qualifiedBy = Reference.class)
+    @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "dependants", "active", "indirectDependencies", "allDependencies",
                     "currentProductMilestone" })

@@ -72,6 +72,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
@@ -190,6 +192,7 @@ public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
                 buildConfigurationMapper,
                 sCMRepositoryMapper,
                 BuildConfigurationMapperImpl.class);
+        injectMethod("userMapper", buildConfigurationMapper, userMapper, BuildConfigurationMapperImpl.class);
 
         injectMethod(
                 "environmentMapper",
@@ -205,6 +208,11 @@ public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
                 "sCMRepositoryMapper",
                 buildConfigurationRevisionMapper,
                 sCMRepositoryMapper,
+                BuildConfigurationRevisionMapperImpl.class);
+        injectMethod(
+                "userMapper",
+                buildConfigurationRevisionMapper,
+                userMapper,
                 BuildConfigurationRevisionMapperImpl.class);
 
         injectMethod(

@@ -68,9 +68,6 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
     @Mock
     private UserService userService;
 
-    @Mock
-    private UserMapper userMapper;
-
     @Spy
     private SequenceHandlerRepository sequence = new SequenceHandlerRepositoryMock();
 
