@@ -324,8 +324,14 @@ public class BuildConfigurationEndpointTest {
                 "creationTime",
                 "modificationTime",
                 "modificationTime",
-                "productVersion");
-        assertThat(retrieved).isEqualToIgnoringGivenFields(clone, "modificationTime"); // close of transaction changes
+                "productVersion",
+                "creationUser",
+                "modificationUser");
+        assertThat(retrieved)
+                .isEqualToIgnoringGivenFields(clone, "modificationTime", "creationUser", "modificationUser"); // close
+                                                                                                              // of
+                                                                                                              // transaction
+                                                                                                              // changes
                                                                                        // the modification time -
                                                                                        // WONTFIX
     }

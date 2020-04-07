@@ -93,6 +93,10 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
     @Setter
     private Map<String, String> genericParameters;
 
+    private UserRest creationUser;
+
+    private UserRest lastModificationUser;
+
     public BuildConfigurationRest() {
     }
 
@@ -130,6 +134,12 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                 buildConfiguration.getProductVersion(),
                 () -> this.productVersionId = buildConfiguration.getProductVersion().getId());
         this.buildType = buildConfiguration.getBuildType();
+        performIfNotNull(
+                buildConfiguration.getCreationUser(),
+                () -> this.creationUser = new UserRest(buildConfiguration.getCreationUser()));
+        performIfNotNull(
+                buildConfiguration.getLastModificationUser(),
+                () -> this.lastModificationUser = new UserRest(buildConfiguration.getLastModificationUser()));
     }
 
     @Override
@@ -238,6 +248,22 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
         this.environment = environment;
     }
 
+    public UserRest getCreationUser() {
+        return creationUser;
+    }
+
+    public void setCreationUser(UserRest creationUser) {
+        this.creationUser = creationUser;
+    }
+
+    public UserRest getLastModificationUser() {
+        return lastModificationUser;
+    }
+
+    public void setLastModificationUser(UserRest lastModificationUser) {
+        this.lastModificationUser = lastModificationUser;
+    }
+
     public BuildConfiguration.Builder toDBEntityBuilder() {
         BuildConfiguration.Builder builder = BuildConfiguration.Builder.newBuilder()
                 .id(this.getId())
@@ -265,6 +291,12 @@ public class BuildConfigurationRest implements GenericRestEntity<Integer> {
                     .id(dependencyId);
             builder.dependency(buildConfigurationBuilder.build());
         });
+        performIfNotNull(
+                this.getCreationUser(),
+                () -> builder.creationUser(this.getCreationUser().toDBEntityBuilder().build()));
+        performIfNotNull(
+                this.getLastModificationUser(),
+                () -> builder.lastModificationUser(this.getLastModificationUser().toDBEntityBuilder().build()));
 
         return builder;
     }

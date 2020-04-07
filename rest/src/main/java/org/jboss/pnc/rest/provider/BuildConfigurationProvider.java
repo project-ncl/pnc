@@ -27,6 +27,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.provider.collection.CollectionInfo;
 import org.jboss.pnc.rest.provider.collection.CollectionInfoCollector;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
@@ -259,6 +260,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             if (buildConfigDB != null) {
                 builder.lastModificationTime(buildConfigDB.getLastModificationTime()); // Handled by JPA @Version
                 builder.creationTime(buildConfigDB.getCreationTime()); // Immutable after creation
+                builder.creationUser(buildConfigDB.getCreationUser()); // Immutable after creation
                 if (buildConfigRest.getDependencyIds() == null) {
                     // If the client request does not include a list of dependencies, just keep the current set
                     builder.dependencies(buildConfigDB.getDependencies());
@@ -269,11 +271,12 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         };
     }
 
-    public void archive(Integer buildConfigurationId) throws RestValidationException {
+    public void archive(Integer buildConfigurationId, User currentUser) throws RestValidationException {
         ValidationBuilder.validateObject(WhenUpdating.class)
                 .validateAgainstRepository(repository, buildConfigurationId, true);
         BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
         buildConfiguration.setArchived(true);
+        buildConfiguration.setLastModificationUser(currentUser);
 
         // if a build configuration is archived, unlink the build configuration from the build configuration sets it
         // is associated with
@@ -285,19 +288,21 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         repository.save(buildConfiguration);
     }
 
-    public Integer clone(Integer buildConfigurationId) throws RestValidationException {
+    public Integer clone(Integer buildConfigurationId, User currentUser) throws RestValidationException {
         ValidationBuilder.validateObject(WhenCreatingNew.class)
                 .validateAgainstRepository(repository, buildConfigurationId, true);
         BuildConfiguration buildConfiguration = repository.queryById(buildConfigurationId);
         BuildConfiguration clonedBuildConfiguration = buildConfiguration.clone();
         Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
         clonedBuildConfiguration.setId(id.intValue());
+        clonedBuildConfiguration.setCreationUser(currentUser);
+        clonedBuildConfiguration.setLastModificationUser(currentUser);
         clonedBuildConfiguration = repository.save(clonedBuildConfiguration);
         logger.debug("Cloned saved BuildConfiguration: {}", clonedBuildConfiguration);
         return clonedBuildConfiguration.getId();
     }
 
-    public void addDependency(Integer configId, Integer dependencyId) throws RestValidationException {
+    public void addDependency(Integer configId, Integer dependencyId, User currentUser) throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
 
@@ -310,21 +315,25 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                         "Cannot add dependency from : " + configId + " to: " + dependencyId
                                 + " because it would introduce a cyclic dependency");
         System.out.println("didn't throw any validation errors");
+        buildConfig.setLastModificationUser(currentUser);
         buildConfig.addDependency(dependency);
         repository.save(buildConfig);
     }
 
-    public void removeDependency(Integer configId, Integer dependencyId) throws RestValidationException {
+    public void removeDependency(Integer configId, Integer dependencyId, User currentUser)
+            throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
                 .validateCondition(dependency != null, "No dependency build config exists with id: " + dependencyId);
+        buildConfig.setLastModificationUser(currentUser);
         buildConfig.removeDependency(dependency);
         repository.save(buildConfig);
     }
 
-    public void setProductVersion(Integer configId, Integer productVersionId) throws RestValidationException {
+    public void setProductVersion(Integer configId, Integer productVersionId, User currentUser)
+            throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId);
@@ -333,6 +342,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             productVersion = productVersionRepository.queryById(productVersionId);
         }
         buildConfig.setProductVersion(productVersion);
+        buildConfig.setLastModificationUser(currentUser);
         repository.save(buildConfig);
     }
 
@@ -372,7 +382,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                 .map(buildConfigurationAuditedToRestModel());
     }
 
-    public BuildConfigurationRest restoreRevision(Integer id, Integer rev) {
+    public BuildConfigurationRest restoreRevision(Integer id, Integer rev, User currentUser) {
         IdRev idRev = new IdRev(id, rev);
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
         BuildConfiguration buildConfiguration = repository.queryById(id);
@@ -384,6 +394,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         buildConfiguration.setBuildType(buildConfigurationAudited.getBuildType());
         buildConfiguration.setBuildEnvironment(buildConfigurationAudited.getBuildEnvironment());
         buildConfiguration.setGenericParameters(buildConfigurationAudited.getGenericParameters());
+        buildConfiguration.setLastModificationUser(currentUser);
 
         return new BuildConfigurationRest(repository.save(buildConfiguration));
     }

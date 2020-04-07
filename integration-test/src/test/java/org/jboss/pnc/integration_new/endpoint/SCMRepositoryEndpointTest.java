@@ -87,7 +87,8 @@ public class SCMRepositoryEndpointTest {
 
         RemoteCollection<BuildConfiguration> buildConfigs = repositoryClient.getBuildsConfigs(scmRepository.getId());
 
-        assertThat(buildConfigs).usingElementComparatorIgnoringFields("modificationTime")
+        assertThat(buildConfigs)
+                .usingElementComparatorIgnoringFields("modificationTime", "creationUser", "modificationUser")
                 .contains(buildConfiguration1, buildConfiguration2)
                 .allSatisfy((bc -> scmRepository.equals(bc.getScmRepository())));
     }

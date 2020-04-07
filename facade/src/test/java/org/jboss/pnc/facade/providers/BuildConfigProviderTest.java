@@ -23,6 +23,8 @@ import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -30,6 +32,7 @@ import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
@@ -62,6 +65,9 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
     @Mock
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
+    @Mock
+    private UserService userService;
+
     @Spy
     private SequenceHandlerRepository sequence = new SequenceHandlerRepositoryMock();
 
@@ -83,6 +89,8 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
 
     @Before
     public void fill() {
+        User currentUser = prepareNewUser();
+        when(userService.currentUser()).thenReturn(currentUser);
         final BuildConfiguration a = prepareBuildConfig("First!", 1, 1, 1);
         final BuildConfiguration b = prepareBuildConfig("Second!!", 1, 2, 2, a);
         final BuildConfiguration c = prepareBuildConfig("THIRD!!!", 2, 2, 3, a, b);
@@ -247,6 +255,17 @@ public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfigura
                 .project(mockProject(projId))
                 .dependencies(new HashSet<>(Arrays.asList(dependencies)))
                 .buildEnvironment(mockEnvironment(envId))
+                .build();
+    }
+
+    private User prepareNewUser() {
+
+        return User.Builder.newBuilder()
+                .id(113)
+                .email("example@example.com")
+                .firstName("Andrea")
+                .lastName("Vibelli")
+                .username("avibelli")
                 .build();
     }
 

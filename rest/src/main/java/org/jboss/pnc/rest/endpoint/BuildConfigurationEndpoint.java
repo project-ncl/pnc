@@ -28,6 +28,7 @@ import org.jboss.pnc.rest.provider.ProductVersionProvider;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationAuditedRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.ProductVersionRest;
+import org.jboss.pnc.rest.restmodel.UserRest;
 import org.jboss.pnc.rest.restmodel.response.Singleton;
 import org.jboss.pnc.rest.trigger.BuildTriggerer;
 import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
@@ -134,6 +135,9 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @POST
     public Response createNew(BuildConfigurationRest buildConfigurationRest, @Context UriInfo uriInfo)
             throws RestValidationException {
+        User currentUser = getCurrentUser();
+        buildConfigurationRest.setCreationUser(new UserRest(currentUser));
+        buildConfigurationRest.setLastModificationUser(new UserRest(currentUser));
         return super.createNew(buildConfigurationRest, uriInfo);
     }
 
@@ -153,6 +157,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}")
     public Response update(@PathParam("id") Integer id, BuildConfigurationRest buildConfigurationRest)
             throws RestValidationException {
+        User currentUser = getCurrentUser();
+        buildConfigurationRest.setLastModificationUser(new UserRest(currentUser));
         return super.update(id, buildConfigurationRest);
     }
 
@@ -160,6 +166,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/update-and-get-audited")
     public Response updateAndGetAudited(@PathParam("id") Integer id, BuildConfigurationRest buildConfigurationRest)
             throws RestValidationException {
+        User currentUser = getCurrentUser();
+        buildConfigurationRest.setLastModificationUser(new UserRest(currentUser));
         buildConfigurationProvider.update(id, buildConfigurationRest);
         Optional<BuildConfigurationAuditedRest> buildConfigurationAuditedRestOptional = buildConfigurationProvider
                 .getLatestAuditedMatchingBCRest(buildConfigurationRest);
@@ -176,7 +184,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @DELETE
     @Path("/{id}")
     public Response deleteSpecific(@PathParam("id") Integer id) throws RestValidationException {
-        buildConfigurationProvider.archive(id);
+        User currentUser = getCurrentUser();
+        buildConfigurationProvider.archive(id, currentUser);
         return Response.ok().build();
     }
 
@@ -184,7 +193,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/clone")
     public Response clone(@PathParam("id") Integer id, @Context UriInfo uriInfo) throws RestValidationException {
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path("/build-configurations/{id}");
-        int newId = buildConfigurationProvider.clone(id);
+        User currentUser = getCurrentUser();
+        int newId = buildConfigurationProvider.clone(id, currentUser);
         return Response.created(uriBuilder.build(newId))
                 .entity(new Singleton(buildConfigurationProvider.getSpecific(newId)))
                 .build();
@@ -302,8 +312,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
         User currentUser = authenticationProvider.getCurrentUser(httpServletRequest);
         if (currentUser == null) {
             throw new InvalidEntityException(
-                    "No such user exists to trigger builds. Before triggering builds"
-                            + " user must be initialized through /users/getLoggedUser");
+                    "No such user exists to trigger builds or modify build configs. Before triggering builds"
+                            + " or modifying build configs, user must be initialized through /users/getLoggedUser");
         }
         return currentUser;
     }
@@ -359,7 +369,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/dependencies")
     public Response addDependency(@PathParam("id") Integer id, BuildConfigurationRest dependency)
             throws RestValidationException {
-        buildConfigurationProvider.addDependency(id, dependency.getId());
+        User currentUser = getCurrentUser();
+        buildConfigurationProvider.addDependency(id, dependency.getId(), currentUser);
         return fromEmpty();
     }
 
@@ -367,7 +378,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/dependencies/{dependencyId}")
     public Response removeDependency(@PathParam("id") Integer id, @PathParam("dependencyId") Integer dependencyId)
             throws RestValidationException {
-        buildConfigurationProvider.removeDependency(id, dependencyId);
+        User currentUser = getCurrentUser();
+        buildConfigurationProvider.removeDependency(id, dependencyId, currentUser);
         return fromEmpty();
     }
 
@@ -408,7 +420,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Deprecated
     public Response addProductVersion(@PathParam("id") Integer id, ProductVersionRest productVersion)
             throws RestValidationException {
-        buildConfigurationProvider.setProductVersion(id, productVersion.getId());
+        User currentUser = getCurrentUser();
+        buildConfigurationProvider.setProductVersion(id, productVersion.getId(), currentUser);
         return fromEmpty();
     }
 
@@ -421,7 +434,8 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     public Response removeProductVersion(
             @PathParam("id") Integer id,
             @PathParam("productVersionId") Integer productVersionId) throws RestValidationException {
-        buildConfigurationProvider.setProductVersion(id, null);
+        User currentUser = getCurrentUser();
+        buildConfigurationProvider.setProductVersion(id, null, currentUser);
         return fromEmpty();
     }
 
@@ -443,8 +457,10 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
 
     @POST
     @Path("/{id}/revisions/{rev}/restore")
-    public Response restoreRevision(@PathParam("id") Integer id, @PathParam("rev") Integer rev) {
-        return fromSingleton(buildConfigurationProvider.restoreRevision(id, rev));
+    public Response restoreRevision(@PathParam("id") Integer id, @PathParam("rev") Integer rev)
+            throws RestValidationException {
+        User currentUser = getCurrentUser();
+        return fromSingleton(buildConfigurationProvider.restoreRevision(id, rev, currentUser));
     }
 
     @GET

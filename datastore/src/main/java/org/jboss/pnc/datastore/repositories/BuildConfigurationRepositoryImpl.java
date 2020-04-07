@@ -59,6 +59,9 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
                 // the @PreUpdate method in BuildConfiguration was removed, the calculation of whether the
                 // lastModificationTime needs to be changed is done here
                 buildConfiguration.setLastModificationTime(new Date());
+            } else {
+                // No changes to audit, reset the lastModificationUser to previous existing
+                buildConfiguration.setLastModificationUser(persisted.getLastModificationUser());
             }
         }
         return springRepository.save(buildConfiguration);

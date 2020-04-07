@@ -63,6 +63,10 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
 
     private Date lastModificationTime;
 
+    private User creationUser;
+
+    private User lastModificationUser;
+
     private BuildConfiguration buildConfiguration;
 
     /**
@@ -185,6 +189,22 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
         this.genericParameters = genericParameters;
     }
 
+    public User getCreationUser() {
+        return creationUser;
+    }
+
+    public void setCreationUser(User creationUser) {
+        this.creationUser = creationUser;
+    }
+
+    public User getLastModificationUser() {
+        return lastModificationUser;
+    }
+
+    public void setLastModificationUser(User lastModificationUser) {
+        this.lastModificationUser = lastModificationUser;
+    }
+
     @Override
     public String toString() {
         return "BuildConfigurationAudit [project=" + project + ", name=" + name + ", id=" + id + ", rev=" + rev + "]";
@@ -230,6 +250,8 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
             configurationAudited.setRepositoryConfiguration(buildConfiguration.getRepositoryConfiguration());
             configurationAudited.setCreationTime(buildConfiguration.getCreationTime());
             configurationAudited.setLastModificationTime(buildConfiguration.getLastModificationTime());
+            configurationAudited.setCreationUser(buildConfiguration.getCreationUser());
+            configurationAudited.setLastModificationUser(buildConfiguration.getLastModificationUser());
             configurationAudited.buildConfiguration = buildConfiguration;
             return configurationAudited;
         }
