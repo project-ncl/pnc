@@ -20,12 +20,14 @@ package org.jboss.pnc.datastore.repositories;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.datastore.DeploymentFactory;
 import org.jboss.pnc.enums.MilestoneReleaseStatus;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.spi.datastore.predicates.ProductMilestoneReleasePredicates;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
@@ -37,6 +39,8 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,26 +60,31 @@ public class ProductMilestoneReleaseRepositoryImplTest {
     @Inject
     private ProductVersionRepository productVersionRepository;
 
+    private static ProductMilestone milestone1;
+    private static ProductMilestoneRelease release1;
+    private static ProductMilestoneRelease release2;
+
     @Deployment
     public static Archive<?> getDeployment() {
         return DeploymentFactory.createDatastoreDeployment();
     }
 
     @Test
+    @InSequence(1)
     public void shouldReturnProperLatest() {
 
-        ProductMilestone milestone1 = createMilestone();
+        milestone1 = createMilestone();
         ProductMilestone milestone2 = createMilestone();
 
-        ProductMilestoneRelease r1 = new ProductMilestoneRelease();
-        r1.setMilestone(milestone1);
-        r1.setStatus(MilestoneReleaseStatus.FAILED);
-        releaseRepository.save(r1);
+        release1 = new ProductMilestoneRelease();
+        release1.setMilestone(milestone1);
+        release1.setStatus(MilestoneReleaseStatus.FAILED);
+        releaseRepository.save(release1);
 
-        ProductMilestoneRelease r2 = new ProductMilestoneRelease();
-        r2.setMilestone(milestone1);
-        r2.setStatus(MilestoneReleaseStatus.SUCCEEDED);
-        releaseRepository.save(r2);
+        release2 = new ProductMilestoneRelease();
+        release2.setMilestone(milestone1);
+        release2.setStatus(MilestoneReleaseStatus.SUCCEEDED);
+        releaseRepository.save(release2);
 
         ProductMilestoneRelease r3 = new ProductMilestoneRelease();
         r3.setMilestone(milestone2);
@@ -85,6 +94,30 @@ public class ProductMilestoneReleaseRepositoryImplTest {
         ProductMilestoneRelease latestByMilestone = releaseRepository.findLatestByMilestone(milestone1);
         assertThat(latestByMilestone).isNotNull();
         assertThat(latestByMilestone.getStatus()).isEqualTo(MilestoneReleaseStatus.SUCCEEDED);
+    }
+
+    @Test
+    @InSequence(2)
+    public void shouldReturnForMilestone() {
+        Integer milestoneId = milestone1.getId();
+        List<ProductMilestoneRelease> result = releaseRepository
+                .queryWithPredicates(ProductMilestoneReleasePredicates.withMilestoneId(milestoneId));
+
+        assertThat(result.size()).isEqualTo(2);
+        List<Integer> ids = result.stream().map(ProductMilestoneRelease::getId).collect(Collectors.toList());
+        assertThat(ids).containsExactlyInAnyOrder(release1.getId(), release2.getId());
+    }
+
+    @Test
+    @InSequence(3)
+    public void shouldReturnForMilestoneWithStatus() {
+        Integer milestoneId = milestone1.getId();
+        List<ProductMilestoneRelease> result = releaseRepository.queryWithPredicates(
+                ProductMilestoneReleasePredicates.withMilestoneId(milestoneId),
+                ProductMilestoneReleasePredicates.withStatus(MilestoneReleaseStatus.SUCCEEDED));
+
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).getId()).isEqualTo(release2.getId());
     }
 
     private ProductMilestone createMilestone() {

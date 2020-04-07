@@ -22,6 +22,7 @@ import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.enums.SystemImageType;
@@ -35,6 +36,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductRelease;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.Project;
@@ -49,6 +51,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
@@ -87,21 +90,23 @@ public class DatabaseDataInitializer {
 
     public static final Logger log = Logger.getLogger(DatabaseDataInitializer.class.getName());
 
-    private static final String PNC_PRODUCT_NAME = "Project Newcastle Demo Product";
+    public static final String PNC_PRODUCT_NAME = "Project Newcastle Demo Product";
 
-    private static final String PNC_PRODUCT_VERSION_1 = "1.0";
+    public static final String PNC_PRODUCT_VERSION_1 = "1.0";
 
-    private static final String PNC_PRODUCT_VERSION_2 = "2.0";
+    public static final String PNC_PRODUCT_VERSION_2 = "2.0";
 
-    private static final String PNC_PRODUCT_RELEASE = "1.0.0.GA";
+    public static final String PNC_PRODUCT_RELEASE = "1.0.0.GA";
 
-    private static final String PNC_PRODUCT_MILESTONE1 = "1.0.0.Build1";
+    public static final String PNC_PRODUCT_MILESTONE1 = "1.0.0.Build1";
 
-    private static final String PNC_PRODUCT_MILESTONE2 = "1.0.0.Build2";
+    public static final String PNC_PRODUCT_MILESTONE2 = "1.0.0.Build2";
 
-    private static final String PNC_PROJECT_1_NAME = "Project Newcastle Demo Project 1";
+    public static final String PNC_PRODUCT_MILESTONE3 = "1.0.0.Build3";
 
-    private static final String PNC_PROJECT_BUILD_CFG_ID = "pnc-1.0.0.DR1";
+    public static final String PNC_PROJECT_1_NAME = "Project Newcastle Demo Project 1";
+
+    public static final String PNC_PROJECT_BUILD_CFG_ID = "pnc-1.0.0.DR1";
 
     @Inject
     private ArtifactRepository artifactRepository;
@@ -129,6 +134,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     private ProductMilestoneRepository productMilestoneRepository;
+
+    @Inject
+    private ProductMilestoneReleaseRepository productMilestoneReleaseRepository;
 
     @Inject
     private ProductReleaseRepository productReleaseRepository;
@@ -305,6 +313,36 @@ public class DatabaseDataInitializer {
                 .productVersion(productVersion1)
                 .build();
         demoProductMilestone2 = productMilestoneRepository.save(demoProductMilestone2);
+
+        Instant t0 = TODAY.toInstant();
+        Instant successTime = t0.plus(10, ChronoUnit.MINUTES);
+
+        ProductMilestone demoProductMilestone3 = ProductMilestone.Builder.newBuilder()
+                .version(PNC_PRODUCT_MILESTONE3)
+                .startingDate(TODAY)
+                .plannedEndDate(ONE_WEEK_AFTER_TODAY)
+                .productVersion(productVersion1)
+                .build();
+        demoProductMilestone3 = productMilestoneRepository.save(demoProductMilestone3);
+
+        ProductMilestoneRelease milestoneRelease1 = new ProductMilestoneRelease();
+        milestoneRelease1.setMilestone(demoProductMilestone3);
+        // first store with latter starting date to test sort function
+        milestoneRelease1.setStartingDate(Date.from(t0.plus(2, ChronoUnit.MINUTES)));
+        milestoneRelease1.setStatus(MilestoneReleaseStatus.SYSTEM_ERROR);
+        productMilestoneReleaseRepository.save(milestoneRelease1);
+
+        ProductMilestoneRelease milestoneRelease2 = new ProductMilestoneRelease();
+        milestoneRelease2.setMilestone(demoProductMilestone3);
+        milestoneRelease2.setStartingDate(Date.from(t0));
+        milestoneRelease2.setStatus(MilestoneReleaseStatus.FAILED);
+        productMilestoneReleaseRepository.save(milestoneRelease2);
+
+        ProductMilestoneRelease milestoneRelease3 = new ProductMilestoneRelease();
+        milestoneRelease3.setMilestone(demoProductMilestone3);
+        milestoneRelease3.setStartingDate(Date.from(successTime));
+        milestoneRelease3.setStatus(MilestoneReleaseStatus.SUCCEEDED);
+        productMilestoneReleaseRepository.save(milestoneRelease3);
 
         ProductRelease productRelease = ProductRelease.Builder.newBuilder()
                 .version(PNC_PRODUCT_RELEASE)

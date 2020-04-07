@@ -17,31 +17,15 @@
  */
 package org.jboss.pnc.integration_new.endpoint;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupConfigurationClient;
-import org.jboss.pnc.client.RemoteCollection;
-import org.jboss.pnc.integration_new.setup.Deployments;
-import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
-import org.jboss.pnc.test.category.ContainerTest;
-
-import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.jboss.pnc.client.ProductClient;
 import org.jboss.pnc.client.ProductMilestoneClient;
 import org.jboss.pnc.client.ProductVersionClient;
+import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupConfiguration;
@@ -51,16 +35,25 @@ import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
+import org.jboss.pnc.integration_new.setup.Deployments;
+import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
+import org.jboss.pnc.test.category.ContainerTest;
+import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>
@@ -169,7 +162,7 @@ public class ProductVersionEndpointTest {
 
         RemoteCollection<ProductMilestone> all = client.getMilestones(productVersionsId);
 
-        assertThat(all).hasSize(2).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
+        assertThat(all).hasSize(3).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
     }
 
     @Test

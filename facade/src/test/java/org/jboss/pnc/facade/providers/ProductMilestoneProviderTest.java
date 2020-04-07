@@ -24,7 +24,6 @@ import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
-import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
@@ -37,12 +36,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -66,19 +62,22 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
     @InjectMocks
     private ProductMilestoneProviderImpl provider;
 
-    private ProductMilestone mock = prepareNewProductMilestone("1.2", "1.2.3.GA");
-    private ProductMilestone mockSecond = prepareNewProductMilestone("1.1", "1.1.1.GA");
+    private ProductMilestone mock = ProductMilestoneFactory.getInstance().prepareNewProductMilestone("1.2", "1.2.3.GA");
+    private ProductMilestone mockSecond = ProductMilestoneFactory.getInstance()
+            .prepareNewProductMilestone("1.1", "1.1.1.GA");
 
     @Before
     public void setup() {
         when(userService.currentUserToken()).thenReturn("eyUserToken");
 
+        ProductMilestoneFactory.getInstance().setIdSupplier(() -> entityId++);
+
         List<ProductMilestone> productMilestones = new ArrayList<>();
 
         productMilestones.add(mock);
         productMilestones.add(mockSecond);
-        productMilestones.add(prepareNewProductMilestone("1.3", "1.3.2.GA"));
-        productMilestones.add(prepareNewProductMilestone("5.5", "5.5.5.CR1"));
+        productMilestones.add(ProductMilestoneFactory.getInstance().prepareNewProductMilestone("1.3", "1.3.2.GA"));
+        productMilestones.add(ProductMilestoneFactory.getInstance().prepareNewProductMilestone("5.5", "5.5.5.CR1"));
 
         fillRepository(productMilestones);
     }
@@ -234,7 +233,8 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
     @Test
     public void testCancelMilestoneCloseProcessShouldFailIfAlreadyClosed() {
         // given
-        ProductMilestone closed = createNewProductMilestoneFromProductVersion(mock.getProductVersion(), "9.8.7.GA");
+        ProductMilestone closed = ProductMilestoneFactory.getInstance()
+                .createNewProductMilestoneFromProductVersion(mock.getProductVersion(), "9.8.7.GA");
         closed.setEndDate(new Date());
         repositoryList.add(closed);
 
@@ -256,7 +256,8 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
     @Test
     public void testCloseMilestoneShouldFailIfAlreadyClosed() {
         // given
-        ProductMilestone closed = createNewProductMilestoneFromProductVersion(mock.getProductVersion(), "9.8.7.GA");
+        ProductMilestone closed = ProductMilestoneFactory.getInstance()
+                .createNewProductMilestoneFromProductVersion(mock.getProductVersion(), "9.8.7.GA");
         closed.setEndDate(new Date());
         repositoryList.add(closed);
 
@@ -276,30 +277,6 @@ public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMi
 
         // then
         verify(releaseManager, times(1)).startRelease(any(), any());
-    }
-
-    private ProductMilestone prepareNewProductMilestone(String productVersion, String milestoneVersion) {
-
-        Product product = Product.Builder.newBuilder().id(entityId++).name(UUID.randomUUID().toString()).build();
-
-        ProductVersion pV = ProductVersion.Builder.newBuilder()
-                .id(entityId++)
-                .version(productVersion)
-                .product(product)
-                .build();
-
-        return createNewProductMilestoneFromProductVersion(pV, milestoneVersion);
-    }
-
-    private ProductMilestone createNewProductMilestoneFromProductVersion(
-            ProductVersion productVersion,
-            String milestoneVersion) {
-
-        return ProductMilestone.Builder.newBuilder()
-                .id(entityId++)
-                .productVersion(productVersion)
-                .version(milestoneVersion)
-                .build();
     }
 
     private org.jboss.pnc.dto.ProductMilestone createNewProductMilestoneDTO(

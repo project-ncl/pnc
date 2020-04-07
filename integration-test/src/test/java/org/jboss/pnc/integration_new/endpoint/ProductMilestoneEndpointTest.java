@@ -17,41 +17,46 @@
  */
 package org.jboss.pnc.integration_new.endpoint;
 
-import java.io.IOException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.ProductClient;
+import org.jboss.pnc.client.ProductMilestoneClient;
+import org.jboss.pnc.client.ProductVersionClient;
 import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.demo.data.DatabaseDataInitializer;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.Product;
+import org.jboss.pnc.dto.ProductMilestone;
+import org.jboss.pnc.dto.ProductMilestoneRelease;
+import org.jboss.pnc.dto.ProductVersion;
+import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
+import org.jboss.pnc.rest.api.parameters.ProductMilestoneReleaseParameters;
 import org.jboss.pnc.test.category.ContainerTest;
-
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jboss.pnc.client.ProductClient;
-import org.jboss.pnc.client.ProductMilestoneClient;
-import org.jboss.pnc.client.ProductVersionClient;
-import org.jboss.pnc.dto.Product;
-import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductVersion;
-import org.junit.BeforeClass;
-
-import org.jboss.pnc.dto.Build;
-
+import java.io.IOException;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_MILESTONE3;
+import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_NAME;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>
@@ -151,6 +156,53 @@ public class ProductMilestoneEndpointTest {
         // when then
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
         assertThatThrownBy(() -> client.createNew(productMilestone)).isInstanceOf(ClientException.class);
+    }
+
+    @Test
+    public void shouldGetMilestoneRelease() throws IOException, RemoteResourceException {
+        // given
+        ProductClient productClient = new ProductClient(RestClientConfiguration.asAnonymous());
+        RemoteCollection<Product> products = productClient
+                .getAll(Optional.empty(), Optional.of("name==\"" + PNC_PRODUCT_NAME + "\""));
+        Product product = products.iterator().next();
+        Map<String, ProductVersionRef> productVersions = product.getProductVersions();
+        Optional<ProductVersionRef> productVersion = productVersions.values()
+                .stream()
+                .filter(pv -> pv.getVersion().equals(DatabaseDataInitializer.PNC_PRODUCT_VERSION_1))
+                .findAny();
+
+        ProductVersionClient productVersionClient = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+        RemoteCollection<ProductMilestone> milestones = productVersionClient.getMilestones(
+                productVersion.get().getId(),
+                Optional.empty(),
+                Optional.of("version==\"" + PNC_PRODUCT_MILESTONE3 + "\""));
+        ProductMilestone milestone = milestones.iterator().next();
+
+        ProductMilestoneClient milestoneClient = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        // when
+        RemoteCollection<ProductMilestoneRelease> milestoneReleases = milestoneClient
+                .getMilestoneReleases(null, milestone.getId());
+        // then
+        Assert.assertEquals(3, milestoneReleases.size());
+        // make sure the result is ordered by date
+        Instant previous = Instant.EPOCH;
+        for (Iterator<ProductMilestoneRelease> iter = milestoneReleases.iterator(); iter.hasNext();) {
+            ProductMilestoneRelease next = iter.next();
+            logger.debug("MilestoneRelease id: {}, StartingDate: {}.", next.getId(), next.getStartingDate());
+            Assert.assertTrue("Wong milestone releases order.", next.getStartingDate().isAfter(previous));
+            previous = next.getStartingDate();
+        }
+
+        // when
+        ProductMilestoneReleaseParameters filter = new ProductMilestoneReleaseParameters();
+        filter.setLatest(true);
+        RemoteCollection<ProductMilestoneRelease> latestMilestoneRelease = milestoneClient
+                .getMilestoneReleases(filter, milestone.getId());
+        // then
+        Assert.assertEquals(1, latestMilestoneRelease.getAll().size());
+        // the latest one in demo data has status SUCCEEDED
+        Assert.assertEquals(MilestoneReleaseStatus.SUCCEEDED, latestMilestoneRelease.iterator().next().getStatus());
     }
 
     @Test

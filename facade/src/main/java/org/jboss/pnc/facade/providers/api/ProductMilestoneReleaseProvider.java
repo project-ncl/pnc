@@ -17,27 +17,24 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
-import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductMilestoneRelease;
-import org.jboss.pnc.dto.response.MilestoneInfo;
+import org.jboss.pnc.dto.ProductMilestoneReleaseRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.validation.EmptyEntityException;
-import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
-public interface ProductMilestoneProvider
-        extends Provider<Integer, org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef> {
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+public interface ProductMilestoneReleaseProvider extends
+        Provider<Integer, org.jboss.pnc.model.ProductMilestoneRelease, ProductMilestoneRelease, ProductMilestoneReleaseRef> {
 
-    ProductMilestoneRelease closeMilestone(String id, ProductMilestone restEntity);
+    ProductMilestoneRelease getLatestProductMilestoneRelease(int milestoneId);
 
-    void cancelMilestoneCloseProcess(String id) throws RepositoryViolationException, EmptyEntityException;
-
-    Page<ProductMilestone> getProductMilestonesForProductVersion(
+    Page<ProductMilestoneRelease> getProductMilestoneReleases(
             int pageIndex,
             int pageSize,
             String sortingRsql,
             String query,
-            String productVersionId);
-
-    Page<MilestoneInfo> getMilestonesOfArtifact(String id, int pageIndex, int pageSize);
+            int milestoneId,
+            boolean latest,
+            boolean running);
 }

@@ -20,18 +20,19 @@ package org.jboss.pnc.bpm.causeway;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.dto.ArtifactImportError;
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
+import org.jboss.pnc.dto.ArtifactImportError;
+import org.jboss.pnc.enums.BuildPushStatus;
+import org.jboss.pnc.enums.MilestoneReleaseStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
-import org.jboss.pnc.enums.MilestoneReleaseStatus;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductVersion;
@@ -48,7 +49,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -56,7 +56,6 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import org.jboss.pnc.enums.BuildPushStatus;
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 
 /**
@@ -102,13 +101,14 @@ public class ProductMilestoneReleaseManager {
 
     /**
      * Starts milestone release process
-     *
+     * 
      * @param milestone product milestone to start the release for
      * @param accessToken
+     * @return
      */
-    public void startRelease(ProductMilestone milestone, String accessToken) {
+    public ProductMilestoneRelease startRelease(ProductMilestone milestone, String accessToken) {
         ProductMilestoneRelease release = triggerRelease(milestone, accessToken);
-        productMilestoneReleaseRepository.save(release);
+        return productMilestoneReleaseRepository.save(release);
     }
 
     public void cancel(ProductMilestone milestoneInDb) {
@@ -129,9 +129,16 @@ public class ProductMilestoneReleaseManager {
     }
 
     public boolean noReleaseInProgress(ProductMilestone milestone) {
-        ProductMilestoneRelease latestRelease = productMilestoneReleaseRepository.findLatestByMilestone(milestone);
+        return !getInProgress(milestone).isPresent();
+    }
 
-        return latestRelease == null || latestRelease.getStatus() != MilestoneReleaseStatus.IN_PROGRESS;
+    public Optional<ProductMilestoneRelease> getInProgress(ProductMilestone milestone) {
+        ProductMilestoneRelease latestRelease = productMilestoneReleaseRepository.findLatestByMilestone(milestone);
+        if (latestRelease != null && latestRelease.getStatus() == MilestoneReleaseStatus.IN_PROGRESS) {
+            return Optional.of(latestRelease);
+        } else {
+            return Optional.empty();
+        }
     }
 
     private <T extends BpmEvent> ProductMilestoneRelease triggerRelease(
