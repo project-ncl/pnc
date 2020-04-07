@@ -19,7 +19,7 @@
 
 (function() {
 
-  var module = angular.module('pnc.release');
+  var module = angular.module('pnc.product-releases');
 
   module.controller('ReleaseCreateUpdateController', [
     '$scope',
