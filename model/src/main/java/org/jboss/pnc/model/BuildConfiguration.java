@@ -770,6 +770,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         private User creationUser;
 
         private User lastModificationUser;
+
         private Builder() {
             dependencies = new HashSet<>();
             dependants = new HashSet<>();

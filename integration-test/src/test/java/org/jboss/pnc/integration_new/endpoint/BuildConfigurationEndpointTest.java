@@ -332,8 +332,8 @@ public class BuildConfigurationEndpointTest {
                                                                                                               // of
                                                                                                               // transaction
                                                                                                               // changes
-                                                                                       // the modification time -
-                                                                                       // WONTFIX
+        // the modification time -
+        // WONTFIX
     }
 
     @Test
