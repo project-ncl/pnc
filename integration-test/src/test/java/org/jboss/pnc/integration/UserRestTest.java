@@ -126,7 +126,10 @@ public class UserRestTest {
         }
         if (userRestClient == null) {
             userRestClient = new UserRestClient();
+            userRestClient.createUser("admin");
+            userRestClient.createUser("user");
         }
+        new UserRestClient().getLoggedUser();
         buildCoordinatorMock.clearActiveTasks();
     }
 

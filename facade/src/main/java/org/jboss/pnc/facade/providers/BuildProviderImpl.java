@@ -100,8 +100,6 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static java.lang.Math.min;
-import java.util.HashSet;
-import java.util.function.Function;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;

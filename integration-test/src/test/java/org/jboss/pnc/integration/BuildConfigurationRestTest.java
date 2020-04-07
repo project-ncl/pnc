@@ -28,6 +28,7 @@ import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.EnvironmentRestClient;
 import org.jboss.pnc.integration.client.ProjectRestClient;
+import org.jboss.pnc.integration.client.UserRestClient;
 import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
@@ -38,6 +39,7 @@ import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildEnvironmentRest;
 import org.jboss.pnc.rest.restmodel.ProjectRest;
 import org.jboss.pnc.rest.restmodel.RepositoryConfigurationRest;
+import org.jboss.pnc.rest.utils.EndpointAuthenticationProvider;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
@@ -113,6 +115,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
     private static ProjectRestClient projectRestClient;
     private static EnvironmentRestClient environmentRestClient;
     private static BuildConfigurationRestClient buildConfigurationRestClient;
+    private static UserRestClient userRestClient;
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() {
@@ -122,6 +125,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
         restWar.addClass(BuildConfigurationProvider.class);
         restWar.addClass(BuildConfigurationEndpoint.class);
         restWar.addClass(BuildConfigurationRest.class);
+        restWar.addClass(EndpointAuthenticationProvider.class);
 
         logger.info(enterpriseArchive.toString(true));
         return enterpriseArchive;
@@ -213,6 +217,12 @@ public class BuildConfigurationRestTest extends AbstractTest {
         if (buildConfigurationRestClient == null) {
             buildConfigurationRestClient = new BuildConfigurationRestClient();
         }
+        if (userRestClient == null) {
+            userRestClient = new UserRestClient();
+            userRestClient.createUser("admin");
+            userRestClient.createUser("user");
+        }
+        new UserRestClient().getLoggedUser();
     }
 
     @Test

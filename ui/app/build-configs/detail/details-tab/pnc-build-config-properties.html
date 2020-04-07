@@ -25,8 +25,12 @@
     </dd>
     <dt ng-hide="$ctrl.hideField('creationTime')">Created</dt>
     <dd ng-hide="$ctrl.hideField('creationTime')">{{ $ctrl.buildConfig.creationTime | date : 'medium' }}</dd>
+    <dt ng-hide="$ctrl.hideField('creationUser')">Created by</dt>
+    <dd ng-hide="$ctrl.hideField('creationUser')">{{ $ctrl.buildConfig.creationUser?.username }}</dd>
     <dt ng-hide="$ctrl.hideField('modificationTime')">Modified</dt>
     <dd ng-hide="$ctrl.hideField('modificationTime')">{{ $ctrl.buildConfig.modificationTime | date : 'medium' }}</dd>
+    <dt ng-hide="$ctrl.hideField('modificationUser')">Modified by</dt>
+    <dd ng-hide="$ctrl.hideField('modificationUser')">{{ $ctrl.buildConfig.modificationUser?.username }}</dd>
     <dt ng-hide="$ctrl.hideField('description')">Description</dt>
     <dd ng-hide="$ctrl.hideField('description')">{{ $ctrl.buildConfig.description }}</dd>
     <dt ng-hide="$ctrl.hideField('buildType')">Build Type</dt>

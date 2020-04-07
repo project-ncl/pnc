@@ -190,6 +190,7 @@ public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
                 buildConfigurationMapper,
                 sCMRepositoryMapper,
                 BuildConfigurationMapperImpl.class);
+        injectMethod("userMapper", buildConfigurationMapper, userMapper, BuildConfigurationMapperImpl.class);
 
         injectMethod(
                 "environmentMapper",
@@ -205,6 +206,11 @@ public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
                 "sCMRepositoryMapper",
                 buildConfigurationRevisionMapper,
                 sCMRepositoryMapper,
+                BuildConfigurationRevisionMapperImpl.class);
+        injectMethod(
+                "userMapper",
+                buildConfigurationRevisionMapper,
+                userMapper,
                 BuildConfigurationRevisionMapperImpl.class);
 
         injectMethod(

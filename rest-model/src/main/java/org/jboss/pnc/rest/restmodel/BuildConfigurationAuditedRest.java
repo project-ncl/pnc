@@ -75,6 +75,10 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
     @Setter
     private Map<String, String> genericParameters;
 
+    private UserRest creationUser;
+
+    private UserRest lastModificationUser;
+
     public BuildConfigurationAuditedRest() {
     }
 
@@ -102,6 +106,12 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
 
         performIfNotNull(this.project, () -> this.projectId = this.project.getId());
         performIfNotNull(this.environment, () -> this.environmentId = this.environment.getId());
+        performIfNotNull(
+                buildConfigurationAudited.getCreationUser(),
+                () -> this.creationUser = new UserRest(buildConfigurationAudited.getCreationUser()));
+        performIfNotNull(
+                buildConfigurationAudited.getLastModificationUser(),
+                () -> this.lastModificationUser = new UserRest(buildConfigurationAudited.getLastModificationUser()));
     }
 
     @Override
@@ -202,6 +212,22 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         this.environment = environment;
     }
 
+    public UserRest getCreationUser() {
+        return creationUser;
+    }
+
+    public void setCreationUser(UserRest creationUser) {
+        this.creationUser = creationUser;
+    }
+
+    public UserRest getLastModificationUser() {
+        return lastModificationUser;
+    }
+
+    public void setLastModificationUser(UserRest lastModificationUser) {
+        this.lastModificationUser = lastModificationUser;
+    }
+
     @XmlTransient
     public BuildConfigurationAudited.Builder toDBEntityBuilder() {
 
@@ -221,6 +247,12 @@ public class BuildConfigurationAuditedRest implements GenericRestEntity<Integer>
         performIfNotNull(
                 this.environment,
                 () -> buildConfigBuilder.buildEnvironment(this.environment.toDBEntityBuilder().build()));
+        performIfNotNull(
+                this.creationUser,
+                () -> buildConfigBuilder.creationUser(this.creationUser.toDBEntityBuilder().build()));
+        performIfNotNull(
+                this.lastModificationUser,
+                () -> buildConfigBuilder.lastModificationUser(this.lastModificationUser.toDBEntityBuilder().build()));
 
         BuildConfigurationAudited.Builder builder = BuildConfigurationAudited.Builder.newBuilder()
                 .buildConfiguration(buildConfigBuilder.build())

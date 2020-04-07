@@ -25,6 +25,7 @@ import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
@@ -36,6 +37,7 @@ import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider.RepositoryCreated;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.DTOValidationException;
@@ -45,6 +47,7 @@ import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
+import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.GenericEntity;
@@ -123,6 +126,12 @@ public class BuildConfigurationProviderImpl
     @Inject
     private ProjectRepository projectRepository;
 
+    @Inject
+    private UserService userService;
+
+    @Inject
+    private UserMapper userMapper;
+
     private static final SCMRepository FAKE_REPOSITORY = SCMRepository.builder().id("-1").build();
 
     @Inject
@@ -134,7 +143,18 @@ public class BuildConfigurationProviderImpl
     public BuildConfiguration store(BuildConfiguration restEntity) throws DTOValidationException {
         validateBeforeSaving(restEntity);
         Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
-        return super.store(restEntity.toBuilder().id(id.toString()).build(), false);
+        org.jboss.pnc.model.User currentUser = userService.currentUser();
+        User user = userMapper.toDTO(currentUser);
+        return super.store(
+                restEntity.toBuilder().id(id.toString()).creationUser(user).modificationUser(user).build(),
+                false);
+    }
+
+    @Override
+    public BuildConfiguration update(String id, BuildConfiguration restEntity) {
+        org.jboss.pnc.model.User currentUser = userService.currentUser();
+        User user = userMapper.toDTO(currentUser);
+        return super.update(id, restEntity.toBuilder().id(id.toString()).modificationUser(user).build());
     }
 
     @Override
@@ -219,6 +239,9 @@ public class BuildConfigurationProviderImpl
             return buildConfigurationRevisionMapper.toDTO(latestRevision);
         }
         bcEntity.setCreationTime(latestRevision.getCreationTime());
+        org.jboss.pnc.model.User user = userService.currentUser();
+        bcEntity.setCreationUser(user);
+        bcEntity.setLastModificationUser(user);
 
         buildConfigRevisionHelper.updateBuildConfiguration(bcEntity);
         return buildConfigRevisionHelper.findRevision(id, bcEntity);
@@ -278,10 +301,13 @@ public class BuildConfigurationProviderImpl
 
         org.jboss.pnc.model.BuildConfiguration buildConfiguration = repository
                 .queryById(Integer.valueOf(buildConfigurationId));
+        org.jboss.pnc.model.User user = userService.currentUser();
 
         org.jboss.pnc.model.BuildConfiguration clonedBuildConfiguration = buildConfiguration.clone();
         Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
         clonedBuildConfiguration.setId(id.intValue());
+        clonedBuildConfiguration.setCreationUser(user);
+        clonedBuildConfiguration.setLastModificationUser(user);
 
         clonedBuildConfiguration = repository.save(clonedBuildConfiguration);
         repository.flushAndRefresh(clonedBuildConfiguration);
@@ -296,6 +322,7 @@ public class BuildConfigurationProviderImpl
 
         org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(configId));
         org.jboss.pnc.model.BuildConfiguration dependency = repository.queryById(Integer.valueOf(dependencyId));
+        org.jboss.pnc.model.User user = userService.currentUser();
 
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
@@ -308,6 +335,7 @@ public class BuildConfigurationProviderImpl
 
         logger.debug("Didn't throw any validation errors");
         buildConfig.addDependency(dependency);
+        buildConfig.setLastModificationUser(user);
         repository.save(buildConfig);
     }
 
@@ -316,12 +344,14 @@ public class BuildConfigurationProviderImpl
 
         org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(configId));
         org.jboss.pnc.model.BuildConfiguration dependency = repository.queryById(Integer.valueOf(dependencyId));
+        org.jboss.pnc.model.User user = userService.currentUser();
 
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
                 .validateCondition(dependency != null, "No dependency build config exists with id: " + dependencyId);
 
         buildConfig.removeDependency(dependency);
+        buildConfig.setLastModificationUser(user);
         repository.save(buildConfig);
     }
 
@@ -450,6 +480,7 @@ public class BuildConfigurationProviderImpl
         IdRev idRev = new IdRev(Integer.valueOf(id), rev);
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(idRev);
         org.jboss.pnc.model.BuildConfiguration originalBC = repository.queryById(Integer.valueOf(id));
+        org.jboss.pnc.model.User user = userService.currentUser();
 
         if (buildConfigurationAudited == null || originalBC == null) {
             return Optional.empty();
@@ -462,6 +493,7 @@ public class BuildConfigurationProviderImpl
         originalBC.setBuildType(buildConfigurationAudited.getBuildType());
         originalBC.setBuildEnvironment(buildConfigurationAudited.getBuildEnvironment());
         originalBC.setGenericParameters(buildConfigurationAudited.getGenericParameters());
+        originalBC.setLastModificationUser(user);
 
         org.jboss.pnc.model.BuildConfiguration newBc = repository.save(originalBC);
         repository.flushAndRefresh(newBc);
