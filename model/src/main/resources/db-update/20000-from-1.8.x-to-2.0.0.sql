@@ -24,3 +24,41 @@ update project set issuetrackerurl=null where issuetrackerurl='';
 update product set description=null where description='';
 update product set pgmsystemname=null where pgmsystemname='';
 update product set productcode=null where productcode='';
+
+
+
+-- NCL-5497 - Store User in BuildConfiguration and BuildConfigurationAudited
+BEGIN transaction;
+
+ALTER TABLE buildconfiguration ADD column creationuser_id int4;
+ALTER TABLE buildconfiguration ADD column lastmodificationuser_id int4;
+ALTER TABLE buildconfiguration_aud ADD column creationuser_id int4;
+ALTER TABLE buildconfiguration_aud ADD column lastmodificationuser_id int4;
+
+CREATE INDEX idx_buildconfiguration_creation_user ON buildconfiguration (creationuser_id);
+CREATE INDEX idx_buildconfiguration_modification_user ON buildconfiguration (lastmodificationuser_id);
+CREATE INDEX idx_buildconfiguration_aud_creation_user ON buildconfiguration_aud (creationuser_id);
+CREATE INDEX idx_buildconfiguration_aud_modification_user ON buildconfiguration_aud (lastmodificationuser_id);
+
+ALTER TABLE buildconfiguration
+ADD CONSTRAINT fk_buildconfiguration_creation_user
+FOREIGN KEY (creationuser_id)
+REFERENCES usertable(id);
+
+ALTER TABLE buildconfiguration
+ADD CONSTRAINT fk_buildconfiguration_modification_user
+FOREIGN KEY (lastmodificationuser_id)
+REFERENCES usertable(id);
+
+ALTER TABLE buildconfiguration_aud
+ADD CONSTRAINT fk_buildconfiguration_aud_creation_user
+FOREIGN KEY (creationuser_id)
+REFERENCES usertable(id);
+
+ALTER TABLE buildconfiguration_aud
+ADD CONSTRAINT fk_buildconfiguration_aud_modification_user
+FOREIGN KEY (lastmodificationuser_id)
+REFERENCES usertable(id);
+
+COMMIT;
+
