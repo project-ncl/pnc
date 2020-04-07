@@ -319,8 +319,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         repository.save(buildConfig);
     }
 
-    public void removeDependency(Integer configId, Integer dependencyId)
-            throws RestValidationException {
+    public void removeDependency(Integer configId, Integer dependencyId) throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
@@ -330,8 +329,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         repository.save(buildConfig);
     }
 
-    public void setProductVersion(Integer configId, Integer productVersionId)
-            throws RestValidationException {
+    public void setProductVersion(Integer configId, Integer productVersionId) throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId);
