@@ -82,11 +82,10 @@
 
     function formatSupportedParams(params) {
       var result = [];
-
-      Object.keys(params).forEach(function (key) {
+      params.forEach(param => {
         result.push({
-          name: key,
-          description: params[key]
+          name: param.name,
+          description: param.description
         });
       });
 

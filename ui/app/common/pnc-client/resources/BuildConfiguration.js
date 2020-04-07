@@ -89,7 +89,7 @@
       });
 
       resource.getSupportedGenericParameters = function() {
-        return $http.get(restConfig.getPncUrl() + '/build-configurations/supported-generic-parameters').then(function (r) {
+        return $http.get(restConfig.getPncRestUrl() + '/build-configs/supported-parameters').then(function (r) {
           return r.data;
         });
       };
