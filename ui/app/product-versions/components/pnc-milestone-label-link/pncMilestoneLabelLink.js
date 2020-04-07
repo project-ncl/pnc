@@ -41,7 +41,7 @@
     };
 
     function isCurrentMilestone() {
-      return $ctrl.milestone.id === $ctrl.productVersion.currentProductMilestone.id;
+      return $ctrl.productVersion.currentProductMilestone && ($ctrl.milestone.id === $ctrl.productVersion.currentProductMilestone.id);
     }
   }
 
