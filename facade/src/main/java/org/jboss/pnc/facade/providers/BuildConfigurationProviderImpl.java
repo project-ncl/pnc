@@ -240,7 +240,6 @@ public class BuildConfigurationProviderImpl
         }
         bcEntity.setCreationTime(latestRevision.getCreationTime());
         org.jboss.pnc.model.User user = userService.currentUser();
-        bcEntity.setCreationUser(user);
         bcEntity.setLastModificationUser(user);
 
         buildConfigRevisionHelper.updateBuildConfiguration(bcEntity);
@@ -322,7 +321,6 @@ public class BuildConfigurationProviderImpl
 
         org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(configId));
         org.jboss.pnc.model.BuildConfiguration dependency = repository.queryById(Integer.valueOf(dependencyId));
-        org.jboss.pnc.model.User user = userService.currentUser();
 
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
@@ -335,7 +333,6 @@ public class BuildConfigurationProviderImpl
 
         logger.debug("Didn't throw any validation errors");
         buildConfig.addDependency(dependency);
-        buildConfig.setLastModificationUser(user);
         repository.save(buildConfig);
     }
 
@@ -344,14 +341,12 @@ public class BuildConfigurationProviderImpl
 
         org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(configId));
         org.jboss.pnc.model.BuildConfiguration dependency = repository.queryById(Integer.valueOf(dependencyId));
-        org.jboss.pnc.model.User user = userService.currentUser();
 
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
                 .validateCondition(dependency != null, "No dependency build config exists with id: " + dependencyId);
 
         buildConfig.removeDependency(dependency);
-        buildConfig.setLastModificationUser(user);
         repository.save(buildConfig);
     }
 

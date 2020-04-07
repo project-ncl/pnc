@@ -369,8 +369,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/dependencies")
     public Response addDependency(@PathParam("id") Integer id, BuildConfigurationRest dependency)
             throws RestValidationException {
-        User currentUser = getCurrentUser();
-        buildConfigurationProvider.addDependency(id, dependency.getId(), currentUser);
+        buildConfigurationProvider.addDependency(id, dependency.getId());
         return fromEmpty();
     }
 
@@ -378,8 +377,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Path("/{id}/dependencies/{dependencyId}")
     public Response removeDependency(@PathParam("id") Integer id, @PathParam("dependencyId") Integer dependencyId)
             throws RestValidationException {
-        User currentUser = getCurrentUser();
-        buildConfigurationProvider.removeDependency(id, dependencyId, currentUser);
+        buildConfigurationProvider.removeDependency(id, dependencyId);
         return fromEmpty();
     }
 
@@ -420,8 +418,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     @Deprecated
     public Response addProductVersion(@PathParam("id") Integer id, ProductVersionRest productVersion)
             throws RestValidationException {
-        User currentUser = getCurrentUser();
-        buildConfigurationProvider.setProductVersion(id, productVersion.getId(), currentUser);
+        buildConfigurationProvider.setProductVersion(id, productVersion.getId());
         return fromEmpty();
     }
 
@@ -434,8 +431,7 @@ public class BuildConfigurationEndpoint extends AbstractEndpoint<BuildConfigurat
     public Response removeProductVersion(
             @PathParam("id") Integer id,
             @PathParam("productVersionId") Integer productVersionId) throws RestValidationException {
-        User currentUser = getCurrentUser();
-        buildConfigurationProvider.setProductVersion(id, null, currentUser);
+        buildConfigurationProvider.setProductVersion(id, null);
         return fromEmpty();
     }
 
