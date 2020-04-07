@@ -17,37 +17,42 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import java.util.regex.Pattern;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-
+import com.google.common.collect.Lists;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
+import org.jboss.pnc.dto.ProductMilestoneRelease;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
+import org.jboss.pnc.facade.providers.api.ProductMilestoneReleaseProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.parameters.ProductMilestoneReleaseParameters;
 
-import com.google.common.collect.Lists;
+import javax.annotation.PostConstruct;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+import java.util.Collections;
+import java.util.regex.Pattern;
 
 @Stateless
 public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
     private ProductMilestoneProvider productMilestoneProvider;
+
+    @Inject
+    private ProductMilestoneReleaseProvider productMilestoneReleaseProvider;
 
     @Inject
     private BuildProvider buildProvider;
@@ -92,15 +97,37 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
-    public void closeMilestone(String id, ProductMilestone productMilestone) {
+    public ProductMilestoneRelease closeMilestone(String id, ProductMilestone productMilestone) {
         MDCUtils.addProcessContext(productMilestone.getId());
-        productMilestoneProvider.closeMilestone(id, productMilestone);
+        ProductMilestoneRelease milestoneRelease = productMilestoneProvider.closeMilestone(id, productMilestone);
         MDCUtils.removeProcessContext();
+        return milestoneRelease;
     }
 
     @Override
     public void cancelMilestoneClose(String id) {
         productMilestoneProvider.cancelMilestoneCloseProcess(id);
+    }
+
+    @Override
+    public Page<ProductMilestoneRelease> getMilestoneReleases(
+            PageParameters pageParams,
+            ProductMilestoneReleaseParameters filterParams,
+            String id) {
+        if (filterParams != null && filterParams.isLatest()) {
+            ProductMilestoneRelease latestProductMilestoneRelease = productMilestoneReleaseProvider
+                    .getLatestProductMilestoneRelease(Integer.parseInt(id));
+            return new Page<ProductMilestoneRelease>(0, 1, 1, Collections.singletonList(latestProductMilestoneRelease));
+        } else {
+            return productMilestoneReleaseProvider.getProductMilestoneReleases(
+                    pageParams.getPageIndex(),
+                    pageParams.getPageSize(),
+                    pageParams.getSort(),
+                    pageParams.getQ(),
+                    Integer.parseInt(id),
+                    filterParams.isLatest(),
+                    filterParams.isRunning());
+        }
     }
 
     @Override

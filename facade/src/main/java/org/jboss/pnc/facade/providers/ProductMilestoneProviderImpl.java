@@ -17,27 +17,34 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneRef;
+import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
-import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
+import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
+import org.jboss.pnc.mapper.api.ProductMilestoneReleaseMapper;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Artifact_;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecord_;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductMilestoneRelease;
+import org.jboss.pnc.model.ProductMilestone_;
+import org.jboss.pnc.model.ProductRelease;
+import org.jboss.pnc.model.ProductRelease_;
+import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.model.ProductVersion_;
+import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,20 +59,13 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
-import javax.persistence.metamodel.SetAttribute;
-import org.jboss.pnc.dto.response.MilestoneInfo;
-import org.jboss.pnc.facade.util.UserService;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.Artifact_;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecord_;
-import org.jboss.pnc.model.Product;
-import org.jboss.pnc.model.ProductMilestone_;
-import org.jboss.pnc.model.ProductRelease;
-import org.jboss.pnc.model.ProductRelease_;
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.model.ProductVersion_;
-import org.jboss.pnc.model.Product_;
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
@@ -79,6 +79,7 @@ public class ProductMilestoneProviderImpl
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProviderImpl.class);
 
     private ProductMilestoneReleaseManager releaseManager;
+    private final ProductMilestoneReleaseMapper milestoneReleaseMapper;
 
     @Inject
     private UserService userService;
@@ -90,11 +91,13 @@ public class ProductMilestoneProviderImpl
     public ProductMilestoneProviderImpl(
             ProductMilestoneRepository repository,
             ProductMilestoneMapper mapper,
-            ProductMilestoneReleaseManager releaseManager) {
+            ProductMilestoneReleaseManager releaseManager,
+            ProductMilestoneReleaseMapper milestoneReleaseMapper) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductMilestone.class);
 
         this.releaseManager = releaseManager;
+        this.milestoneReleaseMapper = milestoneReleaseMapper;
     }
 
     @Override
@@ -160,7 +163,7 @@ public class ProductMilestoneProviderImpl
     }
 
     @Override
-    public void closeMilestone(String id, ProductMilestone restEntity) {
+    public org.jboss.pnc.dto.ProductMilestoneRelease closeMilestone(String id, ProductMilestone restEntity) {
         org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
 
         if (milestoneInDb.getEndDate() != null) {
@@ -173,9 +176,16 @@ public class ProductMilestoneProviderImpl
                 repository.save(milestoneInDb);
             }
 
-            if (releaseManager.noReleaseInProgress(milestoneInDb)) {
+            Optional<ProductMilestoneRelease> inProgress = releaseManager.getInProgress(milestoneInDb);
+            if (inProgress.isPresent()) {
+                return milestoneReleaseMapper.toDTO(inProgress.get());
+            } else {
                 log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
-                releaseManager.startRelease(milestoneInDb, userService.currentUserToken());
+                ProductMilestoneRelease milestoneReleaseDb = releaseManager
+                        .startRelease(milestoneInDb, userService.currentUserToken());
+                org.jboss.pnc.dto.ProductMilestoneRelease milestoneRelease = milestoneReleaseMapper
+                        .toDTO(milestoneReleaseDb);
+                return milestoneRelease;
             }
         }
     }
