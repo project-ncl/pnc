@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.release', [
+  var module = angular.module('pnc.product-releases', [
     'ui.router',
     'ui.bootstrap',
     'patternfly',
@@ -30,10 +30,10 @@
   module.config(['$stateProvider', function ($stateProvider) {
     $stateProvider
     .state('product.detail.version.releaseCreate', {
-      url: '/release/create',
+      url: '/releases/create',
       views: {
         'content@': {
-          templateUrl: 'release/views/release.create-update.html',
+          templateUrl: 'product-releases/views/release.create-update.html',
           controller: 'ReleaseCreateUpdateController',
           controllerAs: 'releaseCreateUpdateCtrl',
         }
@@ -48,10 +48,10 @@
       },
     })
     .state('product.detail.version.releaseUpdate', {
-      url: '/release/{releaseId}/update',
+      url: '/releases/{releaseId}/update',
       views: {
         'content@': {
-          templateUrl: 'release/views/release.create-update.html',
+          templateUrl: 'product-releases/views/release.create-update.html',
           controller: 'ReleaseCreateUpdateController',
           controllerAs: 'releaseCreateUpdateCtrl',
         }
