@@ -302,7 +302,7 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
         return clonedBuildConfiguration.getId();
     }
 
-    public void addDependency(Integer configId, Integer dependencyId, User currentUser) throws RestValidationException {
+    public void addDependency(Integer configId, Integer dependencyId) throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
 
@@ -315,24 +315,22 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                         "Cannot add dependency from : " + configId + " to: " + dependencyId
                                 + " because it would introduce a cyclic dependency");
         System.out.println("didn't throw any validation errors");
-        buildConfig.setLastModificationUser(currentUser);
         buildConfig.addDependency(dependency);
         repository.save(buildConfig);
     }
 
-    public void removeDependency(Integer configId, Integer dependencyId, User currentUser)
+    public void removeDependency(Integer configId, Integer dependencyId)
             throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         BuildConfiguration dependency = repository.queryById(dependencyId);
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
                 .validateCondition(buildConfig != null, "No build config exists with id: " + configId)
                 .validateCondition(dependency != null, "No dependency build config exists with id: " + dependencyId);
-        buildConfig.setLastModificationUser(currentUser);
         buildConfig.removeDependency(dependency);
         repository.save(buildConfig);
     }
 
-    public void setProductVersion(Integer configId, Integer productVersionId, User currentUser)
+    public void setProductVersion(Integer configId, Integer productVersionId)
             throws RestValidationException {
         BuildConfiguration buildConfig = repository.queryById(configId);
         ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
@@ -342,7 +340,6 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
             productVersion = productVersionRepository.queryById(productVersionId);
         }
         buildConfig.setProductVersion(productVersion);
-        buildConfig.setLastModificationUser(currentUser);
         repository.save(buildConfig);
     }
 
