@@ -19,17 +19,14 @@
 
 (function () {
 
-  var module = angular.module('pnc.product-versions');
+  var module = angular.module('pnc.product-releases');
 
-  /**
-   * @author Jakub Senko
-   */
-  module.directive('pncProductVersionReleases', [
+  module.directive('pncProductReleasesList', [
     function () {
 
       return {
         restrict: 'E',
-        templateUrl: 'product-versions/components/pnc-product-version-releases/pnc-product-version-releases.html',
+        templateUrl: 'product-releases/components/pnc-product-releases-list/pnc-product-releases-list.html',
         scope: {
           version: '='
         },

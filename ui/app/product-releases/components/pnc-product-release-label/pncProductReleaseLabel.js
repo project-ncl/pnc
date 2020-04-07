@@ -18,11 +18,11 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.product-versions').component('pncReleaseLabelLink', {
+  angular.module('pnc.product-releases').component('pncProductReleaseLabel', {
     bindings: {
       release: '<'
     },
-    templateUrl: 'product-versions/components/pnc-release-label-link/pnc-release-label-link.html',
+    templateUrl: 'product-releases/components/pnc-product-release-label/pnc-product-release-label.html',
     controller: [Controller]
   });
 
