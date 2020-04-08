@@ -30,7 +30,22 @@
 
     <!-- Detail Mode -->
     <div ng-hide="$ctrl.isEditOn(key)">
-      <pre>{{ value }}</pre>
+
+      <div ng-hide="$ctrl.isAlignmentAndBuildTypeChanged(key)">
+        <pre>{{ value }}</pre>
+      </div>
+
+      <div ng-show="$ctrl.isAlignmentAndBuildTypeChanged(key)">
+        <label>Original parameters:</label>
+        <pre class="alert-danger">{{ value }}</pre>
+        <label>New parameters should be applied when Build Type is changed:</label>
+        <pre ng-bind="$ctrl.newAlignmentParameters" class="alert-success"></pre>
+        <p>
+        <div class="text-right">
+          <button class="btn btn-primary" ng-click="$ctrl.applyNewParameters()">Apply New Parameters</button>
+        </div>
+        </p>
+      </div>
     </div>
     <!-- /Detail Mode -->
 

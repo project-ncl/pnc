@@ -21,18 +21,25 @@
   angular.module('pnc.build-configs').component('pncDisplayBuildParameters', {
     bindings: {
       params: '<',
+      buildType: '<',
+      isEditForm: '<',
       onEdit: '&',
       onRemove: '&'
     },
     templateUrl: 'build-configs/directives/pnc-select-build-parameters/pnc-display-build-parameters.html',
-    controller: ['$scope', Controller]
+    controller: ['$scope', 'BuildConfigResource', Controller]
   });
 
-  function Controller($scope) {
+  function Controller($scope, BuildConfigResource) {
     var $ctrl = this,
         editMap = {};
 
+    let buildTypeUpdated = false;
+    let appliedBuildType;
+
     // -- Controller API --
+
+    $ctrl.newAlignmentParameters = undefined;
 
     // --------------------
 
@@ -44,10 +51,39 @@
       $ctrl.currentParams = angular.copy($ctrl.params);
     }
 
+    function setNewParams(parameters){
+      $ctrl.newAlignmentParameters = parameters;
+      if ($ctrl.isEditForm === false){
+        // Build configuration is being created so apply new parameters immediately
+        $ctrl.applyNewParameters();
+      }
+    }
+
     $ctrl.$onInit = function(){
       $scope.$watchCollection('$ctrl.params', function () {
         copyParams();
       });
+
+      $scope.$watch('$ctrl.buildType', function (newBuildType) {
+        if (newBuildType){
+          BuildConfigResource.getAlignmentParameters(newBuildType).then(function (params){
+            setNewParams(params);
+          });
+        }
+      });
+    };
+
+    $ctrl.$onChanges = function (changesObj) {
+      let buildTypeObj = changesObj.buildType;
+
+      if (buildTypeObj){
+        if (buildTypeObj.isFirstChange()){
+          appliedBuildType = buildTypeObj.currentValue;
+        }
+        else if ($ctrl.isEditForm){
+          buildTypeUpdated = buildTypeObj.currentValue !== appliedBuildType;
+        }
+      }
     };
 
 
@@ -93,6 +129,16 @@
 
     $ctrl.isEditOn = function (key) {
       return !!editMap[key];
+    };
+
+    $ctrl.isAlignmentAndBuildTypeChanged = function (key) {
+      return key === 'ALIGNMENT_PARAMETERS' && buildTypeUpdated;
+    };
+
+    $ctrl.applyNewParameters = function () {
+      $ctrl.onEdit({ key: 'ALIGNMENT_PARAMETERS', value: $ctrl.newAlignmentParameters});
+      buildTypeUpdated = false;
+      appliedBuildType = $ctrl.buildType;
     };
 
   }
