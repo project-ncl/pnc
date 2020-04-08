@@ -23,19 +23,21 @@
       ngModel: '?ngModel'
     },
     bindings: {
-      buildType: '<'
+      buildType: '<',
+      isEditForm: '<'
     },
     templateUrl: 'build-configs/directives/pnc-select-build-parameters/pnc-select-build-parameters.html',
-    controller: ['$scope', '$log', 'utils', 'BuildConfigResource', Controller]
+    controller: ['$scope', 'utils', 'BuildConfigResource', Controller]
   });
 
-  function Controller($scope, $log, utils, BuildConfigResource) {
+  function Controller($scope, utils, BuildConfigResource) {
     var $ctrl = this;
 
     // -- Controller API --
 
     $ctrl.knownKeys = undefined;
     $ctrl.params = {};
+    $ctrl.paramsUpdated = false;
 
     $ctrl.addParam = addParam;
     $ctrl.removeParam = removeParam;
@@ -60,18 +62,11 @@
       $ctrl.ngModel.$render = function () {
         $ctrl.params = angular.isDefined($ctrl.ngModel.$viewValue) ? $ctrl.ngModel.$viewValue : {};
       };
-
-      $scope.$watch('$ctrl.buildType', function (newBuildType) {
-        if (newBuildType) {
-          BuildConfigResource.getAlignmentParameters(newBuildType).then(function (parameters) {
-            addParam('ALIGNMENT_PARAMETERS', parameters);
-          });
-        }
-      });
     };
 
     function addParam(key, value) {
       $ctrl.params[key] = value;
+      $ctrl.paramsUpdated = true;
     }
 
     function removeParam(key) {

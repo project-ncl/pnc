@@ -20,6 +20,9 @@
 
   angular.module('pnc.build-configs').component('pncCreateBuildConfigGeneralForm', {
     templateUrl: 'build-configs/directives/pnc-create-build-config-general-form/pnc-create-build-config-general-form.html',
+    bindings: {
+      isEditForm: '<'
+    },
     require: {
       ngModel: 'ngModel'
     },

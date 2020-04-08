@@ -46,6 +46,7 @@
     // -- Controller API --
 
     $ctrl.working = false;
+    $ctrl.isEditForm = true;
 
     $ctrl.submit = submit;
     $ctrl.cancel = cancel;
@@ -94,7 +95,8 @@
 
       formData.scmRepository = buildConfig.scmRepository;
 
-      formData.parameters = buildConfig.parameters;
+      // Make copy so form changes do not affect this component's BC
+      formData.parameters = angular.copy(buildConfig.parameters);
 
       return formData;
     }
