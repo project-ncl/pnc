@@ -18,15 +18,15 @@
 
 -->
 <script type="text/ng-template" id="tooltipTemplateRelease.html">
-  <strong>Release Date: </strong>{{::$ctrl.release.releaseDate | date:'mediumDate'}}<br>
-  <strong>Milestone: </strong>{{::$ctrl.release.version }}<br>
-  <strong>Support Level: </strong>{{::$ctrl.release.supportLevel }}<br>
+  <strong>Release Date: </strong>{{::$ctrl.productRelease.releaseDate | date:'mediumDate'}}<br>
+  <strong>Milestone: </strong>{{::$ctrl.productRelease.version }}<br>
+  <strong>Support Level: </strong>{{::$ctrl.productRelease.supportLevel }}<br>
 </script>
 
 <span class="inline-block m-t-5 m-b-5">
   <span class="label label-success"
         tooltip-placement="right"
         uib-tooltip-template="'tooltipTemplateRelease.html'">
-    {{ ::$ctrl.release.version }}
+    {{ ::$ctrl.productRelease.version }}
   </span>
 </span>
