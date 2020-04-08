@@ -22,8 +22,10 @@ update project set description=null where description='';
 update project set projecturl=null where projecturl='';
 update project set issuetrackerurl=null where issuetrackerurl='';
 update product set description=null where description='';
-update product set pgmsystemname=null where pgmsystemname='';
-update product set productcode=null where productcode='';
+
+-- [NCL-5638]: Remove Product.productCode and Product.pgmSystemName
+ALTER TABLE product DROP COLUMN productcode;
+ALTER TABLE product DROP COLUMN pgmsystemname;
 
 
 
