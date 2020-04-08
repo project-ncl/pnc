@@ -18,6 +18,7 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.buildagent.api.Status;
+import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -33,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -151,22 +151,9 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         String logEnd = "Command completed.";
 
         CountDownLatch latchCompleted = new CountDownLatch(1);
-        CountDownLatch latchRunning = new CountDownLatch(1);
 
-        TermdBuildDriver driver = new TermdBuildDriver(
-                systemConfig,
-                buildDriverModuleConfig,
-                new DefaultClientFactory());
-        Consumer<Status> cancelOnBuildStart = (status) -> {
-            try {
-                Thread.sleep(200);
-            } catch (InterruptedException e) {
-                logger.error("Sleep interrupted.", e);
-            }
-            if (Status.RUNNING.equals(status)) {
-                latchRunning.countDown();
-            }
-        };
+        ClientMockFactory mockFactory = new ClientMockFactory();
+        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, mockFactory);
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration)
@@ -185,22 +172,15 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
             logger.error("Error received: ", throwable);
             fail(throwable.getMessage());
         };
-        RunningBuild runningBuild = driver.startProjectBuild(
-                buildExecution,
-                localEnvironmentPointer,
-                onComplete,
-                onError,
-                Optional.of(cancelOnBuildStart));
-
-        latchRunning.await();
+        RunningBuild runningBuild = driver
+                .startProjectBuild(buildExecution, localEnvironmentPointer, onComplete, onError);
         runningBuild.cancel();
-
+        // simulate update for "CTRL+C" on a command, which results in the command failing
+        mockFactory.getOnStatusUpdate().accept(TaskStatusUpdateEvent.newBuilder().newStatus(Status.FAILED).build());
         latchCompleted.await();
 
         // then
         assertThat(buildResult.get().getBuildResult()).isNotNull();
-        assertThat(buildResult.get().getBuildResult().getBuildLog()).contains("sh " + getWorkingDirectory());
-        assertThat(buildResult.get().getBuildResult().getBuildLog()).doesNotContain(logEnd);
         assertThat(buildResult.get().getBuildResult().getBuildStatus()).isEqualTo(CANCELLED);
     }
 }

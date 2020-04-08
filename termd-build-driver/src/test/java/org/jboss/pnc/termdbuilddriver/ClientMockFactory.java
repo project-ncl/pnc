@@ -67,7 +67,7 @@ public class ClientMockFactory implements ClientFactory {
 
             @Override
             public boolean isFullyDownloaded() {
-                return false;
+                return true;
             }
 
             @Override
