@@ -22,14 +22,15 @@
     bindings: {
       productVersion: '<',
       buildConfigs: '<',
-      groupConfigs: '<'
+      groupConfigs: '<',
+      productReleases: '<'
     },
     templateUrl: 'product-versions/detail/pnc-product-version-detail-page.html',
-    controller: ['ProductVersionResource', Controller]
+    controller: ['ProductVersionResource', 'paginator', Controller]
   });
 
 
-  function Controller(ProductVersionResource) {
+  function Controller(ProductVersionResource, paginator) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -43,7 +44,7 @@
     // --------------------
 
     $ctrl.$onInit = () => {
-      console.log('test: %O', Object.values($ctrl.productVersion.buildConfigs));
+      $ctrl.productReleasesPage = paginator($ctrl.productReleases);
     };
 
     function getFullName() {

@@ -106,7 +106,8 @@
         </button>
       </pnc-header-buttons>
     </pnc-header>
-    <p>To be fixed as part of 2.0 refactor in NCL-4207</p>
+    <pnc-product-releases-list product-releases="$ctrl.productReleasesPage.data"></pnc-product-releases-list>
+    <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.productReleasesPage" ng-if="$ctrl.productReleasesPage"></pnc-page-controls>
   </div>
 </div>
 

@@ -74,6 +74,16 @@
             ($stateParams, ProductVersionResource) => {
               return ProductVersionResource.queryGroupConfigs({ id: $stateParams.productVersionId }).$promise;
             }
+          ],
+          productReleases: [
+            '$stateParams',
+            'ProductVersionResource',
+            ($stateParams, ProductVersionResource) => {
+              return ProductVersionResource.queryReleases({ 
+                id: $stateParams.productVersionId, 
+                pageSize: 10 
+              }).$promise;
+            }
           ]
         }
       });
