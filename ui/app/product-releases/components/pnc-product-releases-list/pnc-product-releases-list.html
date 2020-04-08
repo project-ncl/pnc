@@ -17,45 +17,37 @@
     limitations under the License.
 
 -->
-<pnc-header sub-header="true">
-  <pnc-header-title>Releases</pnc-header-title>
-  <pnc-header-buttons>
-    <button type="button" class="btn btn-lg btn-default" data-toggle="tooltip" title="Create Release" ui-sref="product.detail.version.releaseCreate" ng-disabled="version.productMilestones.length < 1">
-      <i class="fa fa-file-text-o"></i> Create
-    </button>
-  </pnc-header-buttons>
-</pnc-header>
 <table class="table table-bordered table-striped">
   <thead>
-  <th>Name</th>
-  <th>Release date</th>
-  <th>Deliverables</th>
-  <th>Info</th>
-  <th>Support Level</th>
-  <th>Actions</th>
+    <th>Name</th>
+    <th>Release date</th>
+    <th>Deliverables</th>
+    <th>Info</th>
+    <th>Support Level</th>
+    <th>Actions</th>
   </thead>
   <tbody>
-  <tr ng-repeat="productrelease in version.productReleases | orderBy:'version'">
-    <td>
-      <pnc-label-link item="productrelease"></pnc-label-link>
-    </td>
-    <td>{{ productrelease.releaseDate | date:'yyyy/MM/dd'}}</td>
-    <td class="text-center">
-      <a ng-show="productrelease.downloadUrl != undefined" ng-href="{{ productrelease.downloadUrl }}" target="_self"
-         class="btn btn-default" title="Download Deliverables">
-        <i class="glyphicon glyphicon-download-alt"></i>
-      </a>
-    </td>
-    <td>Released from Milestone <strong>{{ versionMilestoneNames[productrelease.productMilestoneId] }}</strong></td>
-    <td>{{ productrelease.supportLevel }}</td>
-    <td>
-      <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Edit Release" ui-sref="product.detail.version.releaseUpdate({ releaseId: productrelease.id })">
-        <i class="pficon pficon-edit"></i>
-      </button>
-      <button type="button" class="btn btn-sm btn-danger disabled" data-toggle="tooltip" title="Delete Release">
-        <i class="pficon pficon-delete"></i>
-      </button>
-    </td>
-  </tr>
+    <tr ng-repeat="productRelease in $ctrl.productReleases | orderBy:'version'">
+      <td>
+        <pnc-product-release-label product-release="productRelease"></pnc-product-release-label>
+      </td>
+      <td>{{ productRelease.releaseDate | date:'yyyy/MM/dd'}}</td>
+      <td class="text-center">
+        <a ng-show="productRelease.downloadUrl != undefined" ng-href="{{ productRelease.downloadUrl }}" target="_self"
+          class="btn btn-default" title="Download Deliverables">
+          <i class="glyphicon glyphicon-download-alt"></i>
+        </a>
+      </td>
+      <td>Released from milestone <pnc-milestone-label-link product-version="productRelease.productVersion" milestone="productRelease.productMilestone"></pnc-milestone-label-link></td>
+      <td>{{ productRelease.supportLevel }}</td>
+      <td>
+        <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Edit Release" ui-sref="product.detail.version.releaseUpdate({ releaseId: productRelease.id })">
+          <i class="pficon pficon-edit"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-danger disabled" data-toggle="tooltip" title="Delete Release">
+          <i class="pficon pficon-delete"></i>
+        </button>
+      </td>
+    </tr>
   </tbody>
 </table>
