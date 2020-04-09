@@ -22,16 +22,12 @@
     <th ng-if="::$ctrl.showColumn('name')">Name</th>
     <th ng-if="::$ctrl.showColumn('abbreviation')">Abbreviation</th>
     <th ng-if="::$ctrl.showColumn('description')">Description</th>
-    <th ng-if="::$ctrl.showColumn('productCode')">Product Code</th>
-    <th ng-if="::$ctrl.showColumn('pgmSystemName')">PGM System Name</th>
   </thead>
   <tbody>
     <tr ng-repeat="product in $ctrl.products">
       <td ng-if="::$ctrl.showColumn('name')"><pnc-product-link product="product"></pnc-product-link></td>
       <td ng-if="::$ctrl.showColumn('abbreviation')">{{ product.abbreviation }}</td>
       <td ng-if="::$ctrl.showColumn('description')">{{ product.description }}</td>
-      <td ng-if="::$ctrl.showColumn('productCode')">{{ product.productCode }}</td>
-      <td ng-if="::$ctrl.showColumn('pgmSystemName')">{{ product.pgmSystemName }}</td>
     </tr>
   </tbody>
 </table>

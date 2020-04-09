@@ -53,20 +53,6 @@
         </div>
       </div>
 
-      <div class="form-group" ng-class="{ 'has-error': productForm.productCode.$invalid && productForm.productCode.$touched, 'has-success': productForm.productCode.$valid && productForm.productCode.$touched }">
-        <label for="input-productCode" class="col-sm-3 col-lg-2 control-label">Product Code</label>
-        <div class="col-sm-9 col-lg-7">
-          <p id="input-productCode" class="form-control-static" e-class="form-control" editable-text="$ctrl.product.productCode" e-name="productCode" e-maxlength="255">{{ $ctrl.product.productCode }}</p>
-        </div>
-      </div>
-
-      <div class="form-group" ng-class="{ 'has-error': productForm.pgmSystemName.$invalid && productForm.pgmSystemName.$touched, 'has-success': productForm.pgmSystemName.$valid && productForm.pgmSystemName.$touched }">
-        <label for="input-pgmSystemName" class="col-sm-3 col-lg-2 control-label">PGM System Name</label>
-        <div class="col-sm-9 col-lg-7">
-          <p id="input-pgmSystemName" class="form-control-static" e-class="form-control" editable-text="$ctrl.product.pgmSystemName" e-name="pgmSystemName" e-maxlength="255">{{ $ctrl.product.pgmSystemName }}</p>
-        </div>
-      </div>
-
       <div class="form-group" ng-show="productForm.$visible">
         <div class="col-sm-offset-1 col-sm-11">
           <button type="submit" class="btn btn-primary" ng-disabled="productForm.$waiting || productForm.$invalid">
