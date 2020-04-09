@@ -27,7 +27,7 @@
       products: '<',
       /**
        * Array<string>: Names of table columns to display, possible values are:
-       *     name, abbreviation, productCode, description, pgmSystemName
+       *     name, abbreviation, description
        * Default fields will be used if omitted.
        */
       displayFields: '<?'
@@ -38,7 +38,7 @@
 
   function Controller() {
     const $ctrl = this;
-    const DEFAULT_FIELDS = ['name', 'abbreviation', 'productCode', 'pgmSystemName'];
+    const DEFAULT_FIELDS = ['name', 'abbreviation'];
 
     let fields;
 

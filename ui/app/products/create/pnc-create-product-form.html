@@ -46,23 +46,6 @@
     </div>
   </div>
 
-  <!-- Validation: This field is optional and has no constraints -->
-  <div class="form-group">
-    <label for="input-productCode" class="col-sm-3 col-lg-2 control-label">Product Code</label>
-    <div class="col-sm-9 col-lg-7">
-      <input id="input-productCode" class="form-control" name="productCode" ng-model="$ctrl.formData.productCode">
-    </div>
-  </div>
-
-  <!-- Validation: This field is optional and has no constraints -->
-  <div class="form-group">
-    <label for="input-pgmSystemName" class="col-sm-3 col-lg-2 control-label">PGM System Name</label>
-    <div class="col-sm-9 col-lg-7">
-      <input id="input-pgmSystemName" class="form-control" name="pgmSystemName" ng-model="$ctrl.formData.pgmSystemName">
-    </div>
-  </div>
-
-
   <div class="form-group">
     <div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
       <button type="submit" class="btn btn-primary" ng-click="$ctrl.create($ctrl.formData)" ng-disabled="productForm.$invalid">Submit</button>
