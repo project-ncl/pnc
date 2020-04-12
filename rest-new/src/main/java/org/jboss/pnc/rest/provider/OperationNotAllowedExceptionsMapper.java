@@ -15,22 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.bpm.test;
+package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.bpm.causeway.Result;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.enums.BuildPushStatus;
-import org.junit.Test;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.facade.validation.OperationNotAllowedException;
 
-/**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- */
-public class ResultSerializationTest {
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
-    @Test
-    public void shouldSerializeAndDeserialize() throws Exception {
-        Result result = new Result("1", BuildPushStatus.SUCCESS, "");
-        String json = JsonOutputConverterMapper.apply(result);
-        JsonOutputConverterMapper.readValue(json, Result.class);
+@Provider
+public class OperationNotAllowedExceptionsMapper implements ExceptionMapper<OperationNotAllowedException> {
+
+    @Override
+    public Response toResponse(OperationNotAllowedException e) {
+        Response.StatusType status = Response.Status.FORBIDDEN;
+        return Response.status(status).entity(new ErrorResponse(e, e.getResponseObject())).build();
     }
 }

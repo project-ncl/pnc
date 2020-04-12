@@ -23,6 +23,6 @@ import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/1/16 Time: 3:24 PM
  */
-public class ProductMilestoneRepositoryMock extends RepositoryMock<ProductMilestone>
+public class ProductMilestoneRepositoryMock extends IntIdRepositoryMock<ProductMilestone>
         implements ProductMilestoneRepository {
 }

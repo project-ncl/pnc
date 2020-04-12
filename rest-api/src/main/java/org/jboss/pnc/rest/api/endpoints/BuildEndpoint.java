@@ -27,7 +27,7 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildPushResult;
-import org.jboss.pnc.dto.requests.BuildPushRequest;
+import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
@@ -40,7 +40,6 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPushResultPage;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -345,7 +344,9 @@ public interface BuildEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/brew-push")
-    BuildPushResult push(@Parameter(description = B_ID) @PathParam("id") String id, BuildPushRequest buildPushRequest);
+    BuildPushResult push(
+            @Parameter(description = B_ID) @PathParam("id") String id,
+            BuildPushParameters buildPushParameters);
 
     @Operation(
             summary = "Cancels push of build to Brew.",

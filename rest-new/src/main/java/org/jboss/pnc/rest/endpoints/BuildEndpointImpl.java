@@ -24,19 +24,16 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.BuildRef;
-import org.jboss.pnc.dto.requests.BuildPushRequest;
+import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.SSHCredentials;
-import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
-import org.jboss.pnc.facade.validation.BadArtifactQualityException;
-import org.jboss.pnc.facade.validation.PushAlreadyRunningException;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -49,7 +46,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -219,28 +215,9 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public BuildPushResult push(String id, BuildPushRequest buildPushRequest) {
-
+    public BuildPushResult push(String id, BuildPushParameters buildPushParameters) {
         try {
-            return brewPusher.brewPush(id, buildPushRequest);
-        } catch (BadArtifactQualityException e) {
-            throw new ClientErrorException(
-                    Response.status(403)
-                            .entity(
-                                    ErrorResponse.builder()
-                                            .errorMessage(e.getMessage())
-                                            .details(e.getResponseObject())
-                                            .build())
-                            .build());
-        } catch (PushAlreadyRunningException e) {
-            throw new ClientErrorException(
-                    Response.status(409)
-                            .entity(
-                                    ErrorResponse.builder()
-                                            .errorMessage(e.getMessage())
-                                            .details(e.getResponseObject())
-                                            .build())
-                            .build());
+            return brewPusher.pushBuild(id, buildPushParameters);
         } catch (ProcessException e) {
             throw new RuntimeException(e);
         }
@@ -253,12 +230,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Override
     public BuildPushResult completePush(String id, BuildPushResult buildPushResult) {
-
-        try {
-            return brewPusher.brewPushComplete(Integer.parseInt(id), buildPushResult);
-        } catch (ProcessException e) {
-            throw new RuntimeException(e);
-        }
+        return brewPusher.brewPushComplete(Integer.parseInt(id), buildPushResult);
     }
 
     @Override

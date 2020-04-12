@@ -19,16 +19,11 @@ package org.jboss.pnc.rest.provider;
 
 import org.assertj.core.api.AbstractCharSequenceAssert;
 import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.ProductMilestoneRelease;
-import org.jboss.pnc.rest.restmodel.ProductMilestoneRest;
 import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import org.jboss.pnc.test.category.DebugTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import java.util.Date;
-
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.rest.provider.MilestoneTestUtils.prepareMilestone;
 
 /**
@@ -57,14 +52,16 @@ public class MilestoneReleaseLiveTest extends AbstractMilestoneReleaseTest {
     }
 
     private AbstractCharSequenceAssert<?, String> assertLog(ProductMilestone milestone) {
-        ProductMilestone productMilestone = productMilestoneRepository.queryById(milestone.getId());
-        ProductMilestoneRelease release = releaseRepository.findLatestByMilestone(productMilestone);
-        return assertThat(release.getLog());
+        throw new UnsupportedOperationException("Use new REST API!");
+        // ProductMilestone productMilestone = productMilestoneRepository.queryById(milestone.getId());
+        // ProductMilestoneRelease release = releaseRepository.findLatestByMilestone(productMilestone);
+        // return assertThat(release.getLog());
     }
 
     private void triggerMilestoneRelease(ProductMilestone milestone) throws RestValidationException {
-        ProductMilestoneRest restEntity = new ProductMilestoneRest(milestone);
-        restEntity.setEndDate(new Date());
-        milestoneEndpoint.update(milestone.getId(), restEntity);
+        throw new UnsupportedOperationException("Use new REST API!");
+        // ProductMilestoneRest restEntity = new ProductMilestoneRest(milestone);
+        // restEntity.setEndDate(new Date());
+        // milestoneEndpoint.update(milestone.getId(), restEntity);
     }
 }

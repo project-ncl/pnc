@@ -25,7 +25,7 @@ import java.util.Set;
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:05 PM
  */
-public class ArtifactRepositoryMock extends RepositoryMock<Artifact> implements ArtifactRepository {
+public class ArtifactRepositoryMock extends IntIdRepositoryMock<Artifact> implements ArtifactRepository {
 
     @Override
     public Set<Artifact> withIdentifierAndSha256s(Set<Artifact.IdentifierSha256> identifierSha256s) {

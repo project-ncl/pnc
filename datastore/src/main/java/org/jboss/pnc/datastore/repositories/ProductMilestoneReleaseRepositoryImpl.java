@@ -21,16 +21,23 @@ import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.ProductMilestoneReleaseSpringRepository;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
+import org.jboss.pnc.model.ProductMilestoneRelease_;
+import org.jboss.pnc.spi.datastore.predicates.ProductMilestoneReleasePredicates;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 1:50 PM
  */
 @Stateless
-public class ProductMilestoneReleaseRepositoryImpl extends AbstractRepository<ProductMilestoneRelease, Integer>
+public class ProductMilestoneReleaseRepositoryImpl extends AbstractRepository<ProductMilestoneRelease, UUID>
         implements ProductMilestoneReleaseRepository {
 
     private ProductMilestoneReleaseSpringRepository repository;
@@ -51,6 +58,10 @@ public class ProductMilestoneReleaseRepositoryImpl extends AbstractRepository<Pr
 
     @Override
     public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone) {
-        return repository.findLatestForMilestone(milestone);
+        List<ProductMilestoneRelease> productMilestoneReleases = queryWithPredicates(
+                new DefaultPageInfo(0, 1),
+                new DefaultSortInfo(SortInfo.SortingDirection.DESC, ProductMilestoneRelease_.startingDate.getName()),
+                ProductMilestoneReleasePredicates.withMilestoneId(milestone.getId()));
+        return productMilestoneReleases.size() > 0 ? productMilestoneReleases.get(0) : null;
     }
 }

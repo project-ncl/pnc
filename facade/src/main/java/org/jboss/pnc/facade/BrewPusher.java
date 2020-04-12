@@ -18,9 +18,11 @@
 package org.jboss.pnc.facade;
 
 import org.jboss.pnc.dto.BuildPushResult;
-import org.jboss.pnc.dto.requests.BuildPushRequest;
+import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
+
+import java.util.Set;
 
 /**
  *
@@ -28,13 +30,13 @@ import org.jboss.pnc.spi.coordinator.ProcessException;
  */
 public interface BrewPusher {
 
-    public void pushGroup(int id, String tagPrefix);
+    public Set<BuildPushResult> pushGroup(int id, String tagPrefix);
 
-    BuildPushResult brewPush(String id, BuildPushRequest buildPushRequest) throws ProcessException;
+    BuildPushResult pushBuild(String id, BuildPushParameters buildPushParameters) throws ProcessException;
 
     boolean brewPushCancel(int buildId);
 
-    BuildPushResult brewPushComplete(int buildId, BuildPushResult buildPushResult) throws ProcessException;
+    BuildPushResult brewPushComplete(int buildId, BuildPushResult buildPushResult);
 
     /**
      * Gets generated in progress brew push result or the latest completed one. If there is one in progress for given

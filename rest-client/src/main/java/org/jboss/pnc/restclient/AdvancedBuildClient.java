@@ -17,22 +17,22 @@
  */
 package org.jboss.pnc.restclient;
 
-import static org.jboss.pnc.restclient.websocket.predicates.BuildPushResultNotificationPredicates.withBuildId;
-import static org.jboss.pnc.restclient.websocket.predicates.BuildPushResultNotificationPredicates.withPushCompleted;
+import org.jboss.pnc.client.BuildClient;
+import org.jboss.pnc.client.Configuration;
+import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.notification.BuildPushResultNotification;
+import org.jboss.pnc.dto.requests.BuildPushParameters;
+import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
+import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.jboss.pnc.client.BuildClient;
-import org.jboss.pnc.client.Configuration;
-import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.dto.BuildPushResult;
-import org.jboss.pnc.dto.notification.BuildPushResultNotification;
-import org.jboss.pnc.dto.requests.BuildPushRequest;
-import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
-import org.jboss.pnc.restclient.websocket.WebSocketClient;
+import static org.jboss.pnc.restclient.websocket.predicates.BuildPushResultNotificationPredicates.withBuildId;
+import static org.jboss.pnc.restclient.websocket.predicates.BuildPushResultNotificationPredicates.withPushCompleted;
 
 public class AdvancedBuildClient extends BuildClient {
 
@@ -51,7 +51,7 @@ public class AdvancedBuildClient extends BuildClient {
                 .whenComplete((x, y) -> webSocketClient.disconnect());
     }
 
-    public CompletableFuture<BuildPushResult> executeBrewPush(String buildConfigId, BuildPushRequest parameters)
+    public CompletableFuture<BuildPushResult> executeBrewPush(String buildConfigId, BuildPushParameters parameters)
             throws RemoteResourceException {
         BuildPushResult push = super.push(buildConfigId, parameters);
         return waitForBrewPush(push.getBuildId());
@@ -59,7 +59,7 @@ public class AdvancedBuildClient extends BuildClient {
 
     public BuildPushResult executeBrewPush(
             String buildConfigId,
-            BuildPushRequest parameters,
+            BuildPushParameters parameters,
             long timeout,
             TimeUnit timeUnit) throws RemoteResourceException {
         try {

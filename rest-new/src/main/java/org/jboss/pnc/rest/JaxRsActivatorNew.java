@@ -17,6 +17,18 @@
  */
 package org.jboss.pnc.rest;
 
+import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.oas.integration.OpenApiConfigurationException;
+import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.OAuthFlow;
+import io.swagger.v3.oas.models.security.OAuthFlows;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.util.StringUtils;
@@ -42,46 +54,31 @@ import org.jboss.pnc.rest.endpoints.internal.GenericSettingEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.HealthCheckEndpointImpl;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.rest.provider.AllOtherExceptionsMapper;
+import org.jboss.pnc.rest.provider.AlreadyRunningExceptionsMapper;
 import org.jboss.pnc.rest.provider.BuildConflictExceptionMapper;
+import org.jboss.pnc.rest.provider.ConstraintViolationExceptionMapper;
 import org.jboss.pnc.rest.provider.EJBExceptionMapper;
+import org.jboss.pnc.rest.provider.OperationNotAllowedExceptionsMapper;
 import org.jboss.pnc.rest.provider.RSQLExceptionMapper;
 import org.jboss.pnc.rest.provider.RespondWithStatusFilter;
 import org.jboss.pnc.rest.provider.UnauthorizedExceptionMapper;
-import org.jboss.pnc.rest.provider.ConstraintViolationExceptionMapper;
 import org.jboss.pnc.rest.provider.ValidationExceptionExceptionMapper;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
-
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.inject.Inject;
 import javax.servlet.ServletConfig;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
-
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import io.swagger.v3.oas.integration.OpenApiConfigurationException;
-import io.swagger.v3.oas.integration.SwaggerConfiguration;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.security.OAuthFlow;
-import io.swagger.v3.oas.models.security.OAuthFlows;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.HashSet;
+import java.util.Set;
 
 @ApplicationPath("/rest-new")
 @ApplicationScoped
@@ -217,12 +214,14 @@ public class JaxRsActivatorNew extends Application {
 
     private void addExceptionMappers(Set<Class<?>> resources) {
         resources.add(AllOtherExceptionsMapper.class);
+        resources.add(AlreadyRunningExceptionsMapper.class);
         resources.add(BuildConflictExceptionMapper.class);
+        resources.add(ConstraintViolationExceptionMapper.class);
+        resources.add(EJBExceptionMapper.class);
+        resources.add(OperationNotAllowedExceptionsMapper.class);
+        resources.add(RSQLExceptionMapper.class);
         resources.add(UnauthorizedExceptionMapper.class);
         resources.add(ValidationExceptionExceptionMapper.class);
-        resources.add(EJBExceptionMapper.class);
-        resources.add(RSQLExceptionMapper.class);
-        resources.add(ConstraintViolationExceptionMapper.class);
     }
 
     private void addSwaggerResources(Set<Class<?>> resources) {

@@ -15,11 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.enums;
+package org.jboss.pnc.mock.repository;
 
-/**
- * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 1:16 PM
- */
-public enum MilestoneReleaseStatus {
-    IN_PROGRESS, FAILED, SUCCEEDED, CANCELED, SYSTEM_ERROR
+import org.jboss.pnc.model.GenericEntity;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
+public abstract class IntIdRepositoryMock<EntityType extends GenericEntity<Integer>>
+        extends RepositoryMock<Integer, EntityType> {
+
+    public static final AtomicInteger idSequence = new AtomicInteger();
+
+    @Override
+    public Integer getNextId() {
+        return idSequence.getAndIncrement();
+    }
 }

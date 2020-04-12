@@ -17,25 +17,26 @@
  */
 package org.jboss.pnc.facade.validation;
 
-public class PushAlreadyRunningException extends RuntimeException {
+public class AlreadyRunningException extends RuntimeException {
 
     private Object responseObject;
 
-    public PushAlreadyRunningException(String message, Object o) {
+    public AlreadyRunningException(String message, Object o) {
         super(message);
         this.responseObject = o;
     }
 
-    public PushAlreadyRunningException(String message, Throwable cause, Object o) {
+    public AlreadyRunningException(String message, Throwable cause, Object o) {
         super(message, cause);
+        this.responseObject = o;
     }
 
-    public PushAlreadyRunningException(Throwable cause, Object o) {
+    public AlreadyRunningException(Throwable cause, Object o) {
         super(cause);
         this.responseObject = o;
     }
 
-    public PushAlreadyRunningException(
+    public AlreadyRunningException(
             String message,
             Throwable cause,
             boolean enableSuppression,
@@ -45,7 +46,7 @@ public class PushAlreadyRunningException extends RuntimeException {
         this.responseObject = o;
     }
 
-    public PushAlreadyRunningException(Object o) {
+    public AlreadyRunningException(Object o) {
         super();
         this.responseObject = o;
     }

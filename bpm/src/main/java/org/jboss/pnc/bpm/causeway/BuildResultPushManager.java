@@ -18,6 +18,7 @@
 package org.jboss.pnc.bpm.causeway;
 
 import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
+import org.jboss.pnc.bpm.MissingInternalReferenceException;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.Build;
 import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
@@ -30,26 +31,20 @@ import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuild;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
-import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.dto.BuildPushResult;
-import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildPushStatus;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,15 +52,12 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static org.jboss.pnc.enums.ArtifactQuality.BLACKLISTED;
-import static org.jboss.pnc.enums.ArtifactQuality.DELETED;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -82,8 +74,7 @@ public class BuildResultPushManager {
     private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/rest/build-records/%d/log";
     private static final String PNC_REPOUR_LOG_PATH = "/pnc-rest/rest/build-records/%d/repour-log";
 
-    private BuildConfigurationRepository buildConfigurationRepository;
-    private BuildRecordRepository buildRecordRepository;
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
     private ArtifactRepository artifactRepository;
     private BuildPushResultMapper mapper;
@@ -102,16 +93,14 @@ public class BuildResultPushManager {
 
     @Inject
     public BuildResultPushManager(
-            BuildConfigurationRepository buildConfigurationRepository,
-            BuildRecordRepository buildRecordRepository,
+            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             BuildRecordPushResultRepository buildRecordPushResultRepository,
             BuildPushResultMapper mapper,
             InProgress inProgress,
             Event<BuildPushResult> buildPushResultEvent,
             ArtifactRepository artifactRepository,
             CausewayClient causewayClient) {
-        this.buildConfigurationRepository = buildConfigurationRepository;
-        this.buildRecordRepository = buildRecordRepository;
+        this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
         this.mapper = mapper;
         this.inProgress = inProgress;
@@ -120,118 +109,51 @@ public class BuildResultPushManager {
         this.causewayClient = causewayClient;
     }
 
-    /**
-     *
-     * @param buildRecordIds
-     * @param authToken
-     * @param callBackUrlTemplate %s in the template will be replaced with BuildRecord.id
-     * @param tagPrefix
-     * @param reimport Wherather the build should be reimported with new revision number if it already exists in Brew
-     * @return
-     */
-    public Set<Result> push(
-            Set<String> buildRecordIds,
-            String authToken,
-            String callBackUrlTemplate,
-            String tagPrefix,
-            boolean reimport) {
+    public Result push(BuildPushOperation buildPushOperation, String authToken) {
+        logger.info("Pushing to causeway {}", buildPushOperation.toString());
 
-        Set<Result> result = new HashSet<>();
-        for (String buildRecordId : buildRecordIds) {
-            MDCUtils.addProcessContext(buildRecordId);
-            processPush(authToken, callBackUrlTemplate, tagPrefix, reimport, result, buildRecordId);
-            MDCUtils.removeProcessContext();
-        }
-        return result;
-    }
-
-    private void processPush(
-            String authToken,
-            String callBackUrlTemplate,
-            String tagPrefix,
-            boolean reimport,
-            Set<Result> result,
-            String buildRecordId) {
-        logger.debug("Preparing push to causeway Build.id {}.", buildRecordId);
-        // check is the status is NO_REBUILD_REQUIRED, if it is replace with the last BuildRecord with status SUCCESS
-        // for the same idRev.
-        BuildRecord buildRecord = buildRecordRepository.queryById(Integer.valueOf(buildRecordId));
-        Integer pushBuildRecordId = null;
-        if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
-            IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
-            buildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(idRev, buildRecord.isTemporaryBuild());
-            if (buildRecord != null) {
-                pushBuildRecordId = buildRecord.getId();
-            } else {
-                logger.warn(
-                        "Trying to push a BuildRecord.id: {} with status NO_REBUILD_REQUIRED and there is no successful result for the configuration.idRev: {}.",
-                        buildRecordId,
-                        idRev);
-            }
-        } else {
-            pushBuildRecordId = Integer.valueOf(buildRecordId);
-        }
-        if (pushBuildRecordId != null) {
-            Result pushResult = pushToCauseway(
-                    authToken,
-                    pushBuildRecordId,
-                    String.format(callBackUrlTemplate, buildRecordId),
-                    tagPrefix,
-                    reimport);
-            result.add(pushResult);
-        }
-    }
-
-    private Result pushToCauseway(
-            String authToken,
-            Integer buildRecordId,
-            String callBackUrl,
-            String tagPrefix,
-            boolean reimport) {
-        logger.info("Pushing to causeway BR.id: {}", buildRecordId);
-        boolean successfullyPushed = false;
-        String message = "Failed to push to Causeway.";
-
-        if (!inProgress.add(buildRecordId, tagPrefix)) {
-            logger.warn("Push for BR.id {} already running.", buildRecordId);
+        if (!inProgress.add(buildPushOperation.getBuildRecord().getId(), buildPushOperation.getTagPrefix())) {
+            logger.warn("Push for build.id {} already running.", buildPushOperation.getBuildRecord().getId());
             return new Result(
-                    buildRecordId.toString(),
+                    buildPushOperation.getPushResultId().toString(),
+                    buildPushOperation.getBuildRecord().getId().toString(),
                     BuildPushStatus.REJECTED,
                     "A push for this buildRecord is already running.");
         }
+
+        BuildPushStatus pushStatus;
+        String message;
         try {
-            BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(buildRecordId);
-            if (buildRecord == null) {
-                logger.warn("Did not find build record by id: " + buildRecordId);
-                message = "Did not find build record by given id.";
-            } else if (!buildRecord.getStatus().completedSuccessfully()) {
-                logger.warn("Not pushing record id: " + buildRecordId + " because it is a failed build.");
-                message = "Cannot push failed build.";
-            } else if (hasBadArtifactQuality(buildRecord.getBuiltArtifacts())) {
-                logger.warn(
-                        "Not pushing record id: " + buildRecordId
-                                + " because it contains artifacts of insufficient quality: BLACKLISTED/DELETED.");
-                message = "Build contains artifacts of insufficient quality: BLACKLISTED/DELETED.";
+            BuildImportRequest buildImportRequest = createCausewayPushRequest(
+                    buildPushOperation.getBuildRecord(),
+                    buildPushOperation.getTagPrefix(),
+                    String.format(
+                            buildPushOperation.getCompleteCallbackUrlTemplate(),
+                            buildPushOperation.getPushResultId()),
+                    authToken,
+                    buildPushOperation.isReImport());
+            boolean successfullyStarted = causewayClient.importBuild(buildImportRequest, authToken);
+            if (successfullyStarted) {
+                pushStatus = BuildPushStatus.ACCEPTED;
+                message = "";
             } else {
-                BuildImportRequest buildImportRequest = createCausewayPushRequest(
-                        buildRecord,
-                        tagPrefix,
-                        callBackUrl,
-                        authToken,
-                        reimport);
-                successfullyPushed = causewayClient.importBuild(buildImportRequest, authToken);
+                pushStatus = BuildPushStatus.SYSTEM_ERROR;
+                message = "Failed to push to Causeway.";
             }
         } catch (RuntimeException ex) {
             logger.error("Failed to push to Causeway.", ex);
-            message = ("Failed to push to Causeway: " + ex.getMessage());
+            pushStatus = BuildPushStatus.SYSTEM_ERROR;
+            message = "Failed to push to Causeway: " + ex.getMessage();
         }
 
-        if (!successfullyPushed) {
-            inProgress.remove(buildRecordId);
-            return new Result(buildRecordId.toString(), BuildPushStatus.REJECTED, message);
-        } else {
-            return new Result(buildRecordId.toString(), BuildPushStatus.ACCEPTED);
+        if (!BuildPushStatus.ACCEPTED.equals(pushStatus)) {
+            inProgress.remove(buildPushOperation.getBuildRecord().getId());
         }
+        return new Result(
+                buildPushOperation.getPushResultId().toString(),
+                buildPushOperation.getBuildRecord().getId().toString(),
+                pushStatus,
+                message);
     }
 
     private BuildImportRequest createCausewayPushRequest(
@@ -270,8 +192,9 @@ public class BuildResultPushManager {
 
         String executionRootName = null;
         // prefer execution root name from generic parameters
-        BuildConfiguration bc = buildConfigurationRepository.queryById(buildRecord.getBuildConfigurationId());
-        Map<String, String> genericParameters = bc.getGenericParameters();
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
+                .queryById(buildRecord.getBuildConfigurationAuditedIdRev());
+        Map<String, String> genericParameters = buildConfigurationAudited.getGenericParameters();
         if (genericParameters.containsKey(BREW_BUILD_NAME)) {
             executionRootName = genericParameters.get(BREW_BUILD_NAME);
         }
@@ -477,17 +400,11 @@ public class BuildResultPushManager {
                 .collect(Collectors.toSet());
     }
 
-    private boolean hasBadArtifactQuality(Collection<Artifact> builtArtifacts) {
-        EnumSet<ArtifactQuality> badQuality = EnumSet.of(DELETED, BLACKLISTED);
-        return builtArtifacts.stream().map(Artifact::getArtifactQuality).anyMatch(badQuality::contains);
-    }
-
-    public Integer complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult)
-            throws ProcessException {
+    public UUID complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) {
         // accept only listed elements otherwise a new request might be wrongly completed from response of an older one
         String completedTag = inProgress.remove(buildRecordId);
         if (completedTag == null) {
-            throw new ProcessException("Did not find the referenced element.");
+            throw new MissingInternalReferenceException("Did not find the referenced element.");
         }
 
         buildRecordPushResult.setTagPrefix(completedTag);
@@ -500,7 +417,6 @@ public class BuildResultPushManager {
         BuildPushResult buildRecordPushResultRest = BuildPushResult.builder()
                 .status(BuildPushStatus.CANCELED)
                 .buildId(buildRecordId.toString())
-                .log("Canceled.")
                 .build();
         boolean canceled = inProgress.remove(buildRecordId) != null;
         buildPushResultEvent.fire(buildRecordPushResultRest);

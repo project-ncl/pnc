@@ -18,24 +18,56 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.BuildPushResultRef;
+import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
+import org.jboss.pnc.mapper.UUIDMapper;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.UUID;
+
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = { BuildMapper.IDMapper.class })
-public interface BuildPushResultMapper {
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { UUIDMapper.class, BuildMapper.IDMapper.class, ProductMilestoneCloseResultMapper.class })
+public interface BuildPushResultMapper
+        extends EntityMapper<UUID, BuildRecordPushResult, BuildPushResult, BuildPushResultRef> {
+
+    @Override
+    default BuildRecordPushResult toIDEntity(BuildPushResultRef dtoEntity) {
+        if (dtoEntity == null) {
+            return null;
+        }
+        BuildRecordPushResult buildRecordPushResult = new BuildRecordPushResult();
+        buildRecordPushResult.setId(UUID.fromString(dtoEntity.getId()));
+        return buildRecordPushResult;
+    }
 
     @Mapping(target = "buildId", source = "buildRecord")
-    @Mapping(target = "artifactImportErrors", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "tagPrefix" })
+    @Mapping(
+            target = "productMilestoneCloseResult",
+            source = "productMilestoneRelease",
+            resultType = ProductMilestoneCloseResultRef.class)
+    @Mapping(target = "logContext", ignore = true)
+    @Mapping(target = "message", ignore = true)
+    @BeanMapping(ignoreUnmappedSourceProperties = { "tagPrefix", "artifactImportErrors", "log" })
     BuildPushResult toDTO(BuildRecordPushResult db);
+
+    @Mapping(target = "buildId", source = "buildRecord")
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "tagPrefix", "artifactImportErrors", "log", "productMilestoneRelease" })
+    @Mapping(target = "logContext", ignore = true)
+    @Mapping(target = "message", ignore = true)
+    BuildPushResultRef toRef(BuildRecordPushResult db);
 
     @Mapping(target = "buildRecord", source = "buildId")
     @Mapping(target = "tagPrefix", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "artifactImportErrors" })
+    @Mapping(target = "log", ignore = true)
+    @Mapping(target = "productMilestoneRelease", source = "dto.productMilestoneCloseResult")
+    @BeanMapping(ignoreUnmappedSourceProperties = { "logContext", "message" })
     BuildRecordPushResult toEntity(BuildPushResult dto);
 }

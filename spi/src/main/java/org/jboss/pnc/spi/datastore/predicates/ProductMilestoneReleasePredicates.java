@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
-import org.jboss.pnc.enums.MilestoneReleaseStatus;
+import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductMilestoneRelease_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -31,7 +31,7 @@ public class ProductMilestoneReleasePredicates {
         return (root, query, cb) -> cb.equal(root.get(ProductMilestoneRelease_.milestone), milestoneId);
     }
 
-    public static Predicate<ProductMilestoneRelease> withStatus(MilestoneReleaseStatus status) {
+    public static Predicate<ProductMilestoneRelease> withStatus(MilestoneCloseStatus status) {
         return (root, query, cb) -> cb.equal(root.get(ProductMilestoneRelease_.status), status);
     }
 

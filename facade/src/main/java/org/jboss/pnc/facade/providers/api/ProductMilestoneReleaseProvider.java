@@ -17,19 +17,21 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
-import org.jboss.pnc.dto.ProductMilestoneRelease;
-import org.jboss.pnc.dto.ProductMilestoneReleaseRef;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
+import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.response.Page;
+
+import java.util.UUID;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface ProductMilestoneReleaseProvider extends
-        Provider<Integer, org.jboss.pnc.model.ProductMilestoneRelease, ProductMilestoneRelease, ProductMilestoneReleaseRef> {
+        Provider<UUID, org.jboss.pnc.model.ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef> {
 
-    ProductMilestoneRelease getLatestProductMilestoneRelease(int milestoneId);
+    ProductMilestoneCloseResult getLatestProductMilestoneCloseResult(int milestoneId);
 
-    Page<ProductMilestoneRelease> getProductMilestoneReleases(
+    Page<ProductMilestoneCloseResult> getProductMilestoneCloseResults(
             int pageIndex,
             int pageSize,
             String sortingRsql,

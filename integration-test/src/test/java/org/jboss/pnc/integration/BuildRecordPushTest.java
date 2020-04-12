@@ -17,29 +17,18 @@
  */
 package org.jboss.pnc.integration;
 
-import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
-import org.jboss.pnc.integration.client.BuildRecordPushRestClient;
-import org.jboss.pnc.integration.client.BuildRecordRestClient;
-import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.mock.CausewayClientMock;
 import org.jboss.pnc.integration_new.endpoint.notifications.WsUpdatesClient;
-import org.jboss.pnc.rest.restmodel.BuildRecordPushRequestRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordPushResultRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
 import org.jboss.pnc.rest.restmodel.response.ResultRest;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.jboss.pnc.test.util.Wait;
-
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -48,20 +37,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.websocket.DeploymentException;
-
 import java.io.IOException;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
-
-import org.jboss.pnc.enums.BuildPushStatus;
 
 import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
 
 @RunWith(Arquillian.class)
-@Category(ContainerTest.class)
+@Category(ContainerTest.class) // TODO migrate against new REST endpoint
 public class BuildRecordPushTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(BuildRecordPushTest.class);
@@ -85,59 +68,47 @@ public class BuildRecordPushTest extends AbstractTest {
     @Ignore // TODO: unignore after NCL-4964, fails because of switching to BuildPushResult in BuildResultPushManager
     public void shouldPushBuildRecord()
             throws IOException, DeploymentException, TimeoutException, InterruptedException {
-        List<BuildPushResultNotification> results = new ArrayList<>();
-        Consumer<BuildPushResultNotification> onMessage = (result) -> {
-            logger.debug("Received notification result {}.", result);
-            results.add(result);
-        };
-
-        BuildRecordRestClient buildRecordRestClient = new BuildRecordRestClient();
-        BuildRecordRest buildRecordRest = buildRecordRestClient.firstNotNull().getValue();
-        logger.info("Using BuildRecord {}.", buildRecordRest);
-        Integer buildRecordId = buildRecordRest.getId();
-
-        connectToWsNotifications(buildRecordId, onMessage);
-
-        BuildRecordPushRestClient pushRestClient = new BuildRecordPushRestClient();
-
-        // when push BR
-        BuildRecordPushRequestRest pushRequest = new BuildRecordPushRequestRest("tagPrefix", buildRecordId, false);
-        RestResponse<ResultRest[]> restResponse = pushRestClient.push(pushRequest);
-
-        // then make sure the request has been accepted
-        ResultRest[] responseValue = restResponse.getValue();
-        ResultRest result = getById(responseValue, buildRecordId.toString());
-        Assert.assertTrue(result.getStatus().isSuccess());
-        Assertions.assertThat(result.getStatus()).isEqualTo(ResultRest.Status.ACCEPTED);
-
-        // when the same BuildRecord pushed again
-        RestResponse<ResultRest[]> secondResponse = pushRestClient.push(pushRequest);
-
-        // then it should be rejected
-        ResultRest[] secondValue = secondResponse.getValue();
-        ResultRest secondResult = getById(secondValue, buildRecordId.toString());
-        Assert.assertFalse(secondResult.getStatus().isSuccess());
-        Assertions.assertThat(secondResult.getStatus()).isEqualTo(ResultRest.Status.REJECTED);
-
-        // when completed
-        mockCompletedFromCauseway(pushRestClient, buildRecordId);
-
-        // test the completion notification
-        Wait.forCondition(() -> results.size() > 0, 5, ChronoUnit.SECONDS);
-        Assertions.assertThat(results.get(0).getBuildPushResult().getLog()).isEqualTo(PUSH_LOG);
-
-        // test DB entry
-        BuildRecordPushResultRest status = pushRestClient.getStatus(buildRecordId);
-        Assertions.assertThat(status.getLog()).isEqualTo(PUSH_LOG);
-
-        // when the same BuildRecord pushed again
-        RestResponse<ResultRest[]> thirdResponse = pushRestClient.push(pushRequest);
-
-        // then it should be accepted again
-        ResultRest[] thirdValue = thirdResponse.getValue();
-        ResultRest thirdResult = getById(responseValue, buildRecordId.toString());
-        Assert.assertTrue(thirdResult.isSuccess());
-
+        /*
+         * List<BuildPushResultNotification> results = new ArrayList<>(); Consumer<BuildPushResultNotification>
+         * onMessage = (result) -> { logger.debug("Received notification result {}.", result); results.add(result); };
+         * 
+         * BuildRecordRestClient buildRecordRestClient = new BuildRecordRestClient(); BuildRecordRest buildRecordRest =
+         * buildRecordRestClient.firstNotNull().getValue(); logger.info("Using BuildRecord {}.", buildRecordRest);
+         * Integer buildRecordId = buildRecordRest.getId();
+         * 
+         * connectToWsNotifications(buildRecordId, onMessage);
+         * 
+         * BuildRecordPushRestClient pushRestClient = new BuildRecordPushRestClient();
+         * 
+         * // when push BR BuildRecordPushRequestRest pushRequest = new BuildRecordPushRequestRest("tagPrefix",
+         * buildRecordId, false); RestResponse<ResultRest[]> restResponse = pushRestClient.push(pushRequest);
+         * 
+         * // then make sure the request has been accepted ResultRest[] responseValue = restResponse.getValue();
+         * ResultRest result = getById(responseValue, buildRecordId.toString());
+         * Assert.assertTrue(result.getStatus().isSuccess());
+         * Assertions.assertThat(result.getStatus()).isEqualTo(ResultRest.Status.ACCEPTED);
+         * 
+         * // when the same BuildRecord pushed again RestResponse<ResultRest[]> secondResponse =
+         * pushRestClient.push(pushRequest);
+         * 
+         * // then it should be rejected ResultRest[] secondValue = secondResponse.getValue(); ResultRest secondResult =
+         * getById(secondValue, buildRecordId.toString()); Assert.assertFalse(secondResult.getStatus().isSuccess());
+         * Assertions.assertThat(secondResult.getStatus()).isEqualTo(ResultRest.Status.REJECTED);
+         * 
+         * // when completed mockCompletedFromCauseway(pushRestClient, buildRecordId);
+         * 
+         * // test the completion notification Wait.forCondition(() -> results.size() > 0, 5, ChronoUnit.SECONDS);
+         * Assertions.assertThat(results.get(0).getBuildPushResult().getLog()).isEqualTo(PUSH_LOG);
+         * 
+         * // test DB entry BuildRecordPushResultRest status = pushRestClient.getStatus(buildRecordId);
+         * Assertions.assertThat(status.getLog()).isEqualTo(PUSH_LOG);
+         * 
+         * // when the same BuildRecord pushed again RestResponse<ResultRest[]> thirdResponse =
+         * pushRestClient.push(pushRequest);
+         * 
+         * // then it should be accepted again ResultRest[] thirdValue = thirdResponse.getValue(); ResultRest
+         * thirdResult = getById(responseValue, buildRecordId.toString()); Assert.assertTrue(thirdResult.isSuccess());
+         */
     }
 
     private ResultRest getById(ResultRest[] results, String id) {
@@ -147,16 +118,6 @@ public class BuildRecordPushTest extends AbstractTest {
             }
         }
         return null;
-    }
-
-    private void mockCompletedFromCauseway(BuildRecordPushRestClient pushRestClient, Integer buildRecordId) {
-        BuildRecordPushResultRest pushResultRest = BuildRecordPushResultRest.builder()
-                .status(BuildPushStatus.SUCCESS)
-                .log(PUSH_LOG)
-                .buildRecordId(buildRecordId)
-                .build();
-
-        pushRestClient.complete(pushResultRest);
     }
 
     private void connectToWsNotifications(Integer buildRecordId, Consumer<BuildPushResultNotification> onMessage)

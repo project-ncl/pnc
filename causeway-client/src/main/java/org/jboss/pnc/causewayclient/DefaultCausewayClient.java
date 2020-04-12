@@ -72,6 +72,7 @@ public class DefaultCausewayClient implements CausewayClient {
             MDCUtils.getUserId().ifPresent(v -> request.addHeader("log-user-id", v));
             MDCUtils.getRequestContext().ifPresent(v -> request.addHeader("log-request-context", v));
             MDCUtils.getProcessContext().ifPresent(v -> request.addHeader("log-process-context", v));
+            MDCUtils.getCustomContext(LOG_CONTEXT_BUILD_ID).ifPresent(v -> request.addHeader("log-build-id", v));
             response = request.execute().returnResponse();
         } catch (IOException e) {
             logger.error("Failed to invoke remote Causeway.", e);

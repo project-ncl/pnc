@@ -37,7 +37,7 @@ public class BuildConfigurationSerializationTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildConfigurationSerializationTest.class);
 
-    @Test
+    @Test // TODO where is patch mentioned in the name ?
     public void shouldPatchBuildConfiguration() throws RemoteResourceException, PatchBuilderException, IOException {
         Instant now = Instant.now();
         BuildConfiguration buildConfiguration = BuildConfiguration.builder()

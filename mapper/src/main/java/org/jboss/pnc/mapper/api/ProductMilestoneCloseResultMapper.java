@@ -17,40 +17,49 @@
  */
 package org.jboss.pnc.mapper.api;
 
+import org.jboss.pnc.dto.BuildPushResultRef;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
+import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.ProductMilestoneRef;
-import org.jboss.pnc.dto.ProductMilestoneReleaseRef;
+import org.jboss.pnc.mapper.UUIDMapper;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.UUID;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = { ProductMilestoneMapper.class })
-public interface ProductMilestoneReleaseMapper extends
-        EntityMapper<Integer, ProductMilestoneRelease, org.jboss.pnc.dto.ProductMilestoneRelease, ProductMilestoneReleaseRef> {
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { UUIDMapper.class, ProductMilestoneMapper.class, BuildPushResultMapper.class })
+public interface ProductMilestoneCloseResultMapper extends
+        EntityMapper<UUID, ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef> {
 
     @Override
     @Mapping(target = "log", ignore = true)
-    ProductMilestoneRelease toEntity(org.jboss.pnc.dto.ProductMilestoneRelease dtoEntity);
+    @Mapping(target = "buildRecordPushResults", source = "buildPushResults")
+    ProductMilestoneRelease toEntity(ProductMilestoneCloseResult dtoEntity);
 
     @Override
-    default ProductMilestoneRelease toIDEntity(ProductMilestoneReleaseRef dtoEntity) {
+    default ProductMilestoneRelease toIDEntity(ProductMilestoneCloseResultRef dtoEntity) {
         if (dtoEntity == null) {
             return null;
         }
         ProductMilestoneRelease milestoneRelease = new ProductMilestoneRelease();
-        milestoneRelease.setId(Integer.valueOf(dtoEntity.getId()));
+        milestoneRelease.setId(UUID.fromString(dtoEntity.getId()));
         return milestoneRelease;
     }
 
     @Override
     @Mapping(target = "milestone", resultType = ProductMilestoneRef.class)
+    @Mapping(target = "buildPushResults", source = "buildRecordPushResults", resultType = BuildPushResultRef.class)
     @BeanMapping(ignoreUnmappedSourceProperties = { "log" })
-    org.jboss.pnc.dto.ProductMilestoneRelease toDTO(ProductMilestoneRelease dbEntity);
+    ProductMilestoneCloseResult toDTO(ProductMilestoneRelease dbEntity);
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = { "milestone", "log" })
-    ProductMilestoneReleaseRef toRef(ProductMilestoneRelease dbEntity);
+    @BeanMapping(ignoreUnmappedSourceProperties = { "milestone", "log", "buildRecordPushResults" })
+    ProductMilestoneCloseResultRef toRef(ProductMilestoneRelease dbEntity);
 }

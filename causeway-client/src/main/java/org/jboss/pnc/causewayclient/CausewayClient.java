@@ -25,6 +25,9 @@ import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
  */
 public interface CausewayClient {
 
+    // Move MDC field names to constants module.
+    String LOG_CONTEXT_BUILD_ID = "buildId";
+
     boolean importBuild(BuildImportRequest buildImportRequest, String authToken);
 
     boolean untagBuild(UntagRequest untagRequest, String authToken);

@@ -20,5 +20,6 @@ package org.jboss.pnc.mock.repository;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 
-public class ProductVersionRepositoryMock extends RepositoryMock<ProductVersion> implements ProductVersionRepository {
+public class ProductVersionRepositoryMock extends IntIdRepositoryMock<ProductVersion>
+        implements ProductVersionRepository {
 }

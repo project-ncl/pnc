@@ -20,7 +20,7 @@ package org.jboss.pnc.rest.restmodel;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.jboss.pnc.enums.MilestoneReleaseStatus;
+import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -30,10 +30,11 @@ import java.util.Date;
 @XmlRootElement(name = "ProductMilestoneRelease")
 @Getter
 @Setter
+@Deprecated
 public class ProductMilestoneReleaseRest implements GenericRestEntity<Integer> {
 
     private Integer id;
-    private MilestoneReleaseStatus status;
+    private MilestoneCloseStatus status;
     private String log;
     private Date endDate;
     private Date startingDate;
@@ -42,10 +43,6 @@ public class ProductMilestoneReleaseRest implements GenericRestEntity<Integer> {
     }
 
     public ProductMilestoneReleaseRest(ProductMilestoneRelease release) {
-        this.id = release.getId();
-        this.endDate = release.getEndDate();
-        this.startingDate = release.getStartingDate();
-        this.status = release.getStatus();
-        this.log = release.getLog();
+        throw new UnsupportedOperationException("Use new REST API!");
     }
 }

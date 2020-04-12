@@ -17,23 +17,21 @@
  */
 package org.jboss.pnc.enums;
 
-import org.jboss.pnc.enums.MilestoneReleaseStatus;
-
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/26/16 Time: 2:39 PM
  */
 public enum ReleaseStatus {
-    SUCCESS(MilestoneReleaseStatus.SUCCEEDED),
-    IMPORT_ERROR(MilestoneReleaseStatus.FAILED),
-    SET_UP_ERROR(MilestoneReleaseStatus.SYSTEM_ERROR);
+    SUCCESS(MilestoneCloseStatus.SUCCEEDED),
+    IMPORT_ERROR(MilestoneCloseStatus.FAILED),
+    SET_UP_ERROR(MilestoneCloseStatus.SYSTEM_ERROR);
 
-    private final MilestoneReleaseStatus milestoneReleaseStatus;
+    private final MilestoneCloseStatus milestoneReleaseStatus;
 
-    ReleaseStatus(MilestoneReleaseStatus milestoneReleaseStatus) {
+    ReleaseStatus(MilestoneCloseStatus milestoneReleaseStatus) {
         this.milestoneReleaseStatus = milestoneReleaseStatus;
     }
 
-    public MilestoneReleaseStatus getMilestoneReleaseStatus() {
+    public MilestoneCloseStatus getMilestoneReleaseStatus() {
         return milestoneReleaseStatus;
     }
 }

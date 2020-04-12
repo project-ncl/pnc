@@ -15,19 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.datastore.repositories.internal;
+package org.jboss.pnc.bpm.causeway;
 
-import org.jboss.pnc.model.BuildRecordPushResult;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import lombok.Value;
+import org.jboss.pnc.model.BuildRecord;
 
-import javax.enterprise.context.Dependent;
 import java.util.UUID;
 
-/**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- */
-@Dependent
-public interface BuildRecordPushResultSpringRepository
-        extends JpaRepository<BuildRecordPushResult, UUID>, JpaSpecificationExecutor<BuildRecordPushResult> {
+@Value
+public class BuildPushOperation {
+    private BuildRecord buildRecord;
+
+    private UUID pushResultId;
+
+    private String tagPrefix;
+
+    // Whether the build should be re-imported with new revision number if it already exists
+    private boolean reImport;
+
+    private String completeCallbackUrlTemplate;
+
 }

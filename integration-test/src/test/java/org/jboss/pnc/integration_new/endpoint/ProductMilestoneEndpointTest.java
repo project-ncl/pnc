@@ -28,15 +28,15 @@ import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductMilestoneRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
-import org.jboss.pnc.enums.MilestoneReleaseStatus;
+import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
-import org.jboss.pnc.rest.api.parameters.ProductMilestoneReleaseParameters;
+import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
@@ -181,28 +181,28 @@ public class ProductMilestoneEndpointTest {
         ProductMilestoneClient milestoneClient = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
 
         // when
-        RemoteCollection<ProductMilestoneRelease> milestoneReleases = milestoneClient
+        RemoteCollection<ProductMilestoneCloseResult> milestoneReleases = milestoneClient
                 .getMilestoneReleases(null, milestone.getId());
         // then
         Assert.assertEquals(3, milestoneReleases.size());
         // make sure the result is ordered by date
         Instant previous = Instant.EPOCH;
-        for (Iterator<ProductMilestoneRelease> iter = milestoneReleases.iterator(); iter.hasNext();) {
-            ProductMilestoneRelease next = iter.next();
+        for (Iterator<ProductMilestoneCloseResult> iter = milestoneReleases.iterator(); iter.hasNext();) {
+            ProductMilestoneCloseResult next = iter.next();
             logger.debug("MilestoneRelease id: {}, StartingDate: {}.", next.getId(), next.getStartingDate());
             Assert.assertTrue("Wong milestone releases order.", next.getStartingDate().isAfter(previous));
             previous = next.getStartingDate();
         }
 
         // when
-        ProductMilestoneReleaseParameters filter = new ProductMilestoneReleaseParameters();
+        ProductMilestoneCloseParameters filter = new ProductMilestoneCloseParameters();
         filter.setLatest(true);
-        RemoteCollection<ProductMilestoneRelease> latestMilestoneRelease = milestoneClient
+        RemoteCollection<ProductMilestoneCloseResult> latestMilestoneRelease = milestoneClient
                 .getMilestoneReleases(filter, milestone.getId());
         // then
         Assert.assertEquals(1, latestMilestoneRelease.getAll().size());
         // the latest one in demo data has status SUCCEEDED
-        Assert.assertEquals(MilestoneReleaseStatus.SUCCEEDED, latestMilestoneRelease.iterator().next().getStatus());
+        Assert.assertEquals(MilestoneCloseStatus.SUCCEEDED, latestMilestoneRelease.iterator().next().getStatus());
     }
 
     @Test

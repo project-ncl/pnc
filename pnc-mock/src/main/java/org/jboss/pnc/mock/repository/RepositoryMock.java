@@ -17,39 +17,40 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/29/16 Time: 7:03 AM
  */
 @SuppressWarnings({ "WeakerAccess", "unchecked" })
-public class RepositoryMock<EntityType extends GenericEntity<Integer>> implements Repository<EntityType, Integer> {
-    private final AtomicInteger idSequence = new AtomicInteger(0);
+public abstract class RepositoryMock<ID extends Serializable, EntityType extends GenericEntity<ID>>
+        implements Repository<EntityType, ID> {
     protected final List<EntityType> data = new CopyOnWriteArrayList<>();
 
     @Override
     public EntityType save(EntityType entity) {
-        Integer id = entity.getId();
+        ID id = entity.getId();
         if (id == null) {
-            entity.setId(idSequence.getAndIncrement());
+            entity.setId(getNextId());
             id = entity.getId();
         }
         getOptionalById(id).ifPresent(data::remove);
         data.add(entity);
         return entity;
     }
+
+    public abstract ID getNextId();
 
     @Override
     public List<EntityType> queryAll() {
@@ -89,17 +90,17 @@ public class RepositoryMock<EntityType extends GenericEntity<Integer>> implement
         return null;
     }
 
-    private Optional<EntityType> getOptionalById(Integer id) {
+    private Optional<EntityType> getOptionalById(ID id) {
         return data.stream().filter(m -> id.equals(m.getId())).findAny();
     }
 
     @Override
-    public EntityType queryById(Integer id) {
+    public EntityType queryById(ID id) {
         return getOptionalById(id).orElseThrow(() -> new RuntimeException("Didn't find entity for id: " + id));
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(ID id) {
         data.removeIf(e -> id.equals(e.getId()));
     }
 

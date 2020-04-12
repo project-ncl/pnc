@@ -23,10 +23,11 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.jboss.pnc.enums.MilestoneReleaseStatus;
+import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -35,21 +36,25 @@ import java.time.Instant;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonDeserialize(builder = ProductMilestoneRelease.Builder.class)
+@JsonDeserialize(builder = ProductMilestoneCloseResult.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ProductMilestoneRelease extends ProductMilestoneReleaseRef {
+public class ProductMilestoneCloseResult extends ProductMilestoneCloseResultRef {
 
-    private ProductMilestoneRef milestone;
+    private final ProductMilestoneRef milestone;
+
+    private final List<BuildPushResultRef> buildPushResults;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private ProductMilestoneRelease(
+    private ProductMilestoneCloseResult(
             ProductMilestoneRef milestone,
+            List<BuildPushResultRef> buildPushResults,
             String id,
             Instant startingDate,
             Instant endDate,
-            MilestoneReleaseStatus status) {
+            MilestoneCloseStatus status) {
         super(id, status, startingDate, endDate);
         this.milestone = milestone;
+        this.buildPushResults = buildPushResults;
     }
 
     @JsonPOJOBuilder(withPrefix = "")
