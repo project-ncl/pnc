@@ -21,13 +21,19 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 
+import java.util.Comparator;
+
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/1/16 Time: 3:27 PM
  */
-public class ProductMilestoneReleaseRepositoryMock extends RepositoryMock<ProductMilestoneRelease>
+public class ProductMilestoneReleaseRepositoryMock extends UUIDRepositoryMock<ProductMilestoneRelease>
         implements ProductMilestoneReleaseRepository {
     @Override
     public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone) {
-        return null;
+        return data.stream()
+                .filter(milestoneRelease -> milestoneRelease.getMilestone().equals(milestone))
+                .sorted(Comparator.comparing(ProductMilestoneRelease::getId).reversed())
+                .findFirst()
+                .orElse(null);
     }
 }

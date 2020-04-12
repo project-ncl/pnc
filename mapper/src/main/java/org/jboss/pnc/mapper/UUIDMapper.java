@@ -15,28 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.api.parameters;
+package org.jboss.pnc.mapper;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import lombok.Data;
+import javax.enterprise.context.ApplicationScoped;
+import java.util.UUID;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.QueryParam;
+@ApplicationScoped
+public class UUIDMapper {
+    public String map(UUID uuid) {
+        return uuid.toString();
+    }
 
-/**
- *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
- */
-@Data
-public class ProductMilestoneReleaseParameters {
-
-    @Parameter(description = "Should return only latest build?")
-    @QueryParam("latest")
-    @DefaultValue("false")
-    private boolean latest;
-
-    @Parameter(description = "Should return only running builds?")
-    @QueryParam("running")
-    @DefaultValue("false")
-    private boolean running;
+    public UUID map(String string) {
+        return UUID.fromString(string);
+    }
 }

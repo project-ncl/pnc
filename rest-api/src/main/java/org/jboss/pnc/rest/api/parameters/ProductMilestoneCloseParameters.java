@@ -15,19 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.datastore.repositories.internal;
+package org.jboss.pnc.rest.api.parameters;
 
-import org.jboss.pnc.model.BuildRecordPushResult;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Data;
 
-import javax.enterprise.context.Dependent;
-import java.util.UUID;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.QueryParam;
 
-/**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- */
-@Dependent
-public interface BuildRecordPushResultSpringRepository
-        extends JpaRepository<BuildRecordPushResult, UUID>, JpaSpecificationExecutor<BuildRecordPushResult> {
+@Data
+public class ProductMilestoneCloseParameters {
+
+    @Parameter(description = "Should return only latest?")
+    @QueryParam("latest")
+    @DefaultValue("false")
+    private boolean latest;
+
+    @Parameter(description = "Should return only running?")
+    @QueryParam("running")
+    @DefaultValue("false")
+    private boolean running;
 }

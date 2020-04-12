@@ -19,6 +19,7 @@ package org.jboss.pnc.common.json.moduleprovider;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
@@ -102,4 +103,16 @@ public class ModuleConfigFactory {
             return null;
         }
     }
+
+    @Produces
+    @Dependent
+    GlobalModuleGroup createGlobalModuleGroup() {
+        try {
+            return configuration.getGlobalConfig();
+        } catch (ConfigurationParseException e) {
+            logger.warn("GlobalModuleGroup is not provided or is broken.");
+            return null;
+        }
+    }
+
 }

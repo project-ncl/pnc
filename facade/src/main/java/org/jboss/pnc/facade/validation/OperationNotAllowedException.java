@@ -17,25 +17,29 @@
  */
 package org.jboss.pnc.facade.validation;
 
-public class BadArtifactQualityException extends RuntimeException {
+public class OperationNotAllowedException extends RuntimeException {
 
     private Object responseObject;
 
-    public BadArtifactQualityException(String message, Object o) {
+    public OperationNotAllowedException(String message) {
+        super(message);
+    }
+
+    public OperationNotAllowedException(String message, Object o) {
         super(message);
         this.responseObject = o;
     }
 
-    public BadArtifactQualityException(String message, Throwable cause, Object o) {
+    public OperationNotAllowedException(String message, Throwable cause, Object o) {
         super(message, cause);
     }
 
-    public BadArtifactQualityException(Throwable cause, Object o) {
+    public OperationNotAllowedException(Throwable cause, Object o) {
         super(cause);
         this.responseObject = o;
     }
 
-    public BadArtifactQualityException(
+    public OperationNotAllowedException(
             String message,
             Throwable cause,
             boolean enableSuppression,
@@ -45,7 +49,7 @@ public class BadArtifactQualityException extends RuntimeException {
         this.responseObject = o;
     }
 
-    public BadArtifactQualityException(Object o) {
+    public OperationNotAllowedException(Object o) {
         super();
         this.responseObject = o;
     }

@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.client;
 
-import org.jboss.pnc.dto.requests.BuildPushRequest;
+import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class QueryAndSortTest {
         projectClient.getAll(Optional.of("asc=id"), Optional.empty());
 
         BuildClient buildClient = new BuildClient(configuration);
-        BuildPushRequest pushRequest = BuildPushRequest.builder().build();
+        BuildPushParameters pushRequest = BuildPushParameters.builder().build();
         buildClient.push("", pushRequest);
     }
 }

@@ -24,8 +24,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductMilestoneRelease;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
@@ -34,8 +34,9 @@ import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
-import org.jboss.pnc.rest.api.parameters.ProductMilestoneReleaseParameters;
+import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestoneReleasePage;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -199,7 +200,7 @@ public interface ProductMilestoneEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/close")
-    ProductMilestoneRelease closeMilestone(
+    ProductMilestoneCloseResult closeMilestone(
             @Parameter(description = PM_ID) @PathParam("id") String id,
             ProductMilestone productMilestone);
 
@@ -225,7 +226,7 @@ public interface ProductMilestoneEndpoint {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
                             description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = BuildPage.class))),
+                            content = @Content(schema = @Schema(implementation = ProductMilestoneReleasePage.class))),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -235,10 +236,10 @@ public interface ProductMilestoneEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    @Path("/{id}/releases")
-    Page<ProductMilestoneRelease> getMilestoneReleases(
+    @Path("/{id}/close-results")
+    Page<ProductMilestoneCloseResult> getMilestoneReleases(
             @Valid @BeanParam PageParameters pageParams,
-            @BeanParam ProductMilestoneReleaseParameters filterParams,
+            @BeanParam ProductMilestoneCloseParameters filterParams,
             @Parameter(description = PM_ID) @PathParam("id") String id);
 
     @Operation(

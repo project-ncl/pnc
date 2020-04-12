@@ -22,6 +22,9 @@ package org.jboss.pnc.spi.coordinator;
  */
 public class ProcessException extends Exception {
 
+    public ProcessException() {
+    }
+
     public ProcessException(String message) {
         super(message);
     }

@@ -17,42 +17,21 @@
  */
 package org.jboss.pnc.bpm.causeway;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
+import lombok.Value;
 import org.jboss.pnc.enums.BuildPushStatus;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Getter
+@Value
 public class Result {
 
     private final String id;
+
+    private final String buildId;
 
     private final BuildPushStatus status;
 
     private final String message;
 
-    public Result(String id, BuildPushStatus status) {
-        this.id = id;
-        this.status = status;
-        message = "";
-    }
-
-    @JsonCreator
-    public Result(
-            @JsonProperty("id") String id,
-            @JsonProperty("status") BuildPushStatus status,
-            @JsonProperty("message") String message) {
-        this.id = id;
-        this.status = status;
-        this.message = message;
-    }
-
-    @JsonIgnore
-    public boolean isSuccess() {
-        return status.isSuccess();
-    }
 }

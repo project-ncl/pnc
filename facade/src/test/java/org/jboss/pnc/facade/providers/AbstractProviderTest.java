@@ -33,8 +33,8 @@ import org.jboss.pnc.mapper.GroupBuildMapperImpl;
 import org.jboss.pnc.mapper.GroupConfigurationMapperImpl;
 import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.mapper.ProductMapperImpl;
+import org.jboss.pnc.mapper.ProductMilestoneCloseResultMapperImpl;
 import org.jboss.pnc.mapper.ProductMilestoneMapperImpl;
-import org.jboss.pnc.mapper.ProductMilestoneReleaseMapperImpl;
 import org.jboss.pnc.mapper.ProductReleaseMapperImpl;
 import org.jboss.pnc.mapper.ProductVersionMapperImpl;
 import org.jboss.pnc.mapper.ProjectMapperImpl;
@@ -51,7 +51,7 @@ import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.mapper.api.ProductMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
-import org.jboss.pnc.mapper.api.ProductMilestoneReleaseMapper;
+import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
 import org.jboss.pnc.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.mapper.api.ProjectMapper;
@@ -140,7 +140,7 @@ public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
     protected ProductMilestoneMapper productMilestoneMapper = new ProductMilestoneMapperImpl();
 
     @Spy
-    protected ProductMilestoneReleaseMapper productMilestoneReleaseMapper = new ProductMilestoneReleaseMapperImpl();
+    protected ProductMilestoneCloseResultMapper productMilestoneCloseResultMapper = new ProductMilestoneCloseResultMapperImpl();
 
     @Spy
     protected ProductReleaseMapper productReleaseMapper = new ProductReleaseMapperImpl();

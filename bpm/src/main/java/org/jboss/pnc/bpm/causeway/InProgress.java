@@ -31,7 +31,7 @@ public class InProgress {
     private Map<Integer, String> inProgress = new ConcurrentHashMap<Integer, String>();
 
     public boolean add(Integer id, String tagPrefix) {
-        return inProgress.put(id, tagPrefix) == null;
+        return inProgress.putIfAbsent(id, tagPrefix) == null;
     }
 
     public String remove(Integer id) {

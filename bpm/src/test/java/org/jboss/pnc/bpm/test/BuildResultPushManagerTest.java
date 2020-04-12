@@ -17,21 +17,7 @@
  */
 package org.jboss.pnc.bpm.test;
 
-import org.jboss.pnc.mock.repository.BuildRecordPushResultRepositoryMock;
-import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.spi.exception.CoreException;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.enterprise.event.Event;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.jboss.pnc.bpm.causeway.BuildPushOperation;
 import org.jboss.pnc.bpm.causeway.BuildResultPushManager;
 import org.jboss.pnc.bpm.causeway.InProgress;
 import org.jboss.pnc.bpm.causeway.Result;
@@ -40,19 +26,28 @@ import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.mock.repository.BuildRecordPushResultRepositoryMock;
+import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.exception.CoreException;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.jboss.pnc.enums.ArtifactQuality.BLACKLISTED;
-import static org.jboss.pnc.enums.ArtifactQuality.DELETED;
+import javax.enterprise.event.Event;
+import java.util.Collections;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -70,7 +65,7 @@ public class BuildResultPushManagerTest {
 
     private BuildRecordRepositoryMock buildRecordRepository;
     @Mock
-    private BuildConfigurationRepository buildConfigurationRepository;
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BuildRecordPushResultRepositoryMock buildRecordPushResultRepository;
 
     @Mock
@@ -84,7 +79,7 @@ public class BuildResultPushManagerTest {
     private static final BuildEnvironment be = new BuildEnvironment();
     private static final BuildConfigurationAudited bca = new BuildConfigurationAudited();
     @Mock
-    private BuildConfiguration bc;
+    private BuildConfigurationAudited buildConfigurationAudited;
 
     static {
         bca.setBuildEnvironment(be);
@@ -93,14 +88,13 @@ public class BuildResultPushManagerTest {
 
     @Before
     public void setUp() throws CoreException {
-        when(buildConfigurationRepository.queryById(any())).thenReturn(bc);
+        when(buildConfigurationAuditedRepository.queryById(any(IdRev.class))).thenReturn(buildConfigurationAudited);
         when(causewayClient.importBuild(any(), any())).thenReturn(true);
         buildRecordRepository = new BuildRecordRepositoryMock();
         buildRecordPushResultRepository = new BuildRecordPushResultRepositoryMock();
 
         releaseManager = new BuildResultPushManager(
-                buildConfigurationRepository,
-                buildRecordRepository,
+                buildConfigurationAuditedRepository,
                 buildRecordPushResultRepository,
                 null,
                 new InProgress(),
@@ -112,99 +106,62 @@ public class BuildResultPushManagerTest {
     @Test
     public void shouldAccept() {
         // given
-        BuildRecord record = buildRecord();
-        int brewBuildId = 100;
+        BuildRecord record = buildRecord(true);
         record.setExecutionRootName("Foo:bar");
         record.setExecutionRootVersion("baz");
 
         // when
-        Set<Result> results = release(brewBuildId, record);
+        Result result = release(record);
 
         // then
-        assertThat(results).isNotEmpty().first().extracting(Result::getStatus).isEqualTo(BuildPushStatus.ACCEPTED);
-    }
-
-    @Test
-    public void shouldRejectBlacklisted() {
-        // given
-        BuildRecord record = buildRecord();
-        int brewBuildId = 100;
-        record.setExecutionRootName("Foo:bar");
-        record.setExecutionRootVersion("baz");
-        Artifact a = Artifact.builder().build();
-        a.setArtifactQuality(BLACKLISTED);
-        a.setBuildRecord(record);
-
-        // when
-        Set<Result> results = release(brewBuildId, record);
-
-        // then
-        assertThat(results).isNotEmpty().first().extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
-    }
-
-    @Test
-    public void shouldRejectDeleted() {
-        // given
-        BuildRecord record = buildRecord();
-        int brewBuildId = 100;
-        record.setExecutionRootName("Foo:bar");
-        record.setExecutionRootVersion("baz");
-        Artifact a = Artifact.builder().build();
-        a.setArtifactQuality(DELETED);
-        a.setBuildRecord(record);
-
-        // when
-        Set<Result> results = release(brewBuildId, record);
-
-        // then
-        assertThat(results).isNotEmpty().first().extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
+        assertThat(result).extracting(Result::getStatus).isEqualTo(BuildPushStatus.ACCEPTED);
     }
 
     @Test
     public void shouldRejectWithMissingData() {
         // given
-        BuildRecord record = buildRecord();
-        int brewBuildId = 100;
+        BuildRecord record = buildRecord(false);
 
         // when
-        Set<Result> results = release(brewBuildId, record);
+        Result result = release(record);
 
         // then
-        assertThat(results).isNotEmpty().first().extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
-        Result result = results.iterator().next();
+        assertThat(result).extracting(Result::getStatus).isEqualTo(BuildPushStatus.SYSTEM_ERROR);
         assertThat(result.getMessage()).containsIgnoringCase("ExecutionRoot");
     }
 
     @Test
-    public void shouldNotRejectWithPending() {
+    public void shouldRejectWhenSameBuildIdIsInProgress() {
         // given
-        BuildRecord record = buildRecord();
-        int brewBuildId = 100;
+        BuildRecord record = buildRecord(true);
 
         // when
-        release(brewBuildId, record);
-        Set<Result> results = release(brewBuildId, record);
+        release(record);
+        Result result = release(record);
 
         // then
-        assertThat(results).isNotEmpty().first().extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
-        Result result = results.iterator().next();
-        assertThat(result.getMessage()).doesNotContain("already");
+        assertThat(result).extracting(Result::getStatus).isEqualTo(BuildPushStatus.REJECTED);
     }
 
-    private Set<Result> release(int brewBuildId, BuildRecord... records) {
-        Set<String> ids = Arrays.stream(records)
-                .map(BuildRecord::getId)
-                .map(Object::toString)
-                .collect(Collectors.toSet());
-        return releaseManager.push(ids, "abc", "https://foo.bar/build-record-push/%s/complete/", "tag", false);
+    private Result release(BuildRecord buildRecord) {
+        BuildPushOperation buildPushOperation = new BuildPushOperation(
+                buildRecord,
+                UUID.randomUUID(),
+                "tag",
+                false,
+                "https://foo.bar/build-record-push/%s/complete/");
+        return releaseManager.push(buildPushOperation, "abc");
     }
 
-    private BuildRecord buildRecord() {
+    private BuildRecord buildRecord(boolean withExecutionRootName) {
         BuildRecord record = new BuildRecord();
         record.setId(buildRecordIdSequence++);
         record.setStatus(BuildStatus.SUCCESS);
         record.setBuildConfigurationAudited(bca);
         record.setDependencies(Collections.emptySet());
+        if (withExecutionRootName) {
+            record.setExecutionRootName("execution:root");
+        }
         buildRecordRepository.save(record);
         return record;
     }

@@ -15,19 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.datastore.repositories.internal;
-
-import org.jboss.pnc.model.BuildRecordPushResult;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-
-import javax.enterprise.context.Dependent;
-import java.util.UUID;
+package org.jboss.pnc.enums;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 1:16 PM
  */
-@Dependent
-public interface BuildRecordPushResultSpringRepository
-        extends JpaRepository<BuildRecordPushResult, UUID>, JpaSpecificationExecutor<BuildRecordPushResult> {
+public enum MilestoneCloseStatus {
+    IN_PROGRESS, FAILED, SUCCEEDED, CANCELED, SYSTEM_ERROR
 }

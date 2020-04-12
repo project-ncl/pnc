@@ -20,8 +20,10 @@ package org.jboss.pnc.rest.endpoints.internal;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.bpm.NoEntityException;
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.rest.endpoints.internal.api.BpmEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +82,11 @@ public class BpmEndpointImpl implements BpmEndpoint {
         }
 
         logger.debug("Received notification {} for BPM task with id {}.", notification, taskId);
-        bpmManager.notify(taskId, notification);
+        try {
+            bpmManager.notify(taskId, notification);
+        } catch (NoEntityException e) {
+            throw new EmptyEntityException(e.getMessage());
+        }
     }
 
     private String readContent(InputStream inputStream) throws IOException {

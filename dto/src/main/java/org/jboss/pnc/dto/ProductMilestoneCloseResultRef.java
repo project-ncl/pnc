@@ -24,7 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.enums.MilestoneReleaseStatus;
+import org.jboss.pnc.enums.MilestoneCloseStatus;
 
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
@@ -34,9 +34,9 @@ import java.time.Instant;
  */
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-@JsonDeserialize(builder = ProductMilestoneReleaseRef.Builder.class)
+@JsonDeserialize(builder = ProductMilestoneCloseResultRef.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ProductMilestoneReleaseRef implements DTOEntity {
+public class ProductMilestoneCloseResultRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @NotNull(groups = WhenCreatingNew.class)
@@ -44,7 +44,7 @@ public class ProductMilestoneReleaseRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @NotNull(groups = WhenCreatingNew.class)
-    protected MilestoneReleaseStatus status;
+    protected MilestoneCloseStatus status;
 
     @NotNull(groups = WhenUpdating.class)
     @NotNull(groups = WhenCreatingNew.class)

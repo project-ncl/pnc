@@ -22,15 +22,5 @@ package org.jboss.pnc.enums;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 public enum BuildPushStatus {
-    ACCEPTED(true), SUCCESS(true), REJECTED(false), FAILED(false), SYSTEM_ERROR(false), CANCELED(false);
-
-    private boolean success;
-
-    BuildPushStatus(boolean success) {
-        this.success = success;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
+    ACCEPTED, SUCCESS, REJECTED, FAILED, SYSTEM_ERROR, CANCELED;
 }

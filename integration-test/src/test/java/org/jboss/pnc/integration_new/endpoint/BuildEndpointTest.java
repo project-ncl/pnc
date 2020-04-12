@@ -34,7 +34,7 @@ import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.requests.BuildPushRequest;
+import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration_new.setup.Deployments;
@@ -334,7 +334,7 @@ public class BuildEndpointTest {
         client.setBuiltArtifacts(build2Id, Collections.singletonList(badQuality.getId()));
 
         assertThatThrownBy(
-                () -> client.push(build2Id, BuildPushRequest.builder().reimport(true).tagPrefix("test-tag").build()))
+                () -> client.push(build2Id, BuildPushParameters.builder().reimport(true).tagPrefix("test-tag").build()))
                         .hasCauseInstanceOf(ForbiddenException.class);
     }
 

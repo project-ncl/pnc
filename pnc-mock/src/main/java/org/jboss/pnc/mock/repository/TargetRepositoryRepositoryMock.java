@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class TargetRepositoryRepositoryMock extends RepositoryMock<TargetRepository>
+public class TargetRepositoryRepositoryMock extends IntIdRepositoryMock<TargetRepository>
         implements TargetRepositoryRepository {
 
     @Override
@@ -44,4 +44,5 @@ public class TargetRepositoryRepositoryMock extends RepositoryMock<TargetReposit
                 .filter(tr -> identifiersAndPaths.contains(tr.getIdentifierPath()))
                 .collect(Collectors.toList());
     }
+
 }

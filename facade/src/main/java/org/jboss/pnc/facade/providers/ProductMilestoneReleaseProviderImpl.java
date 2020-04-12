@@ -18,10 +18,12 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
+import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.enums.MilestoneReleaseStatus;
+import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneReleaseProvider;
-import org.jboss.pnc.mapper.api.ProductMilestoneReleaseMapper;
+import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.spi.datastore.predicates.ProductMilestoneReleasePredicates;
@@ -42,7 +44,7 @@ import java.util.List;
 @PermitAll
 @Stateless
 public class ProductMilestoneReleaseProviderImpl extends
-        AbstractIntIdProvider<org.jboss.pnc.model.ProductMilestoneRelease, org.jboss.pnc.dto.ProductMilestoneRelease, org.jboss.pnc.dto.ProductMilestoneReleaseRef>
+        AbstractUUIDIdProvider<org.jboss.pnc.model.ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef>
         implements ProductMilestoneReleaseProvider {
 
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneReleaseProviderImpl.class);
@@ -51,20 +53,20 @@ public class ProductMilestoneReleaseProviderImpl extends
     @Inject
     public ProductMilestoneReleaseProviderImpl(
             ProductMilestoneReleaseRepository repository,
-            ProductMilestoneReleaseMapper mapper) {
+            ProductMilestoneCloseResultMapper mapper) {
         super(repository, mapper, ProductMilestoneRelease.class);
         this.repository = repository;
     }
 
     @Override
-    public org.jboss.pnc.dto.ProductMilestoneRelease getLatestProductMilestoneRelease(int milestoneId) {
+    public ProductMilestoneCloseResult getLatestProductMilestoneCloseResult(int milestoneId) {
         ProductMilestoneRelease entity = repository
                 .findLatestByMilestone(ProductMilestone.Builder.newBuilder().id(milestoneId).build());
         return mapper.toDTO(entity);
     }
 
     @Override
-    public Page<org.jboss.pnc.dto.ProductMilestoneRelease> getProductMilestoneReleases(
+    public Page<ProductMilestoneCloseResult> getProductMilestoneCloseResults(
             int pageIndex,
             int pageSize,
             String sortingRsql,
@@ -76,7 +78,7 @@ public class ProductMilestoneReleaseProviderImpl extends
         List<Predicate> predicates = new ArrayList<>();
         predicates.add(ProductMilestoneReleasePredicates.withMilestoneId(milestoneId));
         if (runningOnly) {
-            predicates.add(ProductMilestoneReleasePredicates.withStatus(MilestoneReleaseStatus.IN_PROGRESS));
+            predicates.add(ProductMilestoneReleasePredicates.withStatus(MilestoneCloseStatus.IN_PROGRESS));
         }
         if (StringUtils.isEmpty(sortingRsql)) {
             log.debug("No sort provided, using the default 'ASC by startingDate'.");

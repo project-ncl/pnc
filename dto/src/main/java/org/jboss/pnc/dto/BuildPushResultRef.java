@@ -20,42 +20,51 @@ package org.jboss.pnc.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
-import lombok.Value;
-import org.jboss.pnc.processor.annotation.PatchSupport;
+import lombok.Builder;
+import lombok.Data;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.BuildPushStatus;
 
-import java.util.Map;
-
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@PatchSupport
-@Value
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-@JsonDeserialize(builder = Project.Builder.class)
+@Data
+@Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
+@JsonDeserialize(builder = BuildPushResultRef.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Project extends ProjectRef {
+public class BuildPushResultRef implements DTOEntity {
 
-    @PatchSupport({ ADD, REPLACE })
-    private final Map<String, BuildConfigurationRef> buildConfigs;
+    @NotNull(groups = WhenUpdating.class)
+    @Null(groups = WhenCreatingNew.class)
+    protected final String id;
 
-    @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Project(
-            Map<String, BuildConfigurationRef> buildConfigs,
-            String id,
-            String name,
-            String description,
-            String issueTrackerUrl,
-            String projectUrl) {
-        super(id, name, description, issueTrackerUrl, projectUrl);
-        this.buildConfigs = buildConfigs;
-    }
+    @NotNull
+    protected final String buildId;
+
+    @NotNull
+    protected final BuildPushStatus status;
+
+    /**
+     * build id assigned by brew
+     */
+    protected final Integer brewBuildId;
+
+    /**
+     * link to brew
+     */
+    protected final String brewBuildUrl;
+
+    protected final String logContext;
+
+    /**
+     * Used by group push, to describe rejected and error push request (should be used only for non-stored results).
+     */
+    protected final String message;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

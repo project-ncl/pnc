@@ -28,7 +28,6 @@ import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.ProductVersionRepositoryMock;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.rest.endpoint.BpmEndpoint;
-import org.jboss.pnc.rest.endpoint.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneReleaseRepositoryMock;
 import org.jboss.pnc.rest.provider.MilestoneTestUtils.ProductMilestoneRepositoryMock;
 import org.jboss.pnc.rest.utils.mock.BpmPushMock;
@@ -72,8 +71,6 @@ public class AbstractMilestoneReleaseTest {
     @Mock
     BuildRecordProvider buildRecordProvider;
     @Mock
-    ProductMilestoneReleaseProvider milestoneReleaseProvider;
-    @Mock
     AuthenticationProviderFactory authenticationProviderFactory;
     @Mock
     private RepositoryConfigurationProvider repositoryConfigurationProvider;
@@ -93,7 +90,6 @@ public class AbstractMilestoneReleaseTest {
     @Mock
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
 
-    ProductMilestoneEndpoint milestoneEndpoint;
     ProductMilestoneReleaseManager releaseManager;
     BpmEndpoint bpmEndpoint;
 
@@ -104,7 +100,6 @@ public class AbstractMilestoneReleaseTest {
         releaseManager = new ProductMilestoneReleaseManager(
                 releaseRepository,
                 bpmMock,
-                artifactRepository,
                 productVersionRepository,
                 buildRecordRepository,
                 productMilestoneRepository,
@@ -116,13 +111,6 @@ public class AbstractMilestoneReleaseTest {
                 rsqlPredicateProducer,
                 sortInfoProducer,
                 pageInfoProducer);
-        milestoneEndpoint = new ProductMilestoneEndpoint(
-                milestoneProvider,
-                artifactProvider,
-                buildRecordProvider,
-                milestoneReleaseProvider,
-                authenticationProviderFactory,
-                productMilestoneRepository);
 
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("git@github.com:22");
         when(pncConfiguration.getModuleConfig(new PncConfigProvider<>(ScmModuleConfig.class)))

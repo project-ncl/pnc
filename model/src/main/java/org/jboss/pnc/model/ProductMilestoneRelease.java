@@ -17,7 +17,10 @@
  */
 package org.jboss.pnc.model;
 
-import java.util.Date;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Type;
+import org.jboss.pnc.enums.MilestoneCloseStatus;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -25,21 +28,17 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Type;
-import org.jboss.pnc.enums.MilestoneReleaseStatus;
+import java.util.Date;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 12:57 PM
@@ -48,23 +47,26 @@ import org.jboss.pnc.enums.MilestoneReleaseStatus;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = @Index(name = "idx_productmilestonerelease_milestone", columnList = "milestone_id"))
-public class ProductMilestoneRelease implements GenericEntity<Integer> {
+public class ProductMilestoneRelease implements GenericEntity<UUID> {
     private static final long serialVersionUID = -9033616377795309672L;
     public static final String SEQUENCE_NAME = "product_milestone_release_id_seq";
 
     @Id
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, initialValue = 100, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
-    private Integer id;
+    @NotNull
+    private UUID id;
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
     @JoinColumn(updatable = false, foreignKey = @ForeignKey(name = "fk_productmilestone_milestonerelease"))
     private ProductMilestone milestone;
 
-    @Enumerated(EnumType.STRING)
-    private MilestoneReleaseStatus status;
+    @OneToMany(mappedBy = "productMilestoneRelease")
+    private Set<BuildRecordPushResult> buildRecordPushResults;
 
+    @Enumerated(EnumType.STRING)
+    private MilestoneCloseStatus status;
+
+    @Deprecated
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String log;
@@ -74,12 +76,12 @@ public class ProductMilestoneRelease implements GenericEntity<Integer> {
     private Date endDate;
 
     @Override
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
     @Override
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -91,18 +93,28 @@ public class ProductMilestoneRelease implements GenericEntity<Integer> {
         this.milestone = milestone;
     }
 
-    public MilestoneReleaseStatus getStatus() {
+    public Set<BuildRecordPushResult> getBuildRecordPushResults() {
+        return buildRecordPushResults;
+    }
+
+    public void setBuildRecordPushResults(Set<BuildRecordPushResult> buildRecordPushResults) {
+        this.buildRecordPushResults = buildRecordPushResults;
+    }
+
+    public MilestoneCloseStatus getStatus() {
         return status;
     }
 
-    public void setStatus(MilestoneReleaseStatus status) {
+    public void setStatus(MilestoneCloseStatus status) {
         this.status = status;
     }
 
+    @Deprecated
     public String getLog() {
         return log;
     }
 
+    @Deprecated
     public void setLog(String log) {
         this.log = log;
     }

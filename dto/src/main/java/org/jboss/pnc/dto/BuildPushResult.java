@@ -18,6 +18,9 @@
 package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Data;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildPushStatus;
@@ -25,51 +28,30 @@ import org.jboss.pnc.enums.BuildPushStatus;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
-import java.util.List;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Builder;
-import lombok.Data;
-
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
-@Builder(builderClassName = "Builder", toBuilder = true)
 @JsonDeserialize(builder = BuildPushResult.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BuildPushResult implements DTOEntity {
+public class BuildPushResult extends BuildPushResultRef {
 
-    @NotNull(groups = WhenUpdating.class)
-    @Null(groups = WhenCreatingNew.class)
-    private final String id;
+    private final ProductMilestoneCloseResultRef productMilestoneCloseResult;
 
-    @NotNull
-    private final String buildId;
-
-    @NotNull
-    private final BuildPushStatus status;
-
-    @NotNull
-    private final String log;
-
-    /**
-     * list of errors for artifact imports
-     */
-    private final List<ArtifactImportError> artifactImportErrors;
-
-    /**
-     * build id assigned by brew
-     */
-    private final Integer brewBuildId;
-
-    /**
-     * link to brew
-     */
-    private final String brewBuildUrl;
+    @lombok.Builder(builderClassName = "Builder", toBuilder = true)
+    public BuildPushResult(
+            @NotNull(groups = WhenUpdating.class) @Null(groups = WhenCreatingNew.class) String id,
+            @NotNull String buildId,
+            @NotNull BuildPushStatus status,
+            Integer brewBuildId,
+            String brewBuildUrl,
+            String logContext,
+            String message,
+            ProductMilestoneCloseResultRef productMilestoneCloseResult) {
+        super(id, buildId, status, brewBuildId, brewBuildUrl, logContext, message);
+        this.productMilestoneCloseResult = productMilestoneCloseResult;
+    }
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

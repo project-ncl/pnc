@@ -17,25 +17,14 @@
  */
 package org.jboss.pnc.model;
 
-import javax.persistence.Cacheable;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Index;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 import org.jboss.pnc.enums.BuildPushStatus;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -44,15 +33,12 @@ import org.jboss.pnc.enums.BuildPushStatus;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = { @Index(name = "idx_buildrecordpushresult_buildrecord", columnList = "buildRecord_id") })
-public class BuildRecordPushResult implements GenericEntity<Integer> {
+public class BuildRecordPushResult implements GenericEntity<UUID> {
     private static final long serialVersionUID = 8461294730832773438L;
 
-    public static final String SEQUENCE_NAME = "build_record_push_result_id_seq";
-
     @Id
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, initialValue = 100, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
-    private Integer id;
+    @NotNull
+    private UUID id;
 
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecordpushresult_buildrecord"))
     @ManyToOne
@@ -61,6 +47,7 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
     @Enumerated(EnumType.STRING)
     private BuildPushStatus status;
 
+    @Deprecated
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String log;
@@ -77,6 +64,10 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
 
     private String tagPrefix;
 
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_pushresult_milestonerelease"))
+    private ProductMilestoneRelease productMilestoneRelease;
+
     public BuildRecordPushResult() {
     }
 
@@ -88,6 +79,7 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
         setBrewBuildId(builder.brewBuildId);
         setBrewBuildUrl(builder.brewBuildUrl);
         setTagPrefix(builder.tagPrefix);
+        setProductMilestoneRelease(builder.productMilestoneRelease);
     }
 
     public static Builder newBuilder() {
@@ -95,12 +87,12 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
     }
 
     @Override
-    public Integer getId() {
+    public UUID getId() {
         return id;
     }
 
     @Override
-    public void setId(Integer id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -120,10 +112,12 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
         this.status = status;
     }
 
+    @Deprecated
     public String getLog() {
         return log;
     }
 
+    @Deprecated
     public void setLog(String log) {
         this.log = log;
     }
@@ -152,6 +146,14 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
         this.tagPrefix = tagPrefix;
     }
 
+    public ProductMilestoneRelease getProductMilestoneRelease() {
+        return productMilestoneRelease;
+    }
+
+    public void setProductMilestoneRelease(ProductMilestoneRelease productMilestoneRelease) {
+        this.productMilestoneRelease = productMilestoneRelease;
+    }
+
     @Override
     public String toString() {
         return "BuildRecordPushResult{" + "id=" + id + ", buildRecord=" + buildRecord + ", status=" + status + ", log='"
@@ -161,12 +163,13 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
 
     public static final class Builder {
 
-        private Integer id;
+        private UUID id;
 
         private BuildRecord buildRecord;
 
         private BuildPushStatus status;
 
+        @Deprecated
         private String log;
 
         private Integer brewBuildId;
@@ -175,10 +178,12 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
 
         private String tagPrefix;
 
+        private ProductMilestoneRelease productMilestoneRelease;
+
         private Builder() {
         }
 
-        public Builder id(Integer val) {
+        public Builder id(UUID val) {
             id = val;
             return this;
         }
@@ -193,6 +198,7 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
             return this;
         }
 
+        @Deprecated
         public Builder log(String val) {
             log = val;
             return this;
@@ -210,6 +216,11 @@ public class BuildRecordPushResult implements GenericEntity<Integer> {
 
         public Builder tagPrefix(String val) {
             tagPrefix = val;
+            return this;
+        }
+
+        public Builder productMilestoneRelease(ProductMilestoneRelease productMilestoneRelease) {
+            this.productMilestoneRelease = productMilestoneRelease;
             return this;
         }
 

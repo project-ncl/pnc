@@ -17,16 +17,6 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
@@ -37,10 +27,20 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
+
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:04 PM
  */
-public class BuildRecordRepositoryMock extends RepositoryMock<BuildRecord> implements BuildRecordRepository {
+public class BuildRecordRepositoryMock extends IntIdRepositoryMock<BuildRecord> implements BuildRecordRepository {
     @Override
     public BuildRecord findByIdFetchAllProperties(Integer id) {
         return queryById(id);

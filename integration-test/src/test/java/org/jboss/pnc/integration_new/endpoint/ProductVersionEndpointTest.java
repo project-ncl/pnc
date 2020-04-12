@@ -26,6 +26,7 @@ import org.jboss.pnc.client.ProductClient;
 import org.jboss.pnc.client.ProductMilestoneClient;
 import org.jboss.pnc.client.ProductVersionClient;
 import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.client.patch.PatchBuilderException;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupConfiguration;
@@ -228,6 +229,14 @@ public class ProductVersionEndpointTest {
         assertThat(retrieved.getGroupConfigs()).hasSameSizeAs(groupConfis).containsKey(gcToAdd.getId());
     }
 
+    @Test // TODO
+    public void shouldUpdateGroupConfigsUsingPatch() throws ClientException, PatchBuilderException {
+        // ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
+        // ProductVersionPatchBuilder patchBuilder = new ProductVersionPatchBuilder();
+        // ProductVersionPatchBuilder patch = patchBuilder.replaceGroupConfigs(null);
+        // client.patch("id", patch);
+    }
+
     @Test
     public void shouldNotUpdateGroupConfigsWhenOneIsAlreadyAsssociatedWithAnotherProductVersion()
             throws ClientException {
@@ -253,6 +262,15 @@ public class ProductVersionEndpointTest {
         assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate)).isInstanceOf(ClientException.class);
     }
 
+    @Test // TODO
+    public void shouldNotUpdateGroupConfigsWhenOneIsAlreadyAsssociatedWithAnotherProductVersionUsingPatch()
+            throws ClientException, PatchBuilderException {
+        // ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
+        // ProductVersionPatchBuilder patchBuilder = new ProductVersionPatchBuilder();
+        // ProductVersionPatchBuilder patch = patchBuilder.replaceGroupConfigs(null);
+        // client.patch("id", patch);
+    }
+
     @Test
     public void shouldNotUpdateGroupConfigsWithNonExistantGroupConfig() throws ClientException {
         // given
@@ -275,7 +293,7 @@ public class ProductVersionEndpointTest {
         assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate)).isInstanceOf(ClientException.class);
     }
 
-    @Test
+    @Test // TODO mock remote service - potentially move the test
     @Ignore(value = "The close of milestone requires communication with another service")
     public void shouldNotUpdateWithClosedMilestone() throws ClientException {
         // given
@@ -293,5 +311,4 @@ public class ProductVersionEndpointTest {
         // then
         assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate)).isInstanceOf(ClientException.class);
     }
-
 }

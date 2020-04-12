@@ -46,6 +46,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
 
 @Stateless
+@Deprecated
 public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone, ProductMilestoneRest> {
 
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProvider.class);
@@ -168,26 +169,7 @@ public class ProductMilestoneProvider extends AbstractProvider<ProductMilestone,
 
     public void closeMilestone(Integer id, ProductMilestoneRest restEntity, String accessToken)
             throws RestValidationException {
-        ProductMilestone milestoneInDb = repository.queryById(id);
-
-        // If we want to close a milestone, make sure it's not already released (by checking end date)
-        // and there are no release in progress
-        if (milestoneInDb.getEndDate() != null) {
-
-            log.info("Milestone is already closed: no more modifications allowed");
-            throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
-        } else {
-            // save download url if specified
-            if (restEntity.getDownloadUrl() != null) {
-                milestoneInDb.setDownloadUrl(restEntity.getDownloadUrl());
-                repository.save(milestoneInDb);
-            }
-
-            if (releaseManager.noReleaseInProgress(milestoneInDb)) {
-                log.debug("Milestone end date set and no release in progress, will start release");
-                releaseManager.startRelease(milestoneInDb, accessToken);
-            }
-        }
+        throw new UnsupportedOperationException("Use new REST API!");
     }
 
     public void cancelMilestoneCloseProcess(Integer milestoneId)

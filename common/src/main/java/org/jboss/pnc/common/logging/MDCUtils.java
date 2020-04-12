@@ -34,6 +34,7 @@ public class MDCUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(MDCUtils.class);
 
+    // Move MDC field names to constants module.
     public static final String REQUEST_CONTEXT_KEY = "requestContext";
     public static final String PROCESS_CONTEXT_KEY = "processContext";
     public static final String USER_ID_KEY = "userId";
@@ -108,6 +109,10 @@ public class MDCUtils {
         return Optional.ofNullable(getContextMap().get(USER_ID_KEY));
     }
 
+    public static Optional<String> getCustomContext(String key) {
+        return Optional.ofNullable(getContextMap().get(key));
+    }
+
     public static void clear() {
         MDC.clear();
     }
@@ -124,5 +129,15 @@ public class MDCUtils {
         mappings.put(TMP_KEY, "log-tmp");
         mappings.put(EXP_KEY, "log-exp");
         return mappings;
+    }
+
+    public static void addCustomContext(String key, String value) {
+        Map<String, String> context = getContextMap();
+        context.put(key, value);
+        MDC.setContextMap(context);
+    }
+
+    public static void removeCustomContext(String key) {
+        MDC.remove(key);
     }
 }

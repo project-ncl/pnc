@@ -15,30 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.requests;
+package org.jboss.pnc.rest.provider;
 
-import javax.validation.constraints.NotNull;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.facade.validation.AlreadyRunningException;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
-import lombok.Builder;
-import lombok.Data;
+@Provider
+public class AlreadyRunningExceptionsMapper implements ExceptionMapper<AlreadyRunningException> {
 
-/**
- *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
- */
-@Data
-@Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = BuildPushRequest.Builder.class)
-public class BuildPushRequest {
-
-    private final String tagPrefix;
-
-    private final boolean reimport;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class Builder {
+    @Override
+    public Response toResponse(AlreadyRunningException e) {
+        Response.StatusType status = Response.Status.CONFLICT;
+        return Response.status(status).entity(new ErrorResponse(e, e.getResponseObject())).build();
     }
 }

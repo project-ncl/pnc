@@ -21,9 +21,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.jboss.pnc.dto.ArtifactImportError;
-
-import java.util.List;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/25/16 Time: 2:48 PM
@@ -54,10 +51,5 @@ public class BuildImportResultRest {
      * global errors
      */
     private String errorMessage;
-
-    /**
-     * list of errors for artifact imports
-     */
-    private List<ArtifactImportError> errors;
 
 }

@@ -15,19 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.datastore.repositories.internal;
+package org.jboss.pnc.dto.requests;
 
-import org.jboss.pnc.model.BuildRecordPushResult;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-import javax.enterprise.context.Dependent;
-import java.util.UUID;
+import lombok.Builder;
+import lombok.Data;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ *
+ * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Dependent
-public interface BuildRecordPushResultSpringRepository
-        extends JpaRepository<BuildRecordPushResult, UUID>, JpaSpecificationExecutor<BuildRecordPushResult> {
+@Data
+@Builder(builderClassName = "Builder")
+@JsonDeserialize(builder = BuildPushParameters.Builder.class)
+public class BuildPushParameters {
+
+    private final String tagPrefix;
+
+    private final boolean reimport;
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static final class Builder {
+    }
 }
