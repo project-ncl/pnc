@@ -19,8 +19,8 @@ package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -45,16 +45,16 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
     private String baseUrl;
 
     /**
-     * Comma-separated lists of repository name patterns to use when considering whether a remote repository represents
-     * an internal build (from a trusted build system, for instance). The structure contains a list of patterns for
-     * every supported package type.
+     * Lists of dependency repository store key patterns to use when considering whether a repository represents an
+     * internal build (from a trusted build system, for instance). The structure contains a list of patterns for every
+     * supported package type.
      */
-    @JsonProperty("internal-repo-patterns")
-    private InternalRepoPatterns internalRepoPatterns;
+    @JsonProperty("ignored-repo-patterns")
+    private List<String> ignoredRepoPatterns;
 
     /**
-     * Comma-separated list of path patterns to be ignored from showing in UI and to be part of a promotion. This
-     * applies for both downloads and uploads.
+     * Lists of path patterns to be excluded from promotion and showing in UI. This applies for both downloads and
+     * uploads.
      */
     @JsonProperty("ignored-path-patterns")
     private IgnoredPathPatterns ignoredPathPatterns;
@@ -127,12 +127,12 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
         this.baseUrl = baseUrl;
     }
 
-    public InternalRepoPatterns getInternalRepoPatterns() {
-        return internalRepoPatterns;
+    public List<String> getIgnoredRepoPatterns() {
+        return ignoredRepoPatterns;
     }
 
-    public void setInternalRepoPatterns(InternalRepoPatterns internalRepoPatterns) {
-        this.internalRepoPatterns = internalRepoPatterns;
+    public void setIgnoredRepoPatterns(List<String> internalRepoPatterns) {
+        this.ignoredRepoPatterns = internalRepoPatterns;
     }
 
     public IgnoredPathPatterns getIgnoredPathPatterns() {
@@ -175,108 +175,16 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
         this.externalRepositoryNpmPath = externalRepositoryNpmPath;
     }
 
-    @ToString
-    public static class InternalRepoPatterns {
-
-        @Setter
-        @JsonProperty("maven")
-        @JsonInclude(Include.NON_EMPTY)
-        protected List<String> maven;
-
-        @Setter
-        @JsonProperty("npm")
-        @JsonInclude(Include.NON_EMPTY)
-        protected List<String> npm;
-
-        @Setter
-        @JsonProperty("generic")
-        @JsonInclude(Include.NON_EMPTY)
-        protected List<String> generic;
-
-        /**
-         * Gets the list of Maven strings.
-         *
-         * @return the list of Maven strings or empty list if no value is set (never {@code null})
-         */
-        public List<String> getMaven() {
-            return maven == null ? Collections.emptyList() : maven;
-        }
-
-        /**
-         * Adds extra members to the list of Maven strings.
-         *
-         * @param addition added strings
-         */
-        public void addMaven(List<String> addition) {
-            addExtraMembers(addition);
-        }
-
-        private void addExtraMembers(List<String> addition) {
-            if (addition != null) {
-                if (maven == null) {
-                    maven = new ArrayList<>(addition);
-                } else {
-                    maven.addAll(addition);
-                }
-            }
-        }
-
-        /**
-         * Gets the list of NPM strings.
-         *
-         * @return the list of NPM strings or empty list if no value is set (never {@code null})
-         */
-        public List<String> getNpm() {
-            return npm == null ? Collections.emptyList() : npm;
-        }
-
-        /**
-         * Adds extra members to the list of NPM strings.
-         *
-         * @param addition added strings
-         */
-        public void addNpm(List<String> addition) {
-            if (addition != null) {
-                if (npm == null) {
-                    npm = new ArrayList<>(addition);
-                } else {
-                    npm.addAll(addition);
-                }
-            }
-        }
-
-        /**
-         * Gets the list of Generic-http strings.
-         *
-         * @return the list of Generic-http strings or empty list if no value is set (never {@code null})
-         */
-        public List<String> getGeneric() {
-            return generic == null ? Collections.emptyList() : generic;
-        }
-
-        /**
-         * Adds extra members to the list of Generic-http strings.
-         *
-         * @param addition added strings
-         */
-        public void addGeneric(List<String> addition) {
-            if (addition != null) {
-                if (generic == null) {
-                    generic = new ArrayList<>(addition);
-                } else {
-                    npm.addAll(addition);
-                }
-            }
-        }
-
-    }
-
     public static class PatternsList {
 
-        @Getter
+        @JsonIgnore
         private List<Pattern> patterns;
 
-        private PatternsList(List<String> strings) {
+        public List<Pattern> getPatterns() {
+            return patterns == null ? Collections.emptyList() : patterns;
+        }
+
+        public PatternsList(List<String> strings) {
             if (strings != null) {
                 patterns = new ArrayList<>(strings.size());
                 for (String string : strings) {
@@ -285,30 +193,13 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
             }
         }
 
-        private PatternsList(PatternsList patterns1, PatternsList patterns2) {
-            this.patterns = new ArrayList<>();
-            if (patterns1 != null) {
-                patterns.addAll(patterns1.patterns);
-            }
-            if (patterns2 != null) {
-                patterns.addAll(patterns2.patterns);
-            }
-        }
-
-        public boolean matchesOne(String string) {
-            if (patterns != null) {
-                for (Pattern pattern : patterns) {
-                    if (pattern.matcher(string).matches()) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
     }
 
     @ToString
-    public static class IgnoredPathPatterns {
+    public static class IgnoredPatterns {
+
+        @JsonIgnore
+        private PatternsList generic;
 
         @JsonIgnore
         private PatternsList maven;
@@ -316,8 +207,10 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
         @JsonIgnore
         private PatternsList npm;
 
-        @JsonIgnore
-        private PatternsList shared;
+        @JsonProperty("generic")
+        public void setGeneric(List<String> strPatterns) {
+            generic = new PatternsList(strPatterns);
+        }
 
         @JsonProperty("maven")
         public void setMaven(List<String> strPatterns) {
@@ -329,38 +222,19 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
             npm = new PatternsList(strPatterns);
         }
 
-        @JsonProperty("_shared")
-        public void setShared(List<String> strPatterns) {
-            shared = new PatternsList(strPatterns);
+        @JsonIgnore
+        public PatternsList getGeneric() {
+            return getPatternsList(generic);
         }
 
         @JsonIgnore
         public PatternsList getMaven() {
-            return maven == null ? new PatternsList(Collections.emptyList()) : maven;
+            return getPatternsList(maven);
         }
 
         @JsonIgnore
-        public PatternsList getMavenWithShared() {
-            return new PatternsList(maven, shared);
-        }
-
         public PatternsList getNpm() {
-            return npm == null ? new PatternsList(Collections.emptyList()) : npm;
-        }
-
-        @JsonIgnore
-        public PatternsList getNpmWithShared() {
-            return new PatternsList(npm, shared);
-        }
-
-        /**
-         * Gets the list of ignored path patterns shared among all package types.
-         *
-         * @return the list of shared strings or empty list if no value is set (never {@code null})
-         */
-        @JsonIgnore
-        public PatternsList getShared() {
-            return shared == null ? new PatternsList(Collections.emptyList()) : shared;
+            return getPatternsList(npm);
         }
 
         private List<String> genStringList(PatternsList patternsList) {
@@ -369,6 +243,12 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
             } else {
                 return Collections.emptyList();
             }
+        }
+
+        @JsonProperty("generic")
+        @JsonInclude(Include.NON_EMPTY)
+        public List<String> getGenericStrings() {
+            return genStringList(generic);
         }
 
         @JsonProperty("maven")
@@ -383,12 +263,32 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
             return genStringList(npm);
         }
 
-        @JsonProperty("_shared")
-        @JsonInclude(Include.NON_EMPTY)
-        public List<String> getSharedStrings() {
-            return genStringList(shared);
+        /**
+         * Safely gets patterns list. Ensures that output is never null.
+         *
+         * @param list the input list
+         * @return an empty list in case of input list is null, otherwise the input list
+         */
+        @JsonIgnore
+        private PatternsList getPatternsList(PatternsList list) {
+            return list == null ? new PatternsList(Collections.emptyList()) : list;
         }
 
     }
 
+    @ToString
+    public static class IgnoredPathPatterns {
+        @Setter
+        private IgnoredPatterns promotion;
+        @Setter
+        private IgnoredPatterns data;
+
+        public IgnoredPatterns getPromotion() {
+            return promotion == null ? new IgnoredPatterns() : promotion;
+        }
+
+        public IgnoredPatterns getData() {
+            return data == null ? new IgnoredPatterns() : data;
+        }
+    }
 }

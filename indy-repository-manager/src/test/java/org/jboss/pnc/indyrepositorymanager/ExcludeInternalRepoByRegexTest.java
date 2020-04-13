@@ -24,7 +24,6 @@ import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.RemoteRepository;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
@@ -35,6 +34,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -55,9 +55,9 @@ public class ExcludeInternalRepoByRegexTest extends AbstractImportTest {
     private static final String EXTERNAL = "external";
 
     @Override
-    protected InternalRepoPatterns getInternalRepoPatterns() {
-        InternalRepoPatterns result = new InternalRepoPatterns();
-        result.addMaven(Collections.singletonList("in.+"));
+    protected List<String> getIgnoredRepoPatterns() {
+        List<String> result = new ArrayList<>();
+        result.add("maven:.+:in.+");
         return result;
     }
 
@@ -133,14 +133,13 @@ public class ExcludeInternalRepoByRegexTest extends AbstractImportTest {
 
         // check that the imports from external locations are available from shared-imports
         InputStream stream = indy.content().get(sharedImportsKey, externalPath);
-        String downloaded = IOUtils.toString(stream);
+        String downloaded = IOUtils.toString(stream, (String) null);
         assertThat(downloaded, equalTo(content));
         stream.close();
 
         // check that the imports from internal/trusted locations are NOT available from shared-imports
         stream = indy.content().get(sharedImportsKey, internalPath);
         assertThat(stream, nullValue());
-
     }
 
 }
