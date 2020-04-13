@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.indyrepositorymanager;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -38,11 +39,7 @@ import org.commonjava.indy.promote.client.IndyPromoteClientModule;
 import org.commonjava.indy.promote.model.AbstractPromoteResult;
 import org.commonjava.indy.promote.model.PathsPromoteRequest;
 import org.commonjava.indy.promote.model.PathsPromoteResult;
-import org.commonjava.indy.promote.model.PromoteRequest;
 import org.commonjava.indy.promote.model.ValidationResult;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathPatterns;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.PatternsList;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
@@ -92,9 +89,6 @@ public class IndyRepositorySession implements RepositorySession {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-executor");
 
-    /** PackageType-specific ignored patterns. */
-    private IgnoredPathPatterns ignoredPathPatterns;
-
     private boolean isTempBuild;
 
     private Indy indy;
@@ -104,7 +98,7 @@ public class IndyRepositorySession implements RepositorySession {
     /**
      * PackageType-specific internal repository name patterns.
      */
-    private InternalRepoPatterns internalRepoPatterns;
+    private ArtifactFilter artifactFilter;
 
     private final RepositoryConnectionInfo connectionInfo;
 
@@ -112,25 +106,32 @@ public class IndyRepositorySession implements RepositorySession {
 
     private String buildPromotionTarget;
 
+    private static Set<String> checksumSuffixes;
+    static {
+        checksumSuffixes = new HashSet<>(4);
+        checksumSuffixes.add("md5");
+        checksumSuffixes.add("sha1");
+        checksumSuffixes.add("sha256");
+        checksumSuffixes.add("sha512");
+    }
+
     public IndyRepositorySession(
             Indy indy,
             Indy serviceAccountIndy,
             String buildContentId,
             String packageType,
             IndyRepositoryConnectionInfo info,
-            InternalRepoPatterns internalRepoPatterns,
-            IgnoredPathPatterns ignoredPathPatterns,
+            ArtifactFilter artifactFilter,
             String buildPromotionTarget,
             boolean isTempBuild) {
         this.indy = indy;
         this.serviceAccountIndy = serviceAccountIndy;
         this.buildContentId = buildContentId;
         this.packageType = packageType;
-        this.internalRepoPatterns = internalRepoPatterns;
-        this.ignoredPathPatterns = ignoredPathPatterns;
+        this.artifactFilter = artifactFilter;
         this.connectionInfo = info;
         this.buildPromotionTarget = buildPromotionTarget;
-        this.isTempBuild = isTempBuild; // TODO define based on buildPromotionTarget
+        this.isTempBuild = isTempBuild;
     }
 
     @Override
@@ -169,11 +170,12 @@ public class IndyRepositorySession implements RepositorySession {
 
         Comparator<Artifact> comp = (one, two) -> one.getIdentifier().compareTo(two.getIdentifier());
 
-        List<Artifact> uploads = collectUploads(report);
-        Collections.sort(uploads, comp);
+        Uploads uploads = collectUploads(report);
+        List<Artifact> uploadedArtifacts = uploads.getData();
+        Collections.sort(uploadedArtifacts, comp);
 
-        List<Artifact> downloads = processDownloads(report, liveBuild);
-        Collections.sort(downloads, comp);
+        List<Artifact> downloadedArtifacts = processDownloads(report, liveBuild);
+        Collections.sort(downloadedArtifacts, comp);
 
         if (liveBuild) {
             deleteBuildGroup();
@@ -181,8 +183,8 @@ public class IndyRepositorySession implements RepositorySession {
 
         logger.info(
                 "Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
-                StringUtils.join(uploads, "\n  "),
-                StringUtils.join(downloads, "\n  "));
+                StringUtils.join(uploads.getData(), "\n  "),
+                StringUtils.join(downloadedArtifacts, "\n  "));
 
         String log = "";
         CompletionStatus status = CompletionStatus.SUCCESS;
@@ -192,22 +194,22 @@ public class IndyRepositorySession implements RepositorySession {
             StopWatch stopWatch = StopWatch.createStarted();
 
             try {
-                promoteToBuildContentSet(uploads);
+                promoteToBuildContentSet(uploads.getPromotion());
             } catch (RepositoryManagerException rme) {
                 status = CompletionStatus.FAILED;
                 log = rme.getMessage();
-                logger.error("Promotion validation error(s): \n" + log);
-                userLog.error("Artifact promotion failed. Promotion validation error(s): {}", log);
+                logger.error("Built artifact promotion failed. Error(s): {}", log);
+                userLog.error("Built artifact promotion failed. Error(s): {}", log);
                 // prevent saving artifacts and dependencies to a failed build
-                downloads = Collections.emptyList();
-                uploads = Collections.emptyList();
+                downloadedArtifacts = Collections.emptyList();
+                uploadedArtifacts = Collections.emptyList();
             }
 
             logger.info("END: promotion to build content set, took: {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
             stopWatch.reset();
         }
 
-        return new IndyRepositoryManagerResult(uploads, downloads, buildContentId, log, status);
+        return new IndyRepositoryManagerResult(uploadedArtifacts, downloadedArtifacts, buildContentId, log, status);
     }
 
     private TrackedContentDTO sealAndGetTrackingReport(boolean seal) throws RepositoryManagerException {
@@ -280,15 +282,15 @@ public class IndyRepositorySession implements RepositorySession {
         StopWatch stopWatch = StopWatch.createStarted();
 
         Set<TrackedContentEntryDTO> downloads = report.getDownloads();
-        if (downloads != null) {
+        if (CollectionUtils.isEmpty(downloads)) {
+            deps = Collections.emptyList();
+        } else {
             deps = collectDownloadedArtifacts(report);
 
             if (promote) {
                 Map<StoreKey, Map<StoreKey, Set<String>>> depMap = collectDownloadsPromotionMap(downloads);
                 promoteDownloads(depMap);
             }
-        } else {
-            deps = new ArrayList<>();
         }
 
         logger.info("END: Process artifacts downloaded by build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
@@ -310,39 +312,34 @@ public class IndyRepositorySession implements RepositorySession {
         List<Artifact> deps = new ArrayList<>(downloads.size());
         for (TrackedContentEntryDTO download : downloads) {
             String path = download.getPath();
-            StoreKey source = download.getStoreKey();
-            String packageType = source.getPackageType();
-            if (ignoreContent(packageType, path)) {
-                logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", path, source);
-                continue;
+            if (artifactFilter.acceptsForData(download)) {
+                String identifier = computeIdentifier(download);
+
+                logger.info("Recording download: {}", identifier);
+
+                String originUrl = download.getOriginUrl();
+                if (originUrl == null) {
+                    // this is from a hosted repository, either shared-imports or a build, or something like that.
+                    originUrl = download.getLocalUrl();
+                }
+
+                TargetRepository targetRepository = getDownloadsTargetRepository(download, content);
+
+                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
+                        .md5(download.getMd5())
+                        .sha1(download.getSha1())
+                        .sha256(download.getSha256())
+                        .size(download.getSize())
+                        .deployPath(path)
+                        .originUrl(originUrl)
+                        .importDate(Date.from(Instant.now()))
+                        .filename(new File(path).getName())
+                        .identifier(identifier)
+                        .targetRepository(targetRepository);
+
+                Artifact artifact = validateArtifact(artifactBuilder.build());
+                deps.add(artifact);
             }
-
-            String identifier = computeIdentifier(download);
-
-            logger.info("Recording download: {}", identifier);
-
-            String originUrl = download.getOriginUrl();
-            if (originUrl == null) {
-                // this is from a hosted repository, either shared-imports or a build, or something like that.
-                originUrl = download.getLocalUrl();
-            }
-
-            TargetRepository targetRepository = getDownloadsTargetRepository(download, content);
-
-            Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
-                    .md5(download.getMd5())
-                    .sha1(download.getSha1())
-                    .sha256(download.getSha256())
-                    .size(download.getSize())
-                    .deployPath(path)
-                    .originUrl(originUrl)
-                    .importDate(Date.from(Instant.now()))
-                    .filename(new File(path).getName())
-                    .identifier(identifier)
-                    .targetRepository(targetRepository);
-
-            Artifact artifact = validateArtifact(artifactBuilder.build());
-            deps.add(artifact);
         }
         return deps;
     }
@@ -355,14 +352,7 @@ public class IndyRepositorySession implements RepositorySession {
             String path = download.getPath();
             StoreKey source = download.getStoreKey();
             String packageType = source.getPackageType();
-            if (ignoreContent(packageType, path)) {
-                logger.debug("Ignoring download (matched in ignored-suffixes): {} (From: {})", path, source);
-                continue;
-            }
-
-            // If the entry is from a hosted repository (also shared-imports), it shouldn't be auto-promoted.
-            // New binary imports will be coming from a remote repository...
-            if (isExternalOrigin(source)) {
+            if (artifactFilter.acceptsForPromotion(download, true)) {
                 StoreKey target = null;
                 Map<StoreKey, Set<String>> sources = null;
                 Set<String> paths = null;
@@ -376,7 +366,9 @@ public class IndyRepositorySession implements RepositorySession {
                         paths = sources.computeIfAbsent(source, s -> new HashSet<>());
 
                         paths.add(path);
-                        if (MAVEN_PKG_KEY.equals(packageType)) {
+                        if (MAVEN_PKG_KEY.equals(packageType) && !isChecksum(path)) {
+                            // add the standard checksums to ensure, they are promoted (Maven usually uses only one, so
+                            // the other would be missing) but avoid adding checksums of checksums.
                             paths.add(path + ".md5");
                             paths.add(path + ".sha1");
                         }
@@ -400,6 +392,11 @@ public class IndyRepositorySession implements RepositorySession {
         }
 
         return depMap;
+    }
+
+    private boolean isChecksum(String path) {
+        String suffix = StringUtils.substringAfterLast(path, ".");
+        return checksumSuffixes.contains(suffix);
     }
 
     /**
@@ -494,10 +491,10 @@ public class IndyRepositorySession implements RepositorySession {
         String result;
         StoreKey sk = download.getStoreKey();
         String packageType = sk.getPackageType();
-        if (isExternalOrigin(sk)) {
-            result = "/api/" + content.contentPath(new StoreKey(packageType, StoreType.hosted, SHARED_IMPORTS_ID));
-        } else {
+        if (artifactFilter.ignoreDependencySource(sk)) {
             result = "/api/" + content.contentPath(sk);
+        } else {
+            result = "/api/" + content.contentPath(new StoreKey(packageType, StoreType.hosted, SHARED_IMPORTS_ID));
         }
         return result;
     }
@@ -554,59 +551,30 @@ public class IndyRepositorySession implements RepositorySession {
                 .build();
     }
 
-    private boolean isExternalOrigin(StoreKey storeKey) {
-        if (storeKey.getType() == StoreType.hosted) {
-            return false;
-        } else {
-            String repoName = storeKey.getName();
-            List<String> patterns;
-            switch (storeKey.getPackageType()) {
-                case MAVEN_PKG_KEY:
-                    patterns = internalRepoPatterns.getMaven();
-                    break;
-                case NPM_PKG_KEY:
-                    patterns = internalRepoPatterns.getNpm();
-                    break;
-                case GENERIC_PKG_KEY:
-                    patterns = internalRepoPatterns.getGeneric();
-                    break;
-                default:
-                    throw new IllegalArgumentException(
-                            "Package type " + storeKey.getPackageType()
-                                    + " is not supported by Indy repository manager driver.");
-            }
-
-            for (String pattern : patterns) {
-                if (pattern.equals(repoName)) {
-                    return false;
-                }
-
-                if (repoName.matches(pattern)) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-    }
-
     /**
-     * Return output artifacts metadata.
+     * Return list of output artifacts for promotion.
      *
      * @param report The tracking report that contains info about artifacts uploaded (output) from the build
      * @return List of output artifacts meta data
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of
      *         artifacts
      */
-    private List<Artifact> collectUploads(TrackedContentDTO report) throws RepositoryManagerException {
+    private Uploads collectUploads(TrackedContentDTO report) throws RepositoryManagerException {
+
+        List<Artifact> data;
+        List<String> promotion;
 
         logger.info("BEGIN: Process artifacts uploaded from build");
         userLog.info("Processing built artifacts");
         StopWatch stopWatch = StopWatch.createStarted();
 
         Set<TrackedContentEntryDTO> uploads = report.getUploads();
-        if (uploads != null) {
-            List<Artifact> builds = new ArrayList<>();
+        if (CollectionUtils.isEmpty(uploads)) {
+            data = Collections.emptyList();
+            promotion = Collections.emptyList();
+        } else {
+            data = new ArrayList<>();
+            Set<String> promotionSet = new HashSet<>();
 
             IndyContentClientModule content;
             try {
@@ -621,40 +589,45 @@ public class IndyRepositorySession implements RepositorySession {
             for (TrackedContentEntryDTO upload : uploads) {
                 String path = upload.getPath();
                 StoreKey storeKey = upload.getStoreKey();
-                if (ignoreContent(storeKey.getPackageType(), path)) {
-                    logger.debug("Ignoring upload (matched in ignored patterns): {} (From: {})", path, storeKey);
-                    continue;
+
+                if (artifactFilter.acceptsForData(upload)) {
+                    String identifier = computeIdentifier(upload);
+
+                    logger.info("Recording upload: {}", identifier);
+
+                    RepositoryType repoType = toRepoType(storeKey.getPackageType());
+                    TargetRepository targetRepository = getUploadsTargetRepository(repoType, content);
+
+                    ArtifactQuality artifactQuality = getArtifactQuality(isTempBuild);
+                    Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
+                            .md5(upload.getMd5())
+                            .sha1(upload.getSha1())
+                            .sha256(upload.getSha256())
+                            .size(upload.getSize())
+                            .deployPath(upload.getPath())
+                            .filename(new File(path).getName())
+                            .identifier(identifier)
+                            .targetRepository(targetRepository)
+                            .artifactQuality(artifactQuality);
+
+                    Artifact artifact = validateArtifact(artifactBuilder.build());
+                    data.add(artifact);
                 }
 
-                String identifier = computeIdentifier(upload);
-
-                logger.info("Recording upload: {}", identifier);
-
-                RepositoryType repoType = toRepoType(storeKey.getPackageType());
-                TargetRepository targetRepository = getUploadsTargetRepository(repoType, content);
-
-                ArtifactQuality artifactQuality = getArtifactQuality(isTempBuild);
-                Artifact.Builder artifactBuilder = Artifact.Builder.newBuilder()
-                        .md5(upload.getMd5())
-                        .sha1(upload.getSha1())
-                        .sha256(upload.getSha256())
-                        .size(upload.getSize())
-                        .deployPath(upload.getPath())
-                        .filename(new File(path).getName())
-                        .identifier(identifier)
-                        .targetRepository(targetRepository)
-                        .artifactQuality(artifactQuality);
-
-                Artifact artifact = validateArtifact(artifactBuilder.build());
-                builds.add(artifact);
+                if (artifactFilter.acceptsForPromotion(upload, false)) {
+                    promotionSet.add(path);
+                    if (MAVEN_PKG_KEY.equals(storeKey.getPackageType()) && !isChecksum(path)) {
+                        // add the standard checksums to ensure, they are promoted (Maven usually uses only one, so
+                        // the other would be missing) but avoid adding checksums of checksums.
+                        promotionSet.add(path + ".md5");
+                        promotionSet.add(path + ".sha1");
+                    }
+                }
             }
-            logger.info(
-                    "END: Process artifacts uploaded from build, took {} seconds",
-                    stopWatch.getTime(TimeUnit.SECONDS));
-            return builds;
+            promotion = new ArrayList<>(promotionSet);
         }
         logger.info("END: Process artifacts uploaded from build, took {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
-        return Collections.emptyList();
+        return new Uploads(data, promotion);
     }
 
     /**
@@ -837,22 +810,13 @@ public class IndyRepositorySession implements RepositorySession {
      *
      * @param uploads artifacts to be promoted
      */
-    public void promoteToBuildContentSet(List<Artifact> uploads) throws RepositoryManagerException {
+    public void promoteToBuildContentSet(List<String> uploads) throws RepositoryManagerException {
         userLog.info("Validating and promoting built artifacts");
 
         StoreKey source = new StoreKey(packageType, StoreType.hosted, buildContentId);
         StoreKey target = new StoreKey(packageType, StoreType.hosted, buildPromotionTarget);
-        Set<String> paths = new HashSet<>();
 
-        boolean promoteChecksums = MAVEN_PKG_KEY.equals(packageType);
-        for (Artifact a : uploads) {
-            paths.add(a.getDeployPath());
-            if (promoteChecksums) {
-                paths.add(a.getDeployPath() + ".md5");
-                paths.add(a.getDeployPath() + ".sha1");
-            }
-        }
-        PathsPromoteRequest request = new PathsPromoteRequest(source, target, paths);
+        PathsPromoteRequest request = new PathsPromoteRequest(source, target, new HashSet<>(uploads));
 
         doPromoteByPath(request, !isTempBuild, false);
     }
@@ -893,26 +857,6 @@ public class IndyRepositorySession implements RepositorySession {
         return sb.toString();
     }
 
-    private boolean ignoreContent(String packageType, String path) {
-        PatternsList patterns;
-        switch (packageType) {
-            case MAVEN_PKG_KEY:
-                patterns = ignoredPathPatterns.getMavenWithShared();
-                break;
-            case NPM_PKG_KEY:
-                patterns = ignoredPathPatterns.getNpmWithShared();
-                break;
-            case GENERIC_PKG_KEY:
-                patterns = ignoredPathPatterns.getShared();
-                break;
-            default:
-                throw new IllegalArgumentException(
-                        "Package type " + packageType + " is not supported by Indy repository manager driver.");
-        }
-
-        return patterns.matchesOne(path);
-    }
-
     private RepositoryType toRepoType(String packageType) {
         switch (packageType) {
             case MAVEN_PKG_KEY:
@@ -938,5 +882,38 @@ public class IndyRepositorySession implements RepositorySession {
     public void close() {
         IOUtils.closeQuietly(indy);
         IOUtils.closeQuietly(serviceAccountIndy);
+    }
+
+    private class Uploads {
+
+        /** List of artifacts to be stored in DB. */
+        private List<Artifact> data;
+
+        /** List of paths to be promoted. */
+        private List<String> promotion;
+
+        private Uploads(List<Artifact> data, List<String> promotion) {
+            this.data = data;
+            this.promotion = promotion;
+        }
+
+        /**
+         * Gets the list of uploaded artifacts to be stored in DB.
+         *
+         * @return the list
+         */
+        public List<Artifact> getData() {
+            return data;
+        }
+
+        /**
+         * Gets the list of paths for promotion.
+         *
+         * @return the list
+         */
+        public List<String> getPromotion() {
+            return promotion;
+        }
+
     }
 }

@@ -39,7 +39,7 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathPatterns;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
+import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPatterns;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.enums.BuildType;
@@ -99,9 +99,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private String baseUrl;
 
-    private InternalRepoPatterns internalRepoPatterns;
+    private List<String> ignoredRepoPatterns;
 
-    private IgnoredPathPatterns ignoredPathPatterns;
+    private IgnoredPatterns ignoredPathPatternsPromotion;
+
+    private IgnoredPatterns ignoredPathPatternsData;
 
     private BuildRecordRepository buildRecordRepository;
 
@@ -131,23 +133,25 @@ public class RepositoryManagerDriver implements RepositoryManager {
             baseUrl += "/api";
         }
 
-        List<String> constInternalRepoPatterns = new ArrayList<>();
-        constInternalRepoPatterns.add(IndyRepositoryConstants.SHARED_IMPORTS_ID);
-        internalRepoPatterns = new InternalRepoPatterns();
-        internalRepoPatterns.setMaven(constInternalRepoPatterns);
-        internalRepoPatterns.setNpm(new ArrayList<>(constInternalRepoPatterns));
+        ignoredRepoPatterns = config.getIgnoredRepoPatterns();
 
-        InternalRepoPatterns extraInternalRepoPatterns = config.getInternalRepoPatterns();
-        if (extraInternalRepoPatterns != null) {
-            internalRepoPatterns.addMaven(extraInternalRepoPatterns.getMaven());
-            internalRepoPatterns.addNpm(extraInternalRepoPatterns.getNpm());
+        IgnoredPatterns ignoredPathPatternsPromotion = null;
+        IgnoredPatterns ignoredPathPatternsData = null;
+        IgnoredPathPatterns ignoredPathPatterns = config.getIgnoredPathPatterns();
+        if (ignoredPathPatterns != null) {
+            ignoredPathPatternsPromotion = ignoredPathPatterns.getPromotion();
+            ignoredPathPatternsData = ignoredPathPatterns.getData();
         }
 
-        IgnoredPathPatterns ignoredPathPatterns = config.getIgnoredPathPatterns();
-        if (ignoredPathPatterns == null) {
-            this.ignoredPathPatterns = new IgnoredPathPatterns();
+        if (ignoredPathPatternsPromotion == null) {
+            this.ignoredPathPatternsPromotion = new IgnoredPatterns();
         } else {
-            this.ignoredPathPatterns = ignoredPathPatterns; // TODO do we need a copy?
+            this.ignoredPathPatternsPromotion = ignoredPathPatternsPromotion;
+        }
+        if (ignoredPathPatternsData == null) {
+            this.ignoredPathPatternsData = new IgnoredPatterns();
+        } else {
+            this.ignoredPathPatternsData = ignoredPathPatternsData;
         }
     }
 
@@ -238,14 +242,17 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         boolean tempBuild = buildExecution.isTempBuild();
         String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_TARGET : BUILD_PROMOTION_TARGET;
+        ArtifactFilter artifactFilter = new ArtifactFilterImpl(
+                ignoredPathPatternsPromotion,
+                ignoredPathPatternsData,
+                ignoredRepoPatterns);
         return new IndyRepositorySession(
                 indy,
                 serviceAccountIndy,
                 buildId,
                 packageType,
                 new IndyRepositoryConnectionInfo(url, deployUrl),
-                internalRepoPatterns,
-                ignoredPathPatterns,
+                artifactFilter,
                 buildPromotionTarget,
                 tempBuild);
     }
@@ -278,14 +285,17 @@ public class RepositoryManagerDriver implements RepositoryManager {
         String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_TARGET : BUILD_PROMOTION_TARGET;
         String packageType = getIndyPackageTypeKey(buildType.getRepoType());
 
+        ArtifactFilter artifactFilter = new ArtifactFilterImpl(
+                ignoredPathPatternsPromotion,
+                ignoredPathPatternsData,
+                ignoredRepoPatterns);
         IndyRepositorySession session = new IndyRepositorySession(
                 indy,
                 indy,
                 buildContentId,
                 packageType,
                 null,
-                internalRepoPatterns,
-                ignoredPathPatterns,
+                artifactFilter,
                 buildPromotionTarget,
                 tempBuild);
         return session.extractBuildArtifacts(false);

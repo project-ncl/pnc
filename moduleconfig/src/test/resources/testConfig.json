@@ -27,7 +27,9 @@
                     "defaultRequestTimeout": 100,
                     "buildRepositoryAllowSnapshots": true,
                     "ignored-path-patterns": {
-                        "maven": [".*/maven-metadata\\.xml$", ".*\\.sha1$"]
+                        "promotion": {
+                            "maven": [".*/maven-metadata\\.xml$", ".*\\.sha1$"]
+                        }
                     }
                 }
             ]

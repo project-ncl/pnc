@@ -115,7 +115,7 @@ public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest extends Abst
     private void assertAvailableInSharedImports(Indy indy, String content, String path)
             throws IndyClientException, IOException {
         InputStream stream = indy.content().get(new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, SHARED_IMPORTS_ID), path);
-        String downloaded = IOUtils.toString(stream);
+        String downloaded = IOUtils.toString(stream, (String) null);
         assertThat(downloaded, equalTo(content));
     }
 

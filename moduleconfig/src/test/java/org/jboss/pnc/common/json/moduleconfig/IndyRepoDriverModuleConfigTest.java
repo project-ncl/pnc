@@ -46,8 +46,13 @@ public class IndyRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
         assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
         assertEquals(100, mavenConfig.getDefaultRequestTimeout().intValue());
         assertEquals(true, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
-        assertEquals(0, mavenConfig.getIgnoredPathPatterns().getNpm().getPatterns().size());
-        List<Pattern> ignoredPathPatternsMaven = mavenConfig.getIgnoredPathPatterns().getMaven().getPatterns();
+        assertEquals(0, mavenConfig.getIgnoredPathPatterns().getData().getMaven().getPatterns().size());
+        assertEquals(0, mavenConfig.getIgnoredPathPatterns().getData().getNpm().getPatterns().size());
+        assertEquals(0, mavenConfig.getIgnoredPathPatterns().getPromotion().getNpm().getPatterns().size());
+        List<Pattern> ignoredPathPatternsMaven = mavenConfig.getIgnoredPathPatterns()
+                .getPromotion()
+                .getMaven()
+                .getPatterns();
         assertNotNull(ignoredPathPatternsMaven);
         assertEquals(2, ignoredPathPatternsMaven.size());
         List<String> strings = ignoredPathPatternsMaven.stream().map(p -> p.pattern()).collect(Collectors.toList());

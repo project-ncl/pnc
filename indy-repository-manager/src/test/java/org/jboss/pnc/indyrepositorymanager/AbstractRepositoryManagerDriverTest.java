@@ -28,7 +28,6 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ModuleConfigJson;
 import org.jboss.pnc.common.json.PNCModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.InternalRepoPatterns;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
@@ -78,7 +77,7 @@ public class AbstractRepositoryManagerDriverTest {
         File configFile = temp.newFile("pnc-config.json");
         ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
         IndyRepoDriverModuleConfig mavenRepoDriverModuleConfig = new IndyRepoDriverModuleConfig(fixture.getUrl());
-        mavenRepoDriverModuleConfig.setInternalRepoPatterns(getInternalRepoPatterns());
+        mavenRepoDriverModuleConfig.setIgnoredRepoPatterns(getIgnoredRepoPatterns());
         SystemConfig systemConfig = new SystemConfig(
                 "",
                 "",
@@ -124,7 +123,7 @@ public class AbstractRepositoryManagerDriverTest {
         driver = new RepositoryManagerDriver(config, bcRepository);
     }
 
-    protected InternalRepoPatterns getInternalRepoPatterns() {
+    protected List<String> getIgnoredRepoPatterns() {
         return null;
     }
 
@@ -168,7 +167,8 @@ public class AbstractRepositoryManagerDriverTest {
     }
 
     protected String readTestResource(String resource) throws IOException {
-        return IOUtils.toString(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource));
+        return IOUtils
+                .toString(Thread.currentThread().getContextClassLoader().getResourceAsStream(resource), (String) null);
     }
 
     protected void writeConfigFile(String confPath, String contents) throws IOException {
@@ -178,7 +178,7 @@ public class AbstractRepositoryManagerDriverTest {
 
         confFile.getParentFile().mkdirs();
 
-        FileUtils.write(confFile, contents);
+        FileUtils.write(confFile, contents, (String) null);
     }
 
     protected void writeDataFile(String path, String contents) throws IOException {
@@ -188,7 +188,7 @@ public class AbstractRepositoryManagerDriverTest {
         logger.info("Writing data file to: {}\n\n{}\n\n", confFile, contents);
         confFile.getParentFile().mkdirs();
 
-        FileUtils.write(confFile, contents);
+        FileUtils.write(confFile, contents, (String) null);
     }
 
     protected void assertGroupConstituents(Group buildGroup, StoreKey... constituents) {
