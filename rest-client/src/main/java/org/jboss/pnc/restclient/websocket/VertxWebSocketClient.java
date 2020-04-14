@@ -17,14 +17,11 @@
  */
 package org.jboss.pnc.restclient.websocket;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.core.Vertx;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.WebSocket;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
@@ -36,12 +33,13 @@ import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.WebSocket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
@@ -138,7 +136,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     }
 
     private void retryConnection(String webSocketServerUrl) {
-        if (maximumRetries >= numberOfRetries) {
+        if (maximumRetries <= numberOfRetries) {
             RuntimeException exception = new RuntimeException(
                     new ConnectionClosedException(
                             "Exceeded number of automatic retries to WebSocket server! Reason "
@@ -148,8 +146,10 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
             singleNotificationFutures.forEach(future -> future.completeExceptionally(exception));
             throw exception;
         }
-        vertx.setTimer(reconnectDelay, (timerId) -> connectAndReset(webSocketServerUrl));
         numberOfRetries++;
+        log.warn(
+                "WebSocket connection was remotely closed. Trying to reconnect. Number of retries: " + numberOfRetries);
+        vertx.setTimer(reconnectDelay, (timerId) -> connectAndReset(webSocketServerUrl));
         reconnectDelay *= delayMultiplier;
     }
 
