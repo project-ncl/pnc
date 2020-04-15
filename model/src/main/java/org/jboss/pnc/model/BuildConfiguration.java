@@ -173,6 +173,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * The set of build configs upon which this build depends. The build configs contained in dependencies should normally be
      * completed before this build config is executed. Similar to Maven dependencies.
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @NotAudited
     @ManyToMany(cascade = { CascadeType.REFRESH })
     @JoinTable(name = "build_configuration_dep_map", joinColumns = {
