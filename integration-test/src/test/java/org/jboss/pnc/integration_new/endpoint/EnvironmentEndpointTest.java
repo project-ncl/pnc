@@ -74,7 +74,7 @@ public class EnvironmentEndpointTest {
     }
 
     @Test
-    public void testGetSpecificArtifact() throws ClientException {
+    public void testGetSpecificEnvironmnet() throws ClientException {
         EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asAnonymous());
 
         Environment environment = client.getSpecific(environmentId);

@@ -43,6 +43,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.dto.BuildConfiguration;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -202,9 +204,9 @@ public class ProjectEndpointTest {
 
         // when: build config with id 100 (from test imported data) should
         // have 1 buildconfig
-        Project project = client.getSpecific("100");
+        RemoteCollection<BuildConfiguration> project = client.getBuildConfigurations("100");
 
         // then
-        assertThat(project.getBuildConfigs()).isNotNull().hasSize(1);
+        assertThat(project).isNotNull().hasSize(1);
     }
 }

@@ -219,7 +219,7 @@ public class GroupConfigurationEndpointTest {
     }
 
     @Test
-    public void testRemoveBuildConfigFromGroupBuild() throws ClientException {
+    public void testRemoveBuildConfigFromGroupConfig() throws ClientException {
         // with
         GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
         String gcId = "100";
