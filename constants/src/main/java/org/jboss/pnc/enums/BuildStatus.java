@@ -18,6 +18,7 @@
 package org.jboss.pnc.enums;
 
 import java.util.Arrays;
+
 import static org.jboss.pnc.enums.BuildProgress.FINISHED;
 import static org.jboss.pnc.enums.BuildProgress.IN_PROGRESS;
 import static org.jboss.pnc.enums.BuildProgress.PENDING;
@@ -44,6 +45,11 @@ public enum BuildStatus {
      * updates).
      */
     NO_REBUILD_REQUIRED(FINISHED, true),
+
+    /**
+     * A build has been placed in a queue. It will be processed shortly.
+     */
+    ENQUEUED(PENDING),
 
     /**
      * Build is waiting for dependencies to finish
@@ -111,7 +117,8 @@ public enum BuildStatus {
         BuildCoordinationStatus[] failed = { BuildCoordinationStatus.DONE_WITH_ERRORS };
         BuildCoordinationStatus[] cancelled = { BuildCoordinationStatus.CANCELLED };
         BuildCoordinationStatus[] newBuild = { BuildCoordinationStatus.NEW };
-        BuildCoordinationStatus[] building = { BuildCoordinationStatus.ENQUEUED, BuildCoordinationStatus.BUILDING,
+        BuildCoordinationStatus[] enqueued = { BuildCoordinationStatus.ENQUEUED };
+        BuildCoordinationStatus[] building = { BuildCoordinationStatus.BUILDING,
                 BuildCoordinationStatus.BUILD_COMPLETED };
         BuildCoordinationStatus[] waitingForDependencies = { BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES };
         BuildCoordinationStatus[] notRequired = { BuildCoordinationStatus.REJECTED_ALREADY_BUILT };
@@ -126,6 +133,8 @@ public enum BuildStatus {
             return CANCELLED;
         } else if (Arrays.asList(newBuild).contains(buildCoordinationStatus)) {
             return NEW;
+        } else if (Arrays.asList(enqueued).contains(buildCoordinationStatus)) {
+            return ENQUEUED;
         } else if (Arrays.asList(building).contains(buildCoordinationStatus)) {
             return BUILDING;
         } else if (Arrays.asList(waitingForDependencies).contains(buildCoordinationStatus)) {
