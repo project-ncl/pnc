@@ -101,6 +101,7 @@ public enum BuildCoordinationStatus {
         BuildStatus[] rejectedFailedDependencies = { BuildStatus.REJECTED_FAILED_DEPENDENCIES };
         BuildStatus[] cancelled = { BuildStatus.CANCELLED };
         BuildStatus[] newBuild = { BuildStatus.NEW };
+        BuildStatus[] enqueued = { BuildStatus.ENQUEUED };
         BuildStatus[] building = { BuildStatus.BUILDING };
         BuildStatus[] waitingForDependencies = { BuildStatus.WAITING_FOR_DEPENDENCIES };
         BuildStatus[] notRequired = { BuildStatus.NO_REBUILD_REQUIRED };
@@ -115,6 +116,8 @@ public enum BuildCoordinationStatus {
             return REJECTED_FAILED_DEPENDENCIES;
         } else if (Arrays.asList(newBuild).contains(buildStatus)) {
             return NEW;
+        } else if (Arrays.asList(enqueued).contains(buildStatus)) {
+            return ENQUEUED;
         } else if (Arrays.asList(building).contains(buildStatus)) {
             return BUILDING;
         } else if (Arrays.asList(waitingForDependencies).contains(buildStatus)) {
