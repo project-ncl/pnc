@@ -19,11 +19,11 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -37,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -138,7 +137,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         };
 
         // when
-        BuildSetTask buildSetTask = buildProjects(configurationSet, coordinator, onStatusUpdate, 1);
+        BuildSetTask buildSetTask = buildProjects(configurationSet, coordinator, onStatusUpdate, 2);
 
         // expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
@@ -176,10 +175,12 @@ public class CancelledBuildTest extends ProjectBuilder {
                     break;
                 case 2:
                     assertStatusUpdateReceived(receivedStatuses, BuildStatus.WAITING_FOR_DEPENDENCIES, buildTaskId);
+                    assertStatusUpdateReceived(receivedStatuses, BuildStatus.ENQUEUED, buildTaskId);
                     assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
                     assertStatusUpdateReceived(receivedStatuses, BuildStatus.CANCELLED, buildTaskId);
                     break;
                 case 3:
+                    assertStatusUpdateReceived(receivedStatuses, BuildStatus.ENQUEUED, buildTaskId);
                     assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
                     assertStatusUpdateReceived(receivedStatuses, BuildStatus.SUCCESS, buildTaskId);
                     break;
