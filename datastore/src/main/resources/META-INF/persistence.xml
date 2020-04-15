@@ -41,11 +41,12 @@
 
           <!-- Configure batches to improve performance when doing bulk inserts and updates.
                Do not exceed with the size because when an entity is persisted, Hibernate stores it in the persistence context (in memory) before flushing.
+          -->
           <property name="hibernate.jdbc.batch_size" value="50"/>
           <property name="hibernate.order_inserts" value="true"/>
           <property name="hibernate.order_updates" value="true"/>
           <property name="hibernate.batch_versioned_data" value="true"/>
-          -->
+
           <!--
               Infinispan second level cache (default Wildfly settings are
               https://infinispan.org/docs/stable/titles/integrating/integrating.html#default_local_configuration_second_level):
