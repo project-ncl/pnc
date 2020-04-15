@@ -24,8 +24,6 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.AbstractTest;
-import org.jboss.pnc.common.concurrent.MDCExecutors;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration.client.BuildConfigSetRecordRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
@@ -35,21 +33,16 @@ import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
-import org.jboss.pnc.integration.template.JsonTemplateBuilder;
-import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
 import org.jboss.pnc.rest.provider.BuildConfigurationSetProvider;
-import org.jboss.pnc.rest.restmodel.BuildConfigSetRecordRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationSetRest;
-import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -57,15 +50,9 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
@@ -79,20 +66,11 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/%d";
-    private static final String BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT = "/pnc-rest/rest/product-versions/%d/build-configuration-sets";
-    private static final String BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT = "/pnc-rest/rest/build-configuration-sets/%d/build-configurations";
-
-    private static final String BUILD_CONFIGURATION_SET_NAME = "Rest Test Build Config Set 1";
-    private static final String BUILD_CONFIGURATION_SET_NAME_UPDATED = "Rest Test Build Config Set 1 Updated";
-
     private static int productId;
     private static String productVersionName;
     private static int productVersionId;
     private static String buildConfName;
     private static int buildConfId;
-    private static int buildConfId2;
-    private static int newBuildConfSetId;
 
     private static boolean setupComplete = false;
     private static BuildConfigurationSetRest bcSetRest1;
@@ -206,217 +184,12 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
                 .get(CONFIGURATION_REST_ENDPOINT);
         ResponseAssertion.assertThat(responseBuildConf).hasStatus(200);
         buildConfId = responseBuildConf.body().jsonPath().getInt(FIRST_CONTENT_ID);
-        buildConfId2 = responseBuildConf.body().jsonPath().getInt("content[1].id");
         buildConfName = responseBuildConf.body().jsonPath().getString("content[0].name");
 
         logger.info("productVersionId: {} ", productVersionId);
         logger.info("productVersionName: {} ", productVersionName);
         logger.info("buildRecordId: {} ", buildConfId);
         logger.info("buildRecordName: {} ", buildConfName);
-    }
-
-    @Test
-    @InSequence(1)
-    public void testCreateNewBuildConfSet() throws IOException {
-        JsonTemplateBuilder buildConfSetTemplate = JsonTemplateBuilder.fromResource("buildConfigurationSet_template");
-        buildConfSetTemplate.addValue("_name", BUILD_CONFIGURATION_SET_NAME);
-        buildConfSetTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
-        buildConfSetTemplate.addValue("_buildRecordIds", String.valueOf(buildConfId));
-
-        Response response = given().headers(testHeaders)
-                .body(buildConfSetTemplate.fillTemplate())
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .when()
-                .post(BuildConfigurationSetRestClient.BUILD_CONFIGURATION_SET_REST_ENDPOINT);
-
-        ResponseAssertion.assertThat(response)
-                .hasStatus(201)
-                .hasLocationMatches(".*\\/pnc-rest\\/rest\\/build-configuration-sets\\/\\d+");
-
-        String location = response.getHeader("Location");
-        newBuildConfSetId = Integer.valueOf(location.substring(location.lastIndexOf("/") + 1));
-        logger.info("Created id of BuildConfigurationSet: " + newBuildConfSetId);
-    }
-
-    @Test
-    @InSequence(2)
-    public void testUpdateBuildConfigurationSet() throws IOException {
-
-        JsonTemplateBuilder buildConfSetTemplate = JsonTemplateBuilder.fromResource("buildConfigurationSet_template");
-        buildConfSetTemplate.addValue("_name", BUILD_CONFIGURATION_SET_NAME_UPDATED);
-        buildConfSetTemplate.addValue("_productVersionId", String.valueOf(productVersionId));
-        buildConfSetTemplate.addValue("_buildRecordIds", String.valueOf(buildConfId));
-
-        Response response = given().headers(testHeaders)
-                .body(buildConfSetTemplate.fillTemplate())
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .when()
-                .put(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
-
-        ResponseAssertion.assertThat(response).hasStatus(200);
-    }
-
-    @Test
-    @InSequence(2)
-    public void testGetBuildConfigurationSets() {
-
-        Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .when()
-                .get(BuildConfigurationSetRestClient.BUILD_CONFIGURATION_SET_REST_ENDPOINT);
-        ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty("content[0]");
-    }
-
-    @Test
-    @InSequence(3)
-    public void testGetSpecificBuildRecordSet() {
-
-        Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .when()
-                .get(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
-
-        ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual(CONTENT_NAME, BUILD_CONFIGURATION_SET_NAME_UPDATED);
-    }
-
-    @Test
-    @InSequence(4)
-    public void testGetBuildConfigurationsForProductVersion() {
-
-        Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .when()
-                .get(String.format(BUILD_CONFIGURATION_SET_PRODUCT_VERSION_REST_ENDPOINT, productVersionId));
-
-        ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueNotNullOrEmpty(FIRST_CONTENT_ID);
-    }
-
-    @Test
-    @InSequence(4)
-    public void testAddBuildConfigurationToBuildConfigurationSet() {
-        JSONObject buildConfig = new JSONObject();
-        buildConfig.put("id", buildConfId2);
-
-        Response response = given().headers(testHeaders)
-                .body(buildConfig.toString())
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .when()
-                .post(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId));
-
-        ResponseAssertion.assertThat(response).hasStatus(200);
-    }
-
-    /**
-     * reproducer for NCL-3552
-     */
-    @Test
-    @InSequence(5)
-    public void testConcurrentGet() {
-        ExecutorService executorService = MDCExecutors.newFixedThreadPool(2);
-
-        Map<Integer, Response> responseMap = new HashMap<>();
-
-        String endpointUrl = String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId);
-        executorService.execute(() -> {
-            logger.info("Making 1st request ...");
-            Response response = given().headers(testHeaders)
-                    .contentType(ContentType.JSON)
-                    .port(getHttpPort())
-                    .when()
-                    .get(endpointUrl);
-            logger.info("1st done.");
-            responseMap.put(1, response);
-        });
-
-        executorService.execute(() -> {
-            logger.info("Making 2nd request ...");
-            Response response = given().headers(testHeaders)
-                    .contentType(ContentType.JSON)
-                    .port(getHttpPort())
-                    .when()
-                    .get(endpointUrl);
-            logger.info("2nd done.");
-            responseMap.put(2, response);
-        });
-
-        // Wait for all the threads to gracefully shutdown
-        try {
-            executorService.awaitTermination(10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            executorService.shutdownNow();
-            throw new AssertionError("Requests were not completed in given timeout.", e);
-        }
-
-        ResponseAssertion.assertThat(responseMap.get(1)).as("First response.").hasStatus(200);
-        ResponseAssertion.assertThat(responseMap.get(2)).as("Second response.").hasStatus(200);
-    }
-
-    @Test
-    @InSequence(6)
-    public void testRemoveBuildConfigurationToBuildConfigurationSet() {
-
-        Response response = given().headers(testHeaders)
-                .port(getHttpPort())
-                .when()
-                .delete(
-                        String.format(
-                                BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT + "/%d",
-                                newBuildConfSetId,
-                                buildConfId2));
-
-        ResponseAssertion.assertThat(response).hasStatus(200);
-    }
-
-    @Test
-    @InSequence(7)
-    public void testGetBuildConfigurationsForBuildConfigurationSet() {
-
-        Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .when()
-                .get(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, newBuildConfSetId));
-
-        ResponseAssertion.assertThat(response).hasStatus(200);
-        ResponseAssertion.assertThat(response).hasJsonValueEqual(FIRST_CONTENT_ID, buildConfId);
-    }
-
-    @Test
-    @InSequence(8)
-    public void testDeleteBuildConfigurationSet() {
-
-        Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .when()
-                .delete(String.format(BUILD_CONFIGURATION_SET_SPECIFIC_REST_ENDPOINT, newBuildConfSetId));
-
-        ResponseAssertion.assertThat(response).hasStatus(200);
-    }
-
-    @Test
-    public void testIfCreatingNewBuildConfigurationSetFailsBecauseTheNameAlreadyExists() throws Exception {
-        // given
-        BuildConfigurationSetRest project = new BuildConfigurationSetRest();
-        project.setName(UUID.randomUUID().toString());
-
-        // when
-        RestResponse<BuildConfigurationSetRest> firstResponse = buildConfigurationSetRestClient.createNew(project);
-        RestResponse<BuildConfigurationSetRest> secondResponse = buildConfigurationSetRestClient
-                .createNew(project, false);
-
-        // than
-        assertThat(firstResponse.hasValue()).isEqualTo(true);
-        assertThat(secondResponse.getRestCallResponse().getStatusCode()).isEqualTo(409);
     }
 
     @Test
@@ -448,55 +221,4 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         assertThat(response.getValue()).isNullOrEmpty();
     }
 
-    @Test
-    @InSequence(1)
-    public void testIfBuildConfigSetIsArchived() throws Exception {
-        // when
-        userRestClient.getLoggedUser(); // initialize user
-        BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setRebuildMode(RebuildMode.FORCE);
-        RestResponse<BuildConfigSetRecordRest> buildResponse = buildConfigurationSetRestClient
-                .trigger(bcSetRest2.getId(), buildOptions);
-        Integer buildRecordSetId = ResponseUtils.getIdFromLocationHeader(buildResponse.getRestCallResponse());
-
-        assertThat(buildResponse.getRestCallResponse().getStatusCode()).isEqualTo(200);
-        assertThat(buildRecordSetId).isNotNull();
-
-        // wait until build is done
-        ResponseUtils.waitSynchronouslyFor(
-                () -> buildConfigSetRecordRestClient.get(buildRecordSetId, false).hasValue(),
-                15,
-                TimeUnit.SECONDS);
-        // deleting the Set should turn out in archival of it
-        buildConfigurationSetRestClient.delete(bcSetRest2.getId(), true);
-
-        // then
-        RestResponse<BuildConfigurationSetRest> archivedBCS = buildConfigurationSetRestClient
-                .get(bcSetRest2.getId(), true);
-        assertThat(archivedBCS.hasValue()).isTrue();
-        assertThat(archivedBCS.getValue().isArchived()).isTrue();
-    }
-
-    @Test
-    @InSequence(2)
-    public void testIfLinksOfArchivedBuildConfigSetAreDeleted() throws Exception {
-        Response response = given().headers(testHeaders)
-                .contentType(ContentType.JSON)
-                .port(getHttpPort())
-                .when()
-                .get(String.format(BUILD_CONFIGURATION_SET_CONFIGURATIONS_REST_ENDPOINT, bcSetRest2.getId()));
-
-        // 204 = success but no content
-        ResponseAssertion.assertThat(response).hasStatus(204);
-    }
-
-    @Test
-    @InSequence(3)
-    public void testReconstructingOfArchivedBuildConfigSet() throws Exception {
-        RestResponse<BuildConfigurationSetRest> reconstructedBCS = buildConfigurationSetRestClient
-                .get(bcSetRest2.getId(), true);
-
-        assertThat(reconstructedBCS.hasValue()).isTrue();
-        assertThat(reconstructedBCS.getValue().getBuildConfigurationIds()).contains(bcRest2.getId());
-    }
 }

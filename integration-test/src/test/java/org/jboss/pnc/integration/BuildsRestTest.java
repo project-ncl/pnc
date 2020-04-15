@@ -127,19 +127,6 @@ public class BuildsRestTest {
     }
 
     @Test
-    public void shouldGetAllArchivedBuildRecords() throws Exception {
-        // given
-        buildCoordinatorMock.addActiveTask(mockBuildTask());
-        buildCoordinatorMock.addActiveTask(mockBuildTask());
-
-        // when
-        RestResponse<List<BuildRecordRest>> all = buildRestClient.all();
-
-        // then
-        assertThat(all.getValue()).hasSize(6);
-    }
-
-    @Test
     public void shouldSortResults() throws Exception {
         // given
         String sort = "=desc=id";

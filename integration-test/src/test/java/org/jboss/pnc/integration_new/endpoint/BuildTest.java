@@ -106,7 +106,7 @@ public class BuildTest {
     }
 
     @Test
-    public void shouldTriggerBuildSetAndFinishWithoutProblems() throws ClientException {
+    public void shouldTriggerGroupBuildAndFinishWithoutProblems() throws ClientException {
         // given
         GroupConfiguration buildConfigurationSet = groupConfigurationClient.getAll().iterator().next();
 
@@ -129,7 +129,7 @@ public class BuildTest {
     }
 
     @Test
-    public void shouldTriggerBuildSetWithBCInRevisionAndFinishWithoutProblems() throws ClientException {
+    public void shouldTriggerGroupBuildWithBCInRevisionAndFinishWithoutProblems() throws ClientException {
         // given
         GroupConfiguration groupConfiguration = groupConfigurationClient.getAll().iterator().next();
         assertThat(groupConfiguration.getBuildConfigs()).isNotEmpty();
