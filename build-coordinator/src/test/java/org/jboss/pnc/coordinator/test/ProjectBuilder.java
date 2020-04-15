@@ -19,7 +19,9 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
@@ -27,16 +29,14 @@ import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -68,8 +67,8 @@ public class ProjectBuilder {
     private static final Logger log = LoggerFactory.getLogger(ProjectBuilder.class);
 
     private static final int BUILD_SET_STATUS_UPDATES = 2;
-    public static final int N_STATUS_UPDATES_PER_TASK = 2;
-    public static final int N_STATUS_UPDATES_PER_TASK_WITH_DEPENDENCIES = 3; // additional WAITING_FOR_DEPENDENCIES
+    public static final int N_STATUS_UPDATES_PER_TASK = 3;
+    public static final int N_STATUS_UPDATES_PER_TASK_WITH_DEPENDENCIES = 4; // additional WAITING_FOR_DEPENDENCIES
     public static final int N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS = 2; // only REJECTED_FAILED_DEPENDENCIES
                                                                                    // and WAITING_FOR_DEPENDENCIES
 
@@ -347,6 +346,7 @@ public class ProjectBuilder {
     }
 
     private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.ENQUEUED, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.SUCCESS, buildTaskId);
     }
@@ -354,6 +354,7 @@ public class ProjectBuilder {
     private void assertAllStatusUpdateReceivedForFailedBuild(
             List<BuildStatusChangedEvent> receivedStatuses,
             Integer buildTaskId) {
+        assertStatusUpdateReceived(receivedStatuses, BuildStatus.ENQUEUED, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.FAILED, buildTaskId);
     }
