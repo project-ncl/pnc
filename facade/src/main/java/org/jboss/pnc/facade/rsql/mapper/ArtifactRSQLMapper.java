@@ -39,6 +39,8 @@ public class ArtifactRSQLMapper extends AbstractRSQLMapper<Integer, Artifact> {
         switch (name) {
             case "targetRepository":
                 return Artifact_.targetRepository;
+            case "build":
+                return Artifact_.buildRecord;
             default:
                 return null;
         }
