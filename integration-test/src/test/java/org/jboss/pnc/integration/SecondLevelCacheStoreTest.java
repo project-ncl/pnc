@@ -114,13 +114,13 @@ public class SecondLevelCacheStoreTest {
                 .systemImageRepositoryUrl("docker-registry-default.cloud.registry.upshift.redhat.com")
                 .systemImageId("newcastle/builder-rhel-7-j8-mvn3.5.2:latest").attribute("MAVEN", "3.5.2")
                 .attribute("JDK", "1.8.0").attribute("OS", "Linux").deprecated(false).build();
-        BuildEnvironment buildEnvironmentDepBC = BuildEnvironment.Builder.newBuilder().name("Demo Environment 1 New")
-                .description("Basic Java and Maven Environment").systemImageType(SystemImageType.DOCKER_IMAGE)
-                .systemImageRepositoryUrl("my.registry/newcastle").systemImageId("12345678").attribute("JDK", "1.7.0")
-                .attribute("OS", "Linux").deprecated(false).build();
+//        BuildEnvironment buildEnvironmentDepBC = BuildEnvironment.Builder.newBuilder().name("Demo Environment 1 New")
+//                .description("Basic Java and Maven Environment").systemImageType(SystemImageType.DOCKER_IMAGE)
+//                .systemImageRepositoryUrl("my.registry/newcastle").systemImageId("12345678").attribute("JDK", "1.7.0")
+//                .attribute("OS", "Linux").deprecated(false).build();
 
         buildEnvironmentBC = environmentRepository.save(buildEnvironmentBC);
-        buildEnvironmentDepBC = environmentRepository.save(buildEnvironmentDepBC);
+//        buildEnvironmentDepBC = environmentRepository.save(buildEnvironmentDepBC);
 
         RepositoryConfiguration repositoryConfigurationBC = RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl("git+ssh://code.stage.engineering.redhat.com/project-ncl/dependency-analysis-new.git")
@@ -166,7 +166,7 @@ public class SecondLevelCacheStoreTest {
         productVersionBC.setCurrentProductMilestone(currentProductMilestone);
         productVersionBC = productVersionRepository.save(productVersionBC);
 
-        BuildConfiguration dependencyBC = BuildConfiguration.Builder.newBuilder().buildEnvironment(buildEnvironmentDepBC)
+        BuildConfiguration dependencyBC = BuildConfiguration.Builder.newBuilder().buildEnvironment(buildEnvironmentBC)
                 .project(projectDepBC).repositoryConfiguration(repositoryConfigurationDepBC).name("pnc-1.0.0.DR1-new")
                 .description("Test build config for project newcastle").buildScript("mvn clean deploy -DskipTests=true")
                 .scmRevision("*/v0.2").buildType(BuildType.MVN).productVersion(productVersionBC).build();
