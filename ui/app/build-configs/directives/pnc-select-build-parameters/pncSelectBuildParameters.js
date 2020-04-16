@@ -26,10 +26,10 @@
       buildType: '<'
     },
     templateUrl: 'build-configs/directives/pnc-select-build-parameters/pnc-select-build-parameters.html',
-    controller: ['$scope', '$log', 'utils', 'BuildConfiguration', 'BuildConfigResource', Controller]
+    controller: ['$scope', '$log', 'utils', 'BuildConfigResource', Controller]
   });
 
-  function Controller($scope, $log, utils, BuildConfiguration, BuildConfigResource) {
+  function Controller($scope, $log, utils, BuildConfigResource) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -47,7 +47,7 @@
 
     $ctrl.$onInit = function () {
 
-      $ctrl.knownKeys = BuildConfiguration.getSupportedGenericParameters().then(function (params) {
+      $ctrl.knownKeys = BuildConfigResource.getSupportedGenericParameters().then(function (params) {
         return formatSupportedParams(params);
       });
 

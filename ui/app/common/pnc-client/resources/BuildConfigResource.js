@@ -93,6 +93,13 @@
         });
       };
 
+
+      resource.getSupportedGenericParameters = function() {
+        return $http.get(restConfig.getPncRestUrl() + '/build-configs/supported-parameters').then(function (r) {
+          return r.data;
+        });
+      };
+
       patchHelper.assignPatchMethods(resource);
 
       return resource;
