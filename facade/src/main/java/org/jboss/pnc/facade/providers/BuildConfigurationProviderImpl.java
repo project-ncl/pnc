@@ -235,7 +235,7 @@ public class BuildConfigurationProviderImpl
         }
 
         org.jboss.pnc.model.BuildConfiguration bcEntity = mapper.toEntity(buildConfiguration);
-        if (equalValues(latestRevision, bcEntity)) {
+        if (BuildConfigRevisionHelper.equalValues(latestRevision, bcEntity)) {
             return buildConfigurationRevisionMapper.toDTO(latestRevision);
         }
         bcEntity.setCreationTime(latestRevision.getCreationTime());
@@ -392,26 +392,6 @@ public class BuildConfigurationProviderImpl
         BuildConfigurationAudited auditedBuildConfig = buildConfigurationAuditedRepository.queryById(idRev);
 
         return buildConfigurationRevisionMapper.toDTO(auditedBuildConfig);
-    }
-
-    private boolean equalValues(BuildConfigurationAudited audited, org.jboss.pnc.model.BuildConfiguration query) {
-
-        return audited.getName().equals(query.getName())
-                && Objects.equals(audited.getBuildScript(), query.getBuildScript())
-                && equalsId(audited.getRepositoryConfiguration(), query.getRepositoryConfiguration())
-                && Objects.equals(audited.getScmRevision(), query.getScmRevision())
-                && equalsId(audited.getProject(), query.getProject())
-                && equalsId(audited.getBuildEnvironment(), query.getBuildEnvironment())
-                && audited.getGenericParameters().equals(query.getGenericParameters());
-    }
-
-    private boolean equalsId(GenericEntity<Integer> dbEntity, GenericEntity<Integer> query) {
-
-        if (dbEntity == null || query == null) {
-            return dbEntity == query;
-        }
-
-        return dbEntity.getId().equals(query.getId());
     }
 
     @Override

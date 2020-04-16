@@ -68,7 +68,7 @@ public class BuildConfigRevisionHelper {
                                         + "BuildConfiguration to be stored: " + bcEntity));
     }
 
-    private boolean equalValues(BuildConfigurationAudited audited, BuildConfiguration query) {
+    public static boolean equalValues(BuildConfigurationAudited audited, BuildConfiguration query) {
         return audited.getName().equals(query.getName())
                 && Objects.equals(audited.getBuildScript(), query.getBuildScript())
                 && equalsId(audited.getRepositoryConfiguration(), query.getRepositoryConfiguration())
@@ -78,7 +78,7 @@ public class BuildConfigRevisionHelper {
                 && audited.getGenericParameters().equals(query.getGenericParameters());
     }
 
-    private boolean equalsId(GenericEntity<Integer> dbEntity, GenericEntity<Integer> query) {
+    private static boolean equalsId(GenericEntity<Integer> dbEntity, GenericEntity<Integer> query) {
         if (dbEntity == null || query == null) {
             return dbEntity == query;
         }
