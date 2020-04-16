@@ -36,6 +36,19 @@
         return date.getTime();
       },
 
+      convertToUTCNoon: function(date) {
+        if (!date) {
+          return null;
+        }
+
+        // change from midnight to noon
+        date.setUTCHours(12);
+        date.setUTCMinutes(0);
+        date.setUTCSeconds(0);
+
+        return date;
+      },
+
       initDatePicker: function(scope) {
         scope.opened = [];
         scope.today = function () {
