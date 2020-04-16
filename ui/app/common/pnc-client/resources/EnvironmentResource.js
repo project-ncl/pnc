@@ -26,7 +26,7 @@
    *
    * @author Alex Creasy
    */
-  module.factory('Environment', [
+  module.factory('EnvironmentResource', [
     '$resource',
     'restConfig',
     'ENVIRONMENT_PATH',
