@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.endpoints;
 
 import com.google.common.collect.Lists;
-import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.Build;
@@ -40,8 +39,6 @@ import org.jboss.pnc.rest.api.parameters.ProductMilestoneReleaseParameters;
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
@@ -56,12 +53,6 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
     private BuildProvider buildProvider;
-
-    @Inject
-    private AuthenticationProvider authenticationProvider;
-
-    @Context
-    private HttpServletRequest httpServletRequest;
 
     private EndpointHelper<Integer, ProductMilestone, ProductMilestoneRef> endpointHelper;
 

@@ -36,6 +36,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.jboss.pnc.facade.util.UserService;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +45,9 @@ public class UserProviderImplTest extends AbstractProviderTest<User> {
 
     @Mock
     private UserRepository repository;
+
+    @Mock
+    private UserService service;
 
     @InjectMocks
     private UserProviderImpl provider;
@@ -72,31 +76,18 @@ public class UserProviderImplTest extends AbstractProviderTest<User> {
     }
 
     @Test
-    public void testGetExistingUser() {
+    public void testGetCurrentUser() {
         // Prepare
         User user = repositoryList.get(0);
 
-        when(repository.queryByPredicates(any(Predicate.class))).thenAnswer(inv -> user);
+        when(service.currentUser()).thenAnswer(inv -> user);
 
         // When
-        org.jboss.pnc.dto.User userDTO = provider.getOrCreateNewUser(user.getUsername());
+        org.jboss.pnc.dto.User userDTO = provider.getCurrentUser();
 
         // then
         assertThat(userDTO.getId()).isEqualTo(user.getId().toString());
         assertThat(userDTO.getUsername()).isEqualTo(user.getUsername());
-    }
-
-    @Test
-    public void testGetNewUser() {
-
-        when(repository.queryByPredicates(any(Predicate.class))).thenAnswer(inv -> null);
-        String username = "test";
-
-        // When
-        org.jboss.pnc.dto.User userDTO = provider.getOrCreateNewUser(username);
-
-        // then
-        assertThat(userDTO.getUsername()).isEqualTo(username);
     }
 
     @Test

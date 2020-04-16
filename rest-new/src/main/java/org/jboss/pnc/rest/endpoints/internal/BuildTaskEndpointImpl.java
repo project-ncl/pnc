@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.AuthenticationProviderFactory;
-import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
@@ -65,9 +62,6 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
     @Inject
     private BuildExecutorTriggerer buildExecutorTriggerer;
-
-    @Inject
-    private AuthenticationProviderFactory authenticationProviderFactory;
 
     @Inject
     Configuration configuration;
@@ -153,9 +147,6 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                     buildExecutionConfiguration.getId(),
                     request.getRemoteAddr());
 
-            AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
-            LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
-
             boolean temporaryBuild = buildExecutionConfiguration.isTempBuild();
             MDCUtils.addBuildContext(
                     buildExecutionConfiguration.getBuildContentId(),
@@ -172,7 +163,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(
                     buildExecutionConfiguration.toBuildExecutionConfiguration(),
                     callbackUrl,
-                    loginInUser.getTokenString());
+                    userService.currentUserToken());
 
             UIModuleConfig uiModuleConfig = configuration
                     .getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
@@ -192,8 +183,6 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     public Response build(BuildExecutionConfigurationWithCallbackRest buildExecutionConfiguration) {
         try {
             String callbackUrl = buildExecutionConfiguration.getCompletionCallbackUrl();
-            AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
-            LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
 
             boolean temporaryBuild = buildExecutionConfiguration.isTempBuild();
             MDCUtils.addBuildContext(
@@ -211,7 +200,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             BuildExecutionSession buildExecutionSession = buildExecutorTriggerer.executeBuild(
                     buildExecutionConfiguration.toBuildExecutionConfiguration(),
                     callbackUrl,
-                    loginInUser.getTokenString());
+                    userService.currentUserToken());
 
             UIModuleConfig uiModuleConfig = configuration
                     .getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
@@ -235,13 +224,10 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                 buildExecutionConfigurationId,
                 request.getRemoteAddr());
 
-        AuthenticationProvider authenticationProvider = authenticationProviderFactory.getProvider();
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(request);
-
         try {
 
             Optional<BuildTaskContext> mdcMeta = buildExecutorTriggerer
-                    .getMdcMeta(buildExecutionConfigurationId, loginInUser.getUserName());
+                    .getMdcMeta(buildExecutionConfigurationId, userService.currentUsername());
 
             if (mdcMeta.isPresent()) {
                 MDCUtils.addContext(mdcMeta.get());
