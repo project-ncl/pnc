@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.Page;
@@ -31,28 +29,19 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
 
 @Stateless
 public class UserEndpointImpl implements UserEndpoint {
 
-    @Context
-    private HttpServletRequest httpServletRequest;
-
     @Inject
     private UserProvider userProvider;
-
-    @Inject
-    private AuthenticationProvider authenticationProvider;
 
     @Inject
     private BuildProvider buildProvider;
 
     @Override
     public User getCurrentUser() {
-        LoggedInUser loginInUser = authenticationProvider.getLoggedInUser(httpServletRequest);
-        return userProvider.getOrCreateNewUser(loginInUser.getUserName());
+        return userProvider.getCurrentUser();
     }
 
     @Override

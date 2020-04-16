@@ -27,8 +27,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
-import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
+import org.jboss.pnc.facade.util.UserService;
 
 @PermitAll
 @Stateless
@@ -37,25 +36,17 @@ public class UserProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.model.
 
     private static final Logger log = LoggerFactory.getLogger(UserProviderImpl.class);
 
+    private final UserService userService;
+
     @Inject
-    public UserProviderImpl(UserRepository repository, UserMapper mapper) {
+    public UserProviderImpl(UserRepository repository, UserMapper mapper, UserService userService) {
         super(repository, mapper, org.jboss.pnc.model.User.class);
+        this.userService = userService;
     }
 
     @Override
-    public User getOrCreateNewUser(String username) {
-
-        User currentUser = mapper.toDTO(repository.queryByPredicates(withUserName(username)));
-
-        if (currentUser == null) {
-
-            log.debug("Adding new user '{}' in database", username);
-            currentUser = User.builder().username(username).build();
-            // get the updated currentUser DTO with id
-            currentUser = store(currentUser);
-        }
-
-        return currentUser;
+    public User getCurrentUser() {
+        return mapper.toDTO(userService.currentUser());
     }
 
     /**

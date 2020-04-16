@@ -20,10 +20,15 @@ package org.jboss.pnc.facade.util;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.lang.StringUtils;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.LoggedInUser;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.restmodel.UserRest;
+import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
@@ -54,22 +59,47 @@ public class UserService {
         return currentUser.getTokenString();
     }
 
+    public String currentUsername() {
+        logger.trace("Getting current user token using authenticationProvider: {}.", authenticationProvider.getId());
+        LoggedInUser currentUser = authenticationProvider.getLoggedInUser(httpServletRequest);
+        logger.trace("LoggedInUser: {}.", currentUser);
+        return currentUser.getUserName();
+    }
+
     public User currentUser() {
         logger.trace("Getting current user using authenticationProvider: {}.", authenticationProvider.getId());
         LoggedInUser currentUser = authenticationProvider.getLoggedInUser(httpServletRequest);
         logger.trace("LoggedInUser: {}.", currentUser);
         String username = currentUser.getUserName();
 
-        User user = null;
-        if (StringUtils.isNotEmpty(username)) {
-            user = repository.queryByPredicates(withUserName(username));
-            if (user != null) {
-                user.setLoginToken(currentUser.getTokenString());
-            } else {
-                throw new IllegalStateException("User not in database: Login in UI to create user.");
+        if (StringUtils.isEmpty(username)) {
+            return null;
+        }
+
+        User user = getOrCreate(currentUser, username);
+        user.setLoginToken(currentUser.getTokenString());
+        logger.trace("Returning user: {}.", user);
+        return user;
+    }
+
+    private User getOrCreate(LoggedInUser loggedInUser, String username) {
+        User user = repository.queryByPredicates(withUserName(username));
+        if (user == null) {
+            logger.debug("User not in database yet, creating new user: {}.", loggedInUser);
+            String syncObject = username.intern();
+            synchronized (syncObject) {
+                user = repository.queryByPredicates(withUserName(username));
+                if (user == null) {
+                    user = User.Builder.newBuilder()
+                            .username(username)
+                            .firstName(loggedInUser.getFirstName())
+                            .lastName(loggedInUser.getLastName())
+                            .email(loggedInUser.getEmail())
+                            .build();
+                    repository.save(user);
+                }
             }
         }
-        logger.trace("Returning user: {}.", user);
         return user;
     }
 }

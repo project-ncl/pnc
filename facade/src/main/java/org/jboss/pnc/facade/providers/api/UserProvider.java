@@ -21,5 +21,5 @@ import org.jboss.pnc.dto.User;
 
 public interface UserProvider extends Provider<Integer, org.jboss.pnc.model.User, User, User> {
 
-    User getOrCreateNewUser(String username);
+    User getCurrentUser();
 }
