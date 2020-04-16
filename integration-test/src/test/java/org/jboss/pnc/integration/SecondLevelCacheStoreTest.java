@@ -93,7 +93,7 @@ public class SecondLevelCacheStoreTest extends AbstractTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
         WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
-        restWar.addClass(DatastoreTest.class);
+        restWar.addClass(SecondLevelCacheStoreTest.class);
 
         JavaArchive pncModel = enterpriseArchive.getAsType(JavaArchive.class, "/model.jar");
         pncModel.addPackage(BuildConfiguration.class.getPackage());
