@@ -109,12 +109,12 @@ public class SecondLevelCacheStoreTest {
     @InSequence(-2)
     public void prepareData() throws Exception {
 
-        BuildEnvironment buildEnvironmentBC = BuildEnvironment.Builder.newBuilder().name("OpenJDK 1.8.0; Mvn 3.5.2")
+        BuildEnvironment buildEnvironmentBC = BuildEnvironment.Builder.newBuilder().name("OpenJDK 1.8.0; Mvn 3.5.2 New")
                 .description("OpenJDK 1.8.0; Mvn 3.5.2").systemImageType(SystemImageType.DOCKER_IMAGE)
                 .systemImageRepositoryUrl("docker-registry-default.cloud.registry.upshift.redhat.com")
                 .systemImageId("newcastle/builder-rhel-7-j8-mvn3.5.2:latest").attribute("MAVEN", "3.5.2")
                 .attribute("JDK", "1.8.0").attribute("OS", "Linux").deprecated(false).build();
-        BuildEnvironment buildEnvironmentDepBC = BuildEnvironment.Builder.newBuilder().name("Demo Environment 1")
+        BuildEnvironment buildEnvironmentDepBC = BuildEnvironment.Builder.newBuilder().name("Demo Environment 1 New")
                 .description("Basic Java and Maven Environment").systemImageType(SystemImageType.DOCKER_IMAGE)
                 .systemImageRepositoryUrl("my.registry/newcastle").systemImageId("12345678").attribute("JDK", "1.7.0")
                 .attribute("OS", "Linux").deprecated(false).build();
@@ -123,40 +123,40 @@ public class SecondLevelCacheStoreTest {
         buildEnvironmentDepBC = environmentRepository.save(buildEnvironmentDepBC);
 
         RepositoryConfiguration repositoryConfigurationBC = RepositoryConfiguration.Builder.newBuilder()
-                .internalUrl("git+ssh://code.stage.engineering.redhat.com/project-ncl/dependency-analysis.git")
-                .externalUrl("https://github.com/project-ncl/dependency-analysis.git").preBuildSyncEnabled(false).build();
+                .internalUrl("git+ssh://code.stage.engineering.redhat.com/project-ncl/dependency-analysis-new.git")
+                .externalUrl("https://github.com/project-ncl/dependency-analysis-new.git").preBuildSyncEnabled(false).build();
         RepositoryConfiguration repositoryConfigurationDepBC = RepositoryConfiguration.Builder.newBuilder()
-                .internalUrl("git+ssh://code.stage.engineering.redhat.com/project-ncl/pnc.git").externalUrl(null)
+                .internalUrl("git+ssh://code.stage.engineering.redhat.com/project-ncl/pnc-new.git").externalUrl(null)
                 .preBuildSyncEnabled(true).build();
 
         repositoryConfigurationBC = repositoryConfigurationRepository.save(repositoryConfigurationBC);
         repositoryConfigurationDepBC = repositoryConfigurationRepository.save(repositoryConfigurationDepBC);
 
-        Project projectBC = Project.Builder.newBuilder().name("Dependency Analysis")
+        Project projectBC = Project.Builder.newBuilder().name("Dependency Analysis New")
                 .description("Dependency Analysis - Analise project dependencies.").issueTrackerUrl(null)
                 .projectUrl("https://github.com/project-ncl/dependency-analysis").license(null).build();
-        Project projectDepBC = Project.Builder.newBuilder().name("Project Newcastle Demo Project 1")
+        Project projectDepBC = Project.Builder.newBuilder().name("Project Newcastle Demo Project 1 New")
                 .description("Example Project for Newcastle Demo").issueTrackerUrl(null)
                 .projectUrl("https://github.com/project-ncl/pnc").license(null).build();
 
         projectBC = projectRepository.save(projectBC);
         projectDepBC = projectRepository.save(projectDepBC);
 
-        Product product = Product.Builder.newBuilder().name("Project Newcastle Demo Product")
-                .description("Example Product for Project Newcastle Demo").abbreviation("PNC").productCode("PNC")
+        Product product = Product.Builder.newBuilder().name("Project Newcastle Demo Product New")
+                .description("Example Product for Project Newcastle Demo New").abbreviation("PNCNew").productCode("PNCNew")
                 .pgmSystemName("newcastle").build();
 
         product = productRepository.save(product);
 
-        ProductVersion productVersionBC = ProductVersion.Builder.newBuilder().version("1.0").product(product)
+        ProductVersion productVersionBC = ProductVersion.Builder.newBuilder().version("1.0New").product(product)
                 .generateBrewTagPrefix(product.getAbbreviation(), "1.0", "${product_short_name}-${product_version}-pnc")
                 .build();
         productVersionBC = productVersionRepository.save(productVersionBC);
 
-        ProductMilestone currentProductMilestone = ProductMilestone.Builder.newBuilder().version("1.0.0.Build1")
+        ProductMilestone currentProductMilestone = ProductMilestone.Builder.newBuilder().version("1.0.0.Build1New")
                 .startingDate(new Date()).endDate(new Date()).plannedEndDate(new Date()).productVersion(productVersionBC)
                 .build();
-        ProductMilestone futureProductMilestone = ProductMilestone.Builder.newBuilder().version("1.0.0.Build2")
+        ProductMilestone futureProductMilestone = ProductMilestone.Builder.newBuilder().version("1.0.0.Build2New")
                 .startingDate(new Date()).endDate(new Date()).plannedEndDate(new Date()).productVersion(productVersionBC)
                 .build();
 
@@ -167,14 +167,14 @@ public class SecondLevelCacheStoreTest {
         productVersionBC = productVersionRepository.save(productVersionBC);
 
         BuildConfiguration dependencyBC = BuildConfiguration.Builder.newBuilder().buildEnvironment(buildEnvironmentDepBC)
-                .project(projectDepBC).repositoryConfiguration(repositoryConfigurationDepBC).name("pnc-1.0.0.DR1")
+                .project(projectDepBC).repositoryConfiguration(repositoryConfigurationDepBC).name("pnc-1.0.0.DR1-new")
                 .description("Test build config for project newcastle").buildScript("mvn clean deploy -DskipTests=true")
                 .scmRevision("*/v0.2").buildType(BuildType.MVN).productVersion(productVersionBC).build();
 
         dependencyBC = buildConfigurationRepository.save(dependencyBC);
 
         BuildConfiguration buildConfiguration = BuildConfiguration.Builder.newBuilder().buildEnvironment(buildEnvironmentBC)
-                .project(projectBC).repositoryConfiguration(repositoryConfigurationBC).name("dependency-analysis-master")
+                .project(projectBC).repositoryConfiguration(repositoryConfigurationBC).name("dependency-analysis-master-new")
                 .description("Test config for Dependency Analysis.").buildScript("mvn clean deploy -DskipTests=true")
                 .scmRevision("master").buildType(BuildType.MVN).dependency(dependencyBC).build();
 
