@@ -61,7 +61,7 @@ import org.slf4j.LoggerFactory;
 @RunWith(Arquillian.class)
 @Transactional(TransactionMode.COMMIT)
 @Category(ContainerTest.class)
-public class SecondLevelCacheStoreTest extends AbstractTest {
+public class SecondLevelCacheStoreTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
