@@ -33,10 +33,10 @@
       ngModel: '?ngModel'
     },
     templateUrl: 'common/components/pnc-environment-combobox/pnc-environment-combobox.html',
-    controller: ['$log', '$scope', '$element', 'Environment', 'utils', 'rsqlQuery', '$timeout', Controller]
+    controller: ['$log', '$scope', '$element', 'EnvironmentResource', 'utils', 'rsqlQuery', '$timeout', Controller]
   });
 
-  function Controller($log, $scope, $element, Environment, utils, rsqlQuery, $timeout) {
+  function Controller($log, $scope, $element, EnvironmentResource, utils, rsqlQuery, $timeout) {
     var $ctrl = this,
         initialValues,
         q;
@@ -77,7 +77,7 @@
         $ctrl.input = $ctrl.ngModel.$viewValue;
       };
 
-      initialValues = Environment.query({ pageSize: 20, q: q }).$promise.then(function (page) {
+      initialValues = EnvironmentResource.query({ pageSize: 20, q: q }).$promise.then(function (page) {
         return page.data;
       });
     };
@@ -99,7 +99,7 @@
     };
 
     function doSearch($viewValue) {
-      return Environment.query({ 
+      return EnvironmentResource.query({
         q: q + rsqlQuery(true).and().where('name').like('*' + $viewValue + '*').end()
       }).$promise.then(function (page) {
         return page.data;

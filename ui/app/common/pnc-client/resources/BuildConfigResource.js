@@ -100,6 +100,13 @@
         return resource.patch({ id: original.id }, patch);
       };
 
+
+      resource.getSupportedGenericParameters = function() {
+        return $http.get(restConfig.getPncRestUrl() + '/build-configs/supported-parameters').then(function (r) {
+          return r.data;
+        });
+      };
+
       patchHelper.assignPatchMethods(resource);
 
       function updatePatchRemovedParameters(original, modified, patch){
