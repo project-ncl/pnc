@@ -114,13 +114,8 @@ public class SecondLevelCacheStoreTest {
                 .systemImageRepositoryUrl("docker-registry-default.cloud.registry.upshift.redhat.com")
                 .systemImageId("newcastle/builder-rhel-7-j8-mvn3.5.2:latest").attribute("MAVEN", "3.5.2")
                 .attribute("JDK", "1.8.0").attribute("OS", "Linux").deprecated(false).build();
-//        BuildEnvironment buildEnvironmentDepBC = BuildEnvironment.Builder.newBuilder().name("Demo Environment 1 New")
-//                .description("Basic Java and Maven Environment").systemImageType(SystemImageType.DOCKER_IMAGE)
-//                .systemImageRepositoryUrl("my.registry/newcastle").systemImageId("12345678").attribute("JDK", "1.7.0")
-//                .attribute("OS", "Linux").deprecated(false).build();
 
         buildEnvironmentBC = environmentRepository.save(buildEnvironmentBC);
-//        buildEnvironmentDepBC = environmentRepository.save(buildEnvironmentDepBC);
 
         RepositoryConfiguration repositoryConfigurationBC = RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl("git+ssh://code.stage.engineering.redhat.com/project-ncl/dependency-analysis-new.git")
@@ -189,10 +184,14 @@ public class SecondLevelCacheStoreTest {
      */
     @Test
     @InSequence(-1)
-    public void queryData() throws Exception {
+    public void verifyPresenceOfRequiredData() throws Exception {
         BuildConfiguration savedBuildConfiguration = buildConfigurationRepository.queryById(buildConfigurationId);
-        BuildConfigurationRest buildConfigurationRest = new BuildConfigurationRest(savedBuildConfiguration);
+        assertThat(savedBuildConfiguration).isNotNull();
 
+        BuildConfiguration savedDependencyBuildConfiguration = buildConfigurationRepository.queryById(dependencyBCId);
+        assertThat(savedDependencyBuildConfiguration).isNotNull();
+
+        BuildConfigurationRest buildConfigurationRest = new BuildConfigurationRest(savedBuildConfiguration);
         assertThat(buildConfigurationRest.getDependencyIds()).contains(dependencyBCId);
     }
 
@@ -203,9 +202,22 @@ public class SecondLevelCacheStoreTest {
     @InSequence(1)
     public void bogusUpdateBC() throws Exception {
         BuildConfiguration savedBuildConfiguration = buildConfigurationRepository.queryById(buildConfigurationId);
-        savedBuildConfiguration.setBuildScript("mvn deploy -DskipTests=true");
 
-        savedBuildConfiguration = buildConfigurationRepository.save(savedBuildConfiguration);
+        BuildConfigurationRest buildConfigurationRest = new BuildConfigurationRest(savedBuildConfiguration);
+        BuildConfiguration.Builder builder = buildConfigurationRest.toDBEntityBuilder();
+
+        BuildConfiguration buildConfigDB = buildConfigurationRepository.queryById(buildConfigurationRest.getId());
+        // If updating an existing record, need to replace several fields from the rest entity with values from DB
+        if (buildConfigDB != null) {
+            builder.lastModificationTime(buildConfigDB.getLastModificationTime()); // Handled by JPA @Version
+            builder.creationTime(buildConfigDB.getCreationTime()); // Immutable after creation
+            if (buildConfigurationRest.getDependencyIds() == null) {
+                // If the client request does not include a list of dependencies, just keep the current set
+                builder.dependencies(buildConfigDB.getDependencies());
+            }
+        }
+        buildConfigurationRest.setId(buildConfigurationId);
+        buildConfigurationRepository.save(builder.build());
     }
 
 }
