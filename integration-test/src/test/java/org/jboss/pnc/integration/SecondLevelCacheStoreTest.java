@@ -144,7 +144,7 @@ public class SecondLevelCacheStoreTest {
 
         Product product = Product.Builder.newBuilder().name("Project Newcastle Demo Product New")
                 .description("Example Product for Project Newcastle Demo New").abbreviation("PNCNew").productCode("PNCNew")
-                .pgmSystemName("newcastle").build();
+                .pgmSystemName("newcastle_new").build();
 
         product = productRepository.save(product);
 
