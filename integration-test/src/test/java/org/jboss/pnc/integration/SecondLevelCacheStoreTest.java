@@ -148,15 +148,15 @@ public class SecondLevelCacheStoreTest {
 
         product = productRepository.save(product);
 
-        ProductVersion productVersionBC = ProductVersion.Builder.newBuilder().version("1.0New").product(product)
+        ProductVersion productVersionBC = ProductVersion.Builder.newBuilder().version("13.0").product(product)
                 .generateBrewTagPrefix(product.getAbbreviation(), "1.0", "${product_short_name}-${product_version}-pnc")
                 .build();
         productVersionBC = productVersionRepository.save(productVersionBC);
 
-        ProductMilestone currentProductMilestone = ProductMilestone.Builder.newBuilder().version("1.0.0.Build1New")
+        ProductMilestone currentProductMilestone = ProductMilestone.Builder.newBuilder().version("13.0.0.Build1New")
                 .startingDate(new Date()).endDate(new Date()).plannedEndDate(new Date()).productVersion(productVersionBC)
                 .build();
-        ProductMilestone futureProductMilestone = ProductMilestone.Builder.newBuilder().version("1.0.0.Build2New")
+        ProductMilestone futureProductMilestone = ProductMilestone.Builder.newBuilder().version("13.0.0.Build2New")
                 .startingDate(new Date()).endDate(new Date()).plannedEndDate(new Date()).productVersion(productVersionBC)
                 .build();
 
