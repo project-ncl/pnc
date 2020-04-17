@@ -18,6 +18,7 @@
 package org.jboss.pnc.common.logging;
 
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.constants.MDCKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -34,12 +35,7 @@ public class MDCUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(MDCUtils.class);
 
-    // Move MDC field names to constants module.
-    public static final String REQUEST_CONTEXT_KEY = "requestContext";
-    public static final String PROCESS_CONTEXT_KEY = "processContext";
-    public static final String USER_ID_KEY = "userId";
-    public static final String TMP_KEY = "tmp";;
-    public static final String EXP_KEY = "exp";
+    ;
 
     public static void addContext(BuildTaskContext buildTaskContext) {
         addBuildContext(
@@ -56,9 +52,9 @@ public class MDCUtils {
             String userId) {
         Map<String, String> context = getContextMap();
         addProcessContext(processContext, context);
-        context.put(USER_ID_KEY, userId);
-        context.put(TMP_KEY, temporaryBuild.toString());
-        context.put(EXP_KEY, temporaryBuildExpireDate.toString());
+        context.put(MDCKeys.USER_ID_KEY, userId);
+        context.put(MDCKeys.TMP_KEY, temporaryBuild.toString());
+        context.put(MDCKeys.EXP_KEY, temporaryBuildExpireDate.toString());
         MDC.setContextMap(context);
     }
 
@@ -69,9 +65,9 @@ public class MDCUtils {
     }
 
     private static void addProcessContext(String processContext, Map<String, String> map) {
-        String current = map.get(PROCESS_CONTEXT_KEY);
+        String current = map.get(MDCKeys.PROCESS_CONTEXT_KEY);
         if (StringUtils.isEmpty(current)) {
-            map.put(PROCESS_CONTEXT_KEY, processContext);
+            map.put(MDCKeys.PROCESS_CONTEXT_KEY, processContext);
         } else {
             logger.warn("Did not set new processContext [{}] as value already exists [{}].", processContext, current);
         }
@@ -79,13 +75,13 @@ public class MDCUtils {
 
     public static void addRequestContext(String requestContext) {
         Map<String, String> context = getContextMap();
-        context.put(REQUEST_CONTEXT_KEY, requestContext);
+        context.put(MDCKeys.REQUEST_CONTEXT_KEY, requestContext);
         MDC.setContextMap(context);
     }
 
     public static void addUserId(String userId) {
         Map<String, String> context = getContextMap();
-        context.put(USER_ID_KEY, userId);
+        context.put(MDCKeys.USER_ID_KEY, userId);
         MDC.setContextMap(context);
     }
 
@@ -98,15 +94,15 @@ public class MDCUtils {
     }
 
     public static Optional<String> getRequestContext() {
-        return Optional.ofNullable(getContextMap().get(REQUEST_CONTEXT_KEY));
+        return Optional.ofNullable(getContextMap().get(MDCKeys.REQUEST_CONTEXT_KEY));
     }
 
     public static Optional<String> getProcessContext() {
-        return Optional.ofNullable(getContextMap().get(PROCESS_CONTEXT_KEY));
+        return Optional.ofNullable(getContextMap().get(MDCKeys.PROCESS_CONTEXT_KEY));
     }
 
     public static Optional<String> getUserId() {
-        return Optional.ofNullable(getContextMap().get(USER_ID_KEY));
+        return Optional.ofNullable(getContextMap().get(MDCKeys.USER_ID_KEY));
     }
 
     public static Optional<String> getCustomContext(String key) {
@@ -118,16 +114,16 @@ public class MDCUtils {
     }
 
     public static void removeProcessContext() {
-        MDC.remove(PROCESS_CONTEXT_KEY);
+        MDC.remove(MDCKeys.PROCESS_CONTEXT_KEY);
     }
 
     public static Map<String, String> getMDCToHeaderMappings() {
         Map<String, String> mappings = new HashMap<>();
-        mappings.put(USER_ID_KEY, "log-user-id");
-        mappings.put(REQUEST_CONTEXT_KEY, "log-request-context");
-        mappings.put(PROCESS_CONTEXT_KEY, "log-process-context");
-        mappings.put(TMP_KEY, "log-tmp");
-        mappings.put(EXP_KEY, "log-exp");
+        mappings.put(MDCKeys.USER_ID_KEY, "log-user-id");
+        mappings.put(MDCKeys.REQUEST_CONTEXT_KEY, "log-request-context");
+        mappings.put(MDCKeys.PROCESS_CONTEXT_KEY, "log-process-context");
+        mappings.put(MDCKeys.TMP_KEY, "log-tmp");
+        mappings.put(MDCKeys.EXP_KEY, "log-exp");
         return mappings;
     }
 

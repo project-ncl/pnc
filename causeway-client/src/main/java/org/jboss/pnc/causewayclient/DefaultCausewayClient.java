@@ -29,6 +29,7 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.HttpUtils;
+import org.jboss.pnc.constants.MDCKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +73,7 @@ public class DefaultCausewayClient implements CausewayClient {
             MDCUtils.getUserId().ifPresent(v -> request.addHeader("log-user-id", v));
             MDCUtils.getRequestContext().ifPresent(v -> request.addHeader("log-request-context", v));
             MDCUtils.getProcessContext().ifPresent(v -> request.addHeader("log-process-context", v));
-            MDCUtils.getCustomContext(LOG_CONTEXT_BUILD_ID).ifPresent(v -> request.addHeader("log-build-id", v));
+            MDCUtils.getCustomContext(MDCKeys.BUILD_ID_KEY).ifPresent(v -> request.addHeader("log-build-id", v));
             response = request.execute().returnResponse();
         } catch (IOException e) {
             logger.error("Failed to invoke remote Causeway.", e);
