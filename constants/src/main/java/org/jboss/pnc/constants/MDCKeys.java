@@ -15,17 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.causewayclient;
+package org.jboss.pnc.constants;
 
-import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
-import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
-
-/**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- */
-public interface CausewayClient {
-
-    boolean importBuild(BuildImportRequest buildImportRequest, String authToken);
-
-    boolean untagBuild(UntagRequest untagRequest, String authToken);
+public class MDCKeys {
+    public static final String REQUEST_CONTEXT_KEY = "requestContext";
+    public static final String PROCESS_CONTEXT_KEY = "processContext";
+    public static final String USER_ID_KEY = "userId";
+    public static final String TMP_KEY = "tmp";
+    public static final String EXP_KEY = "exp";
+    public static final String BUILD_ID_KEY = "buildId";
 }

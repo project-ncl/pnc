@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.client;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderValues;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.constants.MDCKeys;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +34,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -59,7 +58,7 @@ public class ClientTest {
             @Override
             public void handleRequest(final HttpServerExchange exchange) throws Exception {
                 requestsReceived.incrementAndGet();
-                String headerName = MDCUtils.getMDCToHeaderMappings().get(MDCUtils.REQUEST_CONTEXT_KEY);
+                String headerName = MDCUtils.getMDCToHeaderMappings().get(MDCKeys.REQUEST_CONTEXT_KEY);
                 HeaderValues strings = exchange.getRequestHeaders().get(headerName);
                 if (strings != null) {
                     headerReceived.set(strings.getFirst());
@@ -74,7 +73,7 @@ public class ClientTest {
         ProjectClient projectClient = new ProjectClient(configuration);
 
         String requestContext = "12345";
-        MDC.put(MDCUtils.REQUEST_CONTEXT_KEY, requestContext);
+        MDC.put(MDCKeys.REQUEST_CONTEXT_KEY, requestContext);
         try {
             projectClient.getSpecific("1");
         } catch (javax.ws.rs.ProcessingException | ClientException e) {

@@ -58,7 +58,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.jboss.pnc.causewayclient.CausewayClient.LOG_CONTEXT_BUILD_ID;
+import static org.jboss.pnc.constants.MDCKeys.BUILD_ID_KEY;
 import static org.jboss.pnc.enums.ArtifactQuality.BLACKLISTED;
 import static org.jboss.pnc.enums.ArtifactQuality.DELETED;
 
@@ -106,7 +106,7 @@ public class BrewPusherImpl implements BrewPusher {
         for (BuildRecord buildRecord : buildRecords) {
             UUID buildPushResultId = UUID.randomUUID();
             MDCUtils.addProcessContext(buildPushResultId.toString());
-            MDCUtils.addCustomContext(LOG_CONTEXT_BUILD_ID, buildRecord.getId().toString());
+            MDCUtils.addCustomContext(BUILD_ID_KEY, buildRecord.getId().toString());
             try {
                 results.add(doPushBuild(buildRecord.getId(), buildPushParameters, buildPushResultId));
             } catch (OperationNotAllowedException e) {
@@ -143,7 +143,7 @@ public class BrewPusherImpl implements BrewPusher {
                                 .build());
             } finally {
                 MDCUtils.removeProcessContext();
-                MDCUtils.removeCustomContext(LOG_CONTEXT_BUILD_ID);
+                MDCUtils.removeCustomContext(BUILD_ID_KEY);
             }
         }
         return results;
@@ -153,12 +153,12 @@ public class BrewPusherImpl implements BrewPusher {
     public BuildPushResult pushBuild(String buildId, BuildPushParameters buildPushParameters) throws ProcessException {
         UUID buildPushResultId = UUID.randomUUID();
         MDCUtils.addProcessContext(buildPushResultId.toString());
-        MDCUtils.addCustomContext(LOG_CONTEXT_BUILD_ID, buildId);
+        MDCUtils.addCustomContext(BUILD_ID_KEY, buildId);
         try {
             return doPushBuild(Integer.parseInt(buildId), buildPushParameters, buildPushResultId);
         } finally {
             MDCUtils.removeProcessContext();
-            MDCUtils.removeCustomContext(LOG_CONTEXT_BUILD_ID);
+            MDCUtils.removeCustomContext(BUILD_ID_KEY);
         }
     }
 
@@ -264,7 +264,7 @@ public class BrewPusherImpl implements BrewPusher {
     @Override
     public BuildPushResult brewPushComplete(int buildId, BuildPushResult buildPushResult) {
         MDCUtils.addProcessContext(buildPushResult.getId());
-        MDCUtils.addCustomContext(LOG_CONTEXT_BUILD_ID, Integer.toString(buildId));
+        MDCUtils.addCustomContext(BUILD_ID_KEY, Integer.toString(buildId));
         try {
             log.info(
                     "Received completion notification for BuildRecord.id: {}. Object received: {}.",
@@ -275,7 +275,7 @@ public class BrewPusherImpl implements BrewPusher {
             return buildPushResult;
         } finally {
             MDCUtils.removeProcessContext();
-            MDCUtils.removeCustomContext(LOG_CONTEXT_BUILD_ID);
+            MDCUtils.removeCustomContext(BUILD_ID_KEY);
         }
     }
 
