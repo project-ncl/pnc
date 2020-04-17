@@ -41,6 +41,8 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.SystemImageType;
 import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
+import org.jboss.pnc.rest.validation.ValidationBuilder;
+import org.jboss.pnc.rest.validation.groups.WhenUpdating;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
@@ -204,6 +206,23 @@ public class SecondLevelCacheStoreTest {
         BuildConfiguration savedBuildConfiguration = buildConfigurationRepository.queryById(buildConfigurationId);
 
         BuildConfigurationRest buildConfigurationRest = new BuildConfigurationRest(savedBuildConfiguration);
+        buildConfigurationRest.setId(buildConfigurationId);
+
+        if (buildConfigurationRest.getDependencyIds() != null && !buildConfigurationRest.getDependencyIds().isEmpty()) {
+
+            BuildConfiguration buildConfig = buildConfigurationRepository.queryById(buildConfigurationId);
+            for (Integer dependencyId : buildConfigurationRest.getDependencyIds()) {
+
+                ValidationBuilder.validateObject(buildConfig, WhenUpdating.class).validateCondition(
+                        !buildConfig.getId().equals(dependencyId), "A build configuration cannot depend on itself");
+
+                BuildConfiguration dependency = buildConfigurationRepository.queryById(dependencyId);
+                ValidationBuilder.validateObject(buildConfig, WhenUpdating.class)
+                        .validateCondition(!dependency.getAllDependencies().contains(buildConfig), "Cannot add dependency from : "
+                                + buildConfig.getId() + " to: " + dependencyId + " because it would introduce a cyclic dependency");
+            }
+        }
+
         BuildConfiguration.Builder builder = buildConfigurationRest.toDBEntityBuilder();
 
         BuildConfiguration buildConfigDB = buildConfigurationRepository.queryById(buildConfigurationRest.getId());
