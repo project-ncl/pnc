@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
@@ -29,7 +30,9 @@ import java.util.Objects;
 @IdClass(BuildRecordAttribute.AttributeId.class)
 public class BuildRecordAttribute implements Serializable {
 
+    // specify the column name for backwards compatibility with how it was named in PNC 1.x
     @Id
+    @Column(name = "build_record_id")
     private Integer buildRecordId;
 
     @Id
