@@ -23,13 +23,12 @@ import org.jboss.pnc.model.ProductMilestoneRelease_;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.metamodel.SingularAttribute;
-import java.util.UUID;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @ApplicationScoped
-public class ProductMilestoneReleaseRSQLMapper extends AbstractRSQLMapper<UUID, ProductMilestoneRelease> {
+public class ProductMilestoneReleaseRSQLMapper extends AbstractRSQLMapper<Long, ProductMilestoneRelease> {
 
     public ProductMilestoneReleaseRSQLMapper() {
         super(ProductMilestoneRelease.class);

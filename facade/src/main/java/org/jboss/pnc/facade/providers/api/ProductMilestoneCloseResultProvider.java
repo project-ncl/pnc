@@ -21,13 +21,11 @@ import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.response.Page;
 
-import java.util.UUID;
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface ProductMilestoneCloseResultProvider extends
-        Provider<UUID, org.jboss.pnc.model.ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef> {
+        Provider<Long, org.jboss.pnc.model.ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef> {
 
     ProductMilestoneCloseResult getLatestProductMilestoneCloseResult(int milestoneId);
 

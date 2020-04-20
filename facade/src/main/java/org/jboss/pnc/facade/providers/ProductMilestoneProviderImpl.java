@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
@@ -67,7 +68,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
@@ -168,7 +168,7 @@ public class ProductMilestoneProviderImpl
     @Override
     public ProductMilestoneCloseResult closeMilestone(String id, ProductMilestone restEntity) {
         try {
-            UUID milestoneReleaseId = UUID.randomUUID();
+            Long milestoneReleaseId = Sequence.nextId();
             MDCUtils.addProcessContext(milestoneReleaseId.toString());
             return doCloseMilestone(id, restEntity, milestoneReleaseId);
         } finally {
@@ -179,7 +179,7 @@ public class ProductMilestoneProviderImpl
     private ProductMilestoneCloseResult doCloseMilestone(
             String id,
             ProductMilestone restEntity,
-            UUID milestoneReleaseId) {
+            Long milestoneReleaseId) {
         org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
 
         if (milestoneInDb.getEndDate() != null) {

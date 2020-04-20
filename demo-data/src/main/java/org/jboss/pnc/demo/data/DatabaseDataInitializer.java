@@ -18,6 +18,7 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.enums.BuildStatus;
@@ -77,7 +78,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierAndSha256;
@@ -325,7 +325,7 @@ public class DatabaseDataInitializer {
         demoProductMilestone3 = productMilestoneRepository.save(demoProductMilestone3);
 
         ProductMilestoneRelease milestoneRelease1 = new ProductMilestoneRelease();
-        milestoneRelease1.setId(UUID.randomUUID());
+        milestoneRelease1.setId(Sequence.nextId());
         milestoneRelease1.setMilestone(demoProductMilestone3);
         // first store with latter starting date to test sort function
         milestoneRelease1.setStartingDate(Date.from(t0.plus(2, ChronoUnit.MINUTES)));
@@ -333,14 +333,14 @@ public class DatabaseDataInitializer {
         productMilestoneReleaseRepository.save(milestoneRelease1);
 
         ProductMilestoneRelease milestoneRelease2 = new ProductMilestoneRelease();
-        milestoneRelease2.setId(UUID.randomUUID());
+        milestoneRelease2.setId(Sequence.nextId());
         milestoneRelease2.setMilestone(demoProductMilestone3);
         milestoneRelease2.setStartingDate(Date.from(t0));
         milestoneRelease2.setStatus(MilestoneCloseStatus.FAILED);
         productMilestoneReleaseRepository.save(milestoneRelease2);
 
         ProductMilestoneRelease milestoneRelease3 = new ProductMilestoneRelease();
-        milestoneRelease3.setId(UUID.randomUUID());
+        milestoneRelease3.setId(Sequence.nextId());
         milestoneRelease3.setMilestone(demoProductMilestone3);
         milestoneRelease3.setStartingDate(Date.from(successTime));
         milestoneRelease3.setStatus(MilestoneCloseStatus.SUCCEEDED);

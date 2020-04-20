@@ -24,6 +24,7 @@ import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.enums.ReleaseStatus;
@@ -41,7 +42,6 @@ import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -160,14 +160,14 @@ public class ProductMilestoneReleaseManagerTest {
      * Start a milestone release and process the callback
      */
     private void release(ProductMilestone milestone, int brewBuildId, BuildRecord... records) {
-        releaseManager.startRelease(milestone, null, UUID.randomUUID());
+        releaseManager.startRelease(milestone, null, Sequence.nextId());
         List<ProductMilestoneRelease> releases = productMilestoneReleaseRepository.queryAll();
         assertThat(releases).hasSize(1);
         taskCapture.task.notify(BpmEventType.BREW_IMPORT_SUCCESS, successfulReleaseResult(brewBuildId, records));
     }
 
     private void release(ProductMilestone milestone, MilestoneReleaseResultRest releaseResultRest) {
-        releaseManager.startRelease(milestone, null, UUID.randomUUID());
+        releaseManager.startRelease(milestone, null, Sequence.nextId());
         List<ProductMilestoneRelease> releases = productMilestoneReleaseRepository.queryAll();
         assertThat(releases).hasSize(1);
         taskCapture.task.notify(BpmEventType.BREW_IMPORT_SUCCESS, releaseResultRest);

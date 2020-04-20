@@ -48,7 +48,6 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -101,7 +100,7 @@ public class ProductMilestoneReleaseManager {
     public ProductMilestoneRelease startRelease(
             ProductMilestone milestone,
             String accessToken,
-            UUID milestoneReleaseId) {
+            Long milestoneReleaseId) {
         ProductMilestoneRelease release = triggerRelease(milestone, accessToken, milestoneReleaseId);
         return productMilestoneReleaseRepository.save(release);
     }
@@ -139,7 +138,7 @@ public class ProductMilestoneReleaseManager {
     private ProductMilestoneRelease triggerRelease(
             ProductMilestone milestone,
             String accessToken,
-            UUID milestoneReleaseId) {
+            Long milestoneReleaseId) {
         ProductMilestoneRelease release = new ProductMilestoneRelease();
         release.setId(milestoneReleaseId);
         release.setStartingDate(new Date());

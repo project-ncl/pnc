@@ -17,15 +17,14 @@
  */
 package org.jboss.pnc.mock.repository;
 
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.model.GenericEntity;
 
-import java.util.UUID;
-
-public abstract class UUIDRepositoryMock<EntityType extends GenericEntity<UUID>>
-        extends RepositoryMock<UUID, EntityType> {
+public abstract class LongIdRepositoryMock<EntityType extends GenericEntity<Long>>
+        extends RepositoryMock<Long, EntityType> {
 
     @Override
-    public UUID getNextId() {
-        return UUID.randomUUID();
+    public Long getNextId() {
+        return Sequence.nextId();
     }
 }

@@ -22,6 +22,7 @@ import org.jboss.pnc.bpm.causeway.BuildResultPushManager;
 import org.jboss.pnc.bpm.causeway.InProgress;
 import org.jboss.pnc.bpm.causeway.Result;
 import org.jboss.pnc.causewayclient.CausewayClient;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
@@ -43,7 +44,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.enterprise.event.Event;
 import java.util.Collections;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -146,7 +146,7 @@ public class BuildResultPushManagerTest {
     private Result release(BuildRecord buildRecord) {
         BuildPushOperation buildPushOperation = new BuildPushOperation(
                 buildRecord,
-                UUID.randomUUID(),
+                Sequence.nextId(),
                 "tag",
                 false,
                 "https://foo.bar/build-record-push/%s/complete/");

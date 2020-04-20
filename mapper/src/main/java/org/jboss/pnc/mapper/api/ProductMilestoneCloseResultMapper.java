@@ -21,22 +21,17 @@ import org.jboss.pnc.dto.BuildPushResultRef;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.ProductMilestoneRef;
-import org.jboss.pnc.mapper.UUIDMapper;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.util.UUID;
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Mapper(
-        config = MapperCentralConfig.class,
-        uses = { UUIDMapper.class, ProductMilestoneMapper.class, BuildPushResultMapper.class })
+@Mapper(config = MapperCentralConfig.class, uses = { ProductMilestoneMapper.class, BuildPushResultMapper.class })
 public interface ProductMilestoneCloseResultMapper extends
-        EntityMapper<UUID, ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef> {
+        EntityMapper<Long, ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef> {
 
     @Override
     @Mapping(target = "log", ignore = true)
@@ -49,7 +44,7 @@ public interface ProductMilestoneCloseResultMapper extends
             return null;
         }
         ProductMilestoneRelease milestoneRelease = new ProductMilestoneRelease();
-        milestoneRelease.setId(UUID.fromString(dtoEntity.getId()));
+        milestoneRelease.setId(Long.parseLong(dtoEntity.getId()));
         return milestoneRelease;
     }
 

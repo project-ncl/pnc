@@ -21,6 +21,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.datastore.DeploymentFactory;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.model.Product;
@@ -40,7 +41,6 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
@@ -78,19 +78,19 @@ public class ProductMilestoneReleaseRepositoryImplTest {
         ProductMilestone milestone2 = createMilestone();
 
         release1 = new ProductMilestoneRelease();
-        release1.setId(UUID.randomUUID());
+        release1.setId(Sequence.nextId());
         release1.setMilestone(milestone1);
         release1.setStatus(MilestoneCloseStatus.FAILED);
         releaseRepository.save(release1);
 
         release2 = new ProductMilestoneRelease();
-        release2.setId(UUID.randomUUID());
+        release2.setId(Sequence.nextId());
         release2.setMilestone(milestone1);
         release2.setStatus(MilestoneCloseStatus.SUCCEEDED);
         releaseRepository.save(release2);
 
         ProductMilestoneRelease r3 = new ProductMilestoneRelease();
-        r3.setId(UUID.randomUUID());
+        r3.setId(Sequence.nextId());
         r3.setMilestone(milestone2);
         r3.setStatus(MilestoneCloseStatus.IN_PROGRESS);
         releaseRepository.save(r3);
@@ -108,7 +108,7 @@ public class ProductMilestoneReleaseRepositoryImplTest {
                 .queryWithPredicates(ProductMilestoneReleasePredicates.withMilestoneId(milestoneId));
 
         assertThat(result.size()).isEqualTo(2);
-        List<UUID> ids = result.stream().map(ProductMilestoneRelease::getId).collect(Collectors.toList());
+        List<Long> ids = result.stream().map(ProductMilestoneRelease::getId).collect(Collectors.toList());
         assertThat(ids).containsExactlyInAnyOrder(release1.getId(), release2.getId());
     }
 

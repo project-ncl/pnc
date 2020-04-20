@@ -15,18 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mapper;
+package org.jboss.pnc.common.concurrent;
 
-import javax.enterprise.context.ApplicationScoped;
-import java.util.UUID;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-@ApplicationScoped
-public class UUIDMapper {
-    public String map(UUID uuid) {
-        return uuid.toString();
-    }
+public class Sequence {
 
-    public UUID map(String string) {
-        return UUID.fromString(string);
+    private static final Map<Integer, SequenceGenerator> instance = new ConcurrentHashMap<>();
+    private static final int INSTANCE_KEY = 0;
+
+    public static Long nextId() {
+        SequenceGenerator sequenceGenerator = instance.computeIfAbsent(INSTANCE_KEY, k -> new SequenceGenerator());
+        return sequenceGenerator.nextId();
     }
 }

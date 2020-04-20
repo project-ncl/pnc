@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
@@ -40,7 +41,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -174,7 +174,7 @@ public class ProductReleaseProviderTest extends AbstractProviderTest<ProductRele
 
     private ProductMilestone prepareNewProductMilestone() {
 
-        Product product = Product.Builder.newBuilder().id(entityId++).name(UUID.randomUUID().toString()).build();
+        Product product = Product.Builder.newBuilder().id(entityId++).name(Sequence.nextId().toString()).build();
 
         ProductVersion productVersion = ProductVersion.Builder.newBuilder()
                 .id(entityId++)

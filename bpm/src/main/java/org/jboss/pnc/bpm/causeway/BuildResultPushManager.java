@@ -56,7 +56,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -400,7 +399,7 @@ public class BuildResultPushManager {
                 .collect(Collectors.toSet());
     }
 
-    public UUID complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) {
+    public Long complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) {
         // accept only listed elements otherwise a new request might be wrongly completed from response of an older one
         String completedTag = inProgress.remove(buildRecordId);
         if (completedTag == null) {

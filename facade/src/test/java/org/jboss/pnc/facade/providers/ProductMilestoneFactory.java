@@ -17,12 +17,12 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -49,7 +49,7 @@ public class ProductMilestoneFactory {
     }
 
     public ProductMilestone prepareNewProductMilestone(String productVersion, String milestoneVersion) {
-        Product product = Product.Builder.newBuilder().id(getNextId()).name(UUID.randomUUID().toString()).build();
+        Product product = Product.Builder.newBuilder().id(getNextId()).name(Sequence.nextId().toString()).build();
 
         ProductVersion pV = ProductVersion.Builder.newBuilder()
                 .id(getNextId())

@@ -22,12 +22,11 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class BuildRecordPushResultRepositoryMock extends UUIDRepositoryMock<BuildRecordPushResult>
+public class BuildRecordPushResultRepositoryMock extends LongIdRepositoryMock<BuildRecordPushResult>
         implements BuildRecordPushResultRepository {
 
     @Override

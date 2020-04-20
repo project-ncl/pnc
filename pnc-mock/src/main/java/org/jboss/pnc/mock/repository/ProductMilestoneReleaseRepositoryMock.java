@@ -26,7 +26,7 @@ import java.util.Comparator;
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/1/16 Time: 3:27 PM
  */
-public class ProductMilestoneReleaseRepositoryMock extends UUIDRepositoryMock<ProductMilestoneRelease>
+public class ProductMilestoneReleaseRepositoryMock extends LongIdRepositoryMock<ProductMilestoneRelease>
         implements ProductMilestoneReleaseRepository {
     @Override
     public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone) {

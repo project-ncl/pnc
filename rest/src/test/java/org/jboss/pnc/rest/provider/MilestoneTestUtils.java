@@ -18,7 +18,7 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.mock.repository.IntIdRepositoryMock;
-import org.jboss.pnc.mock.repository.UUIDRepositoryMock;
+import org.jboss.pnc.mock.repository.LongIdRepositoryMock;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
@@ -74,7 +74,7 @@ public class MilestoneTestUtils {
             implements ProductMilestoneRepository {
     }
 
-    public static class ProductMilestoneReleaseRepositoryMock extends UUIDRepositoryMock<ProductMilestoneRelease>
+    public static class ProductMilestoneReleaseRepositoryMock extends LongIdRepositoryMock<ProductMilestoneRelease>
             implements ProductMilestoneReleaseRepository {
         @Override
         public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone) {
