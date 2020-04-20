@@ -31,7 +31,7 @@ import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
-import org.jboss.pnc.facade.providers.api.ProductMilestoneReleaseProvider;
+import org.jboss.pnc.facade.providers.api.ProductMilestoneCloseResultProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -52,7 +52,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     private ProductMilestoneProvider productMilestoneProvider;
 
     @Inject
-    private ProductMilestoneReleaseProvider productMilestoneReleaseProvider;
+    private ProductMilestoneCloseResultProvider productMilestoneCloseResultProvider;
 
     @Inject
     private BuildProvider buildProvider;
@@ -115,11 +115,11 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
             ProductMilestoneCloseParameters filterParams,
             String id) {
         if (filterParams != null && filterParams.isLatest()) {
-            ProductMilestoneCloseResult latestProductMilestoneCloseResult = productMilestoneReleaseProvider
+            ProductMilestoneCloseResult latestProductMilestoneCloseResult = productMilestoneCloseResultProvider
                     .getLatestProductMilestoneCloseResult(Integer.parseInt(id));
             return new Page<>(0, 1, 1, Collections.singletonList(latestProductMilestoneCloseResult));
         } else {
-            return productMilestoneReleaseProvider.getProductMilestoneCloseResults(
+            return productMilestoneCloseResultProvider.getProductMilestoneCloseResults(
                     pageParams.getPageIndex(),
                     pageParams.getPageSize(),
                     pageParams.getSort(),

@@ -76,7 +76,7 @@ public class SwaggerPages {
     public static class ProductMilestonePage extends Page<ProductMilestone> {
     }
 
-    public static class ProductMilestoneReleasePage extends Page<ProductMilestoneCloseResult> {
+    public static class ProductMilestoneCloseResultPage extends Page<ProductMilestoneCloseResult> {
     }
 
     public static class ProductReleasePage extends Page<ProductRelease> {

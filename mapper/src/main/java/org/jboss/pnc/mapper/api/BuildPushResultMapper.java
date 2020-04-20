@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.BuildPushResultRef;
 import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.mapper.UUIDMapper;
 import org.jboss.pnc.model.BuildRecordPushResult;
+import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -52,7 +53,7 @@ public interface BuildPushResultMapper
             target = "productMilestoneCloseResult",
             source = "productMilestoneRelease",
             resultType = ProductMilestoneCloseResultRef.class)
-    @Mapping(target = "logContext", ignore = true)
+    @Mapping(target = "logContext", expression = "java( logContext(db) )")
     @Mapping(target = "message", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = { "tagPrefix", "artifactImportErrors", "log" })
     BuildPushResult toDTO(BuildRecordPushResult db);
@@ -60,7 +61,7 @@ public interface BuildPushResultMapper
     @Mapping(target = "buildId", source = "buildRecord")
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "tagPrefix", "artifactImportErrors", "log", "productMilestoneRelease" })
-    @Mapping(target = "logContext", ignore = true)
+    @Mapping(target = "logContext", expression = "java( logContext(db) )")
     @Mapping(target = "message", ignore = true)
     BuildPushResultRef toRef(BuildRecordPushResult db);
 
@@ -70,4 +71,14 @@ public interface BuildPushResultMapper
     @Mapping(target = "productMilestoneRelease", source = "dto.productMilestoneCloseResult")
     @BeanMapping(ignoreUnmappedSourceProperties = { "logContext", "message" })
     BuildRecordPushResult toEntity(BuildPushResult dto);
+
+    // maybe default, because private static may not work in Java 8?
+    default String logContext(BuildRecordPushResult db) {
+        ProductMilestoneRelease productMilestoneRelease = db.getProductMilestoneRelease();
+        if (productMilestoneRelease != null) { // is part of milestone release
+            return productMilestoneRelease.getId().toString();
+        } else {
+            return db.getId().toString();
+        }
+    }
 }

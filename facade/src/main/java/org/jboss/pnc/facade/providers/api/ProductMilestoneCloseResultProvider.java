@@ -26,7 +26,7 @@ import java.util.UUID;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface ProductMilestoneReleaseProvider extends
+public interface ProductMilestoneCloseResultProvider extends
         Provider<UUID, org.jboss.pnc.model.ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef> {
 
     ProductMilestoneCloseResult getLatestProductMilestoneCloseResult(int milestoneId);

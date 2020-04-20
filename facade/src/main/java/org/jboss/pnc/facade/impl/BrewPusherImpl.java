@@ -293,15 +293,7 @@ public class BrewPusherImpl implements BrewPusher {
                     .getLatestForBuildRecord(buildId);
             if (latestForBuildRecord != null) {
                 ProductMilestoneRelease productMilestoneRelease = latestForBuildRecord.getProductMilestoneRelease();
-                result = buildPushResultMapper.toDTO(latestForBuildRecord);
-                String logContext;
-                if (productMilestoneRelease != null) {
-                    // is part of milestone release
-                    logContext = productMilestoneRelease.getId().toString();
-                } else {
-                    logContext = latestForBuildRecord.getId().toString();
-                }
-                result.toBuilder().logContext(logContext).build();
+                return buildPushResultMapper.toDTO(latestForBuildRecord);
             }
         }
         return result;

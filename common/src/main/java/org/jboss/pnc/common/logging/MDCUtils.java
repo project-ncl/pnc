@@ -35,8 +35,6 @@ public class MDCUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(MDCUtils.class);
 
-    ;
-
     public static void addContext(BuildTaskContext buildTaskContext) {
         addBuildContext(
                 buildTaskContext.getBuildContentId(),
