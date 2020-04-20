@@ -22,7 +22,7 @@ import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
-import org.jboss.pnc.facade.providers.api.ProductMilestoneReleaseProvider;
+import org.jboss.pnc.facade.providers.api.ProductMilestoneCloseResultProvider;
 import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
@@ -43,15 +43,15 @@ import java.util.List;
  */
 @PermitAll
 @Stateless
-public class ProductMilestoneReleaseProviderImpl extends
+public class ProductMilestoneCloseResultProviderImpl extends
         AbstractUUIDIdProvider<org.jboss.pnc.model.ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef>
-        implements ProductMilestoneReleaseProvider {
+        implements ProductMilestoneCloseResultProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(ProductMilestoneReleaseProviderImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ProductMilestoneCloseResultProviderImpl.class);
     private ProductMilestoneReleaseRepository repository;
 
     @Inject
-    public ProductMilestoneReleaseProviderImpl(
+    public ProductMilestoneCloseResultProviderImpl(
             ProductMilestoneReleaseRepository repository,
             ProductMilestoneCloseResultMapper mapper) {
         super(repository, mapper, ProductMilestoneRelease.class);
