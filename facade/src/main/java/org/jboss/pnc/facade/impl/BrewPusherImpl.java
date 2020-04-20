@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.bpm.causeway.BuildPushOperation;
 import org.jboss.pnc.bpm.causeway.BuildResultPushManager;
 import org.jboss.pnc.bpm.causeway.Result;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.StringUtils;
@@ -56,7 +57,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.jboss.pnc.constants.MDCKeys.BUILD_ID_KEY;
 import static org.jboss.pnc.enums.ArtifactQuality.BLACKLISTED;
@@ -104,7 +104,7 @@ public class BrewPusherImpl implements BrewPusher {
 
         Set<BuildPushResult> results = new HashSet<>();
         for (BuildRecord buildRecord : buildRecords) {
-            UUID buildPushResultId = UUID.randomUUID();
+            Long buildPushResultId = Sequence.nextId();
             MDCUtils.addProcessContext(buildPushResultId.toString());
             MDCUtils.addCustomContext(BUILD_ID_KEY, buildRecord.getId().toString());
             try {
@@ -151,7 +151,7 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Override
     public BuildPushResult pushBuild(String buildId, BuildPushParameters buildPushParameters) throws ProcessException {
-        UUID buildPushResultId = UUID.randomUUID();
+        Long buildPushResultId = Sequence.nextId();
         MDCUtils.addProcessContext(buildPushResultId.toString());
         MDCUtils.addCustomContext(BUILD_ID_KEY, buildId);
         try {
@@ -165,7 +165,7 @@ public class BrewPusherImpl implements BrewPusher {
     private BuildPushResult doPushBuild(
             Integer buildId,
             BuildPushParameters buildPushParameters,
-            UUID buildPushResultId) throws ProcessException {
+            Long buildPushResultId) throws ProcessException {
 
         // collect and validate input data
         BuildRecord buildRecord = getLatestSuccessfullyExecutedBuildRecord(buildId);

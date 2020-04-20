@@ -20,23 +20,20 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.BuildPushResultRef;
 import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
-import org.jboss.pnc.mapper.UUIDMapper;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import java.util.UUID;
-
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { UUIDMapper.class, BuildMapper.IDMapper.class, ProductMilestoneCloseResultMapper.class })
+        uses = { BuildMapper.IDMapper.class, ProductMilestoneCloseResultMapper.class })
 public interface BuildPushResultMapper
-        extends EntityMapper<UUID, BuildRecordPushResult, BuildPushResult, BuildPushResultRef> {
+        extends EntityMapper<Long, BuildRecordPushResult, BuildPushResult, BuildPushResultRef> {
 
     @Override
     default BuildRecordPushResult toIDEntity(BuildPushResultRef dtoEntity) {
@@ -44,7 +41,7 @@ public interface BuildPushResultMapper
             return null;
         }
         BuildRecordPushResult buildRecordPushResult = new BuildRecordPushResult();
-        buildRecordPushResult.setId(UUID.fromString(dtoEntity.getId()));
+        buildRecordPushResult.setId(Long.parseLong(dtoEntity.getId()));
         return buildRecordPushResult;
     }
 

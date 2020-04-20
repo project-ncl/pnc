@@ -20,13 +20,11 @@ package org.jboss.pnc.bpm.causeway;
 import lombok.Value;
 import org.jboss.pnc.model.BuildRecord;
 
-import java.util.UUID;
-
 @Value
 public class BuildPushOperation {
     private BuildRecord buildRecord;
 
-    private UUID pushResultId;
+    private Long pushResultId;
 
     private String tagPrefix;
 

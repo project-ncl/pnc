@@ -226,7 +226,8 @@ public interface ProductMilestoneEndpoint {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
                             description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ProductMilestoneCloseResultPage.class))),
+                            content = @Content(
+                                    schema = @Schema(implementation = ProductMilestoneCloseResultPage.class))),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,

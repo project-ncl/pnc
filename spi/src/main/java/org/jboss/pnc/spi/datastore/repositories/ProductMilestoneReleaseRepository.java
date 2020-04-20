@@ -21,11 +21,9 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
-import java.util.UUID;
-
 /**
  * @author Michal Szynkiewicz
  */
-public interface ProductMilestoneReleaseRepository extends Repository<ProductMilestoneRelease, UUID> {
+public interface ProductMilestoneReleaseRepository extends Repository<ProductMilestoneRelease, Long> {
     ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone);
 }

@@ -26,13 +26,12 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Stateless
-public class BuildRecordPushResultRepositoryImpl extends AbstractRepository<BuildRecordPushResult, UUID>
+public class BuildRecordPushResultRepositoryImpl extends AbstractRepository<BuildRecordPushResult, Long>
         implements BuildRecordPushResultRepository {
 
     @Inject

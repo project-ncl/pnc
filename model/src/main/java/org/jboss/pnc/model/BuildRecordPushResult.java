@@ -24,7 +24,6 @@ import org.jboss.pnc.enums.BuildPushStatus;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.UUID;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -33,12 +32,12 @@ import java.util.UUID;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = { @Index(name = "idx_buildrecordpushresult_buildrecord", columnList = "buildRecord_id") })
-public class BuildRecordPushResult implements GenericEntity<UUID> {
+public class BuildRecordPushResult implements GenericEntity<Long> {
     private static final long serialVersionUID = 8461294730832773438L;
 
     @Id
     @NotNull
-    private UUID id;
+    private Long id;
 
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecordpushresult_buildrecord"))
     @ManyToOne
@@ -87,12 +86,12 @@ public class BuildRecordPushResult implements GenericEntity<UUID> {
     }
 
     @Override
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
     @Override
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -163,7 +162,7 @@ public class BuildRecordPushResult implements GenericEntity<UUID> {
 
     public static final class Builder {
 
-        private UUID id;
+        private Long id;
 
         private BuildRecord buildRecord;
 
@@ -183,7 +182,7 @@ public class BuildRecordPushResult implements GenericEntity<UUID> {
         private Builder() {
         }
 
-        public Builder id(UUID val) {
+        public Builder id(Long val) {
             id = val;
             return this;
         }

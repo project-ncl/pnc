@@ -21,12 +21,11 @@ import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface BuildRecordPushResultRepository extends Repository<BuildRecordPushResult, UUID> {
+public interface BuildRecordPushResultRepository extends Repository<BuildRecordPushResult, Long> {
 
     BuildRecordPushResult getLatestForBuildRecord(Integer buildRecordId);
 

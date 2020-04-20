@@ -38,7 +38,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 12:57 PM
@@ -47,13 +46,13 @@ import java.util.UUID;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = @Index(name = "idx_productmilestonerelease_milestone", columnList = "milestone_id"))
-public class ProductMilestoneRelease implements GenericEntity<UUID> {
+public class ProductMilestoneRelease implements GenericEntity<Long> {
     private static final long serialVersionUID = -9033616377795309672L;
     public static final String SEQUENCE_NAME = "product_milestone_release_id_seq";
 
     @Id
     @NotNull
-    private UUID id;
+    private Long id;
 
     @NotNull
     @ManyToOne(cascade = { CascadeType.REFRESH })
@@ -76,12 +75,12 @@ public class ProductMilestoneRelease implements GenericEntity<UUID> {
     private Date endDate;
 
     @Override
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
     @Override
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

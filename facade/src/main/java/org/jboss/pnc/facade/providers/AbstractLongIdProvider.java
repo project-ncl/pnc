@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.security.PermitAll;
-import java.util.UUID;
 
 /**
  * Abstract provider with common functionality.
@@ -41,40 +40,40 @@ import java.util.UUID;
  * @param <REF> The reference DTO entity type
  */
 @PermitAll // required to allow all non explicitly restricted operations in EJB that use other restrictions
-public abstract class AbstractUUIDIdProvider<DB extends GenericEntity<UUID>, DTO extends REF, REF extends DTOEntity>
-        extends AbstractProvider<UUID, DB, DTO, REF> implements Provider<UUID, DB, DTO, REF> {
+public abstract class AbstractLongIdProvider<DB extends GenericEntity<Long>, DTO extends REF, REF extends DTOEntity>
+        extends AbstractProvider<Long, DB, DTO, REF> implements Provider<Long, DB, DTO, REF> {
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractUUIDIdProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractLongIdProvider.class);
 
-    public AbstractUUIDIdProvider(
-            Repository<DB, UUID> repository,
-            EntityMapper<UUID, DB, DTO, REF> mapper,
+    public AbstractLongIdProvider(
+            Repository<DB, Long> repository,
+            EntityMapper<Long, DB, DTO, REF> mapper,
             Class<DB> type) {
         super(repository, mapper, type);
     }
 
     @Override
     public DTO getSpecific(String id) {
-        DB dbEntity = repository.queryById(UUID.fromString(id));
+        DB dbEntity = repository.queryById(Long.valueOf(id));
         return mapper.toDTO(dbEntity);
     }
 
     @Override
     public void delete(String id) {
         validateBeforeDeleting(id);
-        repository.delete(UUID.fromString(id));
+        repository.delete(Long.valueOf(id));
     }
 
     protected void validateBeforeUpdating(String id, DTO restEntity) {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
                 .validateNotEmptyArgument()
                 .validateAnnotations()
-                .validateAgainstRepository(repository, UUID.fromString(id), true);
+                .validateAgainstRepository(repository, Long.valueOf(id), true);
     }
 
     protected void validateBeforeDeleting(String id) {
         ValidationBuilder.validateObject(WhenDeleting.class)
-                .validateAgainstRepository(repository, UUID.fromString(id), true)
+                .validateAgainstRepository(repository, Long.valueOf(id), true)
                 .validateAnnotations();
     }
 }

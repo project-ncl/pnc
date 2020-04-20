@@ -31,13 +31,12 @@ import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 1:50 PM
  */
 @Stateless
-public class ProductMilestoneReleaseRepositoryImpl extends AbstractRepository<ProductMilestoneRelease, UUID>
+public class ProductMilestoneReleaseRepositoryImpl extends AbstractRepository<ProductMilestoneRelease, Long>
         implements ProductMilestoneReleaseRepository {
 
     private ProductMilestoneReleaseSpringRepository repository;

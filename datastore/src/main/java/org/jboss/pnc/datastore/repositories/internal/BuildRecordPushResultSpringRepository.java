@@ -22,12 +22,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import javax.enterprise.context.Dependent;
-import java.util.UUID;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Dependent
 public interface BuildRecordPushResultSpringRepository
-        extends JpaRepository<BuildRecordPushResult, UUID>, JpaSpecificationExecutor<BuildRecordPushResult> {
+        extends JpaRepository<BuildRecordPushResult, Long>, JpaSpecificationExecutor<BuildRecordPushResult> {
 }

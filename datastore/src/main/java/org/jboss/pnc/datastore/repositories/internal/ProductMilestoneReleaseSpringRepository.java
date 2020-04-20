@@ -22,12 +22,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 import javax.enterprise.context.Dependent;
-import java.util.UUID;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 1:46 PM
  */
 @Dependent
 public interface ProductMilestoneReleaseSpringRepository
-        extends JpaRepository<ProductMilestoneRelease, UUID>, JpaSpecificationExecutor<ProductMilestoneRelease> {
+        extends JpaRepository<ProductMilestoneRelease, Long>, JpaSpecificationExecutor<ProductMilestoneRelease> {
 }
