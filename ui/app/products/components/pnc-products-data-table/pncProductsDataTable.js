@@ -60,14 +60,6 @@
       {
         id: 'abbreviation',
         title: 'Abbreviation'
-      },
-      {
-        id: 'productCode',
-        title: 'Product Code'
-      },
-      {
-        id: 'pgmSystemName',
-        title: 'PGM System Name'
       }];
 
       $ctrl.productsSortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
