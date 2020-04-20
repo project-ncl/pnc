@@ -40,7 +40,7 @@
 
     function create(product) {
       ProductResource.save(product).$promise.then(
-        response => $state.go('products.detail', { id: response.id }),
+        response => $state.go('products.detail', { productId: response.id }),
         error => console.error('Error creating product: %O', error)
       );
     }
