@@ -21,6 +21,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
@@ -33,6 +34,7 @@ public class BuildRecordAttribute implements Serializable {
     // specify the column name for backwards compatibility with how it was named in PNC 1.x
     @Id
     @Column(name = "build_record_id")
+    @ManyToOne
     private BuildRecord buildRecord;
 
     @Id
