@@ -33,7 +33,7 @@ public class BuildRecordAttribute implements Serializable {
     // specify the column name for backwards compatibility with how it was named in PNC 1.x
     @Id
     @Column(name = "build_record_id")
-    private Integer buildRecordId;
+    private BuildRecord buildRecord;
 
     @Id
     private String key;
@@ -43,14 +43,14 @@ public class BuildRecordAttribute implements Serializable {
     public BuildRecordAttribute() {
     }
 
-    public BuildRecordAttribute(Integer buildRecordId, String key, String value) {
-        this.buildRecordId = buildRecordId;
+    public BuildRecordAttribute(BuildRecord buildRecord, String key, String value) {
+        this.buildRecord = buildRecord;
         this.key = key;
         this.value = value;
     }
 
-    public Integer getBuildRecordId() {
-        return buildRecordId;
+    public BuildRecord getBuildRecord() {
+        return buildRecord;
     }
 
     public String getKey() {
@@ -61,8 +61,8 @@ public class BuildRecordAttribute implements Serializable {
         return value;
     }
 
-    public void setBuildRecordId(Integer buildRecordId) {
-        this.buildRecordId = buildRecordId;
+    public void setBuildRecord(BuildRecord buildRecord) {
+        this.buildRecord = buildRecord;
     }
 
     public void setKey(String key) {
@@ -110,11 +110,11 @@ public class BuildRecordAttribute implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         BuildRecordAttribute that = (BuildRecordAttribute) o;
-        return buildRecordId.equals(that.buildRecordId) && key.equals(that.key);
+        return buildRecord.equals(that.buildRecord) && key.equals(that.key);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(buildRecordId, key);
+        return Objects.hash(buildRecord, key);
     }
 }
