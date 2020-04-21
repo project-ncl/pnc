@@ -84,8 +84,8 @@ public class BuildRecordAttribute implements Serializable {
         public AttributeId() {
         }
 
-        public AttributeId(Integer buildRecordId, String key) {
-            this.buildRecordId = buildRecordId;
+        public AttributeId(BuildRecord buildRecord, String key) {
+            this.buildRecordId = buildRecord.getId();
             this.key = key;
         }
 
