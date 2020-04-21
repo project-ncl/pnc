@@ -51,7 +51,9 @@ public class NotificationTest {
                 1,
                 BuildCoordinationStatus.BUILDING,
                 "build-42",
-                true
+                true,
+                "scmrev-1a2d",
+                "final-scm-tag"
         );
 
         String buildStr = new ObjectMapper().writeValueAsString(build);
