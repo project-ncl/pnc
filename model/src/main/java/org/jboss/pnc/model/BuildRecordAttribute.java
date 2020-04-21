@@ -77,7 +77,7 @@ public class BuildRecordAttribute implements Serializable {
 
     public static class AttributeId implements Serializable {
 
-        Integer buildRecordId;
+        BuildRecord buildRecord;
 
         String key;
 
@@ -85,7 +85,7 @@ public class BuildRecordAttribute implements Serializable {
         }
 
         public AttributeId(BuildRecord buildRecord, String key) {
-            this.buildRecordId = buildRecord.getId();
+            this.buildRecord = buildRecord;
             this.key = key;
         }
 
@@ -96,12 +96,12 @@ public class BuildRecordAttribute implements Serializable {
             if (o == null || getClass() != o.getClass())
                 return false;
             AttributeId that = (AttributeId) o;
-            return buildRecordId.equals(that.buildRecordId) && key.equals(that.key);
+            return buildRecord.getId().equals(that.buildRecord.getId()) && key.equals(that.key);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(buildRecordId, key);
+            return Objects.hash(buildRecord.getId(), key);
         }
     }
 
