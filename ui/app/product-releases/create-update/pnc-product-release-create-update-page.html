@@ -19,31 +19,35 @@
 -->
 <div>
   <div class="page-header">
-    <h1 ng-if="!releaseCreateUpdateCtrl.isUpdating">Create release for {{ releaseCreateUpdateCtrl.product.name }} {{ releaseCreateUpdateCtrl.productVersion.version }}</h1>
-    <h1 ng-if="releaseCreateUpdateCtrl.isUpdating">Update release {{ releaseCreateUpdateCtrl.data.version }} of {{ releaseCreateUpdateCtrl.product.name }} {{ releaseCreateUpdateCtrl.productVersion.version }}</h1>
+    <h1 ng-if="!$ctrl.isUpdating">Create release for {{ $ctrl.product.name }} {{ $ctrl.productVersion.version }}</h1>
+    <h1 ng-if="$ctrl.isUpdating">Update release {{ $ctrl.data.version }} of {{ $ctrl.product.name }} {{ $ctrl.productVersion.version }}</h1>
   </div>
 
   <div class="row">
     <div class="col-md-8 col-lg-6">
+      <div class="alert alert-warning" ng-if="$ctrl.isLoaded && !$ctrl.isUpdating && !$ctrl.productMilestonesWithoutProductRelease.length">
+        <span class="pficon pficon-warning-triangle-o"></span>
+        <strong>New Product Release cannot be created.</strong> No Product Milestone without already assigned Product Release exists. 
+      </div>
+
       <!-- novalidate prevents HTML5 validation since we will be validating ourselves -->
-      <form class="form-horizontal" name="releaseForm" novalidate ng-submit="releaseCreateUpdateCtrl.submit()">
+      <form class="form-horizontal" name="productReleaseForm" novalidate ng-submit="$ctrl.submit()"><fieldset ng-disabled="!$ctrl.isUpdating && !$ctrl.productMilestonesWithoutProductRelease.length">
 
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : releaseForm.version.$invalid && !releaseForm.version.$pristine }">
+            <div class="form-group" ng-class="{ 'has-error' : productReleaseForm.version.$invalid && !productReleaseForm.version.$pristine }">
               <label for="input-version" class="col-sm-2 control-label">
                 * Version&nbsp;<a uib-popover="Release part of the product version, e.g. '0.GA' for product version '1.0'."
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-
                    href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
-                  <span class="input-group-addon">{{ releaseCreateUpdateCtrl.productVersion.version }}.</span>
-                  <input required id="input-version" class="form-control" name="version" maxlength="255" ng-model="releaseCreateUpdateCtrl.version" pattern="^[0-9]+\.[\w]+$">
+                  <span class="input-group-addon">{{ $ctrl.productVersion.version }}.</span>
+                  <input required id="input-version" class="form-control" name="version" maxlength="255" ng-model="$ctrl.version" pattern="^[0-9]+\.[\w]+$">
                 </div>
-                <span class="help-block" ng-show="releaseForm.version.$error.required && !releaseForm.version.$pristine">Required field.</span>
-                <span class="help-block" ng-show="releaseForm.version.$error.pattern && !releaseForm.version.$pristine">Version must start with a number, followed by a dot and then a qualifier (e.g GA)</span>
+                <span class="help-block" ng-show="productReleaseForm.version.$error.required && !productReleaseForm.version.$pristine">Required field.</span>
+                <span class="help-block" ng-show="productReleaseForm.version.$error.pattern && !productReleaseForm.version.$pristine">Version must start with a number, followed by a dot and then a qualifier (e.g GA)</span>
               </div>
             </div>
           </div>
@@ -51,21 +55,20 @@
 
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : releaseForm.releaseDate.$invalid && !releaseForm.releaseDate.$pristine }">
+            <div class="form-group" ng-class="{ 'has-error' : productReleaseForm.releaseDate.$invalid && !productReleaseForm.releaseDate.$pristine }">
               <label for="input-end-date" class="col-sm-2 control-label">
                 * Release date&nbsp;<a uib-popover="Release date, e.g. '2035/01/15', time is set to noon UTC."
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-
                    href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
-                  <input type="text" class="form-control" uib-datepicker-popup="yyyy/MM/dd" ng-model="releaseCreateUpdateCtrl.releaseDate" is-open="releaseCreateUpdateCtrl.releaseDateOpen" ng-required="true">
+                  <input type="text" class="form-control" uib-datepicker-popup="yyyy/MM/dd" ng-model="$ctrl.releaseDate" is-open="$ctrl.releaseDateOpen" ng-required="true">
                   <span class="input-group-btn">
-                    <button type="button" class="btn btn-default" ng-click="releaseCreateUpdateCtrl.releaseDateOpen = !releaseCreateUpdateCtrl.releaseDateOpen"><i class="glyphicon glyphicon-calendar"></i></button>
+                    <button type="button" class="btn btn-default" ng-click="$ctrl.releaseDateOpen = !$ctrl.releaseDateOpen"><i class="glyphicon glyphicon-calendar"></i></button>
                   </span>
                 </div>
-                <span class="help-block" ng-show="releaseForm.releaseDate.$error.required && !releaseForm.releaseDate.$pristine">Required field.</span>
+                <span class="help-block" ng-show="productReleaseForm.releaseDate.$error.required && !productReleaseForm.releaseDate.$pristine">Required field.</span>
               </div>
             </div>
           </div>
@@ -73,66 +76,65 @@
 
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : releaseForm.milestone.$invalid && !releaseForm.milestone.$pristine }">
+            <div class="form-group" ng-class="{ 'has-error' : productReleaseForm.milestone.$invalid && !productReleaseForm.milestone.$pristine }">
               <label for="input-milestone" class="col-sm-2 control-label">* From Milestone </label>
-              <div ng-if="!releaseCreateUpdateCtrl.isUpdating" class="col-sm-10">
-                <select id="input-milestone" required name="milestone" ng-model="releaseCreateUpdateCtrl.productMilestoneId" >
+              <div ng-if="!$ctrl.isUpdating" class="col-sm-10">
+                <span ng-if="!$ctrl.productMilestonesWithoutProductRelease.length">---</span>
+                <select ng-if="$ctrl.productMilestonesWithoutProductRelease.length" id="input-milestone" required name="milestone" ng-model="$ctrl.productMilestoneId">
                   <option></option>
-                  <option ng-repeat="milestone in releaseCreateUpdateCtrl.versionMilestones" value="{{ milestone.id }}">
-                    {{ milestone.version }}
+                  <option ng-repeat="productMilestone in $ctrl.productMilestonesWithoutProductRelease" value="{{ productMilestone.id }}">
+                    {{ productMilestone.version }}
                   </option>
                 </select>
-                <span class="help-block" ng-show="releaseForm.milestone.$invalid && !releaseForm.milestone.$pristine">Required field.</span>
+                <span class="help-block" ng-show="productReleaseForm.milestone.$invalid && !productReleaseForm.milestone.$pristine">Required field.</span>
               </div>
-              <div ng-if="releaseCreateUpdateCtrl.isUpdating" class="col-sm-10">
-                <label for="input-milestone" class="control-label bigger-text">{{ releaseCreateUpdateCtrl.productMilestoneVersion }}</label>
+              <div ng-if="$ctrl.isUpdating" class="col-sm-10">
+                <label for="input-milestone" class="control-label bigger-text">{{ $ctrl.data.productMilestone.version }}</label>
               </div>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error' : releaseForm.supportlevel.$invalid && !releaseForm.supportlevel.$pristine }">
+            <div class="form-group" ng-class="{ 'has-error' : productReleaseForm.supportlevel.$invalid && !productReleaseForm.supportlevel.$pristine }">
               <label for="input-supportlevel" class="col-sm-2 control-label">* Support Level </label>
               <div class="col-sm-10">
-                <select id="input-supportlevel" required name="supportlevel"  ng-model="releaseCreateUpdateCtrl.data.supportLevel"
-                  ng-options="supportLevel for supportLevel in releaseCreateUpdateCtrl.supportLevels">
+                <select id="input-supportlevel" required name="supportlevel"  ng-model="$ctrl.data.supportLevel"
+                  ng-options="supportLevel for supportLevel in $ctrl.supportLevels">
                   <option></option>
                 </select>
-                <span class="help-block" ng-show="releaseForm.supportlevel.$invalid && !releaseForm.supportlevel.$pristine">Required field.</span>
+                <span class="help-block" ng-show="productReleaseForm.supportlevel.$invalid && !productReleaseForm.supportlevel.$pristine">Required field.</span>
               </div>
             </div>
           </div>
         </div>
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : releaseForm.downloadurl.$invalid && !releaseForm.downloadurl.$pristine }">
+            <div class="form-group" ng-class="{ 'has-error' : productReleaseForm.downloadurl.$invalid && !productReleaseForm.downloadurl.$pristine }">
               <label for="input-downloadurl" class="col-sm-2 control-label">
                 Download URL&nbsp;<a uib-popover="Internal or public location to download the product distribution artifacts"
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-
                    href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
-                  <input type="url" name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" maxlength="255" ng-model="releaseCreateUpdateCtrl.data.downloadUrl">
+                  <input type="url" name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" maxlength="255" ng-model="$ctrl.data.downloadUrl">
                 </div>
-                <span class="help-block" ng-show="releaseForm.downloadurl.$invalid && !releaseForm.downloadurl.$pristine">Malformed URL.</span>
+                <span class="help-block" ng-show="productReleaseForm.downloadurl.$invalid && !productReleaseForm.downloadurl.$pristine">Malformed URL.</span>
               </div>
             </div>
           </div>
         </div>
         <div class="panel panel-default">
           <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : releaseForm.issuetrackerurl.$invalid && !releaseForm.issuetrackerurl.$pristine }">
+            <div class="form-group" ng-class="{ 'has-error' : productReleaseForm.issuetrackerurl.$invalid && !productReleaseForm.issuetrackerurl.$pristine }">
               <label for="input-issuetrackerurl" class="col-sm-2 control-label">
                 * Issue Tracker URL&nbsp;<a uib-popover="Link to issues fixed in this release"
                    popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-
                    href><span class="fa fa-info-circle"></span></a>
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
-                  <input type="url" required name="issuetrackerurl" id="input-issuetrackerurl" class="form-control" name="issueTrackerUrl" maxlength="255" ng-model="releaseCreateUpdateCtrl.data.issueTrackerUrl">
+                  <input type="url" required name="issuetrackerurl" id="input-issuetrackerurl" class="form-control" name="issueTrackerUrl" maxlength="255" ng-model="$ctrl.data.issueTrackerUrl">
                 </div>
-                <span class="help-block" ng-show="releaseForm.issuetrackerurl.$invalid && !releaseForm.issuetrackerurl.$pristine">Malformed URL.</span>
+                <span class="help-block" ng-show="productReleaseForm.issuetrackerurl.$invalid && !productReleaseForm.issuetrackerurl.$pristine">Malformed URL.</span>
               </div>
             </div>
           </div>
@@ -140,12 +142,12 @@
 
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <input ng-if="!releaseCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Create" ng-disabled="releaseForm.$invalid">
-            <input ng-if="releaseCreateUpdateCtrl.isUpdating" type="submit" class="btn btn-primary" value="Update" ng-disabled="releaseForm.$invalid">
+            <input ng-if="!$ctrl.isUpdating" type="submit" class="btn btn-primary" value="Create" ng-disabled="productReleaseForm.$invalid">
+            <input ng-if="$ctrl.isUpdating" type="submit" class="btn btn-primary" value="Update" ng-disabled="productReleaseForm.$invalid">
             <input type="reset" class="btn btn-default" value="Clear">
           </div>
         </div>
-      </form>
+      </fieldset></form>
     </div>
   </div>
 </div>
