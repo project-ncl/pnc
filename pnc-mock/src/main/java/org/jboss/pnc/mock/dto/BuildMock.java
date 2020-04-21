@@ -50,7 +50,9 @@ public class BuildMock {
                 id,
                 status,
                 "build-42",
-                true
+                true,
+                "scmrev-1a2d",
+                "final-scm-tag"
         );
     }
 

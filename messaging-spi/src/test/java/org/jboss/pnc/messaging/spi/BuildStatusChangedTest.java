@@ -57,7 +57,9 @@ public class BuildStatusChangedTest {
                 1,
                 BuildCoordinationStatus.BUILDING,
                 "build-42",
-                true
+                true,
+                "scmrev-1a2d",
+                "final-scm-tag"
         );
 
         String pncBuildId = "123";

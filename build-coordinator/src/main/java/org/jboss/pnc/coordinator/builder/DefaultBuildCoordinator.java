@@ -64,7 +64,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
@@ -478,7 +477,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         Optional<BuildTask> alreadyActiveBuildTask = buildQueue.getUnfinishedTask(buildTask.getBuildConfigurationAudited());
         if (alreadyActiveBuildTask.isPresent()) {
             updateBuildTaskStatus(buildTask, BuildCoordinationStatus.REJECTED,
-                    "The configuration is already in the build queue.");
+                    "The configuration is already in the build queue.", Optional.empty());
             return false;
         } else {
             return true;
@@ -486,11 +485,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status){
-        updateBuildTaskStatus(task, status, null);
+        updateBuildTaskStatus(task, status, null,  Optional.empty());
     }
 
-    private void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription){
-
+    private void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription, Optional<BuildResult> buildResult){
         MDCUtils.addContext(getMDCMeta(task));
         BuildCoordinationStatus oldStatus = task.getStatus();
 
@@ -542,20 +540,27 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         List<Integer> dependants = task.getDependants().stream().map(t -> t.getId()).collect(Collectors.toList());
         List<Integer> dependencies = task.getDependencies().stream().map(t -> t.getId()).collect(Collectors.toList());
-        Build build = new Build(
-                project,
-                repository,
-                buildEnvironment,
-                Collections.<String,String>emptyMap(),
-                user,
-                buildConfigurationRevisionRef,
-                dependants,
-                dependencies,
-                task.getId(),
-                status,
-                task.getContentId(),
-                task.getBuildOptions().isTemporaryBuild()
-        );
+
+        Build.Builder buildBuilder = Build.builder()
+                .project(project)
+                .repository(repository)
+                .buildEnvironmentId(buildEnvironment)
+                .attributes(Collections.emptyMap())
+                .user(user)
+                .buildConfigurationAudited(buildConfigurationRevisionRef)
+                .dependentBuildIds(dependants)
+                .dependencyBuildIds(dependencies)
+                .id(task.getId())
+                .status(status)
+                .buildContentId(task.getContentId())
+                .temporaryBuild(task.getBuildOptions().isTemporaryBuild());
+
+        buildResult.ifPresent(result -> result.getBuildExecutionConfiguration().ifPresent( configuration -> {
+                buildBuilder.scmRevision(configuration.getScmRevision());
+                buildBuilder.scmTag(configuration.getScmTag());
+            }));
+
+        Build build = buildBuilder.build();
         BuildCoordinationStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
                 build,
                 oldStatus,
@@ -651,7 +656,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             buildScheduler.startBuilding(task, onComplete);
         } catch (CoreException | ExecutorException e) {
             log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
-            updateBuildTaskStatus(task, BuildCoordinationStatus.SYSTEM_ERROR, e.getMessage());
+            updateBuildTaskStatus(task, BuildCoordinationStatus.SYSTEM_ERROR, e.getMessage(), Optional.empty());
             try {
                 datastoreAdapter.storeResult(task, Optional.empty(), e);
             } catch (DatastoreException e1) {
@@ -660,7 +665,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         } catch (Error error) {
             log.error("Build coordination task failed with error! Setting it as SYSTEM_ERROR.", error);
             log.error("The system probably is in an invalid state!");
-            updateBuildTaskStatus(task,BuildCoordinationStatus.SYSTEM_ERROR, error.getMessage());
+            updateBuildTaskStatus(task,BuildCoordinationStatus.SYSTEM_ERROR, error.getMessage(), Optional.empty());
             try {
                 datastoreAdapter.storeResult(task, Optional.empty(), error);
             } catch (DatastoreException e1) {
@@ -776,7 +781,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             log.error("[buildTaskId: "+buildTaskId+"] Cannot store results to datastore.", e);
             coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         } finally {
-            updateBuildTaskStatus(buildTask, coordinationStatus);
+            updateBuildTaskStatus(buildTask, coordinationStatus, "", Optional.ofNullable(buildResult));
             //Starts when the build execution completes
             ProcessStageUtils.logProcessStageEnd("FINALIZING_BUILD", "Finalizing completed.");
         }
@@ -873,11 +878,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         if (failedTask.getStatus() == BuildCoordinationStatus.CANCELLED) {
             updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.CANCELLED,
-                    "Dependent build " + failedTask.getBuildConfigurationAudited().getName() + " was cancelled");
+                    "Dependent build " + failedTask.getBuildConfigurationAudited().getName() + " was cancelled", Optional.empty());
         }
         else {
             updateBuildTaskStatus(dependentTask, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
-                    "Dependent build " + failedTask.getBuildConfigurationAudited().getName() + " failed.");
+                    "Dependent build " + failedTask.getBuildConfigurationAudited().getName() + " failed.", Optional.empty());
         }
         log.trace("Status of build task {} updated.", dependentTask);
         storeRejectedTask(dependentTask);

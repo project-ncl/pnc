@@ -45,6 +45,10 @@ public class BuildRef implements DTOEntity {
 
     protected Boolean temporaryBuild;
 
+    private String scmRevision;
+
+    private String scmTag;
+
     @JsonPOJOBuilder(withPrefix = "")
     public static final class Builder {
     }
