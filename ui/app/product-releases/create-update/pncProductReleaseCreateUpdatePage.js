@@ -15,121 +15,105 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function() {
+  'use strict';
 
-  var module = angular.module('pnc.product-releases');
+  angular.module('pnc.product-releases').component('pncProductReleaseCreateUpdatePage', {
+    bindings: {
+      product: '<',
+      productRelease: '<',
+      productVersion: '<',
+    },
+    templateUrl: 'product-releases/create-update/pnc-product-release-create-update-page.html',
+    controller: ['ProductVersionResource', 'ProductReleaseResource', 'dateUtilConverter', '$state', Controller]
+  });
 
-  module.controller('ReleaseCreateUpdateController', [
-    '$scope',
-    '$state',
-    '$stateParams',
-    '$log',
-    'ProductReleaseDAO',
-    'ProductMilestoneDAO',
-    'productDetail',
-    'versionDetail',
-    'releaseDetail',
-    'dateUtilConverter',
-    function($scope, $state, $stateParams, $log, ProductReleaseDAO, ProductMilestoneDAO,
-      productDetail, versionDetail, releaseDetail, dateUtilConverter) {
+  function Controller(ProductVersionResource, ProductReleaseResource, dateUtilConverter, $state) {
+    const $ctrl = this;
 
-      var that = this;
+    // -- Controller API --
+    $ctrl.isUpdating = false;
+    $ctrl.isLoaded = false;
 
-      that.product = productDetail;
-      that.productVersion = versionDetail;
-      that.versionMilestones = [];
-      that.usedVersionMilestoneIds = [];
-      that.supportLevels = [];
-      that.releaseDate = null; // date component, see also that.data.releaseDate
+    $ctrl.productMilestonesWithoutProductRelease = [];
+    $ctrl.supportLevels = [];
+    $ctrl.releaseDate = null;
 
-      that.isUpdating = false;
-      that.data = new ProductReleaseDAO();
+    $ctrl.data = new ProductReleaseResource();
 
-      if (releaseDetail !== null) {
-        that.isUpdating = true;
-        that.data = releaseDetail;
-        that.productMilestoneId = releaseDetail.productMilestoneId;
+
+
+    // --------------------
+
+    $ctrl.$onInit = () => {
+
+      // updating existing Product Release
+      if ($ctrl.productRelease !== null) {
+        $ctrl.isUpdating = true;
+        $ctrl.data = $ctrl.productRelease;
+        $ctrl.productMilestoneId = $ctrl.productRelease.productMilestone.id;
 
         // Remove the prefix
-        that.version = that.data.version.substring(versionDetail.version.length + 1);
-
+        $ctrl.version = $ctrl.data.version.substring($ctrl.productVersion.version.length + 1);
+        
         // date component <- timestamp
-        that.releaseDate = new Date(that.data.releaseDate);
+        $ctrl.releaseDate = new Date($ctrl.data.releaseDate);
       }
 
-      // I need to gather the existing Releases, as Milestone can be associated with only one Release at the most
-      ProductReleaseDAO.getAllForProductVersion({
-        versionId: that.productVersion.id
-      }, {}).then(
-        function(results) {
-          angular.forEach(results, function(result) {
-            that.usedVersionMilestoneIds.push(result.productMilestoneId);
-          });
 
-          // Only Milestones that are not yet used in this Product Version will be listed
-          ProductMilestoneDAO.getAllForProductVersion({
-            versionId: that.productVersion.id
-          }, {}).then(
-            function(results) {
-              angular.forEach(results, function(result) {
-                if (that.usedVersionMilestoneIds.indexOf(result.id) === -1) {
-                  that.versionMilestones.push(result);
-                }
-                if (that.productMilestoneId && result.id === that.productMilestoneId) {
-                  that.productMilestoneVersion = result.version;
-                }
-              });
-            }
-          );
-        }
-      );
+      ProductVersionResource.queryMilestones({
+        id: $ctrl.productVersion.id,
+        pageSize: 200
+      }).$promise.then((productMilestonesResult => {
+        // I need to gather the existing Releases, as Milestone can be associated with only one Release at the most
+        $ctrl.productMilestonesWithoutProductRelease = productMilestonesResult.data.filter(productMilestone => !productMilestone.productRelease);
+        $ctrl.isLoaded = true;
+      }));
 
-      ProductReleaseDAO.getAllSupportLevel({
-        versionId: that.productVersion.id
-      }, {}).then(
-        function(results) {
-          that.supportLevels = results;
-        }
-      );
+      ProductReleaseResource.querySupportLevels().$promise.then((supportLevelsResult) => {
+        $ctrl.supportLevels = supportLevelsResult;
+      });
 
-      that.submit = function() {
+    };
 
-        that.data.version = versionDetail.version + '.' + that.version; // add the prefix
-        // timestamp <- date component
-        that.data.releaseDate = dateUtilConverter.convertToTimestampNoon(that.releaseDate);
-        that.data.productVersionId = versionDetail.id;
-        that.data.productMilestoneId = parseInt(that.productMilestoneId);
 
-        // Distinguish between release creation and update
-        if (!that.isUpdating) {
-          that.data.$save().then(
-            function() {
-              $state.go('product.detail.version', {
-                productId: productDetail.id,
-                versionId: versionDetail.id
-              }, {
-                reload: true
-              });
-            }
-          );
-        } else {
-          that.data.$update().then(
-            function() {
-              $state.go('product.detail.version', {
-                productId: productDetail.id,
-                versionId: versionDetail.id
-              }, {
-                reload: true
-              });
-            }
-          );
-        }
+    $ctrl.submit = () => {
+
+      // add the prefix
+      $ctrl.data.version = $ctrl.productVersion.version + '.' + $ctrl.version;
+      
+      // timestamp <- date component
+      $ctrl.data.releaseDate = dateUtilConverter.convertToUTCNoon($ctrl.releaseDate);
+      
+      $ctrl.data.productVersion = {
+        id: $ctrl.productVersion.id
+      };
+      $ctrl.data.productMilestone = {
+        id: parseInt($ctrl.productMilestoneId)
       };
 
-      dateUtilConverter.initDatePicker($scope);
+      // updating existing Product Release
+      if ($ctrl.isUpdating) {
+        $ctrl.data.$update().then(() => {
+          reloadPage($ctrl.product.id, $ctrl.productVersion.id);
+        });
+
+      // creating new Product Release
+      } else {
+        $ctrl.data.$save().then(() => {
+          reloadPage($ctrl.product.id, $ctrl.productVersion.id);
+        });
+      }
+    };
+
+    function reloadPage(productId, productVersionId) {
+      $state.go('products.detail.product-versions.detail', {
+        productId: productId,
+        productVersionId: productVersionId
+      }, {
+        reload: true
+      });
     }
-  ]);
+  }
 
 })();
