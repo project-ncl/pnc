@@ -29,43 +29,45 @@
 
   module.config(['$stateProvider', function ($stateProvider) {
     $stateProvider
-    .state('product.detail.version.releaseCreate', {
-      url: '/releases/create',
+
+    .state('products.detail.product-versions.detail.release', {
+      abstract: true,
+      url: '/releases',
       views: {
         'content@': {
-          templateUrl: 'product-releases/views/release.create-update.html',
-          controller: 'ReleaseCreateUpdateController',
-          controllerAs: 'releaseCreateUpdateCtrl',
+          templateUrl: 'common/templates/single-col.tmpl.html'
         }
       },
+      data: {
+        proxy: 'products.detail.product-versions.detail'
+      }
+    })
+
+    .state('products.detail.product-versions.detail.release.create', {
+      url: '/create',
+      component: 'pncProductReleaseCreateUpdatePage',
       data: {
         displayName: 'Create Release',
-        title: '{{ versionDetail.version }} | {{ productDetail.name }} | Create Release',
+        title: '{{ productVersion.version }} | {{ product.name }} | Create Release',
         requireAuth: true
       },
       resolve: {
-        releaseDetail: [function() { return null; }]
+        productRelease: [function() { return null; }]
       },
     })
-    .state('product.detail.version.releaseUpdate', {
-      url: '/releases/{releaseId}/update',
-      views: {
-        'content@': {
-          templateUrl: 'product-releases/views/release.create-update.html',
-          controller: 'ReleaseCreateUpdateController',
-          controllerAs: 'releaseCreateUpdateCtrl',
-        }
-      },
+
+    .state('products.detail.product-versions.detail.release.update', {
+      url: '/{releaseId}/update',
+      component: 'pncProductReleaseCreateUpdatePage',
       data: {
         displayName: 'Update Release',
-        title: '{{ release.version }} | {{ productDetail.name }} | Update Release',
+        title: '{{ productVersion.version }} | {{ product.name }} | Update Release',
         requireAuth: true
       },
       resolve: {
-        releaseDetail: ['ProductReleaseDAO', '$stateParams', function(ProductReleaseDAO, $stateParams) {
-          return ProductReleaseDAO.get({ releaseId: $stateParams.releaseId })
-          .$promise;
-        }],
+        productRelease: ['ProductReleaseResource', '$stateParams', (ProductReleaseResource, $stateParams) => ProductReleaseResource.get({
+          id: $stateParams.releaseId
+        }).$promise]
       },
     });
 

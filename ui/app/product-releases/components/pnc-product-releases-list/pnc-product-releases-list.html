@@ -41,7 +41,7 @@
       <td>Released from milestone <pnc-milestone-label-link product-version="productRelease.productVersion" milestone="productRelease.productMilestone"></pnc-milestone-label-link></td>
       <td>{{ productRelease.supportLevel }}</td>
       <td>
-        <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Edit Release" ui-sref="product.detail.version.releaseUpdate({ releaseId: productRelease.id })">
+        <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Edit Release" ui-sref="products.detail.product-versions.detail.release.update({ releaseId: productRelease.id })">
           <i class="pficon pficon-edit"></i>
         </button>
         <button type="button" class="btn btn-sm btn-danger disabled" data-toggle="tooltip" title="Delete Release">
