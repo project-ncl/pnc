@@ -280,7 +280,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(
-            mappedBy = "build_record_attributes",
+            mappedBy = "build_record_id",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
             fetch = FetchType.EAGER)
