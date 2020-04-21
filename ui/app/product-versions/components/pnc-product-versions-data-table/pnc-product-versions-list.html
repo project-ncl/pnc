@@ -44,7 +44,7 @@
       </td>
       <td ng-if="::$ctrl.showColumn('releases')">
         <span ng-repeat="release in productVersion.productReleases">
-          <pnc-release-label-link release="release"></pnc-release-label-link>
+          <pnc-product-release-label product-release="release"></pnc-product-release-label>
         </span>
       </td>
       <td class="td-actions" ng-if="::$ctrl.actionsTemplateUrl" ng-include="::$ctrl.actionsTemplateUrl"></td>
