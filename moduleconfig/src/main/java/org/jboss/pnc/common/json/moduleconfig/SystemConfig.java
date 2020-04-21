@@ -99,7 +99,8 @@ public class SystemConfig extends AbstractModuleConfig {
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault("coordinatorMaxConcurrentBuilds", coordinatorMaxConcurrentBuilds, 10);
         this.brewTagPattern = brewTagPattern;
         this.keycloakServiceAccountConfig = keycloakServiceAccountConfig;
-        this.serviceTokenRefreshIfExpiresInSeconds = toIntWithDefault("serviceTokenRefreshIfExpiresInSeconds", serviceTokenRefreshIfExpiresInSeconds, 3600);
+        // 24 hour token
+        this.serviceTokenRefreshIfExpiresInSeconds = toIntWithDefault("serviceTokenRefreshIfExpiresInSeconds", serviceTokenRefreshIfExpiresInSeconds, 86400);
         this.temporaryBuildsLifeSpan = toIntWithDefault("temporaryBuildsLifeSpan", temporaryBuildsLifeSpan, 14);
         this.messageSenderId = messageSenderId;
         this.messagingInternalQueueSize = toIntWithDefault("messagingInternalQueueSize", messagingInternalQueueSize, 1000);
