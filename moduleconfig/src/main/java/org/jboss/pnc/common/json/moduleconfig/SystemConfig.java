@@ -97,10 +97,11 @@ public class SystemConfig extends AbstractModuleConfig {
                 10);
         this.brewTagPattern = brewTagPattern;
         this.keycloakServiceAccountConfig = keycloakServiceAccountConfig;
+        // 24 hours
         this.serviceTokenRefreshIfExpiresInSeconds = toIntWithDefault(
                 "serviceTokenRefreshIfExpiresInSeconds",
                 serviceTokenRefreshIfExpiresInSeconds,
-                3600);
+                86400);
         this.temporaryBuildsLifeSpan = toIntWithDefault("temporaryBuildsLifeSpan", temporaryBuildsLifeSpan, 14);
         this.messageSenderId = messageSenderId;
         this.messagingInternalQueueSize = toIntWithDefault(

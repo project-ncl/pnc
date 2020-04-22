@@ -65,9 +65,13 @@ public class DefaultKeycloakServiceClient implements KeycloakServiceClient {
     }
 
     private boolean refreshRequired() {
-        if (expiresAt.isAfter(Instant.now().plus(serviceTokenRefreshIfExpiresInSeconds, ChronoUnit.SECONDS))) {
+
+        if (expiresAt == null) {
+            // if we accidentally call this method before expiresAt is set, then we obviously need to get a new token
             return true;
         }
-        return false;
+        // make sure the token is still valid 'serviceTokenRefreshIfExpiresInSeconds' seconds from now, which is the
+        // max 'supported' duration of a build. We need that token to be valid for actions done at the end of the build
+        return expiresAt.isBefore(Instant.now().plus(serviceTokenRefreshIfExpiresInSeconds, ChronoUnit.SECONDS));
     }
 }
