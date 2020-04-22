@@ -20,6 +20,8 @@ package org.jboss.pnc.model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
@@ -30,7 +32,9 @@ import java.util.Objects;
 public class BuildRecordAttribute implements Serializable {
 
     @Id
-    private Integer buildRecordId;
+    @ManyToOne
+    @JoinColumn(name = "build_record_id")
+    private BuildRecord buildRecord;
 
     @Id
     private String key;
@@ -40,14 +44,14 @@ public class BuildRecordAttribute implements Serializable {
     public BuildRecordAttribute() {
     }
 
-    public BuildRecordAttribute(Integer buildRecordId, String key, String value) {
-        this.buildRecordId = buildRecordId;
+    public BuildRecordAttribute(BuildRecord buildRecord, String key, String value) {
+        this.buildRecord = buildRecord;
         this.key = key;
         this.value = value;
     }
 
-    public Integer getBuildRecordId() {
-        return buildRecordId;
+    public BuildRecord getBuildRecord() {
+        return buildRecord;
     }
 
     public String getKey() {
@@ -58,8 +62,8 @@ public class BuildRecordAttribute implements Serializable {
         return value;
     }
 
-    public void setBuildRecordId(Integer buildRecordId) {
-        this.buildRecordId = buildRecordId;
+    public void setBuildRecord(BuildRecord buildRecord) {
+        this.buildRecord = buildRecord;
     }
 
     public void setKey(String key) {
@@ -72,15 +76,15 @@ public class BuildRecordAttribute implements Serializable {
 
     public static class AttributeId implements Serializable {
 
-        Integer buildRecordId;
+        BuildRecord buildRecord;
 
         String key;
 
         public AttributeId() {
         }
 
-        public AttributeId(Integer buildRecordId, String key) {
-            this.buildRecordId = buildRecordId;
+        public AttributeId(BuildRecord buildRecord, String key) {
+            this.buildRecord = buildRecord;
             this.key = key;
         }
 
@@ -91,12 +95,12 @@ public class BuildRecordAttribute implements Serializable {
             if (o == null || getClass() != o.getClass())
                 return false;
             AttributeId that = (AttributeId) o;
-            return buildRecordId.equals(that.buildRecordId) && key.equals(that.key);
+            return buildRecord.getId().equals(that.buildRecord.getId()) && key.equals(that.key);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(buildRecordId, key);
+            return Objects.hash(buildRecord.getId(), key);
         }
     }
 
@@ -107,11 +111,11 @@ public class BuildRecordAttribute implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         BuildRecordAttribute that = (BuildRecordAttribute) o;
-        return buildRecordId.equals(that.buildRecordId) && key.equals(that.key);
+        return buildRecord.getId().equals(that.buildRecord.getId()) && key.equals(that.key);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(buildRecordId, key);
+        return Objects.hash(buildRecord.getId(), key);
     }
 }
