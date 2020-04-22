@@ -526,12 +526,6 @@
       </dependency>
 
       <dependency>
-        <groupId>com.offbytwo.jenkins</groupId>
-        <artifactId>jenkins-client</artifactId>
-        <version>0.3.1-20150308</version>
-      </dependency>
-
-      <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>${version.guava}</version>
