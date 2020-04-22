@@ -20,6 +20,7 @@ package org.jboss.pnc.model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
@@ -30,6 +31,7 @@ import java.util.Objects;
 public class BuildRecordAttribute implements Serializable {
 
     @Id
+    @JoinColumn(name = "build_record_id")
     private Integer buildRecordId;
 
     @Id
