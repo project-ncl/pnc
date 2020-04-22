@@ -279,8 +279,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Example attributes POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "build_record_id", foreignKey = @ForeignKey(name = "fk_build_record_attributes_build_record"))
+    @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<BuildRecordAttribute> attributes = new HashSet<>();
 
     @Lob
@@ -652,7 +651,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             throw new PersistenceException("Build record id must be set before adding the attributes.");
         }
         Optional<BuildRecordAttribute> old = getAttributeEntity(key);
-        BuildRecordAttribute attribute = new BuildRecordAttribute(this.id, key, value);
+        BuildRecordAttribute attribute = new BuildRecordAttribute(this, key, value);
         old.ifPresent(attributes::remove);
         attributes.add(attribute);
         if (old.isPresent()) {
@@ -970,7 +969,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
             Set<BuildRecordAttribute> buildRecordAttributes = attributes.entrySet()
                     .stream()
-                    .map(kv -> new BuildRecordAttribute(id, kv.getKey(), kv.getValue()))
+                    .map(kv -> new BuildRecordAttribute(buildRecord, kv.getKey(), kv.getValue()))
                     .collect(Collectors.toSet());
             buildRecord.setAttributes(buildRecordAttributes);
 

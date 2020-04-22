@@ -228,7 +228,7 @@ public class BuildRecordPredicates {
             subquery.where(
                     cb.and(
                             cb.equal(subRoot.get(BuildRecordAttribute_.key), key),
-                            cb.equal(root.get(BuildRecord_.id), subRoot.get(BuildRecordAttribute_.buildRecordId))));
+                            cb.equal(root.get(BuildRecord_.id), subRoot.get(BuildRecordAttribute_.buildRecord))));
             return query.where(cb.not(cb.exists(subquery))).getRestriction();
         };
     }
