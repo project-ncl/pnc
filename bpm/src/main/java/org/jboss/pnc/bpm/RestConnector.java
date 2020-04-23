@@ -38,6 +38,7 @@ import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -109,7 +110,7 @@ public class RestConnector implements Connector {
     private void configureRequest(String accessToken, HttpPost request) {
         request.setConfig(httpClientConfig().build());
         request.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
-        request.addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.toString());
+        request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
     }
 
