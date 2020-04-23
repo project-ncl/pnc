@@ -71,6 +71,7 @@
 
     function removeParam(key) {
       delete $ctrl.params[key];
+      $ctrl.paramsUpdated = true;
     }
 
     function hasParams() {

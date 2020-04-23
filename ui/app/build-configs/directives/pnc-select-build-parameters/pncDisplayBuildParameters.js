@@ -34,8 +34,8 @@
     var $ctrl = this,
         editMap = {};
 
-    let buildTypeUpdated = false;
     let appliedBuildType;
+    let paramsLoadingFailed = false;
 
     // -- Controller API --
 
@@ -51,25 +51,13 @@
       $ctrl.currentParams = angular.copy($ctrl.params);
     }
 
-    function setNewParams(parameters){
-      $ctrl.newAlignmentParameters = parameters;
-      if ($ctrl.isEditForm === false){
-        // Build configuration is being created so apply new parameters immediately
-        $ctrl.applyNewParameters();
-      }
+    function isBuildTypeChanged() {
+      return $ctrl.buildType !== appliedBuildType;
     }
 
     $ctrl.$onInit = function(){
       $scope.$watchCollection('$ctrl.params', function () {
         copyParams();
-      });
-
-      $scope.$watch('$ctrl.buildType', function (newBuildType) {
-        if (newBuildType){
-          BuildConfigResource.getAlignmentParameters(newBuildType).then(function (params){
-            setNewParams(params);
-          });
-        }
       });
     };
 
@@ -80,12 +68,10 @@
         if (buildTypeObj.isFirstChange()){
           appliedBuildType = buildTypeObj.currentValue;
         }
-        else if ($ctrl.isEditForm){
-          buildTypeUpdated = buildTypeObj.currentValue !== appliedBuildType;
-        }
+
+        $ctrl.updateAlignmentParams(buildTypeObj.currentValue);
       }
     };
-
 
     $ctrl.$doCheck = function () {
       if (angular.isUndefined($ctrl.currentParams)) {
@@ -96,6 +82,21 @@
         if (!$ctrl.currentParams.hasOwnProperty(key)) {
           copyParam(key);
         }
+      });
+    };
+
+    $ctrl.updateAlignmentParams = function(newBuildType){
+      BuildConfigResource.getAlignmentParameters(newBuildType).then(function (params){
+        $ctrl.newAlignmentParameters = params;
+        paramsLoadingFailed = false;
+
+        if (!$ctrl.isEditForm){
+          // Build configuration is being created so apply new parameters immediately
+          $ctrl.applyNewParameters();
+        }
+
+      }).catch(function () {
+        paramsLoadingFailed = true;
       });
     };
 
@@ -131,13 +132,16 @@
       return !!editMap[key];
     };
 
-    $ctrl.isAlignmentAndBuildTypeChanged = function (key) {
-      return key === 'ALIGNMENT_PARAMETERS' && buildTypeUpdated;
+    $ctrl.isParamsRequestFailed = function (key) {
+      return key === 'ALIGNMENT_PARAMETERS' && paramsLoadingFailed && isBuildTypeChanged();
+    };
+
+    $ctrl.isProposedAlignmentParams = function (key) {
+      return key === 'ALIGNMENT_PARAMETERS' && isBuildTypeChanged() && $ctrl.isEditForm && !paramsLoadingFailed;
     };
 
     $ctrl.applyNewParameters = function () {
       $ctrl.onEdit({ key: 'ALIGNMENT_PARAMETERS', value: $ctrl.newAlignmentParameters});
-      buildTypeUpdated = false;
       appliedBuildType = $ctrl.buildType;
     };
 
