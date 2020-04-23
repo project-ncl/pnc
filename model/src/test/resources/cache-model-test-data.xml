@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<dataset>
+	<!-- Note, build configurations should not be added to this file because 
+		they need to go through the normal JPA insertion in order for the Hibernate 
+		Envers audit trail to be created. -->
+
+	<buildenvironment id="8"
+		name="OpenJDK 1.8.0; Mvn 3.5.2" description="OpenJDK 1.8.0; Mvn 3.5.2"
+		systemImageId="newcastle/builder-rhel-7-j8-mvn3.5.2:latest"
+		systemImageType="DOCKER_IMAGE"
+		systemImageRepositoryUrl="docker-registry-default.cloud.registry.upshift.redhat.com"
+		deprecated="false" />
+	<buildenvironment id="100" name="Demo Environment 1"
+		description="Basic Java and Maven Environment"
+		systemImageId="12345678" systemImageType="DOCKER_IMAGE"
+		systemImageRepositoryUrl="my.registry/newcastle" deprecated="false" />
+
+	<repositoryconfiguration id="103"
+		internalUrl="git+ssh://code.stage.engineering.redhat.com/project-ncl/dependency-analysis.git"
+		externalUrl="https://github.com/project-ncl/dependency-analysis.git"
+		preBuildSyncEnabled="false" />
+	<repositoryconfiguration id="100"
+		internalUrl="git+ssh://code.stage.engineering.redhat.com/project-ncl/pnc.git"
+		preBuildSyncEnabled="false" />
+
+
+	<project id="103" name="Dependency Analysis"
+		description="Dependency Analysis - Analise project dependencies."
+		projectUrl="https://github.com/project-ncl/dependency-analysis" />
+	<project id="100" name="Project Newcastle Demo Project 1"
+		description="Example Project for Newcastle Demo"
+		projectUrl="https://github.com/project-ncl/pnc" />
+
+	<product id="100" name="Project Newcastle Demo Product"
+		description="Example Product for Project Newcastle Demo"
+		abbreviation="PNC" productCode="PNC" pgmSystemName="newcastle" />
+
+	<productversion id="100" product_id="100" version="1.0" />
+
+	<productmilestone id="100" productversion_id="100"
+		version="1.0.0.Build1" />
+	<productmilestone id="101" productversion_id="100"
+		version="1.0.0.Build2" />
+
+
+</dataset>

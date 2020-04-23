@@ -30,8 +30,23 @@
       <!-- Properties for Hibernate -->
       <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
       <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
-      <property name="hibernate.show_sql" value="false"/>
+      <property name="hibernate.show_sql" value="true"/>
       <property name="hibernate.format_sql" value="true"/>
+      <property name="hibernate.generate_statistics" value="true" />
+      <property name="hibernate.session.events.log" value="true" />
+
+      <property name="hibernate.jdbc.batch_size" value="50"/>
+      <property name="hibernate.order_inserts" value="true"/>
+      <property name="hibernate.order_updates" value="true"/>
+      <property name="hibernate.batch_versioned_data" value="true"/>
+
+      <property name="hibernate.cache.use_reference_entries" value="true" />
+      <property name="hibernate.cache.use_second_level_cache" value="true" />
+      <property name="hibernate.cache.use_query_cache" value="false" />
+      <property name="hibernate.cache.region_prefix" value=""/>
+      <property name="hibernate.cache.infinispan.statistics" value="true"/>
+
+      <property name="hibernate.cache.region.factory_class" value="infinispan"/>
     </properties>
   </persistence-unit>
 </persistence>
