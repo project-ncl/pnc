@@ -64,3 +64,17 @@ REFERENCES usertable(id);
 
 COMMIT;
 
+-- NCL-5661
+BEGIN transaction;
+
+DROP SEQUENCE public.build_record_push_result_id_seq;
+DROP SEQUENCE public.product_milestone_release_id_seq;
+
+ALTER TABLE public.buildrecordpushresult ALTER COLUMN id TYPE bigint;
+ALTER TABLE public.productmilestonerelease ALTER COLUMN id TYPE bigint;
+
+ALTER TABLE public.buildrecordpushresult ADD COLUMN productmilestonerelease_id bigint;
+ALTER TABLE ONLY public.buildrecordpushresult
+    ADD CONSTRAINT fk_pushresult_milestonerelease FOREIGN KEY (productmilestonerelease_id) REFERENCES public.productmilestonerelease(id);
+
+COMMIT;
