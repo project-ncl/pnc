@@ -201,6 +201,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * The set of build configs which depend upon this config. These builds must normally be built after this build is
      * completed. This is the reverse relationship as Maven dependencies.
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @NotAudited
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildConfiguration> dependants;
@@ -772,7 +773,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setDependencies(dependencies);
             for (BuildConfiguration dependant : dependants) {
                 if (!dependant.getDependencies().contains(buildConfiguration)) {
-                    dependant.addDependant(buildConfiguration);
+                    dependant.addDependency(buildConfiguration);
                 }
             }
             buildConfiguration.setDependants(dependants);

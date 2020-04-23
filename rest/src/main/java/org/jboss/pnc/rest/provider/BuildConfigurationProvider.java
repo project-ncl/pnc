@@ -207,6 +207,9 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                     builder.dependencies(buildConfigDB.getDependencies());
                 }
             }
+            // Trigger the inizialization of LAZY collections (fixes NCL-5686)
+            buildConfigDB.getDependants().isEmpty();
+            buildConfigDB.getDependencies().isEmpty();
 
             return builder.build();
         };
