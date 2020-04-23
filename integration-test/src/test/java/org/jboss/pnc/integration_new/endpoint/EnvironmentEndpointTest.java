@@ -20,26 +20,25 @@ package org.jboss.pnc.integration_new.endpoint;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.EnvironmentClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
-
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Optional;
 
-import org.jboss.pnc.client.EnvironmentClient;
-import org.jboss.pnc.dto.Environment;
-import org.junit.BeforeClass;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>
@@ -80,6 +79,20 @@ public class EnvironmentEndpointTest {
         Environment environment = client.getSpecific(environmentId);
 
         assertThat(environment.getName()).isEqualTo("Demo Environment 1"); // from DatabaseDataInitializer
+    }
+
+    @Test
+    public void testQueryForEnvironment() throws RemoteResourceException {
+        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asAnonymous());
+
+        RemoteCollection<Environment> allNonDeprecated = client
+                .getAll(Optional.empty(), Optional.of("deprecated==false"));
+
+        RemoteCollection<Environment> allDeprecated = client.getAll(Optional.empty(), Optional.of("deprecated==true"));
+
+        assertThat(allNonDeprecated.getAll().stream().map(Environment::isDeprecated)).containsOnly(false);
+        assertThat(allDeprecated.getAll().stream().map(Environment::isDeprecated)).containsOnly(true);
+
     }
 
 }
