@@ -192,33 +192,4 @@ public class BuildConfigurationSetRestTest extends AbstractTest {
         logger.info("buildRecordName: {} ", buildConfName);
     }
 
-    @Test
-    public void shouldUpdateAllBuildConfigurations() throws Exception {
-        // given
-        List<BuildConfigurationRest> buildConfigurationRestList = new LinkedList<>();
-        buildConfigurationRestList.add(bcRest2);
-
-        // when
-        RestResponse<List<BuildConfigurationRest>> response = buildConfigurationSetRestClient
-                .updateBuildConfigurations(bcSetRest1.getId(), buildConfigurationRestList, true);
-
-        // then
-        assertThat(response.getValue().stream().map(BuildConfigurationRest::getId).collect(Collectors.toList()))
-                .containsOnly(bcRest2.getId());
-    }
-
-    @Test
-    public void shouldUpdateAllBuildConfigurationsWithEmptyList() throws Exception {
-        // given
-        List<BuildConfigurationRest> buildConfigurationRestList = new LinkedList<>();
-
-        // when
-        RestResponse<List<BuildConfigurationRest>> response = buildConfigurationSetRestClient
-                .updateBuildConfigurations(bcSetRest1.getId(), buildConfigurationRestList, false);
-
-        // then
-        assertThat(response.getRestCallResponse().statusCode()).isEqualTo(200);
-        assertThat(response.getValue()).isNullOrEmpty();
-    }
-
 }
