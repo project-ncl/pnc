@@ -55,7 +55,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -154,6 +153,42 @@ public class GroupConfigurationEndpointTest {
         GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
 
         assertThat(client.getAll()).isNotEmpty();
+    }
+
+    @Test
+    public void shouldUpdateAllBuildConfigurations() throws Exception {
+        // with
+        GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
+        BuildConfigurationClient bcClient = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        String gcId = "101";
+        BuildConfiguration bc = bcClient.getAll().iterator().next();
+        GroupConfiguration gc = client.getSpecific(gcId);
+        String bcId = bc.getId();
+        Map<String, BuildConfigurationRef> buildConfigurationMap = new HashMap<>();
+        buildConfigurationMap.put(bcId, bc);
+        GroupConfiguration updated = gc.toBuilder().buildConfigs(buildConfigurationMap).build();
+        assertThat(gc.getBuildConfigs()).doesNotContainKey(bcId);
+
+        // when
+        client.update(gc.getId(), updated);
+
+        // then
+        assertThat(client.getSpecific(gcId).getBuildConfigs()).containsOnlyKeys(bcId);
+    }
+
+    @Test
+    public void shouldUpdateAllBuildConfigurationsWithEmptyList() throws Exception {
+        GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
+        String gcId = "101";
+        GroupConfiguration gc = client.getSpecific(gcId);
+        GroupConfiguration updated = gc.toBuilder().buildConfigs(new HashMap<>()).build();
+        assertThat(gc.getBuildConfigs()).isNotEmpty();
+
+        // when
+        client.update(gc.getId(), updated);
+
+        // then
+        assertThat(client.getSpecific(gcId).getBuildConfigs()).isEmpty();
     }
 
     @Test
