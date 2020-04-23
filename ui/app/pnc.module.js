@@ -139,6 +139,7 @@
         };
       }]);
 
+      messageBus.connect(restConfig.getPncGenericSettingsNotificationsUrl());
       messageBus.connect(restConfig.getPncNotificationsUrl());
 
       if (authService.isAuthenticated()) {
