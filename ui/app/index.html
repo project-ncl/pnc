@@ -109,6 +109,7 @@
     <!-- endbuild -->
   </head>
   <body>
+  <pnc-global-alert ng-cloak></pnc-global-alert>
     <nav class="navbar navbar-default navbar-pf" role="navigation" ng-cloak>
       <!-- header -->
       <div class="navbar-header">
@@ -135,6 +136,12 @@
             <li ng-controller="defaultConfigurationController as defaultConfigurationCtrl" ng-show="defaultConfigurationCtrl.isDefaultConfiguration" title="{{ defaultConfigurationCtrl.title }}">
               <a href="#" data-toggle="modal" data-target="#defaultConfigurationModal">
                 <span class="pficon pficon-warning-triangle-o"></span>
+              </a>
+            </li>
+            <!-- adminPanel icon -->
+            <li role="system-user" pnc-role-control>
+              <a href="#" data-toggle="modal" data-target="#adminPanelModal">
+                <span class="pficon pficon-maintenance" title="Admin Panel"></span>
               </a>
             </li>
             <!-- notification bell -->
@@ -262,5 +269,7 @@
       </div>
     </div>
 
+    <!-- adminPanel modal -->
+    <pnc-admin-panel></pnc-admin-panel>
   </body>
 </html>
