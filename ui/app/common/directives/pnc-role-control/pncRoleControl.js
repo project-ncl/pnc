@@ -18,21 +18,25 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.pnc-client.message-bus', [
-    'angular-websocket'
-  ]).run([
-    'messageBus',
-    function (messageBus) {
+  var module = angular.module('pnc.common.directives');
+  module.directive('pncRoleControl', ['authService', function (authService) {
+    var hasValidatedRole = function (requiredRole) {
+      var userRoles = authService.getUserRole();
+      return userRoles !== null && userRoles.includes(requiredRole);
+    };
 
-      messageBus.registerListener('processProgressUpdateListener');
-      messageBus.registerListener('buildStatusListener');
-      messageBus.registerListener('bccListener');
-      messageBus.registerListener('rcListener');
-      messageBus.registerListener('brewPushListener');
-      messageBus.registerListener('buildSetStatusListener');
-      messageBus.registerListener('genericSettingListener');
+    return {
+      restrict: 'A',
 
-    }
-  ]);
+      link: function (scope, ele, attrs) {
+        var requiredRole = attrs.role;
+        if (requiredRole !== null && !hasValidatedRole(requiredRole)) {
+          ele.addClass('ng-hide');
+        } else {
+          ele.removeClass('ng-hide');
+        }
+      }
+    };
+  }]);
 
 })();

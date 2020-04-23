@@ -59,6 +59,12 @@
         return pncNotificationsUrl;
       };
 
+      restConfig.getPncGenericSettingsNotificationsUrl = function () {
+        var host = new URL(pncUrl).hostname;
+        var url = 'ws://' + host + '/pnc-rest/ws/generic-setting/notifications';
+        return url;
+      };
+
       restConfig.getDaUrl = function () {
         return daUrl;
       };

@@ -18,20 +18,21 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.common.pnc-client.message-bus', [
-    'angular-websocket'
-  ]).run([
-    'messageBus',
-    function (messageBus) {
-
-      messageBus.registerListener('processProgressUpdateListener');
-      messageBus.registerListener('buildStatusListener');
-      messageBus.registerListener('bccListener');
-      messageBus.registerListener('rcListener');
-      messageBus.registerListener('brewPushListener');
-      messageBus.registerListener('buildSetStatusListener');
-      messageBus.registerListener('genericSettingListener');
-
+  angular.module('pnc.common.pnc-client.message-bus').factory('genericSettingListener', [
+    '$log',
+    '$rootScope',
+    'eventTypes',
+    function ($log, $rootScope, eventTypes) {
+      return function (message) {
+        if (message.eventType) {
+          switch (message.eventType) {
+            case eventTypes.MAINTENANCE_STATUS_CHANGED:
+              var event = message;
+              $rootScope.$broadcast(event.eventType, JSON.parse(event.payload));
+              break;
+          }
+        }
+      };
     }
   ]);
 
