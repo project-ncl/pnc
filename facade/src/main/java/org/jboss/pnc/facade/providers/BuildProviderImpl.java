@@ -700,9 +700,9 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
             String key = entry.getKey();
             String value = entry.getValue();
             if (key.startsWith("!")) {
-                withoutAttribute(key.substring(1));
+                predicates.add(withoutAttribute(key.substring(1)));
             } else {
-                withAttribute(key, value);
+                predicates.add(withAttribute(key, value));
             }
         }
 
