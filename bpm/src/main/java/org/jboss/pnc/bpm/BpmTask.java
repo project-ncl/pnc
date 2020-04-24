@@ -75,6 +75,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      */
     private final String accessToken;
     private Optional<Connector> connector = Optional.empty();
+    private boolean jsonEncodedProcessParameters = true;
 
     public BpmTask(String accessToken) {
         this.accessToken = accessToken;
@@ -159,10 +160,16 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         Serializable processParameters = getProcessParameters();
         requireNonNull(processParameters);
         Map<String, Object> actualParameters = new HashMap<>();
-        try {
-            actualParameters.put("processParameters", MAPPER.writeValueAsString(processParameters));
-        } catch (JsonProcessingException e) {
-            throw new CoreException("Could not serialize process processParameters '" + processParameters + "'.", e);
+        if (isJsonEncodedProcessParameters()) {
+            try {
+                actualParameters.put("processParameters", MAPPER.writeValueAsString(processParameters));
+            } catch (JsonProcessingException e) {
+                throw new CoreException(
+                        "Could not serialize process processParameters '" + processParameters + "'.",
+                        e);
+            }
+        } else {
+            actualParameters.put("processParameters", processParameters);
         }
 
         // global not process related parameters
@@ -181,6 +188,14 @@ public abstract class BpmTask implements Comparable<BpmTask> {
             actualParameters.put("logProcessContext", v);
         });
         return actualParameters;
+    }
+
+    public void setJsonEncodedProcessParameters(boolean jsonEncodedProcessParameters) {
+        this.jsonEncodedProcessParameters = jsonEncodedProcessParameters;
+    }
+
+    protected boolean isJsonEncodedProcessParameters() {
+        return jsonEncodedProcessParameters;
     }
 
     public String getAccessToken() {

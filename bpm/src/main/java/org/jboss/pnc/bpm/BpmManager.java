@@ -119,8 +119,10 @@ public class BpmManager {
     public void defineConnector(BpmTask task) {
         if (ConnectorSelector.useNewProcess(task)) {
             task.setConnector(restConnector);
+            task.setJsonEncodedProcessParameters(false);
         } else {
             task.setConnector(kieConnector);
+            task.setJsonEncodedProcessParameters(true);
         }
     }
 
