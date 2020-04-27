@@ -64,6 +64,12 @@ public class BuildConfigurationRestTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    private static final String CONTENT_BUILDSCRIPT = "content.buildScript";
+    private static final String CONTENT_REPOSITORYCONFIGURATION_ID = "content.repositoryConfiguration.id";
+    private static final String CONTENT_PROJECT_ID = "content.project.id";
+    private static final String CONTENT_GENERICPARAMETERS_KEY1 = "content.genericParameters.KEY1";
+    private static final String CONTENT_ENVIRONMENT_ID = "content.environment.id";
+
     public static final String CLONE_PREFIX_DATE_FORMAT = "yyyyMMddHHmmss";
 
     public static final String VALID_EXTERNAL_REPO = "https://github.com/project-ncl/pnc1.git";
@@ -303,6 +309,138 @@ public class BuildConfigurationRestTest extends AbstractTest {
 
         ResponseAssertion.assertThat(firstAttempt).hasStatus(201);
         ResponseAssertion.assertThat(secondAttempt).hasStatus(409);
+    }
+
+    /**
+     * Reproducer NCL-5686 - update of build configuration with dependencies, with cache enabled, is possible
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void shouldUpdateBuildConfigurationWithDependencies() throws IOException {
+        // given
+
+        // Create dependency
+        JsonTemplateBuilder dependencyConfigurationTemplate = JsonTemplateBuilder
+                .fromResource("buildConfiguration_create_template");
+        dependencyConfigurationTemplate.addValue("_projectId", String.valueOf(projectId));
+        dependencyConfigurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+        dependencyConfigurationTemplate
+                .addValue("_repositoryConfigurationId", String.valueOf(repositoryConfigurationId));
+        dependencyConfigurationTemplate.addValue("_name", "pnc-1.0.0.DR1");
+        dependencyConfigurationTemplate.addValue("_genParamValue1", UUID.randomUUID().toString());
+
+        Response dependencyResponse = given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .post(CONFIGURATION_REST_ENDPOINT);
+
+        assertEquals(201, dependencyResponse.getStatusCode());
+        Integer dependencyBuildConfigurationId = dependencyResponse.jsonPath().<Integer> get(CONTENT_ID);
+
+        // Create build configuration
+        final String name = "dependency-analysis-master";
+        final String genParam = UUID.randomUUID().toString();
+        Integer buildConfigurationId = createBuildConfigurationWithDependencyAndValidateResults(
+                String.valueOf(projectId),
+                String.valueOf(environmentId),
+                String.valueOf(repositoryConfigurationId),
+                name,
+                genParam,
+                dependencyBuildConfigurationId);
+
+        final String updatedBuildScript = "mvn clean deploy -DskipTests=true";
+
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder
+                .fromResource("buildConfiguration_update_template");
+        configurationTemplate.addValue("_name", name);
+        configurationTemplate.addValue("_buildScript", updatedBuildScript);
+        configurationTemplate.addValue("_creationTime", String.valueOf(1518382545038L));
+        configurationTemplate.addValue("_lastModificationTime", String.valueOf(155382545038L));
+        configurationTemplate.addValue("_projectId", String.valueOf(projectId));
+        configurationTemplate.addValue("_environmentId", String.valueOf(environmentId));
+        configurationTemplate.addValue("_genParamValue1", genParam);
+        configurationTemplate.addValue("_repositoryConfigurationId", String.valueOf(repositoryConfigurationId));
+
+        Response projectResponseBeforeTheUpdate = given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, projectId));
+        Response environmentResponseBeforeTheUpdate = given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
+
+        // when
+        given().headers(testHeaders)
+                .body(configurationTemplate.fillTemplate())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .put(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, buildConfigurationId))
+                .then()
+                .statusCode(200);
+
+        Response response = given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(CONFIGURATION_SPECIFIC_REST_ENDPOINT, buildConfigurationId));
+
+        // then
+        Response projectResponseAfterTheUpdate = given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(PROJECT_SPECIFIC_REST_ENDPOINT, projectId));
+        Response environmentResponseAfterTheUpdate = given().headers(testHeaders)
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .get(String.format(SPECIFIC_ENVIRONMENT_REST_ENDPOINT, environmentId));
+
+        ResponseAssertion.assertThat(response).hasStatus(200);
+        ResponseAssertion.assertThat(response)
+                .hasJsonValueEqual(CONTENT_ID, buildConfigurationId)
+                .hasJsonValueEqual(CONTENT_NAME, name)
+                .hasJsonValueEqual(CONTENT_BUILDSCRIPT, updatedBuildScript)
+                .hasJsonValueEqual(CONTENT_REPOSITORYCONFIGURATION_ID, repositoryConfigurationId)
+                .hasJsonValueEqual(CONTENT_PROJECT_ID, projectId)
+                .hasJsonValueEqual(CONTENT_GENERICPARAMETERS_KEY1, genParam)
+                .hasJsonValueEqual(CONTENT_ENVIRONMENT_ID, environmentId);
+        assertEquals(projectResponseBeforeTheUpdate.getBody().print(), projectResponseAfterTheUpdate.getBody().print());
+        assertEquals(
+                environmentResponseBeforeTheUpdate.getBody().print(),
+                environmentResponseAfterTheUpdate.getBody().print());
+    }
+
+    private int createBuildConfigurationWithDependencyAndValidateResults(
+            String projectId,
+            String environmentId,
+            String repositoryConfigurationId,
+            String name,
+            String genericParameterValue1,
+            Integer dependencyId) throws IOException {
+        JsonTemplateBuilder configurationTemplate = JsonTemplateBuilder
+                .fromResource("buildConfiguration_with_dependencies_create_template");
+        configurationTemplate.addValue("_projectId", projectId);
+        configurationTemplate.addValue("_environmentId", environmentId);
+        configurationTemplate.addValue("_repositoryConfigurationId", repositoryConfigurationId);
+        configurationTemplate.addValue("_name", name);
+        configurationTemplate.addValue("_genParamValue1", genericParameterValue1);
+        configurationTemplate.addValue("_dependencyIds", String.valueOf(dependencyId));
+
+        Response response = given().headers(testHeaders)
+                .body(configurationTemplate.fillTemplate())
+                .contentType(ContentType.JSON)
+                .port(getHttpPort())
+                .when()
+                .post(CONFIGURATION_REST_ENDPOINT);
+        assertEquals(201, response.getStatusCode());
+        return response.jsonPath().<Integer> get(CONTENT_ID);
     }
 
     // TODO Test will fail due to issue: NCL-4473, remove @Ignore when fixed.
