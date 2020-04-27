@@ -35,7 +35,7 @@ public class MDCUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(MDCUtils.class);
 
-    public static void addContext(BuildTaskContext buildTaskContext) {
+    public static void addBuildContext(BuildTaskContext buildTaskContext) {
         addBuildContext(
                 buildTaskContext.getBuildContentId(),
                 buildTaskContext.isTemporaryBuild(),
@@ -54,6 +54,13 @@ public class MDCUtils {
         context.put(MDCKeys.TMP_KEY, temporaryBuild.toString());
         context.put(MDCKeys.EXP_KEY, temporaryBuildExpireDate.toString());
         MDC.setContextMap(context);
+    }
+
+    public static void removeBuildContext() {
+        removeProcessContext();
+        MDC.remove(MDCKeys.USER_ID_KEY);
+        MDC.remove(MDCKeys.TMP_KEY);
+        MDC.remove(MDCKeys.EXP_KEY);
     }
 
     public static void addProcessContext(String processContext) {

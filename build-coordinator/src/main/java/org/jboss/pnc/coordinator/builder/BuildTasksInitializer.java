@@ -312,6 +312,7 @@ public class BuildTasksInitializer {
             } else {
                 int buildId = buildTaskIdProvider.get();
                 String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
+                // Used only for this operation inside the loop
                 MDCUtils.addBuildContext(
                         buildContentId,
                         buildOptions.isTemporaryBuild(),
@@ -319,21 +320,26 @@ public class BuildTasksInitializer {
                                 temporaryBuildLifespanDays,
                                 buildOptions.isTemporaryBuild()),
                         user.getId().toString());
-
-                Optional<String> requestContext = MDCUtils.getRequestContext();
-                buildTask = BuildTask.build(
-                        buildConfigAudited,
-                        buildSetTask.getBuildOptions(),
-                        user,
-                        buildId,
-                        buildSetTask,
-                        buildSetTask.getStartTime(),
-                        productMilestone,
-                        buildContentId,
-                        requestContext);
-                log.debug("Created new buildTask {} for BuildConfigurationAudited {}.", buildTask, buildConfigAudited);
+                try {
+                    Optional<String> requestContext = MDCUtils.getRequestContext();
+                    buildTask = BuildTask.build(
+                            buildConfigAudited,
+                            buildSetTask.getBuildOptions(),
+                            user,
+                            buildId,
+                            buildSetTask,
+                            buildSetTask.getStartTime(),
+                            productMilestone,
+                            buildContentId,
+                            requestContext);
+                    log.debug(
+                            "Created new buildTask {} for BuildConfigurationAudited {}.",
+                            buildTask,
+                            buildConfigAudited);
+                } finally {
+                    MDCUtils.removeBuildContext();
+                }
             }
-
             buildSetTask.addBuildTask(buildTask);
         }
 

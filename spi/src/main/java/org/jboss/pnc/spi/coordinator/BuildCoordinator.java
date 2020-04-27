@@ -51,6 +51,10 @@ public interface BuildCoordinator {
 
     List<BuildTask> getSubmittedBuildTasks();
 
+    /**
+     * @deprecated will become private
+     */
+    @Deprecated
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
 
     /**

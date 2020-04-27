@@ -242,7 +242,7 @@ public class BuildTaskEndpoint {
         try {
             Optional<BuildTaskContext> mdcMeta = buildExecutorTriggerer.getMdcMeta(buildExecutionConfigurationId);
             if (mdcMeta.isPresent()) {
-                MDCUtils.addContext(mdcMeta.get());
+                MDCUtils.addBuildContext(mdcMeta.get());
             } else {
                 logger.warn(
                         "Unable to retrieve MDC meta. There is no running build for buildExecutionConfigurationId: {}.",

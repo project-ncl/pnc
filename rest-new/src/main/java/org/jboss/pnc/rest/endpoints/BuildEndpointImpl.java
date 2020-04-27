@@ -245,7 +245,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
             Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(Integer.parseInt(buildId));
             if (mdcMeta.isPresent()) {
-                MDCUtils.addContext(mdcMeta.get());
+                MDCUtils.addBuildContext(mdcMeta.get());
             } else {
                 logger.warn("Unable to retrieve MDC meta. There is no running build for buildTaskId: {}.", buildId);
             }
@@ -253,12 +253,13 @@ public class BuildEndpointImpl implements BuildEndpoint {
             if (!buildTriggerer.cancelBuild(Integer.parseInt(buildId))) {
                 throw new NotFoundException();
             }
+            logger.debug("Cancel request for buildTaskId {} successfully processed.", buildId);
         } catch (CoreException e) {
             logger.error("Unable to cancel the build [" + buildId + "].", e);
             throw new RuntimeException("Unable to cancel the build [" + buildId + "].");
+        } finally {
+            MDCUtils.removeBuildContext();
         }
-
-        logger.debug("Cancel request for buildTaskId {} successfully processed.", buildId);
     }
 
     @Override
