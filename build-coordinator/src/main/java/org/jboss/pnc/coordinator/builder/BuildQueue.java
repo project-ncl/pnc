@@ -23,11 +23,11 @@ import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +38,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -52,9 +53,12 @@ import java.util.stream.Collectors;
  * <li>waitingTasksWithCallbacks - tasks waiting for a dependency. As soon as their dependencies are built, they are
  * moved to readyTasks. The waiting tasks are mapped to callbacks that are executed upon the transfer</li>
  * <li>unfinishedTasks - tasks either waiting, ready or in progress. This collection is introduced to fix the race
- * condition in {@link #take()}, where a task is taken from readyTask, and later put into tasksInProgress and the method
- * cannot be synchronized</li>
+ * condition in {@link #take(Consumer)}, where a task is taken from readyTask, and later put into tasksInProgress and
+ * the method cannot be synchronized</li>
  * </ul>
+ *
+ * The BuildQueue is MDC aware, the MDC values present in the thread context when the tasks is added are restored when
+ * an operation is run on element using {@link #take(Consumer)} method.
  *
  * TODO: 1. taskSets can probably be removed <br>
  * TODO: 2. Currently it throttles the number of tasks in progress. Is this necessary?
@@ -68,11 +72,11 @@ public class BuildQueue {
 
     private SystemConfig systemConfig;
 
-    private final Set<BuildTask> unfinishedTasks = new HashSet<>();
+    private final Set<MDCAwareElement<BuildTask>> unfinishedTasks = new HashSet<>();
 
-    private final BlockingQueue<BuildTask> readyTasks = new LinkedBlockingQueue<>();
-    private final Map<BuildTask, Runnable> waitingTasksWithCallbacks = new HashMap<>();
-    private final Set<BuildTask> tasksInProgress = ConcurrentHashMap.newKeySet();
+    private final BlockingQueue<MDCAwareElement<BuildTask>> readyTasks = new LinkedBlockingQueue<>();
+    private final Map<MDCAwareElement<BuildTask>, Runnable> waitingTasksWithCallbacks = new HashMap<>();
+    private final Set<MDCAwareElement<BuildTask>> tasksInProgress = ConcurrentHashMap.newKeySet();
     private final Set<BuildSetTask> taskSets = new HashSet<>();
 
     private final Semaphore availableBuildSlots = new Semaphore(0);
@@ -96,9 +100,10 @@ public class BuildQueue {
         if (!task.readyToBuild()) {
             throw new IllegalArgumentException("a not ready task added to the queue: " + task);
         }
-        unfinishedTasks.add(task);
+        MDCAwareElement element = new MDCAwareElement(task);
+        unfinishedTasks.add(element);
         log.debug("adding task: {}", task);
-        readyTasks.add(task);
+        readyTasks.add(element);
         return true;
     }
 
@@ -109,9 +114,10 @@ public class BuildQueue {
      * @param taskReadyCallback a callback to be invoked when the task becomes ready
      */
     public synchronized void addWaitingTask(BuildTask task, Runnable taskReadyCallback) {
-        unfinishedTasks.add(task);
+        MDCAwareElement element = new MDCAwareElement(task);
+        unfinishedTasks.add(element);
         log.debug("adding waiting task: {}", task);
-        waitingTasksWithCallbacks.put(task, taskReadyCallback);
+        waitingTasksWithCallbacks.put(element, taskReadyCallback);
     }
 
     /**
@@ -142,18 +148,19 @@ public class BuildQueue {
      */
     public synchronized void removeTask(BuildTask task) {
         log.debug("removing task: {}", task);
-        if (tasksInProgress.remove(task)) {
+        MDCAwareElement element = new MDCAwareElement(task);
+        if (tasksInProgress.remove(element)) {
             availableBuildSlots.release();
         }
-        if (readyTasks.remove(task)) {
+        if (readyTasks.remove(element)) {
             log.debug("The task {} has been removed from readyTasks.", task);
         }
 
-        if (waitingTasksWithCallbacks.remove(task) != null) {
+        if (waitingTasksWithCallbacks.remove(element) != null) {
             log.debug("The task {} has been removed from waitingTasks.", task);
         }
 
-        if (unfinishedTasks.remove(task)) {
+        if (unfinishedTasks.remove(element)) {
             log.debug("The task {} has been removed from unfinishedTasks.", task);
         }
     }
@@ -163,7 +170,7 @@ public class BuildQueue {
      * and there's a possibility that other tasks became ready to be built.
      */
     public synchronized void executeNewReadyTasks() {
-        List<BuildTask> newReadyTasks = extractReadyTasks();
+        List<MDCAwareElement<BuildTask>> newReadyTasks = extractReadyTasks();
         log.debug("starting new ready tasks. New ready tasks: {}", newReadyTasks);
         readyTasks.addAll(newReadyTasks);
     }
@@ -177,13 +184,16 @@ public class BuildQueue {
      */
     public synchronized Optional<BuildTask> getTask(BuildConfigurationAudited buildConfigAudited) {
         Optional<BuildTask> ready = readyTasks.stream()
+                .map(MDCAwareElement::get)
                 .filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited))
                 .findAny();
         Optional<BuildTask> waiting = waitingTasksWithCallbacks.keySet()
                 .stream()
+                .map(MDCAwareElement::get)
                 .filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited))
                 .findAny();
         Optional<BuildTask> inProgress = tasksInProgress.stream()
+                .map(MDCAwareElement::get)
                 .filter(bt -> bt.getBuildConfigurationAudited().equals(buildConfigAudited))
                 .findAny();
         return ready.isPresent() ? ready : waiting.isPresent() ? waiting : inProgress;
@@ -195,22 +205,44 @@ public class BuildQueue {
      * @return list of all build tasks in the queue
      */
     public synchronized List<BuildTask> getSubmittedBuildTasks() {
-
-        return new ArrayList<>(unfinishedTasks);
-
+        return unfinishedTasks.stream().map(MDCAwareElement::get).collect(Collectors.toList());
     }
 
-    public BuildTask take() throws InterruptedException {
+    private MDCAwareElement<BuildTask> take() throws InterruptedException {
         availableBuildSlots.acquire();
         log.info("Consumer is ready to go, waiting for task");
         // FIXME not thread safe: when a task is taken from readyTasks it is not in the tasksInProgress for a short time
         // race condition hit while working on
         // SkippingBuiltConfigsTest.shouldNotTriggerTheSameBuildConfigurationViaDependency
         // to avoid race condition getUnfinishedTask is used instead of getTask
-        BuildTask task = readyTasks.take();
-        log.info("Got task: {}, will start processing", task);
-        tasksInProgress.add(task);
-        return task;
+        MDCAwareElement<BuildTask> element = readyTasks.take();
+        tasksInProgress.add(element);
+        return element;
+    }
+
+    public void take(Consumer<BuildTask> consumer) throws InterruptedException {
+        Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
+        MDCAwareElement<BuildTask> element = take();
+        log.info("Got task: {}, will start processing", element);
+        Map<String, String> elementContextMap = element.getContextMap();
+        try {
+            if (elementContextMap != null) {
+                elementContextMap.forEach((k, v) -> {
+                    MDC.put(k, v);
+                });
+            } else {
+                MDC.clear();
+            }
+            consumer.accept(element.get());
+        } finally {
+            if (elementContextMap != null) {
+                elementContextMap.keySet().forEach((k) -> {
+                    MDC.remove(k);
+                });
+            }
+            // restore context
+            MDC.setContextMap(copyOfContextMap);
+        }
     }
 
     public synchronized boolean isBuildAlreadySubmitted(BuildTask buildTask) {
@@ -219,18 +251,19 @@ public class BuildQueue {
 
     public synchronized Optional<BuildTask> getUnfinishedTask(BuildConfigurationAudited buildConfigurationAudited) {
         return unfinishedTasks.stream()
+                .map(MDCAwareElement::get)
                 .filter(buildTask -> buildTask.getBuildConfigurationAudited().equals(buildConfigurationAudited))
                 .findFirst();
     }
 
     public synchronized Set<BuildTask> getUnfinishedTasks() {
-        return new HashSet<>(unfinishedTasks);
+        return unfinishedTasks.stream().map(MDCAwareElement::get).collect(Collectors.toSet());
     }
 
-    private List<BuildTask> extractReadyTasks() {
-        List<BuildTask> noLongerWaitingTasks = waitingTasksWithCallbacks.keySet()
+    private List<MDCAwareElement<BuildTask>> extractReadyTasks() {
+        List<MDCAwareElement<BuildTask>> noLongerWaitingTasks = waitingTasksWithCallbacks.keySet()
                 .stream()
-                .filter(BuildTask::readyToBuild)
+                .filter(e -> e.get().readyToBuild())
                 .collect(Collectors.toList());
 
         noLongerWaitingTasks.forEach(task -> {

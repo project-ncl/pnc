@@ -338,39 +338,40 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void addTaskToBuildQueue(BuildTask buildTask) {
 
-        MDCUtils.addContext(getMDCMeta(buildTask));
+        MDCUtils.addBuildContext(getMDCMeta(buildTask));
+        try {
+            if (isBuildConfigurationAlreadyInQueue(buildTask)) {
+                log.debug("Skipping buildTask {}, its buildConfiguration is already in the buildQueue.", buildTask);
+                return;
+            }
 
-        if (isBuildConfigurationAlreadyInQueue(buildTask)) {
-            log.debug("Skipping buildTask {}, its buildConfiguration is already in the buildQueue.", buildTask);
-            return;
-        }
+            if (!(buildTask.getStatus().equals(BuildCoordinationStatus.NEW)
+                    || buildTask.getStatus().equals(BuildCoordinationStatus.ENQUEUED))) {
+                log.debug(
+                        "Skipping buildTask {}, it was modified modified/finished by another thread. Avoiding race condition.",
+                        buildTask);
+                return;
+            }
 
-        if (!(buildTask.getStatus().equals(BuildCoordinationStatus.NEW)
-                || buildTask.getStatus().equals(BuildCoordinationStatus.ENQUEUED))) {
-            log.debug(
-                    "Skipping buildTask {}, it was modified modified/finished by another thread. Avoiding race condition.",
-                    buildTask);
-            return;
-        }
+            log.debug("Adding buildTask {} to buildQueue.", buildTask);
 
-        log.debug("Adding buildTask {} to buildQueue.", buildTask);
-
-        if (buildTask.readyToBuild()) {
-            updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
-            buildQueue.addReadyTask(buildTask);
-            ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.ENQUEUED.toString());
-        } else {
-            updateBuildTaskStatus(buildTask, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
-            Runnable onTaskReady = () -> {
-                ProcessStageUtils.logProcessStageEnd(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
+            if (buildTask.readyToBuild()) {
                 updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
+                buildQueue.addReadyTask(buildTask);
                 ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.ENQUEUED.toString());
-            };
-            buildQueue.addWaitingTask(buildTask, onTaskReady);
-            ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
+            } else {
+                updateBuildTaskStatus(buildTask, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
+                Runnable onTaskReady = () -> {
+                    ProcessStageUtils.logProcessStageEnd(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
+                    updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
+                    ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.ENQUEUED.toString());
+                };
+                buildQueue.addWaitingTask(buildTask, onTaskReady);
+                ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
+            }
+        } finally {
+            MDCUtils.removeBuildContext();
         }
-
-        MDCUtils.clear();
     }
 
     private boolean isBuildConfigurationAlreadyInQueue(BuildTask buildTask) {
@@ -386,6 +387,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     @Override
     public boolean cancel(int buildTaskId) throws CoreException {
+        // Logging MDC must be set before calling
         Optional<BuildTask> taskOptional = getSubmittedBuildTasks().stream()
                 .filter(buildTask -> buildTask.getId() == buildTaskId)
                 .findAny();
@@ -438,11 +440,13 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 .filter(t -> t.getBuildSetTask() != null && t.getBuildSetTask().getId().equals(buildSetTaskId))
                 .forEach(buildTask -> {
                     try {
-                        MDCUtils.addContext(getMDCMeta(buildTask));
+                        MDCUtils.addBuildContext(getMDCMeta(buildTask));
                         log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
                         cancel(buildTask.getId());
                     } catch (CoreException e) {
                         log.error("Unable to cancel the build [" + buildTask.getId() + "].", e);
+                    } finally {
+                        MDCUtils.removeBuildContext();
                     }
                 });
         record.setStatus(BuildStatus.CANCELLED);
@@ -852,9 +856,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void finishDueToFailedDependency(BuildTask failedTask, BuildTask dependentTask) {
-
-        MDCUtils.addContext(getMDCMeta(dependentTask));
-
         log.debug("Finishing task {} due to a failed dependency.", dependentTask);
         buildQueue.removeTask(dependentTask);
 
@@ -875,8 +876,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
         log.trace("Status of build task {} updated.", dependentTask);
         storeRejectedTask(dependentTask);
-
-        MDCUtils.clear();
     }
 
     public List<BuildTask> getSubmittedBuildTasks() {
@@ -891,7 +890,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void startThreads() {
         int threadPoolSize = systemConfig.getCoordinatorThreadPoolSize();
         ExecutorService executorService = MDCExecutors
-                .newFixedThreadPool(threadPoolSize, new NamedThreadFactory("build-coordinator"));
+                .newFixedThreadPool(threadPoolSize, new NamedThreadFactory("build-coordinator-queue-processor"));
         for (int i = 0; i < threadPoolSize; i++) {
             executorService.execute(this::takeAndProcessTask);
         }
@@ -900,17 +899,15 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void takeAndProcessTask() {
         while (true) {
             try {
-                BuildTask task = buildQueue.take();
-                MDCUtils.addContext(getMDCMeta(task));
-                task.getRequestContext().ifPresent(c -> MDCUtils.addRequestContext(c));
-                processBuildTask(task);
-                log.info("Build task: " + task + ", will pick up next task");
+                buildQueue.take(task -> {
+                    log.info("Build task: " + task + ", will pick up next task");
+                    processBuildTask(task);
+                });
             } catch (InterruptedException e) {
                 log.warn("BuildCoordinator thread interrupted. Possibly the system is being shut down", e);
                 break;
-            } finally {
-                MDCUtils.clear();
             }
         }
     }
+
 }

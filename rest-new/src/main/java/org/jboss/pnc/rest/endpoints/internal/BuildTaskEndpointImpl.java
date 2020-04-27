@@ -108,27 +108,33 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                     temporaryBuild,
                     ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
                     userService.currentUser().getId().toString());
-            if (buildTask.getStatus().isCompleted()) {
-                logger.warn(
-                        "Task with id: {} is already completed with status: {}",
-                        buildTask.getId(),
-                        buildTask.getStatus());
-                return Response.status(Response.Status.GONE)
-                        .entity(
-                                "Task with id: " + buildTask.getId() + " is already completed with status: "
-                                        + buildTask.getStatus() + ".")
-                        .build();
+            try {
+                if (buildTask.getStatus().isCompleted()) {
+                    logger.warn(
+                            "Task with id: {} is already completed with status: {}",
+                            buildTask.getId(),
+                            buildTask.getStatus());
+                    return Response.status(Response.Status.GONE)
+                            .entity(
+                                    "Task with id: " + buildTask.getId() + " is already completed with status: "
+                                            + buildTask.getStatus() + ".")
+                            .build();
+                }
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Received build result wit full log: {}.", buildResult.toFullLogString());
+                }
+                logger.debug("Will notify for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
+                bpmManager.notify(taskId, buildResult);
+                logger.debug("Notified for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
+                bpmManager.remove(taskId);
+                return Response.ok().build();
+            } finally {
+                MDCUtils.removeBuildContext();
             }
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity("No active build with id: " + buildId).build();
         }
 
-        if (logger.isTraceEnabled()) {
-            logger.trace("Received build result wit full log: {}.", buildResult.toFullLogString());
-        }
-        logger.debug("Will notify for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
-        bpmManager.notify(taskId, buildResult);
-        logger.debug("Notified for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
-        bpmManager.remove(taskId);
-        return Response.ok().build();
     }
 
     @Override
@@ -176,6 +182,8 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
+        } finally {
+            MDCUtils.removeBuildContext();
         }
     }
 
@@ -213,6 +221,8 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
+        } finally {
+            MDCUtils.removeBuildContext();
         }
     }
 
@@ -230,7 +240,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                     .getMdcMeta(buildExecutionConfigurationId, userService.currentUsername());
 
             if (mdcMeta.isPresent()) {
-                MDCUtils.addContext(mdcMeta.get());
+                MDCUtils.addBuildContext(mdcMeta.get());
             } else {
                 logger.warn(
                         "Unable to retrieve MDC meta. There is no running build for buildExecutionConfigurationId: {}.",
@@ -244,6 +254,8 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            MDCUtils.removeBuildContext();
         }
     }
 }

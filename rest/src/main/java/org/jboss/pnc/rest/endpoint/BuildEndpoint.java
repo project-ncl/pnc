@@ -134,24 +134,24 @@ public class BuildEndpoint extends AbstractEndpoint<BuildRecord, BuildRecordRest
     @POST
     @Path("/{id}/cancel")
     public Response cancel(@PathParam("id") Integer buildTaskId) {
-        boolean success = false;
         try {
             logger.debug("Received cancel request for buildTaskId: {}.", buildTaskId);
             Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(buildTaskId);
             if (mdcMeta.isPresent()) {
-                MDCUtils.addContext(mdcMeta.get());
+                MDCUtils.addBuildContext(mdcMeta.get());
             } else {
                 logger.warn("Unable to retrieve MDC meta. There is no running build for buildTaskId: {}.", buildTaskId);
             }
-            success = buildTriggerer.cancelBuild(buildTaskId);
+            if (buildTriggerer.cancelBuild(buildTaskId)) {
+                return Response.ok().build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
         } catch (BuildConflictException | CoreException e) {
             logger.error("Unable to cancel the build [" + buildTaskId + "].", e);
             return Response.serverError().build();
-        }
-        if (success) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+        } finally {
+            MDCUtils.removeBuildContext();
         }
     }
 }

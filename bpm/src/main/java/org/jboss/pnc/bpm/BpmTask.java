@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jboss.pnc.bpm.model.BpmEvent;
+import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -132,7 +133,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      */
     public <T extends BpmEvent> void addListener(BpmEventType eventType, Consumer<T> listener) {
         List<Consumer<?>> consumers = listeners.computeIfAbsent(eventType, (k) -> new ArrayList<>());
-        consumers.add(listener);
+        consumers.add(MDCWrappers.wrap(listener));
     }
 
     public <T extends BpmEvent> void notify(BpmEventType eventType, T data) {
