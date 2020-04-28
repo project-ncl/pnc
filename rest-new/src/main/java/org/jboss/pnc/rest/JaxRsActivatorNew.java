@@ -62,6 +62,7 @@ import org.jboss.pnc.rest.provider.OperationNotAllowedExceptionsMapper;
 import org.jboss.pnc.rest.provider.RSQLExceptionMapper;
 import org.jboss.pnc.rest.provider.RespondWithStatusFilter;
 import org.jboss.pnc.rest.provider.UnauthorizedExceptionMapper;
+import org.jboss.pnc.rest.provider.UserServiceFeature;
 import org.jboss.pnc.rest.provider.ValidationExceptionExceptionMapper;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 import org.slf4j.Logger;
@@ -117,6 +118,7 @@ public class JaxRsActivatorNew extends Application {
         addMetricsResources(resources);
         addRespondWithStatusFilter(resources);
         addProviders(resources);
+        addDynamicFeature(resources);
         return resources;
     }
 
@@ -237,6 +239,10 @@ public class JaxRsActivatorNew extends Application {
 
     private void addProviders(Set<Class<?>> resources) {
         resources.add(JacksonProvider.class);
+    }
+
+    private void addDynamicFeature(Set<Class<?>> resources) {
+        resources.add(UserServiceFeature.class);
     }
 
 }
