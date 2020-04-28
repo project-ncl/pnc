@@ -116,6 +116,8 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
 
         // preload generic parameters
         buildConfiguration.getGenericParameters().forEach((k, v) -> k.equals(null));
+        logger.info("### buildconfigurationAudited#queryById");
+        buildConfiguration.getGenericParameters().forEach((k, v) -> logger.info("Key: " + k + " value: " + v));
 
         return BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, idRev.getRev());
     }
