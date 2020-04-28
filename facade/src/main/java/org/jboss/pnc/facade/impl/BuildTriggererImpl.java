@@ -140,7 +140,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
                     buildConfigurationAudited != null,
                     "Can't find Build Configuration with id=" + buildConfigId + ", rev="
                             + buildConfigurationRevision.getAsInt());
-            logger.info("BuildTriggererImpl#doTriggerBuild");
+            logger.info("#### BuildTriggererImpl#doTriggerBuild");
             buildConfigurationAudited.getGenericParameters().forEach((k, v) -> logger.info("Key: " + k + " value: " + v));
             buildSetTask = buildCoordinator.build(
                     hibernateLazyInitializer

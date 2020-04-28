@@ -194,6 +194,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     @Override
     public BuildSetTask build(BuildConfigurationAudited buildConfigurationAudited, User user, BuildOptions buildOptions)
             throws BuildConflictException {
+        log.info(">>> DefaultBuildCoordinator#build");
+        buildConfigurationAudited.getGenericParameters().forEach((k, v) -> log.info("Key: " + k + " value: " + v));
         return build0(user, buildOptions, buildConfigurationAudited);
     }
 
