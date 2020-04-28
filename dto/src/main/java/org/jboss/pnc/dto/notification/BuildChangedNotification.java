@@ -17,23 +17,19 @@
  */
 package org.jboss.pnc.dto.notification;
 
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.enums.BuildStatus;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.enums.BuildProgress;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.JobNotificationProgress;
 import org.jboss.pnc.enums.JobNotificationType;
 
-import static org.jboss.pnc.enums.BuildStatus.NEW;
-import static org.jboss.pnc.enums.BuildStatus.WAITING_FOR_DEPENDENCIES;
 import static org.jboss.pnc.enums.JobNotificationProgress.FINISHED;
 import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 import static org.jboss.pnc.enums.JobNotificationProgress.PENDING;
 import static org.jboss.pnc.enums.JobNotificationType.BUILD;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Notification about change in Build.
@@ -67,22 +63,28 @@ public class BuildChangedNotification extends Notification {
     public BuildChangedNotification(
             @JsonProperty("oldStatus") BuildStatus oldStatus,
             @JsonProperty("build") Build build) {
-        super(BUILD, BUILD_STATUS_CHANGED, getProgress(build.getStatus()), getProgress(oldStatus));
+        super(
+                BUILD,
+                BUILD_STATUS_CHANGED,
+                getProgress(build.getStatus().progress()),
+                getProgress(oldStatus.progress()));
         this.oldStatus = oldStatus;
         this.build = build;
     }
 
-    public static JobNotificationProgress getProgress(BuildStatus status) {
+    public static JobNotificationProgress getProgress(BuildProgress status) {
         if (status == null) {
             return null;
         }
-        if (status == WAITING_FOR_DEPENDENCIES || status == NEW) {
-            return PENDING;
-        }
-        if (status.isFinal()) {
-            return FINISHED;
-        } else {
-            return IN_PROGRESS;
+        switch (status) {
+            case PENDING:
+                return PENDING;
+            case FINISHED:
+                return FINISHED;
+            case IN_PROGRESS:
+                return IN_PROGRESS;
+            default:
+                throw new UnsupportedOperationException("Unknown status " + status);
         }
     }
 }
