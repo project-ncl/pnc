@@ -26,6 +26,7 @@ import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupBuildClient;
 import org.jboss.pnc.client.GroupConfigurationClient;
+import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceNotFoundException;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -34,18 +35,14 @@ import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
-import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.utils.ResponseUtils;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
-import org.jboss.pnc.rest.restmodel.BuildConfigurationRest;
-import org.jboss.pnc.rest.restmodel.BuildRecordRest;
-import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -57,7 +54,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -160,6 +156,51 @@ public class BuildTest {
                 () -> groupBuildToFinish(groupBuild.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void shouldTriggerBuildWithADependencyAndFinishWithoutProblems() throws ClientException {
+        // given - A BC with a dependency on pnc-1.0.0.DR1
+        BuildConfiguration buildConfigurationParent = buildConfigurationClient
+                .getAll(Optional.empty(), Optional.of("name==dependency-analysis-1.3"))
+                .iterator()
+                .next();
+
+        // Update dependency
+        BuildConfiguration buildConfigurationChild = buildConfigurationClient
+                .getAll(Optional.empty(), Optional.of("name==pnc-1.0.0.DR1"))
+                .iterator()
+                .next();
+        BuildConfiguration updatedBuildConfigurationChild = buildConfigurationChild.toBuilder()
+                .description(buildConfigurationChild.getDescription() + ".")
+                .build();
+
+        buildConfigurationClient.update(buildConfigurationChild.getId(), updatedBuildConfigurationChild);
+
+        // The update of the description should not have changed the lastModificationDate
+        assertThat(buildConfigurationChild.getModificationTime())
+                .isEqualTo(updatedBuildConfigurationChild.getModificationTime());
+
+        // when
+        Build build = buildConfigurationClient
+                .trigger(buildConfigurationParent.getId(), getBuildParameters(false, true));
+
+        BuildsFilterParameters parameters = new BuildsFilterParameters();
+        parameters.setRunning(true);
+        RemoteCollection<Build> childBuildCol = buildConfigurationClient
+                .getBuilds(buildConfigurationChild.getId(), parameters);
+
+        Build childBuild = childBuildCol.getAll().iterator().next();
+        // then
+        assertThat(childBuildCol.size()).isEqualTo(1);
+        assertThat(buildConfigurationParent.getDependencies().size()).isEqualTo(1);
+
+        assertThat(build).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
+
+        EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
+        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, null), 15, TimeUnit.SECONDS);
+
+        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(childBuild.getId(), isIn, null), 15, TimeUnit.SECONDS);
     }
 
     @Test
