@@ -38,6 +38,9 @@ public class KeycloakLoggedInUser implements LoggedInUser {
     private String tokenString;
 
     public KeycloakLoggedInUser(HttpServletRequest httpServletRequest) {
+        if (httpServletRequest == null) {
+            throw new NullPointerException();
+        }
         try {
             KeycloakSecurityContext keycloakSecurityContext = (KeycloakSecurityContext) httpServletRequest
                     .getAttribute(KeycloakSecurityContext.class.getName());

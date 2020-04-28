@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
@@ -53,11 +54,8 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
     private Logger logger = LoggerFactory.getLogger(RequestLoggingFilter.class);
     private static final String REQUEST_EXECUTION_START = "request-execution-start";;
 
+    @Inject
     UserService userService;
-
-    public RequestLoggingFilter(UserService userService) {
-        this.userService = userService;
-    }
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -84,8 +82,8 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
                     MDCUtils.addUserId(Integer.toString(userId));
                 }
             }
-        } catch (IllegalStateException e) {
-            // user not found.. proceed
+        } catch (Exception e) {
+            // user not found, continue ...
         }
 
         UriInfo uriInfo = requestContext.getUriInfo();

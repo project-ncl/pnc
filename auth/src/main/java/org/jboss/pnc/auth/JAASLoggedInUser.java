@@ -33,6 +33,9 @@ public class JAASLoggedInUser implements LoggedInUser {
     private HttpServletRequest httpServletRequest;
 
     public JAASLoggedInUser(HttpServletRequest httpServletRequest) {
+        if (httpServletRequest == null) {
+            throw new NullPointerException();
+        }
         this.httpServletRequest = httpServletRequest;
         log.debug("Instantiated new object for username: {}.", getUserName());
     }
@@ -44,6 +47,9 @@ public class JAASLoggedInUser implements LoggedInUser {
 
     @Override
     public String getUserName() {
+        if (httpServletRequest.getUserPrincipal() == null) {
+            return null;
+        }
         return httpServletRequest.getUserPrincipal().getName();
     }
 
