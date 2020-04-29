@@ -24,7 +24,8 @@
     },
     bindings: {
       buildType: '<',
-      isEditForm: '<'
+      isEditForm: '<',
+      originalBuildType: '='
     },
     templateUrl: 'build-configs/directives/pnc-select-build-parameters/pnc-select-build-parameters.html',
     controller: ['$scope', 'utils', 'BuildConfigResource', Controller]
