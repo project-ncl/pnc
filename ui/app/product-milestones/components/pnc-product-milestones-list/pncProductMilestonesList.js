@@ -19,22 +19,24 @@
 
 (function () {
 
-  var module = angular.module('pnc.product-versions');
+  angular.module('pnc.milestone').component('pncProductMilestonesList', {
+    bindings: {
+      productVersion: '<',
+      product: '<',
+      productMilestones: '<'
+    },
+    templateUrl: 'product-milestones/components/pnc-product-milestones-list/pnc-product-milestones-list.html',
+    controller: [Controller]
+  });
 
-  /**
-   * @author Jakub Senko
-   */
-  module.directive('pncProductVersionMilestones', [
-    function () {
-      return {
-        restrict: 'E',
-        templateUrl: 'product-versions/components/pnc-product-version-milestones/pnc-product-version-milestones.html',
-        scope: {
-          version: '=',
-          product: '='
-        }
-      };
-    }
-  ]);
+  function Controller() {
+    const $ctrl = this;
+
+    // -- Controller API --
+
+    // --------------------
+
+    $ctrl.$onInit = () => { };
+  }
 
 })();
