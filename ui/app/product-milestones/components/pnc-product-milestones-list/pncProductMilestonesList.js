@@ -19,7 +19,7 @@
 
 (function () {
 
-  angular.module('pnc.milestone').component('pncProductMilestonesList', {
+  angular.module('pnc.product-milestones').component('pncProductMilestonesList', {
     bindings: {
       productVersion: '<',
       product: '<',
