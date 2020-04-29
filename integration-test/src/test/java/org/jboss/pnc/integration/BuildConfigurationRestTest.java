@@ -317,6 +317,7 @@ public class BuildConfigurationRestTest extends AbstractTest {
      * @throws Exception
      */
     @Test
+    @InSequence(20)
     public void shouldUpdateBuildConfigurationWithDependencies() throws IOException {
         // given
 
