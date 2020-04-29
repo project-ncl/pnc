@@ -32,7 +32,7 @@
     'pnc.build-configs',
     'pnc.builds',
     'pnc.group-configs',
-    'pnc.milestone',
+    'pnc.product-milestones',
     'pnc.product-releases',
     'pnc.group-builds',
     'pnc.report',

@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.milestone');
+  var module = angular.module('pnc.product-milestones');
 
   module.controller('MilestoneDetailController', [
     '$scope',

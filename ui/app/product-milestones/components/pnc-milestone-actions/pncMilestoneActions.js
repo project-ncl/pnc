@@ -21,7 +21,7 @@
   /**
    * The component representing milestone actions for given Milestone
    */
-  angular.module('pnc.milestone').component('pncMilestoneActions', {
+  angular.module('pnc.product-milestones').component('pncMilestoneActions', {
     bindings: {
       /**
        * Object: The object representing Product Version Milestone
