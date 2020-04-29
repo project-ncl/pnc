@@ -18,12 +18,12 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.product-versions').component('pncMilestoneLabelLink', {
+  angular.module('pnc.product-milestones').component('pncProductMilestoneLink', {
     bindings: {
       productVersion: '<',
-      milestone: '<'
+      productMilestone: '<'
     },
-    templateUrl: 'product-versions/components/pnc-milestone-label-link/pnc-milestone-label-link.html',
+    templateUrl: 'product-milestones/components/pnc-product-milestone-link/pnc-product-milestone-link.html',
     controller: [Controller]
   });
 
@@ -37,11 +37,10 @@
 
     // --------------------
 
-    $ctrl.$onInit = () => {
-    };
+    $ctrl.$onInit = () => {};
 
     function isCurrentMilestone() {
-      return $ctrl.productVersion.currentProductMilestone && ($ctrl.milestone.id === $ctrl.productVersion.currentProductMilestone.id);
+      return $ctrl.productVersion.currentProductMilestone && ($ctrl.productMilestone.id === $ctrl.productVersion.currentProductMilestone.id);
     }
   }
 
