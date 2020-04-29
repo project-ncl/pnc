@@ -1433,6 +1433,7 @@
   </build>
 
   <repositories>
+
     <repository>
       <id>sonatype-snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -1465,6 +1466,13 @@
       </releases>
     </repository>
 
+    <repository>
+      <id>Nexus Staging</id>
+      <url>https://oss.sonatype.org/content/groups/staging</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
   </repositories>
 
   <profiles>
