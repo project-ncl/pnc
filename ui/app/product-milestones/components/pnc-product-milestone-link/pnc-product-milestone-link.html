@@ -17,19 +17,18 @@
     limitations under the License.
 
 -->
-<script type="text/ng-template" id="tooltipTemplateMilestone.html">
-  <strong>Start Date: </strong>{{::$ctrl.milestone.startingDate | date:'mediumDate'}}<br>
-  <strong>Planned End Date: </strong>{{::$ctrl.milestone.plannedEndDate | date:'mediumDate'}}<br>
-  <strong>End Date: </strong>{{::$ctrl.milestone.endDate | date:'mediumDate'}}<br>
+<script type="text/ng-template" id="tooltipTemplateProductMilestone.html">
+  <strong>Start Date: </strong>{{::$ctrl.productMilestone.startingDate | date:'mediumDate'}}<br>
+  <strong>Planned End Date: </strong>{{::$ctrl.productMilestone.plannedEndDate | date:'mediumDate'}}<br>
+  <strong>End Date: </strong>{{::$ctrl.productMilestone.endDate | date:'mediumDate'}}<br>
 </script>
 
 <span class="inline-block m-t-5 m-b-5">
   <a  class="label label-default"
-      ng-class="{ 'label-primary' : $ctrl.isCurrentMilestone() }"
+      ng-class="{ 'label-primary' : $ctrl.isCurrentproductMilestone() }"
       ui-sref=""
       tooltip-placement="right"
-      uib-tooltip-template="'tooltipTemplateMilestone.html'">
-    {{ ::$ctrl.milestone.version }}
+      uib-tooltip-template="'tooltipTemplateProductMilestone.html'">
+    {{ ::$ctrl.productMilestone.version }}
   </a>
-
 </span>
