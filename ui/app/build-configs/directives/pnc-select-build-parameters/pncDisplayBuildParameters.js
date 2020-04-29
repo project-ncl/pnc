@@ -22,6 +22,7 @@
     bindings: {
       params: '<',
       buildType: '<',
+      originalBuildType: '=',
       isEditForm: '<',
       onEdit: '&',
       onRemove: '&'
@@ -34,8 +35,8 @@
     var $ctrl = this,
         editMap = {};
 
-    let appliedBuildType;
     let paramsLoadingFailed = false;
+    let alignmentParametersKey = 'ALIGNMENT_PARAMETERS';
 
     // -- Controller API --
 
@@ -52,7 +53,14 @@
     }
 
     function isBuildTypeChanged() {
-      return $ctrl.buildType !== appliedBuildType;
+      return $ctrl.buildType !== $ctrl.originalBuildType;
+    }
+
+    function addAlignmentIfNotPresent(){
+      if (isBuildTypeChanged() && !(alignmentParametersKey in $ctrl.currentParams)){
+        // if no ALIGNMENT_PARAMETERS present add empty ones so the proposal of new ones works
+        $ctrl.currentParams[alignmentParametersKey] = '';
+      }
     }
 
     $ctrl.$onInit = function(){
@@ -65,11 +73,8 @@
       let buildTypeObj = changesObj.buildType;
 
       if (buildTypeObj){
-        if (buildTypeObj.isFirstChange()){
-          appliedBuildType = buildTypeObj.currentValue;
-        }
-
         $ctrl.updateAlignmentParams(buildTypeObj.currentValue);
+        addAlignmentIfNotPresent();
       }
     };
 
@@ -133,16 +138,16 @@
     };
 
     $ctrl.isParamsRequestFailed = function (key) {
-      return key === 'ALIGNMENT_PARAMETERS' && paramsLoadingFailed && isBuildTypeChanged();
+      return key === alignmentParametersKey && paramsLoadingFailed && isBuildTypeChanged();
     };
 
     $ctrl.isProposedAlignmentParams = function (key) {
-      return key === 'ALIGNMENT_PARAMETERS' && isBuildTypeChanged() && $ctrl.isEditForm && !paramsLoadingFailed;
+      return key === alignmentParametersKey && isBuildTypeChanged() && $ctrl.isEditForm && !paramsLoadingFailed;
     };
 
     $ctrl.applyNewParameters = function () {
-      $ctrl.onEdit({ key: 'ALIGNMENT_PARAMETERS', value: $ctrl.newAlignmentParameters});
-      appliedBuildType = $ctrl.buildType;
+      $ctrl.onEdit({ key: alignmentParametersKey, value: $ctrl.newAlignmentParameters});
+      $ctrl.originalBuildType = $ctrl.buildType;
     };
 
   }

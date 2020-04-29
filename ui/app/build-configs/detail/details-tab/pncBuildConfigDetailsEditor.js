@@ -59,6 +59,7 @@
       $ctrl.formData = fromBuildConfig($ctrl.buildConfig);
       // Ensure this components copy of the BC can't be updated from outside.
       $ctrl.buildConfig = angular.copy($ctrl.buildConfig);
+      $ctrl.originalBuildType = $ctrl.formData.general.buildType;
     };
 
     function submit() {
