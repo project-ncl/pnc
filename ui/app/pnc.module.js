@@ -139,8 +139,7 @@
         };
       }]);
 
-      messageBus.connect(restConfig.getPncGenericSettingsNotificationsUrl());
-      messageBus.connect(restConfig.getPncNotificationsUrl());
+      messageBus.connect(restConfig.getPncNotificationsUrl(),restConfig.getPncGenericSettingsNotificationsUrl());
 
       if (authService.isAuthenticated()) {
         authService.getPncUser().then(function (result) {
