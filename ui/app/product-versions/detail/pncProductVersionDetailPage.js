@@ -23,7 +23,8 @@
       productVersion: '<',
       buildConfigs: '<',
       groupConfigs: '<',
-      productReleases: '<'
+      productReleases: '<',
+      productMilestones: '<'
     },
     templateUrl: 'product-versions/detail/pnc-product-version-detail-page.html',
     controller: ['ProductVersionResource', 'paginator', Controller]
@@ -45,6 +46,7 @@
 
     $ctrl.$onInit = () => {
       $ctrl.productReleasesPage = paginator($ctrl.productReleases);
+      $ctrl.productMilestonesPage = paginator($ctrl.productMilestones);
     };
 
     function getFullName() {

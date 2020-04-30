@@ -94,7 +94,8 @@
         </button>
       </pnc-header-buttons>
     </pnc-header>
-    <p>To be fixed as part of 2.0 refactor in NCL-4204</p>
+    <pnc-product-milestones-list product-milestones="$ctrl.productMilestonesPage.data"></pnc-product-milestones-list>
+    <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.productMilestonesPage" ng-if="$ctrl.productMilestonesPage"></pnc-page-controls>
   </div>
 
   <div class="col-lg-6">
