@@ -38,8 +38,8 @@
         </a>
       </td>
       <td ng-if="::$ctrl.showColumn('milestones')">
-        <span ng-repeat="milestone in productVersion.productMilestones">
-          <pnc-milestone-label-link milestone="milestone" product-version="productVersion"></pnc-milestone-label-link>
+        <span ng-repeat="productMilestone in productVersion.productMilestones">
+          <pnc-product-milestone-link product-milestone="productMilestone" product-version="productVersion"></pnc-milestone-label-link>
         </span>
       </td>
       <td ng-if="::$ctrl.showColumn('releases')">

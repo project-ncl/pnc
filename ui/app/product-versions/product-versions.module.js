@@ -84,6 +84,16 @@
                 pageSize: 10 
               }).$promise;
             }
+          ],
+          productMilestones: [
+            '$stateParams',
+            'ProductVersionResource',
+            ($stateParams, ProductVersionResource) => {
+              return ProductVersionResource.queryMilestones({ 
+                id: $stateParams.productVersionId, 
+                pageSize: 10 
+              }).$promise;
+            }
           ]
         }
       });
