@@ -33,10 +33,13 @@
       });
 
       var listeners = [],
-          webSocket;
+          webSocket,
+          genericSettingsListeners = [],
+          genericSettingsWebsocket;
 
-      function connect(url) {
+      function connect(url, genericSettingsUrl) {
         webSocket = $websocket(url, null, { reconnectIfNotNormalClose: true });
+        genericSettingsWebsocket = $websocket(genericSettingsUrl, null, { reconnectIfNotNormalClose: true });
 
         webSocket.onOpen(function () {
           $log.info('Connected to PNC messageBus at: %s', webSocket.url);
@@ -56,10 +59,29 @@
             listener(parsedMsg);
           });
         });
+
+        genericSettingsWebsocket.onOpen(function () {
+          $log.info('Connected to PNC Generic Settings WebSocket at: %s', webSocket.url);
+        });
+        genericSettingsWebsocket.onClose(function () {
+          $log.info('Disconnected from PNC Generic Settings WebSocket at: %s', webSocket.url);
+        });
+
+        genericSettingsWebsocket.onError(function () {
+          $log.error('Connection error on PNC Generic Settings WebSocket at: %s', webSocket.url);
+        });
+
+        genericSettingsWebsocket.onMessage(function (message) {
+          var parsedMsg = JSON.parse(message.data);
+          genericSettingsListeners.forEach(function (listener) {
+            listener(parsedMsg);
+          });
+        });
       }
 
       function disconnect(force) {
         webSocket.close(!!force);
+        genericSettingsWebsocket.close(!!force);
       }
 
       function subscribe(params) {
@@ -86,12 +108,18 @@
             $injector.get(listener) :  $injector.invoke(listener));
       }
 
+      function registerGenericSettingsListener(listener) {
+        genericSettingsListeners.push(angular.isString(listener) ?
+            $injector.get(listener) :  $injector.invoke(listener));
+      }
+
       return {
         connect: connect,
         disconnect: disconnect,
         subscribe: subscribe,
         unsubscribe: unsubscribe,
-        registerListener: registerListener
+        registerListener: registerListener,
+        registerGenericSettingsListener: registerGenericSettingsListener,
       };
     }
   ]);
