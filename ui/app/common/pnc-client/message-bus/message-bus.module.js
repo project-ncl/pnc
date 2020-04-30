@@ -30,7 +30,7 @@
       messageBus.registerListener('rcListener');
       messageBus.registerListener('brewPushListener');
       messageBus.registerListener('buildSetStatusListener');
-      messageBus.registerListener('genericSettingListener');
+      messageBus.registerGenericSettingsListener('genericSettingListener');
 
     }
   ]);
