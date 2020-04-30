@@ -29,8 +29,22 @@
   module.config(['$stateProvider', function ($stateProvider) {
 
     $stateProvider
-      .state('product.detail.version.milestoneDetail', {
-        url: '/milestone/{milestoneId}/detail',
+
+      .state('products.detail.product-versions.detail.milestone', {
+        abstract: true,
+        url: '/milestones',
+        views: {
+          'content@': {
+            templateUrl: 'common/templates/single-col.tmpl.html'
+          }
+        },
+        data: {
+          proxy: 'products.detail.product-versions.detail'
+        }
+      })
+
+      .state('products.detail.product-versions.detail.milestone.detail', {
+        url: '/{milestoneId}',
         views: {
           'content@': {
             templateUrl: 'milestone/views/milestone.detail.html',
@@ -64,7 +78,8 @@
           }]
         }
       })
-      .state('product.detail.version.milestoneDetail.log', {
+
+      .state('products.detail.product-versions.detail.milestone.detail.log', {
         url: '/log',
         views: {
           'content@': {
@@ -79,8 +94,9 @@
 
         }
       })
-      .state('product.detail.version.milestoneCreate', {
-        url: '/milestone/create',
+
+      .state('products.detail.product-versions.detail.milestone.create', {
+        url: '/create',
         views: {
           'content@': {
             templateUrl: 'milestone/views/milestone.create-update.html',
@@ -90,15 +106,16 @@
         },
         data: {
           displayName: 'Create Milestone',
-          title: '{{ versionDetail.version }} | {{ productDetail.name }} | Create Milestone',
+          title: '{{ productVersion.version }} | {{ product.name }} | Create Milestone',
           requireAuth: true
         },
         resolve: {
-          milestoneDetail: [function() { return null; }]
+          productMilestone: [function() { return null; }]
         },
       })
-      .state('product.detail.version.milestoneUpdate', {
-        url: '/milestone/{milestoneId}/update',
+
+      .state('products.detail.product-versions.detail.milestone.update', {
+        url: '/{milestoneId}/update',
         views: {
           'content@': {
             templateUrl: 'milestone/views/milestone.create-update.html',
@@ -118,8 +135,9 @@
           }]
         }
       })
-      .state('product.detail.version.milestoneClose', {
-        url: '/milestone/{milestoneId}/close',
+
+      .state('products.detail.product-versions.detail.milestone.close', {
+        url: '/{milestoneId}/close',
         views: {
           'content@': {
             templateUrl: 'milestone/views/milestone.close.html',
