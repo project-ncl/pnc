@@ -97,13 +97,7 @@
 
       .state('products.detail.product-versions.detail.milestone.create', {
         url: '/create',
-        views: {
-          'content@': {
-            templateUrl: 'milestone/views/milestone.create-update.html',
-            controller: 'MilestoneCreateUpdateController',
-            controllerAs: 'milestoneCreateUpdateCtrl',
-          }
-        },
+        component: 'pncProductMilestoneCreateUpdatePage',
         data: {
           displayName: 'Create Milestone',
           title: '{{ productVersion.version }} | {{ product.name }} | Create Milestone',
@@ -116,13 +110,7 @@
 
       .state('products.detail.product-versions.detail.milestone.update', {
         url: '/{milestoneId}/update',
-        views: {
-          'content@': {
-            templateUrl: 'milestone/views/milestone.create-update.html',
-            controller: 'MilestoneCreateUpdateController',
-            controllerAs: 'milestoneCreateUpdateCtrl',
-          }
-        },
+        component: 'pncProductMilestoneCreateUpdatePage',
         data: {
           displayName: 'Update Milestone',
           title: '{{ milestoneDetail.version }} | {{ productDetail.name }} | Update Milestone',
