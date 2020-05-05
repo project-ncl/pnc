@@ -26,7 +26,7 @@
 <span class="inline-block m-t-5 m-b-5">
   <a  class="label label-default"
       ng-class="{ 'label-primary' : $ctrl.isCurrentproductMilestone() }"
-      ui-sref=""
+      ui-sref="products.detail.product-versions.detail.milestone.detail({  productVersionId: $ctrl.productVersion.id, productMilestoneId: $ctrl.productMilestone.id })"
       tooltip-placement="right"
       uib-tooltip-template="'tooltipTemplateProductMilestone.html'">
     {{ ::$ctrl.productMilestone.version }}
