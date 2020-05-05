@@ -145,7 +145,7 @@
             return BuildResource.getLogBuild({ id: build.id }).$promise;
           }],
           sshCredentials: ['BuildResource', 'build', function (BuildResource, build) {
-            return BuildResource.getSshCredentials({ id: build.id }).$promise;
+            return BuildResource.getSshCredentials({ id: build.id });
           }]
         }
       });
