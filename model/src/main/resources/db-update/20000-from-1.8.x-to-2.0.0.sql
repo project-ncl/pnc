@@ -88,3 +88,9 @@ BEGIN transaction;
 COMMIT;
 
 
+-- NCL-5511 - Drop email not null constrain
+BEGIN transaction;
+
+ALTER TABLE usertable ALTER COLUMN email DROP NOT NULL;
+
+COMMIT;
