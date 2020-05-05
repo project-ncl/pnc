@@ -1,0 +1,64 @@
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014-2020 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<div>
+
+  <pnc-header>
+    <pnc-header-title>Product Milestone {{ $ctrl.productMilestone.version }}</pnc-header-title>
+    <pnc-header-buttons>
+      <pnc-product-milestone-actions product-milestone="$ctrl.milestone" product="$ctrl.product" product-version="$ctrl.productVersion"></pnc-product-milestone-actions>
+    </pnc-header-buttons>
+  </pnc-header>
+
+  <div class="row">
+    <div class="col-md-12">
+
+      <dl class="dl-horizontal">
+
+        <dt>Version</dt>
+        <dd>{{ $ctrl.productMilestone.version }}</dd>
+
+        <dt>Start Date</dt>
+        <dd>{{ $ctrl.productMilestone.startingDate | date:'yyyy/MM/dd' }}</dd>
+
+        <dt>Planned End Date</dt>
+        <dd>{{ $ctrl.productMilestone.plannedEndDate | date:'yyyy/MM/dd' }}</dd>
+
+        <dt>End Date</dt>
+        <dd>{{ $ctrl.productMilestone.endDate | date:'yyyy/MM/dd' }}</dd>
+
+        <dt>Issue Tracker URL</dt>
+        <dd>
+          <span ng-hide="$ctrl.productMilestone.issueTrackerUrl">&mdash;</span>
+          <a ng-show="$ctrl.productMilestone.issueTrackerUrl" href="{{ $ctrl.productMilestone.issueTrackerUrl }}">{{ $ctrl.productMilestone.issueTrackerUrl }}</a>
+        </dd>
+
+        <dt>Status</dt>
+        <dd>{{ $ctrl.latestCloseResultstatus || 'Open' }} <span ng-if="$ctrl.latestCloseResultstatus">[ <a ui-sref="product.detail.version.milestoneDetail.log({ milestoneId: $ctrl.productMilestone.id })" href>View Log</a> ]</span></dd>
+
+      </dl>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <pnc-milestone-builds product-milestone="$ctrl.productMilestone" performed-builds="$ctrl.performedBuilds"></pnc-milestone-builds>
+    </div>
+  </div>
+</div>

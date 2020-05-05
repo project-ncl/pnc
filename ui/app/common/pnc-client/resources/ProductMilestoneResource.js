@@ -45,6 +45,18 @@
         update: {
           method: 'PUT',
           successNotification: 'Product Milestone updated'
+        },
+
+        // Gets builds performed during a product milestone cycle.
+        queryPerformedBuilds: {
+          method: 'GET',
+          url: ENDPOINT + '/builds',
+          isPaged: true
+        },
+
+        queryLatestCloseResult: {
+          method: 'GET',
+          url: ENDPOINT + '/close-results?latest=true'
         }
       });
 

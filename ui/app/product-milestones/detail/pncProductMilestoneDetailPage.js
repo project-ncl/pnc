@@ -15,27 +15,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
+(function() {
+  'use strict';
 
-(function () {
+  angular.module('pnc.product-milestones').component('pncProductMilestoneDetailPage', {
+    bindings: {
+      productMilestone: '<',
+      performedBuilds: '<',
+      latestCloseResult: '<'
+    },
+    templateUrl: 'product-milestones/detail/pnc-product-milestone-detail-page.html',
+    controller: [Controller]
+  });
 
-  var module = angular.module('pnc.product-milestones');
+  function Controller() {
+    const $ctrl = this;
 
-  module.directive('pncMilestoneBuilds', [
-    function () {
+    // -- Controller API --
 
-      return {
-        restrict: 'E',
-        templateUrl: 'milestone/directives/milestoneBuilds/milestoneBuilds.html',
-        scope: {
-          milestone: '=',
-          performedBuilds: '='
-        },
-        link: function (scope) {
-          scope.displayFields = ['status', 'id', 'configurationName', 'endTime'];
-        }
-      };
-    }
-  ]);
+
+    // --------------------
+
+    $ctrl.$onInit = () => {};
+
+  }
 
 })();

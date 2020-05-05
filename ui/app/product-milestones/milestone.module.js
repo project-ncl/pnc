@@ -44,38 +44,24 @@
       })
 
       .state('products.detail.product-versions.detail.milestone.detail', {
-        url: '/{milestoneId}',
-        views: {
-          'content@': {
-            templateUrl: 'milestone/views/milestone.detail.html',
-            controller: 'MilestoneDetailController',
-            controllerAs: 'milestoneDetailCtrl',
-          }
-        },
+        url: '/{productMilestoneId}',
+        component: 'pncProductMilestoneDetailPage',
         data: {
-          displayName: '{{ milestoneDetail.version }}',
-          title: '{{ milestoneDetail.version }} | {{ productDetail.name }} | Milestone'
+          displayName: '{{ productMilestone.version }}',
+          title: '{{ productMilestone.version }} | {{ product.name }} | Milestone'
         },
         resolve: {
-          milestoneDetail: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
-            return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
-                .$promise;
-          }],
-          distributedArtifacts: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
-            return ProductMilestoneDAO.getPagedDistributedArtifacts({milestoneId: $stateParams.milestoneId}).$promise;
-          }],
-          performedBuilds: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
-            return ProductMilestoneDAO.getPagedPerformedBuilds({milestoneId: $stateParams.milestoneId}).$promise;
-          }],
-          latestRelease: ['ProductMilestoneDAO', '$stateParams', '$log', function (ProductMilestoneDAO, $stateParams, $log) {
-            return ProductMilestoneDAO
-                .getLatestRelease({ milestoneId: $stateParams.milestoneId })
-                .$promise
-                .catch(function (error) {
-                  $log.error('Error loading release workflow: ' + JSON.stringify(error));
-                  return {};
-                });
-          }]
+          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) => 
+            ProductMilestoneResource.get({id: $stateParams.productMilestoneId}).$promise
+          ],
+          performedBuilds: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
+            ProductMilestoneResource.queryPerformedBuilds({id: $stateParams.productMilestoneId}).$promis
+          ],
+          latestCloseResult: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams, $log) =>
+            ProductMilestoneResource.queryLatestCloseResult({ id: $stateParams.productMilestoneId }).$promise.catch((error) => {
+              $log.error('Error loading release workflow: ' + JSON.stringify(error));
+            })
+          ]
         }
       })
 
@@ -90,8 +76,7 @@
         },
         data: {
           displayName: 'Workflow Log',
-          title: '{{ milestoneDetail.version }} | {{ productDetail.name }} | Workflow Log'
-
+          title: '{{ productMilestone.version }} | {{ product.name }} | Workflow Log'
         }
       })
 
@@ -109,23 +94,23 @@
       })
 
       .state('products.detail.product-versions.detail.milestone.update', {
-        url: '/{milestoneId}/update',
+        url: '/{productMilestoneId}/update',
         component: 'pncProductMilestoneCreateUpdatePage',
         data: {
           displayName: 'Update Milestone',
-          title: '{{ milestoneDetail.version }} | {{ productDetail.name }} | Update Milestone',
+          title: '{{ productMilestone.version }} | {{ product.name }} | Update Milestone',
           requireAuth: true
         },
         resolve: {
           milestoneDetail: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
-            return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
+            return ProductMilestoneDAO.get({milestoneId: $stateParams.productMilestoneId})
               .$promise;
           }]
         }
       })
 
       .state('products.detail.product-versions.detail.milestone.close', {
-        url: '/{milestoneId}/close',
+        url: '/{productMilestoneId}/close',
         views: {
           'content@': {
             templateUrl: 'milestone/views/milestone.close.html',
@@ -135,7 +120,7 @@
         },
         data: {
           displayName: 'Close Milestone',
-          title: '{{ milestoneDetail.version }} | {{ productDetail.name }} | Close Milestone',
+          title: '{{ productMilestone.version }} | {{ product.name }} | Close Milestone',
           requireAuth: true
         },
         resolve: {
