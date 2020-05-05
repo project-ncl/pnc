@@ -50,7 +50,6 @@ import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -71,7 +70,6 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -154,7 +152,22 @@ public class BuildConfigurationProviderImpl
     public BuildConfiguration update(String id, BuildConfiguration restEntity) {
         org.jboss.pnc.model.User currentUser = userService.currentUser();
         User user = userMapper.toDTO(currentUser);
-        return super.update(id, restEntity.toBuilder().id(id.toString()).modificationUser(user).build());
+        // Do not use super.update to allow the lazy initialization fix
+        restEntity = restEntity.toBuilder().id(id.toString()).modificationUser(user).build();
+        validateBeforeUpdating(id, restEntity);
+        logger.debug("Updating entity: " + restEntity.toString());
+
+        org.jboss.pnc.model.BuildConfiguration bc = mapper.toEntity(restEntity);
+        // DO NOT REMOVE - Triggers the inizialization of LAZY collections (fixes NCL-5686)
+        if (bc.getDependants() != null) {
+            bc.getDependants().isEmpty();
+        }
+        if (bc.getDependants() != null) {
+            bc.getDependants().isEmpty();
+        }
+
+        org.jboss.pnc.model.BuildConfiguration saved = repository.save(bc);
+        return mapper.toDTO(saved);
     }
 
     @Override

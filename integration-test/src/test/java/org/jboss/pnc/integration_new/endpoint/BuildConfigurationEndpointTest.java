@@ -59,10 +59,9 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -202,6 +201,29 @@ public class BuildConfigurationEndpointTest {
         return newBC;
     }
 
+    private BuildConfiguration createBuildConfigurationWithDependencyAndValidateResults(
+            String projectId,
+            String environmentId,
+            String repositoryConfigurationId,
+            String name,
+            String genericParameterValue1,
+            Map<String, BuildConfigurationRef> dependencies) throws ClientException {
+
+        BuildConfiguration buildConfiguration = BuildConfiguration.builder()
+                .project(ProjectRef.refBuilder().id(projectId).build())
+                .environment(Environment.builder().id(environmentId).build())
+                .scmRepository(SCMRepository.builder().id(repositoryConfigurationId).build())
+                .name(name)
+                .parameters(Collections.singletonMap(PARAMETER_KEY, genericParameterValue1))
+                .buildType(BuildType.MVN)
+                .dependencies(dependencies)
+                .build();
+
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        BuildConfiguration newBC = client.createNew(buildConfiguration);
+
+        return newBC;
+    }
     @Test
     @InSequence(10)
     public void testGetSpecific() throws ClientException {
@@ -521,5 +543,66 @@ public class BuildConfigurationEndpointTest {
             assertThat(params.getParameters()).isNotEmpty();
             assertThat(params.getBuildType()).isNotEmpty();
         }
+    }
+
+    /**
+     * Reproducer NCL-5686 - update of build configuration with dependencies, with cache enabled, is possible
+     * 
+     * @throws Exception
+     */
+    @Test
+    @InSequence(60)
+    public void shouldUpdateBuildConfigurationWithDependencies() throws ClientException {
+        // given
+
+        // Create dependency
+        BuildConfiguration dependency = createBuildConfigurationAndValidateResults(
+                projectId,
+                environmentId,
+                repositoryConfigurationId,
+                "pnc-1.0.0.DR1",
+                UUID.randomUUID().toString());
+
+        // Create build configuration
+        Map<String, BuildConfigurationRef> dependencies = new HashMap<>();
+        dependencies.put(dependency.getId(), dependency);
+
+        BuildConfiguration buildConfiguration = createBuildConfigurationWithDependencyAndValidateResults(
+                projectId,
+                environmentId,
+                repositoryConfigurationId,
+                "dependency-analysis-master",
+                UUID.randomUUID().toString(),
+                dependencies);
+
+        final String updatedBuildScript = "mvn clean deploy -DskipTests=true";
+        final Instant modificationTime = Instant.ofEpochMilli(155382545038L);
+
+        BuildConfiguration updatedBuildConfiguration = BuildConfiguration.builder()
+                .id(buildConfiguration.getId())
+                .name(buildConfiguration.getName())
+                .buildScript(updatedBuildScript)
+                .creationTime(buildConfiguration.getCreationTime())
+                .modificationTime(modificationTime)
+                .project(buildConfiguration.getProject())
+                .environment(buildConfiguration.getEnvironment())
+                .parameters(buildConfiguration.getParameters())
+                .scmRepository(buildConfiguration.getScmRepository())
+                .buildType(buildConfiguration.getBuildType())
+                .build();
+
+        // when
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        client.update(updatedBuildConfiguration.getId(), updatedBuildConfiguration);
+        BuildConfiguration updatedBC = client.getSpecific(updatedBuildConfiguration.getId());
+
+        // then
+        assertThat(updatedBC.getId()).isEqualTo(buildConfiguration.getId());
+        assertThat(updatedBC.getName()).isEqualTo("dependency-analysis-master");
+        assertThat(updatedBC.getBuildScript()).isEqualTo(updatedBuildScript);
+        assertThat(updatedBC.getScmRepository().getId()).isEqualTo(repositoryConfigurationId);
+        assertThat(updatedBC.getProject().getId()).isEqualTo(projectId);
+        assertThat(updatedBC.getEnvironment().getId()).isEqualTo(environmentId);
+        assertThat(modificationTime).isNotEqualTo(updatedBC.getModificationTime());
     }
 }
