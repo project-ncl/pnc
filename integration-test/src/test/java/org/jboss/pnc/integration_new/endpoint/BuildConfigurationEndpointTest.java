@@ -224,6 +224,7 @@ public class BuildConfigurationEndpointTest {
 
         return newBC;
     }
+
     @Test
     @InSequence(10)
     public void testGetSpecific() throws ClientException {
