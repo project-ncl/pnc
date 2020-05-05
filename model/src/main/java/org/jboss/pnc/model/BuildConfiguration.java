@@ -817,7 +817,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setDependencies(dependencies);
             for (BuildConfiguration dependant : dependants) {
                 if (!dependant.getDependencies().contains(buildConfiguration)) {
-                    dependant.addDependant(buildConfiguration);
+                    dependant.addDependency(buildConfiguration);
                 }
             }
             buildConfiguration.setDependants(dependants);

@@ -265,6 +265,13 @@ public class BuildConfigurationProvider extends AbstractProvider<BuildConfigurat
                     // If the client request does not include a list of dependencies, just keep the current set
                     builder.dependencies(buildConfigDB.getDependencies());
                 }
+                // DO NOT REMOVE - Triggers the inizialization of LAZY collections (fixes NCL-5686)
+                if (buildConfigDB.getDependants() != null) {
+                    buildConfigDB.getDependants().isEmpty();
+                }
+                if (buildConfigDB.getDependants() != null) {
+                    buildConfigDB.getDependants().isEmpty();
+                }
             }
 
             return builder.build();
