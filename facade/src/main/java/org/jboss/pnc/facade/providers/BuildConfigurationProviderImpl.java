@@ -157,16 +157,17 @@ public class BuildConfigurationProviderImpl
         validateBeforeUpdating(id, restEntity);
         logger.debug("Updating entity: " + restEntity.toString());
 
-        org.jboss.pnc.model.BuildConfiguration bc = mapper.toEntity(restEntity);
         // DO NOT REMOVE - Triggers the inizialization of LAZY collections (fixes NCL-5686)
-        if (bc.getDependants() != null) {
-            bc.getDependants().isEmpty();
+        org.jboss.pnc.model.BuildConfiguration persistedBc = repository.queryById(Integer.valueOf(id));
+        if (persistedBc != null) {
+            if (persistedBc.getDependencies() != null) {
+                persistedBc.getDependencies().isEmpty();
+            }
+            if (persistedBc.getDependants() != null) {
+                persistedBc.getDependants().isEmpty();
+            }
         }
-        if (bc.getDependants() != null) {
-            bc.getDependants().isEmpty();
-        }
-
-        org.jboss.pnc.model.BuildConfiguration saved = repository.save(bc);
+        org.jboss.pnc.model.BuildConfiguration saved = repository.save(mapper.toEntity(restEntity));
         return mapper.toDTO(saved);
     }
 
