@@ -18,7 +18,7 @@
 (function() {
   'use strict';
 
-  angular.module('pnc.product-releases').component('pncProductMilestoneCreateUpdatePage', {
+  angular.module('pnc.product-milestones').component('pncProductMilestoneCreateUpdatePage', {
     bindings: {
       product: '<',
       productVersion: '<',

@@ -21,12 +21,12 @@
   /**
    * The component representing milestone actions for given Milestone
    */
-  angular.module('pnc.product-milestones').component('pncMilestoneActions', {
+  angular.module('pnc.product-milestones').component('pncProductMilestoneActions', {
     bindings: {
       /**
-       * Object: The object representing Product Version Milestone
+       * Object: The object representing Product Milestone
        */
-      milestone: '<',
+      productMilestone: '<',
       /**
        * Object: The object representing Product
        */
@@ -40,12 +40,12 @@
        */
       size: '@?'
     },
-    templateUrl: 'milestone/components/pnc-milestone-actions/pnc-milestone-actions.html',
-    controller: ['$log', '$state', Controller]
+    templateUrl: 'product-milestones/components/pnc-product-milestone-actions/pnc-product-milestone-actions.html',
+    controller: ['$state', Controller]
   });
 
-  function Controller($log, $state) {
-    var $ctrl = this;
+  function Controller($state) {
+    const $ctrl = this;
 
     // -- Controller API --
 
@@ -53,19 +53,19 @@
 
     // --------------------
 
-    function markMilestoneAsCurrent (milestone) {
-      var newProductVersion = angular.copy($ctrl.productVersion);
+    function markMilestoneAsCurrent (productMilestone) {
+      const newProductVersion = angular.copy($ctrl.productVersion);
 
-      newProductVersion.currentProductMilestoneId = milestone.id;
+      newProductVersion.currentProductMilestoneId = productMilestone.id;
 
       // Mark Milestone as current in Product Version
       newProductVersion.$update({
         productId: $ctrl.product.id,
         versionId: $ctrl.productVersion.id
       }).then(function () {
-        $state.go('product.detail.version', {
+        $state.go('products.detail.product-versions.detail', {
           productId: $ctrl.product.id,
-          versionId: $ctrl.productVersion.id
+          productVersionId: $ctrl.productVersion.id
         }, {
           reload: true
         });
