@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.SupportLevel;
 
 import javax.persistence.Cacheable;
@@ -93,6 +94,12 @@ public class ProductRelease implements GenericEntity<Integer> {
     @OneToOne(cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_productrelease_milestone"))
     private ProductMilestone productMilestone;
+
+    @Size(max = 255)
+    private String cpe;
+
+    @Size(max = 50)
+    private String ppCode;
 
     public ProductRelease() {
 
@@ -183,6 +190,34 @@ public class ProductRelease implements GenericEntity<Integer> {
         this.productMilestone = productMilestone;
     }
 
+    /**
+     * @return common platform enumeration (cpe) of the product release
+     */
+    public String getCpe() {
+        return cpe;
+    }
+
+    /**
+     * @return the common platform enumeration (cpe) of the product release to set
+     */
+    public void setCpe(String cpe) {
+        this.cpe = StringUtils.nullIfBlank(cpe);
+    }
+
+    /**
+     * @return code of the product release from product pages
+     */
+    public String getPpCode() {
+        return ppCode;
+    }
+
+    /**
+     * @param ppReleaseCode the code of the product release from product pages to set
+     */
+    public void setPpCode(String ppCode) {
+        this.ppCode = StringUtils.nullIfBlank(ppCode);
+    }
+
     @Override
     public String toString() {
         return "ProductRelease [id=" + id + ", version=" + version + "]";
@@ -204,6 +239,10 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         private String issueTrackerUrl;
 
+        private String cpe;
+
+        private String ppCode;
+
         private Builder() {
         }
 
@@ -219,6 +258,8 @@ public class ProductRelease implements GenericEntity<Integer> {
             productRelease.setReleaseDate(releaseDate);
             productRelease.setDownloadUrl(downloadUrl);
             productRelease.setIssueTrackerUrl(issueTrackerUrl);
+            productRelease.setCpe(cpe);
+            productRelease.setPpCode(ppCode);
 
             if (productMilestone != null) {
                 productMilestone.setProductRelease(productRelease);
@@ -260,6 +301,16 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         public Builder productMilestone(ProductMilestone productMilestone) {
             this.productMilestone = productMilestone;
+            return this;
+        }
+
+        public Builder cpe(String cpe) {
+            this.cpe = cpe;
+            return this;
+        }
+
+        public Builder ppReleaseCode(String ppCode) {
+            this.ppCode = ppCode;
             return this;
         }
 
