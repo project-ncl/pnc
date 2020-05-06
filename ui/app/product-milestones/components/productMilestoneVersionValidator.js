@@ -15,38 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-'use strict';
-
 (function () {
+    'use strict';
 
     var module = angular.module('pnc.product-milestones');
 
-    module.directive('versionUnique',['$q','versionFactory',
-
-    function ($q, versionFactory) {
+    module.directive('productMilestoneVersionValidator',['$q', function ($q) {
         return {
             restrict: 'A',
             require: 'ngModel',
             link: function (scope, element, attrs, ngModel) {
-                ngModel.$asyncValidators.unique = function (modelValue, viewValue) {
+
+                ngModel.$asyncValidators.productMilestoneVersionValidator = function (modelValue, viewValue) {
                     var deferred = $q.defer(),
                         milestoneVersion = modelValue || viewValue,
                         productVersionId = attrs.productVersionId,
                         productVersion = attrs.productVersion;
+
                     if (milestoneVersion && productVersionId && productVersion) {
-                        versionFactory.checkUniqueValue(productVersionId, milestoneVersion, productVersion)
-                        .then(function (unique) {
-                            if (unique) {
-                                deferred.resolve();
-                            }
-                            else {
-                                deferred.reject();
-                            }
-                        });
+                       // NCL-5754 will handle this soon
+                        if (true) {
+                            deferred.reject();
+                        } else {
+                            deferred.reject();
+                        }
                     }
                     else {
                         deferred.resolve();
-                     }
+                    }
 
                     return deferred.promise;
                 };
