@@ -60,6 +60,22 @@
           <span class="help-block" ng-show="projectForm.issueTrackerUrl.$invalid && projectForm.issueTrackerUrl.$touched">Malformed URL.</span>
         </div>
       </div>
+
+      <!-- Validation: This field is optional and has no constraints -->
+      <div class="form-group" ng-class="{ 'has-error': projectForm.engineeringTeam.$invalid && projectForm.engineeringTeam.$touched, 'has-success': projectForm.engineeringTeam.$valid && projectForm.engineeringTeam.$touched }">
+        <label for="input-engineering-team" class="col-sm-3 col-lg-2 control-label">Engineering Team</label>
+        <div class="col-sm-9 col-lg-7">
+          <input type="text" id="input-engineering-team" class="form-control" name="engineeringTeam" maxlength="255" ng-model="project.engineeringTeam">
+        </div>
+      </div>
+
+      <!-- Validation: This field is optional and has no constraints -->
+      <div class="form-group" ng-class="{ 'has-error': projectForm.technicalLeader.$invalid && projectForm.technicalLeader.$touched, 'has-success': projectForm.technicalLeader.$valid && projectForm.technicalLeader.$touched }">
+        <label for="input-technical-leader" class="col-sm-3 col-lg-2 control-label">Technical Leader</label>
+        <div class="col-sm-9 col-lg-7">
+          <input type="text" id="input-technical-leader" class="form-control" name="technicalLeader" maxlength="255" ng-model="project.technicalLeader">
+        </div>
+      </div>
        
 
       <div class="form-group">

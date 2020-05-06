@@ -59,7 +59,20 @@
         </div>
       </div>
 
-    
+      <div class="form-group" ng-class="{ 'has-error': projectForm.engineeringTeam.$invalid && projectForm.engineeringTeam.$touched, 'has-success': projectForm.engineeringTeam.$valid && projectForm.engineeringTeam.$touched }">
+        <label for="input-engineering-team" class="col-sm-3 col-lg-2 control-label">Engineering Team</label>
+        <div class="col-sm-9 col-lg-7">
+          <p id="input-engineering-team" e-class="form-control" editable-text="$ctrl.project.engineeringTeam" e-name="engineeringTeam" e-maxlength="255">{{ $ctrl.project.engineeringTeam || 'Empty' }}</p>
+        </div>
+      </div>
+
+      <div class="form-group" ng-class="{ 'has-error': projectForm.technicalLeader.$invalid && projectForm.technicalLeader.$touched, 'has-success': projectForm.technicalLeader.$valid && projectForm.technicalLeader.$touched }">
+        <label for="input-technical-leader" class="col-sm-3 col-lg-2 control-label">Technical Leader</label>
+        <div class="col-sm-9 col-lg-7">
+          <p id="input-technical-leader" e-class="form-control" editable-text="$ctrl.project.technicalLeader" e-name="technicalLeader" e-maxlength="255">{{ $ctrl.project.technicalLeader || 'Empty' }}</p>
+        </div>
+      </div>
+
       <div class="form-group" ng-show="projectForm.$visible">
         <div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
           <button type="submit" class="btn btn-primary" ng-disabled="projectForm.$waiting || projectForm.$invalid">
