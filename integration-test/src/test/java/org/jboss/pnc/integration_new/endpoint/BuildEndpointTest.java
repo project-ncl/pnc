@@ -34,6 +34,9 @@ import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
+import org.jboss.pnc.dto.BuildRef;
+import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
@@ -43,6 +46,7 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -57,12 +61,17 @@ import javax.ws.rs.core.Response.Status;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
@@ -94,6 +103,152 @@ public class BuildEndpointTest {
         Iterator<Build> it = bc.getAll(null, null).iterator();
         buildId = it.next().getId();
         build2Id = it.next().getId();
+    }
+
+    @Test
+    public void shouldSortResults() throws Exception {
+        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        String sort = "=asc=submitTime";
+
+        List<Long> notSorted = bc.getAll(null, null)
+                .getAll()
+                .stream()
+                .map(BuildRef::getSubmitTime)
+                .map(Instant::getEpochSecond)
+                .collect(Collectors.toList());
+
+        List<Long> sorted = bc.getAll(null, null, Optional.of(sort), Optional.empty())
+                .getAll()
+                .stream()
+                .map(BuildRef::getSubmitTime)
+                .map(Instant::getEpochSecond)
+                .collect(Collectors.toList());
+
+        assertThat(notSorted).isNotEqualTo(sorted);
+        assertThat(sorted).isSorted();
+
+    }
+
+    @Test
+    public void shouldFilterResults() throws Exception {
+        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        String rsql = "id==1";
+
+        List<String> filtered = bc.getAll(null, null, Optional.empty(), Optional.of(rsql))
+                .getAll()
+                .stream()
+                .map(BuildRef::getId)
+                .collect(Collectors.toList());
+
+        assertThat(filtered).containsExactly("1");
+    }
+
+    @Test
+    public void shouldSupportPaging() throws Exception {
+        int pageSize = 1;
+
+        for (int pageIndex = 0; pageIndex <= 3; pageIndex++) {
+            final io.restassured.response.Response response = given().redirects()
+                    .follow(false)
+                    .port(8080)
+                    .when()
+                    .get(String.format("/pnc-rest-new/rest-new/builds/?pageIndex=%d&pageSize=%d", pageIndex, pageSize));
+
+            List<Build> builds = response.getBody().jsonPath().getList("content", Build.class);
+
+            assertThat(builds).hasSize(1);
+        }
+    }
+
+    @Test
+    public void shouldBeAbleToReachAllBuildsWhenPaging() throws Exception {
+        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        List<String> buildIds = bc.getAll(null, null).getAll().stream().map(Build::getId).collect(Collectors.toList());
+        List<String> pagedBuildIds = new ArrayList<>();
+        int pageSize = 1;
+
+        for (int pageIndex = 0; pageIndex < buildIds.size(); pageIndex++) {
+            final io.restassured.response.Response response = given().redirects()
+                    .follow(false)
+                    .port(8080)
+                    .when()
+                    .get(String.format("/pnc-rest-new/rest-new/builds/?pageIndex=%d&pageSize=%d", pageIndex, pageSize));
+
+            List<Build> builds = response.getBody().jsonPath().getList("content", Build.class);
+            pagedBuildIds.add(builds.get(0).getId());
+        }
+
+        assertThat(pagedBuildIds).containsExactlyInAnyOrderElementsOf(buildIds);
+    }
+
+    @Test
+    public void shouldReturnCorrectPageCount() {
+        int pageSize = 1;
+
+        final io.restassured.response.Response response = given().redirects()
+                .follow(false)
+                .port(8080)
+                .when()
+                .get(String.format("/pnc-rest-new/rest-new/builds/?pageSize=%d", pageSize));
+
+        int pageCount = response.getBody().jsonPath().get("totalPages");
+
+        assertThat(pageCount).isEqualTo(4);
+    }
+
+    @Test
+    public void shouldFilterByUserId() throws Exception {
+        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        Build build = bc.getAll(null, null).getAll().iterator().next();
+        String userId = build.getUser().getId();
+        String rsql = "user.id==" + userId;
+
+        List<String> userIds = bc.getAll(null, null, Optional.empty(), Optional.of(rsql))
+                .getAll()
+                .stream()
+                .map(Build::getUser)
+                .map(User::getId)
+                .collect(Collectors.toList());
+
+        assertThat(userIds).hasSize(2); // from DatabaseDataInitializer
+        assertThat(userIds).containsOnly(userId);
+    }
+
+    @Test
+    public void shouldFilterByUsername() throws Exception {
+        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        String username = "demo-user";
+        String rsql = "user.username==" + username;
+
+        List<String> userNames = bc.getAll(null, null, Optional.empty(), Optional.of(rsql))
+                .getAll()
+                .stream()
+                .map(Build::getUser)
+                .map(User::getUsername)
+                .collect(Collectors.toList());
+
+        assertThat(userNames).hasSize(2); // from DatabaseDataInitializer
+        assertThat(userNames).containsOnly(username);
+    }
+
+    @Test
+    @Ignore
+    public void shouldFilterByBuildConfigurationName() throws Exception {
+        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
+        String buildConfigName = bc.getAll(null, null).iterator().next().getBuildConfigRevision().getName();
+        String rsql = "buildConfigurationAudited.name==" + buildConfigName;
+
+        List<String> buildConfigIds = bc.getAll(null, null, Optional.empty(), Optional.of(rsql))
+                .getAll()
+                .stream()
+                .map(Build::getBuildConfigRevision)
+                .map(BuildConfigurationRevisionRef::getName)
+                .collect(Collectors.toList());
+
+        assertThat(buildConfigIds).hasSize(2); // from DatabaseDataInitializer
+        assertThat(buildConfigIds).containsOnly(buildConfigName);
     }
 
     @Test
@@ -163,12 +318,12 @@ public class BuildEndpointTest {
         String buildRecordId = "1";
         RemoteCollection<Artifact> artifacts = client.getBuiltArtifacts(buildRecordId);
         Set<Integer> artifactIds = artifactIds(artifacts);
-        Assertions.assertThat(artifactIds).containsExactlyInAnyOrder(100, 101);
+        assertThat(artifactIds).containsExactlyInAnyOrder(100, 101);
 
         client.setBuiltArtifacts(buildRecordId, Collections.singletonList("104"));
         RemoteCollection<Artifact> newBuiltArtifacts = client.getBuiltArtifacts(buildRecordId);
         Set<Integer> updatedArtifactIds = artifactIds(newBuiltArtifacts);
-        Assertions.assertThat(updatedArtifactIds).containsExactlyInAnyOrder(104);
+        assertThat(updatedArtifactIds).containsExactlyInAnyOrder(104);
     }
 
     @Test
@@ -178,12 +333,12 @@ public class BuildEndpointTest {
         String buildRecordId = "1";
         RemoteCollection<Artifact> artifacts = client.getDependencyArtifacts(buildRecordId);
         Set<Integer> artifactIds = artifactIds(artifacts);
-        Assertions.assertThat(artifactIds).contains(104, 105);
+        assertThat(artifactIds).contains(104, 105);
 
         client.setDependentArtifacts(buildRecordId, Collections.singletonList("102"));
         RemoteCollection<Artifact> newDependencyArtifacts = client.getDependencyArtifacts(buildRecordId);
         Set<Integer> updatedArtifactIds = artifactIds(newDependencyArtifacts);
-        Assertions.assertThat(updatedArtifactIds).contains(102);
+        assertThat(updatedArtifactIds).contains(102);
     }
 
     @Test
@@ -286,7 +441,7 @@ public class BuildEndpointTest {
     public void shouldGetByStatusAndLog() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
         RemoteCollection<Build> builds = client.getAllByStatusAndLogContaining(BuildStatus.SUCCESS, "fox");
-        Assertions.assertThat(builds.size()).isGreaterThan(0);
+        assertThat(builds.size()).isGreaterThan(0);
         Build build = builds.iterator().next();
         logger.info("Found build:" + build.toString());
     }
@@ -342,6 +497,13 @@ public class BuildEndpointTest {
             artifactIds.add(Integer.valueOf(a.getId()));
         }
         return artifactIds;
+    }
+
+    private List<String> toList(String s1, String s2) {
+        List<String> list = new ArrayList<>();
+        list.add(s1);
+        list.add(s2);
+        return list;
     }
 
 }
