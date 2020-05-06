@@ -335,8 +335,8 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
 
     @Override
     public Page<Build> getBuildsForMilestone(BuildPageInfo pageInfo, String milestoneId) {
-        java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(milestoneId)
-                .equals(t.getProductMilestone().getId());
+        java.util.function.Predicate<BuildTask> predicate = t -> t.getProductMilestone() != null
+                && Integer.valueOf(milestoneId).equals(t.getProductMilestone().getId());
         return getBuildList(pageInfo, predicate, withPerformedInMilestone(Integer.valueOf(milestoneId)));
     }
 
