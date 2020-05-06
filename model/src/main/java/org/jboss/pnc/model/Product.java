@@ -83,6 +83,12 @@ public class Product implements GenericEntity<Integer> {
     @OneToMany(mappedBy = "product", cascade = { CascadeType.REFRESH, CascadeType.DETACH, CascadeType.REMOVE })
     private Set<ProductVersion> productVersions;
 
+    @Size(max = 255)
+    private String productManagers;
+
+    @Size(max = 50)
+    private String ppCode;
+
     /**
      * Instantiates a new product.
      */
@@ -165,6 +171,34 @@ public class Product implements GenericEntity<Integer> {
     }
 
     /**
+     * @return comma-separated list of Product Managers of the product
+     */
+    public String getProductManagers() {
+        return productManagers;
+    }
+
+    /**
+     * @param productManagers comma-separated list of Product Managers to set
+     */
+    public void setProductManagers(String productManagers) {
+        this.productManagers = StringUtils.nullIfBlank(productManagers);
+    }
+
+    /**
+     * @return code of the product from product pages
+     */
+    public String getPpCode() {
+        return ppCode;
+    }
+
+    /**
+     * @param ppCode the code of the product from product pages to set
+     */
+    public void setPpCode(String ppCode) {
+        this.ppCode = StringUtils.nullIfBlank(ppCode);
+    }
+
+    /**
      * Add a version for the Product
      *
      * @param version Associate a new version with this product
@@ -186,6 +220,10 @@ public class Product implements GenericEntity<Integer> {
 
         private Set<ProductVersion> productVersions;
 
+        private String productManagers;
+
+        private String ppCode;
+
         private Builder() {
             productVersions = new HashSet<>();
         }
@@ -200,6 +238,8 @@ public class Product implements GenericEntity<Integer> {
             product.setName(name);
             product.setDescription(description);
             product.setAbbreviation(abbreviation);
+            product.setProductManagers(productManagers);
+            product.setPpCode(ppCode);
 
             // Set the bi-directional mapping
             for (ProductVersion productVersion : productVersions) {
@@ -242,6 +282,16 @@ public class Product implements GenericEntity<Integer> {
 
         public Builder productVersion(ProductVersion.Builder productVersionBuilder) {
             this.productVersions.add(productVersionBuilder.build());
+            return this;
+        }
+
+        public Builder productManagers(String productManagers) {
+            this.productManagers = productManagers;
+            return this;
+        }
+
+        public Builder ppCode(String ppCode) {
+            this.ppCode = ppCode;
             return this;
         }
 

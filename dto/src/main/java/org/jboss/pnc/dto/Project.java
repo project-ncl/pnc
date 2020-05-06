@@ -52,8 +52,10 @@ public class Project extends ProjectRef {
             String name,
             String description,
             String issueTrackerUrl,
-            String projectUrl) {
-        super(id, name, description, issueTrackerUrl, projectUrl);
+            String projectUrl,
+            String engineeringTeam,
+            String technicalLeader) {
+        super(id, name, description, issueTrackerUrl, projectUrl, engineeringTeam, technicalLeader);
         this.buildConfigs = buildConfigs;
     }
 

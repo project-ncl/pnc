@@ -83,6 +83,12 @@ public class Project implements GenericEntity<Integer> {
     @OneToMany(mappedBy = "project", cascade = { CascadeType.REFRESH, CascadeType.REMOVE })
     private Set<BuildConfiguration> buildConfigurations;
 
+    @Size(max = 255)
+    private String engineeringTeam;
+
+    @Size(max = 255)
+    private String technicalLeader;
+
     /**
      * Instantiates a new project.
      */
@@ -200,6 +206,34 @@ public class Project implements GenericEntity<Integer> {
         return buildConfigurations;
     }
 
+    /**
+     * @return the engineeringTeam in charge of the project
+     */
+    public String getEngineeringTeam() {
+        return engineeringTeam;
+    }
+
+    /**
+     * @param engineeringTeam the engineeringTeam to set
+     */
+    public void setEngineeringTeam(String engineeringTeam) {
+        this.engineeringTeam = StringUtils.nullIfBlank(engineeringTeam);
+    }
+
+    /**
+     * @return the technicalLeader of the project
+     */
+    public String getTechnicalLeader() {
+        return technicalLeader;
+    }
+
+    /**
+     * @param technicalLeader the technicalLeader to set
+     */
+    public void setTechnicalLeader(String technicalLeader) {
+        this.technicalLeader = StringUtils.nullIfBlank(technicalLeader);
+    }
+
     @Override
     public String toString() {
         return "Project [name=" + name + "]";
@@ -219,6 +253,10 @@ public class Project implements GenericEntity<Integer> {
 
         private Set<BuildConfiguration> buildConfigurations;
 
+        private String engineeringTeam;
+
+        private String technicalLeader;
+
         private Builder() {
             buildConfigurations = new HashSet<>();
         }
@@ -235,6 +273,8 @@ public class Project implements GenericEntity<Integer> {
             project.setDescription(description);
             project.setIssueTrackerUrl(issueTrackerUrl);
             project.setProjectUrl(projectUrl);
+            project.setEngineeringTeam(engineeringTeam);
+            project.setTechnicalLeader(technicalLeader);
 
             // Set the bi-directional mapping
             for (BuildConfiguration buildConfiguration : buildConfigurations) {
@@ -280,6 +320,16 @@ public class Project implements GenericEntity<Integer> {
             return this;
         }
 
+        public Builder engineeringTeam(String engineeringTeam) {
+            this.engineeringTeam = engineeringTeam;
+            return this;
+        }
+
+        public Builder technicalLeader(String technicalLeader) {
+            this.technicalLeader = technicalLeader;
+            return this;
+        }
+
         public String getName() {
             return name;
         }
@@ -302,6 +352,14 @@ public class Project implements GenericEntity<Integer> {
 
         public Set<BuildConfiguration> getBuildConfigurations() {
             return buildConfigurations;
+        }
+
+        public String getEngineeringTeam() {
+            return engineeringTeam;
+        }
+
+        public String getTechnicalLeader() {
+            return technicalLeader;
         }
 
     }

@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.Map;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -50,8 +51,10 @@ public class Product extends ProductRef {
             String id,
             String name,
             String description,
-            String abbreviation) {
-        super(id, name, description, abbreviation);
+            String abbreviation,
+            String productManagers,
+            String ppCode) {
+        super(id, name, description, abbreviation, productManagers, ppCode);
         this.productVersions = productVersions;
     }
 

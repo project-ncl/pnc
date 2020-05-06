@@ -59,6 +59,12 @@ public class ProductRef implements DTOEntity {
     @Pattern(regexp = Patterns.PRODUCT_ABBREVIATION, groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String abbreviation;
 
+    @PatchSupport({ REPLACE })
+    protected final String productManagers;
+
+    @PatchSupport({ REPLACE })
+    protected final String ppCode;
+
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {

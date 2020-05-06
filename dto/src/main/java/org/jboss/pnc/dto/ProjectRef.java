@@ -57,6 +57,12 @@ public class ProjectRef implements DTOEntity {
     @PatchSupport({ REPLACE })
     protected final String projectUrl;
 
+    @PatchSupport({ REPLACE })
+    protected final String engineeringTeam;
+
+    @PatchSupport({ REPLACE })
+    protected final String technicalLeader;
+
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
