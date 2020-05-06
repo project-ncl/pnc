@@ -46,6 +46,22 @@
     </div>
   </div>
 
+  <!-- Validation: This field is optional and has no constraints -->
+  <div class="form-group">
+    <label for="input-product-managers" class="col-sm-3 col-lg-2 control-label">Product Managers</label>
+    <div class="col-sm-9 col-lg-7">
+      <input type="text" id="input-product-managers" class="form-control" name="productManagers" maxlength="255" ng-model="$ctrl.formData.productManagers">
+    </div>
+  </div>
+
+  <!-- Validation: This field is optional and has no constraints -->
+  <div class="form-group">
+    <label for="input-pp-code" class="col-sm-3 col-lg-2 control-label">Product Pages Code</label>
+    <div class="col-sm-9 col-lg-7">
+      <input type="text" id="input-pp-code" class="form-control" name="ppCode" maxlength="50" ng-model="$ctrl.ppCode.productManagers">
+    </div>
+  </div>
+
   <div class="form-group">
     <div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
       <button type="submit" class="btn btn-primary" ng-click="$ctrl.create($ctrl.formData)" ng-disabled="productForm.$invalid">Submit</button>
