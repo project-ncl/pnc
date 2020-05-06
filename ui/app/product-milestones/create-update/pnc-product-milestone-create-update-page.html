@@ -41,11 +41,11 @@
               <div class="col-sm-10">
                 <div class="input-group">
                   <span class="input-group-addon">{{ $ctrl.productVersion.version }}.</span>
-                  <input required id="input-version" class="form-control" name="version" maxlength="255" ng-model="$ctrl.version" pattern="^([0-9]+\.)?[\w]+$" >
+                  <input required id="input-version" class="form-control" name="version" maxlength="255" ng-model="$ctrl.version" pattern="^([0-9]+\.)?[\w]+$" product-milestone-version-validator product-version="{{$ctrl.productVersion.version}}" product-version-id="{{$ctrl.productVersion.id}}">
                 </div>
                 <span class="help-block" ng-show="productMilestoneForm.version.$error.required && !productMilestoneForm.version.$pristine">Required field.</span>
                 <span class="help-block" ng-show="productMilestoneForm.version.$error.pattern && !productMilestoneForm.version.$pristine">Version must follow pattern ^([0-9]+.)?[\w]+$ (e.g. 1.ER1, CD1).</span>
-                <span class="help-block" ng-show ="productMilestoneForm.version.$error.unique">Version is already in use.</span>
+                <span class="help-block" ng-show ="productMilestoneForm.version.$error.productMilestoneVersionValidator">Version is already in use</span>
               </div>
             </div>
           </div>
