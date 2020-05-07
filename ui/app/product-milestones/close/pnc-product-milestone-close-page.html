@@ -20,14 +20,14 @@
 <div>
 
   <div class="page-header">
-    <h1>Close milestone {{ milestoneCloseCtrl.data.version }}</h1>
+    <h1>Close milestone {{ $ctrl.data.version }}</h1>
   </div>
 
   <div class="row">
     <div class="col-md-8 col-lg-6">
 
       <!-- novalidate prevents HTML5 validation since we will be validating ourselves -->
-      <form novalidate class="form-horizontal" name="milestoneForm" ng-submit="milestoneCloseCtrl.submit()">
+      <form novalidate class="form-horizontal" name="productMilestoneForm" ng-submit="$ctrl.submit()">
 
         <div class="panel panel-default">
           <div class="panel-body">
@@ -36,23 +36,22 @@
               <label for="input-version" class="col-sm-2 control-label">Version</label>
               <div class="col-sm-10">
                 <div class="input-group">
-                  <label for="input-version" class="control-label bigger-text">{{milestoneCloseCtrl.data.version}}</label>
+                  <label for="input-version" class="control-label bigger-text">{{$ctrl.data.version}}</label>
                 </div>
               </div>
             </div>
 
-            <div class="form-group" ng-class="{ 'has-error' : milestoneForm.downloadurl.$invalid && !milestoneForm.downloadurl.$pristine }">
+            <div class="form-group" ng-class="{ 'has-error' : productMilestoneForm.downloadurl.$invalid && !productMilestoneForm.downloadurl.$pristine }">
               <label for="input-downloadurl" class="col-sm-2 control-label">
-                Download URL&nbsp;<a uib-popover="Internal or public location to download the product distribution artifacts"
-                           popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-
-                           href><span class="fa fa-info-circle"></span></a>
+                Download URL&nbsp;<a uib-popover="Internal or public location to download the product distribution artifacts" popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true" href>
+                  <span class="fa fa-info-circle"></span>
+                </a>
               </label>
               <div class="col-sm-10">
                 <div class="input-group">
-                  <input type="url" name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" ng-model="milestoneCloseCtrl.data.downloadUrl">
+                  <input type="url" name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" ng-model="$ctrl.data.downloadUrl">
                 </div>
-                <span class="help-block" ng-show="milestoneForm.downloadurl.$invalid && !milestoneForm.downloadurl.$pristine">Required field.</span>
+                <span class="help-block" ng-show="productMilestoneForm.downloadurl.$invalid && !productMilestoneForm.downloadurl.$pristine">Required field.</span>
               </div>
             </div>
 
@@ -61,10 +60,11 @@
 
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <input type="submit" class="btn btn-primary" value="Close" ng-disabled="milestoneForm.$invalid">
+            <input type="submit" class="btn btn-primary" value="Close" ng-disabled="productMilestoneForm.$invalid">
             <input type="reset" class="btn btn-default" value="Clear">
           </div>
         </div>
+        
       </form>
 
     </div>

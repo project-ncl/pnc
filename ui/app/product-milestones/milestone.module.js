@@ -105,23 +105,16 @@
 
       .state('products.detail.product-versions.detail.milestone.close', {
         url: '/{productMilestoneId}/close',
-        views: {
-          'content@': {
-            templateUrl: 'milestone/views/milestone.close.html',
-            controller: 'MilestoneCloseController',
-            controllerAs: 'milestoneCloseCtrl',
-          }
-        },
+        component: 'pncProductMilestoneClosePage',
         data: {
           displayName: 'Close Milestone',
           title: '{{ productMilestone.version }} | {{ product.name }} | Close Milestone',
           requireAuth: true
         },
         resolve: {
-          milestoneDetail: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
-            return ProductMilestoneDAO.get({milestoneId: $stateParams.milestoneId})
-              .$promise;
-          }]
+          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) => 
+            ProductMilestoneResource.get({id: $stateParams.productMilestoneId}).$promise
+          ]
         }
       });
 
