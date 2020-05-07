@@ -100,11 +100,6 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
         return status;
     }
 
-    @Override // TODO remove non final status updated notifications NCL-5720
-    public void setStatus(BuildExecutionStatus status) {
-        setStatus(status, false);
-    }
-
     @Override
     public void setStatus(BuildExecutionStatus status, boolean isFinal) {
         if (status.hasFailed() && failedReasonStatus == null) {
