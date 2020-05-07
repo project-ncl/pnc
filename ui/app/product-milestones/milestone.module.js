@@ -67,13 +67,7 @@
 
       .state('products.detail.product-versions.detail.milestone.detail.log', {
         url: '/log',
-        views: {
-          'content@': {
-             templateUrl: 'milestone/views/milestone.detail.log.html',
-             controller: 'MilestoneLogController',
-             controllerAs: 'milestoneLogCtrl',
-          }
-        },
+        component: 'pncProductMilestoneDetailLogPage',
         data: {
           displayName: 'Workflow Log',
           title: '{{ productMilestone.version }} | {{ product.name }} | Workflow Log'
