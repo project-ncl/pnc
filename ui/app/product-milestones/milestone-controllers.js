@@ -20,14 +20,6 @@
 
   var module = angular.module('pnc.product-milestones');
 
-  module.controller('MilestoneLogController', [
-    'latestRelease',
-    function(latestRelease) {
-      var that = this;
-      that.latestRelease = latestRelease;
-    }
-  ]);
-
   module.controller('MilestoneCloseController', [
     '$scope',
     '$state',
