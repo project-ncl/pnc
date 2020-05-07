@@ -41,11 +41,14 @@
         </form>
       </pf-wizard-substep>
 
-      <pf-wizard-substep step-title="Product Version" step-id="productVersion" step-priority="15" show-review="true" show-review-details="true" review-template="build-configs/directives/pnc-create-build-config-wizard/review-product-version.html">
-        <div class="form-group">
-          <label class="control-label">Product Version</label>
-          <pnc-product-version-combobox ng-model="$ctrl.wizardData.productVersion"></pnc-product-version-combobox>
-        </div>
+      <pf-wizard-substep step-title="Product Version" step-id="productVersion"
+        next-enabled="!$ctrl.wizardData.productVersion.product || $ctrl.productVersionForm.$valid" step-priority="15"
+        show-review="true" show-review-details="true"
+        review-template="build-configs/directives/pnc-create-build-config-wizard/review-product-version.html">
+        <form name="$ctrl.productVersionForm" novalidate>
+          <pnc-create-build-config-product-version-form ng-model="$ctrl.wizardData.productVersion">
+          </pnc-create-build-config-product-version-form>
+        </form>
       </pf-wizard-substep>
 
       <pf-wizard-substep step-title="Build Parameters" next-enabled="true" step-id="parameters" step-priority="20" show-review="true" show-review-details="false" review-template="build-configs/directives/pnc-create-build-config-wizard/review-build-parameters.html">
