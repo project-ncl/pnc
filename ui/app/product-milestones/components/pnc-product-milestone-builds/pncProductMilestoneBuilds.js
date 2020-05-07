@@ -18,12 +18,12 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.product-milestones').component('pncMilestoneBuilds', {
+  angular.module('pnc.product-milestones').component('pncProductMilestoneBuilds', {
     binding: {
       productMilestone: '<',
       performedBuilds: '<'
     },
-    templateUrl: 'product-milestones/components/pnc-milestone-builds/pnc-milestone-builds.html',
+    templateUrl: 'product-milestones/components/pnc-product-milestone-builds/pnc-product-milestone-builds.html',
     controller: [Controller]
   });
 
