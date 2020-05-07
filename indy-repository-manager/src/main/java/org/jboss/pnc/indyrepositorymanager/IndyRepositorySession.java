@@ -525,14 +525,13 @@ public class IndyRepositorySession implements RepositorySession {
 
     private TargetRepository getUploadsTargetRepository(RepositoryType repoType, IndyContentClientModule content)
             throws RepositoryManagerException {
-        StoreType storeType = (isTempBuild ? StoreType.group : StoreType.hosted);
         StoreKey storeKey;
         String identifier;
         if (repoType == RepositoryType.MAVEN) {
-            storeKey = new StoreKey(MAVEN_PKG_KEY, storeType, buildPromotionTarget);
+            storeKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildPromotionTarget);
             identifier = "indy-maven";
         } else if (repoType == RepositoryType.NPM) {
-            storeKey = new StoreKey(NPM_PKG_KEY, storeType, buildPromotionTarget);
+            storeKey = new StoreKey(NPM_PKG_KEY, StoreType.hosted, buildPromotionTarget);
             identifier = "indy-npm";
         } else {
             throw new RepositoryManagerException(
