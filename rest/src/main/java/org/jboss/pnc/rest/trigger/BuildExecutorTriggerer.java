@@ -93,7 +93,10 @@ public class BuildExecutorTriggerer {
                 Optional<BpmTask> bpmTask = BpmBuildTask
                         .getBpmTaskByBuildTaskId(bpmManager, statusChangedEvent.getBuildTaskId());
                 if (bpmTask.isPresent()) {
-                    bpmManager.notify(bpmTask.get().getTaskId(), processProgressUpdate.get());
+                    // NCL-5720 - Only send notifications for final status changed updates
+                    if (statusChangedEvent.isFinal()) {
+                        bpmManager.notify(bpmTask.get().getTaskId(), processProgressUpdate.get());
+                    }
                 } else {
                     log.warn(
                             "There is no bpmTask for buildTask.id: " + statusChangedEvent.getBuildTaskId()

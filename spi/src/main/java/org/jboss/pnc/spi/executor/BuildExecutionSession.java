@@ -44,7 +44,7 @@ public interface BuildExecutionSession {
 
     BuildExecutionStatus getStatus();
 
-    void setStatus(BuildExecutionStatus status, boolean isFinal);
+    void setStatus(BuildExecutionStatus status);
 
     Date getStartTime();
 

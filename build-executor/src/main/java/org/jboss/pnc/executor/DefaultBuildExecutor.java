@@ -143,6 +143,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
         userLog.info("Starting build execution...");
 
+        buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
         buildExecutionSession.setAccessToken(accessToken);
 
         DebugData debugData = new DebugData(buildExecutionConfiguration.isPodKeptOnFailure());
@@ -225,6 +226,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         }
         ProcessStageUtils
                 .logProcessStageBegin(BuildExecutionStatus.REPO_SETTING_UP.toString(), "Setting up repository...");
+        buildExecutionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP);
 
         BuildType buildType = buildExecutionSession.getBuildExecutionConfiguration().getBuildType();
         if (buildType == null) {
@@ -265,6 +267,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 BuildExecutionStatus.BUILD_ENV_SETTING_UP.toString(),
                 "Setting up build environment ...");
 
+        buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETTING_UP);
         BuildExecutionConfiguration buildExecutionConfiguration = buildExecutionSession
                 .getBuildExecutionConfiguration();
         try {
@@ -306,6 +309,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                         "Build environment prepared.");
 
                 buildExecutionSession.setRunningEnvironment(runningEnvironment);
+                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS);
                 waitToCompleteFuture.complete(null);
             };
             Consumer<Exception> onError = (e) -> {
@@ -313,8 +317,10 @@ public class DefaultBuildExecutor implements BuildExecutor {
                         BuildExecutionStatus.BUILD_ENV_SETTING_UP.toString(),
                         "Failed to set-up build environment.");
 
+                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_WITH_ERROR);
                 waitToCompleteFuture.completeExceptionally(new BuildProcessException(e, startedEnvironment));
             };
+            buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_WAITING);
 
             startedEnvironment.monitorInitialization(onComplete, onError);
         } catch (Throwable e) {
@@ -332,6 +338,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
         ProcessStageUtils
                 .logProcessStageBegin(BuildExecutionStatus.BUILD_SETTING_UP.toString(), "Running the build ...");
 
+        buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_SETTING_UP);
         RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
 
         try {
@@ -356,6 +363,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
             buildExecutionSession.setCancelHook(() -> runningBuild.cancel());
 
+            buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_WAITING);
         } catch (Throwable e) {
             throw new BuildProcessException(e, runningEnvironment);
         }
@@ -370,16 +378,19 @@ public class DefaultBuildExecutor implements BuildExecutor {
             return null;
         }
         try {
+            buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER);
             BuildDriverResult buildResult = completedBuild.getBuildResult();
             BuildStatus buildStatus = buildResult.getBuildStatus();
             buildExecutionSession.setBuildDriverResult(buildResult);
             if (buildStatus.completedSuccessfully()) {
                 userLog.info("Build successfully completed.");
+                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_SUCCESS);
             } else if (buildStatus.equals(BuildStatus.CANCELLED)) {
                 userLog.info("Build has been canceled.");
-                buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED, true);
+                buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED);
             } else {
                 userLog.warn("Build completed with errors.");
+                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR);
             }
             return null;
         } catch (Throwable e) {
@@ -394,6 +405,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                         BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER.toString(),
                         "Collecting results from repository manager ...");
 
+                buildExecutionSession.setStatus(BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER);
                 RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
                 if (runningEnvironment == null) {
                     return null;
@@ -404,6 +416,13 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 }
                 RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts(true);
                 buildExecutionSession.setRepositoryManagerResult(repositoryManagerResult);
+                if (repositoryManagerResult.getCompletionStatus().isFailed()) {
+                    buildExecutionSession.setStatus(
+                            BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_WITH_ERROR);
+                } else {
+                    buildExecutionSession.setStatus(
+                            BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER_COMPLETED_SUCCESS);
+                }
             }
         } catch (Throwable e) {
             throw new BuildProcessException(e, buildExecutionSession.getRunningEnvironment());
@@ -420,8 +439,10 @@ public class DefaultBuildExecutor implements BuildExecutor {
             RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();
             if (runningEnvironment != null) {
                 userLog.info("Destroying build environment.");
+                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYING);
                 runningEnvironment.destroyEnvironment();
                 userLog.info("Build environment destroyed.");
+                buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_ENV_DESTROYED);
             } else {
                 userLog.warn("Unable to destroy environment. Most likely due to cancelled operation.");
             }
@@ -440,6 +461,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
             } else {
                 log.debug("Finalizing SUCCESS execution.");
             }
+
+            buildExecutionSession.setStatus(BuildExecutionStatus.FINALIZING_EXECUTION);
 
             if (buildExecutionSession.getStartTime() == null) {
                 buildExecutionSession.setException(new ExecutorException("Missing start time."));
@@ -466,13 +489,13 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
             // check if any of previous statuses indicated "failed" state
             if (buildExecutionSession.isCanceled()) {
-                buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED, true);
+                buildExecutionSession.setStatus(BuildExecutionStatus.CANCELLED);
                 userLog.info("Build execution completed (canceled).");
             } else if (buildExecutionSession.hasFailed()) {
-                buildExecutionSession.setStatus(BuildExecutionStatus.DONE_WITH_ERRORS, true);
+                buildExecutionSession.setStatus(BuildExecutionStatus.DONE_WITH_ERRORS);
                 userLog.warn("Build execution completed with errors.");
             } else {
-                buildExecutionSession.setStatus(BuildExecutionStatus.DONE, true);
+                buildExecutionSession.setStatus(BuildExecutionStatus.DONE);
                 userLog.info("Build execution completed successfully.");
             }
 
@@ -491,7 +514,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
 
             buildExecutionSession.setException(new ExecutorException(executorException));
             buildExecutionSession.setEndTime(new Date());
-            buildExecutionSession.setStatus(BuildExecutionStatus.SYSTEM_ERROR, true);
+            buildExecutionSession.setStatus(BuildExecutionStatus.SYSTEM_ERROR);
             runningExecutions.remove(buildExecutionId);
         } finally {
             RunningEnvironment runningEnvironment = buildExecutionSession.getRunningEnvironment();

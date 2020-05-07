@@ -102,7 +102,7 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
     }
 
     @Override
-    public void setStatus(BuildExecutionStatus status, boolean isFinal) {
+    public void setStatus(BuildExecutionStatus status) {
         if (status.hasFailed() && failedReasonStatus == null) {
             if (status.equals(DONE_WITH_ERRORS)) {
                 setException(
@@ -124,7 +124,8 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
                 status,
                 getId(),
                 buildExecutionConfiguration.getId(),
-                buildResult);
+                buildResult,
+                status.isCompleted());
 
         log.debug("Updating build execution task {} status to {}.", getId(), statusChanged);
         this.status = status;
