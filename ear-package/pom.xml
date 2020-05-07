@@ -178,6 +178,7 @@
                 -->
                 <Dependencies>
                   io.undertow.core,
+                  io.undertow.websocket,
                   org.apache.commons.beanutils,
                   org.apache.commons.codec,
                   org.apache.commons.collections,
