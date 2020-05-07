@@ -173,7 +173,7 @@ public class BuildRecordProviderTest {
         BuildExecutionSessionMock executionSession = new BuildExecutionSessionMock(
                 buildExecutionConfiguration,
                 (v) -> {});
-        executionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP, false);
+        executionSession.setStatus(BuildExecutionStatus.REPO_SETTING_UP);
         when(buildExecutor.getRunningExecution(anyInt())).thenReturn(executionSession);
 
         // when

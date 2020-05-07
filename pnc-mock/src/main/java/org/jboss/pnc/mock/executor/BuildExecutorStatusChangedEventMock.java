@@ -32,12 +32,15 @@ class BuildExecutorStatusChangedEventMock implements BuildExecutionStatusChanged
     private final Integer buildConfigurationId;
     private final Optional<BuildResult> buildResult;
 
+    private boolean isFinal;
+
     public BuildExecutorStatusChangedEventMock(
             BuildExecutionStatus oldStatus,
             BuildExecutionStatus newStatus,
             Integer buildTaskId,
             Integer buildConfigurationId,
-            Optional<BuildResult> buildResult) {
+            Optional<BuildResult> buildResult,
+            boolean isFinal) {
 
         this.oldStatus = oldStatus;
         this.newStatus = newStatus;
@@ -63,7 +66,7 @@ class BuildExecutorStatusChangedEventMock implements BuildExecutionStatusChanged
 
     @Override
     public boolean isFinal() {
-        return false;
+        return isFinal;
     }
 
     @Override

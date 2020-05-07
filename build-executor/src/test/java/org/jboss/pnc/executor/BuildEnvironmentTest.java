@@ -112,8 +112,15 @@ public class BuildEnvironmentTest {
 
         runBuild(buildConfiguration, statusChangedEvents, buildExecutionResultWrapper, true);
 
-        checkBuildStatuses(statusChangedEvents, Arrays.asList(DONE_WITH_ERRORS));
-
+        checkBuildStatuses(
+                statusChangedEvents,
+                Arrays.asList(
+                        BUILD_ENV_SETTING_UP,
+                        BUILD_ENV_WAITING,
+                        BUILD_ENV_SETUP_COMPLETE_WITH_ERROR,
+                        // SYSTEM_ERROR, //TODO should be system error instead of DONE_WITH_ERRORS but it is not
+                        // supported yet
+                        DONE_WITH_ERRORS));
         assertNoState(statusChangedEvents, BUILD_ENV_SETUP_COMPLETE_SUCCESS);
         assertNoState(statusChangedEvents, BUILD_SETTING_UP);
     }

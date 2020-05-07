@@ -80,6 +80,7 @@ public class BuildExecutorMock implements BuildExecutor {
         BuildExecutionSession buildExecutionSession = new BuildExecutionSessionMock(
                 buildExecutionConfiguration,
                 onBuildExecutionStatusChangedEvent);
+        buildExecutionSession.setStatus(BuildExecutionStatus.NEW);
 
         runningExecutions.put(buildExecutionConfiguration.getId(), buildExecutionSession);
         Consumer<BuildExecutionStatus> onCompleteInternal = (buildStatus) -> {
@@ -87,9 +88,7 @@ public class BuildExecutorMock implements BuildExecutor {
                     "Removing buildExecutionConfiguration.id [" + buildExecutionConfiguration.getId()
                             + "] form list of running tasks.");
             runningExecutions.remove(buildExecutionConfiguration.getId());
-            if (buildStatus.isCompleted()) {
-                buildExecutionSession.setStatus(buildStatus, true);
-            }
+            buildExecutionSession.setStatus(buildStatus);
         };
 
         CompletableFuture<Integer> future = CompletableFuture
@@ -121,6 +120,7 @@ public class BuildExecutorMock implements BuildExecutor {
                 .equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
             log.debug("Marking build {} as Failed.", buildExecutionSession.getId());
             driverResult = BuildDriverResultMock.mockResult(BuildStatus.FAILED);
+            buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_COMPLETED_WITH_ERROR);
             buildPassed = false;
         } else if (TestProjectConfigurationBuilder.FAIL_WITH_DELAY
                 .equals(buildExecutionSession.getBuildExecutionConfiguration().getBuildScript())) {
