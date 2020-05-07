@@ -44,11 +44,6 @@ public interface BuildExecutionSession {
 
     BuildExecutionStatus getStatus();
 
-    /**
-     * @deprecated use {@link BuildExecutionSession#setStatus(BuildExecutionStatus status, boolean isFinal)}
-     */
-    void setStatus(BuildExecutionStatus status);
-
     void setStatus(BuildExecutionStatus status, boolean isFinal);
 
     Date getStartTime();

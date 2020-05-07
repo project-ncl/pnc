@@ -69,11 +69,15 @@ class BuildExecutionBase {
     @Inject
     Configuration configuration;
 
-    BuildExecutionStatus[] baseBuildStatuses = { BuildExecutionStatus.NEW, BuildExecutionStatus.BUILD_ENV_SETTING_UP,
-            BuildExecutionStatus.BUILD_ENV_WAITING, BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
-            BuildExecutionStatus.REPO_SETTING_UP, BuildExecutionStatus.BUILD_SETTING_UP,
-            BuildExecutionStatus.BUILD_WAITING, BuildExecutionStatus.BUILD_ENV_DESTROYING,
-            BuildExecutionStatus.BUILD_ENV_DESTROYED, BuildExecutionStatus.FINALIZING_EXECUTION, };
+    /*
+     * As part of NCL-5720, non final BuildStatuses are not propagated anymore via BuildExecutionStatusChangedEvent
+     */
+    // BuildExecutionStatus[] baseBuildStatuses = { BuildExecutionStatus.NEW, BuildExecutionStatus.BUILD_ENV_SETTING_UP,
+    // BuildExecutionStatus.BUILD_ENV_WAITING, BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
+    // BuildExecutionStatus.REPO_SETTING_UP, BuildExecutionStatus.BUILD_SETTING_UP,
+    // BuildExecutionStatus.BUILD_WAITING, BuildExecutionStatus.BUILD_ENV_DESTROYING,
+    // BuildExecutionStatus.BUILD_ENV_DESTROYED, BuildExecutionStatus.FINALIZING_EXECUTION, };
+    BuildExecutionStatus[] baseBuildStatuses = {};
 
     protected List<BuildExecutionStatus> getBuildExecutionStatusesSuccess() {
         List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();
