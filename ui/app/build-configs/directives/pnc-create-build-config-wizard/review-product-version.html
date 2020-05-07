@@ -21,7 +21,8 @@
   <div class="wizard-pf-review-item">
     <span class="wizard-pf-review-item-label">Product Version:</span>
     <span class="wizard-pf-review-item-value">
-      <span ng-if="$ctrl.wizardData.productVersion">{{ $ctrl.wizardData.productVersion.productName }} / v{{ $ctrl.wizardData.productVersion.version }}</span>
+      <span ng-if="$ctrl.wizardData.productVersion">{{ $ctrl.wizardData.productVersion.version.product.name }} /
+        v{{ $ctrl.wizardData.productVersion.version.version }}</span>
       <span ng-if="!$ctrl.wizardData.productVersion">None</span>
     </span>
   </div>

@@ -34,10 +34,6 @@
         id: '@id'
       },
       {
-        query: {
-          method: 'GET',
-          isPaged: true,
-        },
         save: {
           method: 'POST',
           successNotification: 'Product Version created'

@@ -1,0 +1,16 @@
+<ng-form name="$ctrl.productVersionForm" novalidate>
+  <div class="form-group">
+    <label class="control-label">Product</label>
+    <pnc-product-combobox name="product" ng-change="$ctrl.checkVersionData()" ng-model="$ctrl.data.product">
+    </pnc-product-combobox>
+  </div>
+  <div class="form-group" ng-if="$ctrl.data.product"
+    ng-class="{ 'has-error' : $ctrl.productVersionForm.version.$invalid && $ctrl.productVersionForm.version.$touched, 'has-success': $ctrl.productVersionForm.version.$touched && $ctrl.productVersionForm.version.$touched }">
+    <label class="control-label required ">Version</label>
+    <pnc-product-version-combobox name="version" product="$ctrl.data.product"
+      initialVersionList="$ctrl.initialVersionList" ng-model="$ctrl.data.version" required>
+    </pnc-product-version-combobox>
+    <p ng-show="$ctrl.productVersionForm.$invalid && $ctrl.productVersionForm.version.$touched" class="help-block">
+      Version is a required field if you selected any product.</p>
+  </div>
+</ng-form>

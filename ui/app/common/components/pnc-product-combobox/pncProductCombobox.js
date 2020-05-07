@@ -18,7 +18,7 @@
 
 (function () {
     'use strict';
-  
+
     angular.module('pnc.common.components').component('pncProductCombobox', {
       bindings: {
         modelProperty: '@modelValue'
@@ -27,38 +27,38 @@
         ngModel: '?ngModel'
       },
       templateUrl: 'common/components/pnc-product-combobox/pnc-product-combobox.html',
-      controller: ['$log', '$scope', '$element', 'Product', 'utils', 'rsqlQuery', '$timeout', Controller]
+      controller: ['$log', '$scope', '$element', 'ProductResource', 'utils', 'rsqlQuery', '$timeout', Controller]
     });
-  
-    function Controller($log, $scope, $element, Product, utils, rsqlQuery, $timeout) {
+
+    function Controller($log, $scope, $element, ProductResource, utils, rsqlQuery, $timeout) {
       var $ctrl = this,
           initialValues;
-  
+
       // -- Controller API --
-  
+
       $ctrl.search = search;
-  
+
       // --------------------
-  
-  
+
+
       $ctrl.$onInit = function () {
-  
+
         // Synchronise value from combobox with this component's ng-model
         $scope.$watch(function () {
           return $ctrl.input;
         }, function () {
           $ctrl.ngModel.$setViewValue($ctrl.input);
         });
-  
+
         // Transform the combobox's value to the correct ng-model value.
         $ctrl.ngModel.$parsers.push(function (viewValue) {
           if (angular.isObject(viewValue) && angular.isDefined($ctrl.modelProperty)) {
             return viewValue[$ctrl.modelProperty];
           }
-  
+
           return viewValue;
         });
-  
+
         // Respond to programmatic changes to the ng-model value, to propagate
         // changes back to the combobox's displayed value.
         $ctrl.ngModel.$render = function () {
@@ -67,14 +67,14 @@
           }
           $ctrl.input = $ctrl.ngModel.$viewValue;
         };
-  
-        initialValues = Product.query({ pageSize: 20 }).$promise.then(function (page) {
+
+        initialValues = ProductResource.query({ pageSize: 20 }).$promise.then(function (page) {
           return page.data;
         });
       };
-  
+
       $ctrl.$postLink = function () {
-  
+
         // $timeout used without an interval value to ensure the DOM element has
         // been rendered when we try to to find it.
         $timeout(function () {
@@ -82,28 +82,28 @@
             $ctrl.ngModel.$setTouched();
           });
         });
-  
+
       };
-  
+
       $ctrl.$onDestroy = function () {
         $element.find('input').off('blur');
       };
-  
+
       function doSearch($viewValue) {
         var q = rsqlQuery().where('name').like('*' + $viewValue + '*').end();
-  
-        return Product.query({ q: q }).$promise.then(function (page) {
+
+        return ProductResource.query({ q: q }).$promise.then(function (page) {
           return page.data;
         });
       }
-  
+
       function search($viewValue) {
         if (utils.isEmpty($viewValue)) {
           return initialValues;
         }
-  
+
         return doSearch($viewValue);
       }
     }
-  
+
   })();

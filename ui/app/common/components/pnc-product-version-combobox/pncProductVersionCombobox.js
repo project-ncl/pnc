@@ -21,16 +21,17 @@
 
     angular.module('pnc.common.components').component('pncProductVersionCombobox', {
       bindings: {
-        modelProperty: '@modelValue'
+        modelProperty: '@modelValue',
+        product: '<'
       },
       require: {
         ngModel: '?ngModel'
       },
       templateUrl: 'common/components/pnc-product-version-combobox/pnc-product-version-combobox.html',
-      controller: ['$log', '$scope', '$element', 'ProductVersionResource', 'utils', 'rsqlQuery', '$timeout', Controller]
+      controller: ['$log', '$scope', '$element', 'ProductResource', 'utils', 'rsqlQuery', '$timeout', Controller]
     });
 
-    function Controller($log, $scope, $element, ProductVersionResource, utils, rsqlQuery, $timeout) {
+    function Controller($log, $scope, $element, ProductResource, utils, rsqlQuery, $timeout) {
       var $ctrl = this,
           initialValues;
 
@@ -38,7 +39,8 @@
 
       $ctrl.search = search;
       $ctrl.generateLabel = generateLabel;
-
+      $ctrl.showNoVersionScript = false;
+      $ctrl.versionListLength = 0;
       // --------------------
 
 
@@ -69,7 +71,9 @@
           $ctrl.input = $ctrl.ngModel.$viewValue;
         };
 
-        initialValues = ProductVersionResource.query({ pageSize: 20 }).$promise.then(function (page) {
+        initialValues = ProductResource.queryProductVersions({ id: $ctrl.product.id }).$promise.then(function (page) {
+          $ctrl.versionListLength = page.data.length;
+          $ctrl.showNoVersionScript = page.data.length ===0;
           return page.data;
         });
       };
@@ -91,9 +95,9 @@
       };
 
       function doSearch($viewValue) {
-        var q = rsqlQuery().where('product.name').like('*' + $viewValue + '*').end();
-
-        return ProductVersionResource.query({ q: q }).$promise.then(function (page) {
+        let q = rsqlQuery().where('version').like('*' + $viewValue + '*').end();
+        console.log($ctrl.product+'-'+$ctrl.product.id)
+        return ProductResource.queryProductVersions({ id: $ctrl.product.id, q: q }).$promise.then(function (page) {
           return page.data;
         });
       }
@@ -113,7 +117,7 @@
           return result;
         }
 
-        result = productVersion.productName + ' / v' + productVersion.version;
+        result = 'v' + productVersion.version;
 
         return result;
       }
