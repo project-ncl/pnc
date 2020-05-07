@@ -57,6 +57,11 @@
         queryLatestCloseResult: {
           method: 'GET',
           url: ENDPOINT + '/close-results?latest=true'
+        },
+
+        close: {
+          method: 'POST',
+          url: ENDPOINT + '/close'
         }
       });
 

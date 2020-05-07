@@ -47,7 +47,7 @@
     <span ng-if="!$ctrl.size">Update</span>
   </a>
 
-  <a ui-sref="product.detail.version.milestoneClose({ milestoneId: $ctrl.productMilestone.id })"
+  <a ui-sref="products.detail.product-versions.detail.milestone.close({ productMilestoneId: $ctrl.productMilestone.id })"
      title="{{ !$ctrl.productMilestone.endDate ? 'Close Milestone' : 'Milestone is already closed. No more modifications allowed.'}}" 
      class="btn btn-default btn-{{ $ctrl.size ? $ctrl.size : 'lg'}}"
      ng-disabled="$ctrl.productMilestone.endDate">
