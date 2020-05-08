@@ -19,15 +19,9 @@
 package org.jboss.pnc.rest.trigger;
 
 import org.jboss.logging.Logger;
-import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
-import org.jboss.pnc.enums.BPMTaskStatus;
-import org.jboss.pnc.enums.BuildExecutionStatus;
-import org.jboss.pnc.bpm.model.ProcessProgressUpdate;
 import org.jboss.pnc.bpm.notification.BpmNotifier;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -38,7 +32,6 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-import java.net.URI;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -54,10 +47,6 @@ public class BuildExecutorTriggerer {
 
     private BpmNotifier bpmNotifier;
 
-    // TODO decouple executor
-    @Deprecated
-    BpmManager bpmManager;
-
     private SystemConfig systemConfig;
 
     @Deprecated // CDI workaround
@@ -65,14 +54,9 @@ public class BuildExecutorTriggerer {
     }
 
     @Inject
-    public BuildExecutorTriggerer(
-            BuildExecutor buildExecutor,
-            BpmNotifier bpmNotifier,
-            BpmManager bpmManager,
-            SystemConfig systemConfig) {
+    public BuildExecutorTriggerer(BuildExecutor buildExecutor, BpmNotifier bpmNotifier, SystemConfig systemConfig) {
         this.buildExecutor = buildExecutor;
         this.bpmNotifier = bpmNotifier;
-        this.bpmManager = bpmManager;
         this.systemConfig = systemConfig;
     }
 
@@ -84,26 +68,6 @@ public class BuildExecutorTriggerer {
 
         Consumer<BuildExecutionStatusChangedEvent> onExecutionStatusChange = (statusChangedEvent) -> {
             log.debug("Received BuildExecutionStatusChangedEvent: " + statusChangedEvent);
-
-            Optional<ProcessProgressUpdate> processProgressUpdate = toProcessProgressUpdate(statusChangedEvent);
-            if (processProgressUpdate.isPresent()) {
-                // As there is a plan to split the Executor from Coordinator, the notification should be sent over http
-                // to the endpoint /bpm/tasks/{taskId}/notify
-                // bpmManager should be aupdated to accept notifications identified by buildTaskId
-                Optional<BpmTask> bpmTask = BpmBuildTask
-                        .getBpmTaskByBuildTaskId(bpmManager, statusChangedEvent.getBuildTaskId());
-                if (bpmTask.isPresent()) {
-                    // NCL-5720 - Only send notifications for final status changed updates
-                    if (statusChangedEvent.isFinal()) {
-                        bpmManager.notify(bpmTask.get().getTaskId(), processProgressUpdate.get());
-                    }
-                } else {
-                    log.warn(
-                            "There is no bpmTask for buildTask.id: " + statusChangedEvent.getBuildTaskId()
-                                    + ". Skipping notification.");
-                }
-
-            }
             if (statusChangedEvent.isFinal() && callbackUrl != null && !callbackUrl.isEmpty()) {
                 statusChangedEvent.getBuildResult().ifPresent((buildResult) -> {
                     bpmNotifier.sendBuildExecutionCompleted(callbackUrl, buildResult);
@@ -114,60 +78,6 @@ public class BuildExecutorTriggerer {
                 .startBuilding(buildExecutionConfig, onExecutionStatusChange, accessToken);
 
         return buildExecutionSession;
-    }
-
-    private Optional<ProcessProgressUpdate> toProcessProgressUpdate(
-            BuildExecutionStatusChangedEvent statusChangedEvent) {
-        BuildExecutionStatus status = statusChangedEvent.getNewStatus();
-
-        String taskName = null;
-        BPMTaskStatus bpmTaskStatus = BPMTaskStatus.STARTING;
-        String wsDetails = "";
-
-        switch (status) {
-            case REPO_SETTING_UP:
-                taskName = "Repository";
-                break;
-
-            case BUILD_ENV_SETTING_UP:
-                taskName = "Environment";
-                break;
-
-            case BUILD_WAITING:
-                taskName = "Build";
-                bpmTaskStatus = BPMTaskStatus.STARTED;
-                BuildExecutionSession runningExecution = buildExecutor
-                        .getRunningExecution(statusChangedEvent.getBuildTaskId());
-                Optional<URI> liveLogsUri = runningExecution.getLiveLogsUri();
-                if (liveLogsUri.isPresent()) {
-                    wsDetails = liveLogsUri.get().toString();
-                } else {
-                    log.warn("Missing live log url for buildExecution: " + statusChangedEvent.getBuildTaskId());
-                }
-                break;
-
-            case COLLECTING_RESULTS_FROM_BUILD_DRIVER:
-                taskName = "Collecting results from build";
-                break;
-
-            case COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER:
-                taskName = "Collecting results from repository";
-                break;
-
-            case BUILD_ENV_DESTROYING:
-                taskName = "Destroying environment";
-                break;
-
-            case FINALIZING_EXECUTION:
-                taskName = "Finalizing";
-                break;
-        }
-
-        if (taskName != null) {
-            return Optional.of(new ProcessProgressUpdate(taskName, bpmTaskStatus, wsDetails));
-        } else {
-            return Optional.empty();
-        }
     }
 
     public void cancelBuild(Integer buildExecutionConfigId) throws CoreException, ExecutorException {
