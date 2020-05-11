@@ -96,7 +96,7 @@
 
       function doSearch($viewValue) {
         let q = rsqlQuery().where('version').like('*' + $viewValue + '*').end();
-        console.log($ctrl.product+'-'+$ctrl.product.id)
+        console.log($ctrl.product+'-'+$ctrl.product.id);
         return ProductResource.queryProductVersions({ id: $ctrl.product.id, q: q }).$promise.then(function (page) {
           return page.data;
         });
