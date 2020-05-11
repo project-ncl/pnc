@@ -84,29 +84,30 @@
       // updating existing Product Milestone
       if ($ctrl.isUpdating) {
         if ($ctrl.setCurrentMilestone) {
-          $ctrl.productVersion.setCurrentMilestone = {
+          $ctrl.productVersion.currentProductMilestone = {
             id: $ctrl.data.id
           };
-
-          $ctrl.productVersion.$update().then(() => {
-            $ctrl.data.$update().then(() => {
-              reloadPage($ctrl.product.id, $ctrl.productVersion.id);
-            });
-          });
         }
+
+        $ctrl.productVersion.$update().then(() => {
+          $ctrl.data.$update().then(() => {
+            reloadPage($ctrl.product.id, $ctrl.productVersion.id);
+          });
+        });
 
       // creating new Product Milestone
       } else {
         $ctrl.data.$save().then(() => {
           if ($ctrl.setCurrentMilestone) {
-            // Mark Milestone as current in Product Version
-            $ctrl.productVersion.setCurrentMilestone = {
+            $ctrl.productVersion.currentProductMilestone = {
               id: $ctrl.data.id
             };
 
             $ctrl.productVersion.$update().finally(() => {
               reloadPage($ctrl.product.id, $ctrl.productVersion.id);
             });
+          } else {
+            reloadPage($ctrl.product.id, $ctrl.productVersion.id);
           }
         });
       }

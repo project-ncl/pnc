@@ -96,10 +96,9 @@
           requireAuth: true
         },
         resolve: {
-          milestoneDetail: ['ProductMilestoneDAO', '$stateParams', function (ProductMilestoneDAO, $stateParams) {
-            return ProductMilestoneDAO.get({milestoneId: $stateParams.productMilestoneId})
-              .$promise;
-          }]
+          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) => 
+            ProductMilestoneResource.get({id: $stateParams.productMilestoneId}).$promise
+          ]
         }
       })
 
