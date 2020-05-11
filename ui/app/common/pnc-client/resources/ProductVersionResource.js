@@ -40,10 +40,11 @@
         },
         save: {
           method: 'POST',
-          successNotification: 'ProductVersion created'
+          successNotification: 'Product Version created'
         },
         update: {
-          method: 'PUT'
+          method: 'PUT',
+          successNotification: 'Product Version updated'
         },
         queryBuildConfigs: {
           method: 'GET',

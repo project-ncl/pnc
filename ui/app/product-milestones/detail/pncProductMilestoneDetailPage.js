@@ -22,7 +22,9 @@
     bindings: {
       productMilestone: '<',
       performedBuilds: '<',
-      latestCloseResult: '<'
+      latestCloseResult: '<',
+      product: '<',
+      productVersion: '<'
     },
     templateUrl: 'product-milestones/detail/pnc-product-milestone-detail-page.html',
     controller: [Controller]
