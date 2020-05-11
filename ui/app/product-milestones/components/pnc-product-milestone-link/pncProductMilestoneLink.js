@@ -33,13 +33,13 @@
 
     // -- Controller API --
 
-    $ctrl.isCurrentMilestone = isCurrentMilestone;
+    $ctrl.isCurrentProductMilestone = isCurrentProductMilestone;
 
     // --------------------
 
     $ctrl.$onInit = () => {};
 
-    function isCurrentMilestone() {
+    function isCurrentProductMilestone() {
       return $ctrl.productVersion.currentProductMilestone && ($ctrl.productMilestone.id === $ctrl.productVersion.currentProductMilestone.id);
     }
   }

@@ -57,7 +57,7 @@
         $ctrl.plannedEndDate = new Date($ctrl.data.plannedEndDate);
       }
   
-      $ctrl.setCurrentMilestone = $ctrl.productVersion.setCurrentMilestoneId === $ctrl.data.id;
+      $ctrl.setCurrentMilestone = $ctrl.productVersion.currentProductMilestone.id === $ctrl.data.id;
   
       // milestone can be only marked as current, not unmarked
       $ctrl.setCurrentMilestoneDisabled = $ctrl.setCurrentMilestone;

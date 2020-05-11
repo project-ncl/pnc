@@ -56,7 +56,9 @@
     function markMilestoneAsCurrent (productMilestone) {
       const newProductVersion = angular.copy($ctrl.productVersion);
 
-      newProductVersion.currentProductMilestoneId = productMilestone.id;
+      newProductVersion.currentProductMilestone = {
+        id: productMilestone.id
+      };
 
       // Mark Milestone as current in Product Version
       newProductVersion.$update({
