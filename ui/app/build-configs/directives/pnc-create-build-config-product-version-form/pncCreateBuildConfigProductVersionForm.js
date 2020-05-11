@@ -6,10 +6,10 @@
     require: {
       ngModel: 'ngModel'
     },
-    controller: ['ProductResource', Controller]
+    controller: [Controller]
   });
 
-  function Controller(ProductResource) {
+  function Controller() {
     var $ctrl = this;
 
     // -- Controller API --
