@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
@@ -231,23 +232,26 @@ public class DefaultDatastore implements Datastore {
         for (Artifact artifact : artifacts) {
             TargetRepository targetRepository = artifact.getTargetRepository();
             logger.trace("Adding repository for artifact: {}.", artifact.toString());
-            requiredTargetRepositories.put(targetRepository.getIdentifierPath(), targetRepository);
+            if (!storedTargetRepositories.containsKey(targetRepository.getIdentifierPath())) {
+                requiredTargetRepositories.put(targetRepository.getIdentifierPath(), targetRepository);
+            }
         }
 
         if (requiredTargetRepositories.size() > 0) {
             List<TargetRepository> targetRepositoriesInDB = targetRepositoryRepository
                     .queryByIdentifiersAndPaths(requiredTargetRepositories.keySet());
-            storedTargetRepositories.putAll(
-                    targetRepositoriesInDB.stream()
-                            .collect(Collectors.toMap(TargetRepository::getIdentifierPath, tr -> tr)));
-        }
 
-        for (Map.Entry<TargetRepository.IdentifierPath, TargetRepository> entry : requiredTargetRepositories
-                .entrySet()) {
-            TargetRepository.IdentifierPath identifierPath = entry.getKey();
-            TargetRepository targetRepository = entry.getValue();
-            storedTargetRepositories
-                    .computeIfAbsent(identifierPath, ip -> targetRepositoryRepository.save(targetRepository));
+            for (TargetRepository targetRepository : targetRepositoriesInDB) {
+                storedTargetRepositories.put(targetRepository.getIdentifierPath(), targetRepository);
+                requiredTargetRepositories.remove(targetRepository.getIdentifierPath());
+            }
+
+            for (TargetRepository targetRepository : requiredTargetRepositories.values()) {
+                // NCL-5474: This can potentionally cause unique constraint violation if two builds finish at the same
+                // time, both with the same new target repository. This is unlikely to happen, so we take the risk.
+                TargetRepository savedTargetRepository = targetRepositoryRepository.save(targetRepository);
+                storedTargetRepositories.put(targetRepository.getIdentifierPath(), savedTargetRepository);
+            }
         }
     }
 
