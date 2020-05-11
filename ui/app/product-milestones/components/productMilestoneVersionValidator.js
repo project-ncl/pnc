@@ -35,7 +35,7 @@
                     if (milestoneVersion && productVersionId && productVersion) {
                        // NCL-5754 will handle this soon
                         if (true) {
-                            deferred.reject();
+                            deferred.resolve();
                         } else {
                             deferred.reject();
                         }
