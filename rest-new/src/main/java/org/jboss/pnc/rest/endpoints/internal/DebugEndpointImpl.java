@@ -30,6 +30,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.ServiceUnavailableException;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+
 import java.util.Optional;
 
 /**
@@ -75,4 +78,23 @@ public class DebugEndpointImpl implements DebugEndpoint {
                 .temporaryBuild(true)
                 .build();
     }
+
+    @Override
+    public void throwEx() throws Exception {
+        RuntimeException nested = new RuntimeException("Root exception.");
+        throw new Exception("Test exception.", nested);
+    }
+
+    @Override
+    public void nocontent() throws Exception {
+        Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @Override
+    public void redirect() throws Exception {
+        Response.status(Response.Status.UNAUTHORIZED)
+                .header(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"ApplicationRealm\"")
+                .build();
+    }
+
 }

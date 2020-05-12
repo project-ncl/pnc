@@ -50,4 +50,16 @@ public interface DebugEndpoint {
     @Path("/mq-send-dummy-message")
     void sendDummyMessageToQueue(@QueryParam("type") String type);
 
+    @GET
+    @Path("/throw")
+    public void throwEx() throws Exception;
+
+    @GET
+    @Path("/nocontent")
+    public void nocontent() throws Exception;
+
+    @GET
+    @Path("/unauthorized")
+    public void redirect() throws Exception;
+
 }

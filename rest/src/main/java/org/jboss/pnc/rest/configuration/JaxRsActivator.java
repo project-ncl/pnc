@@ -20,7 +20,6 @@ package org.jboss.pnc.rest.configuration;
 import org.jboss.pnc.pncmetrics.rest.GeneralRestMetricsFilter;
 import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.pncmetrics.rest.TimedMetricFilter;
-import org.jboss.pnc.rest.debug.TestEndpoint;
 import org.jboss.pnc.rest.endpoint.*;
 import org.jboss.resteasy.plugins.interceptors.CorsFilter;
 
@@ -82,7 +81,6 @@ public class JaxRsActivator extends Application {
         resources.add(RunningBuildRecordEndpoint.class);
         resources.add(UserEndpoint.class);
         resources.add(BuildEnvironmentEndpoint.class);
-        resources.add(TestEndpoint.class);
         resources.add(BuildTaskEndpoint.class);
         resources.add(BuildEndpoint.class);
         resources.add(BpmEndpoint.class);

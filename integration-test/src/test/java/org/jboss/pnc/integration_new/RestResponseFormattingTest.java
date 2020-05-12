@@ -15,58 +15,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration;
+package org.jboss.pnc.integration_new;
 
-import io.restassured.http.ContentType;
+import static io.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
+
+import javax.ws.rs.core.Response;
+
 import org.hamcrest.core.IsEqual;
 import org.jboss.arquillian.container.test.api.Deployment;
+import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.AbstractTest;
-import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
+import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Response;
-import java.lang.invoke.MethodHandles;
+import io.restassured.http.ContentType;
 
-import static io.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
-import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
-
-/**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- */
+@RunAsClient
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
-public class RestResponseFormattingTest extends AbstractTest {
-    public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+public class RestResponseFormattingTest {
 
-    @Deployment(testable = false)
+    private static final Logger logger = LoggerFactory.getLogger(RestResponseFormattingTest.class);
+
+    @Deployment
     public static EnterpriseArchive deploy() {
-        EnterpriseArchive enterpriseArchive = Deployments.baseEar();
-
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, REST_WAR_PATH);
-        restWar.addAsWebInfResource("beans-use-mock-remote-clients.xml", "beans.xml");
-
-        JavaArchive coordinatorJar = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.COORDINATOR_JAR);
-        coordinatorJar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
-        coordinatorJar.addClass(RemoteBuildsCleanerMock.class);
-
-        addBuildExecutorMock(enterpriseArchive);
-
-        logger.info(enterpriseArchive.toString(true));
-        logger.info(restWar.toString(true));
-
-        return enterpriseArchive;
+        return Deployments.testEar();
     }
 
     @Test
@@ -78,24 +58,23 @@ public class RestResponseFormattingTest extends AbstractTest {
                 .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
                 .body("errorMessage", IsEqual.equalTo("Test exception."))
                 .when()
-                .get("/pnc-rest/rest/test/throw")
+                .get("/pnc-rest-new/rest-new/debug/throw")
                 .asString();
         logger.info(response);
-
     }
 
     @Test
-    public void shouldReturnInJsonAndStatus404() {
+    public void shouldReturnEmptyBodyAndStatus404() {
         String response = given().header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .expect()
                 .statusCode(Response.Status.NOT_FOUND.getStatusCode())
-                .body("errorType", IsEqual.equalTo("NotFoundException"))
                 .when()
-                .get("/pnc-rest/rest/test/does-not-exists")
+                .get("/pnc-rest-new/rest-new/does-not-exists")
                 .asString();
         logger.info(response);
+        org.junit.Assert.assertTrue(response.isEmpty());
     }
 
     @Test
@@ -106,24 +85,25 @@ public class RestResponseFormattingTest extends AbstractTest {
                 .expect()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode())
                 .when()
-                .get("/pnc-rest/rest/test/nocontent")
+                .get("/pnc-rest-new/rest-new/debug/nocontent")
                 .asString();
         logger.info(response);
     }
 
     @Test
-    @Ignore // TODO enable once we updated to EAP7. Test fails, the problem seems to be in the backend
     public void shouldReturnStatusUnauthorizedAndHeader() {
         String response = given().header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
+                .auth()
+                .preemptive()
+                .basic("USERNAME", "PASSWORD")
                 .expect()
                 .statusCode(Response.Status.UNAUTHORIZED.getStatusCode())
-                .header("WWW-Authenticate", IsEqual.equalTo("Bearer realm=\"test\""))
+                .header("WWW-Authenticate", IsEqual.equalTo("Basic realm=\"ApplicationRealm\""))
                 .when()
-                .get("/pnc-rest/rest/test/unathorized")
+                .get("/pnc-rest-new/rest-new/debug/unauthorized")
                 .asString();
-        logger.info(response);
+        logger.info("response: {}", response);
     }
-
 }
