@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 
@@ -40,4 +41,6 @@ public interface ProductMilestoneProvider
             String productVersionId);
 
     Page<MilestoneInfo> getMilestonesOfArtifact(String id, int pageIndex, int pageSize);
+
+    ValidationResponse validateVersion(String productVersionId, String version);
 }
