@@ -17,15 +17,14 @@
  */
 package org.jboss.pnc.dto.response;
 
-import java.util.List;
-
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.enums.ValidationErrorType;
+
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  *
@@ -38,6 +37,8 @@ public class ValidationResponse {
 
     @NotNull
     public final Boolean isValid;
+
+    public final ValidationErrorType errorType;
 
     public List<String> hints;
 

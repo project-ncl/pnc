@@ -28,12 +28,15 @@ import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
+import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
+import org.jboss.pnc.enums.ValidationErrorType;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
@@ -230,6 +233,53 @@ public class ProductMilestoneEndpointTest {
         assertThat(retrieved).isEqualTo(toUpdate);
         assertThat(retrieved).isEqualToIgnoringGivenFields(milestone2, "version");
         assertThat(retrieved.getVersion()).isEqualTo(version);
+    }
+
+    @Test
+    public void testValidateWithWrongPattern() throws RemoteResourceException {
+        // with
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
+
+        // when
+        final ValidationResponse response = client.validateVersion(
+                VersionValidationRequest.builder().productVersionId("shouldn't matter").version("1.NOTVALID").build());
+
+        // then
+        assertThat(response.getIsValid()).isFalse();
+        assertThat(response.getErrorType()).isEqualTo(ValidationErrorType.FORMAT);
+        assertThat(response.getHints()).isNotEmpty();
+    }
+
+    @Test
+    public void testValidateWithExistingVersion() throws RemoteResourceException {
+        // with
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
+        ProductVersionClient productVersionClient = new ProductVersionClient(RestClientConfiguration.asUser());
+        final ProductMilestone milestone = productVersionClient.getMilestones("100").iterator().next();
+
+        // when
+        final ValidationResponse response = client.validateVersion(
+                VersionValidationRequest.builder().productVersionId("100").version(milestone.getVersion()).build());
+
+        // then
+        assertThat(response.getIsValid()).isFalse();
+        assertThat(response.getErrorType()).isEqualTo(ValidationErrorType.DUPLICATION);
+        assertThat(response.getHints()).isNotEmpty();
+    }
+
+    @Test
+    public void testSuccessfulValidationWithNewVersion() throws RemoteResourceException {
+        // with
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
+
+        // when
+        final ValidationResponse response = client.validateVersion(
+                VersionValidationRequest.builder().productVersionId("100").version("1.0.3.Build1").build());
+
+        // then
+        assertThat(response.getIsValid()).isTrue();
+        assertThat(response.getErrorType()).isNull();
+        assertThat(response.getHints()).isNullOrEmpty();
     }
 
     @Test

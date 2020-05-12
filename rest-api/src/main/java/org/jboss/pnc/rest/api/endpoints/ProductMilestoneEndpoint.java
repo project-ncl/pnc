@@ -24,8 +24,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestone;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
@@ -260,5 +260,5 @@ public interface ProductMilestoneEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/validate-version")
-    ValidationResponse validateVersion(VersionValidationRequest productMilestone);
+    ValidationResponse validateVersion(@Valid VersionValidationRequest productMilestone);
 }

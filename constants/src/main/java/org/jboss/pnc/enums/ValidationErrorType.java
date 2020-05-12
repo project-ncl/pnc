@@ -15,31 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto.requests.validation;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.Builder;
-import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
+package org.jboss.pnc.enums;
 
 /**
- *
- * @author jmichalo <jmichalo@redhat.com>
+ * This enum represents various types of errors found throughout validation
  */
-@Data
-@Builder(builderClassName = "Builder")
-@JsonDeserialize(builder = VersionValidationRequest.Builder.class)
-public class VersionValidationRequest {
-
-    @NotBlank
-    public final String productVersionId;
-
-    @NotBlank
-    public final String version;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    public static final class Builder {
-    }
+public enum ValidationErrorType {
+    /**
+     * Validated entity has invalid format (f.e. regex pattern does not match).
+     */
+    FORMAT,
+    /**
+     * Validated entity already exists.
+     */
+    DUPLICATION
 }

@@ -20,11 +20,13 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.util.UserService;
@@ -63,13 +65,17 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.jboss.pnc.enums.ValidationErrorType.DUPLICATION;
+import static org.jboss.pnc.enums.ValidationErrorType.FORMAT;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
 
@@ -273,6 +279,32 @@ public class ProductMilestoneProviderImpl
                 .collect(Collectors.toList());
 
         return new Page<>(pageIndex, pageSize, milestoneIds.size(), milestones);
+    }
+
+    @Override
+    public ValidationResponse validateVersion(String productVersionId, String version) {
+        boolean matches = Pattern.matches(Patterns.PRODUCT_MILESTONE_VERSION, version);
+        ValidationResponse.Builder builder = ValidationResponse.builder().isValid(matches);
+        if (!matches) {
+            return builder.errorType(FORMAT)
+                    .hints(
+                            Collections.singletonList(
+                                    "Allowed format consists of 2 or 3 numeric components (separated by a dot) followed by a string "
+                                            + "qualifier starting with a character, eg. 3.0.0.GA, 1.0.11.CR2.ER1, 3.0.CR2"))
+                    .build();
+        }
+
+        org.jboss.pnc.model.ProductMilestone duplicate = repository
+                .queryByPredicates(withProductVersionIdAndVersion(Integer.parseInt(productVersionId), version));
+
+        if (duplicate != null) {
+            return builder.isValid(false)
+                    .errorType(DUPLICATION)
+                    .hints(Collections.singletonList("Product Milestone version already exists"))
+                    .build();
+        }
+
+        return builder.isValid(matches).build();
     }
 
     private CriteriaQuery<Tuple> milestoneInfoQuery(CriteriaBuilder cb, Set<Integer> milestoneIds) {
