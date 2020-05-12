@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import java.util.List;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -24,6 +25,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import javax.persistence.criteria.Expression;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.criteria.Path;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -38,19 +40,14 @@ public class TargetRepositoryPredicates {
 
     public static Predicate<TargetRepository> withIdentifierAndPathIn(
             Set<TargetRepository.IdentifierPath> identifierAndPaths) {
-        Set<String> identifiers = identifierAndPaths.stream().map(ip -> ip.getIdentifier()).collect(Collectors.toSet());
-        Set<String> identifierAndPathStrings = identifierAndPaths.stream()
-                .map(ip -> ip.toString())
-                .collect(Collectors.toSet());
         return (root, query, cb) -> {
-            Expression<String> concatPart = cb.concat(
-                    root.get(TargetRepository_.identifier),
-                    TargetRepository.IdentifierPath.TO_STRING_DELIMITER);
-            Expression<String> concat = cb.concat(concatPart, root.get(TargetRepository_.repositoryPath));
-            return cb.and(
-                    root.get(TargetRepository_.identifier).in(identifiers), // optimization: don't concatenate all the
-                                                                            // entries
-                    concat.in(identifierAndPathStrings));
+            Path<String> identifier = root.get(TargetRepository_.identifier);
+            Path<String> path = root.get(TargetRepository_.repositoryPath);
+            List<javax.persistence.criteria.Predicate> ands = identifierAndPaths.stream()
+                    .map(ip -> cb.and(cb.equal(identifier, ip.getIdentifier()), cb.equal(path, ip.getRepositoryPath())))
+                    .collect(Collectors.toList());
+
+            return cb.or(ands.toArray(javax.persistence.criteria.Predicate[]::new));
         };
     }
 }
