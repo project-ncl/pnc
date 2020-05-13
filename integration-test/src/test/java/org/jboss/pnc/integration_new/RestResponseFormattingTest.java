@@ -44,6 +44,9 @@ public class RestResponseFormattingTest {
 
     private static final Logger logger = LoggerFactory.getLogger(RestResponseFormattingTest.class);
 
+    // TODO: change it when the endpoint is updated
+    protected final String BASE_PATH = "/pnc-rest-new/rest-new";
+
     @Deployment
     public static EnterpriseArchive deploy() {
         return Deployments.testEar();
@@ -58,7 +61,7 @@ public class RestResponseFormattingTest {
                 .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
                 .body("errorMessage", IsEqual.equalTo("Test exception."))
                 .when()
-                .get("/pnc-rest-new/rest-new/debug/throw")
+                .get(BASE_PATH + "/debug/throw")
                 .asString();
         logger.info(response);
     }
@@ -71,7 +74,7 @@ public class RestResponseFormattingTest {
                 .expect()
                 .statusCode(Response.Status.NOT_FOUND.getStatusCode())
                 .when()
-                .get("/pnc-rest-new/rest-new/does-not-exists")
+                .get(BASE_PATH + "/does-not-exists")
                 .asString();
         logger.info(response);
         org.junit.Assert.assertTrue(response.isEmpty());
@@ -85,7 +88,7 @@ public class RestResponseFormattingTest {
                 .expect()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode())
                 .when()
-                .get("/pnc-rest-new/rest-new/debug/nocontent")
+                .get(BASE_PATH + "/debug/nocontent")
                 .asString();
         logger.info(response);
     }
@@ -95,14 +98,11 @@ public class RestResponseFormattingTest {
         String response = given().header("Accept", "application/json")
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
-                .auth()
-                .preemptive()
-                .basic("USERNAME", "PASSWORD")
                 .expect()
                 .statusCode(Response.Status.UNAUTHORIZED.getStatusCode())
-                .header("WWW-Authenticate", IsEqual.equalTo("Basic realm=\"ApplicationRealm\""))
+                .header("WWW-Authenticate", IsEqual.equalTo("Basic realm=\"debug\""))
                 .when()
-                .get("/pnc-rest-new/rest-new/debug/unauthorized")
+                .get(BASE_PATH + "/debug/unauthorized")
                 .asString();
         logger.info("response: {}", response);
     }

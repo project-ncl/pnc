@@ -87,13 +87,13 @@ public class DebugEndpointImpl implements DebugEndpoint {
 
     @Override
     public void nocontent() throws Exception {
-        Response.status(Response.Status.NO_CONTENT).build();
+        // void Results in an empty entity body with a 204 status code.
     }
 
     @Override
-    public void redirect() throws Exception {
-        Response.status(Response.Status.UNAUTHORIZED)
-                .header(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"ApplicationRealm\"")
+    public Response redirect() throws Exception {
+        return Response.status(Response.Status.UNAUTHORIZED)
+                .header(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"debug\"")
                 .build();
     }
 
