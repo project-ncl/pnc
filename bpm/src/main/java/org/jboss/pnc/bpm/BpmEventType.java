@@ -33,7 +33,6 @@ import static java.util.Objects.requireNonNull;
 @ToString
 public enum BpmEventType { // TODO merge with org.jboss.pnc.spi.notifications.model.EventType ?
     // <T extends BpmNotificationRest>
-    PROCESS_PROGRESS_UPDATE(ProcessProgressUpdate.class),
     DEBUG(BpmStringMapNotificationRest.class),
     BREW_IMPORT_SUCCESS(MilestoneReleaseResultRest.class), // TODO remove
                                                            // SUCCESS|ERROR
