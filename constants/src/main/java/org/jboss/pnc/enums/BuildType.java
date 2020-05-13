@@ -23,7 +23,21 @@ package org.jboss.pnc.enums;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public enum BuildType {
-    MVN(RepositoryType.MAVEN), NPM(RepositoryType.NPM), GRADLE(RepositoryType.MAVEN);
+    /**
+     * Build using Maven as its build tool. Uses POM Manipulation Extension in pre-build oprations and
+     * {@link RepositoryType#MAVEN} repository.
+     */
+    MVN(RepositoryType.MAVEN),
+    /**
+     * Build using NPM as its build tool. Uses project-manipulator in pre-build oprations and {@link RepositoryType#NPM}
+     * repository.
+     */
+    NPM(RepositoryType.NPM),
+    /**
+     * Build using Gradle as its build tool. Uses Gradle Manipulator in pre-build oprations and
+     * {@link RepositoryType#MAVEN} repository.
+     */
+    GRADLE(RepositoryType.MAVEN);
 
     private RepositoryType repoType;
 

@@ -18,9 +18,7 @@
 package org.jboss.pnc.enums;
 
 /**
- * Types of artifact repositories
- *
- * Types *_TEMPORAL are repository groups for temporal build (Snapshots / Pull Request)
+ * Types of artifact repositories.
  */
 public enum RepositoryType {
     /**

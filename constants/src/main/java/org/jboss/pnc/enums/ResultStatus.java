@@ -17,8 +17,22 @@
  */
 package org.jboss.pnc.enums;
 
+/**
+ * Status of generic result of some operation or task.
+ */
 public enum ResultStatus {
-    SUCCESS(true), FAILED(false), SYSTEM_ERROR(false);
+    /**
+     * The operation was successful.
+     */
+    SUCCESS(true),
+    /**
+     * The operation failed.
+     */
+    FAILED(false),
+    /**
+     * The operation failed unexpectedly.
+     */
+    SYSTEM_ERROR(false);
 
     private boolean success;
 
@@ -26,6 +40,9 @@ public enum ResultStatus {
         this.success = success;
     }
 
+    /**
+     * Returns true if the operation resulted is successful.
+     */
     public boolean isSuccess() {
         return success;
     }

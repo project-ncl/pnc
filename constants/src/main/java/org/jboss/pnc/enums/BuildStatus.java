@@ -24,19 +24,19 @@ import static org.jboss.pnc.enums.BuildProgress.IN_PROGRESS;
 import static org.jboss.pnc.enums.BuildProgress.PENDING;
 
 /**
- * Status of a running or isFinal build.
+ * Status of a running or finished build.
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public enum BuildStatus {
     /**
-     * Build completed successfully
+     * Build completed successfully.
      */
     SUCCESS(FINISHED, true),
 
     /**
-     * Build failed
+     * Build failed.
      */
     FAILED(FINISHED, false),
 
@@ -52,37 +52,37 @@ public enum BuildStatus {
     ENQUEUED(PENDING),
 
     /**
-     * Build is waiting for dependencies to finish
+     * Build is waiting for dependencies to finish.
      */
     WAITING_FOR_DEPENDENCIES(PENDING),
 
     /**
-     * Build currently running
+     * Build currently running.
      */
     BUILDING(IN_PROGRESS),
 
     /**
-     * Build rejected due to conflict with another build
+     * Build rejected due to conflict with another build.
      */
     REJECTED(FINISHED, false),
 
     /**
-     * Build rejected due to failed dependency build
+     * Build rejected due to failed dependency build.
      */
     REJECTED_FAILED_DEPENDENCIES(FINISHED, false),
 
     /**
-     * User cancelled the build
+     * User cancelled the build.
      */
     CANCELLED(FINISHED, true),
 
     /**
-     * A system error prevented the build from completing
+     * A system error prevented the build from completing.
      */
     SYSTEM_ERROR(FINISHED, false),
 
     /**
-     * It is not known what the build status is at this time
+     * It is not known what the build status is at this time.
      */
     NEW(PENDING);
 
@@ -90,7 +90,7 @@ public enum BuildStatus {
 
     private final BuildProgress progress;
 
-    BuildStatus(BuildProgress progress) {
+    private BuildStatus(BuildProgress progress) {
         this(progress, false);
     }
 
@@ -99,14 +99,25 @@ public enum BuildStatus {
         this.progress = progress;
     }
 
+    /**
+     * Returns true if the build finished successfully.
+     */
     public boolean completedSuccessfully() {
         return completedSuccessfully;
     }
 
+    /**
+     * Returns true if the build finished (successfully or not).
+     */
     public boolean isFinal() {
         return progress == FINISHED;
     }
 
+    /**
+     * Returns what progress state this status represents.
+     * 
+     * @see BuildProgress
+     */
     public BuildProgress progress() {
         return progress;
     }
