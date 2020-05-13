@@ -24,6 +24,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -60,6 +61,6 @@ public interface DebugEndpoint {
 
     @GET
     @Path("/unauthorized")
-    public void redirect() throws Exception;
+    public Response redirect() throws Exception;
 
 }
