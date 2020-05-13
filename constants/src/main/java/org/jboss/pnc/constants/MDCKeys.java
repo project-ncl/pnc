@@ -17,11 +17,41 @@
  */
 package org.jboss.pnc.constants;
 
+/**
+ * This class provides keys for Mapped Diagnostic Context (MDC) in logging.
+ *
+ */
 public class MDCKeys {
+    /**
+     * Identifier of the original request context.
+     */
     public static final String REQUEST_CONTEXT_KEY = "requestContext";
+    /**
+     * Identifier of a running process.
+     */
     public static final String PROCESS_CONTEXT_KEY = "processContext";
+    /**
+     * Identifier of user who initiated the operation.
+     */
     public static final String USER_ID_KEY = "userId";
+    /**
+     * Indicator if the context belongs to temporary build.
+     *
+     * <p>
+     * Value: "true" or "false"
+     * </p>
+     */
     public static final String TMP_KEY = "tmp";
+    /**
+     * When the log can expire and may be deleted.
+     *
+     * <p>
+     * Value: DateTimeFormatter.ISO_INSTANT.format(timeOfExpiration)
+     * </p>
+     */
     public static final String EXP_KEY = "exp";
+    /**
+     * Identifier of the build the operation is working with.
+     */
     public static final String BUILD_ID_KEY = "buildId";
 }

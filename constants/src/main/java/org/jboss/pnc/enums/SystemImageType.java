@@ -24,13 +24,19 @@ package org.jboss.pnc.enums;
  */
 public enum SystemImageType {
 
-    /** A Docker image will be used to run the build */
+    /**
+     * A Docker-formatted image that will be used to create a container where to run the build.
+     */
     DOCKER_IMAGE,
 
-    /** A raw virtual machine image */
+    /**
+     * A raw virtual machine image.
+     */
     VIRTUAL_MACHINE_RAW,
 
-    /** A virtual machine image in the qcow2 format */
+    /**
+     * A virtual machine image in the qcow2 format.
+     */
     VIRTUAL_MACHINE_QCOW2,
 
     /**

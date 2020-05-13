@@ -18,9 +18,33 @@
 package org.jboss.pnc.enums;
 
 /**
+ * Status of a push of a build to Koji.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 public enum BuildPushStatus {
-    ACCEPTED, SUCCESS, REJECTED, FAILED, SYSTEM_ERROR, CANCELED;
+    /**
+     * Push was accepted and is in progress.
+     */
+    ACCEPTED,
+    /**
+     * Build was successfuly pushed to Koji.
+     */
+    SUCCESS,
+    /**
+     * Push was rejected for some reason.
+     */
+    REJECTED,
+    /**
+     * Push failed because of user-side issue.
+     */
+    FAILED,
+    /**
+     * Push failed because of server-side issue.
+     */
+    SYSTEM_ERROR,
+    /**
+     * Push was canceled.
+     */
+    CANCELED;
 }

@@ -18,8 +18,30 @@
 package org.jboss.pnc.enums;
 
 /**
+ * Status of the process of milestone closing.
+ *
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 1:16 PM
  */
 public enum MilestoneCloseStatus {
-    IN_PROGRESS, FAILED, SUCCEEDED, CANCELED, SYSTEM_ERROR
+
+    /**
+     * Milestone close is in progress.
+     */
+    IN_PROGRESS,
+    /**
+     * Milestone close failed because of user-side issue.
+     */
+    FAILED,
+    /**
+     * Milestone close finished successfully and builds were pushed to Koji.
+     */
+    SUCCEEDED,
+    /**
+     * Milestone close was canceled.
+     */
+    CANCELED,
+    /**
+     * Milestone close failed because of server-side issue.
+     */
+    SYSTEM_ERROR
 }

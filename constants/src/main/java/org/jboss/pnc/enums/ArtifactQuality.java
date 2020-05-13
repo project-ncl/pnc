@@ -23,7 +23,7 @@ package org.jboss.pnc.enums;
  */
 public enum ArtifactQuality {
     /**
-     * The artifact has not yet been verified or tested
+     * The artifact has not yet been verified or tested.
      */
     NEW,
     /**
