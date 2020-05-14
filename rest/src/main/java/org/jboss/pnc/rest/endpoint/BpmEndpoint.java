@@ -49,6 +49,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import static org.jboss.pnc.bpm.BpmEventType.nullableValueOf;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -129,18 +132,21 @@ public class BpmEndpoint extends AbstractEndpoint {
             throw new CoreException("Request JSON does not contain required \"eventType\" field.");
         }
         String eventTypeName = node.get("eventType").asText();
-        BpmEventType eventType = BpmEventType.valueOf(eventTypeName);
-        BpmEvent notification;
-        try {
-            notification = JsonOutputConverterMapper.getMapper().readValue(node.traverse(), eventType.getType());
-        } catch (IOException e) {
-            throw new CoreException(
-                    "Could not deserialize JSON request for event type '" + eventTypeName + "' " + " into '"
-                            + eventType.getType() + "'. JSON value: " + content,
-                    e);
+        BpmEventType eventType = nullableValueOf(eventTypeName);
+        if (eventType != null) {
+            BpmEvent notification;
+            try {
+                notification = JsonOutputConverterMapper.getMapper().readValue(node.traverse(), eventType.getType());
+            } catch (IOException e) {
+                throw new CoreException(
+                        "Could not deserialize JSON request for event type '" + eventTypeName + "' " + " into '"
+                                + eventType.getType() + "'. JSON value: " + content,
+                        e);
+            }
+            LOG.debug("Received notification {} for BPM task with id {}.", notification, taskId);
+            bpmManager.notify(taskId, notification);
         }
-        LOG.debug("Received notification {} for BPM task with id {}.", notification, taskId);
-        bpmManager.notify(taskId, notification);
+
         return Response.ok().build();
     }
 
