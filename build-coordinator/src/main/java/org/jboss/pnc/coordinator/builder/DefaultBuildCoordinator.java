@@ -64,6 +64,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +83,12 @@ import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
  */
 @ApplicationScoped
 public class DefaultBuildCoordinator implements BuildCoordinator {
+
+    private static final EnumMap<BuildSetStatus, BuildStatus> REJECTED_STATES = new EnumMap<>(BuildSetStatus.class);
+    static {
+        REJECTED_STATES.put(BuildSetStatus.REJECTED, BuildStatus.REJECTED);
+        REJECTED_STATES.put(BuildSetStatus.NO_REBUILD_REQUIRED, BuildStatus.NO_REBUILD_REQUIRED);
+    }
 
     private final Logger log = LoggerFactory.getLogger(DefaultBuildCoordinator.class);
     private static final Logger userLog = LoggerFactory
@@ -306,7 +313,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
         }
         if (requiresRebuild == 0) {
-            updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.REJECTED, "All build configs were previously built");
+            updateBuildSetTaskStatus(
+                    buildSetTask,
+                    BuildSetStatus.NO_REBUILD_REQUIRED,
+                    "All build configs were previously built");
         }
     }
 
@@ -314,7 +324,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         synchronized (buildMethodLock) {
 
-            if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
+            if (!REJECTED_STATES.containsKey(buildSetTask.getStatus())) {
                 buildQueue.enqueueTaskSet(buildSetTask);
                 buildSetTask.getBuildTasks()
                         .stream()
@@ -573,8 +583,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         // Rejected status needs to be propagated to the BuildConfigSetRecord in database.
         // Completed BuildSets are updated using BuildSetTask#taskStatusUpdatedToFinalState()
-        if (buildConfigSetRecord.isPresent() && BuildSetStatus.REJECTED.equals(status)) {
-            buildConfigSetRecord.get().setStatus(BuildStatus.REJECTED);
+        if (buildConfigSetRecord.isPresent() && REJECTED_STATES.containsKey(status)) {
+            buildConfigSetRecord.get().setStatus(REJECTED_STATES.get(status));
             try {
                 datastoreAdapter.saveBuildConfigSetRecord(buildConfigSetRecord.get());
             } catch (DatastoreException de) {
@@ -822,7 +832,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     /**
      * checks if the possible dependant depends on the possible dependency
-     * 
+     *
      * @param dependency - possible dependency
      * @param dependant - task to be checked
      * @return true if dependant indeed depends on the dependency

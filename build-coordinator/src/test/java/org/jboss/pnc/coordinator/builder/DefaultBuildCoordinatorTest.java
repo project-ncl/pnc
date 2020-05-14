@@ -210,7 +210,7 @@ public class DefaultBuildCoordinatorTest {
                 .build();
 
         BuildSetTask bsTask = coordinator.build(bcSet, USER, BUILD_OPTIONS);
-        assertThat(bsTask.getBuildConfigSetRecord().get().getStatus()).isEqualTo(BuildStatus.REJECTED);
+        assertThat(bsTask.getBuildConfigSetRecord().get().getStatus()).isEqualTo(BuildStatus.NO_REBUILD_REQUIRED);
     }
 
     @Test
