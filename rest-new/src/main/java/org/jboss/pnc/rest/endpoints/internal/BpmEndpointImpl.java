@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
+
+import static org.jboss.pnc.bpm.BpmEventType.nullableValueOf;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,23 +72,25 @@ public class BpmEndpointImpl implements BpmEndpoint {
         }
 
         String eventTypeName = node.get("eventType").asText();
-        BpmEventType eventType = BpmEventType.valueOf(eventTypeName);
-        BpmEvent notification;
+        BpmEventType eventType = nullableValueOf(eventTypeName);
+        if (eventType != null) {
+            BpmEvent notification;
 
-        try {
-            notification = JsonOutputConverterMapper.getMapper().readValue(node.traverse(), eventType.getType());
-        } catch (IOException e) {
-            throw new RuntimeException(
-                    "Could not deserialize JSON request for event type '" + eventTypeName + "' " + " into '"
-                            + eventType.getType() + "'. JSON value: " + content,
-                    e);
-        }
+            try {
+                notification = JsonOutputConverterMapper.getMapper().readValue(node.traverse(), eventType.getType());
+            } catch (IOException e) {
+                throw new RuntimeException(
+                        "Could not deserialize JSON request for event type '" + eventTypeName + "' " + " into '"
+                                + eventType.getType() + "'. JSON value: " + content,
+                        e);
+            }
 
-        logger.debug("Received notification {} for BPM task with id {}.", notification, taskId);
-        try {
-            bpmManager.notify(taskId, notification);
-        } catch (NoEntityException e) {
-            throw new EmptyEntityException(e.getMessage());
+            logger.debug("Received notification {} for BPM task with id {}.", notification, taskId);
+            try {
+                bpmManager.notify(taskId, notification);
+            } catch (NoEntityException e) {
+                throw new EmptyEntityException(e.getMessage());
+            }
         }
     }
 
