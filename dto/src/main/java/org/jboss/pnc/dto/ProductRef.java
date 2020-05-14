@@ -63,7 +63,7 @@ public class ProductRef implements DTOEntity {
     protected final String productManagers;
 
     @PatchSupport({ REPLACE })
-    protected final String ppCode;
+    protected final String productPagesCode;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

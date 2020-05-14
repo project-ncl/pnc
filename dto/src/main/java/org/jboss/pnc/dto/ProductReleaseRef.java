@@ -64,10 +64,10 @@ public class ProductReleaseRef implements DTOEntity {
     protected final String issueTrackerUrl;
 
     @PatchSupport({ REPLACE })
-    protected final String cpe;
+    protected final String commonPlatformEnumeration;
 
     @PatchSupport({ REPLACE })
-    protected final String ppCode;
+    protected final String productPagesCode;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

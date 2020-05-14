@@ -80,10 +80,10 @@ BEGIN transaction;
     ALTER TABLE project ADD COLUMN technicalLeader varchar(255);
 
     ALTER TABLE product ADD COLUMN productManagers varchar(255);
-    ALTER TABLE product ADD COLUMN ppCode varchar(50);
+    ALTER TABLE product ADD COLUMN productPagesCode varchar(50);
 
-    ALTER TABLE productrelease ADD COLUMN cpe varchar(255);
-    ALTER TABLE productrelease ADD COLUMN ppCode varchar(50);
+    ALTER TABLE productrelease ADD COLUMN commonPlatformEnumeration varchar(255);
+    ALTER TABLE productrelease ADD COLUMN productPagesCode varchar(50);
 
 COMMIT;
 

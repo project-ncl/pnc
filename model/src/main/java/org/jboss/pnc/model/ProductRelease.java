@@ -96,10 +96,10 @@ public class ProductRelease implements GenericEntity<Integer> {
     private ProductMilestone productMilestone;
 
     @Size(max = 255)
-    private String cpe;
+    private String commonPlatformEnumeration;
 
     @Size(max = 50)
-    private String ppCode;
+    private String productPagesCode;
 
     public ProductRelease() {
 
@@ -193,29 +193,29 @@ public class ProductRelease implements GenericEntity<Integer> {
     /**
      * @return common platform enumeration (cpe) of the product release
      */
-    public String getCpe() {
-        return cpe;
+    public String getCommonPlatformEnumeration() {
+        return commonPlatformEnumeration;
     }
 
     /**
      * @return the common platform enumeration (cpe) of the product release to set
      */
-    public void setCpe(String cpe) {
-        this.cpe = StringUtils.nullIfBlank(cpe);
+    public void setCommonPlatformEnumeration(String commonPlatformEnumeration) {
+        this.commonPlatformEnumeration = StringUtils.nullIfBlank(commonPlatformEnumeration);
     }
 
     /**
      * @return code of the product release from product pages
      */
-    public String getPpCode() {
-        return ppCode;
+    public String getProductPagesCode() {
+        return productPagesCode;
     }
 
     /**
-     * @param ppReleaseCode the code of the product release from product pages to set
+     * @param productPagesCode the code of the product release from product pages to set
      */
-    public void setPpCode(String ppCode) {
-        this.ppCode = StringUtils.nullIfBlank(ppCode);
+    public void setProductPagesCode(String productPagesCode) {
+        this.productPagesCode = StringUtils.nullIfBlank(productPagesCode);
     }
 
     @Override
@@ -239,9 +239,9 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         private String issueTrackerUrl;
 
-        private String cpe;
+        private String commonPlatformEnumeration;
 
-        private String ppCode;
+        private String productPagesCode;
 
         private Builder() {
         }
@@ -258,8 +258,8 @@ public class ProductRelease implements GenericEntity<Integer> {
             productRelease.setReleaseDate(releaseDate);
             productRelease.setDownloadUrl(downloadUrl);
             productRelease.setIssueTrackerUrl(issueTrackerUrl);
-            productRelease.setCpe(cpe);
-            productRelease.setPpCode(ppCode);
+            productRelease.setCommonPlatformEnumeration(commonPlatformEnumeration);
+            productRelease.setProductPagesCode(productPagesCode);
 
             if (productMilestone != null) {
                 productMilestone.setProductRelease(productRelease);
@@ -304,13 +304,13 @@ public class ProductRelease implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder cpe(String cpe) {
-            this.cpe = cpe;
+        public Builder commonPlatformEnumeration(String commonPlatformEnumeration) {
+            this.commonPlatformEnumeration = commonPlatformEnumeration;
             return this;
         }
 
-        public Builder ppReleaseCode(String ppCode) {
-            this.ppCode = ppCode;
+        public Builder productPagesCode(String productPagesCode) {
+            this.productPagesCode = productPagesCode;
             return this;
         }
 
