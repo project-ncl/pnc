@@ -104,14 +104,14 @@ public class BuildTest {
     @Test
     public void shouldTriggerGroupBuildAndFinishWithoutProblems() throws ClientException {
         // given
-        GroupConfiguration buildConfigurationSet = groupConfigurationClient.getAll().iterator().next();
+        GroupConfiguration groupConfig = groupConfigurationClient.getAll().iterator().next();
 
         // when
         GroupBuildParameters groupBuildParameters = new GroupBuildParameters();
         groupBuildParameters.setRebuildMode(RebuildMode.FORCE);
 
         GroupBuild groupBuild = groupConfigurationClient.trigger(
-                buildConfigurationSet.getId(),
+                groupConfig.getId(),
                 groupBuildParameters,
                 GroupBuildRequest.builder().buildConfigurationRevisions(new ArrayList<>()).build());
         assertThat(groupBuild).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
@@ -120,6 +120,40 @@ public class BuildTest {
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED);
         ResponseUtils.waitSynchronouslyFor(
                 () -> groupBuildToFinish(groupBuild.getId(), isIn, isNotIn),
+                15,
+                TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void shouldRejectGroupBuildWithNoRebuildsRequired() throws ClientException {
+        // given
+        GroupConfiguration groupConfig = groupConfigurationClient.getAll().iterator().next();
+
+        // and after one build is done
+        GroupBuildParameters groupBuildParameters = new GroupBuildParameters();
+        groupBuildParameters.setRebuildMode(RebuildMode.FORCE);
+        GroupBuild groupBuild1 = groupConfigurationClient.trigger(
+                groupConfig.getId(),
+                groupBuildParameters,
+                GroupBuildRequest.builder().buildConfigurationRevisions(new ArrayList<>()).build());
+        assertThat(groupBuild1).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
+
+        ResponseUtils.waitSynchronouslyFor(
+                () -> groupBuildToFinish(groupBuild1.getId(), EnumSet.of(BuildStatus.SUCCESS), null),
+                15,
+                TimeUnit.SECONDS);
+
+        // when next build is triggered
+        GroupBuild groupBuild2 = groupConfigurationClient.trigger(
+                groupConfig.getId(),
+                new GroupBuildParameters(),
+                GroupBuildRequest.builder().buildConfigurationRevisions(new ArrayList<>()).build());
+
+        // then
+        EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED);
+        EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.SUCCESS, BuildStatus.REJECTED);
+        ResponseUtils.waitSynchronouslyFor(
+                () -> groupBuildToFinish(groupBuild2.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
     }
@@ -138,7 +172,7 @@ public class BuildTest {
                 .build();
         buildConfigurationRevisions.add(buildConfigurationRevision);
 
-        GroupBuildRequest buildConfigurationSetWithAuditedBCsRest = GroupBuildRequest.builder()
+        GroupBuildRequest groupConfigWithAuditedBCsRest = GroupBuildRequest.builder()
                 .buildConfigurationRevisions(buildConfigurationRevisions)
                 .build();
         GroupBuildParameters groupBuildParameters = new GroupBuildParameters();
@@ -146,7 +180,7 @@ public class BuildTest {
 
         // when
         GroupBuild groupBuild = groupConfigurationClient
-                .trigger(groupConfiguration.getId(), groupBuildParameters, buildConfigurationSetWithAuditedBCsRest);
+                .trigger(groupConfiguration.getId(), groupBuildParameters, groupConfigWithAuditedBCsRest);
         // then
         assertThat(groupBuild).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
 
