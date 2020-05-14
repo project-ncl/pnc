@@ -53,8 +53,8 @@ public class Product extends ProductRef {
             String description,
             String abbreviation,
             String productManagers,
-            String ppCode) {
-        super(id, name, description, abbreviation, productManagers, ppCode);
+            String productPagesCode) {
+        super(id, name, description, abbreviation, productManagers, productPagesCode);
         this.productVersions = productVersions;
     }
 

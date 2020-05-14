@@ -87,7 +87,7 @@ public class Product implements GenericEntity<Integer> {
     private String productManagers;
 
     @Size(max = 50)
-    private String ppCode;
+    private String productPagesCode;
 
     /**
      * Instantiates a new product.
@@ -187,15 +187,15 @@ public class Product implements GenericEntity<Integer> {
     /**
      * @return code of the product from product pages
      */
-    public String getPpCode() {
-        return ppCode;
+    public String getProductPagesCode() {
+        return productPagesCode;
     }
 
     /**
-     * @param ppCode the code of the product from product pages to set
+     * @param productPagesCode the code of the product from product pages to set
      */
-    public void setPpCode(String ppCode) {
-        this.ppCode = StringUtils.nullIfBlank(ppCode);
+    public void setProductPagesCode(String productPagesCode) {
+        this.productPagesCode = StringUtils.nullIfBlank(productPagesCode);
     }
 
     /**
@@ -222,7 +222,7 @@ public class Product implements GenericEntity<Integer> {
 
         private String productManagers;
 
-        private String ppCode;
+        private String productPagesCode;
 
         private Builder() {
             productVersions = new HashSet<>();
@@ -239,7 +239,7 @@ public class Product implements GenericEntity<Integer> {
             product.setDescription(description);
             product.setAbbreviation(abbreviation);
             product.setProductManagers(productManagers);
-            product.setPpCode(ppCode);
+            product.setProductPagesCode(productPagesCode);
 
             // Set the bi-directional mapping
             for (ProductVersion productVersion : productVersions) {
@@ -290,8 +290,8 @@ public class Product implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder ppCode(String ppCode) {
-            this.ppCode = ppCode;
+        public Builder productPagesCode(String productPagesCode) {
+            this.productPagesCode = productPagesCode;
             return this;
         }
 

@@ -58,9 +58,17 @@ public class ProductRelease extends ProductReleaseRef {
             Instant releaseDate,
             String downloadUrl,
             String issueTrackerUrl,
-            String cpe,
-            String ppCode) {
-        super(id, version, supportLevel, releaseDate, downloadUrl, issueTrackerUrl, cpe, ppCode);
+            String commonPlatformEnumeration,
+            String productPagesCode) {
+        super(
+                id,
+                version,
+                supportLevel,
+                releaseDate,
+                downloadUrl,
+                issueTrackerUrl,
+                commonPlatformEnumeration,
+                productPagesCode);
         this.productVersion = productVersion;
         this.productMilestone = productMilestone;
     }
