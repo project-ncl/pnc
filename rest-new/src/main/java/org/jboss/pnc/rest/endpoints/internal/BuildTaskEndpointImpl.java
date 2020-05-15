@@ -43,6 +43,7 @@ import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
@@ -50,6 +51,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.util.Optional;
 
+@Dependent
 public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpointImpl.class);
