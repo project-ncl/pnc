@@ -145,6 +145,8 @@ public class BpmEndpoint extends AbstractEndpoint {
             }
             LOG.debug("Received notification {} for BPM task with id {}.", notification, taskId);
             bpmManager.notify(taskId, notification);
+        } else {
+            LOG.info("Received notification with unknown eventType {}, ignoring it.", eventTypeName);
         }
 
         return Response.ok().build();
