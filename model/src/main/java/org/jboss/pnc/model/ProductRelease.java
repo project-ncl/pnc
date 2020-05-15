@@ -95,6 +95,12 @@ public class ProductRelease implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_productrelease_milestone"))
     private ProductMilestone productMilestone;
 
+    /**
+     * A CPE (Common Platform Enumeration) is a Red Hat identifier assigned to a particular product or product version
+     * or product release. A product's CPE identifier is publicly used and can be found in numerous places to identify
+     * content. CPEs are used to map packages that are security-relevant and delivered via security errata back to
+     * products and by the CVE Engine to map errata to containers when grading.
+     */
     @Size(max = 255)
     private String commonPlatformEnumeration;
 
