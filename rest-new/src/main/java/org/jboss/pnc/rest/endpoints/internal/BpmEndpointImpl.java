@@ -91,6 +91,8 @@ public class BpmEndpointImpl implements BpmEndpoint {
             } catch (NoEntityException e) {
                 throw new EmptyEntityException(e.getMessage());
             }
+        } else {
+            logger.info("Received notification with unknown eventType {}, ignoring it.", eventTypeName);
         }
     }
 
