@@ -45,9 +45,9 @@ public class BuildConfigCreationResponse {
     }
 
     @lombok.Builder(builderClassName = "Builder")
-    private BuildConfigCreationResponse(Integer taskId, BuildConfiguration buildConfiguration) {
+    private BuildConfigCreationResponse(Integer taskId, BuildConfiguration buildConfig) {
         this.taskId = taskId;
-        this.buildConfig = buildConfiguration;
+        this.buildConfig = buildConfig;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

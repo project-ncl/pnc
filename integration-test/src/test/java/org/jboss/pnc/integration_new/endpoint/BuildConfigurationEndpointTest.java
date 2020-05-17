@@ -42,7 +42,9 @@ import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.AlignmentParameters;
+import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.Parameter;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.integration_new.setup.Deployments;
@@ -51,12 +53,16 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotFoundException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
@@ -67,6 +73,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
@@ -605,5 +612,163 @@ public class BuildConfigurationEndpointTest {
         assertThat(updatedBC.getProject().getId()).isEqualTo(projectId);
         assertThat(updatedBC.getEnvironment().getId()).isEqualTo(environmentId);
         assertThat(modificationTime).isNotEqualTo(updatedBC.getModificationTime());
+    }
+
+    @Test
+    @InSequence(61)
+    public void shouldChangeRepositoryConfiguration() throws ClientException {
+        // given
+        BuildConfigurationClient bcClient = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        SCMRepositoryClient scmClient = new SCMRepositoryClient(RestClientConfiguration.asAnonymous());
+        BuildConfiguration buildConfiguration = bcClient.getSpecific(configuration4Id);
+
+        // make sure this RC is not already set
+        assertThat(buildConfiguration.getScmRepository().getId()).isNotEqualTo(repositoryConfiguration2Id);
+
+        // when
+        BuildConfiguration updateBC = BuildConfiguration.builder()
+                .id(buildConfiguration.getId())
+                .name(buildConfiguration.getName())
+                .buildScript(buildConfiguration.getBuildScript())
+                .creationTime(buildConfiguration.getCreationTime())
+                .modificationTime(buildConfiguration.getModificationTime())
+                .project(buildConfiguration.getProject())
+                .environment(buildConfiguration.getEnvironment())
+                .parameters(buildConfiguration.getParameters())
+                .scmRepository(scmClient.getSpecific(repositoryConfiguration2Id))
+                .buildType(buildConfiguration.getBuildType())
+                .build();
+        bcClient.update(updateBC.getId(), updateBC);
+        BuildConfiguration updatedBC = bcClient.getSpecific(updateBC.getId());
+
+        // then
+        assertThat(updateBC.getScmRepository().getId()).isEqualTo(repositoryConfiguration2Id);
+    }
+
+    @Test
+    public void shouldFailToCreateNewBuildConfigurationBecauseIdIsNotNull() throws ClientException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+
+        BuildConfiguration bc = client.getSpecific(configurationId);
+
+        BuildConfiguration bcNew = BuildConfiguration.builder()
+                .id(configurationId)
+                .name("newbcname")
+                .buildScript(bc.getBuildScript())
+                .project(bc.getProject())
+                .environment(bc.getEnvironment())
+                .parameters(bc.getParameters())
+                .scmRepository(bc.getScmRepository())
+                .buildType(bc.getBuildType())
+                .build();
+
+        assertThatThrownBy(() -> client.createNew(bcNew)).hasCauseInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    public void shouldGetConflictWhenCreatingNewBuildConfigurationWithTheSameNameAndProjectId() throws ClientException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+
+        BuildConfiguration bc = client.getSpecific(configurationId);
+
+        BuildConfiguration duplicate = BuildConfiguration.builder()
+                .name(bc.getName())
+                .buildScript(bc.getBuildScript())
+                .project(bc.getProject())
+                .environment(bc.getEnvironment())
+                .parameters(bc.getParameters())
+                .scmRepository(bc.getScmRepository())
+                .buildType(bc.getBuildType())
+                .build();
+
+        assertThatThrownBy(() -> client.createNew(duplicate)).hasCauseInstanceOf(ClientErrorException.class)
+                .has(
+                        new Condition<Throwable>(
+                                (e -> ((ClientErrorException) e.getCause()).getResponse().getStatus() == 409),
+                                "HTTP 409 Conflict"));
+    }
+
+    @Test
+    public void shouldFailToCreateBuildConfigurationWhichDoesntMatchRegexp() throws ClientException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+
+        BuildConfiguration bc = client.getSpecific(configurationId);
+
+        BuildConfiguration invalidName = BuildConfiguration.builder()
+                .name(":")
+                .buildScript(bc.getBuildScript())
+                .project(bc.getProject())
+                .environment(bc.getEnvironment())
+                .parameters(bc.getParameters())
+                .scmRepository(bc.getScmRepository())
+                .buildType(bc.getBuildType())
+                .build();
+
+        assertThatThrownBy(() -> client.createNew(invalidName)).hasCauseInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    public void shouldNotCreateWithInternalUrlNotMatchingPattern() throws ClientException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+
+        BuildConfiguration bc = client.getSpecific(configurationId);
+        BuildConfiguration newBC = BuildConfiguration.builder()
+                .name("othername")
+                .buildScript(bc.getBuildScript())
+                .project(bc.getProject())
+                .environment(bc.getEnvironment())
+                .parameters(bc.getParameters())
+                .buildType(bc.getBuildType())
+                .build();
+
+        BuildConfigWithSCMRequest request = BuildConfigWithSCMRequest.builder()
+                .buildConfig(newBC)
+                .scmUrl("ssh://git@github.com:22/gerrit/newRepo.git")
+                .build();
+        assertThatThrownBy(() -> client.createWithSCM(request)).hasCauseInstanceOf(BadRequestException.class);
+        BuildConfigWithSCMRequest request2 = BuildConfigWithSCMRequest.builder()
+                .buildConfig(newBC)
+                .scmUrl("ssh://git@github.com:22/foo/newRepo")
+                .build();
+        assertThatThrownBy(() -> client.createWithSCM(request2)).hasCauseInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @InSequence(62)
+    public void shouldCreateWithInternalUrlMatchingPattern() throws ClientException {
+        // given
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+
+        BuildConfiguration bc = client.getSpecific(configurationId);
+        BuildConfiguration newBC = BuildConfiguration.builder()
+                .name("othernameforbc")
+                .buildScript(bc.getBuildScript())
+                .project(bc.getProject())
+                .environment(bc.getEnvironment())
+                .parameters(bc.getParameters())
+                .buildType(bc.getBuildType())
+                .build();
+
+        BuildConfigWithSCMRequest request = BuildConfigWithSCMRequest.builder()
+                .buildConfig(newBC)
+                .scmUrl("ssh://git@github.com:22/newUser/newRepo.git")
+                .build();
+
+        BuildConfigCreationResponse received = client.createWithSCM(request);
+
+        assertThat(received).isNotNull();
+        assertThat(received.getBuildConfig().getId()).isNotNull();
+        assertThat(client.getSpecific(received.getBuildConfig().getId()))
+                .hasFieldOrPropertyWithValue("name", "othernameforbc");
+    }
+
+    // TODO Test will fail due to issue: NCL-4473, remove @Ignore when fixed.
+    @Ignore
+    @Test
+    public void shouldReturn404WhenRevisionToRestoreDoesNotExist() throws ClientException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+
+        assertThatThrownBy(() -> client.restoreRevision(configurationId, 9999))
+                .hasCauseInstanceOf(NotFoundException.class);
     }
 }
