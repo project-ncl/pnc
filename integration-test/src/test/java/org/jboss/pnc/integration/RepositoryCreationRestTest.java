@@ -79,33 +79,6 @@ public class RepositoryCreationRestTest {
 
     @Test
     @Ignore
-    public void shouldCreateRCAndBC() {
-        // given
-        String internalScmUrl = INTERNAL_REPO + "/my/repo.git";
-
-        String buildConfigurationName = "pnc-1.1";
-        RepositoryCreationUrlAutoRest repositoryCreationRest = RepositoryCreationUrlAutoRestMockBuilder
-                .mock(buildConfigurationName, "mvn clean deploy", internalScmUrl);
-
-        // when invoking remote endpoint
-        // Response response = repositoryCreationRestClient.createNewRCAndBC(repositoryCreationRest);
-        Response response = null;
-
-        // expect
-        Assert.assertEquals(200, response.statusCode());
-
-        RepositoryConfigurationRest retrievedRepositoryConfig = repositoryConfigurationProvider
-                .getSpecificByInternalScm(internalScmUrl);
-        Assert.assertEquals(internalScmUrl, retrievedRepositoryConfig.getInternalUrl());
-
-        RepositoryCreationResultRest result = response.jsonPath().getObject("", RepositoryCreationResultRest.class);
-
-        BuildConfigurationRest retrievedBC = buildConfigurationProvider.getSpecific(result.getBuildConfigurationId());
-        Assert.assertEquals(buildConfigurationName, retrievedBC.getName());
-    }
-
-    @Test
-    @Ignore
     public void shouldCreateRCOnly() {
         // given
         String internalScmUrl = INTERNAL_REPO + "/my/repo2.git";

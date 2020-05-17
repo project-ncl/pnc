@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 
 import static io.restassured.RestAssured.given;
-import static org.jboss.pnc.integration.BuildConfigurationRestTest.VALID_EXTERNAL_REPO;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 import static org.junit.Assert.assertEquals;
 
@@ -53,6 +52,8 @@ import static org.junit.Assert.assertEquals;
 public class RepositoryConfigurationRestTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    public static final String VALID_EXTERNAL_REPO = "https://github.com/project-ncl/pnc1.git";
 
     public static final String VALID_INTERNAL_REPO_2 = "ssh://git@github.com:22/project-ncl/pnc-cli.git";
 
