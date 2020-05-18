@@ -50,6 +50,7 @@ public class AbstractTest {
     public static final String EXECUTOR_JAR = "/build-executor.jar";
     public static final String CAUSEWAY_CLIENT_JAR = "/causeway-client.jar";
     public static final String AUTH_JAR = "/auth.jar";
+    public static final String BPM_JAR = "/bpm.jar";
 
     protected static final String FIRST_CONTENT_ID = "content[0].id";
     protected static final String CONTENT_ID = "content.id";

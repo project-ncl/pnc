@@ -24,5 +24,6 @@
     <exclude name="org.jboss.pnc.causewayclient.DefaultCausewayClient" />
     <exclude name="org.jboss.pnc.coordinator.maintenance.DefaultRemoteBuildsCleaner" />
     <exclude name="org.jboss.pnc.executor.DefaultBuildExecutor" />
+    <exclude name="org.jboss.pnc.bpm.BpmManager" />
   </scan>
 </beans>
