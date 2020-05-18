@@ -56,7 +56,11 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
             return from.get(toAttribute(name));
         }
         if (toEntity(name) != null) {
-            return mapEntity(from, toEntity(name), selector.next());
+            if (selector.isFinal()) {
+                return from.get(toEntity(name));
+            } else {
+                return mapEntity(from, toEntity(name), selector.next());
+            }
         }
         throw new RSQLException("Unknown RSQL selector " + name + " for type " + type);
     }

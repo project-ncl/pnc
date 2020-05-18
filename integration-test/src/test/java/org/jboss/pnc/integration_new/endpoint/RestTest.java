@@ -59,7 +59,7 @@ public class RestTest extends AbstractTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String REST_PATH = "/pnc-rest-new/rest-new/";
+    public static final String REST_PATH = "/pnc-rest-new/rest-new/";
     private static final String USER_REST_ENDPOINT = REST_PATH + "users/";
     private static final String PRODUCT_REST_ENDPOINT = REST_PATH + "products/";
     private static final String PRODUCT_VERSION_REST_ENDPOINT = REST_PATH + "product-versions/";
