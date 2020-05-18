@@ -103,7 +103,7 @@ public class KeycloakLoggedInUser implements LoggedInUser {
 
     private void handleAuthenticationProblem(String warning, Throwable cause) {
         log.warn(MSG + ": " + warning, cause);
-        throw new AuthenticationException(MSG + warning, cause);
+        throw new AuthenticationException(MSG + ": " + warning, cause);
     }
 
 }
