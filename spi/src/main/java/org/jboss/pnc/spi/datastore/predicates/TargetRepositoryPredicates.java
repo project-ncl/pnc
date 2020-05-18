@@ -22,7 +22,6 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
-import javax.persistence.criteria.Expression;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.Path;
@@ -47,7 +46,7 @@ public class TargetRepositoryPredicates {
                     .map(ip -> cb.and(cb.equal(identifier, ip.getIdentifier()), cb.equal(path, ip.getRepositoryPath())))
                     .collect(Collectors.toList());
 
-            return cb.or(ands.toArray(javax.persistence.criteria.Predicate[]::new));
+            return cb.or(ands.toArray(new javax.persistence.criteria.Predicate[ands.size()]));
         };
     }
 }
