@@ -20,6 +20,7 @@ package org.jboss.pnc.integration_new.endpoint;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.ProductClient;
@@ -38,12 +39,13 @@ import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
+import org.jboss.pnc.mock.BpmManagerBeanMock;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -75,7 +77,13 @@ public class ProductVersionEndpointTest {
 
     @Deployment
     public static EnterpriseArchive deploy() {
-        return Deployments.testEar();
+        // mock BpmManager to make milestone closing possible
+        final EnterpriseArchive ear = Deployments.testEarForInContainerTest(ProductVersionEndpointTest.class);
+        JavaArchive bpmJar = ear.getAsType(JavaArchive.class, AbstractTest.BPM_JAR);
+        bpmJar.addClass(BpmManagerBeanMock.class);
+        bpmJar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
+        ear.addAsModule(bpmJar);
+        return ear;
     }
 
     @BeforeClass
@@ -323,8 +331,7 @@ public class ProductVersionEndpointTest {
         assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate)).isInstanceOf(ClientException.class);
     }
 
-    @Test // TODO mock remote service - potentially move the test
-    @Ignore(value = "The close of milestone requires communication with another service")
+    @Test
     public void shouldNotUpdateWithClosedMilestone() throws ClientException {
         // given
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
@@ -333,6 +340,7 @@ public class ProductVersionEndpointTest {
 
         ProductMilestoneClient pmc = new ProductMilestoneClient(RestClientConfiguration.asUser());
         ProductMilestone milestone = pmc.getSpecific(milestoneId);
+
         pmc.closeMilestone(milestoneId, milestone);
 
         // when
