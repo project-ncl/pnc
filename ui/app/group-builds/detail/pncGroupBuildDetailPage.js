@@ -26,11 +26,11 @@
      builds: '<'
     },
     templateUrl: 'group-builds/detail/pnc-group-build-detail-page.html',
-    controller: ['$scope', 'eventTypes', Controller]
+    controller: ['$scope', 'events', Controller]
   });
 
 
-  function Controller($scope, eventTypes) {
+  function Controller($scope, events) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -41,7 +41,7 @@
 
 
     $ctrl.$onInit = function () {
-      $scope.$on(eventTypes.BUILD_SET_STATUS_CHANGED, function (event, payload) {
+      $scope.$on(events.GROUP_BUILD_STATUS_CHANGED, function (event, payload) {
         if (payload.id === $ctrl.groupBuild.id) {
           $scope.$applyAsync(function () {
             Object.assign($ctrl.groupBuild, payload);
