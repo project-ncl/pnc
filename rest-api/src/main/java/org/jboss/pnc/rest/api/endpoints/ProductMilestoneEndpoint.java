@@ -238,7 +238,7 @@ public interface ProductMilestoneEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/close-results")
-    Page<ProductMilestoneCloseResult> getMilestoneReleases(
+    Page<ProductMilestoneCloseResult> getCloseResults(
             @Valid @BeanParam PageParameters pageParams,
             @BeanParam ProductMilestoneCloseParameters filterParams,
             @Parameter(description = PM_ID) @PathParam("id") String id);
