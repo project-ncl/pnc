@@ -107,7 +107,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
-    public Page<ProductMilestoneCloseResult> getMilestoneReleases(
+    public Page<ProductMilestoneCloseResult> getCloseResults(
             PageParameters pageParams,
             ProductMilestoneCloseParameters filterParams,
             String id) {
