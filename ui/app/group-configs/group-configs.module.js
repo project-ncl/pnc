@@ -76,12 +76,12 @@
           ],
           productVersion: [
             'groupConfig',
-            'ProductVersion',
-            (groupConfig, ProductVersion) => {
+            'ProductVersionResource',
+            (groupConfig, ProductVersionResource) => {
               if (!groupConfig.productVersion) {
                 return null;
               }
-              return ProductVersion.get({ id: groupConfig.productVersion.id }).$promise;
+              return ProductVersionResource.get({ id: groupConfig.productVersion.id }).$promise;
             }
           ],
           previousState: [
