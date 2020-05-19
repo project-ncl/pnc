@@ -23,25 +23,38 @@ import javax.ws.rs.QueryParam;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
 import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
- *
+ * This class represents a set of options of how a group build should be executed.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
 public class GroupBuildParameters {
 
-    @Parameter(description = "Is it a temporary build or a standard build?")
+    /**
+     * {@value SwaggerConstants#TEMPORARY_BUILD_DESC} Defaults to false.
+     */
+    @Parameter(description = SwaggerConstants.TEMPORARY_BUILD_DESC)
     @QueryParam("temporaryBuild")
     @DefaultValue("false")
     boolean temporaryBuild;
 
-    @Parameter(description = "What should varant rebuild?")
+    /**
+     * {@value SwaggerConstants#REBUILD_MODE_DESC} Defaults to {@value SwaggerConstants#DEFAULT_REBUILD_MODE}.
+     * 
+     * @see org.jboss.pnc.enums.RebuildMode
+     */
+    @Parameter(description = SwaggerConstants.DEFAULT_REBUILD_MODE)
     @QueryParam("rebuildMode")
-    @DefaultValue("IMPLICIT_DEPENDENCY_CHECK")
+    @DefaultValue(SwaggerConstants.DEFAULT_REBUILD_MODE)
     RebuildMode rebuildMode;
 
-    @Parameter(description = "Should we add a timestamp during the alignment? Valid only for temporary builds.")
+    /**
+     * {@value SwaggerConstants#TIMESTAMP_ALIGNMENT_DESC} Defaults to false.
+     */
+    @Parameter(description = SwaggerConstants.TIMESTAMP_ALIGNMENT_DESC)
     @QueryParam("timestampAlignment")
     @DefaultValue("false")
     boolean timestampAlignment;

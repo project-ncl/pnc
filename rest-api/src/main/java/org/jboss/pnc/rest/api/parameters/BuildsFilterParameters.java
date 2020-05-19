@@ -22,20 +22,28 @@ import javax.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
- *
+ * Parameters for filtering build lists.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
 public class BuildsFilterParameters {
 
-    @Parameter(description = "Should return only latest build?")
+    /**
+     * {@value SwaggerConstants#LATEST_MILESTONE_CLOSE_DESC}
+     */
+    @Parameter(description = SwaggerConstants.LATEST_MILESTONE_CLOSE_DESC)
     @QueryParam("latest")
     @DefaultValue("false")
     private boolean latest;
 
-    @Parameter(description = "Should return only running builds?")
+    /**
+     * {@value SwaggerConstants#RUNNING_MILESTONE_CLOSE_DESC}
+     */
+    @Parameter(description = SwaggerConstants.RUNNING_MILESTONE_CLOSE_DESC)
     @QueryParam("running")
     @DefaultValue("false")
     private boolean running;

@@ -28,18 +28,25 @@ import org.jboss.pnc.rest.configuration.Constants;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
- *
+ * Parameters for pagination of results.
+ * 
  * @author jbrazdil
  */
 @Data
 public class PaginationParameters {
 
+    /**
+     * {@value SwaggerConstants#PAGE_INDEX_DESCRIPTION}
+     */
     @Parameter(description = SwaggerConstants.PAGE_INDEX_DESCRIPTION)
     @QueryParam(value = SwaggerConstants.PAGE_INDEX_QUERY_PARAM)
     @DefaultValue(value = SwaggerConstants.PAGE_INDEX_DEFAULT_VALUE)
     @PositiveOrZero
     protected int pageIndex;
 
+    /**
+     * {@value SwaggerConstants#PAGE_SIZE_DESCRIPTION}
+     */
     @Parameter(description = SwaggerConstants.PAGE_SIZE_DESCRIPTION)
     @QueryParam(value = SwaggerConstants.PAGE_SIZE_QUERY_PARAM)
     @DefaultValue(value = SwaggerConstants.PAGE_SIZE_DEFAULT_VALUE)
