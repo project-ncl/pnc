@@ -22,16 +22,22 @@ import lombok.Data;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 @Data
 public class ProductMilestoneCloseParameters {
 
-    @Parameter(description = "Should return only latest?")
+    /**
+     * {@value SwaggerConstants#LATEST_BUILD_DESC}
+     */
+    @Parameter(description = SwaggerConstants.LATEST_BUILD_DESC)
     @QueryParam("latest")
     @DefaultValue("false")
     private boolean latest;
-
-    @Parameter(description = "Should return only running?")
+    /**
+     * {@value SwaggerConstants#RUNNING_BUILDS_DESC}
+     */
+    @Parameter(description = SwaggerConstants.RUNNING_BUILDS_DESC)
     @QueryParam("running")
     @DefaultValue("false")
     private boolean running;

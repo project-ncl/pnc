@@ -51,15 +51,16 @@ public interface SwaggerConstants {
     public static final String CONFLICTED_CODE = "409";
     public static final String SERVER_ERROR_DESCRIPTION = "Server error";
     public static final String SERVER_ERROR_CODE = "500";
-    public static final String PAGE_INDEX_DESCRIPTION = "Page Index";
+    public static final String PAGE_INDEX_DESCRIPTION = "Index of the page to return. Index starts with 0.";
     public static final String PAGE_INDEX_QUERY_PARAM = "pageIndex";
     public static final String PAGE_INDEX_DEFAULT_VALUE = "0";
-    public static final String PAGE_SIZE_DESCRIPTION = "Pagination size (maximum is " + MAX_PAGE_SIZE + ")";
+    public static final String PAGE_SIZE_DESCRIPTION = "Number of entries that shuld be included in a page. Maximum page size is "
+            + MAX_PAGE_SIZE + ".";
     public static final String PAGE_SIZE_QUERY_PARAM = "pageSize";
     public static final String PAGE_SIZE_DEFAULT_VALUE = "50";
-    public static final String SORTING_DESCRIPTION = "Sorting RSQL";
+    public static final String SORTING_DESCRIPTION = "Sorting RSQL. Format: sort=asc=path.to.field (or =desc=).";
     public static final String SORTING_QUERY_PARAM = "sort";
-    public static final String QUERY_DESCRIPTION = "RSQL Query";
+    public static final String QUERY_DESCRIPTION = "RSQL Query.";
     public static final String QUERY_QUERY_PARAM = "q";
     public static final String SEARCH_DESCRIPTION = "Since this endpoint does not support queries, "
             + "fulltext search is hard-coded for some predefined fields (record id, configuration name) "
@@ -76,4 +77,15 @@ public interface SwaggerConstants {
             + "the details of the Build Config ('taskId' key is null)";
     public static final String BUILD_CONFIG_CREATING = "Build Config is being created. The 'taskId' key has the id of "
             + "the Maitai process instance creating the repository ('buildConfig' key is null)";
+
+    public static final String TEMPORARY_BUILD_DESC = "Is it a temporary build or a standard build?";
+    public static final String TIMESTAMP_ALIGNMENT_DESC = "Should we add a timestamp during the alignment? Valid only for temporary builds.";
+    public static final String REBUILD_MODE_DESC = "What should varant rebuild?";
+    public static final String DEFAULT_REBUILD_MODE = "IMPLICIT_DEPENDENCY_CHECK";
+    public static final String BUILD_DEPENDENCIES_DESC = "Should we build also dependencies of this BuildConfiguration?";
+    public static final String KEEP_POD_ON_FAIL_DESC = "Should we keep the build container running, if the build fails?";
+    public static final String LATEST_BUILD_DESC = "Should return only latest build?";
+    public static final String RUNNING_BUILDS_DESC = "Should return only running builds?";
+    public static final String LATEST_MILESTONE_CLOSE_DESC = "Should return only latest milestone close result?";
+    public static final String RUNNING_MILESTONE_CLOSE_DESC = "Should return only running milestone close result?";
 }

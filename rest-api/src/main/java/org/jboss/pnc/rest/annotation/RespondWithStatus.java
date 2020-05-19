@@ -22,6 +22,11 @@ import javax.ws.rs.core.Response;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+/**
+ * Annotation to override default 2xx response HTTP status.
+ * 
+ * @author jbrazdil
+ */
 @NameBinding
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RespondWithStatus {
