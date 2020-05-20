@@ -65,9 +65,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.keycloak</groupId>
-      <artifactId>keycloak-core</artifactId>
-      <scope>test</scope>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -80,6 +83,6 @@
       <artifactId>lombok</artifactId>
     </dependency>
   </dependencies>
-  
-  
+
+
 </project>
