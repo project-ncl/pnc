@@ -21,20 +21,26 @@ package org.jboss.pnc.bpm.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.jboss.pnc.dto.User;
+import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Data
-@AllArgsConstructor
-@Builder(builderClassName = "Builder", builderMethodName = "withCallbackBuilder")
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @JsonDeserialize(builder = BuildExecutionConfigurationWithCallbackRest.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @XmlRootElement(name = "buildExecutionConfiguration")
 public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionConfigurationRest {
 
@@ -42,6 +48,51 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
 
     public BuildExecutionConfigurationWithCallbackRest(BuildExecutionConfiguration buildExecutionConfiguration) {
         super(buildExecutionConfiguration);
+    }
+
+    @lombok.Builder(builderClassName = "Builder", toBuilder = true)
+    public BuildExecutionConfigurationWithCallbackRest(
+            int id,
+            String buildContentId,
+            User user,
+            String buildScript,
+            String name,
+            String scmRepoURL,
+            String scmRevision,
+            String scmTag,
+            String originRepoURL,
+            boolean preBuildSyncEnabled,
+            BuildType buildType,
+            String systemImageId,
+            String systemImageRepositoryUrl,
+            SystemImageType systemImageType,
+            boolean podKeptOnFailure,
+            List<ArtifactRepositoryRest> artifactRepositories,
+            Map<String, String> genericParameters,
+            boolean tempBuild,
+            String tempBuildTimestamp,
+            String completionCallbackUrl) {
+        super(
+                id,
+                buildContentId,
+                user,
+                buildScript,
+                name,
+                scmRepoURL,
+                scmRevision,
+                scmTag,
+                originRepoURL,
+                preBuildSyncEnabled,
+                buildType,
+                systemImageId,
+                systemImageRepositoryUrl,
+                systemImageType,
+                podKeptOnFailure,
+                artifactRepositories,
+                genericParameters,
+                tempBuild,
+                tempBuildTimestamp);
+        this.completionCallbackUrl = completionCallbackUrl;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

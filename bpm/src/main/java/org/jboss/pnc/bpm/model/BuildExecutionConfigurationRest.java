@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
@@ -45,36 +44,36 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-@Builder(builderClassName = "Builder")
+@Builder(builderClassName = "Builder", builderMethodName = "newBuilder")
 @JsonDeserialize(builder = BuildExecutionConfigurationRest.Builder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 @XmlRootElement(name = "buildExecutionConfiguration")
 public class BuildExecutionConfigurationRest {
 
-    private int id;
-    private String buildContentId;
-    private User user;
-    private String buildScript;
-    private String name;
+    protected int id;
+    protected String buildContentId;
+    protected User user;
+    protected String buildScript;
+    protected String name;
 
-    private String scmRepoURL;
-    private String scmRevision;
-    private String scmTag;
-    private String originRepoURL;
-    private boolean preBuildSyncEnabled;
+    protected String scmRepoURL;
+    protected String scmRevision;
+    protected String scmTag;
+    protected String originRepoURL;
+    protected boolean preBuildSyncEnabled;
 
-    private BuildType buildType;
-    private String systemImageId;
-    private String systemImageRepositoryUrl;
-    private SystemImageType systemImageType;
-    private boolean podKeptOnFailure = false;
-    private List<ArtifactRepositoryRest> artifactRepositories;
-    private Map<String, String> genericParameters;
+    protected BuildType buildType;
+    protected String systemImageId;
+    protected String systemImageRepositoryUrl;
+    protected SystemImageType systemImageType;
+    protected boolean podKeptOnFailure = false;
+    protected List<ArtifactRepositoryRest> artifactRepositories;
+    protected Map<String, String> genericParameters;
 
-    private boolean tempBuild;
+    protected boolean tempBuild;
 
-    private String tempBuildTimestamp;
+    protected String tempBuildTimestamp;
 
     public static BuildExecutionConfigurationRest valueOf(String serialized) throws IOException {
         TypeReference<BuildExecutionConfigurationRest> type = new TypeReference<BuildExecutionConfigurationRest>() {
