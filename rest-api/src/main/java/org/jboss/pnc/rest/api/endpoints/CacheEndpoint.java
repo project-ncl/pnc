@@ -48,8 +48,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Client
 public interface CacheEndpoint {
 
+    static final String GET_GENERIC_STATS_DESC = "Get general statistics related to Hibernate.";
+
+    /**
+     * {@value GET_GENERIC_STATS_DESC}
+     * 
+     * @return
+     */
     @Operation(
-            summary = "Get general statistics related to Hibernate.",
+            summary = GET_GENERIC_STATS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -63,8 +70,15 @@ public interface CacheEndpoint {
     @Path("/statistics")
     public Response getGenericStats();
 
+    static final String GET_SLC_ENTITIES_STATS_DESC = "Get statistics of all entities in second-level cache.";
+
+    /**
+     * {@value GET_SLC_ENTITIES_STATS_DESC}
+     * 
+     * @return
+     */
     @Operation(
-            summary = "Get statistics of all entities in second-level cache.",
+            summary = GET_SLC_ENTITIES_STATS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -82,8 +96,15 @@ public interface CacheEndpoint {
     @Path("/entity-statistics")
     public Response getSecondLevelCacheEntitiesStats();
 
+    static final String GET_SLC_REGIONS_STATS_DESC = "Get statistics of all cache region names in second-level cache.";
+
+    /**
+     * {@value GET_SLC_REGIONS_STATS_DESC}
+     * 
+     * @return
+     */
     @Operation(
-            summary = "Get statistics of all cache region names in second-level cache.",
+            summary = GET_SLC_REGIONS_STATS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -101,8 +122,15 @@ public interface CacheEndpoint {
     @Path("/region-statistics")
     public Response getSecondLevelCacheRegionsStats();
 
+    static final String GET_SLC_COLLECTIONS_STATS_DESC = "Get statistics of all collections in second-level cache.";
+
+    /**
+     * {@value GET_SLC_COLLECTIONS_STATS_DESC}
+     * 
+     * @return
+     */
     @Operation(
-            summary = "Get statistics of all collections in second-level cache.",
+            summary = GET_SLC_COLLECTIONS_STATS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -120,8 +148,15 @@ public interface CacheEndpoint {
     @Path("/collection-statistics")
     public Response getSecondLevelCacheCollectionsStats();
 
+    static final String CLEAR_CACHE_DESC = "Delete all content from second level cache. Needs to be admin";
+
+    /**
+     * {@value CLEAR_CACHE_DESC}
+     * 
+     * @return
+     */
     @Operation(
-            summary = "Delete all content from second level cache. Needs to be admin",
+            summary = CLEAR_CACHE_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

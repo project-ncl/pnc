@@ -62,9 +62,6 @@ public interface SwaggerConstants {
     public static final String SORTING_QUERY_PARAM = "sort";
     public static final String QUERY_DESCRIPTION = "RSQL Query.";
     public static final String QUERY_QUERY_PARAM = "q";
-    public static final String SEARCH_DESCRIPTION = "Since this endpoint does not support queries, "
-            + "fulltext search is hard-coded for some predefined fields (record id, configuration name) "
-            + "and performed using this argument. " + "Empty string leaves all data unfiltered.";
     public static final String SEARCH_QUERY_PARAM = "search-url";
     public static final String MATCH_QUERY_PARAM = "url";
     public static final String SEARCH_DEFAULT_VALUE = "";
@@ -82,10 +79,12 @@ public interface SwaggerConstants {
     public static final String TIMESTAMP_ALIGNMENT_DESC = "Should we add a timestamp during the alignment? Valid only for temporary builds.";
     public static final String REBUILD_MODE_DESC = "What should varant rebuild?";
     public static final String DEFAULT_REBUILD_MODE = "IMPLICIT_DEPENDENCY_CHECK";
-    public static final String BUILD_DEPENDENCIES_DESC = "Should we build also dependencies of this BuildConfiguration?";
+    public static final String BUILD_DEPENDENCIES_DESC = "Should we build also dependencies of this Build Config?";
     public static final String KEEP_POD_ON_FAIL_DESC = "Should we keep the build container running, if the build fails?";
     public static final String LATEST_BUILD_DESC = "Should return only latest build?";
     public static final String RUNNING_BUILDS_DESC = "Should return only running builds?";
     public static final String LATEST_MILESTONE_CLOSE_DESC = "Should return only latest milestone close result?";
     public static final String RUNNING_MILESTONE_CLOSE_DESC = "Should return only running milestone close result?";
+    public static final String REQUIRES_ADMIN = "Requires user to have admin role.";
+    public static final String CALLBACK_URL = "Optional Callback URL";
 }

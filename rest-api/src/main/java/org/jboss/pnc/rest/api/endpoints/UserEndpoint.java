@@ -55,9 +55,17 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
 public interface UserEndpoint {
+    static final String U_ID = "ID of the user";
 
+    static final String GET_CURRENT_USER_DESC = "Gets logged user.";
+
+    /**
+     * {@value GET_CURRENT_USER_DESC}
+     * 
+     * @return
+     */
     @Operation(
-            summary = "Gets logged user.",
+            summary = GET_CURRENT_USER_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -71,8 +79,18 @@ public interface UserEndpoint {
     @Path("/current")
     User getCurrentUser();
 
+    static final String GET_BUILDS = "Gets all builds triggered by specific user.";
+
+    /**
+     * {@value GET_BUILDS}
+     * 
+     * @param id {@value U_ID}
+     * @param pageParameters
+     * @param buildsFilter
+     * @return
+     */
     @Operation(
-            summary = "Gets all builds triggered by specific user.",
+            summary = GET_BUILDS,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -89,7 +107,7 @@ public interface UserEndpoint {
     @GET
     @Path("/{id}/builds")
     Page<Build> getBuilds(
-            @Parameter(description = "ID of the user") @PathParam("id") String id,
+            @Parameter(description = U_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters,
             @BeanParam BuildsFilterParameters buildsFilter);
 

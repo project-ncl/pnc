@@ -143,7 +143,7 @@ public class ProductVersionEndpointTest {
     public void testGetBuildConfigurations() throws ClientException {
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
 
-        RemoteCollection<BuildConfiguration> all = client.getBuildConfigurations(productVersionsId);
+        RemoteCollection<BuildConfiguration> all = client.getBuildConfigs(productVersionsId);
 
         assertThat(all).hasSize(2).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
     }
@@ -152,7 +152,7 @@ public class ProductVersionEndpointTest {
     public void testGetGroupConfigurations() throws ClientException {
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
 
-        RemoteCollection<GroupConfiguration> all = client.getGroupConfigurations(productVersionsId);
+        RemoteCollection<GroupConfiguration> all = client.getGroupConfigs(productVersionsId);
 
         assertThat(all).hasSize(2).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
     }

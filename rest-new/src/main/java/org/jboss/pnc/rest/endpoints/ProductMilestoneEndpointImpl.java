@@ -108,9 +108,9 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Override
     public Page<ProductMilestoneCloseResult> getCloseResults(
+            String id,
             PageParameters pageParams,
-            ProductMilestoneCloseParameters filterParams,
-            String id) {
+            ProductMilestoneCloseParameters filterParams) {
         if (filterParams != null && filterParams.isLatest()) {
             ProductMilestoneCloseResult latestProductMilestoneCloseResult = productMilestoneCloseResultProvider
                     .getLatestProductMilestoneCloseResult(Integer.parseInt(id));

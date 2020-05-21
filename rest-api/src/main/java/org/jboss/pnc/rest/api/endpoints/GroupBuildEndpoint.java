@@ -53,6 +53,7 @@ import javax.ws.rs.core.Response;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CALLBACK_URL;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -70,10 +71,19 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
 public interface GroupBuildEndpoint {
+
     static final String GB_ID = "ID of the group build";
 
+    static final String GET_ALL_DESC = "Gets all group builds.";
+
+    /**
+     * {@value GET_ALL_DESC}
+     *
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Gets all group builds.",
+            summary = GET_ALL_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -90,8 +100,16 @@ public interface GroupBuildEndpoint {
     @GET
     Page<GroupBuild> getAll(@Valid @BeanParam PageParameters pageParams);
 
+    static final String GET_SPECIFIC_DESC = "Gets specific group build.";
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     *
+     * @param id {@value GB_ID}
+     * @return
+     */
     @Operation(
-            summary = "Gets specific group build.",
+            summary = GET_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -106,10 +124,20 @@ public interface GroupBuildEndpoint {
     @Path("/{id}")
     GroupBuild getSpecific(@Parameter(description = GB_ID) @PathParam("id") String id);
 
+    static final String DELETE_DESC = "Delete a specific temporary group build.";
+    static final String DELETE_DESC2 = "Operation is async. Once completed, a callback can be sent with a JSON body "
+            + "containing information about the operation completion using object "
+            + "org.jboss.pnc.dto.DeleteOperationResult";
+
+    /**
+     * {@value DELETE_DESC} {@value DELETE_DESC2}
+     *
+     * @param id {@value GB_ID}
+     * @param callback {@value SwaggerConstants#CALLBACK_URL}
+     */
     @Operation(
-            summary = "Delete a specific temporary group build.",
-            description = "Operation is async. Once completed, a callback can be sent with a JSON body containing information about "
-                    + "the operation completion using object org.jboss.pnc.dto.DeleteOperationResult",
+            summary = DELETE_DESC,
+            description = DELETE_DESC2,
             responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
@@ -121,10 +149,20 @@ public interface GroupBuildEndpoint {
     @Path("/{id}")
     void delete(
             @Parameter(description = GB_ID) @PathParam("id") String id,
-            @Parameter(description = "Optional Callback URL") @QueryParam("callback") String callback);
+            @Parameter(description = CALLBACK_URL) @QueryParam("callback") String callback);
 
+    static final String GET_BUILDS_DESC = "Gets the builds associated with this group build.";
+
+    /**
+     * {@value GET_BUILDS_DESC}
+     * 
+     * @param id {@value GB_ID}
+     * @param pageParams
+     * @param buildsFilter
+     * @return
+     */
     @Operation(
-            summary = "Gets the builds associated with this group build.",
+            summary = GET_BUILDS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -145,8 +183,16 @@ public interface GroupBuildEndpoint {
             @Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
 
+    static final String BREW_PUSH_DESC = "Push all perfomred builds from this group build to Brew.";
+
+    /**
+     * {@value BREW_PUSH_DESC}
+     * 
+     * @param id {@value GB_ID}
+     * @param buildConfigSetRecordPushRequest
+     */
     @Operation(
-            summary = "Push all perfomred builds from this group build to Brew.",
+            summary = BREW_PUSH_DESC,
             responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -167,8 +213,15 @@ public interface GroupBuildEndpoint {
             @Parameter(description = GB_ID) @PathParam("id") String id,
             GroupBuildPushRequest buildConfigSetRecordPushRequest);
 
+    static final String CANCEL_DESC = "Cancel all builds running in the build group.";
+
+    /**
+     * {@value CANCEL_DESC}
+     * 
+     * @param id {@value GB_ID}
+     */
     @Operation(
-            summary = "Cancel all builds running in the build group.",
+            summary = CANCEL_DESC,
             responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
@@ -180,8 +233,16 @@ public interface GroupBuildEndpoint {
     @Path("/{id}/cancel")
     void cancel(@Parameter(description = GB_ID) @PathParam("id") String id);
 
+    static final String GET_DEPENDENCY_GRAPH = "Gets builds dependency graph for a build group.";
+
+    /**
+     * {@value GET_DEPENDENCY_GRAPH}
+     * 
+     * @param id {@value GB_ID}
+     * @return
+     */
     @Operation(
-            summary = "Gets builds dependency graph for a build group.",
+            summary = GET_DEPENDENCY_GRAPH,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

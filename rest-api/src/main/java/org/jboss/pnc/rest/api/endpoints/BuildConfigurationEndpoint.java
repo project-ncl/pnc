@@ -89,10 +89,18 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface BuildConfigurationEndpoint {
     static final String BC_ID = "ID of the build config";
     static final String REV = "Revision number of the build config";
-    static final String B_TYPE = "Build type specified in build configuration (MVN, NPM or GRADLE)";
+    static final String B_TYPE = "Build type specified in build config (MVN, NPM or GRADLE)";
 
+    static final String GET_ALL_DESC = "Gets all build configs.";
+
+    /**
+     * {@value GET_ALL_DESC}
+     *
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Gets all build configs.",
+            summary = GET_ALL_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -109,8 +117,16 @@ public interface BuildConfigurationEndpoint {
     @GET
     Page<BuildConfiguration> getAll(@Valid @BeanParam PageParameters pageParams);
 
+    static final String CREATE_NEW_DESC = "Creates a new build config.";
+
+    /**
+     * {@value CREATE_NEW_DESC}
+     *
+     * @param buildConfig
+     * @return
+     */
     @Operation(
-            summary = "Creates a new build config.",
+            summary = CREATE_NEW_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -130,10 +146,18 @@ public interface BuildConfigurationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.CREATED)
-    BuildConfiguration createNew(@NotNull BuildConfiguration buildConfiguration);
+    BuildConfiguration createNew(@NotNull BuildConfiguration buildConfig);
 
+    static final String GET_SPECIFIC_DESC = "Gets a specific build config.";
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @return
+     */
     @Operation(
-            summary = "Gets a specific build config.",
+            summary = GET_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -149,8 +173,16 @@ public interface BuildConfigurationEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     BuildConfiguration getSpecific(@Parameter(description = BC_ID) @PathParam("id") String id);
 
+    static final String UPDATE_DESC = "Updates an existing build config.";
+
+    /**
+     * {@value UPDATE_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param buildConfig
+     */
     @Operation(
-            summary = "Updates an existing build config.",
+            summary = UPDATE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -166,12 +198,19 @@ public interface BuildConfigurationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}")
-    void update(
-            @Parameter(description = BC_ID) @PathParam("id") String id,
-            @NotNull BuildConfiguration buildConfiguration);
+    void update(@Parameter(description = BC_ID) @PathParam("id") String id, @NotNull BuildConfiguration buildConfig);
 
+    static final String PATCH_SPECIFIC_DESC = "Patch a specific build config.";
+
+    /**
+     * {@value PATCH_SPECIFIC_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param buildConfig
+     * @return
+     */
     @Operation(
-            summary = "Patch a specific build config.",
+            summary = PATCH_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -191,10 +230,19 @@ public interface BuildConfigurationEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     BuildConfiguration patchSpecific(
             @Parameter(description = BC_ID) @PathParam("id") String id,
-            BuildConfiguration buildConfiguration);
+            BuildConfiguration buildConfig);
 
+    static final String TRIGGER_DESC = "Triggers a build of a specific build config.";
+
+    /**
+     * {@value TRIGGER_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param buildParams
+     * @return
+     */
     @Operation(
-            summary = "Triggers a build of a specific build config.",
+            summary = TRIGGER_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ACCEPTED_CODE,
@@ -217,8 +265,18 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}/build")
     Build trigger(@Parameter(description = BC_ID) @PathParam("id") String id, @BeanParam BuildParameters buildParams);
 
+    static final String GET_BUILDS_DESC = "Get all builds associated with this build config.";
+
+    /**
+     * {@value GET_BUILDS_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param pageParams
+     * @param buildsFilter
+     * @return
+     */
     @Operation(
-            summary = "Get all builds associated with this build config.",
+            summary = GET_BUILDS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -239,8 +297,16 @@ public interface BuildConfigurationEndpoint {
             @Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters buildsFilter);
 
+    static final String CLONE_DESC = "Clones an existing build config.";
+
+    /**
+     * {@value CLONE_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @return
+     */
     @Operation(
-            summary = "Clones an existing build config.",
+            summary = CLONE_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -256,8 +322,17 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}/clone")
     BuildConfiguration clone(@Parameter(description = BC_ID) @PathParam("id") String id);
 
+    static final String GET_GROUP_CONFIGS_DESC = "Gets group configs associated with the specified build config.";
+
+    /**
+     * {@value GET_GROUP_CONFIGS_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Gets group configs associated with the specified build config.",
+            summary = GET_GROUP_CONFIGS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -277,8 +352,17 @@ public interface BuildConfigurationEndpoint {
             @Parameter(description = BC_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParams);
 
+    static final String GET_DEPENDENCIES_DESC = "Get the direct dependencies of the specified build config.";
+
+    /**
+     * {@value GET_DEPENDENCIES_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Get the direct dependencies of the specified build config.",
+            summary = GET_DEPENDENCIES_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -298,8 +382,17 @@ public interface BuildConfigurationEndpoint {
             @Parameter(description = BC_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParams);
 
+    static final String ADD_DEPENDENCY_DESC = "Adds a dependency to the specified build config.";
+    static final String DEPENDENCY_ADD_DESC = "Depenendency to be added to the build config. Only id is important.";
+
+    /**
+     * {@value ADD_DEPENDENCY_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param dependency {@value DEPENDENCY_ADD_DESC}
+     */
     @Operation(
-            summary = "Adds a dependency to the specified build config.",
+            summary = ADD_DEPENDENCY_DESC,
             responses = { @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -311,10 +404,21 @@ public interface BuildConfigurationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/{id}/dependencies")
-    void addDependency(@Parameter(description = BC_ID) @PathParam("id") String id, BuildConfigurationRef dependency);
+    void addDependency(
+            @Parameter(description = BC_ID) @PathParam("id") String id,
+            @Parameter(description = DEPENDENCY_ADD_DESC) BuildConfigurationRef dependency);
 
+    static final String REMOVE_DEPENDECY_DESC = "Removes a dependency from the specified build config.";
+    static final String DEPENDENCY_REMOVE_DESC = "Depenendency to be removed from the build config. Only id is important.";
+
+    /**
+     * {@value REMOVE_DEPENDECY_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param dependencyId {@value DEPENDENCY_REMOVE_DESC}
+     */
     @Operation(
-            summary = "Removes a dependency from the specified build config.",
+            summary = REMOVE_DEPENDECY_DESC,
             responses = { @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
@@ -325,10 +429,19 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}/dependencies/{depId}")
     void removeDependency(
             @Parameter(description = BC_ID) @PathParam("id") String id,
-            @Parameter(description = "ID of the dependency") @PathParam("depId") String dependencyId);
+            @Parameter(description = DEPENDENCY_REMOVE_DESC) @PathParam("depId") String dependencyId);
 
+    static final String GET_REVISIONS_DESC = "Gets audited revisions of this build config.";
+
+    /**
+     * {@value GET_REVISIONS_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Gets audited revisions of this build config.",
+            summary = GET_REVISIONS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -348,9 +461,19 @@ public interface BuildConfigurationEndpoint {
             @Parameter(description = BC_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParams);
 
+    static final String CREATE_REVISION_DESC = "Creates new build config revision.";
+    static final String CREATE_REVISION_DESC2 = "This endpoint can be used for updating build config while returning the new revision.";
+
+    /**
+     * {@value CREATE_REVISION_DESC} {@value CREATE_REVISION_DESC2}
+     *
+     * @param id {@value BC_ID}
+     * @param buildConfig
+     * @return
+     */
     @Operation(
-            summary = "Creates new build config revision.",
-            description = "This endpoint can be used for updating build config while returning the new revision.",
+            summary = CREATE_REVISION_DESC,
+            description = CREATE_REVISION_DESC2,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -373,10 +496,19 @@ public interface BuildConfigurationEndpoint {
     @Path("/{id}/revisions")
     BuildConfigurationRevision createRevision(
             @Parameter(description = BC_ID) @PathParam("id") String id,
-            BuildConfiguration buildConfiguration);
+            BuildConfiguration buildConfig);
 
+    static final String GET_REVISION_DESC = "Get specific audited revision of this build config.";
+
+    /**
+     * {@value GET_REVISION_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param rev {@value REV}
+     * @return
+     */
     @Operation(
-            summary = "Get specific audited revision of this build config.",
+            summary = GET_REVISION_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -393,8 +525,18 @@ public interface BuildConfigurationEndpoint {
             @Parameter(description = BC_ID) @PathParam("id") String id,
             @Parameter(description = REV) @PathParam("rev") int rev);
 
+    static final String TRIGGER_REVISION_DESC = "Triggers a build of a build config in a specific revision.";
+
+    /**
+     * {@value TRIGGER_REVISION_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param rev {@value REV}
+     * @param buildParams
+     * @return
+     */
     @Operation(
-            summary = "Triggers a build of a build config in a specific revision.",
+            summary = TRIGGER_REVISION_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ACCEPTED_CODE,
@@ -420,8 +562,17 @@ public interface BuildConfigurationEndpoint {
             @Parameter(description = REV) @PathParam("rev") int rev,
             @BeanParam BuildParameters buildParams);
 
+    static final String RESTORE_REVISION_DESC = "Restores a build config to a specific audited revision";
+
+    /**
+     * {@value RESTORE_REVISION_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param rev {@value REV}
+     * @return
+     */
     @Operation(
-            summary = "Restores a build config to a specific audited revision",
+            summary = RESTORE_REVISION_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -438,10 +589,19 @@ public interface BuildConfigurationEndpoint {
             @Parameter(description = BC_ID) @PathParam("id") String id,
             @Parameter(description = REV) @PathParam("rev") int rev);
 
+    static final String CREATE_WITH_SCM_DESC = "Starts a task of creating a new build config with a given SCM URL.";
+    static final String CREATE_WITH_SCM_DESC2 = "The given SCM URL is automatically analyzed and if it's an external "
+            + "URL the content of the SCM repository is cloned into an internal repository.";
+
+    /**
+     * {@value CREATE_WITH_SCM_DESC} {@value CREATE_WITH_SCM_DESC2}
+     *
+     * @param request
+     * @return
+     */
     @Operation(
-            summary = "Starts a task of creating a new build config with a given SCM URL.",
-            description = "The given SCM URL is automatically analyzed and if it's an external URL"
-                    + "the content of the SCM repository is cloned into an internal repository.",
+            summary = CREATE_WITH_SCM_DESC,
+            description = CREATE_WITH_SCM_DESC2,
             responses = {
                     @ApiResponse(
                             responseCode = ACCEPTED_CODE,
@@ -468,26 +628,45 @@ public interface BuildConfigurationEndpoint {
     @Path("/create-with-scm")
     BuildConfigCreationResponse createWithSCM(BuildConfigWithSCMRequest request);
 
+    static final String GET_SUPPORTED_PARAMS_DESC = "Provides list of supported parameters.";
+    static final String GET_SUPPORTED_PARAMS_DESC2 = "Provides list of parameters supported by core, there can be also "
+            + "other parameters not known by core.";
+
+    /**
+     * {@value GET_SUPPORTED_PARAMS_DESC} {@value GET_SUPPORTED_PARAMS_DESC2}
+     *
+     * @return
+     */
     @Operation(
-            summary = "Provides list of supported parameters.",
-            description = "Provides list of parameters supported by core, there can be also other parameters not known by core.",
+            summary = GET_SUPPORTED_PARAMS_DESC,
+            description = GET_SUPPORTED_PARAMS_DESC2,
             responses = { @ApiResponse(
                     responseCode = SUCCESS_CODE,
                     description = SUCCESS_DESCRIPTION,
                     content = @Content(
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = org.jboss.pnc.dto.response.Parameter.class)))), })
+                                    schema = @Schema(implementation = org.jboss.pnc.dto.response.Parameter.class)))) })
     @GET
     @Path("/supported-parameters")
     Set<org.jboss.pnc.dto.response.Parameter> getSupportedParameters();
 
+    static final String GET_DEFAULT_ALIGNMENT_PARAMS_DESC = "Provides string of default alignment parameters.";
+    static final String GET_DEFAULT_ALIGNMENT_PARAMS_DESC2 = "Provides default parameters for build config "
+            + "according to a build type chosen by a user.";
+
+    /**
+     * {@value GET_DEFAULT_ALIGNMENT_PARAMS_DESC} {@value GET_DEFAULT_ALIGNMENT_PARAMS_DESC2}
+     *
+     * @param buildType {@value B_TYPE}
+     * @return
+     */
     @Operation(
-            summary = "Provides string of default alignment parameters.",
-            description = "Provides default parameters for build configuration according to a build type chosen by a user.",
+            summary = GET_DEFAULT_ALIGNMENT_PARAMS_DESC,
+            description = GET_DEFAULT_ALIGNMENT_PARAMS_DESC2,
             responses = { @ApiResponse(
                     responseCode = SUCCESS_CODE,
                     description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = AlignmentParameters.class))), })
+                    content = @Content(schema = @Schema(implementation = AlignmentParameters.class))) })
     @GET
     @Path("/default-alignment-parameters/{buildType}")
     AlignmentParameters getBuildTypeDefaultAlignmentParameters(

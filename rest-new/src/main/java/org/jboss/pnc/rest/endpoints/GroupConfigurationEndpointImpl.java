@@ -111,7 +111,7 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
     }
 
     @Override
-    public Page<BuildConfiguration> getConfigurations(String id, PageParameters pageParams) {
+    public Page<BuildConfiguration> getBuildConfigs(String id, PageParameters pageParams) {
         return buildConfigurationProvider.getBuildConfigurationsForGroup(
                 pageParams.getPageIndex(),
                 pageParams.getPageSize(),
@@ -121,12 +121,12 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
     }
 
     @Override
-    public void addConfiguration(String id, BuildConfigurationRef buildConfig) {
+    public void addBuildConfig(String id, BuildConfigurationRef buildConfig) {
         provider.addConfiguration(id, buildConfig.getId());
     }
 
     @Override
-    public void removeConfiguration(String id, String configId) {
+    public void removeBuildConfig(String id, String configId) {
         provider.removeConfiguration(id, configId);
     }
 

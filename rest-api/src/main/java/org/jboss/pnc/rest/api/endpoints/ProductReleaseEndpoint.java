@@ -66,8 +66,16 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface ProductReleaseEndpoint {
     static final String PR_ID = "ID of the product release";
 
+    static final String CREATE_NEW_DESC = "Creates a new product release.";
+
+    /**
+     * {@value CREATE_NEW_DESC}
+     * 
+     * @param productRelease
+     * @return
+     */
     @Operation(
-            summary = "Creates a new product release.",
+            summary = CREATE_NEW_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -89,8 +97,16 @@ public interface ProductReleaseEndpoint {
     @RespondWithStatus(Response.Status.CREATED)
     ProductRelease createNew(@NotNull ProductRelease productRelease);
 
+    static final String GET_SPECIFIC_DESC = "Gets a specific product release.";
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     * 
+     * @param id {@value PR_ID}
+     * @return
+     */
     @Operation(
-            summary = "Gets a specific product release.",
+            summary = GET_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -106,8 +122,16 @@ public interface ProductReleaseEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     ProductRelease getSpecific(@Parameter(description = PR_ID) @PathParam("id") String id);
 
+    static final String UPDATE_DESC = "Updates an existing product release.";
+
+    /**
+     * {@value UPDATE_DESC}
+     * 
+     * @param id {@value PR_ID}
+     * @param productRelease
+     */
     @Operation(
-            summary = "Updates an existing product release.",
+            summary = UPDATE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -125,8 +149,17 @@ public interface ProductReleaseEndpoint {
     @Path("/{id}")
     void update(@Parameter(description = PR_ID) @PathParam("id") String id, @NotNull ProductRelease productRelease);
 
+    static final String PATCH_SPECIFIC_DESC = "Patch an existing product release.";
+
+    /**
+     * {@value PATCH_SPECIFIC_DESC}
+     * 
+     * @param id {@value PR_ID}
+     * @param productRelease
+     * @return
+     */
     @Operation(
-            summary = "Patch an existing product release.",
+            summary = PATCH_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -148,8 +181,15 @@ public interface ProductReleaseEndpoint {
             @Parameter(description = PR_ID) @PathParam("id") String id,
             @NotNull ProductRelease productRelease);
 
+    static final String GET_SUPPORT_LEVELS = "Gets all product releases support levels.";
+
+    /**
+     * {@value GET_SUPPORT_LEVELS}
+     * 
+     * @return
+     */
     @Operation(
-            summary = "Gets all product releases support levels.",
+            summary = GET_SUPPORT_LEVELS,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -162,6 +202,6 @@ public interface ProductReleaseEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/support-levels")
-    Set<SupportLevel> getAllSupportLevel();
+    Set<SupportLevel> getSupportLevels();
 
 }

@@ -34,6 +34,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -50,8 +51,15 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Client
 public interface GenericSettingEndpoint {
 
+    static final String GET_ANNOUNCEMENT_BANNER_DESC = "Get announcement banner";
+
+    /**
+     * {@value GET_ANNOUNCEMENT_BANNER_DESC}
+     * 
+     * @return
+     */
     @Operation(
-            summary = "Get announcement banner",
+            summary = GET_ANNOUNCEMENT_BANNER_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -69,8 +77,16 @@ public interface GenericSettingEndpoint {
     @Path("announcement-banner")
     public Banner getAnnouncementBanner();
 
+    static final String BANNER_TEXT = "Announcement Banner text";
+    static final String SET_ANNOUNCEMENT_BANNER_DESC = "Set announcement banner. Needs to be admin";
+
+    /**
+     * {@value SET_ANNOUNCEMENT_BANNER_DESC}
+     * 
+     * @param banner {@value BANNER_TEXT}
+     */
     @Operation(
-            summary = "Set announcement banner. Needs to be admin",
+            summary = SET_ANNOUNCEMENT_BANNER_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -82,11 +98,17 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("announcement-banner")
-    public void setAnnouncementBanner(
-            @Parameter(description = "Announcement Banner text", required = true) String banner);
+    public void setAnnouncementBanner(@Parameter(description = BANNER_TEXT, required = true) String banner);
 
+    static final String IS_IN_MAINTENTANC_MODE_DESC = "Get status of maintenance mode";
+
+    /**
+     * {@value IS_IN_MAINTENTANC_MODE_DESC}
+     * 
+     * @return
+     */
     @Operation(
-            summary = "Get status of maintenance mode",
+            summary = IS_IN_MAINTENTANC_MODE_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -104,8 +126,16 @@ public interface GenericSettingEndpoint {
     @Path("in-maintenance-mode")
     Boolean isInMaintenanceMode();
 
+    static final String MAINTENANCE_REASON = "Reason to activate Maintenance Mode";
+    static final String ACTIVATE_MAINTENANCE_MODE_DESC = "Activate maintenance mode.";
+
+    /**
+     * {@value ACTIVATE_MAINTENANCE_MODE_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
+     * 
+     * @param reason {@value MAINTENANCE_REASON}
+     */
     @Operation(
-            summary = "Activate maintenance mode. needs to be admin",
+            summary = "[role:admin] " + ACTIVATE_MAINTENANCE_MODE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -117,11 +147,15 @@ public interface GenericSettingEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("activate-maintenance-mode")
-    public void activateMaintenanceMode(
-            @Parameter(description = "Reason to activate Maintenance Mode", required = true) String reason);
+    public void activateMaintenanceMode(@Parameter(description = MAINTENANCE_REASON, required = true) String reason);
 
+    static final String DEACTIVATE_MAINTENANCE_MODE_DESC = "Deactivate maintenance mode. needs to be admin";
+
+    /**
+     * {@value DEACTIVATE_MAINTENANCE_MODE_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
+     */
     @Operation(
-            summary = "Deactivate maintenance mode. needs to be admin",
+            summary = "[role:admin] " + DEACTIVATE_MAINTENANCE_MODE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
