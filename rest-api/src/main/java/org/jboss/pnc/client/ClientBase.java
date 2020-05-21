@@ -116,7 +116,7 @@ public abstract class ClientBase<T> {
         q.ifPresent(query -> pageParameters.setQ(query));
     }
 
-    public <S> S patch(String id, String jsonPatch, Class<S> clazz) {
+    public <S> S patch(String id, String jsonPatch, Class<S> clazz) throws RemoteResourceException {
         Path path = iface.getAnnotation(Path.class);
         WebTarget patchTarget;
         if (!path.value().equals("") && !path.value().equals("/")) {
@@ -127,11 +127,14 @@ public abstract class ClientBase<T> {
 
         logger.debug("Json patch: {}", jsonPatch);
 
-        S result = patchTarget.request()
-                .build(HttpMethod.PATCH, Entity.entity(jsonPatch, MediaType.APPLICATION_JSON_PATCH_JSON))
-                .invoke(clazz);
-
-        return result;
+        try {
+            S result = patchTarget.request()
+                    .build(HttpMethod.PATCH, Entity.entity(jsonPatch, MediaType.APPLICATION_JSON_PATCH_JSON))
+                    .invoke(clazz);
+            return result;
+        } catch (WebApplicationException e) {
+            throw new RemoteResourceException(readErrorResponse(e), e);
+        }
     }
 
     public InputStream getInputStream(String methodPath, String id) {
@@ -144,9 +147,13 @@ public abstract class ClientBase<T> {
         return webTarget.request().build(HttpMethod.GET).invoke(InputStream.class);
     }
 
-    public <S> S patch(String id, PatchBase patchBase) throws PatchBuilderException {
+    public <S> S patch(String id, PatchBase patchBase) throws PatchBuilderException, RemoteResourceException {
         String jsonPatch = patchBase.getJsonPatch();
-        return patch(id, jsonPatch, (Class<S>) patchBase.getClazz());
+        try {
+            return patch(id, jsonPatch, (Class<S>) patchBase.getClazz());
+        } catch (WebApplicationException e) {
+            throw new RemoteResourceException(readErrorResponse(e), e);
+        }
     }
 
     protected ErrorResponse readErrorResponse(WebApplicationException ex) {
