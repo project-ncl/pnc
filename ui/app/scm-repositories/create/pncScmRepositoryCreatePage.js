@@ -22,10 +22,10 @@
     bindings: {
     },
     templateUrl: 'scm-repositories/create/pnc-scm-repository-create-page.html',
-    controller: ['$state', 'ScmRepositoryResource', '$scope', 'eventTypes', Controller]
+    controller: ['$state', 'ScmRepositoryResource', '$scope', 'events', Controller]
   });
 
-  function Controller($state, ScmRepositoryResource, $scope, eventTypes) {
+  function Controller($state, ScmRepositoryResource, $scope, events) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -57,9 +57,9 @@
       /**
        * When
        * 1) Internal SCM Repository that is not in PNC yet is used, there is response containing SCM Reposiory details
-       * 2) External SCM Repository that in not in PNC yet is used, there is response without SCM Repository details, but 
+       * 2) External SCM Repository that in not in PNC yet is used, there is response without SCM Repository details, but
        *    they can be accessed later via Websockets once event RC_CREATION_SUCCESS is fired
-       * 
+       *
        * see NCL-4960
        */
       ScmRepositoryResource.createAndSync(scmRepository).then(function(result) {
@@ -68,9 +68,9 @@
 
         if (scmRepositoryResult && scmRepositoryResult.id) {
           gotoScmRepositoryDetailPage(scmRepositoryResult.id);
-    
+
         } else {
-          $scope.$on(eventTypes.RC_BPM_NOTIFICATION, function (event, payload) {
+          $scope.$on(events.RC_BPM_NOTIFICATION, function (event, payload) {
             // when SCM Repository is created and user is still on Create page
             if (payload.eventType === 'RC_CREATION_SUCCESS' && $state.$current.name === 'scm-repositories.create') {
               gotoScmRepositoryDetailPage(payload.data.repositoryConfigurationId);
