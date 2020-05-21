@@ -41,6 +41,8 @@
     $ctrl.invalidStartingPlannedEndDates = invalidStartingPlannedEndDates;
     $ctrl.submit = submit;
 
+    $ctrl.productMilestoneVersionErrorMessages = [];
+
 
     // --------------------
 

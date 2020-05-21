@@ -40,12 +40,15 @@
               <div class="col-sm-10">
                 <div class="input-group">
                   <span class="input-group-addon">{{ $ctrl.productVersion.version }}.</span>
-                  <input required id="input-version" class="form-control" name="version" maxlength="255" ng-model="$ctrl.version" pattern="^([0-9]+\.)?[\w]+$" product-milestone-version-validator product-version="{{$ctrl.productVersion.version}}" product-version-id="{{$ctrl.productVersion.id}}">
+                  <div class="input-validation-spinner">
+                    <input required id="input-version" class="form-control" name="version" maxlength="255" ng-model="$ctrl.version" error-messages="$ctrl.productMilestoneVersionErrorMessages" product-milestone-version-validator product-version="{{$ctrl.productVersion.version}}" product-version-id="{{$ctrl.productVersion.id}}">
+                    <span ng-show="productMilestoneForm.version.$pending.productMilestoneVersionValidator" class="spinner spinner-sm"></span>
+                  </div>
                 </div>
-                Validation is temporarily disabled until NCL-5754 is done.
                 <span class="help-block" ng-show="productMilestoneForm.version.$error.required && !productMilestoneForm.version.$pristine">Required field.</span>
-                <span class="help-block" ng-show="productMilestoneForm.version.$error.pattern && !productMilestoneForm.version.$pristine">Version must follow pattern ^([0-9]+.)?[\w]+$ (e.g. 1.ER1, CD1).</span>
-                <span class="help-block" ng-show ="productMilestoneForm.version.$error.productMilestoneVersionValidator">Version is already in use</span>
+                <div class="help-block" ng-show ="productMilestoneForm.version.$error.productMilestoneVersionValidator">
+                  <div ng-repeat="errorMessage in $ctrl.productMilestoneVersionErrorMessages">{{ errorMessage }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -118,8 +121,8 @@
 
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
-            <input ng-if="!$ctrl.isUpdating" type="submit" class="btn btn-primary" value="Create" ng-disabled="productMilestoneForm.$invalid || (productMilestoneForm.plannedEndDate.$invalid || $ctrl.invalidStartingPlannedEndDates($ctrl.startingDate, $ctrl.plannedEndDate))">
-            <input ng-if="$ctrl.isUpdating" type="submit" class="btn btn-primary" value="Update" ng-disabled="productMilestoneForm.$invalid || (productMilestoneForm.plannedEndDate.$invalid || $ctrl.invalidStartingPlannedEndDates($ctrl.startingDate, $ctrl.plannedEndDate))">
+            <input ng-if="!$ctrl.isUpdating" type="submit" class="btn btn-primary" value="Create" ng-disabled="productMilestoneForm.$invalid || productMilestoneForm.$pending || (productMilestoneForm.plannedEndDate.$invalid || $ctrl.invalidStartingPlannedEndDates($ctrl.startingDate, $ctrl.plannedEndDate))">
+            <input ng-if="$ctrl.isUpdating" type="submit" class="btn btn-primary" value="Update" ng-disabled="productMilestoneForm.$invalid || productMilestoneForm.$pending || (productMilestoneForm.plannedEndDate.$invalid || $ctrl.invalidStartingPlannedEndDates($ctrl.startingDate, $ctrl.plannedEndDate))">
             <input type="reset" class="btn btn-default" value="Clear">
           </div>
         </div>

@@ -62,6 +62,12 @@
         close: {
           method: 'POST',
           url: ENDPOINT + '/close'
+        },
+
+        validateVersion: {
+          method: 'POST',
+          url: ENDPOINT + '/validate-version',
+          successNotification: false
         }
       });
 
