@@ -82,7 +82,7 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
     }
 
     @Override
-    public Page<BuildConfiguration> getBuildConfigurations(String id, PageParameters pageParams) {
+    public Page<BuildConfiguration> getBuildConfigs(String id, PageParameters pageParams) {
 
         return buildConfigurationProvider.getBuildConfigurationsForProductVersion(
                 pageParams.getPageIndex(),
@@ -93,7 +93,7 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
     }
 
     @Override
-    public Page<GroupConfiguration> getGroupConfigurations(String id, PageParameters pageParameters) {
+    public Page<GroupConfiguration> getGroupConfigs(String id, PageParameters pageParameters) {
 
         return groupConfigurationProvider.getGroupConfigurationsForProductVersion(
                 pageParameters.getPageIndex(),

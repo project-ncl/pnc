@@ -131,7 +131,7 @@ public class ProductReleaseEndpointTest {
     @Test
     public void testGetAllSupportLevel() throws ClientException {
         ProductReleaseClient client = new ProductReleaseClient(RestClientConfiguration.asAnonymous());
-        Set<SupportLevel> all = client.getAllSupportLevel();
+        Set<SupportLevel> all = client.getSupportLevels();
 
         assertThat(all).hasSameSizeAs(SupportLevel.values()).contains(SupportLevel.values());
     }

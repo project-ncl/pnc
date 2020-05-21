@@ -50,6 +50,7 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.rest.api.parameters.PaginationParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
@@ -73,8 +74,22 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface ArtifactEndpoint {
     static final String A_ID = "ID of the artifact";
 
+    static final String GET_ALL_DESC = "Gets all artifacts.";
+    static final String FILTER_SHA256_DESC = "Filter by sha256 of the artifact.";
+    static final String FILTER_SHA1_DESC = "Filter by sha1 of the artifact.";
+    static final String FILTER_MD5_DESC = "Filter by md5 of the artifact.";
+
+    /**
+     * {@value GET_ALL_DESC}
+     *
+     * @param pageParams
+     * @param sha256 {@value FILTER_SHA256_DESC}
+     * @param md5 {@value FILTER_MD5_DESC}
+     * @param sha1 {@value FILTER_SHA1_DESC}
+     * @return
+     */
     @Operation(
-            summary = "Gets all artifacts.",
+            summary = GET_ALL_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -91,12 +106,20 @@ public interface ArtifactEndpoint {
     @GET
     Page<Artifact> getAll(
             @Valid @BeanParam PageParameters pageParams,
-            @Parameter(description = "Filter by sha256 of the artifact") @QueryParam("sha256") String sha256,
-            @Parameter(description = "Filter by md5 of the artifact") @QueryParam("md5") String md5,
-            @Parameter(description = "Filter by sha1 of the artifact") @QueryParam("sha1") String sha1);
+            @Parameter(description = FILTER_SHA256_DESC) @QueryParam("sha256") String sha256,
+            @Parameter(description = FILTER_MD5_DESC) @QueryParam("md5") String md5,
+            @Parameter(description = FILTER_SHA1_DESC) @QueryParam("sha1") String sha1);
 
+    static final String GET_SPECIFIC_DESC = "Gets a specific build config.";
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     *
+     * @param id {@value A_ID}
+     * @return
+     */
     @Operation(
-            summary = "Gets a specific build config.",
+            summary = GET_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -111,8 +134,16 @@ public interface ArtifactEndpoint {
     @Path("/{id}")
     Artifact getSpecific(@Parameter(description = "ID of the Artifact") @PathParam("id") String id);
 
+    static final String CREATE_DESC = "Creates a new Artifact.";
+
+    /**
+     * {@value CREATE_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
+     *
+     * @param artifact
+     * @return
+     */
     @Operation(
-            summary = "[role:admin] Creates a new Artifact",
+            summary = "[role:admin] " + CREATE_DESC,
             tags = "internal",
             responses = {
                     @ApiResponse(
@@ -133,10 +164,18 @@ public interface ArtifactEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.CREATED)
-    Artifact create(@NotNull Artifact artifactRest);
+    Artifact create(@NotNull Artifact artifact);
 
+    static final String UPDATE_DESC = "Updates an existing Artifact";
+
+    /**
+     * {@value UPDATE_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
+     *
+     * @param id {@value A_ID}
+     * @param artifact
+     */
     @Operation(
-            summary = "[role:admin] Updates an existing Artifact",
+            summary = "[role:admin] " + UPDATE_DESC,
             tags = "internal",
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
@@ -155,8 +194,17 @@ public interface ArtifactEndpoint {
     @Path("/{id}")
     void update(@PathParam("id") String id, @NotNull Artifact artifact);
 
+    static final String GET_DEPENDANT_BUILDS_DESC = "Gets the build(s) that depends on this artifact.";
+
+    /**
+     * {@value GET_DEPENDANT_BUILDS_DESC}
+     *
+     * @param id {@value A_ID}
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Gets the build(s) that depends on this artifact.",
+            summary = GET_DEPENDANT_BUILDS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -176,8 +224,17 @@ public interface ArtifactEndpoint {
             @Parameter(description = A_ID) @PathParam("id") String id,
             @BeanParam PageParameters pageParams);
 
+    static final String GET_MILESTONES_INFO_DESC = "Gets the milestones that produced or consumed this artifact.";
+
+    /**
+     * {@value GET_MILESTONES_INFO_DESC}
+     *
+     * @param id {@value A_ID}
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Gets the milestones that produced or consumed this artifact.",
+            summary = GET_MILESTONES_INFO_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

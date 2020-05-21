@@ -234,7 +234,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public BuildConfigurationRevision getBuildConfigurationRevision(String id) {
+    public BuildConfigurationRevision getBuildConfigRevision(String id) {
         return provider.getBuildConfigurationRevision(id);
     }
 

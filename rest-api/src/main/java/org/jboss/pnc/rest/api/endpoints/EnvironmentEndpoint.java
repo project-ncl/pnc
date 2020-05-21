@@ -55,9 +55,18 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Consumes(MediaType.APPLICATION_JSON)
 @Client
 public interface EnvironmentEndpoint {
+    static final String E_ID = "ID of the environment";
 
+    static final String GET_ALL_DESC = "Gets all environments.";
+
+    /**
+     * {@value GET_ALL_DESC}
+     * 
+     * @param pageParameters
+     * @return
+     */
     @Operation(
-            summary = "Gets all environments.",
+            summary = GET_ALL_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -74,8 +83,16 @@ public interface EnvironmentEndpoint {
     @GET
     Page<Environment> getAll(@Valid @BeanParam PageParameters pageParameters);
 
+    static final String GET_SPECIFIC_DESC = "Gets a specific environment.";
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     * 
+     * @param id {@value E_ID}
+     * @return
+     */
     @Operation(
-            summary = "Gets a specific environment.",
+            summary = GET_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -88,6 +105,6 @@ public interface EnvironmentEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}")
-    Environment getSpecific(@Parameter(description = "ID of the environment") @PathParam("id") String id);
+    Environment getSpecific(@Parameter(description = E_ID) @PathParam("id") String id);
 
 }

@@ -106,7 +106,7 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
     }
 
     @Override
-    public Page<BuildConfiguration> getBuildsConfigs(String id, PageParameters pageParameters) {
+    public Page<BuildConfiguration> getBuildConfigs(String id, PageParameters pageParameters) {
         return buildConfigurationProvider.getBuildConfigurationsForScmRepository(
                 pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),

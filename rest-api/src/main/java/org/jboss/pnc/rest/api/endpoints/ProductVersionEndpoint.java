@@ -76,8 +76,16 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface ProductVersionEndpoint {
     static final String PV_ID = "ID of the product version";
 
+    static final String CREATE_NEW_DESC = "Creates a new product version.";
+
+    /**
+     * {@value CREATE_NEW_DESC}
+     * 
+     * @param productVersion
+     * @return
+     */
     @Operation(
-            summary = "Creates a new product version.",
+            summary = CREATE_NEW_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -99,8 +107,16 @@ public interface ProductVersionEndpoint {
     @RespondWithStatus(Response.Status.CREATED)
     ProductVersion createNew(@NotNull ProductVersion productVersion);
 
+    static final String GET_SPECIFIC_DESC = "Gets a specific product version.";
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     * 
+     * @param id
+     * @return
+     */
     @Operation(
-            summary = "Gets a specific product version.",
+            summary = GET_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -116,8 +132,16 @@ public interface ProductVersionEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     ProductVersion getSpecific(@Parameter(description = PV_ID) @PathParam("id") String id);
 
+    static final String UPDATE_DESC = "Updates an existing product version.";
+
+    /**
+     * {@value UPDATE_DESC}
+     * 
+     * @param id {@value PV_ID}
+     * @param productVersion
+     */
     @Operation(
-            summary = "Updates an existing product version.",
+            summary = UPDATE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -135,8 +159,17 @@ public interface ProductVersionEndpoint {
     @Path("/{id}")
     void update(@Parameter(description = PV_ID) @PathParam("id") String id, @NotNull ProductVersion productVersion);
 
+    static final String PATCH_SPECIFIC_DESC = "Patch an existing product version.";
+
+    /**
+     * {@value PATCH_SPECIFIC_DESC}
+     * 
+     * @param id {@value PV_ID}
+     * @param productVersion
+     * @return
+     */
     @Operation(
-            summary = "Patch an existing product version.",
+            summary = PATCH_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -158,8 +191,17 @@ public interface ProductVersionEndpoint {
             @Parameter(description = PV_ID) @PathParam("id") String id,
             @NotNull ProductVersion productVersion);
 
+    static final String GET_BUILD_CONFIGS_DESC = "Gets all build configs in a specific product version.";
+
+    /**
+     * {@value GET_BUILD_CONFIGS_DESC}
+     * 
+     * @param id {@value PV_ID}
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Gets all build configs in a specific product version.",
+            summary = GET_BUILD_CONFIGS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -175,12 +217,21 @@ public interface ProductVersionEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/build-configs")
-    Page<BuildConfiguration> getBuildConfigurations(
+    Page<BuildConfiguration> getBuildConfigs(
             @Parameter(description = PV_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParams);
 
+    static final String GET_GROUP_CONFIGS = "Gets group configs associated with a specific product version.";
+
+    /**
+     * {@value GET_GROUP_CONFIGS}
+     * 
+     * @param id {@value PV_ID}
+     * @param pageParameters
+     * @return
+     */
     @Operation(
-            summary = "Gets group configs associated with a specific product version.",
+            summary = GET_GROUP_CONFIGS,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -196,12 +247,21 @@ public interface ProductVersionEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/group-configs")
-    Page<GroupConfiguration> getGroupConfigurations(
+    Page<GroupConfiguration> getGroupConfigs(
             @Parameter(description = PV_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
+    static final String GET_MILESTONES = "Gets all product milestones of a specific product version.";
+
+    /**
+     * {@value GET_MILESTONES}
+     * 
+     * @param id {@value PV_ID}
+     * @param pageParameters
+     * @return
+     */
     @Operation(
-            summary = "Gets all product milestones of a specific product version.",
+            summary = GET_MILESTONES,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -221,8 +281,17 @@ public interface ProductVersionEndpoint {
             @Parameter(description = PV_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
+    static final String GET_RELEASES = "Gets all product releases of a specific product version.";
+
+    /**
+     * {@value GET_RELEASES}
+     * 
+     * @param id {@value PV_ID}
+     * @param pageParameters
+     * @return
+     */
     @Operation(
-            summary = "Gets all product releases of a specific product version.",
+            summary = GET_RELEASES,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

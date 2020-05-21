@@ -75,8 +75,16 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface ProjectEndpoint {
     static final String P_ID = "ID of the project";
 
+    static final String GET_ALL_DESC = "Gets all projects.";
+
+    /**
+     * {@value GET_ALL_DESC}
+     * 
+     * @param pageParameters
+     * @return
+     */
     @Operation(
-            summary = "Gets all projects.",
+            summary = GET_ALL_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -93,8 +101,16 @@ public interface ProjectEndpoint {
     @GET
     Page<Project> getAll(@Valid @BeanParam PageParameters pageParameters);
 
+    static final String CREATE_NEW_DESC = "Creates a new project.";
+
+    /**
+     * {@value CREATE_NEW_DESC}
+     * 
+     * @param project
+     * @return
+     */
     @Operation(
-            summary = "Creates a new project.",
+            summary = CREATE_NEW_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -116,8 +132,16 @@ public interface ProjectEndpoint {
     @RespondWithStatus(Response.Status.CREATED)
     Project createNew(@NotNull Project project);
 
+    static final String GET_SPECIFIC_DESC = "Gets a specific project.";
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     * 
+     * @param id {@value P_ID}
+     * @return
+     */
     @Operation(
-            summary = "Gets a specific project.",
+            summary = GET_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -133,8 +157,16 @@ public interface ProjectEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     Project getSpecific(@Parameter(description = P_ID) @PathParam("id") String id);
 
+    static final String UPDATE_DESC = "Updates an existing project.";
+
+    /**
+     * {@value UPDATE_DESC}
+     * 
+     * @param id {@value P_ID}
+     * @param project
+     */
     @Operation(
-            summary = "Updates an existing project.",
+            summary = UPDATE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -152,8 +184,17 @@ public interface ProjectEndpoint {
     @Path("/{id}")
     void update(@Parameter(description = P_ID) @PathParam("id") String id, @NotNull Project project);
 
+    static final String PATCH_SPECIFIC_DESC = "Patch an existing project.";
+
+    /**
+     * {@value PATCH_SPECIFIC_DESC}
+     * 
+     * @param id {@value P_ID}
+     * @param project
+     * @return
+     */
     @Operation(
-            summary = "Patch an existing project.",
+            summary = PATCH_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -173,8 +214,17 @@ public interface ProjectEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     Project patchSpecific(@Parameter(description = P_ID) @PathParam("id") String id, @NotNull Project project);
 
+    static final String GET_BUILD_CONFIGS_DESC = "Gets all build configs associated with the specified project.";
+
+    /**
+     * {@value GET_BUILD_CONFIGS_DESC}
+     * 
+     * @param id {@value P_ID}
+     * @param pageParameters
+     * @return
+     */
     @Operation(
-            summary = "Gets all build configs associated with the specified project.",
+            summary = GET_BUILD_CONFIGS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -191,11 +241,21 @@ public interface ProjectEndpoint {
     @GET
     @Path("/{id}/build-configs")
     Page<BuildConfiguration> getBuildConfigurations(
-            @Parameter(description = "Project Id") @PathParam("id") String id,
+            @Parameter(description = P_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
+    static final String GET_BUILDS_DESC = "Get all builds associated with a specific project.";
+
+    /**
+     * {@value GET_BUILDS_DESC}
+     * 
+     * @param id {@value P_ID}
+     * @param pageParams
+     * @param buildsFilter
+     * @return
+     */
     @Operation(
-            summary = "Get all builds associated with a specific project.",
+            summary = GET_BUILDS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

@@ -78,8 +78,16 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface ProductMilestoneEndpoint {
     static final String PM_ID = "ID of the product milestone";
 
+    static final String CREATE_NEW_DESC = "Creates a new product milestone.";
+
+    /**
+     * {@value CREATE_NEW_DESC}
+     * 
+     * @param productMilestone
+     * @return
+     */
     @Operation(
-            summary = "Creates a new product milestone.",
+            summary = CREATE_NEW_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -101,8 +109,16 @@ public interface ProductMilestoneEndpoint {
     @RespondWithStatus(Response.Status.CREATED)
     ProductMilestone createNew(@NotNull ProductMilestone productMilestone);
 
+    static final String GET_SPECIFIC_DESC = "Gets a specific product milestone.";
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     * 
+     * @param id {@value PM_ID}
+     * @return
+     */
     @Operation(
-            summary = "Gets a specific product milestone.",
+            summary = GET_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -118,8 +134,16 @@ public interface ProductMilestoneEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     ProductMilestone getSpecific(@Parameter(description = PM_ID) @PathParam("id") String id);
 
+    static final String UPDATE_DESC = "Updates an existing product milestone.";
+
+    /**
+     * {@value UPDATE_DESC}
+     * 
+     * @param id {@value PM_ID}
+     * @param productMilestone
+     */
     @Operation(
-            summary = "Updates an existing product milestone.",
+            summary = UPDATE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -137,8 +161,17 @@ public interface ProductMilestoneEndpoint {
     @Path("/{id}")
     void update(@Parameter(description = PM_ID) @PathParam("id") String id, @NotNull ProductMilestone productMilestone);
 
+    static final String PATCH_SPECIFIC_DESC = "Patch an existing product milestone.";
+
+    /**
+     * {@value PATCH_SPECIFIC_DESC}
+     * 
+     * @param id {@value PM_ID}
+     * @param productMilestone
+     * @return
+     */
     @Operation(
-            summary = "Patch an existing product milestone.",
+            summary = PATCH_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -160,8 +193,18 @@ public interface ProductMilestoneEndpoint {
             @Parameter(description = PM_ID) @PathParam("id") String id,
             @NotNull ProductMilestone productMilestone);
 
+    static final String GET_BUILDS_DESC = "Gets builds performed during a product milestone cycle.";
+
+    /**
+     * {@value GET_BUILDS_DESC}
+     * 
+     * @param id {@value PM_ID}
+     * @param pageParameters
+     * @param buildsFilter
+     * @return
+     */
     @Operation(
-            summary = "Gets builds performed during a product milestone cycle.",
+            summary = GET_BUILDS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -182,8 +225,17 @@ public interface ProductMilestoneEndpoint {
             @Valid @BeanParam PageParameters pageParameters,
             @BeanParam BuildsFilterParameters buildsFilter);
 
+    static final String CLOSE_MILESTONE_DESC = "Close a product milestone.";
+
+    /**
+     * {@value CLOSE_MILESTONE_DESC}
+     * 
+     * @param id {@value PM_ID}
+     * @param productMilestone
+     * @return
+     */
     @Operation(
-            summary = "Close a product milestone.",
+            summary = CLOSE_MILESTONE_DESC,
             responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -204,8 +256,15 @@ public interface ProductMilestoneEndpoint {
             @Parameter(description = PM_ID) @PathParam("id") String id,
             ProductMilestone productMilestone);
 
+    static final String CLOSE_MILESTONE_CANCEL_DESC = "Cancel product milestone close process.";
+
+    /**
+     * {@value CLOSE_MILESTONE_CANCEL_DESC}
+     * 
+     * @param id {@value PM_ID}
+     */
     @Operation(
-            summary = "Cancel product milestone close process.",
+            summary = CLOSE_MILESTONE_CANCEL_DESC,
             responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -220,8 +279,18 @@ public interface ProductMilestoneEndpoint {
     @Path("/{id}/close")
     void cancelMilestoneClose(@Parameter(description = PM_ID) @PathParam("id") String id);
 
+    static final String GET_CLOSE_RESULTS = "Get milestone releases.";
+
+    /**
+     * {@value GET_CLOSE_RESULTS}
+     * 
+     * @param id{@value PM_ID}
+     * @param pageParams
+     * @param filterParams
+     * @return
+     */
     @Operation(
-            summary = "Get milestone releases.",
+            summary = GET_CLOSE_RESULTS,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -239,12 +308,20 @@ public interface ProductMilestoneEndpoint {
     @GET
     @Path("/{id}/close-results")
     Page<ProductMilestoneCloseResult> getCloseResults(
+            @Parameter(description = PM_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParams,
-            @BeanParam ProductMilestoneCloseParameters filterParams,
-            @Parameter(description = PM_ID) @PathParam("id") String id);
+            @BeanParam ProductMilestoneCloseParameters filterParams);
 
+    static final String VALIDATE_VERSION = "Validate product milestone version.";
+
+    /**
+     * {@value VALIDATE_VERSION}
+     * 
+     * @param productMilestone
+     * @return
+     */
     @Operation(
-            summary = "Validate product milestone version.",
+            summary = VALIDATE_VERSION,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

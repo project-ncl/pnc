@@ -84,8 +84,16 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface GroupConfigurationEndpoint {
     static final String GC_ID = "ID of the group config";
 
+    static final String GET_ALL_DESC = "Gets all group configs.";
+
+    /**
+     * {@value GET_ALL_DESC}
+     *
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Gets all group configs.",
+            summary = GET_ALL_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -102,8 +110,16 @@ public interface GroupConfigurationEndpoint {
     @GET
     Page<GroupConfiguration> getAll(@Valid @BeanParam PageParameters pageParams);
 
+    static final String CREATE_NEW_DESC = "Creates a new group config.";
+
+    /**
+     * {@value CREATE_NEW_DESC}
+     *
+     * @param groupConfig
+     * @return
+     */
     @Operation(
-            summary = "Creates a new group config.",
+            summary = CREATE_NEW_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -123,10 +139,18 @@ public interface GroupConfigurationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @RespondWithStatus(Response.Status.CREATED)
-    GroupConfiguration createNew(@NotNull GroupConfiguration buildConfigurationSet);
+    GroupConfiguration createNew(@NotNull GroupConfiguration groupConfig);
 
+    static final String GET_SPECIFIC_DESC = "Gets a specific group config.";
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     *
+     * @param id {@value GC_ID}
+     * @return
+     */
     @Operation(
-            summary = "Gets a specific group config.",
+            summary = GET_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -142,8 +166,16 @@ public interface GroupConfigurationEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     GroupConfiguration getSpecific(@Parameter(description = GC_ID) @PathParam("id") String id);
 
+    static final String UPDATE_DESC = "Updates an existing group config.";
+
+    /**
+     * {@value UPDATE_DESC}
+     *
+     * @param id {@value GC_ID}
+     * @param groupConfig
+     */
     @Operation(
-            summary = "Updates an existing group config.",
+            summary = UPDATE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -159,12 +191,19 @@ public interface GroupConfigurationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @PUT
     @Path("/{id}")
-    void update(
-            @Parameter(description = GC_ID) @PathParam("id") String id,
-            @NotNull GroupConfiguration groupConfiguration);
+    void update(@Parameter(description = GC_ID) @PathParam("id") String id, @NotNull GroupConfiguration groupConfig);
 
+    static final String PATCH_SPECIFIC_DESC = "Patch a specific group config.";
+
+    /**
+     * {@value PATCH_SPECIFIC_DESC}
+     *
+     * @param id {@value GC_ID}
+     * @param groupConfig
+     * @return
+     */
     @Operation(
-            summary = "Patch a specific group config.",
+            summary = PATCH_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -184,10 +223,21 @@ public interface GroupConfigurationEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     GroupConfiguration patchSpecific(
             @Parameter(description = GC_ID) @PathParam("id") String id,
-            @NotNull GroupConfiguration groupConfiguration);
+            @NotNull GroupConfiguration groupConfig);
 
+    static final String GROUP_BUILD_REQUEST = "List of build config revision to build instead of latest revision.";
+    static final String TRIGGER_DESC = "Builds the build configs in the group config.";
+
+    /**
+     * {@value TRIGGER_DESC}
+     *
+     * @param id {@value GC_ID}
+     * @param buildParams
+     * @param request {@value GROUP_BUILD_REQUEST}
+     * @return
+     */
     @Operation(
-            summary = "Builds the build configs in the group config.",
+            summary = TRIGGER_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ACCEPTED_CODE,
@@ -212,10 +262,19 @@ public interface GroupConfigurationEndpoint {
     GroupBuild trigger(
             @Parameter(description = GC_ID) @PathParam("id") String id,
             @BeanParam GroupBuildParameters buildParams,
-            GroupBuildRequest request);
+            @Parameter(description = GROUP_BUILD_REQUEST) GroupBuildRequest request);
 
+    static final String GET_BUILD_CONFIGS_DESC = "Gets the build configs for the group config.";
+
+    /**
+     * {@value GET_BUILD_CONFIGS_DESC}
+     *
+     * @param id {@value GC_ID}
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Gets the build configs for the group config.",
+            summary = GET_BUILD_CONFIGS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -231,12 +290,20 @@ public interface GroupConfigurationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/build-configs")
-    Page<BuildConfiguration> getConfigurations(
+    Page<BuildConfiguration> getBuildConfigs(
             @Parameter(description = GC_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParams);
 
+    static final String ADD_BUILD_CONFIG_DESC = "Adds a build config to the group config.";
+
+    /**
+     * {@value ADD_BUILD_CONFIG_DESC}
+     *
+     * @param id {@value GC_ID}
+     * @param buildConfig
+     */
     @Operation(
-            summary = "Adds a build config to the group config.",
+            summary = ADD_BUILD_CONFIG_DESC,
             responses = { @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -248,12 +315,18 @@ public interface GroupConfigurationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
     @Path("/{id}/build-configs")
-    void addConfiguration(
-            @Parameter(description = GC_ID) @PathParam("id") String id,
-            BuildConfigurationRef buildConfig);
+    void addBuildConfig(@Parameter(description = GC_ID) @PathParam("id") String id, BuildConfigurationRef buildConfig);
 
+    static final String REMOVE_BUILD_CONFIG_DESC = "Removes a build config from the specified group config.";
+
+    /**
+     * {@value REMOVE_BUILD_CONFIG_DESC}
+     *
+     * @param id {@value GC_ID}
+     * @param configId {@value BuildConfigurationEndpoint#BC_ID}
+     */
     @Operation(
-            summary = "Removes a build config from the specified group config.",
+            summary = REMOVE_BUILD_CONFIG_DESC,
             responses = { @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -265,12 +338,22 @@ public interface GroupConfigurationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @DELETE
     @Path("/{id}/build-configs/{configId}")
-    void removeConfiguration(
+    void removeBuildConfig(
             @Parameter(description = GC_ID) @PathParam("id") String id,
-            @Parameter(description = "ID of the build config") @PathParam("configId") String configId);
+            @Parameter(description = BuildConfigurationEndpoint.BC_ID) @PathParam("configId") String configId);
 
+    static final String GET_BUILDS_DESC = "Gets all builds associated with the contained build configs.";
+
+    /**
+     * {@value GET_BUILDS_DESC}
+     *
+     * @param id {@value GC_ID}
+     * @param pageParams
+     * @param filterParams
+     * @return
+     */
     @Operation(
-            summary = "Gets all builds associated with the contained build configs.",
+            summary = GET_BUILDS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -291,8 +374,17 @@ public interface GroupConfigurationEndpoint {
             @Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters filterParams);
 
+    static final String GET_ALL_GROUP_BUILDS = "Get all group builds associated with this group config.";
+
+    /**
+     * {@value GET_ALL_GROUP_BUILDS}
+     *
+     * @param id {@value GC_ID}
+     * @param pageParams
+     * @return
+     */
     @Operation(
-            summary = "Get all group builds associated with this group config.",
+            summary = GET_ALL_GROUP_BUILDS,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

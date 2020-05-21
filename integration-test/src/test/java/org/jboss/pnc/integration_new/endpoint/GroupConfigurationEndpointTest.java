@@ -203,7 +203,7 @@ public class GroupConfigurationEndpointTest {
         assertThat(groupConfiguration.getBuildConfigs()).doesNotContainKey(bcToAddId);
 
         // when
-        client.addConfiguration(gcId, buildConfiguration);
+        client.addBuildConfig(gcId, buildConfiguration);
 
         // then
         assertThat(client.getSpecific(gcId).getBuildConfigs()).containsKey(bcToAddId);
@@ -223,7 +223,7 @@ public class GroupConfigurationEndpointTest {
             logger.info("Making 1st request ...");
             RemoteCollection<BuildConfiguration> configurations = null;
             try {
-                configurations = client.getConfigurations(gcId);
+                configurations = client.getBuildConfigs(gcId);
             } catch (RemoteResourceException e) {
                 // detected with null in responseMap
             }
@@ -235,7 +235,7 @@ public class GroupConfigurationEndpointTest {
             logger.info("Making 2nd request ...");
             RemoteCollection<BuildConfiguration> configurations = null;
             try {
-                configurations = client.getConfigurations(gcId);
+                configurations = client.getBuildConfigs(gcId);
             } catch (RemoteResourceException e) {
                 // detected with null in responseMap
             }
@@ -258,10 +258,10 @@ public class GroupConfigurationEndpointTest {
         // with
         GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
         String gcId = "100";
-        BuildConfiguration configuration = client.getConfigurations(gcId).iterator().next();
+        BuildConfiguration configuration = client.getBuildConfigs(gcId).iterator().next();
 
         // when
-        client.removeConfiguration(gcId, configuration.getId());
+        client.removeBuildConfig(gcId, configuration.getId());
 
         // then
         GroupConfiguration refreshed = client.getSpecific(gcId);
@@ -275,7 +275,7 @@ public class GroupConfigurationEndpointTest {
         String gcId = "100";
         Set<String> bcIds = client.getSpecific(gcId).getBuildConfigs().keySet();
 
-        assertThat(client.getConfigurations(gcId)).hasSameSizeAs(bcIds).allSatisfy(bc -> bcIds.contains(bc.getId()));
+        assertThat(client.getBuildConfigs(gcId)).hasSameSizeAs(bcIds).allSatisfy(bc -> bcIds.contains(bc.getId()));
     }
 
     @Test

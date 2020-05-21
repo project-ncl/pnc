@@ -185,7 +185,7 @@ public class ProductMilestoneEndpointTest {
 
         // when
         RemoteCollection<ProductMilestoneCloseResult> milestoneReleases = milestoneClient
-                .getCloseResults(null, milestone.getId());
+                .getCloseResults(milestone.getId(), null);
         // then
         Assert.assertEquals(3, milestoneReleases.size());
         // make sure the result is ordered by date
@@ -201,7 +201,7 @@ public class ProductMilestoneEndpointTest {
         ProductMilestoneCloseParameters filter = new ProductMilestoneCloseParameters();
         filter.setLatest(true);
         RemoteCollection<ProductMilestoneCloseResult> latestMilestoneRelease = milestoneClient
-                .getCloseResults(filter, milestone.getId());
+                .getCloseResults(milestone.getId(), filter);
         // then
         Assert.assertEquals(1, latestMilestoneRelease.getAll().size());
         // the latest one in demo data has status SUCCEEDED

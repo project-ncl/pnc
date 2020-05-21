@@ -230,7 +230,7 @@ public class BuildEndpointTest {
     public void shouldGetBuildConfigurationRevision() throws ClientException {
         // when
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
-        BuildConfigurationRevision bcRevision = client.getBuildConfigurationRevision(buildId);
+        BuildConfigurationRevision bcRevision = client.getBuildConfigRevision(buildId);
 
         // then
         assertThat(bcRevision.getScmRevision()).isEqualTo("*/v0.2"); // from

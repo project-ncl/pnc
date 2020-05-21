@@ -65,7 +65,7 @@ public class ProductReleaseEndpointImpl implements ProductReleaseEndpoint {
     }
 
     @Override
-    public Set<SupportLevel> getAllSupportLevel() {
+    public Set<SupportLevel> getSupportLevels() {
         List<SupportLevel> supportLevels = Arrays.asList(SupportLevel.values());
         return new HashSet<>(supportLevels);
 

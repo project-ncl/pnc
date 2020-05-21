@@ -71,8 +71,16 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface ProductEndpoint {
     static final String P_ID = "ID of the product";
 
+    static final String GET_ALL_DESC = "Gets all products.";
+
+    /**
+     * {@value GET_ALL_DESC}
+     * 
+     * @param pageParameters
+     * @return
+     */
     @Operation(
-            summary = "Gets all products.",
+            summary = GET_ALL_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -89,8 +97,16 @@ public interface ProductEndpoint {
     @GET
     Page<Product> getAll(@Valid @BeanParam PageParameters pageParameters);
 
+    static final String CREATE_NEW_DESC = "Creates a new product.";
+
+    /**
+     * {@value CREATE_NEW_DESC}
+     * 
+     * @param product
+     * @return
+     */
     @Operation(
-            summary = "Creates a new product.",
+            summary = CREATE_NEW_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -112,8 +128,16 @@ public interface ProductEndpoint {
     @RespondWithStatus(Response.Status.CREATED)
     Product createNew(@NotNull Product product);
 
+    static final String GET_SPECIFIC_DESC = "Gets a specific product.";
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     * 
+     * @param id {@value P_ID}
+     * @return
+     */
     @Operation(
-            summary = "Gets a specific product.",
+            summary = GET_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -129,8 +153,16 @@ public interface ProductEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON) // workaround for PATCH support
     Product getSpecific(@Parameter(description = P_ID) @PathParam("id") String id);
 
+    static final String UPDATE_DESC = "Updates an existing product.";
+
+    /**
+     * {@value UPDATE_DESC}
+     * 
+     * @param id {@value P_ID}
+     * @param product
+     */
     @Operation(
-            summary = "Updates an existing product.",
+            summary = UPDATE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -148,8 +180,17 @@ public interface ProductEndpoint {
     @Path("/{id}")
     void update(@Parameter(description = P_ID) @PathParam("id") String id, @NotNull Product product);
 
+    static final String PATCH_SPECIFIC_DESC = "Patch an existing product.";
+
+    /**
+     * {@value PATCH_SPECIFIC_DESC}
+     * 
+     * @param id {@value P_ID}
+     * @param product
+     * @return
+     */
     @Operation(
-            summary = "Patch an existing product.",
+            summary = PATCH_SPECIFIC_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -169,8 +210,17 @@ public interface ProductEndpoint {
     @Consumes(MediaType.APPLICATION_JSON_PATCH_JSON)
     Product patchSpecific(@Parameter(description = P_ID) @PathParam("id") String id, @NotNull Product product);
 
+    static final String GET_PRODUCT_VERSIONS_DESC = "Get all versions for a specific product.";
+
+    /**
+     * {@value GET_PRODUCT_VERSIONS_DESC}
+     * 
+     * @param id {@value P_ID}
+     * @param pageParameters
+     * @return
+     */
     @Operation(
-            summary = "Get all versions for a specific product.",
+            summary = GET_PRODUCT_VERSIONS_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

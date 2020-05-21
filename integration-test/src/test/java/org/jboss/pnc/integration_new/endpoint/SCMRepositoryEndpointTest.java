@@ -85,7 +85,7 @@ public class SCMRepositoryEndpointTest {
         buildConfigurationClient.update(buildConfiguration1.getId(), buildConfiguration1);
         buildConfigurationClient.update(buildConfiguration2.getId(), buildConfiguration2);
 
-        RemoteCollection<BuildConfiguration> buildConfigs = repositoryClient.getBuildsConfigs(scmRepository.getId());
+        RemoteCollection<BuildConfiguration> buildConfigs = repositoryClient.getBuildConfigs(scmRepository.getId());
 
         assertThat(buildConfigs)
                 .usingElementComparatorIgnoringFields("modificationTime", "creationUser", "modificationUser")
@@ -204,7 +204,7 @@ public class SCMRepositoryEndpointTest {
     @Test
     public void testGetBuildConfigs() throws RemoteResourceException {
         // when
-        RemoteCollection<BuildConfiguration> bcs = repositoryClient.getBuildsConfigs("100");
+        RemoteCollection<BuildConfiguration> bcs = repositoryClient.getBuildConfigs("100");
 
         // then
         assertThat(bcs).hasSize(1)
@@ -214,7 +214,7 @@ public class SCMRepositoryEndpointTest {
     @Test
     public void testGetBuildConfigsWithInvalidId() {
         // when/then
-        assertThatThrownBy(() -> repositoryClient.getBuildsConfigs("45645644"))
+        assertThatThrownBy(() -> repositoryClient.getBuildConfigs("45645644"))
                 .hasCauseInstanceOf(BadRequestException.class);
     }
 }
