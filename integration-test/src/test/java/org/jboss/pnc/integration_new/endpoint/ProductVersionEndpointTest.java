@@ -26,7 +26,9 @@ import org.jboss.pnc.client.ProductClient;
 import org.jboss.pnc.client.ProductMilestoneClient;
 import org.jboss.pnc.client.ProductVersionClient;
 import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.patch.PatchBuilderException;
+import org.jboss.pnc.client.patch.ProductVersionPatchBuilder;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupConfiguration;
@@ -229,12 +231,27 @@ public class ProductVersionEndpointTest {
         assertThat(retrieved.getGroupConfigs()).hasSameSizeAs(groupConfis).containsKey(gcToAdd.getId());
     }
 
-    @Test // TODO
-    public void shouldUpdateGroupConfigsUsingPatch() throws ClientException, PatchBuilderException {
-        // ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
-        // ProductVersionPatchBuilder patchBuilder = new ProductVersionPatchBuilder();
-        // ProductVersionPatchBuilder patch = patchBuilder.replaceGroupConfigs(null);
-        // client.patch("id", patch);
+    @Test
+    public void shouldUpdateGroupConfigsUsingPatch() throws PatchBuilderException, RemoteResourceException {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
+        GroupConfiguration gc = GroupConfiguration.builder().name("GC patch test").build();
+        GroupConfigurationClient gcc = new GroupConfigurationClient(RestClientConfiguration.asUser());
+        GroupConfiguration gcToAdd = gcc.createNew(gc);
+        ProductVersion productVersion = client.getSpecific(productVersionsId2);
+        Map<String, GroupConfigurationRef> groupConfigs = productVersion.getGroupConfigs();
+
+        // when
+        ProductVersionPatchBuilder patchBuilder = new ProductVersionPatchBuilder();
+        ProductVersionPatchBuilder patch = patchBuilder
+                .addGroupConfigs(Collections.singletonMap(gcToAdd.getId(), gcToAdd));
+        client.patch(productVersionsId2, patch);
+
+        // then
+        groupConfigs.put(gcToAdd.getId(), gcToAdd);
+        ProductVersion productVersionUpdated = client.getSpecific(productVersionsId2);
+        assertThat(productVersionUpdated.getGroupConfigs())
+                .containsKeys(groupConfigs.keySet().toArray(new String[groupConfigs.keySet().size()]));
     }
 
     @Test
@@ -262,13 +279,26 @@ public class ProductVersionEndpointTest {
         assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate)).isInstanceOf(ClientException.class);
     }
 
-    @Test // TODO
+    @Test
     public void shouldNotUpdateGroupConfigsWhenOneIsAlreadyAsssociatedWithAnotherProductVersionUsingPatch()
             throws ClientException, PatchBuilderException {
-        // ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
-        // ProductVersionPatchBuilder patchBuilder = new ProductVersionPatchBuilder();
-        // ProductVersionPatchBuilder patch = patchBuilder.replaceGroupConfigs(null);
-        // client.patch("id", patch);
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
+        GroupConfigurationRef alreadyAssignedGC = client.getSpecific(productVersionsId)
+                .getGroupConfigs()
+                .values()
+                .iterator()
+                .next();
+        Map<String, GroupConfigurationRef> groupConfis = new HashMap<>();
+        assertThat(alreadyAssignedGC).isNotNull();
+
+        // when
+        ProductVersionPatchBuilder patchBuilder = new ProductVersionPatchBuilder();
+        ProductVersionPatchBuilder patch = patchBuilder
+                .addGroupConfigs(Collections.singletonMap(alreadyAssignedGC.getId(), alreadyAssignedGC));
+
+        // then
+        assertThatThrownBy(() -> client.patch(productVersionsId2, patch)).isInstanceOf(ClientException.class);
     }
 
     @Test
