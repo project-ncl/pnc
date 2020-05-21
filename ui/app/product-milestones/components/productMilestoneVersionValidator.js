@@ -20,31 +20,51 @@
 
     var module = angular.module('pnc.product-milestones');
 
-    module.directive('productMilestoneVersionValidator',['$q', function ($q) {
+    module.directive('productMilestoneVersionValidator',['$timeout', '$q', 'ProductMilestoneResource', function ($timeout, $q, ProductMilestoneResource) {
         return {
             restrict: 'A',
             require: 'ngModel',
+            scope: {
+                errorMessages: '='
+            },
             link: function (scope, element, attrs, ngModel) {
 
+                let pendingValidation;
+                
                 ngModel.$asyncValidators.productMilestoneVersionValidator = function (modelValue, viewValue) {
-                    var deferred = $q.defer(),
-                        milestoneVersion = modelValue || viewValue,
-                        productVersionId = attrs.productVersionId,
-                        productVersion = attrs.productVersion;
+                    let deferred = $q.defer();
 
-                    if (milestoneVersion && productVersionId && productVersion) {
-                       // NCL-5754 will handle this soon
-                        if (true) {
-                            deferred.resolve();
-                        } else {
-                            deferred.reject();
+                    if (pendingValidation) {
+                        $timeout.cancel(pendingValidation);
+                    }
+
+                    pendingValidation = $timeout(() => {
+                        let milestoneVersion = modelValue || viewValue,
+                            productVersionId = attrs.productVersionId,
+                            productVersion = attrs.productVersion;
+
+                        if (milestoneVersion && productVersionId && productVersion) {
+                
+                            ProductMilestoneResource.validateVersion({
+                                productVersionId: productVersionId,
+                                version: productVersion + '.' + milestoneVersion
+                            }).$promise.then((response) => {
+                                if (response.isValid) {
+                                    deferred.resolve();
+                                } else {
+                                    scope.errorMessages = response.hints;
+                                    deferred.reject();
+                                }
+                            }).catch(() => {
+                                scope.errorMessages = ['An unexpected error occurred, please try again later'];
+                                deferred.reject();
+                            });
                         }
-                    }
-                    else {
-                        deferred.resolve();
-                    }
 
-                    return deferred.promise;
+                        return deferred.promise;
+                    }, 500);
+
+                    return pendingValidation;
                 };
             }
         };
