@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.mock;
+package org.jboss.pnc.mock;
 
 import org.jboss.pnc.coordinator.maintenance.RemoteBuildsCleaner;
 import org.jboss.pnc.enums.ResultStatus;

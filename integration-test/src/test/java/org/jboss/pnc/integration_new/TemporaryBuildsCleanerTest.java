@@ -15,14 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration;
+package org.jboss.pnc.integration_new;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
-import org.jboss.pnc.integration.deployments.Deployments;
-import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
+import org.jboss.pnc.integration_new.setup.Deployments;
+import org.jboss.pnc.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -46,7 +46,6 @@ import org.jboss.pnc.spi.exception.ValidationException;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -73,7 +72,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.pnc.enums.ArtifactQuality;
-import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
+
+import static org.jboss.pnc.integration_new.setup.Deployments.addBuildExecutorMock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -138,9 +138,7 @@ public class TemporaryBuildsCleanerTest {
 
     @Deployment
     public static EnterpriseArchive deploy() {
-        EnterpriseArchive enterpriseArchive = Deployments.baseEarWithTestDependencies();
-        WebArchive restWar = enterpriseArchive.getAsType(WebArchive.class, AbstractTest.REST_WAR_PATH);
-        restWar.addClass(TemporaryBuildsCleanerTest.class);
+        EnterpriseArchive enterpriseArchive = Deployments.testEarForInContainerTest(TemporaryBuildsCleanerTest.class);
 
         JavaArchive coordinator = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.COORDINATOR_JAR);
         coordinator.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
