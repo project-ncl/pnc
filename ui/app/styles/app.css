@@ -332,7 +332,7 @@ label.required::before {
 .input-validation-spinner {
   position: relative;
 }
-.input-validation .spinner {
+.input-validation-spinner .spinner {
   position: absolute;
   right: 4px;
   top: 4px;
