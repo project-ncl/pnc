@@ -29,10 +29,9 @@ import org.jboss.pnc.integration.client.BuildConfigSetRecordRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationRestClient;
 import org.jboss.pnc.integration.client.BuildConfigurationSetRestClient;
 import org.jboss.pnc.integration.client.UserRestClient;
-import org.jboss.pnc.integration.client.util.RestResponse;
 import org.jboss.pnc.integration.deployments.Deployments;
 import org.jboss.pnc.integration.matchers.JsonMatcher;
-import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
+import org.jboss.pnc.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.endpoint.BuildConfigurationSetEndpoint;
 import org.jboss.pnc.rest.provider.BuildConfigurationProvider;
@@ -51,12 +50,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.integration.deployments.Deployments.addBuildExecutorMock;
 import static org.jboss.pnc.integration.env.IntegrationTestEnv.getHttpPort;
 
