@@ -227,7 +227,7 @@
       <dependency>
         <groupId>com.redhat.bom.rh-sso</groupId>
         <artifactId>rh-sso-adapter-bom</artifactId>
-        <version>7.3.3.GA</version> <!-- If you are changing this, change also version.keycloak!-->
+        <version>7.4.0.GA</version> <!-- If you are changing this, change also version.keycloak!-->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
