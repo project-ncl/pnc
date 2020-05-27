@@ -192,6 +192,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
         return super.update(id, restEntity);
     }
 
+    @RolesAllowed(SYSTEM_USER)
     @Override
     public boolean delete(String id, String callback) {
         User user = userService.currentUser();
@@ -597,7 +598,7 @@ public class BuildProviderImpl extends AbstractIntIdProvider<BuildRecord, Build,
 
     /**
      * If a build record with the id is not found, EmptyEntityException is thrown
-     * 
+     *
      * @param id
      * @return BuildRecord
      * @throws EmptyEntityException if build record with associated id does not exist
