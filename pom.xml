@@ -150,6 +150,7 @@
     <jboss.management.port>${default.management.port}</jboss.management.port>
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
     <auth>false</auth>
+    <tagSuffix/>
   </properties>
 
   <dependencies>
@@ -1374,11 +1375,13 @@
           <artifactId>maven-release-plugin</artifactId>
           <configuration>
             <autoVersionSubmodules>true</autoVersionSubmodules>
-            <mavenExecutorId>forked-path</mavenExecutorId>
+	    <mavenExecutorId>forked-path</mavenExecutorId>
+	    <tagNameFormat>@{project.version}${tagSuffix}</tagNameFormat>
             <useReleaseProfile>false</useReleaseProfile>
             <addSchema>false</addSchema>
             <arguments>-Prelease -Dlicense.skip=${licenseSkip} -DskipTests=${testSkip} -DpushChanges=${pushChanges}</arguments>
-            <completionGoals>scm:add scm:checkin -DpushChanges=${pushChanges}</completionGoals>
+	    <completionGoals>scm:add scm:checkin -DpushChanges=${pushChanges}</completionGoals>
+	    <stagingRepository>https://oss.sonatype.org/service/local/staging/deploy/maven2/</stagingRepository>
           </configuration>
         </plugin>
       <plugin>
