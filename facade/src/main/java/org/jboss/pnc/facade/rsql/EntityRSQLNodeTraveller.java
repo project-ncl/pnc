@@ -47,6 +47,7 @@ import cz.jirutka.rsql.parser.ast.LogicalNode;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLOperators;
+import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.NOT_LIKE;
 
 /**
  *
@@ -113,6 +114,8 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
             return cb.not(path.in(castArguments));
         } else if (LIKE.equals(operator)) {
             return cb.like(cb.lower(path), preprocessLikeOperatorArgument(arguments.get(0).toLowerCase()));
+        } else if (NOT_LIKE.equals(operator)) {
+            return cb.not(cb.like(cb.lower(path), preprocessLikeOperatorArgument(arguments.get(0).toLowerCase())));
         } else if (IS_NULL.equals(operator)) {
             if (Boolean.parseBoolean(arguments.get(0))) {
                 return cb.isNull(path);

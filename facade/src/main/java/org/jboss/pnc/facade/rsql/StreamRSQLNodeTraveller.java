@@ -109,6 +109,9 @@ class StreamRSQLNodeTraveller extends RSQLNodeTraveller<Boolean> {
             } else if (node.getOperator().equals(RSQLProducerImpl.LIKE)) {
                 argument = argument.replaceAll(RSQLProducerImpl.UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
                 return propertyValue.matches(argument);
+            } else if (node.getOperator().equals(RSQLProducerImpl.NOT_LIKE)) {
+                argument = argument.replaceAll(RSQLProducerImpl.UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
+                return !propertyValue.matches(argument);
             } else if (node.getOperator().equals(RSQLOperators.IN)) {
                 return node.getArguments().contains(propertyValue);
             } else if (node.getOperator().equals(RSQLOperators.NOT_IN)) {
