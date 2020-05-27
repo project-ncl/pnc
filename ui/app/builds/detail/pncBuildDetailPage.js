@@ -23,7 +23,8 @@
     bindings: {
       build: '<',
       dependencyGraph: '<',
-      brewPushResult: '<'
+      brewPushResult: '<',
+      buildConfigRevision: '<'
     },
     templateUrl: 'builds/detail/pnc-build-detail-page.html',
     controller: ['$scope', 'events', Controller]

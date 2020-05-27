@@ -105,15 +105,15 @@
 
         <dt>Parameters</dt>
         <dd>
-          <ul class="list-unstyled" ng-show="$ctrl.buildRevision.parameters">
-            <li ng-repeat="(key, value) in $ctrl.buildRevision.parameters">
+          <ul class="list-unstyled" ng-show="$ctrl.buildConfigRevision.parameters">
+            <li ng-repeat="(key, value) in $ctrl.buildConfigRevision.parameters">
               <span>{{ key }}</span><br>
               <span class="text-monospace">
                 <pre class="pre-scrollable">{{ value }}</pre>
               </span>
             </li>
           </ul>
-          <span ng-hide="$ctrl.buildRevision.parameters">&mdash;</span>
+          <span ng-hide="$ctrl.buildConfigRevision.parameters">&mdash;</span>
         </dd>
       </dl>
     </div>
