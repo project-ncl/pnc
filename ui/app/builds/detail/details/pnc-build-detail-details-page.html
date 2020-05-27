@@ -104,16 +104,17 @@
         <dd ng-repeat-end>{{value}}</dd>
 
         <dt>Parameters</dt>
-        <dd>todo NCL-5271</dd>
-        <!--dd>
-          <ul class="list-unstyled" ng-show="$ctrl.build.buildConfigurationAudited.genericParameters">
-            <li ng-repeat="(key, value) in $ctrl.build.buildConfigurationAudited.genericParameters">
-              <tt>{{key}}</tt> : <pre>{{value}}</pre>
+        <dd>
+          <ul class="list-unstyled" ng-show="$ctrl.build.buildConfigRevision.parameters">
+            <li ng-repeat="(key, value) in $ctrl.build.buildConfigRevision.parameters">
+              <span>{{ key }}</span><br>
+              <span class="text-monospace">
+                <pre class="pre-scrollable">{{ value }}</pre>
+              </span>
             </li>
           </ul>
-          <span ng-hide="$ctrl.build.buildConfigurationAudited.genericParameters">&mdash;</span>
-        </dd-->
-
+          <span ng-hide="$ctrl.build.buildConfigRevision.parameters">&mdash;</span>
+        </dd>
       </dl>
     </div>
 
