@@ -32,13 +32,13 @@ import java.util.stream.Collectors;
  */
 @ApplicationScoped
 public class InProgress {
-    private Map<Integer, Context> inProgress = new ConcurrentHashMap<>();
+    private Map<Long, Context> inProgress = new ConcurrentHashMap<>();
 
-    public boolean add(Integer id, String tagPrefix, String pushResultId) {
+    public boolean add(Long id, String tagPrefix, String pushResultId) {
         return inProgress.putIfAbsent(id, new Context(id, tagPrefix, pushResultId)) == null;
     }
 
-    public Context remove(Integer id) {
+    public Context remove(Long id) {
         return inProgress.remove(id);
     }
 
@@ -46,14 +46,14 @@ public class InProgress {
         return Collections.unmodifiableSet(inProgress.values().stream().collect(Collectors.toSet()));
     }
 
-    public Context get(Integer id) {
+    public Context get(Long id) {
         return inProgress.get(id);
     }
 
     @Getter
     @AllArgsConstructor
     public class Context {
-        Integer id;
+        Long id;
         String tagPrefix;
         String pushResultId;
     }

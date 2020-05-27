@@ -78,13 +78,6 @@ public interface Datastore {
     void createNewUser(User user);
 
     /**
-     * Gets next generated Build Record Id.
-     *
-     * @return A generated Build Record Id.
-     */
-    int getNextBuildRecordId();
-
-    /**
      * Save build config set record to db
      *
      * @param buildConfigSetRecord The record to save

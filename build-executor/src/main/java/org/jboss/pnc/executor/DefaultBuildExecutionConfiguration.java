@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public class DefaultBuildExecutionConfiguration implements BuildExecutionConfiguration {
 
-    private final int id;
+    private final long id;
     private final String buildContentId;
     private final String userId;
     private final String buildScript;
@@ -54,7 +54,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final String defaultAlignmentParams;
 
     public DefaultBuildExecutionConfiguration(
-            int id,
+            long id,
             String buildContentId,
             String userId,
             String buildScript,
@@ -100,7 +100,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     }
 
     @Override
-    public int getId() {
+    public long getId() {
         return id;
     }
 

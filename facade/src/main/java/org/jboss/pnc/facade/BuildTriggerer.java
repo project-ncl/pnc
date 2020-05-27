@@ -17,14 +17,14 @@
  */
 package org.jboss.pnc.facade;
 
-import java.util.Optional;
-import java.util.OptionalInt;
-
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
+
+import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  *
@@ -33,7 +33,7 @@ import org.jboss.pnc.spi.exception.CoreException;
  */
 public interface BuildTriggerer {
 
-    int triggerBuild(int buildConfigId, OptionalInt rev, BuildOptions buildOptions)
+    long triggerBuild(int buildConfigId, OptionalInt rev, BuildOptions buildOptions)
             throws BuildConflictException, CoreException;
 
     int triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
@@ -46,8 +46,8 @@ public interface BuildTriggerer {
      * @return True if the cancel request is successfully accepted, false if if there is no running build with such ID
      * @throws CoreException Thrown if cancellation fails due to any internal error
      */
-    boolean cancelBuild(int buildId) throws CoreException;
+    boolean cancelBuild(long buildId) throws CoreException;
 
-    Optional<BuildTaskContext> getMdcMeta(int buildId);
+    Optional<BuildTaskContext> getMdcMeta(long buildId);
 
 }

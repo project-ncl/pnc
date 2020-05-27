@@ -277,7 +277,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Override
-    public RepositoryManagerResult collectRepoManagerResult(Integer id) throws RepositoryManagerException {
+    public RepositoryManagerResult collectRepoManagerResult(Long id) throws RepositoryManagerException {
         BuildRecord br = buildRecordRepository.findByIdFetchProperties(id);
         if (br == null) {
             return null;
@@ -325,7 +325,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             Map<String, String> genericParameters) throws IndyClientException {
 
         String buildContentId = execution.getBuildContentId();
-        int id = execution.getId();
+        long id = execution.getId();
         BuildType buildType = execution.getBuildType();
 
         // if the build-level group doesn't exist, create it.
@@ -407,7 +407,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     private void addExtraConstituents(
             String packageType,
             List<ArtifactRepository> repositories,
-            int buildId,
+            long buildId,
             String buildContentId,
             Indy indy,
             Group buildGroup) throws IndyClientException {

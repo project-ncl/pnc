@@ -27,20 +27,20 @@ import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.BrewNameWorkaround;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
-import org.jboss.pnc.mapper.IntIdMapper;
+import org.jboss.pnc.mapper.LongBase64IdMapper;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.mapper.api.BuildMapper.StatusMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.jboss.pnc.mapper.RefToReferenceMapper;
-import org.mapstruct.MappingTarget;
 
 /**
  *
@@ -53,9 +53,9 @@ import org.mapstruct.MappingTarget;
                 BrewNameWorkaround.class, GroupBuildMapper.class, BuildBCRevisionFetcher.class,
                 ProductMilestoneMapper.class })
 
-public interface BuildMapper extends UpdatableEntityMapper<Integer, BuildRecord, Build, BuildRef> {
+public interface BuildMapper extends UpdatableEntityMapper<Long, BuildRecord, Build, BuildRef> {
 
-    IdMapper<Integer, String> idMapper = new IntIdMapper();
+    IdMapper<Long, String> idMapper = new LongBase64IdMapper();
 
     @Override
     @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
@@ -223,14 +223,14 @@ public interface BuildMapper extends UpdatableEntityMapper<Integer, BuildRecord,
 
     public static class IDMapper {
 
-        public static BuildRecord toIdEntity(Integer id) {
+        public static BuildRecord toIdEntity(String id) {
             BuildRecord buildRecord = new BuildRecord();
-            buildRecord.setId(id);
+            buildRecord.setId(idMapper.toEntity(id));
             return buildRecord;
         }
 
-        public static Integer toId(BuildRecord buildRecord) {
-            return buildRecord.getId();
+        public static String toDtoId(BuildRecord buildRecord) {
+            return idMapper.toDto(buildRecord.getId());
         }
     }
 
@@ -241,7 +241,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Integer, BuildRecord,
     }
 
     @Override
-    default IdMapper<Integer, String> getIdMapper() {
+    default IdMapper<Long, String> getIdMapper() {
         return idMapper;
     }
 }

@@ -19,6 +19,8 @@ package org.jboss.pnc.facade.rsql.mapper;
 
 import org.jboss.pnc.facade.rsql.RSQLException;
 import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.facade.rsql.converter.CastValueConverter;
+import org.jboss.pnc.facade.rsql.converter.ValueConverter;
 import org.jboss.pnc.model.GenericEntity;
 
 import javax.inject.Inject;
@@ -42,6 +44,8 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
     public AbstractRSQLMapper(Class<DB> type) {
         this.type = type;
     }
+
+    private ValueConverter defaultConverter = new CastValueConverter();
 
     @Override
     public Class<DB> type() {
@@ -85,6 +89,11 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
             return entity.getName() + "." + mapper.toPath(bindableType, selector.next());
         }
         throw new RSQLException("Unknown RSQL selector " + name + " for type " + type);
+    }
+
+    @Override
+    public ValueConverter getValueConverter(String allNames) {
+        return defaultConverter;
     }
 
     protected abstract SingularAttribute<DB, ? extends GenericEntity<?>> toEntity(String name);

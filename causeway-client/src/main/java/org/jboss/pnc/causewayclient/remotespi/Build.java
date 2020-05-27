@@ -42,7 +42,7 @@ public abstract class Build {
     private final String buildVersion;
     @NonNull
     private final String externalBuildSystem;
-    private final int externalBuildID;
+    private final Long externalBuildID;
     @NonNull
     private final String externalBuildURL;
     @NonNull
@@ -70,7 +70,7 @@ public abstract class Build {
             String buildName,
             String buildVersion,
             String externalBuildSystem,
-            int externalBuildID,
+            Long externalBuildID,
             String externalBuildURL,
             Date startTime,
             Date endTime,

@@ -108,7 +108,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     }
 
     private Result requestDeleteViaCauseway(BuildRecord buildRecord) {
-        Integer buildRecordId = buildRecord.getId();
+        Long buildRecordId = buildRecord.getId();
         List<BuildRecordPushResult> toRemove = buildRecordPushResultRepository
                 .getAllSuccessfulForBuildRecord(buildRecordId);
 

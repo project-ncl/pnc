@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mock.repositorymanager;
 
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManager;
@@ -29,11 +30,8 @@ import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
 import javax.enterprise.context.ApplicationScoped;
-
-import java.util.function.Consumer;
 import java.util.Map;
-
-import org.jboss.pnc.enums.RepositoryType;
+import java.util.function.Consumer;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-25.
@@ -82,7 +80,7 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RepositoryManagerResult collectRepoManagerResult(Integer id) throws RepositoryManagerException {
+    public RepositoryManagerResult collectRepoManagerResult(Long id) throws RepositoryManagerException {
         return RepositoryManagerResultMock.mockResult(false);
     }
 

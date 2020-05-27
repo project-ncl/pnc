@@ -15,18 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.model.utils;
+package org.jboss.pnc.facade.rsql.converter;
 
-/**
- * Component that contains the rules for generating various content ID's which are used to uniquely associate content
- * stored in external services with builds, build-sets, products, etc.
- */
-public class ContentIdentityManager {
+import org.jboss.pnc.mapper.LongBase64IdMapper;
+import org.jboss.pnc.mapper.api.IdMapper;
 
-    public static String getBuildContentId(Long buildRecordId) {
-        if (buildRecordId == null)
-            throw new IllegalArgumentException("Null is not a valid build content ID");
+public class Base64EncodedLongValueConverter implements ValueConverter {
 
-        return "build-" + buildRecordId;
+    IdMapper<Long, String> idMapper = new LongBase64IdMapper();
+
+    @Override
+    public Comparable<Long> convert(Value value) {
+        return idMapper.toEntity(value.getValue());
     }
 }

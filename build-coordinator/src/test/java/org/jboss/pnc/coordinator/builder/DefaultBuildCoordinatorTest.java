@@ -74,7 +74,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -166,7 +165,6 @@ public class DefaultBuildCoordinatorTest {
                         any(Boolean.class),
                         anySet())).thenReturn(true);
         when(datastore.saveBuildConfigSetRecord(any())).thenAnswer(new SaveBuildConfigSetRecordAnswer());
-        when(datastore.getNextBuildRecordId()).thenAnswer(new BuildRecordIDAnswer());
 
         USER.setId(1);
 
@@ -415,15 +413,6 @@ public class DefaultBuildCoordinatorTest {
         }
     }
 
-    private static class BuildRecordIDAnswer implements Answer<Integer> {
-        private static AtomicInteger id = new AtomicInteger(1);
-
-        @Override
-        public Integer answer(InvocationOnMock invocation) throws Throwable {
-            return id.getAndIncrement();
-        }
-    }
-
     private static class SaveRecordForNoRebuildAnswer implements Answer<BuildRecord> {
         private Set<BuildRecord> storedRecords;
 
@@ -441,5 +430,4 @@ public class DefaultBuildCoordinatorTest {
             return arg;
         }
     }
-
 }

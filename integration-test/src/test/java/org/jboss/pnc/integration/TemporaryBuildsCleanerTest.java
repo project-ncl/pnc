@@ -20,6 +20,7 @@ package org.jboss.pnc.integration;
 import org.assertj.core.api.Condition;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.Page;
@@ -28,6 +29,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.setup.Deployments;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -74,7 +76,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.integration.setup.Deployments.addBuildExecutorMock;
@@ -132,8 +133,6 @@ public class TemporaryBuildsCleanerTest {
 
     @Inject
     private UserTransaction transaction;
-
-    private AtomicInteger nextBuildRecordId = new AtomicInteger(33444);
 
     private BuildConfigurationAudited buildConfigurationAudited = null;
 
@@ -332,23 +331,23 @@ public class TemporaryBuildsCleanerTest {
 
         BuildRecord finalBr1 = br1;
         Condition<Build> hasBr1 = new Condition<>(
-                (build -> build.getId().equals(finalBr1.getId().toString())),
-                "Is Br1 with id " + finalBr1.getId().toString());
+                (build -> build.getId().equals(BuildMapper.idMapper.toDto(finalBr1.getId()))),
+                "Is Br1 with id " + BuildMapper.idMapper.toDto(finalBr1.getId()));
 
         BuildRecord finalBr2 = br2;
         Condition<Build> hasBr2 = new Condition<>(
-                (build -> build.getId().equals(finalBr2.getId().toString())),
-                "Is Br2 with id " + finalBr2.getId().toString());
+                (build -> build.getId().equals(BuildMapper.idMapper.toDto(finalBr2.getId()))),
+                "Is Br2 with id " + BuildMapper.idMapper.toDto(finalBr2.getId()));
 
         BuildRecord finalBr3 = br3;
         Condition<Build> hasBr3 = new Condition<>(
-                (build -> build.getId().equals(finalBr3.getId().toString())),
-                "Is Br3 with id " + finalBr3.getId().toString());
+                (build -> build.getId().equals(BuildMapper.idMapper.toDto(finalBr3.getId()))),
+                "Is Br3 with id " + BuildMapper.idMapper.toDto(finalBr3.getId()));
 
         BuildRecord finalBr4 = br4;
         Condition<Build> hasBr4 = new Condition<>(
-                (build -> build.getId().equals(finalBr4.getId().toString())),
-                "Is Br4 with id " + finalBr4.getId().toString());
+                (build -> build.getId().equals(BuildMapper.idMapper.toDto(finalBr4.getId()))),
+                "Is Br4 with id " + BuildMapper.idMapper.toDto(finalBr4.getId()));
 
         // when #1
         Page<Build> builds = buildProvider
@@ -439,7 +438,9 @@ public class TemporaryBuildsCleanerTest {
 
         // then
         assertThat(builds.getContent()).extracting("id", String.class)
-                .doesNotContain(tempBr.getId().toString(), tempNRRBr.getId().toString());
+                .doesNotContain(
+                        BuildMapper.idMapper.toDto(tempBr.getId()),
+                        BuildMapper.idMapper.toDto(tempNRRBr.getId()));
     }
 
     private Artifact storeAndGetArtifact() {
@@ -460,7 +461,7 @@ public class TemporaryBuildsCleanerTest {
 
     private BuildRecord.Builder initBuildRecordBuilder() {
         return BuildRecord.Builder.newBuilder()
-                .id(datastore.getNextBuildRecordId())
+                .id(Sequence.nextId())
                 .buildConfigurationAudited(this.buildConfigurationAudited)
                 .submitTime(new Date())
                 .user(this.user)

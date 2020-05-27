@@ -21,6 +21,8 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.enums.SystemImageType;
@@ -58,7 +60,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -67,7 +68,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.jboss.pnc.constants.ReposiotryIdentifier;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -236,7 +236,7 @@ public class DatastoreTest {
         Assert.assertNotNull(user.getId());
 
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
-                .id(datastore.getNextBuildRecordId())
+                .id(Sequence.nextId())
                 .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
@@ -358,7 +358,7 @@ public class DatastoreTest {
         dependencies.add(importedArtifact2);
         dependencies.add(importedDuplicateArtifact);
         BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder()
-                .id(datastore.getNextBuildRecordId())
+                .id(Sequence.nextId())
                 .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))

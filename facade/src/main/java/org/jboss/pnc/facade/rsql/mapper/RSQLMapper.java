@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.rsql.mapper;
 
 import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.facade.rsql.converter.ValueConverter;
 import org.jboss.pnc.model.GenericEntity;
 
 import javax.persistence.criteria.From;
@@ -55,4 +56,6 @@ public interface RSQLMapper<ID extends Serializable, DB extends GenericEntity<ID
      * @return String with entity field names separated by '.'.
      */
     String toPath(RSQLSelectorPath selector);
+
+    ValueConverter getValueConverter(String name);
 }

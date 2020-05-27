@@ -17,12 +17,10 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import java.util.Date;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.coordinator.maintenance.BlacklistAsyncInvoker;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
-import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.Page;
@@ -64,14 +62,13 @@ import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.time.Instant;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
@@ -277,7 +274,12 @@ public class ArtifactProviderImpl
             String query,
             String buildId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(parseId(buildId)));
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
     }
 
     @Override
@@ -292,7 +294,7 @@ public class ArtifactProviderImpl
                 pageSize,
                 sortingRsql,
                 query,
-                withDependantBuildRecordId(parseId(buildId)));
+                withDependantBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
     }
 
     @Override

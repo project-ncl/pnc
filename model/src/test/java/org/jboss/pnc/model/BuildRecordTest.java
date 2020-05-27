@@ -72,7 +72,7 @@ public class BuildRecordTest extends AbstractModelTest {
     @Test
     public void shouldProhibitDeletionOfNonTemporaryBuild() {
         // given
-        int brId = 666;
+        long brId = 666;
         BuildRecord br = prepareBuildRecordBuilder().id(brId).temporaryBuild(false).build();
 
         em.getTransaction().begin();
@@ -97,7 +97,7 @@ public class BuildRecordTest extends AbstractModelTest {
     @Test
     public void shouldAllowDeletionOfTemporaryBuild() {
         // given
-        int brId = 666;
+        long brId = 666;
         BuildRecord br = prepareBuildRecordBuilder().id(brId).temporaryBuild(true).build();
 
         em.getTransaction().begin();

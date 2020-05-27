@@ -27,7 +27,7 @@ import java.util.List;
  */
 public interface BuildRecordPushResultRepository extends Repository<BuildRecordPushResult, Long> {
 
-    BuildRecordPushResult getLatestForBuildRecord(Integer buildRecordId);
+    BuildRecordPushResult getLatestForBuildRecord(Long buildRecordId);
 
-    List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Integer buildRecordId);
+    List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Long buildRecordId);
 }

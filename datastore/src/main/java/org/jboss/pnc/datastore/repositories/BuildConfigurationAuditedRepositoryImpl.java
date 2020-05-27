@@ -161,14 +161,14 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
      */
     private List<BuildRecord> getBuildRecords(IdRev idRev) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Integer> query = cb.createQuery(Integer.class);
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<BuildRecord> root = query.from(BuildRecord.class);
         query.select(root.get(BuildRecord_.id));
         query.where(
                 cb.and(
                         cb.equal(root.get(BuildRecord_.buildConfigurationId), idRev.getId()),
                         cb.equal(root.get(BuildRecord_.buildConfigurationRev), idRev.getRev())));
-        List<Integer> buildRecordIds = entityManager.createQuery(query).getResultList();
+        List<Long> buildRecordIds = entityManager.createQuery(query).getResultList();
         return buildRecordIds.stream()
                 .map(id -> BuildRecord.Builder.newBuilder().id(id).build())
                 .collect(Collectors.toList());
@@ -180,11 +180,11 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
      */
     private List<BuildRecord> getBuildRecords(Integer buildConfigurationId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Integer> query = cb.createQuery(Integer.class);
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<BuildRecord> root = query.from(BuildRecord.class);
         query.select(root.get(BuildRecord_.id));
         query.where(cb.equal(root.get(BuildRecord_.buildConfigurationId), buildConfigurationId));
-        List<Integer> buildRecordIds = entityManager.createQuery(query).getResultList();
+        List<Long> buildRecordIds = entityManager.createQuery(query).getResultList();
         return buildRecordIds.stream()
                 .map(id -> BuildRecord.Builder.newBuilder().id(id).build())
                 .collect(Collectors.toList());

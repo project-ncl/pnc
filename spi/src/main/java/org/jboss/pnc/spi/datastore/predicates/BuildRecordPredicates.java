@@ -262,7 +262,7 @@ public class BuildRecordPredicates {
         return (root, query, cb) -> cb.isTrue(root.get(BuildRecord_.temporaryBuild));
     }
 
-    public static Predicate<BuildRecord> withCausingBuildRecordId(Integer buildRecordId) {
+    public static Predicate<BuildRecord> withCausingBuildRecordId(Long buildRecordId) {
         return (root, query, cb) -> {
             Join<BuildRecord, BuildRecord> join = root.join(BuildRecord_.noRebuildCause);
             return cb.equal(join.get(BuildRecord_.id), buildRecordId);

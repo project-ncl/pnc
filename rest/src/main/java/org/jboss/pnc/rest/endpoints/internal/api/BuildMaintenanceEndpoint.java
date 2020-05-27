@@ -55,6 +55,6 @@ public interface BuildMaintenanceEndpoint {
                     @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION) })
     @GET
     @Path("/{id}/repository-manager-result")
-    public Response collectRepoManagerResult(@Parameter(description = "Build record ID.") @PathParam("id") Integer id);
+    public Response collectRepoManagerResult(@Parameter(description = "Build record ID.") @PathParam("id") Long id);
 
 }

@@ -64,7 +64,7 @@ public interface BuildCoordinator {
      * @return True if the cancel request is successfully accepted, false if if there is no running build with such ID
      * @throws CoreException Thrown if cancellation fails due to any internal error
      */
-    boolean cancel(int buildTaskId) throws CoreException;
+    boolean cancel(long buildTaskId) throws CoreException;
 
     boolean cancelSet(int buildSetTaskId) throws CoreException;
 
@@ -72,6 +72,6 @@ public interface BuildCoordinator {
 
     void start();
 
-    Optional<BuildTaskContext> getMDCMeta(Integer buildTaskId);
+    Optional<BuildTaskContext> getMDCMeta(Long buildTaskId);
 
 }

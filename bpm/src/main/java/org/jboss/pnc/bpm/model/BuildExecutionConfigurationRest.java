@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 @XmlRootElement(name = "buildExecutionConfiguration")
 public class BuildExecutionConfigurationRest {
 
-    protected int id;
+    protected long id;
     protected String buildContentId;
     protected User user;
     protected String buildScript;

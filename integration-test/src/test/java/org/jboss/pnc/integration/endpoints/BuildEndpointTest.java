@@ -41,6 +41,7 @@ import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -76,7 +77,6 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
-import org.jboss.pnc.integration.setup.Credentials;
 import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
 
@@ -137,7 +137,7 @@ public class BuildEndpointTest {
     @Test
     public void shouldFilterResults() throws Exception {
         BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
-        String rsql = "id==1";
+        String rsql = "id==" + buildId;
 
         List<String> filtered = bc.getAll(null, null, Optional.empty(), Optional.of(rsql))
                 .getAll()
@@ -145,7 +145,7 @@ public class BuildEndpointTest {
                 .map(BuildRef::getId)
                 .collect(Collectors.toList());
 
-        assertThat(filtered).containsExactly("1");
+        assertThat(filtered).containsExactly(buildId);
     }
 
     @Test
@@ -393,7 +393,7 @@ public class BuildEndpointTest {
     public void shouldSetBuiltArtifacts() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
 
-        String buildRecordId = "1";
+        String buildRecordId = buildId;
         RemoteCollection<Artifact> artifacts = client.getBuiltArtifacts(buildRecordId);
         Set<Integer> artifactIds = artifactIds(artifacts);
         assertThat(artifactIds).containsExactlyInAnyOrder(100, 101);
@@ -408,7 +408,7 @@ public class BuildEndpointTest {
     public void shouldSetDependentArtifacts() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
 
-        String buildRecordId = "1";
+        String buildRecordId = buildId;
         RemoteCollection<Artifact> artifacts = client.getDependencyArtifacts(buildRecordId);
         Set<Integer> artifactIds = artifactIds(artifacts);
         assertThat(artifactIds).contains(104, 105);
@@ -527,7 +527,7 @@ public class BuildEndpointTest {
     public void shouldFailAsRegularUser() {
         BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
-        String buildRecordId = "1";
+        String buildRecordId = buildId;
         assertThatThrownBy(() -> client.setBuiltArtifacts(buildRecordId, Collections.emptyList()))
                 .hasCauseInstanceOf(ForbiddenException.class);
 
@@ -604,20 +604,18 @@ public class BuildEndpointTest {
     @Test
     public void shouldNotStandardUserModifyUnallowedQualityLevel() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asUser());
-        String buildRecordId = "1";
         String REASON = "This artifact has become old enough";
 
-        assertThatThrownBy(() -> client.createBuiltArtifactsQualityLevelRevisions(buildRecordId, "BLACKListed", REASON))
+        assertThatThrownBy(() -> client.createBuiltArtifactsQualityLevelRevisions(buildId, "BLACKListed", REASON))
                 .hasCauseInstanceOf(BadRequestException.class);
     }
 
     @Test
     public void shouldNotApplyUnknownQualityLevel() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asUser());
-        String buildRecordId = "1";
         String REASON = "This artifact will be marked as WHITELISTED";
 
-        assertThatThrownBy(() -> client.createBuiltArtifactsQualityLevelRevisions(buildRecordId, "WHITELISTED", REASON))
+        assertThatThrownBy(() -> client.createBuiltArtifactsQualityLevelRevisions(buildId, "WHITELISTED", REASON))
                 .hasCauseInstanceOf(BadRequestException.class);
     }
 

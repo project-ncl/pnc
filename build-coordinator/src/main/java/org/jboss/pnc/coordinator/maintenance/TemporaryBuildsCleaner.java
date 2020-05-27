@@ -34,7 +34,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -80,7 +79,7 @@ public class TemporaryBuildsCleaner {
      * @return true if success
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Result deleteTemporaryBuild(Integer buildRecordId, String authToken) throws ValidationException {
+    public Result deleteTemporaryBuild(Long buildRecordId, String authToken) throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
         if (buildRecord == null) {
             throw new ValidationException(
@@ -90,7 +89,7 @@ public class TemporaryBuildsCleaner {
     }
 
     private Result deleteTemporaryBuild(BuildRecord buildRecord, String authToken) throws ValidationException {
-        Integer buildRecordId = buildRecord.getId();
+        Long buildRecordId = buildRecord.getId();
 
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");

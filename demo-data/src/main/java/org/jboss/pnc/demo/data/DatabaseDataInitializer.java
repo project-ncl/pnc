@@ -644,7 +644,7 @@ public class DatabaseDataInitializer {
                 .queryById(buildConfig1AuditIdRev);
         if (buildConfigAudited1 != null) {
 
-            int nextId = datastore.getNextBuildRecordId();
+            long nextId = Sequence.nextId();
             log.info("####nextId: " + nextId);
 
             BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder()
@@ -680,7 +680,7 @@ public class DatabaseDataInitializer {
                             + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
             buildRecords.add(buildRecord1);
 
-            nextId = datastore.getNextBuildRecordId();
+            nextId = Sequence.nextId();
             log.info("####nextId: " + nextId);
 
             BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder()
@@ -774,7 +774,7 @@ public class DatabaseDataInitializer {
                 .queryById(buildConfig2AuditIdRev);
         if (buildConfigAudited2 != null) {
 
-            int nextId = datastore.getNextBuildRecordId();
+            long nextId = Sequence.nextId();
             log.info("####nextId: " + nextId);
 
             BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
@@ -794,7 +794,7 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(false)
                     .build();
 
-            nextId = datastore.getNextBuildRecordId();
+            nextId = Sequence.nextId();
             log.info("####nextId: " + nextId);
 
             BuildRecord savedBuildRecord2 = buildRecordRepository.save(buildRecord2);

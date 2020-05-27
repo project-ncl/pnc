@@ -34,7 +34,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
@@ -54,10 +53,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierInAndBuilt;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256InAndBuilt;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 
@@ -78,8 +79,6 @@ public class DefaultDatastore implements Datastore {
 
     private UserRepository userRepository;
 
-    private SequenceHandlerRepository sequenceHandlerRepository;
-
     private TargetRepositoryRepository targetRepositoryRepository;
 
     public DefaultDatastore() {
@@ -93,7 +92,6 @@ public class DefaultDatastore implements Datastore {
             BuildConfigurationAuditedRepository buildConfigurationAuditedRepository,
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             UserRepository userRepository,
-            SequenceHandlerRepository sequenceHandlerRepository,
             TargetRepositoryRepository targetRepositoryRepository) {
         this.artifactRepository = artifactRepository;
         this.buildRecordRepository = buildRecordRepository;
@@ -101,7 +99,6 @@ public class DefaultDatastore implements Datastore {
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
         this.userRepository = userRepository;
-        this.sequenceHandlerRepository = sequenceHandlerRepository;
         this.targetRepositoryRepository = targetRepositoryRepository;
     }
 
@@ -312,15 +309,6 @@ public class DefaultDatastore implements Datastore {
     @Override
     public void createNewUser(User user) {
         userRepository.save(user);
-    }
-
-    @Override
-    public int getNextBuildRecordId() {
-
-        Long nextId = sequenceHandlerRepository.getNextID(BuildRecord.SEQUENCE_NAME);
-        logger.debug("Build Record nextId: {}", nextId);
-
-        return nextId.intValue();
     }
 
     /**

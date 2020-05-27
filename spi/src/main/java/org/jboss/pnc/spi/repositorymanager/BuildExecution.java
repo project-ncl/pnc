@@ -23,7 +23,7 @@ import java.util.List;
 
 public interface BuildExecution {
 
-    int getId();
+    long getId();
 
     String getBuildContentId();
 

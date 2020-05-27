@@ -39,14 +39,14 @@ import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:04 PM
  */
-public class BuildRecordRepositoryMock extends IntIdRepositoryMock<BuildRecord> implements BuildRecordRepository {
+public class BuildRecordRepositoryMock extends LongIdRepositoryMock<BuildRecord> implements BuildRecordRepository {
     @Override
-    public BuildRecord findByIdFetchAllProperties(Integer id) {
+    public BuildRecord findByIdFetchAllProperties(Long id) {
         return queryById(id);
     }
 
     @Override
-    public BuildRecord findByIdFetchProperties(Integer id) {
+    public BuildRecord findByIdFetchProperties(Long id) {
         return queryById(id);
     }
 
@@ -139,7 +139,7 @@ public class BuildRecordRepositoryMock extends IntIdRepositoryMock<BuildRecord> 
     }
 
     @Override
-    public List<BuildRecord> getBuildByCausingRecord(Integer causingRecordId) {
+    public List<BuildRecord> getBuildByCausingRecord(Long causingRecordId) {
         return null;
     }
 }

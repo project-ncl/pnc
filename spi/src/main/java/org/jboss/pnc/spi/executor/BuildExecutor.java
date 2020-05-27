@@ -33,10 +33,10 @@ public interface BuildExecutor {
             Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent,
             String accessToken) throws ExecutorException;
 
-    BuildExecutionSession getRunningExecution(int buildExecutionTaskId);
+    BuildExecutionSession getRunningExecution(long buildExecutionTaskId);
 
     void shutdown();
 
-    void cancel(Integer executionConfigurationId) throws ExecutorException;
+    void cancel(Long executionConfigurationId) throws ExecutorException;
 
 }

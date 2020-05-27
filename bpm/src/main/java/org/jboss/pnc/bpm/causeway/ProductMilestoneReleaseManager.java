@@ -268,7 +268,7 @@ public class ProductMilestoneReleaseManager {
     private void storeBuildRecordPush(
             BuildImportResultRest buildRest,
             ProductMilestoneRelease productMilestoneRelease) {
-        Integer recordId = buildRest.getBuildRecordId();
+        Long recordId = buildRest.getBuildRecordId();
         BuildRecord record = buildRecordRepository.queryById(recordId);
         if (record == null) {
             log.error("No record found for record id: {}, skipped saving info: {}", recordId, buildRest);

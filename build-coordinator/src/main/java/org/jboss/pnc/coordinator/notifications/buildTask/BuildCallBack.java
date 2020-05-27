@@ -26,15 +26,15 @@ import java.util.function.Consumer;
  */
 public class BuildCallBack {
 
-    private final Integer buildTaskId;
+    private final Long buildTaskId;
     private final Consumer<BuildStatusChangedEvent> callback;
 
-    public BuildCallBack(int buildTaskId, Consumer<BuildStatusChangedEvent> callback) {
+    public BuildCallBack(long buildTaskId, Consumer<BuildStatusChangedEvent> callback) {
         this.buildTaskId = buildTaskId;
         this.callback = callback;
     }
 
-    public Integer getBuildTaskId() {
+    public Long getBuildTaskId() {
         return buildTaskId;
     }
 

@@ -24,6 +24,7 @@ import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLOperators;
 import org.jboss.pnc.datastore.limits.rsql.EmptySortInfo;
 import org.jboss.pnc.datastore.predicates.rsql.EmptyRSQLPredicate;
+import org.jboss.pnc.facade.rsql.converter.Value;
 import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -153,7 +154,8 @@ public class RSQLProducerImpl implements RSQLProducer {
                     root,
                     cb,
                     (BiFunction<From<?, DB>, RSQLSelectorPath, Path>) (from, selector) -> mapper
-                            .toPath(type, from, selector));
+                            .toPath(type, from, selector),
+                    (Function<Value<? extends GenericEntity, ?>, Comparable<?>>) (value) -> mapper.convertValue(value));
             return rootNode.accept(visitor);
         };
     }

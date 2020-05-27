@@ -33,14 +33,14 @@ import java.util.Set;
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildRecord} entity.
  */
-public interface BuildRecordRepository extends Repository<BuildRecord, Integer> {
+public interface BuildRecordRepository extends Repository<BuildRecord, Long> {
 
-    BuildRecord findByIdFetchAllProperties(Integer id);
+    BuildRecord findByIdFetchAllProperties(Long id);
 
     /**
      * @return null if record is not found.
      */
-    BuildRecord findByIdFetchProperties(Integer id);
+    BuildRecord findByIdFetchProperties(Long id);
 
     List<BuildRecord> queryWithPredicatesUsingCursor(
             PageInfo pageInfo,
@@ -83,5 +83,5 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
 
     Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId);
 
-    List<BuildRecord> getBuildByCausingRecord(Integer causingRecordId);
+    List<BuildRecord> getBuildByCausingRecord(Long causingRecordId);
 }

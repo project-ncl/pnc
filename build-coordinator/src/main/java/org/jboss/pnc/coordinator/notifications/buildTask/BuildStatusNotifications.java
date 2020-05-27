@@ -21,6 +21,7 @@ package org.jboss.pnc.coordinator.notifications.buildTask;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +54,7 @@ public class BuildStatusNotifications {
         log.debug("Observed new status changed event {}.", event);
         BuildStatusChangedEvent buildStatusChangedEvent = event; // Avoid CDI runtime issue issue NCL-1505
         Predicate<BuildCallBack> filterSubscribersMatchingTaskId = (callBackUrl) -> callBackUrl.getBuildTaskId()
-                .equals(Integer.valueOf(buildStatusChangedEvent.getBuild().getId()));
+                .equals(BuildMapper.idMapper.toEntity(buildStatusChangedEvent.getBuild().getId()));
 
         Set<BuildCallBack> matchingTasks = subscribers.stream()
                 .filter(filterSubscribersMatchingTaskId)

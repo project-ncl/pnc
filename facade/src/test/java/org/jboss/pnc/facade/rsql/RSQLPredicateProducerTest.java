@@ -17,8 +17,13 @@
  */
 package org.jboss.pnc.facade.rsql;
 
+import org.hibernate.query.criteria.internal.path.SingularAttributePath;
+import org.jboss.pnc.common.util.NumberUtils;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
+import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.facade.rsql.converter.Value;
+import org.jboss.pnc.facade.rsql.mapper.BuildRSQLMapper;
 import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildEnvironment_;
@@ -28,13 +33,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
-import static org.mockito.ArgumentMatchers.any;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
@@ -43,7 +44,7 @@ import javax.persistence.criteria.From;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
-
+import javax.persistence.metamodel.SingularAttribute;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -52,9 +53,11 @@ import java.util.stream.Collectors;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
-import org.jboss.pnc.enums.BuildType;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -74,23 +77,32 @@ public class RSQLPredicateProducerTest {
         Class<?> foo = BuildRecord.class;
         when(universalMapper.toPath(ArgumentMatchers.same(BuildRecord.class), any(), any()))
                 .then(callBuildRecordPath());
+        when(universalMapper.convertValue(any(Value.class))).then(callBuildRecordConvert());
     }
 
     @Test
     public void testCriteriaPredicate() {
+        long id = 4L;
         org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate = producer
-                .getCriteriaPredicate(BuildRecord.class, "id==4");
+                .getCriteriaPredicate(BuildRecord.class, "id==" + NumberUtils.decimalToBase64(id));
 
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);
-        Path<Integer> idPath = mock(Path.class);
+        SingularAttributePath<Long> idPath = mock(SingularAttributePath.class);
 
         when(root.get(BuildRecord_.id)).thenReturn(idPath);
-        Mockito.doReturn(Integer.class).when(idPath).getJavaType();
+        Mockito.doReturn(Long.class).when(idPath).getJavaType();
+
+        SingularAttribute pathAttribute = mock(SingularAttribute.class);
+        java.lang.reflect.Member javaMember = mock(java.lang.reflect.Member.class);
+        Mockito.doReturn(BuildRecord.class).when(javaMember).getDeclaringClass();
+        Mockito.doReturn(javaMember).when(pathAttribute).getJavaMember();
+        Mockito.doReturn("id").when(pathAttribute).getName();
+        Mockito.doReturn(pathAttribute).when(idPath).getAttribute();
 
         criteriaPredicate.apply(root, null, cb);
 
-        Mockito.verify(cb).equal(idPath, 4);
+        Mockito.verify(cb).equal(idPath, id);
     }
 
     @Test
@@ -101,11 +113,18 @@ public class RSQLPredicateProducerTest {
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);
         Join<BuildRecord, BuildEnvironment> join = mock(Join.class);
-        Path<String> namePath = mock(Path.class);
+        SingularAttributePath<String> namePath = mock(SingularAttributePath.class);
 
         when(root.join(BuildRecord_.buildEnvironment)).thenReturn(join);
         when(join.get(BuildEnvironment_.name)).thenReturn(namePath);
         Mockito.doReturn(String.class).when(namePath).getJavaType();
+
+        SingularAttribute pathAttribute = mock(SingularAttribute.class);
+        java.lang.reflect.Member javaMember = mock(java.lang.reflect.Member.class);
+        Mockito.doReturn(BuildEnvironment.class).when(javaMember).getDeclaringClass();
+        Mockito.doReturn(javaMember).when(pathAttribute).getJavaMember();
+        Mockito.doReturn("name").when(pathAttribute).getName();
+        Mockito.doReturn(pathAttribute).when(namePath).getAttribute();
 
         criteriaPredicate.apply(root, null, cb);
 
@@ -413,5 +432,12 @@ public class RSQLPredicateProducerTest {
             default:
                 throw new IllegalArgumentException("Unknown RSQL selector " + selector.getElement());
         }
+    }
+
+    private Answer<?> callBuildRecordConvert() {
+        return invocation -> {
+            Value value = (Value) invocation.getArgument(0);
+            return new BuildRSQLMapper().getValueConverter(value.getName()).convert(value);
+        };
     }
 }

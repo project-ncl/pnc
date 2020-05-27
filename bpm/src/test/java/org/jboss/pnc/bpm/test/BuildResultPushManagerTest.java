@@ -155,7 +155,7 @@ public class BuildResultPushManagerTest {
 
     private BuildRecord buildRecord(boolean withExecutionRootName) {
         BuildRecord record = new BuildRecord();
-        record.setId(buildRecordIdSequence++);
+        record.setId(Sequence.nextId());
         record.setStatus(BuildStatus.SUCCESS);
         record.setBuildConfigurationAudited(bca);
         record.setDependencies(Collections.emptySet());
