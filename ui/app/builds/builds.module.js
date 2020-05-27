@@ -113,7 +113,7 @@
           brewPushResult: ['BuildResource', '$stateParams', function (BuildResource, $stateParams) {
             return BuildResource.getBrewPushResult({ id: $stateParams.buildId });
           }],
-          buildRevision: ['BuildResource', 'build', function (BuildResource, build) {
+          buildConfigRevision: ['BuildResource', 'build', function (BuildResource, build) {
             return BuildResource.getRevision({ id: build.buildConfigRevision.id, revisionId: build.buildConfigRevision.rev }).$promise;
           }]
         }

@@ -21,7 +21,8 @@
   angular.module('pnc.builds').component('pncBuildDetailDetailsPage', {
     bindings: {
       build: '<',
-      dependencyGraph: '<'
+      dependencyGraph: '<',
+      buildConfigRevision: '<'
     },
     templateUrl: 'builds/detail/details/pnc-build-detail-details-page.html',
     controller: ['$scope', 'events', 'buildStatusHelper', Controller]
