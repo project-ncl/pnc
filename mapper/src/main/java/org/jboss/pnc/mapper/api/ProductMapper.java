@@ -18,6 +18,7 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.ProductRef;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.model.Product;
 import org.mapstruct.BeanMapping;
@@ -47,4 +48,9 @@ public interface ProductMapper extends EntityMapper<Integer, Product, org.jboss.
     @Override
     @BeanMapping(ignoreUnmappedSourceProperties = { "productVersions" })
     ProductRef toRef(Product dbEntity);
+
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }

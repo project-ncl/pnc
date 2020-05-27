@@ -20,6 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.mapstruct.BeanMapping;
@@ -64,4 +65,9 @@ public interface GroupConfigurationMapper
             ignoreUnmappedSourceProperties = { "buildConfigSetRecords", "active", "currentProductMilestone",
                     "archived" })
     GroupConfiguration toDTO(BuildConfigurationSet dbEntity);
+
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }

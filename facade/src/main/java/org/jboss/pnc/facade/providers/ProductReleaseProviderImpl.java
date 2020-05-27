@@ -33,7 +33,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductReleasePredicates.wi
 @PermitAll
 @Stateless
 public class ProductReleaseProviderImpl
-        extends AbstractIntIdProvider<org.jboss.pnc.model.ProductRelease, ProductRelease, ProductReleaseRef>
+        extends AbstractProvider<Integer, org.jboss.pnc.model.ProductRelease, ProductRelease, ProductReleaseRef>
         implements ProductReleaseProvider {
 
     @Inject

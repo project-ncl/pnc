@@ -67,8 +67,9 @@ import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPred
 
 @PermitAll
 @Stateless
-public class SCMRepositoryProviderImpl extends
-        AbstractIntIdProvider<RepositoryConfiguration, SCMRepository, SCMRepository> implements SCMRepositoryProvider {
+public class SCMRepositoryProviderImpl
+        extends AbstractProvider<Integer, RepositoryConfiguration, SCMRepository, SCMRepository>
+        implements SCMRepositoryProvider {
 
     private static final Logger log = LoggerFactory.getLogger(SCMRepositoryProviderImpl.class);
 

@@ -18,6 +18,7 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.SCMRepository;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -60,4 +61,8 @@ public interface SCMRepositoryMapper
                     "buildConfigurations" })
     SCMRepository toDTO(RepositoryConfiguration dbEntity);
 
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }

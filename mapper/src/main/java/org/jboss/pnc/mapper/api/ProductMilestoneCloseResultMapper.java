@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.BuildPushResultRef;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.ProductMilestoneRef;
+import org.jboss.pnc.mapper.LongIdMapper;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -57,4 +58,9 @@ public interface ProductMilestoneCloseResultMapper extends
     @Override
     @BeanMapping(ignoreUnmappedSourceProperties = { "milestone", "log", "buildRecordPushResults" })
     ProductMilestoneCloseResultRef toRef(ProductMilestoneRelease dbEntity);
+
+    @Override
+    default IdMapper<Long, String> getIdMapper() {
+        return new LongIdMapper();
+    }
 }

@@ -63,4 +63,6 @@ public interface EntityMapper<ID extends Serializable, DB extends GenericEntity<
      * @return Converted DTO reference entity.
      */
     REF toRef(DB dbEntity);
+
+    IdMapper<ID, String> getIdMapper();
 }

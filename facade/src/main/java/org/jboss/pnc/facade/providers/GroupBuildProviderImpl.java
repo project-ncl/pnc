@@ -54,7 +54,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredica
 
 @PermitAll
 @Stateless
-public class GroupBuildProviderImpl extends AbstractIntIdProvider<BuildConfigSetRecord, GroupBuild, GroupBuildRef>
+public class GroupBuildProviderImpl extends AbstractProvider<Integer, BuildConfigSetRecord, GroupBuild, GroupBuildRef>
         implements GroupBuildProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupBuildProviderImpl.class);

@@ -17,43 +17,43 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.assertj.core.api.Condition;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-
-import java.util.ArrayList;
-import java.util.List;
-import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.facade.validation.DTOValidationException;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-import static org.junit.Assert.fail;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ArtifactProviderTest extends AbstractProviderTest<org.jboss.pnc.model.Artifact> {
+public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pnc.model.Artifact> {
 
     @Mock
     private ArtifactRepository repository;

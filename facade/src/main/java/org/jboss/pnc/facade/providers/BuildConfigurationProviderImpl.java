@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import java.util.Collections;
-
 import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -66,7 +64,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -85,8 +83,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 
 @PermitAll
 @Stateless
-public class BuildConfigurationProviderImpl
-        extends AbstractIntIdProvider<org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef>
+public class BuildConfigurationProviderImpl extends
+        AbstractProvider<Integer, org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef>
         implements BuildConfigurationProvider {
 
     private final Logger logger = LoggerFactory.getLogger(BuildConfigurationProviderImpl.class);

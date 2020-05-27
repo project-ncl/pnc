@@ -24,7 +24,6 @@ import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.facade.util.UserService;
-import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -57,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BuildConfigProviderTest extends AbstractProviderTest<BuildConfiguration> {
+public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConfiguration> {
 
     @Mock
     private BuildConfigurationRepository repository;

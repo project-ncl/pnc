@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.model.ProductMilestone;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -62,4 +63,9 @@ public interface ProductMilestoneMapper
             ignoreUnmappedSourceProperties = { "productVersion", "productRelease", "performedBuilds",
                     "distributedArtifacts" })
     ProductMilestoneRef toRef(ProductMilestone dbEntity);
+
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }

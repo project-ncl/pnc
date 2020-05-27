@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProductVersionProviderTest extends AbstractProviderTest<ProductVersion> {
+public class ProductVersionProviderTest extends AbstractIntIdProviderTest<ProductVersion> {
     @Mock
     private ProductVersionRepository repository;
 

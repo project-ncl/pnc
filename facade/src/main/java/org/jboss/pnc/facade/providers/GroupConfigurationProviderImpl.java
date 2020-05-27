@@ -22,11 +22,12 @@ import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
-import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
-import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
+import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
@@ -36,8 +37,6 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import org.jboss.pnc.facade.validation.RepositoryViolationException;
-
 import java.util.List;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
@@ -48,7 +47,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredic
 @PermitAll
 @Stateless
 public class GroupConfigurationProviderImpl
-        extends AbstractIntIdProvider<BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef>
+        extends AbstractProvider<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef>
         implements GroupConfigurationProvider {
 
     @Inject

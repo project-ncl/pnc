@@ -18,6 +18,7 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.model.Project;
 import org.mapstruct.BeanMapping;
@@ -53,4 +54,8 @@ public interface ProjectMapper extends EntityMapper<Integer, Project, org.jboss.
     @Mapping(target = "buildConfigurations", source = "buildConfigs")
     Project toEntity(org.jboss.pnc.dto.Project dtoEntity);
 
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }

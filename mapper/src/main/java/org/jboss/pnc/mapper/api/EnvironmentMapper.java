@@ -18,6 +18,7 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.mapstruct.Mapper;
 
@@ -51,4 +52,8 @@ public interface EnvironmentMapper extends EntityMapper<Integer, BuildEnvironmen
     @Override
     Environment toDTO(BuildEnvironment dbEntity);
 
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }

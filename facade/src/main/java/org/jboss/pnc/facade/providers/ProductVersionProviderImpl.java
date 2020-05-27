@@ -17,16 +17,15 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import java.util.Collections;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.dto.GroupConfigurationRef;
+import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
-import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
@@ -36,7 +35,7 @@ import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -46,7 +45,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.wi
 @PermitAll
 @Stateless
 public class ProductVersionProviderImpl
-        extends AbstractIntIdProvider<org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef>
+        extends AbstractProvider<Integer, org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef>
         implements ProductVersionProvider {
 
     private ProductRepository productRepository;

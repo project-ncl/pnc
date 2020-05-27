@@ -27,6 +27,7 @@ import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.BrewNameWorkaround;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.api.BuildMapper.StatusMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -52,7 +53,10 @@ import java.util.stream.Collectors;
 
 public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, BuildRef> {
 
+    IdMapper<Integer, String> idMapper = new IntIdMapper();
+
     @Override
+    @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
     @Mapping(target = "environment", ignore = true)
     @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
     @Mapping(target = "buildConfigRevision", ignore = true)
@@ -78,11 +82,12 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
             return null;
         }
         BuildRecord entity = new BuildRecord();
-        entity.setId(Integer.valueOf(dtoEntity.getId()));
+        entity.setId(getIdMapper().toEntity(dtoEntity.getId()));
         return entity;
     }
 
     @Override
+    @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
     @Mapping(target = "scmUrl", source = "scmRepoURL")
     @Mapping(target = "progress", source = "status")
     @BeanMapping(
@@ -96,6 +101,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     BuildRef toRef(BuildRecord dbEntity);
 
     @Override
+    @Mapping(target = "id", expression = "java( getIdMapper().toEntity(dtoEntity.getId()) )")
     @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
     @Mapping(target = "dependentBuildRecordIds", ignore = true)
     @Mapping(target = "dependencyBuildRecordIds", ignore = true)
@@ -127,6 +133,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @BeanMapping(ignoreUnmappedSourceProperties = { "project", "scmRepository", "progress" })
     BuildRecord toEntity(Build dtoEntity);
 
+    @Mapping(target = "id", expression = "java( getIdMapper().toDto(buildTask.getId()) )")
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
     @Mapping(
             target = "scmRepository",
@@ -177,6 +184,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     }
 
     public static class IDMapper {
+
         public static BuildRecord toIdEntity(Integer id) {
             BuildRecord buildRecord = new BuildRecord();
             buildRecord.setId(id);
@@ -190,7 +198,12 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
 
     public static class BuildTaskIdMapper {
         public static List<String> toBuildIds(Set<BuildTask> buildTasks) {
-            return buildTasks.stream().map(BuildTask::getId).map(String::valueOf).collect(Collectors.toList());
+            return buildTasks.stream().map(BuildTask::getId).map(idMapper::toDto).collect(Collectors.toList());
         }
+    }
+
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return idMapper;
     }
 }

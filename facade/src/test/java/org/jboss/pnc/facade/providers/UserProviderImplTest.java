@@ -18,11 +18,10 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.User;
-
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,12 +35,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.jboss.pnc.facade.util.UserService;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserProviderImplTest extends AbstractProviderTest<User> {
+public class UserProviderImplTest extends AbstractIntIdProviderTest<User> {
 
     @Mock
     private UserRepository repository;

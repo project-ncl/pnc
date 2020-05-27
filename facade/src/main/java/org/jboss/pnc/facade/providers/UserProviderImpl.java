@@ -18,8 +18,9 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.User;
-import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.facade.providers.api.UserProvider;
+import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +28,10 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import org.jboss.pnc.facade.util.UserService;
 
 @PermitAll
 @Stateless
-public class UserProviderImpl extends AbstractIntIdProvider<org.jboss.pnc.model.User, User, User>
+public class UserProviderImpl extends AbstractProvider<Integer, org.jboss.pnc.model.User, User, User>
         implements UserProvider {
 
     private static final Logger log = LoggerFactory.getLogger(UserProviderImpl.class);

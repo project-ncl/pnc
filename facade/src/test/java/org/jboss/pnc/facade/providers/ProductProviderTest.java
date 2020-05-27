@@ -40,7 +40,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProductProviderTest extends AbstractProviderTest<Product> {
+public class ProductProviderTest extends AbstractIntIdProviderTest<Product> {
 
     @Mock
     private ProductRepository repository;

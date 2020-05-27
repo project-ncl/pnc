@@ -67,7 +67,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GroupBuildProviderTest extends AbstractProviderTest<BuildConfigSetRecord> {
+public class GroupBuildProviderTest extends AbstractIntIdProviderTest<BuildConfigSetRecord> {
 
     private static final int CURRENT_USER = randInt(1000, 100000);
 
