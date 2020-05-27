@@ -17,11 +17,9 @@
  */
 package org.jboss.pnc.integration_new.endpoint;
 
-import io.restassured.response.Response;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.integration.assertions.ResponseAssertion;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -30,7 +28,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -45,13 +42,17 @@ public class BuildRecordAliasEndpointTest {
     @Test
     public void testRedirect() {
         int buildRecordId = 100;
-        final Response response = given().redirects()
+        given().redirects()
                 .follow(false)
                 .port(8080)
                 .when()
-                .get(String.format("/pnc-rest-new/rest-new/build-records/%d", buildRecordId));
-        ResponseAssertion.assertThat(response).hasStatus(301);
-        assertThat(response.getHeader("Location")).isNotNull()
-                .isEqualTo(String.format("http://localhost:8080/pnc-rest-new/rest-new/builds/%d", buildRecordId));
+                .get(String.format("/pnc-rest-new/rest-new/build-records/%d", buildRecordId))
+                .then()
+                .assertThat()
+                .statusCode(301)
+                .and()
+                .header(
+                        "Location",
+                        String.format("http://localhost:8080/pnc-rest-new/rest-new/builds/%d", buildRecordId));
     }
 }
