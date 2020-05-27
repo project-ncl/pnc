@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EnvironmentProviderTest extends AbstractProviderTest<BuildEnvironment> {
+public class EnvironmentProviderTest extends AbstractIntIdProviderTest<BuildEnvironment> {
 
     @Mock
     private BuildEnvironmentRepository repository;

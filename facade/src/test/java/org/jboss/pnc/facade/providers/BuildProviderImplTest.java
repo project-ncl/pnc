@@ -25,6 +25,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -46,6 +47,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,11 +85,13 @@ import static org.mockito.Mockito.when;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @RunWith(MockitoJUnitRunner.class)
-public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
+public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord> {
 
     private static final int CURRENT_USER = randInt(1000, 100000);
 
     private static final String USER_TOKEN = "token";
+
+    private final Logger logger = LoggerFactory.getLogger(BuildProviderImplTest.class);
 
     @Mock
     private BuildRecordRepository repository;
@@ -146,15 +151,24 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
 
     private BuildTask mockBuildTask() {
         BuildTask bt = mock(BuildTask.class);
-        when(bt.getId()).thenReturn(entityId++);
-        when(bt.getSubmitTime()).thenReturn(new Date(entityId * 100));
-
+        when(bt.getId()).thenReturn(getNextId());
+        when(bt.getSubmitTime()).thenReturn(new Date());
+        try {
+            Thread.sleep(1L); // make sure there are no two builds with the same start date
+        } catch (InterruptedException e) {
+            logger.error("I can get no sleep.", e);
+        }
         runningBuilds.add(bt);
         return bt;
     }
 
     private BuildRecord mockBuildRecord() {
-        BuildRecord br = BuildRecord.Builder.newBuilder().id(entityId++).submitTime(new Date(entityId * 100)).build();
+        BuildRecord br = BuildRecord.Builder.newBuilder().id(getNextId()).submitTime(new Date()).build();
+        try {
+            Thread.sleep(1L); // make sure there are no two builds with the same start date
+        } catch (InterruptedException e) {
+            logger.error("I can get no sleep.", e);
+        }
         repositoryList.add(0, br);
         return br;
     }
@@ -174,7 +188,7 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
 
         // Verify
         assertEquals(1, builds.getTotalHits());
-        assertEquals(Integer.toString(latestRunning.getId()), builds.getContent().iterator().next().getId());
+        assertEquals(BuildMapper.idMapper.toDto(latestRunning.getId()), builds.getContent().iterator().next().getId());
     }
 
     @Test
@@ -185,6 +199,7 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
         mockBuildRecord();
         mockBuildTask();
         BuildRecord latestBuild = mockBuildRecord();
+        logger.debug("Task id: {}", latestBuild.getId());
 
         // When
         BuildPageInfo pageInfo = new BuildPageInfo(0, 10, "", "", true, false);
@@ -192,7 +207,7 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
 
         // Verify
         assertEquals(1, builds.getTotalHits());
-        assertEquals(latestBuild.getId().toString(), builds.getContent().iterator().next().getId());
+        assertEquals(BuildMapper.idMapper.toDto(latestBuild.getId()), builds.getContent().iterator().next().getId());
     }
 
     @Test
@@ -215,8 +230,8 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
         assertEquals(4, builds.getTotalHits());
         assertEquals(2, builds.getContent().size());
         Iterator<Build> it = builds.getContent().iterator();
-        assertEquals(Integer.toString(build1.getId()), it.next().getId());
-        assertEquals(Integer.toString(build2.getId()), it.next().getId());
+        assertEquals(BuildMapper.idMapper.toDto(build1.getId()), it.next().getId());
+        assertEquals(BuildMapper.idMapper.toDto(build2.getId()), it.next().getId());
     }
 
     @Test
@@ -239,8 +254,8 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
         assertEquals(8, builds.getTotalHits());
         assertEquals(2, builds.getContent().size());
         Iterator<Build> it = builds.getContent().iterator();
-        assertEquals(String.valueOf(build1.getId()), it.next().getId());
-        assertEquals(String.valueOf(build2.getId()), it.next().getId());
+        assertEquals(BuildMapper.idMapper.toDto(build1.getId()), it.next().getId());
+        assertEquals(BuildMapper.idMapper.toDto(build2.getId()), it.next().getId());
     }
 
     @Test
@@ -330,8 +345,8 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
     public void testGetSpecificFinished() {
         BuildRecord record = mockBuildRecord();
 
-        Build specific = provider.getSpecific(Integer.toString(record.getId()));
-        assertThat(specific.getId()).isEqualTo(record.getId().toString());
+        Build specific = provider.getSpecific(BuildMapper.idMapper.toDto(record.getId()));
+        assertThat(specific.getId()).isEqualTo(BuildMapper.idMapper.toDto(record.getId()));
         assertThat(specific.getSubmitTime()).isEqualTo(record.getSubmitTime().toInstant());
     }
 
@@ -339,15 +354,17 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
     public void testGetSpecificRunning() {
         BuildTask task = mockBuildTask();
 
-        Build specific = provider.getSpecific(Integer.toString(task.getId()));
-        assertThat(specific.getId()).isEqualTo(Integer.toString(task.getId()));
+        Build specific = provider.getSpecific(BuildMapper.idMapper.toDto(task.getId()));
+        assertThat(specific.getId()).isEqualTo(BuildMapper.idMapper.toDto(task.getId()));
         assertThat(specific.getSubmitTime()).isEqualTo(task.getSubmitTime().toInstant());
     }
 
     @Test
-    public void testGetAll() {
+    public void testGetAll() throws InterruptedException {
         BuildRecord buildRecord1 = mockBuildRecord();
+        Thread.sleep(1L); // make sure new start time is in the next millisecond
         BuildRecord buildRecord2 = mockBuildRecord();
+        Thread.sleep(1L); // make sure new start time is in the next millisecond
         BuildRecord buildRecord3 = mockBuildRecord();
         Page<Build> all = provider.getAll(0, 10, null, null);
 
@@ -398,8 +415,8 @@ public class BuildProviderImplTest extends AbstractProviderTest<BuildRecord> {
     @Test
     public void shouldPerformCallbackAfterDeletion() throws Exception {
         // given
-        final int buildId = 88;
-        final String buildIdString = String.valueOf(buildId);
+        final Integer buildId = 88;
+        final String buildIdString = BuildMapper.idMapper.toDto(buildId);
         final String callbackUrl = "http://localhost:8088/callback";
         WireMockServer wireMockServer = new WireMockServer(8088);
         wireMockServer.start();

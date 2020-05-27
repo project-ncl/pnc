@@ -20,6 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.model.ProductVersion;
 import org.mapstruct.BeanMapping;
@@ -65,4 +66,9 @@ public interface ProductVersionMapper
     @Mapping(target = "currentProductMilestone", resultType = ProductMilestoneRef.class)
     @Mapping(target = "buildConfigs", source = "buildConfigurations")
     org.jboss.pnc.dto.ProductVersion toDTO(ProductVersion dbEntity);
+
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }

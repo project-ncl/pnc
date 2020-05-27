@@ -15,19 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.client;
+package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.rest.restmodel.ArtifactRest;
+import org.jboss.pnc.model.GenericEntity;
 
 /**
  *
- * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
+ * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @param <T> tested provider type
  */
-public class ArtifactRestClient extends AbstractRestClient<ArtifactRest> {
+public abstract class AbstractIntIdProviderTest<T extends GenericEntity<java.lang.Integer>>
+        extends AbstractProviderTest<Integer, T> {
 
-    public static final String ARTIFACT_REST_ENDPOINT = "/pnc-rest/rest/artifacts/";
+    protected int entityId = 1;
 
-    public ArtifactRestClient() {
-        super(ARTIFACT_REST_ENDPOINT, ArtifactRest.class);
+    protected Integer getNextId() {
+        return entityId++;
     }
+
 }

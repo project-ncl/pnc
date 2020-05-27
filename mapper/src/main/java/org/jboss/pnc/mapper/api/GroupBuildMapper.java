@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -66,4 +67,9 @@ public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRe
             ignoreUnmappedSourceProperties = { "attributes", "buildRecords", "buildConfigurationSet", "user",
                     "productVersion" })
     GroupBuildRef toRef(BuildConfigSetRecord dbEntity);
+
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }

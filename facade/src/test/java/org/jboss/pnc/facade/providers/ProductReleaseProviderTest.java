@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 @Slf4j
-public class ProductReleaseProviderTest extends AbstractProviderTest<ProductRelease> {
+public class ProductReleaseProviderTest extends AbstractIntIdProviderTest<ProductRelease> {
 
     @Mock
     private ProductReleaseRepository repository;

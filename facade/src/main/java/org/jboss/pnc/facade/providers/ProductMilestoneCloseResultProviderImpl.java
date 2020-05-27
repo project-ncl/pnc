@@ -44,7 +44,7 @@ import java.util.List;
 @PermitAll
 @Stateless
 public class ProductMilestoneCloseResultProviderImpl extends
-        AbstractLongIdProvider<org.jboss.pnc.model.ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef>
+        AbstractProvider<Long, org.jboss.pnc.model.ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef>
         implements ProductMilestoneCloseResultProvider {
 
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneCloseResultProviderImpl.class);

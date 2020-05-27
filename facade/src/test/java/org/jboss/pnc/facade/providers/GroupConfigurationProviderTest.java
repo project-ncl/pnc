@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GroupConfigurationProviderTest extends AbstractProviderTest<BuildConfigurationSet> {
+public class GroupConfigurationProviderTest extends AbstractIntIdProviderTest<BuildConfigurationSet> {
 
     @Mock
     protected BuildConfigurationSetRepository repository;

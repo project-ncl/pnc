@@ -25,7 +25,6 @@ import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
 import javax.persistence.metamodel.SingularAttribute;
-
 import java.io.Serializable;
 
 /**
@@ -65,7 +64,7 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
         throw new RSQLException("Unknown RSQL selector " + name + " for type " + type);
     }
 
-    protected <X extends GenericEntity<Integer>> Path<?> mapEntity(
+    protected <X extends GenericEntity<?>> Path<?> mapEntity(
             From<?, DB> from,
             SingularAttribute<DB, X> entity,
             RSQLSelectorPath selector) {
@@ -80,15 +79,16 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
         if (toAttribute(name) != null) {
             return toAttribute(name).getName();
         }
-        SingularAttribute<DB, ? extends GenericEntity<Integer>> entity = toEntity(name);
+        SingularAttribute<DB, ? extends GenericEntity<?>> entity = toEntity(name);
         if (entity != null) {
-            Class<? extends GenericEntity<Integer>> bindableType = entity.getBindableJavaType();
+            Class<? extends GenericEntity<?>> bindableType = entity.getBindableJavaType();
             return entity.getName() + "." + mapper.toPath(bindableType, selector.next());
         }
         throw new RSQLException("Unknown RSQL selector " + name + " for type " + type);
     }
 
-    protected abstract SingularAttribute<DB, ? extends GenericEntity<Integer>> toEntity(String name);
+    protected abstract SingularAttribute<DB, ? extends GenericEntity<?>> toEntity(String name);
 
     protected abstract SingularAttribute<DB, ?> toAttribute(String name);
+
 }

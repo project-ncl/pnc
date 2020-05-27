@@ -30,7 +30,7 @@ import javax.inject.Inject;
 
 @PermitAll
 @Stateless
-public class EnvironmentProviderImpl extends AbstractIntIdProvider<BuildEnvironment, Environment, Environment>
+public class EnvironmentProviderImpl extends AbstractProvider<Integer, BuildEnvironment, Environment, Environment>
         implements EnvironmentProvider {
 
     @Inject

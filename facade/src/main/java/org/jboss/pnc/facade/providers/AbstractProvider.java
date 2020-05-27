@@ -21,6 +21,8 @@ import com.google.common.collect.ObjectArrays;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenDeleting;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.facade.validation.DTOValidationException;
@@ -77,6 +79,12 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
     }
 
     @Override
+    public DTO getSpecific(String id) {
+        DB dbEntity = repository.queryById(mapper.getIdMapper().toEntity(id));
+        return mapper.toDTO(dbEntity);
+    }
+
+    @Override
     public DTO store(DTO restEntity) throws DTOValidationException {
         return store(restEntity, true);
     }
@@ -105,6 +113,12 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
     }
 
     @Override
+    public void delete(String id) {
+        validateBeforeDeleting(id);
+        repository.delete(mapper.getIdMapper().toEntity(id));
+    }
+
+    @Override
     public Page<DTO> queryForCollection(
             int pageIndex,
             int pageSize,
@@ -122,7 +136,12 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, content);
     }
 
-    protected abstract void validateBeforeUpdating(String id, DTO restEntity);
+    protected void validateBeforeUpdating(String id, DTO restEntity) {
+        ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
+                .validateNotEmptyArgument()
+                .validateAnnotations()
+                .validateAgainstRepository(repository, mapper.getIdMapper().toEntity(id), true);
+    }
 
     protected void validateBeforeSaving(DTO restEntity) {
         ValidationBuilder.validateObject(restEntity, WhenCreatingNew.class)
@@ -130,5 +149,9 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
                 .validateAnnotations();
     }
 
-    protected abstract void validateBeforeDeleting(String id);
+    protected void validateBeforeDeleting(String id) {
+        ValidationBuilder.validateObject(WhenDeleting.class)
+                .validateAgainstRepository(repository, mapper.getIdMapper().toEntity(id), true)
+                .validateAnnotations();
+    }
 }

@@ -241,7 +241,9 @@ public class BuildQueue {
                 });
             }
             // restore context
-            MDC.setContextMap(copyOfContextMap);
+            if (copyOfContextMap != null) {
+                MDC.setContextMap(copyOfContextMap);
+            }
         }
     }
 

@@ -18,6 +18,7 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.ArtifactRef;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.model.Artifact;
 
 /**
@@ -31,7 +32,8 @@ public interface ArtifactMapper extends EntityMapper<Integer, Artifact, org.jbos
 
     @Override
     default Artifact toIDEntity(ArtifactRef dtoEntity) {
-        return dtoEntity == null ? null : Artifact.Builder.newBuilder().id(Integer.valueOf(dtoEntity.getId())).build();
+        return dtoEntity == null ? null
+                : Artifact.Builder.newBuilder().id(getIdMapper().toEntity(dtoEntity.getId())).build();
     }
 
     @Override
@@ -39,4 +41,9 @@ public interface ArtifactMapper extends EntityMapper<Integer, Artifact, org.jbos
 
     @Override
     Artifact toEntity(org.jboss.pnc.dto.Artifact dtoEntity);
+
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }

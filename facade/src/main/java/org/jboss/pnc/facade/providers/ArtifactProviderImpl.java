@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -48,7 +49,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha2
  */
 @PermitAll
 @Stateless
-public class ArtifactProviderImpl extends AbstractIntIdProvider<Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
+public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
         implements ArtifactProvider {
 
     private static Logger logger = LoggerFactory.getLogger(ArtifactProviderImpl.class);
@@ -114,7 +115,12 @@ public class ArtifactProviderImpl extends AbstractIntIdProvider<Artifact, org.jb
             String query,
             String buildId) {
 
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(Integer.valueOf(buildId)));
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
     }
 
     @Override
@@ -129,6 +135,6 @@ public class ArtifactProviderImpl extends AbstractIntIdProvider<Artifact, org.jb
                 pageSize,
                 sortingRsql,
                 query,
-                withDependantBuildRecordId(Integer.valueOf(buildId)));
+                withDependantBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
     }
 }

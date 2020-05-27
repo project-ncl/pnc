@@ -18,6 +18,7 @@
 package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.model.TargetRepository;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -55,4 +56,8 @@ public interface TargetRepositoryMapper extends
         return toDTO(dbEntity);
     }
 
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }

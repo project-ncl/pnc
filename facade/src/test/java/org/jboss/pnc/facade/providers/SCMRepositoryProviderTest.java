@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SCMRepositoryProviderTest extends AbstractProviderTest<RepositoryConfiguration> {
+public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<RepositoryConfiguration> {
 
     @Mock
     private RepositoryConfigurationRepository repository;

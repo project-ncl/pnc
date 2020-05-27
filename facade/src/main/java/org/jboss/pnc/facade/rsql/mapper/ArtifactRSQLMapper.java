@@ -35,7 +35,7 @@ public class ArtifactRSQLMapper extends AbstractRSQLMapper<Integer, Artifact> {
     }
 
     @Override
-    protected SingularAttribute<Artifact, ? extends GenericEntity<Integer>> toEntity(String name) {
+    protected SingularAttribute<Artifact, ? extends GenericEntity<?>> toEntity(String name) {
         switch (name) {
             case "targetRepository":
                 return Artifact_.targetRepository;

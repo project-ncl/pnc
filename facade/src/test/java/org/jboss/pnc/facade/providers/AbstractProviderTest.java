@@ -69,6 +69,7 @@ import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,7 +85,7 @@ import static org.mockito.Mockito.when;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  * @param <T> tested provider type
  */
-public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
+public abstract class AbstractProviderTest<ID extends Serializable, T extends GenericEntity<ID>> {
     @Mock
     private Configuration configuration;
 
@@ -150,8 +151,6 @@ public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
 
     @Spy
     protected ResultMapper resultMapper = new ResultMapperImpl();
-
-    protected int entityId = 1;
 
     protected final List<T> repositoryList = new ArrayList<>();
 
@@ -279,7 +278,7 @@ public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
 
     protected abstract AbstractProvider provider();
 
-    protected abstract Repository<T, Integer> repository();
+    protected abstract Repository<T, ID> repository();
 
     @Before
     public void prepareMockInAbstract() throws ConfigurationParseException {
@@ -300,7 +299,7 @@ public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
         when(repository().save(any())).thenAnswer(inv -> {
             T entity = inv.getArgument(0);
             if (entity.getId() == null) {
-                entity.setId(entityId++);
+                entity.setId(getNextId());
                 repositoryList.add(entity);
                 return entity;
             } else {
@@ -313,7 +312,7 @@ public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
             }
             throw new IllegalArgumentException("Provided entity has ID but is not in the repository.");
         });
-        when(repository().queryById(anyInt())).thenAnswer(inv -> {
+        when(repository().queryById(any())).thenAnswer(inv -> {
             Integer id = inv.getArgument(0);
             return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
         });
@@ -322,8 +321,10 @@ public abstract class AbstractProviderTest<T extends GenericEntity<Integer>> {
             T object = repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
             repositoryList.remove(object);
             return null;
-        }).when(repository()).delete(anyInt());
+        }).when(repository()).delete(any());
     }
+
+    protected abstract ID getNextId();
 
     protected void fillRepository(Collection<T> entities) {
         repositoryList.addAll(entities);

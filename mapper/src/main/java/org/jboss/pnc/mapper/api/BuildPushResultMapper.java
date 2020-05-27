@@ -20,6 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.BuildPushResultRef;
 import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
+import org.jboss.pnc.mapper.LongIdMapper;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.mapstruct.BeanMapping;
@@ -77,5 +78,10 @@ public interface BuildPushResultMapper
         } else {
             return db.getId().toString();
         }
+    }
+
+    @Override
+    default IdMapper<Long, String> getIdMapper() {
+        return new LongIdMapper();
     }
 }

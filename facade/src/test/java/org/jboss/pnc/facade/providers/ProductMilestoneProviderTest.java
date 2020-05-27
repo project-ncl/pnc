@@ -48,7 +48,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProductMilestoneProviderTest extends AbstractProviderTest<ProductMilestone> {
+public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<ProductMilestone> {
 
     @Mock
     private ProductMilestoneRepository repository;

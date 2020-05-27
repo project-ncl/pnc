@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
+import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.model.User;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -58,4 +59,8 @@ public interface UserMapper extends EntityMapper<Integer, User, org.jboss.pnc.dt
     @BeanMapping(ignoreUnmappedSourceProperties = { "email", "firstName", "lastName", "loginToken", "buildRecords" })
     org.jboss.pnc.dto.User toDTO(User dbEntity);
 
+    @Override
+    default IdMapper<Integer, String> getIdMapper() {
+        return new IntIdMapper();
+    }
 }
