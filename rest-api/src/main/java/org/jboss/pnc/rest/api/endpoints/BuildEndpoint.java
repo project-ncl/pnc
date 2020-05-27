@@ -103,7 +103,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_ALL_DESC} {@value GET_ALL_DESC2}
-     * 
+     *
      * @param pageParams
      * @param filterParams
      * @param attributes
@@ -135,7 +135,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_SPECIFIS_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @return
      */
@@ -161,14 +161,15 @@ public interface BuildEndpoint {
             + "org.jboss.pnc.dto.DeleteOperationResult";
 
     /**
-     * {@value DELETE} {@value DELETE_DESC2}
-     * 
+     * {@value DELETE} {@value DELETE_DESC2} {@value SwaggerConstants#REQUIRES_ADMIN}
+     *
      * @param id {@value B_ID}
      * @param callback {@value SwaggerConstants#CALLBACK_URL}
      */
     @Operation(
-            summary = DELETE_DESC,
+            summary = "[role:admin] " + DELETE_DESC,
             description = DELETE_DESC2,
+            tags = "internal",
             responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
@@ -185,13 +186,14 @@ public interface BuildEndpoint {
     static final String UPDATE_DESC = "Updates an existing build.";
 
     /**
-     * {@value UPDATE_DESC}
-     * 
+     * {@value UPDATE_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
+     *
      * @param id {@value B_ID}
      * @param build
      */
     @Operation(
-            summary = UPDATE_DESC,
+            summary = "[role:admin] " + UPDATE_DESC,
+            tags = "internal",
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -213,7 +215,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_BUILT_ARTIFACTS_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @param pageParameters
      * @return
@@ -243,7 +245,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value SET_BUILT_ARTIFACTS} {@value SwaggerConstants#REQUIRES_ADMIN}
-     * 
+     *
      * @param id {@value B_ID}
      * @param artifactIds {@value ARTIFACT_IDS}
      */
@@ -273,7 +275,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_DEPENDENCY_ARTIFACTS_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @param pageParameters
      * @return
@@ -303,7 +305,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value SET_DEPENDANT_ARTIFACTS_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
-     * 
+     *
      * @param id {@value B_ID}
      * @param artifactIds {@value ARTIFACT_IDS}
      */
@@ -333,7 +335,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_INTERNAL_SCM_ARCHIVE_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @return
      */
@@ -350,7 +352,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value ADD_ATTRIBUTE_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @param key {@value ATTRIBUTE_KEY}
      * @param value {@value ATTRIBUTE_VALUE}
@@ -379,7 +381,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value REMOVE_ATTRIBUTE_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @param key {@value ATTRIBUTE_KEY}
      */
@@ -405,7 +407,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_PUSH_RESULT_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @return
      */
@@ -429,7 +431,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value PUSH_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @param buildPushParameters
      * @return
@@ -468,7 +470,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value CANCEL_PUSH_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      */
     @Operation(
@@ -490,7 +492,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value COMPLETE_PUSH_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @param buildPushResult
      * @return
@@ -526,7 +528,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_BUILD_CONFIG_REVISION}
-     * 
+     *
      * @param id {@value B_ID}
      * @return
      */
@@ -550,7 +552,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value CANCEL_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      */
     @Operation(
@@ -570,7 +572,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_DEPENDENCY_GRAPH}
-     * 
+     *
      * @param id {@value B_ID}
      * @return
      */
@@ -594,7 +596,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_ALIGN_LOGS_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @return
      */
@@ -619,7 +621,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_BUILD_LOGS_DESC}
-     * 
+     *
      * @param id {@value B_ID}
      * @return
      */
@@ -645,7 +647,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_SSH_CREDENTIALS_DESC} {@value GET_SSH_CREDENTIALS_DESC2}
-     * 
+     *
      * @param id {@value B_ID}
      * @return
      */
@@ -675,7 +677,7 @@ public interface BuildEndpoint {
 
     /**
      * {@value GET_ALL_BY_STATUS_AND_LOG_CONTAINING_DESC}
-     * 
+     *
      * @param status {@value BUILD_STATUS}
      * @param search {@value LOG_SEARCH}
      * @param pageParameters
