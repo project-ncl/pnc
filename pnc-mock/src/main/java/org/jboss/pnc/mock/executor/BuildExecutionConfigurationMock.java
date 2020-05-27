@@ -76,7 +76,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     }
 
     @Override
-    public int getId() {
+    public long getId() {
         return id;
     }
 

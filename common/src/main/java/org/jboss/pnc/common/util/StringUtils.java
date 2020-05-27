@@ -209,6 +209,18 @@ public class StringUtils {
     }
 
     /**
+     * Parse comma separated string to Long array.
+     *
+     * @return An empty array when the string parameter is empty or null.
+     */
+    public static Long[] deserializeLong(String string) {
+        if (string == null) {
+            return new Long[0];
+        }
+        return Arrays.stream(string.split(",")).filter(s -> !s.equals("")).map(Long::parseLong).toArray(Long[]::new);
+    }
+
+    /**
      * Serialize Integer array to comma separated string.
      * 
      * @return An empty string when the Integer array parameter is empty or null.
@@ -218,6 +230,13 @@ public class StringUtils {
             return "";
         }
         return Arrays.stream(integers).map(i -> Integer.toString(i)).collect(Collectors.joining(","));
+    }
+
+    public static String serializeLong(Long[] longs) {
+        if (longs == null) {
+            return "";
+        }
+        return Arrays.stream(longs).map(i -> Long.toString(i)).collect(Collectors.joining(","));
     }
 
     public static Integer parseInt(String s, int defaultValue) {

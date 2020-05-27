@@ -29,7 +29,7 @@ public interface BuildExecutionStatusChangedEvent {
 
     BuildExecutionStatus getNewStatus();
 
-    Integer getBuildTaskId();
+    Long getBuildTaskId();
 
     Integer getBuildConfigurationId();
 

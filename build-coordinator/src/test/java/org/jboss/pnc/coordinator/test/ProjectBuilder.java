@@ -22,6 +22,7 @@ import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
@@ -345,7 +346,7 @@ public class ProjectBuilder {
         }
     }
 
-    private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, Integer buildTaskId) {
+    private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, Long buildTaskId) {
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.ENQUEUED, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.SUCCESS, buildTaskId);
@@ -353,7 +354,7 @@ public class ProjectBuilder {
 
     private void assertAllStatusUpdateReceivedForFailedBuild(
             List<BuildStatusChangedEvent> receivedStatuses,
-            Integer buildTaskId) {
+            Long buildTaskId) {
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.ENQUEUED, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.FAILED, buildTaskId);
@@ -361,17 +362,17 @@ public class ProjectBuilder {
 
     private void assertAllStatusUpdateReceivedForFailedWaitingForDeps(
             List<BuildStatusChangedEvent> receivedStatuses,
-            Integer buildTaskId) {
+            Long buildTaskId) {
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.REJECTED, buildTaskId);
     }
 
     void assertStatusUpdateReceived(
             List<BuildStatusChangedEvent> receivedStatusEvents,
             BuildStatus status,
-            Integer buildTaskId) {
+            Long buildTaskId) {
         boolean received = false;
         for (BuildStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
-            if (receivedStatusEvent.getBuild().getId().equals(buildTaskId.toString())
+            if (receivedStatusEvent.getBuild().getId().equals(BuildMapper.idMapper.toDto(buildTaskId))
                     && receivedStatusEvent.getNewStatus().equals(status)) {
                 received = true;
                 break;

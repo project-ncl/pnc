@@ -33,7 +33,7 @@ import java.util.function.Consumer;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface BuildExecutionSession {
-    Integer getId();
+    Long getId();
 
     Optional<URI> getLiveLogsUri();
 

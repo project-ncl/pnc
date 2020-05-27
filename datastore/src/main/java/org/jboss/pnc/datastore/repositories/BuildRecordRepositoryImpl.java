@@ -52,8 +52,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.witho
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
 
 @Stateless
-public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer>
-        implements BuildRecordRepository {
+public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Long> implements BuildRecordRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildRecordRepositoryImpl.class);
 
@@ -78,7 +77,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     }
 
     @Override
-    public BuildRecord findByIdFetchAllProperties(Integer id) {
+    public BuildRecord findByIdFetchAllProperties(Long id) {
         BuildRecord buildRecord = repository.findByIdFetchAllProperties(id);
         if (buildRecord != null) {
             fetchBuildConfigurationAudited(buildRecord);
@@ -87,7 +86,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     }
 
     @Override
-    public BuildRecord findByIdFetchProperties(Integer id) {
+    public BuildRecord findByIdFetchProperties(Long id) {
         BuildRecord buildRecord = repository.findByIdFetchProperties(id);
         if (buildRecord != null) {
             fetchBuildConfigurationAudited(buildRecord);
@@ -169,7 +168,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     }
 
     @Override
-    public List<BuildRecord> getBuildByCausingRecord(Integer causingRecordId) {
+    public List<BuildRecord> getBuildByCausingRecord(Long causingRecordId) {
         return queryWithPredicates(withCausingBuildRecordId(causingRecordId));
     }
 }

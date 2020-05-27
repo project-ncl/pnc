@@ -55,7 +55,7 @@ public class MavenBuild extends Build {
             String buildName,
             String buildVersion,
             String externalBuildSystem,
-            int externalBuildID,
+            Long externalBuildID,
             String externalBuildURL,
             Date startTime,
             Date endTime,

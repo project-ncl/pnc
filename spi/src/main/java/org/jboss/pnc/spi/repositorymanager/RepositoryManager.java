@@ -58,7 +58,7 @@ public interface RepositoryManager {
      * @return repository manager result
      * @throws RepositoryManagerException in case of an error when collecting the build artifacts and dependencies
      */
-    RepositoryManagerResult collectRepoManagerResult(Integer id) throws RepositoryManagerException;
+    RepositoryManagerResult collectRepoManagerResult(Long id) throws RepositoryManagerException;
 
     /**
      * Add the repository containing output associated with the specified {@link BuildRecord} to the membership of the

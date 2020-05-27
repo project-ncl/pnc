@@ -58,7 +58,6 @@ public class DatastoreMock implements Datastore {
 
     private Map<Integer, BuildConfiguration> buildConfigurations = Collections.synchronizedMap(new HashMap<>());
 
-    AtomicInteger buildRecordSequence = new AtomicInteger(0);
     AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
     AtomicInteger buildConfigAuditedRevSequence = new AtomicInteger(0);
 
@@ -112,11 +111,6 @@ public class DatastoreMock implements Datastore {
 
     @Override
     public void createNewUser(User user) {
-    }
-
-    @Override
-    public int getNextBuildRecordId() {
-        return buildRecordSequence.incrementAndGet();
     }
 
     @Override
@@ -192,7 +186,6 @@ public class DatastoreMock implements Datastore {
         buildRecords.clear();
         buildConfigSetRecords.clear();
         buildConfigurations.clear();
-        buildRecordSequence = new AtomicInteger(0);
         buildRecordSetSequence = new AtomicInteger(0);
         buildConfigAuditedRevSequence = new AtomicInteger(0);
     }

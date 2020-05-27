@@ -125,7 +125,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.witho
 
 @PermitAll
 @Stateless
-public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildRecord, Build, BuildRef>
+public class BuildProviderImpl extends AbstractUpdatableProvider<Long, BuildRecord, Build, BuildRef>
         implements BuildProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildProviderImpl.class);
@@ -193,7 +193,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildR
     @RolesAllowed(SYSTEM_USER)
     @Override
     public Build update(String buildId, Build restEntity) {
-        Integer id = parseId(buildId);
+        Long id = parseId(buildId);
         validateBeforeUpdating(id, restEntity);
         logger.debug("Updating build: " + restEntity.toString());
         BuildRecord entityInDB = repository.queryById(id);
@@ -460,15 +460,15 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildR
                 .filter(
                         t -> t.getBuildSetTask() != null
                                 && buildConfigSetRecord.getId().equals(t.getBuildSetTask().getId()))
-                .sorted(Comparator.comparingInt(BuildTask::getId))
-                .map(t -> Integer.toString(t.getId()))
+                .sorted(Comparator.comparingLong(BuildTask::getId))
+                .map(t -> BuildMapper.idMapper.toDto(t.getId()))
                 .collect(Collectors.toList());
 
         List<String> runningAndStoredIds = new ArrayList<>(runningTaskIds);
 
         Set<String> storedBuildIds = buildConfigSetRecord.getBuildRecords()
                 .stream()
-                .map(br -> Integer.toString(br.getId()))
+                .map(br -> BuildMapper.idMapper.toDto(br.getId()))
                 .collect(Collectors.toSet());
         runningAndStoredIds.addAll(storedBuildIds);
         return runningAndStoredIds;
@@ -546,12 +546,12 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildR
     private BuildWithDependencies getRunningOrCompletedBuild(String id) {
         Optional<BuildTask> buildTask = buildCoordinator.getSubmittedBuildTasks()
                 .stream()
-                .filter(submittedBuild -> Integer.toString(submittedBuild.getId()).equals(id))
+                .filter(submittedBuild -> BuildMapper.idMapper.toDto(submittedBuild.getId()).equals(id))
                 .findFirst();
         if (buildTask.isPresent()) {
             return new BuildWithDependencies(buildTask.get());
         } else {
-            BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(Integer.parseInt(id));
+            BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(parseId(id));
             if (buildRecord == null) {
                 throw new CorruptedDataException("Missing build with id:" + id);
             }
@@ -561,11 +561,10 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildR
 
     @Override
     public Build getSpecific(String buildId) {
-        Integer id = parseId(buildId);
         List<BuildTask> runningBuilds = buildCoordinator.getSubmittedBuildTasks();
 
         Build build = runningBuilds.stream()
-                .filter(buildTask -> id.equals(buildTask.getId()))
+                .filter(buildTask -> buildId.equals(BuildMapper.idMapper.toDto(buildTask.getId())))
                 .findAny()
                 .map(buildMapper::fromBuildTask)
                 .orElse(null);
@@ -573,7 +572,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildR
         // if build not in runningBuilds, check the database
         if (build == null) {
             // use findByIdFetchProperties instead of super.getSpecific to get 'BuildConfigurationAudited' object
-            build = mapper.toDTO(buildRecordRepository.findByIdFetchProperties(id));
+            build = mapper.toDTO(buildRecordRepository.findByIdFetchProperties(parseId(buildId)));
         }
 
         return build;
@@ -607,7 +606,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildR
             throw new InvalidEntityException("Artifacts not found, missing ids: " + ids);
         }
 
-        final Integer id = parseId(buildId);
+        final Long id = parseId(buildId);
         BuildRecord buildRecord = repository.queryById(id);
         for (Artifact artifact : artifacts) {
             if (artifact.getBuildRecord() != null && !id.equals(artifact.getBuildRecord().getId())) {
@@ -624,7 +623,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildR
 
     @Override
     public Set<String> getBuiltArtifactIds(String buildId) {
-        final Integer id = parseId(buildId);
+        final Long id = parseId(buildId);
         BuildRecord buildRecord = repository.queryById(id);
         return nullableStreamOf(buildRecord.getBuiltArtifacts()).map(builtArtifact -> builtArtifact.getId().toString())
                 .collect(Collectors.toSet());
@@ -965,21 +964,21 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildR
             build = buildMapper.fromBuildTask(buildTask);
             dependencies = buildTask.getDependencies()
                     .stream()
-                    .map(bt -> Integer.toString(bt.getId()))
+                    .map(bt -> BuildMapper.idMapper.toDto(bt.getId()))
                     .collect(Collectors.toSet());
             dependants = buildTask.getDependants()
                     .stream()
-                    .map(bt -> Integer.toString(bt.getId()))
+                    .map(bt -> BuildMapper.idMapper.toDto(bt.getId()))
                     .collect(Collectors.toSet());
         }
 
         public BuildWithDependencies(BuildRecord buildRecord) {
             build = buildMapper.toDTO(buildRecord);
             dependencies = Arrays.stream(buildRecord.getDependencyBuildRecordIds())
-                    .map(i -> Integer.toString(i))
+                    .map(i -> BuildMapper.idMapper.toDto(i))
                     .collect(Collectors.toSet());
             dependants = Arrays.stream(buildRecord.getDependentBuildRecordIds())
-                    .map(i -> Integer.toString(i))
+                    .map(i -> BuildMapper.idMapper.toDto(i))
                     .collect(Collectors.toSet());
         }
     }

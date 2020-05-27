@@ -22,19 +22,19 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
-import java.util.Set;
 import javax.enterprise.context.Dependent;
+import java.util.Set;
 
 @Dependent
 public interface BuildRecordSpringRepository
-        extends JpaRepository<BuildRecord, Integer>, JpaSpecificationExecutor<BuildRecord> {
+        extends JpaRepository<BuildRecord, Long>, JpaSpecificationExecutor<BuildRecord> {
 
     @Query("select br from BuildRecord br fetch all properties where br.id = ?1")
-    BuildRecord findByIdFetchAllProperties(Integer id);
+    BuildRecord findByIdFetchAllProperties(Long id);
 
     @Query("select br from BuildRecord br " + "left join fetch br.productMilestone "
             + "left join fetch br.buildConfigSetRecord " + "left join fetch br.user " + "where br.id = ?1")
-    BuildRecord findByIdFetchProperties(Integer id);
+    BuildRecord findByIdFetchProperties(Long id);
 
     @Query("SELECT DISTINCT br FROM BuildRecord br " + "JOIN br.builtArtifacts builtArtifacts "
             + "WHERE builtArtifacts.id IN (?1)")

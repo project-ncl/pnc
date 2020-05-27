@@ -28,7 +28,7 @@ class BuildExecutorStatusChangedEventMock implements BuildExecutionStatusChanged
 
     private final BuildExecutionStatus oldStatus;
     private final BuildExecutionStatus newStatus;
-    private final Integer buildTaskId;
+    private final Long buildTaskId;
     private final Integer buildConfigurationId;
     private final Optional<BuildResult> buildResult;
 
@@ -37,7 +37,7 @@ class BuildExecutorStatusChangedEventMock implements BuildExecutionStatusChanged
     public BuildExecutorStatusChangedEventMock(
             BuildExecutionStatus oldStatus,
             BuildExecutionStatus newStatus,
-            Integer buildTaskId,
+            Long buildTaskId,
             Integer buildConfigurationId,
             Optional<BuildResult> buildResult,
             boolean isFinal) {
@@ -50,7 +50,7 @@ class BuildExecutorStatusChangedEventMock implements BuildExecutionStatusChanged
     }
 
     @Override
-    public Integer getBuildTaskId() {
+    public Long getBuildTaskId() {
         return buildTaskId;
     }
 

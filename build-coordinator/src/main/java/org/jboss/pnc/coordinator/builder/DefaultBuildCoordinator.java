@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.builder;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -205,8 +206,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         return build0(user, buildOptions, buildConfigurationAudited);
     }
 
-    private Integer buildRecordIdSupplier() {
-        return datastoreAdapter.getNextBuildRecordId();
+    private Long buildRecordIdSupplier() {
+        return Sequence.nextId();
     }
 
     /**
@@ -396,7 +397,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public boolean cancel(int buildTaskId) throws CoreException {
+    public boolean cancel(long buildTaskId) throws CoreException {
         // Logging MDC must be set before calling
         Optional<BuildTask> taskOptional = getSubmittedBuildTasks().stream()
                 .filter(buildTask -> buildTask.getId() == buildTaskId)
@@ -421,7 +422,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public Optional<BuildTaskContext> getMDCMeta(Integer buildTaskId) {
+    public Optional<BuildTaskContext> getMDCMeta(Long buildTaskId) {
         return getSubmittedBuildTasks().stream()
                 .filter(buildTask -> buildTaskId.equals(buildTask.getId()))
                 .map(this::getMDCMeta)
@@ -673,7 +674,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     public void completeNoBuild(BuildTask buildTask, CompletionStatus completionStatus) {
-        int buildTaskId = buildTask.getId();
+        long buildTaskId = buildTask.getId();
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         try {
             if (CompletionStatus.NO_REBUILD_REQUIRED.equals(completionStatus)) {
@@ -706,7 +707,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     public void completeBuild(BuildTask buildTask, BuildResult buildResult) {
-        int buildTaskId = buildTask.getId();
+        long buildTaskId = buildTask.getId();
 
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         try {

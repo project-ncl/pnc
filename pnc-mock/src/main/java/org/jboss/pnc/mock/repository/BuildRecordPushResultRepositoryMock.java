@@ -30,7 +30,7 @@ public class BuildRecordPushResultRepositoryMock extends LongIdRepositoryMock<Bu
         implements BuildRecordPushResultRepository {
 
     @Override
-    public BuildRecordPushResult getLatestForBuildRecord(Integer buildRecordId) {
+    public BuildRecordPushResult getLatestForBuildRecord(Long buildRecordId) {
         return data.stream()
                 .filter(buildRecordPushResult -> buildRecordPushResult.getBuildRecord().getId().equals(buildRecordId))
                 .sorted(Comparator.comparing(BuildRecordPushResult::getId).reversed())
@@ -39,7 +39,7 @@ public class BuildRecordPushResultRepositoryMock extends LongIdRepositoryMock<Bu
     }
 
     @Override
-    public List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Integer buildRecordId) {
+    public List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Long buildRecordId) {
         throw new RuntimeException("Not implemented!");
     }
 

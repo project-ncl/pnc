@@ -94,7 +94,7 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
-    public boolean cancel(int buildTaskId) {
+    public boolean cancel(long buildTaskId) {
         return false;
     }
 
@@ -121,7 +121,7 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
-    public Optional<BuildTaskContext> getMDCMeta(Integer buildTaskId) {
+    public Optional<BuildTaskContext> getMDCMeta(Long buildTaskId) {
         return Optional.empty();
     }
 }

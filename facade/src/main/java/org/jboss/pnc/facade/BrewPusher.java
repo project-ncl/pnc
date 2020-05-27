@@ -34,9 +34,9 @@ public interface BrewPusher {
 
     BuildPushResult pushBuild(String id, BuildPushParameters buildPushParameters) throws ProcessException;
 
-    boolean brewPushCancel(int buildId);
+    boolean brewPushCancel(long buildId);
 
-    BuildPushResult brewPushComplete(int buildId, BuildPushResult buildPushResult);
+    BuildPushResult brewPushComplete(long buildId, BuildPushResult buildPushResult);
 
     /**
      * Gets generated in progress brew push result or the latest completed one. If there is one in progress for given
@@ -46,5 +46,5 @@ public interface BrewPusher {
      * @param buildId build record id
      * @return generated or loaded push result, {@code null} in case there is no completed nor in progress
      */
-    BuildPushResult getBrewPushResult(int buildId);
+    BuildPushResult getBrewPushResult(long buildId);
 }

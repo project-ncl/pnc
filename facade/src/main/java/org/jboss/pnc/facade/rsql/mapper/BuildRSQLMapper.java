@@ -17,9 +17,13 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import org.jboss.pnc.facade.rsql.converter.Base64EncodedLongValueConverter;
+import org.jboss.pnc.facade.rsql.converter.ValueConverter;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.GenericEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.metamodel.SingularAttribute;
@@ -29,7 +33,9 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class BuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildRecord> {
+public class BuildRSQLMapper extends AbstractRSQLMapper<Long, BuildRecord> {
+
+    private static final Logger logger = LoggerFactory.getLogger(BuildRSQLMapper.class);
 
     public BuildRSQLMapper() {
         super(BuildRecord.class);
@@ -79,6 +85,18 @@ public class BuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildRecord> {
             default:
                 return null;
         }
+    }
+
+    @Override
+    public ValueConverter getValueConverter(String name) {
+        switch (name) {
+            case "id":
+                logger.debug("Using custom value converter ...");
+                return new Base64EncodedLongValueConverter();
+            default:
+                return super.getValueConverter(name);
+        }
+
     }
 
 }

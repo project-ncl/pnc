@@ -21,6 +21,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildTasksInitializer;
@@ -32,6 +33,7 @@ import org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.indyrepositorymanager.IndyRepositoryManagerResult;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -138,11 +140,12 @@ public class StatusUpdatesTest {
         User user = User.Builder.newBuilder().id(3).username("test-user-3").build();
         Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {})
                 .getBuildTasks();
-        Set<Integer> tasksIds = buildTasks.stream().map((BuildTask::getId)).collect(Collectors.toSet());
+        Set<Long> tasksIds = buildTasks.stream().map((BuildTask::getId)).collect(Collectors.toSet());
 
-        Set<Integer> receivedUpdatesForId = new HashSet<>();
-        Consumer<BuildStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> receivedUpdatesForId
-                .add(Integer.valueOf(statusChangedEvent.getBuild().getId()));
+        Set<Long> receivedUpdatesForId = new HashSet<>();
+        Consumer<BuildStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
+            receivedUpdatesForId.add(BuildMapper.idMapper.toEntity(statusChangedEvent.getBuild().getId()));
+        };
 
         tasksIds.forEach((id) -> buildStatusNotifications.subscribe(new BuildCallBack(id, statusChangeEventConsumer)));
 
@@ -178,7 +181,7 @@ public class StatusUpdatesTest {
                 buildConfigurationSet,
                 user,
                 buildOptions,
-                atomicInteger::getAndIncrement,
+                () -> Sequence.nextId(),
                 buildQueue.getUnfinishedTasks());
     }
 

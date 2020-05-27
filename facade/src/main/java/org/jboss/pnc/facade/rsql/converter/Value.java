@@ -15,18 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.model.utils;
+package org.jboss.pnc.facade.rsql.converter;
 
-/**
- * Component that contains the rules for generating various content ID's which are used to uniquely associate content
- * stored in external services with builds, build-sets, products, etc.
- */
-public class ContentIdentityManager {
+public class Value<DB, T> {
+    private final Class<DB> modelClass;
+    private final String name;
+    private final Class<T> javaType;
+    private final String value;
 
-    public static String getBuildContentId(Long buildRecordId) {
-        if (buildRecordId == null)
-            throw new IllegalArgumentException("Null is not a valid build content ID");
+    public Value(Class<DB> modelClass, String name, Class<T> javaType, String value) {
+        this.modelClass = modelClass;
+        this.name = name;
+        this.javaType = javaType;
+        this.value = value;
+    }
 
-        return "build-" + buildRecordId;
+    public Class<DB> getModelClass() {
+        return modelClass;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Class<T> getJavaType() {
+        return javaType;
+    }
+
+    public String getValue() {
+        return value;
     }
 }

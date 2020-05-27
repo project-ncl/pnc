@@ -42,7 +42,7 @@ public class BuildTask {
 
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-task");
 
-    private final Integer id;
+    private final long id;
     private final BuildConfigurationAudited buildConfigurationAudited; // TODO decouple DB entity
 
     @Getter
@@ -94,7 +94,7 @@ public class BuildTask {
             User user,
             Date submitTime,
             BuildSetTask buildSetTask,
-            int id,
+            long id,
             Integer buildConfigSetRecordId,
             ProductMilestone productMilestone,
             String contentId,
@@ -241,7 +241,7 @@ public class BuildTask {
         this.hasFailed = hasFailed;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -297,7 +297,7 @@ public class BuildTask {
             BuildConfigurationAudited buildConfigurationAudited,
             BuildOptions buildOptions,
             User user,
-            int buildTaskId,
+            long buildTaskId,
             BuildSetTask buildSetTask,
             Date submitTime,
             ProductMilestone productMilestone,

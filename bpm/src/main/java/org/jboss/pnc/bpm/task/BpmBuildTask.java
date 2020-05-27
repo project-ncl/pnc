@@ -113,7 +113,7 @@ public class BpmBuildTask extends BpmTask {
     public static Optional<BpmTask> getBpmTaskByBuildTaskId(BpmManager bpmManager, Integer buildTaskId) {
         return bpmManager.getActiveTasks().stream().filter(bpmTask -> {
             if (bpmTask instanceof BpmBuildTask) {
-                int buildId = ((BpmBuildTask) bpmTask).getBuildTask().getId();
+                long buildId = ((BpmBuildTask) bpmTask).getBuildTask().getId();
                 return buildId == buildTaskId.intValue();
             } else {
                 return false;

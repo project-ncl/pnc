@@ -18,6 +18,8 @@
 package org.jboss.pnc.facade.rsql.mapper;
 
 import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
+import org.jboss.pnc.facade.rsql.converter.Value;
+import org.jboss.pnc.facade.rsql.converter.ValueConverter;
 import org.jboss.pnc.model.GenericEntity;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -51,5 +53,10 @@ public class UniversalRSQLMapper {
             }
         }
         throw new UnsupportedOperationException("Missing RSQL mapper implementation for " + type);
+    }
+
+    public <DB extends GenericEntity<?>, T> Comparable<T> convertValue(Value<DB, T> value) {
+        ValueConverter valueConverter = mapper(value.getModelClass()).getValueConverter(value.getName());
+        return valueConverter.convert(value);
     }
 }

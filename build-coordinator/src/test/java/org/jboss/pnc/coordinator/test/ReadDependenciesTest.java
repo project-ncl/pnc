@@ -19,6 +19,7 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildTasksInitializer;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
@@ -94,7 +95,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
                 buildConfigurationSet,
                 user,
                 buildOptions,
-                atomicInteger::getAndIncrement,
+                () -> Sequence.nextId(),
                 buildQueue.getUnfinishedTasks());
     }
 }

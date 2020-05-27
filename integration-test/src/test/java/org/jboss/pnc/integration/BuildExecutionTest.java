@@ -101,7 +101,7 @@ public class BuildExecutionTest {
         BuildExecutionSession session = createFakeExectionSession(statusChangeConsumer);
 
         // when
-        int executionId = 11;
+        long executionId = 11L;
         ((BuildExecutorMock) buildExecutor).addRunningExecution(executionId, session);
         CompletableFuture<HttpClient.Response> responseFuture = new CompletableFuture<>();
         HttpClient httpClient = new HttpClient();

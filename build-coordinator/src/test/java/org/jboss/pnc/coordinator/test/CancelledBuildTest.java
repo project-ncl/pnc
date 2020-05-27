@@ -20,6 +20,7 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -76,7 +77,7 @@ public class CancelledBuildTest extends ProjectBuilder {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(250); // wait a bit for build execution to start
-                        coordinator.cancel(Integer.parseInt(event.getBuild().getId()));
+                        coordinator.cancel(BuildMapper.idMapper.toEntity(event.getBuild().getId()));
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
                         Assert.fail("Unable to cancel the build.");
@@ -103,7 +104,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         Assert.assertNotNull(buildRecord.getEndTime());
         Assert.assertEquals(BuildStatus.CANCELLED, buildRecord.getStatus());
 
-        Integer buildTaskId = buildTask.getId();
+        Long buildTaskId = buildTask.getId();
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.CANCELLED, buildTaskId);
     }
@@ -126,8 +127,10 @@ public class CancelledBuildTest extends ProjectBuilder {
                         Thread.sleep(250); // wait a bit for build execution to start
                         // we need to get buildConfigSet id to cancel BuildGroup, it is not provided by event class
                         // directly, so we need to dit it up from buildTaskId that event provides
-                        coordinator
-                                .cancelSet(getBuildConfigSetId(coordinator, Integer.valueOf(event.getBuild().getId())));
+                        coordinator.cancelSet(
+                                getBuildConfigSetId(
+                                        coordinator,
+                                        BuildMapper.idMapper.toEntity(event.getBuild().getId())));
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
                         Assert.fail("Unable to cancel the build.");
@@ -166,7 +169,7 @@ public class CancelledBuildTest extends ProjectBuilder {
 
         // 3 is independent, 2 is dependent on 3, 1 is dependent on 2
         for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            Integer buildTaskId = buildTask.getId();
+            Long buildTaskId = buildTask.getId();
             switch (buildTask.getBuildConfigurationAudited().getId()) {
                 case 1:
                     // Building status is skipped (cancelled before it can start building)
@@ -190,7 +193,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         }
     }
 
-    private Integer getBuildConfigSetId(BuildCoordinator coordinator, Integer buildTaskId) {
+    private Integer getBuildConfigSetId(BuildCoordinator coordinator, Long buildTaskId) {
         return coordinator.getSubmittedBuildTasks()
                 .stream()
                 .filter(t -> buildTaskId.equals(t.getId()))

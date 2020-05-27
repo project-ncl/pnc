@@ -51,12 +51,12 @@ public class BuildExecutorMock implements BuildExecutor {
 
     private final Logger log = LoggerFactory.getLogger(BuildExecutorMock.class);
 
-    private final Map<Integer, BuildExecutionSession> runningExecutions = new HashMap<>();
+    private final Map<Long, BuildExecutionSession> runningExecutions = new HashMap<>();
 
     private final ExecutorService executor = MDCExecutors
             .newFixedThreadPool(4, new NamedThreadFactory("build-executor-mock"));
 
-    private final Map<Integer, CompletableFuture<Integer>> runningFutures = new HashMap<>();
+    private final Map<Long, CompletableFuture<Integer>> runningFutures = new HashMap<>();
     // @Deprecated //CDI workaround
     // public BuildExecutorMock() {
     // }
@@ -156,7 +156,7 @@ public class BuildExecutorMock implements BuildExecutor {
     }
 
     @Override
-    public BuildExecutionSession getRunningExecution(int buildExecutionTaskId) {
+    public BuildExecutionSession getRunningExecution(long buildExecutionTaskId) {
         return runningExecutions.get(buildExecutionTaskId);
     }
 
@@ -166,7 +166,7 @@ public class BuildExecutorMock implements BuildExecutor {
     }
 
     @Override
-    public void cancel(Integer executionConfigurationId) throws ExecutorException {
+    public void cancel(Long executionConfigurationId) throws ExecutorException {
         BuildExecutionSession buildExecutionSession = runningExecutions.get(executionConfigurationId);
         if (buildExecutionSession == null) {
             log.error("Unable to cancel build {}. The build is not running.", executionConfigurationId);
@@ -178,7 +178,7 @@ public class BuildExecutorMock implements BuildExecutor {
         buildExecutionSession.setBuildDriverResult(driverResult);
     }
 
-    public void addRunningExecution(Integer id, BuildExecutionSession session) {
+    public void addRunningExecution(Long id, BuildExecutionSession session) {
         runningExecutions.put(id, session);
     }
 }

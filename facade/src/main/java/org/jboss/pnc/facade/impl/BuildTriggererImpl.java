@@ -18,26 +18,13 @@
 package org.jboss.pnc.facade.impl;
 
 import com.google.common.base.Preconditions;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.stream.Collectors;
-import javax.ejb.Stateless;
-
-import javax.inject.Inject;
-
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.facade.BuildTriggerer;
+import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.facade.util.HibernateLazyInitializer;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -45,7 +32,6 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
@@ -57,6 +43,18 @@ import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
@@ -98,7 +96,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     GenericSettingProvider genericSettingProvider;
 
     @Override
-    public int triggerBuild(final int buildConfigId, OptionalInt buildConfigurationRevision, BuildOptions buildOptions)
+    public long triggerBuild(final int buildConfigId, OptionalInt buildConfigurationRevision, BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
@@ -118,12 +116,12 @@ public class BuildTriggererImpl implements BuildTriggerer {
     }
 
     @Override
-    public boolean cancelBuild(int buildId) throws CoreException {
+    public boolean cancelBuild(long buildId) throws CoreException {
         return buildCoordinator.cancel(buildId);
     }
 
     @Override
-    public Optional<BuildTaskContext> getMdcMeta(int buildId) {
+    public Optional<BuildTaskContext> getMdcMeta(long buildId) {
         return buildCoordinator.getMDCMeta(buildId);
     }
 
@@ -163,7 +161,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
                 buildConfigId,
                 buildSetTask.getBuildTasks()
                         .stream()
-                        .map(bt -> Integer.toString(bt.getId()))
+                        .map(bt -> Long.toString(bt.getId()))
                         .collect(Collectors.joining()));
         return buildSetTask;
     }
@@ -191,7 +189,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
                 groupConfigId,
                 buildSetTask.getBuildTasks()
                         .stream()
-                        .map(bt -> Integer.toString(bt.getId()))
+                        .map(bt -> Long.toString(bt.getId()))
                         .collect(Collectors.joining()));
         return buildSetTask;
     }
@@ -232,7 +230,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
         return buildConfigurationAuditedsMap;
     }
 
-    private int selectBuildRecordIdOf(Collection<BuildTask> buildTasks, int buildConfigId) throws CoreException {
+    private long selectBuildRecordIdOf(Collection<BuildTask> buildTasks, int buildConfigId) throws CoreException {
         return buildTasks.stream()
                 .filter(t -> t.getBuildConfigurationAudited().getBuildConfiguration().getId().equals(buildConfigId))
                 .map(BuildTask::getId)

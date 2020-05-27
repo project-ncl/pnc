@@ -127,7 +127,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
                 this.status,
                 status,
                 getId(),
-                buildExecutionConfiguration.getId(),
+                null,
                 buildResult,
                 status.isCompleted());
 
@@ -227,7 +227,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     }
 
     @Override
-    public Integer getId() {
+    public Long getId() {
         return getBuildExecutionConfiguration().getId();
     }
 

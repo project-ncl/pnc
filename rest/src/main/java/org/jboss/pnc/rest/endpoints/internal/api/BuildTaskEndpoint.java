@@ -120,6 +120,6 @@ public interface BuildTaskEndpoint {
                                                                                      // APPLICATION_FORM_URLENCODED
     public Response cancelBuild(
             @Parameter(
-                    description = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.") @PathParam("buildExecutionConfigurationId") int buildExecutionConfigurationId);
+                    description = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.") @PathParam("buildExecutionConfigurationId") long buildExecutionConfigurationId);
 
 }

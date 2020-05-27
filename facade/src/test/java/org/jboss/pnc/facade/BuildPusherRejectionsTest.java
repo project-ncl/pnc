@@ -23,6 +23,7 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.impl.BrewPusherImpl;
 import org.jboss.pnc.facade.validation.OperationNotAllowedException;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
@@ -120,7 +121,7 @@ public class BuildPusherRejectionsTest {
 
         // when
         BuildPushParameters buildPushParameters = BuildPushParameters.builder().build();
-        brewPusher.pushBuild(savedBuildRecord.getId().toString(), buildPushParameters);
+        brewPusher.pushBuild(BuildMapper.idMapper.toDto(savedBuildRecord.getId()), buildPushParameters);
 
     }
 }

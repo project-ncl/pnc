@@ -138,7 +138,8 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     }
 
     @Override
-    public Response buildTaskCompletedJson(int buildId, BuildResultRest buildResult) throws InvalidEntityException {
+    public Response buildTaskCompletedJson(int buildId, BuildResultRest buildResult)
+            throws org.jboss.pnc.facade.validation.InvalidEntityException {
         return buildTaskCompleted(buildId, buildResult);
     }
 
@@ -175,7 +176,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             UriBuilder uriBuilder = UriBuilder.fromUri(globalConfig.getExternalPncUrl())
                     .path("/ws/executor/notifications");
 
-            String id = Integer.toString(buildExecutionConfiguration.getId());
+            String id = Long.toString(buildExecutionConfiguration.getId());
             AcceptedResponse acceptedResponse = new AcceptedResponse(id, uriBuilder.build().toString());
 
             return Response.ok().entity(acceptedResponse).build();
@@ -214,7 +215,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             UriBuilder uriBuilder = UriBuilder.fromUri(globalConfig.getExternalPncUrl())
                     .path("/ws/executor/notifications");
 
-            String id = Integer.toString(buildExecutionConfiguration.getId());
+            String id = Long.toString(buildExecutionConfiguration.getId());
             AcceptedResponse acceptedResponse = new AcceptedResponse(id, uriBuilder.build().toString());
 
             return Response.ok().entity(acceptedResponse).build();
@@ -227,7 +228,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     }
 
     @Override
-    public Response cancelBuild(int buildExecutionConfigurationId) {
+    public Response cancelBuild(long buildExecutionConfigurationId) {
 
         logger.debug(
                 "Endpoint /cancel-build requested for buildTaskId [{}], from [{}]",

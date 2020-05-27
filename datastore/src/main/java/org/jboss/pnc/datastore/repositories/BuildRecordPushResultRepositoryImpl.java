@@ -40,7 +40,7 @@ public class BuildRecordPushResultRepositoryImpl extends AbstractRepository<Buil
     }
 
     @Override
-    public BuildRecordPushResult getLatestForBuildRecord(Integer buildRecordId) {
+    public BuildRecordPushResult getLatestForBuildRecord(Long buildRecordId) {
         List<BuildRecordPushResult> buildRecordPushResults = queryWithPredicates(
                 BuildRecordPushResultPredicates.forBuildRecordOrderByIdDesc(buildRecordId));
         if (buildRecordPushResults == null || buildRecordPushResults.size() == 0) {
@@ -51,7 +51,7 @@ public class BuildRecordPushResultRepositoryImpl extends AbstractRepository<Buil
     }
 
     @Override
-    public List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Integer buildRecordId) {
+    public List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Long buildRecordId) {
         return queryWithPredicates(BuildRecordPushResultPredicates.successForBuildRecord(buildRecordId));
     }
 }

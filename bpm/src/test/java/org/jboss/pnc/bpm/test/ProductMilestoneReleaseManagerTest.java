@@ -75,7 +75,6 @@ public class ProductMilestoneReleaseManagerTest {
     private final BpmTaskCapture taskCapture = new BpmTaskCapture();
 
     private int milestoneIdSequence = 0;
-    private int buildRecordIdSequence = 0;
 
     @Before
     public void setUp() throws CoreException {
@@ -138,9 +137,8 @@ public class ProductMilestoneReleaseManagerTest {
         MilestoneReleaseResultRest result = new MilestoneReleaseResultRest();
         List<BuildImportResultRest> buildResults = new ArrayList<>();
 
-        buildResults
-                .add(buildImportResultRest(BuildImportStatus.SUCCESSFUL, buildRecord1.getId(), buildRecord1.getId()));
-        buildResults.add(buildImportResultRest(BuildImportStatus.FAILED, buildRecord2.getId(), buildRecord2.getId()));
+        buildResults.add(buildImportResultRest(BuildImportStatus.SUCCESSFUL, buildRecord1.getId(), 1));
+        buildResults.add(buildImportResultRest(BuildImportStatus.FAILED, buildRecord2.getId(), 2));
         result.setBuilds(buildResults);
         result.setReleaseStatus(ReleaseStatus.IMPORT_ERROR);
 
@@ -165,8 +163,8 @@ public class ProductMilestoneReleaseManagerTest {
                 .isEqualTo(MilestoneCloseStatus.FAILED);
     }
 
-    private BuildImportResultRest buildImportResultRest(BuildImportStatus status, Integer id, Integer id2) {
-        return new BuildImportResultRest(id, id2, brewUrl(id2), status, null);
+    private BuildImportResultRest buildImportResultRest(BuildImportStatus status, Long buildRecordId, Integer brewId) {
+        return new BuildImportResultRest(buildRecordId, brewId, brewUrl(brewId), status, null);
     }
 
     /**
@@ -198,7 +196,7 @@ public class ProductMilestoneReleaseManagerTest {
         List<BuildImportResultRest> buildResults = new ArrayList<>();
 
         for (int i = 0; i < records.length; i++) {
-            Integer recordId = records[i].getId();
+            Long recordId = records[i].getId();
             buildResults.add(buildImportResultRest(BuildImportStatus.SUCCESSFUL, recordId, brewBuildId + i));
         }
 
@@ -223,7 +221,7 @@ public class ProductMilestoneReleaseManagerTest {
     private BuildRecord buildRecord(ProductMilestone milestone) {
         BuildRecord record = new BuildRecord();
         record.setProductMilestone(milestone);
-        record.setId(buildRecordIdSequence++);
+        record.setId(Sequence.nextId());
         buildRecordRepository.save(record);
         return record;
     }

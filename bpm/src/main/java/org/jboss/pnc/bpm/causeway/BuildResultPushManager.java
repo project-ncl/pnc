@@ -340,11 +340,11 @@ public class BuildResultPushManager {
         // TODO respond with error if logs are missing
     }
 
-    private String getRepourLogPath(Integer id) {
+    private String getRepourLogPath(Long id) {
         return String.format(PNC_REPOUR_LOG_PATH, id);
     }
 
-    private String getBuildLogPath(Integer id) {
+    private String getBuildLogPath(Long id) {
         return String.format(PNC_BUILD_LOG_PATH, id);
     }
 
@@ -412,7 +412,7 @@ public class BuildResultPushManager {
                 .collect(Collectors.toSet());
     }
 
-    public Long complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) {
+    public Long complete(Long buildRecordId, BuildRecordPushResult buildRecordPushResult) {
         // accept only listed elements otherwise a new request might be wrongly completed from response of an older one
         // get context for validation
         InProgress.Context pushContext = inProgress.get(buildRecordId);
@@ -436,7 +436,7 @@ public class BuildResultPushManager {
         return saved.getId();
     }
 
-    public boolean cancelInProgressPush(Integer buildRecordId) {
+    public boolean cancelInProgressPush(Long buildRecordId) {
         InProgress.Context pushContext = inProgress.remove(buildRecordId);
         BuildPushResult buildRecordPushResultRest = BuildPushResult.builder()
                 .status(BuildPushStatus.CANCELED)
@@ -446,7 +446,7 @@ public class BuildResultPushManager {
         return pushContext != null;
     }
 
-    public Optional<InProgress.Context> getContext(int buildId) {
+    public Optional<InProgress.Context> getContext(long buildId) {
         return inProgress.getAll().stream().filter(c -> c.getId().equals(buildId)).findAny();
     }
 }

@@ -35,7 +35,7 @@ public class BuildImportResultRest {
     /**
      * id of pnc build record
      */
-    private Integer buildRecordId;
+    private Long buildRecordId;
 
     /**
      * build id assigned by brew

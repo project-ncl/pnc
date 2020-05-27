@@ -139,7 +139,7 @@ public class EarlyCancellationTest extends BuildExecutionBase {
             if (cancelAfter.equals(e.getNewStatus())) {
                 try {
                     log.info("Cancelling build ...");
-                    executor.cancel(buildConfiguration.getId());
+                    executor.cancel(1L);
                 } catch (ExecutorException e0) {
                     e0.printStackTrace();
                 }
