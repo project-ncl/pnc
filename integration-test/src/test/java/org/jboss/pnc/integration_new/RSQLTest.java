@@ -219,6 +219,26 @@ public class RSQLTest {
     }
 
     @Test
+    public void shouldFilterProjectsBasedOnNotLikeOperator() throws RemoteResourceException {
+        String sortQury = "sort=asc=name";
+        String[] queries = new String[] { "name=notlike=%De%", "name=notlike=%de%", "name=notlike=*de*",
+                "name=notlike=P%", "name=notlike=P*", "name=notlike=%termd%", "name=notlike=_auseway",
+                "name=notlike=?auseway" };
+        String[][] results = new String[][] { // must be sorted lexicographically
+                { "Causeway", "Pnc Build Agent", "termd" }, { "Causeway", "Pnc Build Agent", "termd" },
+                { "Causeway", "Pnc Build Agent", "termd" }, { "Causeway", "Dependency Analysis", "termd" },
+                { "Causeway", "Dependency Analysis", "termd" },
+                { "Causeway", "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1" },
+                { "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1", "termd" },
+                { "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1", "termd" } };
+
+        for (int i = 0; i < queries.length; i++) {
+            RemoteCollection<Project> projects = projectClient.getAll(Optional.of(sortQury), Optional.of(queries[i]));
+            assertThat(projects).extracting(Project::getName).containsExactly(results[i]);
+        }
+    }
+
+    @Test
     public void shouldFilterBuildConfigsWithAssociatedProductVersion() throws RemoteResourceException {
         String query = "productVersion=isnull=false";
         RemoteCollection<BuildConfiguration> gcs = buildConfigClient.getAll(empty(), Optional.of(query));

@@ -60,6 +60,7 @@ public class RSQLProducerImpl implements RSQLProducer {
     private static final String FIXED_START_OF_SORTING_EXPRESSION = "sort";
 
     final static ComparisonOperator LIKE = new ComparisonOperator("=like=", "=LIKE=");
+    final static ComparisonOperator NOT_LIKE = new ComparisonOperator("=notlike=", "=NOTLIKE=");
     final static ComparisonOperator IS_NULL = new ComparisonOperator("=isnull=", "=ISNULL=");
 
     static final ComparisonOperator ASC = new ComparisonOperator("=asc=", true);
@@ -71,6 +72,7 @@ public class RSQLProducerImpl implements RSQLProducer {
     public RSQLProducerImpl() {
         Set<ComparisonOperator> predicateOperators = RSQLOperators.defaultOperators();
         predicateOperators.add(LIKE);
+        predicateOperators.add(NOT_LIKE);
         predicateOperators.add(IS_NULL);
 
         predicateParser = new RSQLParser(predicateOperators);
