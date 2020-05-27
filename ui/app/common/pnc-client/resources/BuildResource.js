@@ -177,6 +177,12 @@
           method: 'GET',
           url: ARTIFACTS_ENDPOINT + '/dependant-builds',
           isPaged: true
+        },
+
+        getRevision: {
+           method: 'GET',
+           isPaged: false,
+           url: BUILD_CONFIGS_ENDPOINT + '/revisions/:revisionId'
         }
       });
 
