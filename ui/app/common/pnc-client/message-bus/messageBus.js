@@ -24,7 +24,8 @@
     'events',
     'BuildResource',
     'GroupBuildResource',
-    function (restConfig, $rootScope, events, BuildResource, GroupBuildResource) {
+    'ScmRepositoryResource',
+    function (restConfig, $rootScope, events, BuildResource, GroupBuildResource, ScmRepositoryResource) {
 
       const messageBus = new PncJsLibs.MessageBus(restConfig.getPncNotificationsUrl());
 
@@ -58,6 +59,12 @@
           } else {
             $rootScope.$broadcast(events.MAINTENANCE_MODE_OFF);
           }
+        }
+      });
+
+      messageBus.onScmRepositoryCreationSuccess(notification => {
+        if (notification.scmRepository) {
+            $rootScope.$broadcast(events.SCM_REPOSITORY_CREATION_SUCCESS, notification.scmRepository);
         }
       });
 

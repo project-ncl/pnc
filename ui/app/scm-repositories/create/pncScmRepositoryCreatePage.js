@@ -70,10 +70,10 @@
           gotoScmRepositoryDetailPage(scmRepositoryResult.id);
 
         } else {
-          $scope.$on(events.RC_BPM_NOTIFICATION, function (event, payload) {
+          $scope.$on(events.SCM_REPOSITORY_CREATION_SUCCESS, function (event, payload) {
             // when SCM Repository is created and user is still on Create page
-            if (payload.eventType === 'RC_CREATION_SUCCESS' && $state.$current.name === 'scm-repositories.create') {
-              gotoScmRepositoryDetailPage(payload.data.repositoryConfigurationId);
+            if ($state.$current.name === 'scm-repositories.create') {
+              gotoScmRepositoryDetailPage(payload.id);
             }
           });
         }
