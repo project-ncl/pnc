@@ -24,8 +24,7 @@
     'events',
     'BuildResource',
     'GroupBuildResource',
-    'ScmRepositoryResource',
-    function (restConfig, $rootScope, events, BuildResource, GroupBuildResource, ScmRepositoryResource) {
+    function (restConfig, $rootScope, events, BuildResource, GroupBuildResource) {
 
       const messageBus = new PncJsLibs.MessageBus(restConfig.getPncNotificationsUrl());
 
