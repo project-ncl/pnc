@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.dto;
 
+import java.time.Instant;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.ArtifactQuality;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-
-import java.time.Instant;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -35,57 +35,33 @@ import lombok.Data;
 
 /**
  *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author Andrea Vibelli &lt;avibelli@redhat.com&gt;
  */
+
 @Data
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-@JsonDeserialize(builder = ArtifactRef.Builder.class)
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ArtifactRef implements DTOEntity {
+@JsonDeserialize(builder = ArtifactRevisionRef.Builder.class)
+public class ArtifactRevisionRef implements DTOEntity {
 
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
-    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    protected final String identifier;
+    protected final Integer rev;
 
-    protected final ArtifactQuality artifactQuality;
-
-    protected final String md5;
-
-    protected final String sha1;
-
-    protected final String sha256;
-
-    protected final String filename;
-
-    protected final String deployPath;
+    protected final String reason;
 
     protected final Instant importDate;
-
-    protected final String originUrl;
-
-    protected final Long size;
-
-    /**
-     * Internal url to the artifact using internal (cloud) network domain.
-     */
-    protected final String deployUrl;
-
-    /**
-     * Public url to the artifact using public network domain.
-     */
-    protected final String publicUrl;
 
     protected final Instant creationTime;
 
     protected final Instant modificationTime;
 
-    protected final String reason;
+    protected final ArtifactQuality artifactQuality;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
     }
+
 }

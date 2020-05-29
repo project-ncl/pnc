@@ -20,7 +20,6 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.ProjectRef;
-import org.jboss.pnc.dto.User;
 import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper.IDMapper;
 import org.jboss.pnc.model.BuildConfiguration;

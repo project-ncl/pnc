@@ -17,11 +17,11 @@
  */
 package org.jboss.pnc.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.jboss.pnc.enums.ArtifactQuality;
-
 import java.time.Instant;
 
+import org.jboss.pnc.enums.ArtifactQuality;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -31,61 +31,31 @@ import lombok.ToString;
 
 /**
  *
- * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author Andrea Vibelli &lt;avibelli@redhat.com&gt;
  */
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonDeserialize(builder = Artifact.Builder.class)
+@JsonDeserialize(builder = ArtifactRevision.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Artifact extends ArtifactRef {
+public class ArtifactRevision extends ArtifactRevisionRef {
 
-    private final TargetRepository targetRepository;
-    private final Build build;
     private final User creationUser;
+
     private final User modificationUser;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
-    private Artifact(
-            TargetRepository targetRepository,
-            Build build,
+    private ArtifactRevision(
             String id,
-            String identifier,
-            ArtifactQuality artifactQuality,
-            String md5,
-            String sha1,
-            String sha256,
-            String filename,
-            String deployPath,
+            Integer rev,
+            String reason,
             Instant importDate,
-            String originUrl,
-            Long size,
-            String deployUrl,
-            String publicUrl,
-            User creationUser,
-            User modificationUser,
             Instant creationTime,
             Instant modificationTime,
-            String reason) {
-        super(
-                id,
-                identifier,
-                artifactQuality,
-                md5,
-                sha1,
-                sha256,
-                filename,
-                deployPath,
-                importDate,
-                originUrl,
-                size,
-                deployUrl,
-                publicUrl,
-                creationTime,
-                modificationTime,
-                reason);
-        this.targetRepository = targetRepository;
-        this.build = build;
+            ArtifactQuality artifactQuality,
+            User creationUser,
+            User modificationUser) {
+        super(id, rev, reason, importDate, creationTime, modificationTime, artifactQuality);
         this.creationUser = creationUser;
         this.modificationUser = modificationUser;
     }
