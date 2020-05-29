@@ -24,7 +24,6 @@ import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.ProductClient;
-import org.jboss.pnc.client.ProductMilestoneClient;
 import org.jboss.pnc.client.ProductVersionClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
@@ -39,7 +38,6 @@ import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
-import org.jboss.pnc.mock.BpmManagerBeanMock;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -59,6 +57,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>
@@ -77,13 +76,7 @@ public class ProductVersionEndpointTest {
 
     @Deployment
     public static EnterpriseArchive deploy() {
-        // mock BpmManager to make milestone closing possible
-        final EnterpriseArchive ear = Deployments.testEarForInContainerTest(ProductVersionEndpointTest.class);
-        JavaArchive bpmJar = ear.getAsType(JavaArchive.class, AbstractTest.BPM_JAR);
-        bpmJar.addClass(BpmManagerBeanMock.class);
-        bpmJar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
-        ear.addAsModule(bpmJar);
-        return ear;
+        return Deployments.testEar();
     }
 
     @BeforeClass
@@ -335,13 +328,8 @@ public class ProductVersionEndpointTest {
     public void shouldNotUpdateWithClosedMilestone() throws ClientException {
         // given
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
-        ProductVersion productVersion = client.getSpecific(productVersionsId);
-        String milestoneId = productVersion.getProductMilestones().values().iterator().next().getId();
-
-        ProductMilestoneClient pmc = new ProductMilestoneClient(RestClientConfiguration.asUser());
-        ProductMilestone milestone = pmc.getSpecific(milestoneId);
-
-        pmc.closeMilestone(milestoneId, milestone);
+        ProductVersion productVersion = client.getSpecific(productVersionsId); // has closed milestone, from
+                                                                               // DatabaseDataInitializer
 
         // when
         ProductVersion toUpdate = productVersion.toBuilder().version("2.0").build();
