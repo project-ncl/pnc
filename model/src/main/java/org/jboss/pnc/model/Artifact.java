@@ -185,7 +185,7 @@ public class Artifact implements GenericEntity<Integer> {
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_creation_user"), updatable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_creation_user"), updatable = true)
     private User creationUser;
 
     /**
