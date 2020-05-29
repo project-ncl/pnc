@@ -78,10 +78,19 @@ public class ArtifactRef implements DTOEntity {
      */
     protected final String publicUrl;
 
+    /**
+     * The creation time of this artifact.
+     */
     protected final Instant creationTime;
 
+    /**
+     * The time at which the Quality label of this artifact was last modified.
+     */
     protected final Instant modificationTime;
 
+    /**
+     * The reason why the Quality label of the artifact was modified.
+     */
     protected final String reason;
 
     @JsonPOJOBuilder(withPrefix = "")

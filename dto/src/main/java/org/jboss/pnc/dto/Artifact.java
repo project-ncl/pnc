@@ -42,7 +42,15 @@ public class Artifact extends ArtifactRef {
 
     private final TargetRepository targetRepository;
     private final Build build;
+
+    /**
+     * The user who created this artifact.
+     */
     private final User creationUser;
+
+    /**
+     * The user who last modified the Quality label of this artifact.
+     */
     private final User modificationUser;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

@@ -197,11 +197,9 @@ public class Artifact implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_modification_user"), updatable = true)
     private User modificationUser;
 
-    @NotNull
     @Column(columnDefinition = "timestamp with time zone", updatable = false)
     private Date creationTime;
 
-    @NotNull
     @Column(columnDefinition = "timestamp with time zone")
     private Date modificationTime;
 
