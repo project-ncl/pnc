@@ -116,7 +116,6 @@ public class Artifact implements GenericEntity<Integer> {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Size(max = 30)
     @Column(length = 30)
     private ArtifactQuality artifactQuality;
 
