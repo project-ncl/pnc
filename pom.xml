@@ -23,10 +23,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.jboss</groupId>
-    <artifactId>jboss-parent</artifactId>
-    <version>36</version>
-    <relativePath />
+    <groupId>org.jboss.bom</groupId>
+    <artifactId>jboss-eap-jakartaee8</artifactId>
+    <version>7.3.0.GA</version>
   </parent>
 
   <groupId>org.jboss.pnc</groupId>
@@ -100,11 +99,10 @@
 
   <properties>
     <!-- minimum jdk and maven versions -->
-    <jdk.min.version>1.8</jdk.min.version>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <jdk.min.version>11</jdk.min.version>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
     <maven.min.version>3.2</maven.min.version>
-    <version.javax.enterprise>2.0.SP1</version.javax.enterprise>
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.1.0</atlasVersion>
@@ -112,28 +110,22 @@
     <version.assertj-core>3.16.1</version.assertj-core>
     <version.mockito>3.3.3</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
-    <version.guava>29.0-jre</version.guava>
-    <version.org.apache.httpcomponents.httpclient>4.5.2</version.org.apache.httpcomponents.httpclient>
-    <version.org.apache.httpcomponents.httpcore>4.4.4</version.org.apache.httpcomponents.httpcore>
-    <version.org.json>20200518</version.org.json>
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.kie-services-client>6.2.0.Final</version.kie-services-client>
     <version.keycloak>9.0.3.redhat-00002</version.keycloak>
-    <version.undertow>2.0.30.Final</version.undertow>
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
     <version.swagger2>2.1.2</version.swagger2>
     <version.buildagent>0.7.0-SNAPSHOT</version.buildagent>
-    <version.jackson.core>2.10.3</version.jackson.core>
     <version.lombok>1.18.12</version.lombok>
-    <!-- needed because of a CVE in databind -->
-    <version.jackson.databind>2.10.1</version.jackson.databind>
-    <version.org.jboss.resteasy>3.6.1.SP6</version.org.jboss.resteasy>
-    <version.hibernate>5.3.10.Final</version.hibernate>
-    <version.org.infinispan>9.3.6.Final</version.org.infinispan>
     <version.mapstruct>1.3.1.Final</version.mapstruct>
     <version.junit>4.13</version.junit>
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
     <version.vertx.core>3.8.5</version.vertx.core>
+    <!-- same base version (no -redhat) as version.org.apache.httpcomponents.httpclient from the eap BOM-->
+    <version.org.apache.httpcomponents.fluent-hc>4.5.4</version.org.apache.httpcomponents.fluent-hc>
+
+    <!-- -redhat version is missing some packages -->
+    <version.com.github.fge>1.9</version.com.github.fge>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -152,7 +144,7 @@
 
     <!-- Integration tests -->
     <app.server>jboss-eap</app.server>
-    <jboss.version>7.2</jboss.version>
+    <jboss.version>7.3</jboss.version>
     <default.management.port>9999</default.management.port>
     <test.server.unpack.dir>${project.basedir}/target</test.server.unpack.dir>
     <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
@@ -197,13 +189,6 @@
     <dependencies>
 
       <!-- BOMs -->
-      <dependency>
-        <groupId>org.jboss.bom</groupId>
-        <artifactId>jboss-eap-javaee8</artifactId>
-        <version>7.2.2.GA</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>org.jboss.arquillian.extension</groupId>
         <artifactId>arquillian-transaction-bom</artifactId>
@@ -265,7 +250,6 @@
         <artifactId>causeway-client</artifactId>
         <version>${project.version}</version>
       </dependency>
-
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
@@ -517,12 +501,6 @@
         <version>${version.keycloak}</version>
       </dependency>
       <dependency>
-        <groupId>javax.enterprise</groupId>
-        <artifactId>cdi-api</artifactId>
-        <version>${version.javax.enterprise}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.jboss.spec.javax.jms</groupId>
         <artifactId>jboss-jms-api_1.1_spec</artifactId>
         <version>${version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec}</version>
@@ -531,19 +509,13 @@
       <dependency>
         <groupId>org.hibernate.orm.tooling</groupId>
         <artifactId>hibernate-enhance-maven-plugin</artifactId>
-        <version>${version.hibernate}</version>
+        <version>${version.org.hibernate.hibernate-core}</version>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.shrinkwrap.descriptors</groupId>
         <artifactId>shrinkwrap-descriptors-impl-javaee</artifactId>
         <version>${version.shrinkwrap.descriptors}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>${version.guava}</version>
       </dependency>
 
       <dependency>
@@ -591,21 +563,8 @@
 
       <dependency>
         <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpclient</artifactId>
-        <version>${version.org.apache.httpcomponents.httpclient}</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
         <artifactId>fluent-hc</artifactId>
-        <version>4.5.12</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.httpcomponents</groupId>
-        <artifactId>httpcore</artifactId>
-        <version>${version.org.apache.httpcomponents.httpcore}</version>
+        <version>${version.org.apache.httpcomponents.fluent-hc}</version>
       </dependency>
 
       <dependency>
@@ -633,15 +592,8 @@
 
       <dependency>
         <groupId>io.undertow</groupId>
-        <artifactId>undertow-core</artifactId>
-        <version>${version.undertow}</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>io.undertow</groupId>
         <artifactId>undertow-websockets-jsr</artifactId>
-        <version>${version.undertow}</version>
+        <version>${version.io.undertow}</version>
         <scope>provided</scope>
       </dependency>
 
@@ -677,24 +629,11 @@
       </dependency>
 
       <dependency>
-        <groupId>org.jboss.spec.javax.websocket</groupId>
-        <artifactId>jboss-websocket-api_1.1_spec</artifactId>
-        <version>1.1.3.Final</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
         <groupId>org.jboss.weld</groupId>
         <artifactId>weld-core-impl</artifactId>
         <version>3.1.4.Final</version>
       </dependency>
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.30</version>
-        <scope>provided</scope>
-      </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
@@ -727,36 +666,6 @@
             <artifactId>slf4j-log4j12</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>resteasy-jaxrs</artifactId>
-        <version>${version.org.jboss.resteasy}</version>
-        <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>javax.annotation</groupId>
-            <artifactId>jsr250-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>resteasy-client</artifactId>
-        <version>${version.org.jboss.resteasy}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>resteasy-jackson2-provider</artifactId>
-        <version>${version.org.jboss.resteasy}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>javax.annotation</groupId>
-        <artifactId>javax.annotation-api</artifactId>
-        <version>1.3.2</version>
-        <scope>provided</scope>
       </dependency>
 
       <dependency>
@@ -957,58 +866,15 @@
       </dependency>
 
       <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>${version.jackson.core}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-databind</artifactId>
-        <version>${version.jackson.databind}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-annotations</artifactId>
-        <version>${version.jackson.core}</version>
-        <scope>provided</scope>
-      </dependency>
-      <!--<dependency>-->
-        <!--<groupId>com.fasterxml.jackson.datatype</groupId>-->
-        <!--<artifactId>jackson-datatype-joda</artifactId>-->
-        <!--<version>2.9.5</version>-->
-        <!--<scope>test</scope>-->
-      <!--</dependency>-->
-      <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jdk8</artifactId>
-        <version>${version.jackson.core}</version>
+        <version>${version.com.fasterxml.jackson.core}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
-        <version>${version.jackson.core}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-jaxrs</artifactId>
-        <version>1.9.13</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.jackson</groupId>
-        <artifactId>jackson-xc</artifactId>
-        <version>1.9.13</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>2.6</version>
+        <version>${version.com.fasterxml.jackson.core}</version>
         <scope>provided</scope>
       </dependency>
 
@@ -1022,7 +888,7 @@
       <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
-        <version>1.9.3</version>
+        <version>1.9.4</version>
         <scope>provided</scope>
       </dependency>
 
@@ -1030,13 +896,6 @@
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <version>1.2</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>1.14</version>
         <scope>provided</scope>
       </dependency>
 
@@ -1050,7 +909,7 @@
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
-        <version>3.8</version>
+        <version>3.9</version>
         <scope>provided</scope>
       </dependency>
 
@@ -1058,12 +917,6 @@
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
         <version>${version.org.json}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.github.fge</groupId>
-        <artifactId>json-patch</artifactId>
-        <version>1.9</version>
       </dependency>
 
       <dependency>
@@ -1091,18 +944,6 @@
         <version>2.3.3</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
-        <groupId>org.glassfish.jaxb</groupId>
-        <artifactId>jaxb-runtime</artifactId>
-        <version>2.3.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.sun.activation</groupId>
-        <artifactId>javax.activation</artifactId>
-        <version>1.2.0</version>
-        <scope>provided</scope>
-      </dependency>
 
       <dependency>
         <groupId>io.vertx</groupId>
@@ -1117,6 +958,11 @@
         <version>${version.org.infinispan}</version>
       </dependency>
 
+      <dependency>
+        <groupId>com.github.fge</groupId>
+        <artifactId>json-patch</artifactId>
+        <version>${version.com.github.fge}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
