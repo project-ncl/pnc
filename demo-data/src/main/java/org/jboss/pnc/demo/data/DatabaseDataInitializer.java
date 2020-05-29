@@ -320,6 +320,7 @@ public class DatabaseDataInitializer {
                 .version(PNC_PRODUCT_MILESTONE3)
                 .startingDate(TODAY)
                 .plannedEndDate(ONE_WEEK_AFTER_TODAY)
+                .endDate(ONE_WEEK_AFTER_TODAY)
                 .productVersion(productVersion1)
                 .build();
         demoProductMilestone3 = productMilestoneRepository.save(demoProductMilestone3);
@@ -353,7 +354,7 @@ public class DatabaseDataInitializer {
                 .build();
         productRelease = productReleaseRepository.save(productRelease);
 
-        productVersion1.setCurrentProductMilestone(demoProductMilestone1);
+        productVersion1.setCurrentProductMilestone(demoProductMilestone3);
         productVersion1 = productVersionRepository.save(productVersion1);
 
         // Example projects
