@@ -88,6 +88,8 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
      */
     @Mapping(target = "dependantBuildRecord", ignore = true)
     @Mapping(target = "distributedInProductMilestones", ignore = true)
+    @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
+    @Mapping(target = "modificationUser", qualifiedBy = IdEntity.class)
     @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
     public abstract org.jboss.pnc.model.Artifact toEntity(Artifact dtoEntity);
 
