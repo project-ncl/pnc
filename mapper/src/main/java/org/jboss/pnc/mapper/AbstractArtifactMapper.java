@@ -59,12 +59,26 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
     private Configuration config;
 
     @Override
+    @Mapping(target = "creationUser", source = "creationUser", qualifiedBy = IdEntity.class)
+    @Mapping(target = "modificationUser", source = "modificationUser", qualifiedBy = IdEntity.class)
+    @Mapping(target = "buildRecord", source = "build", qualifiedBy = IdEntity.class)
+    @Mapping(target = "dependantBuildRecords", ignore = true)
+    /*
+     * Builder that MapStruct uses when generating mapper has method dependantBuildRecord() which confuses MapStruct as
+     * he thinks it is a new property
+     */
+    @Mapping(target = "dependantBuildRecord", ignore = true)
+    @Mapping(target = "distributedInProductMilestones", ignore = true)
+    @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
+    public abstract org.jboss.pnc.model.Artifact toEntity(Artifact dtoEntity);
+
+    @Override
     @Mapping(target = "deployUrl", ignore = true)
     @Mapping(target = "publicUrl", ignore = true)
     @Mapping(target = "build", source = "buildRecord")
     @Mapping(target = "targetRepository", qualifiedBy = Reference.class)
-    @Mapping(target = "creationUser", qualifiedBy = Reference.class)
-    @Mapping(target = "modificationUser", qualifiedBy = Reference.class)
+    @Mapping(target = "creationUser", source = "creationUser", qualifiedBy = Reference.class)
+    @Mapping(target = "modificationUser", source = "modificationUser", qualifiedBy = Reference.class)
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "distributedInProductMilestones", "identifierSha256", "built",
                     "imported", "trusted", "descriptiveString", "dependantBuildRecords" })
@@ -74,24 +88,10 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
     @Mapping(target = "deployUrl", ignore = true)
     @Mapping(target = "publicUrl", ignore = true)
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "creationUser", "modificationUser", "targetRepository", "buildRecords",
-                    "dependantBuildRecords", "importDate", "distributedInProductMilestones", "identifierSha256",
-                    "built", "imported", "trusted", "descriptiveString" })
+            ignoreUnmappedSourceProperties = { "targetRepository", "buildRecords", "dependantBuildRecords",
+                    "importDate", "distributedInProductMilestones", "identifierSha256", "built", "imported", "trusted",
+                    "descriptiveString", "creationUser", "modificationUser" })
     public abstract ArtifactRef toRef(org.jboss.pnc.model.Artifact dbEntity);
-
-    @Override
-    @Mapping(target = "buildRecord", source = "build", qualifiedBy = IdEntity.class)
-    @Mapping(target = "dependantBuildRecords", ignore = true)
-    /*
-     * Builder that MapStruct uses when generating mapper has method dependantBuildRecord() which confuses MapStruct as
-     * he thinks it is a new property
-     */
-    @Mapping(target = "dependantBuildRecord", ignore = true)
-    @Mapping(target = "distributedInProductMilestones", ignore = true)
-    @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
-    @Mapping(target = "modificationUser", qualifiedBy = IdEntity.class)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
-    public abstract org.jboss.pnc.model.Artifact toEntity(Artifact dtoEntity);
 
     @BeforeMapping
     protected void fillDeployAndPublicUrl(

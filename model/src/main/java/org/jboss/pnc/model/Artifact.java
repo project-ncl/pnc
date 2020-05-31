@@ -50,6 +50,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.ArtifactQuality;
 
 /**
@@ -74,7 +75,9 @@ import org.jboss.pnc.enums.ArtifactQuality;
                 @Index(name = "idx_artifact_identifier", columnList = "identifier"),
                 @Index(name = "idx_artifact_md5", columnList = "md5"),
                 @Index(name = "idx_artifact_sha1", columnList = "sha1"),
-                @Index(name = "idx_artifact_sha256", columnList = "sha256") })
+                @Index(name = "idx_artifact_sha256", columnList = "sha256"),
+                @Index(name = "idx_artifact_creation_user", columnList = "creationuser_id"),
+                @Index(name = "idx_artifact_modification_user", columnList = "modificationUser_id") })
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
@@ -518,7 +521,7 @@ public class Artifact implements GenericEntity<Integer> {
      * @param reason The reason why the Quality label of this artifact was modified
      */
     public void setReason(String reason) {
-        this.reason = reason;
+        this.reason = StringUtils.nullIfBlank(reason);
     }
 
     @Override
