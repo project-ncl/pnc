@@ -128,6 +128,8 @@ public class ProductMilestoneProviderImpl
         // make sure that user cannot set the 'endDate' via the REST API
         // this should only be set after the release process is successful
         milestoneRestDb.setEndDate(milestoneInDb.getEndDate());
+        // Make sure that user cannot change the product release of the milestone. This is set on release creation.
+        milestoneRestDb.setProductRelease(milestoneInDb.getProductRelease());
 
         validateBeforeUpdating(id, mapper.toDTO(milestoneRestDb));
 

@@ -221,15 +221,16 @@ public class ProductMilestoneEndpointTest {
         // given
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
         final String version = "1.0.1.ER1";
-        ProductMilestone toUpdate = milestone2.toBuilder().version(version).build();
+        assertThat(milestone.getProductRelease()).isNotNull();
+        ProductMilestone toUpdate = milestone.toBuilder().version(version).build();
 
         // when
-        client.update(milestone2.getId(), toUpdate);
+        client.update(milestone.getId(), toUpdate);
 
         // then
-        ProductMilestone retrieved = client.getSpecific(milestone2.getId());
+        ProductMilestone retrieved = client.getSpecific(milestone.getId());
         assertThat(retrieved).isEqualTo(toUpdate);
-        assertThat(retrieved).isEqualToIgnoringGivenFields(milestone2, "version");
+        assertThat(retrieved).isEqualToIgnoringGivenFields(milestone, "version");
         assertThat(retrieved.getVersion()).isEqualTo(version);
     }
 
