@@ -29,13 +29,12 @@
   module.factory('BuildConfigurationSetRecordDAO', [
     '$resource',
     'BuildConfigurationSetDAO',
-    'UserDAO',
     'cachedGetter',
     'REST_BASE_URL',
     'BUILD_CONFIG_SET_RECORD_ENDPOINT',
     'PageFactory',
     'QueryHelper',
-    function ($resource, BuildConfigurationSetDAO, UserDAO, cachedGetter,
+    function ($resource, BuildConfigurationSetDAO, cachedGetter,
               REST_BASE_URL, BUILD_CONFIG_SET_RECORD_ENDPOINT, PageFactory, qh) {
 
       var ENDPOINT = REST_BASE_URL + BUILD_CONFIG_SET_RECORD_ENDPOINT;
@@ -73,12 +72,6 @@
       resource.prototype.getConfigurationSet = cachedGetter(
         function (record) {
           return BuildConfigurationSetDAO.get({configurationSetId: record.buildConfigurationSetId});
-        }
-      );
-
-      resource.prototype.getUser = cachedGetter(
-        function (record) {
-          return UserDAO.get({userId: record.userId});
         }
       );
 

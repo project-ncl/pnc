@@ -33,9 +33,8 @@
     'RUNNING_BUILD_ENDPOINT',
     'cachedGetter',
     'BuildConfigurationDAO',
-    'UserDAO',
     'PageFactory',
-    function($resource, REST_BASE_URL, RUNNING_BUILD_ENDPOINT, cachedGetter, BuildConfigurationDAO, UserDAO, PageFactory) {
+    function($resource, REST_BASE_URL, RUNNING_BUILD_ENDPOINT, cachedGetter, BuildConfigurationDAO, PageFactory) {
       var ENDPOINT = REST_BASE_URL + RUNNING_BUILD_ENDPOINT;
 
       var resource = $resource(ENDPOINT, {
@@ -73,12 +72,6 @@
       resource.prototype.getBuildConfiguration = cachedGetter(
         function(buildRecord) {
           return BuildConfigurationDAO.get({ configurationId: buildRecord.buildConfigurationId });
-        }
-      );
-
-      resource.prototype.getUser = cachedGetter(
-        function(record) {
-          return UserDAO.get({ userId: record.userId });
         }
       );
 
