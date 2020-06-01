@@ -22,32 +22,22 @@
 
   module.value('USER_PATH', '/users/:id');
 
-  /**
-   *
-   * @author Alex Creasy
-   */
-  module.factory('User', [
+  module.factory('UserResource', [
     '$resource',
     'restConfig',
     'USER_PATH',
     function ($resource, restConfig, USER_PATH) {
-      var ENDPOINT = restConfig.getPncUrl() + USER_PATH;
+      const ENDPOINT = restConfig.getPncRestUrl() + USER_PATH;
 
-      
-      // getAuthenticatedUser  
-      //   Method should not be called directly otherwise it will redirect not logged user 
-      //   when status code 401 is returned (see httpResponseInterceptor for more details), 
-      //   call authService#getPncUser() instead
       var resource = $resource(ENDPOINT, {
         id: '@id'
       }, {
-        query: {
-          method: 'GET',
-          isPaged: true,
-        },
+        // Method should not be called directly otherwise it will redirect not logged user 
+        // when status code 401 is returned (see httpResponseInterceptor for more details), 
+        // call authService#getPncUser() instead
         getAuthenticatedUser: {
           method: 'POST',
-          url: restConfig.getPncUrl() + '/users/loggedUser',
+          url: restConfig.getPncRestUrl() + '/users/current',
           isArray: false,
           cache: true,
           successNotification: false

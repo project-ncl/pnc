@@ -26,8 +26,8 @@
     '$httpParamSerializerJQLike',
     'keycloak',
     'authConfig',
-    'User',
-    function($log, $window, $q, $http, $httpParamSerializerJQLike, keycloak, authConfig, User) {
+    'UserResource',
+    function($log, $window, $q, $http, $httpParamSerializerJQLike, keycloak, authConfig, UserResource) {
       var authService = {};
 
       var pncUser;
@@ -61,7 +61,7 @@
           }
 
           if (!pncUser) {
-            pncUser =  User.getAuthenticatedUser().$promise;
+            pncUser =  UserResource.getAuthenticatedUser().$promise;
           }
 
           resolve(pncUser);
