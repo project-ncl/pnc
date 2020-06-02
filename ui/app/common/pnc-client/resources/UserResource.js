@@ -36,7 +36,7 @@
         // when status code 401 is returned (see httpResponseInterceptor for more details), 
         // call authService#getPncUser() instead
         getAuthenticatedUser: {
-          method: 'POST',
+          method: 'GET',
           url: restConfig.getPncRestUrl() + '/users/current',
           isArray: false,
           cache: true,
