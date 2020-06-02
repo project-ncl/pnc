@@ -24,45 +24,58 @@ import static org.jboss.pnc.enums.BuildProgress.IN_PROGRESS;
 import static org.jboss.pnc.enums.BuildProgress.PENDING;
 
 /**
- * Status of a running or finished build.
+ * Status of a running/completed Build/GroupBuild.
+ * 
+ * The status class is shared by both Build and GroupBuild dtos, which are published through UI/WebSocket.
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
 public enum BuildStatus {
     /**
-     * Build completed successfully.
+     * Build/GroupBuild has completed successfully. The dependant Builds can be scheduled.
      */
     SUCCESS(FINISHED, true),
 
     /**
-     * Build failed.
+     * Build/GroupBuild has failed. The status is propagated through dependants as REJECTED_FAILED_DEPENDENCIES.
+     *
+     * A GroupBuild is reported FAILED with is at least one underlying Build with the final status of (FAILED, REJECTED,
+     * SYSTEM_ERROR)
      */
     FAILED(FINISHED, false),
 
     /**
-     * A build has been requested (possibly via dependencies) but no actual build happened as it was not required (no
-     * updates).
+     * A Build has been requested (possibly via dependencies) but no actual build happened as it was not required (no
+     * updates to underlying BuildConfig and Configs of dependencies (depends in IMPLICIT/EXPLICIT dependency check)).
+     * 
+     * A GroupBuild is deemed unnecessary to be built if all the underlying Builds do not require rebuild.
      */
     NO_REBUILD_REQUIRED(FINISHED, true),
 
     /**
-     * A build has been placed in a queue. It will be processed shortly.
+     * Build satisfies all necessary requirements to start building process. Build is placed into a queue and waits for a free
+     * BuildCoordinator thread to be picked up.
+     *
+     * With lower number of concurrent Builds, the Build is more likely to wait for available thread.
      */
     ENQUEUED(PENDING),
 
     /**
-     * Build is waiting for dependencies to finish.
+     * A Build has unfinished dependencies, therefore cannot start building.
      */
     WAITING_FOR_DEPENDENCIES(PENDING),
 
     /**
-     * Build currently running.
+     * The Build/GroupBuild building process has started.
      */
     BUILDING(IN_PROGRESS),
 
     /**
-     * Build rejected due to conflict with another build.
+     * Build rejected due to conflict with another build. This happens when there is already a Build with the same
+     * BuildConfigRevision in the BuildQueue. (currently this check is done only when the Build is part of GroupBuild)
+     *
+     * GroupBuild is rejected due to being empty or having cyclic dependencies.
      */
     REJECTED(FINISHED, false),
 
@@ -72,7 +85,7 @@ public enum BuildStatus {
     REJECTED_FAILED_DEPENDENCIES(FINISHED, false),
 
     /**
-     * User cancelled the build.
+     * User cancelled the Build/GroupBuild. The status is propagated through dependants.
      */
     CANCELLED(FINISHED, true),
 
@@ -82,7 +95,7 @@ public enum BuildStatus {
     SYSTEM_ERROR(FINISHED, false),
 
     /**
-     * It is not known what the build status is at this time.
+     * Initial status of a Build. It is almost immediately changed.
      */
     NEW(PENDING);
 
