@@ -20,6 +20,7 @@
 
   angular.module('pnc.common', [
     'pnc.common.authentication',
+    'pnc.common.bifrost',
     'pnc.common.components',
     'pnc.common.da-client',
     'pnc.common.directives',

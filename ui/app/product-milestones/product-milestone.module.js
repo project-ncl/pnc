@@ -51,13 +51,16 @@
         },
         resolve: {
           productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
-            ProductMilestoneResource.get({id: $stateParams.productMilestoneId}).$promise
+            ProductMilestoneResource.get({ id: $stateParams.productMilestoneId }).$promise
           ],
           performedBuilds: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
-            ProductMilestoneResource.queryPerformedBuilds({id: $stateParams.productMilestoneId}).$promise
+            ProductMilestoneResource.queryPerformedBuilds({ id: $stateParams.productMilestoneId }).$promise
+          ],
+          closeResults: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
+            ProductMilestoneResource.queryCloseResults({ id: $stateParams.productMilestoneId }).$promise
           ],
           latestCloseResult: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams, $log) =>
-            ProductMilestoneResource.queryLatestCloseResult({ id: $stateParams.productMilestoneId }).$promise.catch((error) => {
+            ProductMilestoneResource.getLatestCloseResult({ id: $stateParams.productMilestoneId }).$promise.catch((error) => {
               $log.error('Error loading release workflow: ' + JSON.stringify(error));
             })
           ]
@@ -112,6 +115,24 @@
         resolve: {
           productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
             ProductMilestoneResource.get({id: $stateParams.productMilestoneId}).$promise
+          ]
+        }
+      })
+
+      .state('products.detail.product-versions.detail.milestone.detail.close-result', {
+        url: '/close-results/{closeResultId}',
+        views: {
+          'content@': {
+            component: 'pncProductMilestoneCloseResultPage'
+          }
+        },
+        data: {
+          displayName: 'Close Result',
+          title: 'Close Result | {{ productMilestone.version }} | {{ product.name }} '
+        },
+        resolve: {
+          closeResult: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
+            ProductMilestoneResource.queryCloseResults({ id: $stateParams.productMilestoneId, q: 'id==' + $stateParams.closeResultId }).$promise
           ]
         }
       });

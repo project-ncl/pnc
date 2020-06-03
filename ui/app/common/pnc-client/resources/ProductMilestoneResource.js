@@ -54,7 +54,13 @@
           isPaged: true
         },
 
-        queryLatestCloseResult: {
+        queryCloseResults: {
+          method: 'GET',
+          url: ENDPOINT + '/close-results',
+          isPaged: true
+        },
+
+        getLatestCloseResult: {
           method: 'GET',
           url: ENDPOINT + '/close-results?latest=true'
         },

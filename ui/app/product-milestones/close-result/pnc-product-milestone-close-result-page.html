@@ -17,11 +17,29 @@
     limitations under the License.
 
 -->
-<div class="row">
-  <pnc-toolbar filtering-page="$ctrl.performedBuildsFilteringPage" filtering-fields="$ctrl.performedBuildsFilteringFields"
-    sorting-fields="$ctrl.performedBuildsSortingFields" sorting-configs="$ctrl.performedBuildsSortingConfigs"></pnc-toolbar>
+<div class="page-header">
+  <h1>Close Result</h1>
 </div>
-<div>
-  <pnc-builds-list builds="$ctrl.performedBuildsFilteringPage.data" display-fields="$ctrl.displayFields"></pnc-builds-list>
-  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.performedBuildsFilteringPage" ng-if="$ctrl.performedBuildsFilteringPage"></pnc-page-controls>
+
+<dl class="dl-horizontal">
+  <dt>Id</dt>
+  <dd>{{ $ctrl.data.id }}</dd>
+  <dt>Status</dt>
+  <dd>{{ $ctrl.data.status }}</dd>
+  <dt>Start Date</dt>
+  <dd>{{ $ctrl.data.startingDate | date:'medium' }}</dd>
+  <dt>End Date</dt>
+  <dd>{{ $ctrl.data.endDate | date:'medium' }}</dd>
+  <dt></dt>
+</dl>
+
+<div class="page-header">
+  <h3>Log</h3>
 </div>
+
+<pnc-bifrost-log-viewer match-filters="bleh" prefix-filters="meh"></pnc-bifrost-log-viewer>
+
+<hr>
+<pre>
+  {{ $ctrl.closeResult | json }}
+</pre>

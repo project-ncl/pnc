@@ -18,16 +18,14 @@
 (function() {
   'use strict';
 
-  angular.module('pnc.product-milestones').component('pncProductMilestoneDetailPage', {
+  angular.module('pnc.product-milestones').component('pncProductMilestoneCloseResultsList', {
     bindings: {
-      productMilestone: '<',
-      performedBuilds: '<',
+      //productMilestone: '<',
       closeResults: '<',
-      latestCloseResult: '<',
-      product: '<',
-      productVersion: '<'
+      //product: '<',
+      //productVersion: '<'
     },
-    templateUrl: 'product-milestones/detail/pnc-product-milestone-detail-page.html',
+    templateUrl: 'product-milestones/components/pnc-product-milestone-close-results-data-table/pnc-product-milestone-close-results-list.html',
     controller: [Controller]
   });
 
@@ -36,10 +34,24 @@
 
     // -- Controller API --
 
+    $ctrl.showTable = showTable;
+    $ctrl.showColumn = showColumn;
 
     // --------------------
 
-    $ctrl.$onInit = () => {};
+    $ctrl.$onInit = () => {
+      $ctrl.items = $ctrl.closeResults;
+    };
+
+    function showTable() {
+      return $ctrl.items && $ctrl.items.length;
+    }
+
+    function showColumn(property) {
+      console.log(property);
+      return true;
+      //return $ctrl.fields.includes(property);
+    }
 
   }
 

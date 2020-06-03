@@ -32,6 +32,7 @@
     const $ctrl = this;
 
     // -- Controller API --
+
     $ctrl.submit = submit;
 
     // --------------------
