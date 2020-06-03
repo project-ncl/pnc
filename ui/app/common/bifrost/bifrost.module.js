@@ -15,32 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function() {
+(function () {
   'use strict';
 
-  angular.module('pnc.product-milestones').component('pncProductMilestoneDetailPage', {
-    bindings: {
-      productMilestone: '<',
-      performedBuilds: '<',
-      closeResults: '<',
-      latestCloseResult: '<',
-      product: '<',
-      productVersion: '<'
-    },
-    templateUrl: 'product-milestones/detail/pnc-product-milestone-detail-page.html',
-    controller: [Controller]
-  });
-
-  function Controller() {
-    const $ctrl = this;
-
-    // -- Controller API --
-
-
-    // --------------------
-
-    $ctrl.$onInit = () => {};
-
-  }
+  angular.module('pnc.common.bifrost', []);
 
 })();

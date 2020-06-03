@@ -17,11 +17,8 @@
     limitations under the License.
 
 -->
-<div class="row">
-  <pnc-toolbar filtering-page="$ctrl.performedBuildsFilteringPage" filtering-fields="$ctrl.performedBuildsFilteringFields"
-    sorting-fields="$ctrl.performedBuildsSortingFields" sorting-configs="$ctrl.performedBuildsSortingConfigs"></pnc-toolbar>
-</div>
-<div>
-  <pnc-builds-list builds="$ctrl.performedBuildsFilteringPage.data" display-fields="$ctrl.displayFields"></pnc-builds-list>
-  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.performedBuildsFilteringPage" ng-if="$ctrl.performedBuildsFilteringPage"></pnc-page-controls>
-</div>
+<ng-bifrost-log-viewer
+    bifrost-host="$ctrl.bifrostHost"
+    match-filters="$ctrl.matchFilters"
+    prefix-filters="$ctrl.prefixFilters">
+</ng-bifrost-log-viewer>

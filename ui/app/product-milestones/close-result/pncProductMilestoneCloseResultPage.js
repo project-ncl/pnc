@@ -18,16 +18,14 @@
 (function() {
   'use strict';
 
-  angular.module('pnc.product-milestones').component('pncProductMilestoneDetailPage', {
+  angular.module('pnc.product-milestones').component('pncProductMilestoneCloseResultPage', {
     bindings: {
-      productMilestone: '<',
-      performedBuilds: '<',
-      closeResults: '<',
-      latestCloseResult: '<',
-      product: '<',
-      productVersion: '<'
+      // product: '<',
+      // productVersion: '<',
+      // productMilestone: '<',
+      closeResult: '<'
     },
-    templateUrl: 'product-milestones/detail/pnc-product-milestone-detail-page.html',
+    templateUrl: 'product-milestones/close-result/pnc-product-milestone-close-result-page.html',
     controller: [Controller]
   });
 
@@ -36,10 +34,11 @@
 
     // -- Controller API --
 
-
     // --------------------
 
-    $ctrl.$onInit = () => {};
+    $ctrl.$onInit = () => {
+      $ctrl.data = $ctrl.closeResult.data[0];
+    };
 
   }
 

@@ -15,23 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-(function() {
+(function () {
   'use strict';
 
-  angular.module('pnc.product-milestones').component('pncProductMilestoneDetailPage', {
+  /**
+   * A component for displaying log data from bifrost.
+   *
+   * See Also: https://github.com/project-ncl/bifrost
+   */
+  angular.module('pnc.common.bifrost').component('pncBifrostLogViewer', {
     bindings: {
-      productMilestone: '<',
-      performedBuilds: '<',
-      closeResults: '<',
-      latestCloseResult: '<',
-      product: '<',
-      productVersion: '<'
+      /**
+       * The prefixFilters parameter to pass to bifrost
+       */
+      prefixFilters: '@',
+      /**
+       * the matchFilters parameter to pass to bifrost
+       */
+      matchFilters: '@'
     },
-    templateUrl: 'product-milestones/detail/pnc-product-milestone-detail-page.html',
-    controller: [Controller]
+    templateUrl: 'common/bifrost/pnc-bifrost-log-viewer.html',
+    controller: ['bifrostConfig', Controller]
   });
 
-  function Controller() {
+  function Controller(bifrostConfig) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -39,8 +46,10 @@
 
     // --------------------
 
-    $ctrl.$onInit = () => {};
+
+    $ctrl.$onInit = () => {
+      $ctrl.bifrostHost = bifrostConfig.getBifrostHost();
+    };
 
   }
-
 })();

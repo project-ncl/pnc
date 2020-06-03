@@ -108,7 +108,8 @@
     'restConfigProvider',
     'daConfigProvider',
     'authConfigProvider',
-    function (pncProperties, restConfigProvider, daConfigProvider, authConfigProvider) {
+    'bifrostConfigProvider',
+    function (pncProperties, restConfigProvider, daConfigProvider, authConfigProvider, bifrostConfigProvider) {
       restConfigProvider.setPncRestUrl(pncProperties.externalPncUrl);
 
       restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
@@ -118,6 +119,8 @@
       daConfigProvider.setDaUrl(pncProperties.externalDaUrl);
 
       authConfigProvider.setSsoTokenLifespan(pncProperties.ssoTokenLifespan);
+
+      bifrostConfigProvider.setBifrostUrl(pncProperties.externalBifrostUrl);
     }
   ]);
 
