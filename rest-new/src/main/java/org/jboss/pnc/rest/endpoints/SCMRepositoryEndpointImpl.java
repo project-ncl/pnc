@@ -34,6 +34,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @ApplicationScoped
@@ -94,6 +95,7 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
         if (responseDTO.getRepository() == null) {
             // not in database, it is being created
             servletResponse.setStatus(Response.Status.ACCEPTED.getStatusCode());
+            servletResponse.setContentType(MediaType.APPLICATION_JSON);
 
             try {
                 servletResponse.flushBuffer();
