@@ -35,54 +35,23 @@ public class UIModuleConfig extends AbstractModuleConfig {
 
     public static final String MODULE_NAME = "ui";
 
-    private final String pncUrl;
-    private final String pncRestUrl;
     private final String pncNotificationsUrl;
-    private final String daUrl;
     private final String userGuideUrl;
     private final Integer ssoTokenLifespan;
     private final KeycloakConfig keycloak;
     private final Map<String, String> grafana;
-    private final String bifrostUrl;
-    private final String kafkaStoreUrl;
 
     public UIModuleConfig(
-            @JsonProperty("pncUrl") String pncUrl,
-            @JsonProperty("pncRestUrl") String pncRestUrl,
             @JsonProperty("pncNotificationsUrl") String pncNotificationsUrl,
-            @JsonProperty("daUrl") String daUrl,
             @JsonProperty("userGuideUrl") String userGuideUrl,
             @JsonProperty("ssoTokenLifespan") String ssoTokenLifespan,
             @JsonProperty("keycloak") KeycloakConfig keycloak,
-            @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana,
-            @JsonProperty("bifrostUrl") String bifrostUrl,
-            @JsonProperty("kafkaStoreUrl") String kafkaStoreUrl) {
-        this.pncUrl = pncUrl;
-        this.pncRestUrl = pncRestUrl;
+            @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana) {
         this.pncNotificationsUrl = pncNotificationsUrl;
-        this.daUrl = daUrl;
         this.userGuideUrl = userGuideUrl;
         this.ssoTokenLifespan = StringUtils.parseInt(ssoTokenLifespan, 86400000); // default to 24h
         this.keycloak = keycloak;
         this.grafana = grafana;
-        this.bifrostUrl = bifrostUrl;
-        this.kafkaStoreUrl = kafkaStoreUrl;
-    }
-
-    /**
-     * @return String representation of the PNC REST API version 1 base URL
-     */
-    @JsonProperty("pncUrl")
-    public String getPncUrl() {
-        return pncUrl;
-    }
-
-    /**
-     * @return String representation of the PNC REST API version 2+ base URL.
-     */
-    @JsonProperty("pncRestUrl")
-    public String getPncRestUrl() {
-        return pncRestUrl;
     }
 
     /**
@@ -91,14 +60,6 @@ public class UIModuleConfig extends AbstractModuleConfig {
     @JsonProperty("pncNotificationsUrl")
     public String getPncNotificationsUrl() {
         return pncNotificationsUrl;
-    }
-
-    /**
-     * @return String representation of the Dependency Analyzer API base URL.
-     */
-    @JsonProperty("daUrl")
-    public String getDaUrl() {
-        return daUrl;
     }
 
     /**
@@ -128,20 +89,10 @@ public class UIModuleConfig extends AbstractModuleConfig {
         return grafana;
     }
 
-    public String getBifrostUrl() {
-        return bifrostUrl;
-    }
-
-    public String getKafkaStoreUrl() {
-        return kafkaStoreUrl;
-    }
-
     @Override
     public String toString() {
-        return "UIModuleConfig{" + "pncUrl='" + pncUrl + '\'' + ", pncRestUrl='" + pncRestUrl + '\''
-                + ", pncNotificationsUrl='" + pncNotificationsUrl + '\'' + ", daUrl='" + daUrl + '\''
-                + ", userGuideUrl='" + userGuideUrl + '\'' + ", ssoTokenLifespan=" + ssoTokenLifespan + ", keycloak="
-                + keycloak + ", grafana=" + grafana + ", bifrostUrl=" + bifrostUrl + ", kafkaStoreUrl=" + kafkaStoreUrl
-                + '}';
+        return "UIModuleConfig{" + ", pncNotificationsUrl='" + pncNotificationsUrl + '\'' + ", userGuideUrl='"
+                + userGuideUrl + '\'' + ", ssoTokenLifespan=" + ssoTokenLifespan + ", keycloak=" + keycloak
+                + ", grafana=" + grafana + '}';
     }
 }

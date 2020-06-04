@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.provider;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.UrlUtils;
@@ -72,7 +73,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
      */
     @Deprecated
     private BuildRecordRepository buildRecordRepository;
-    private IndyRepoDriverModuleConfig moduleConfig;
+    private GlobalModuleGroup moduleConfig;
 
     public ArtifactProvider() {
     }
@@ -89,7 +90,7 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
         this.buildRecordRepository = buildRecordRepository;
 
         try {
-            moduleConfig = configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
+            moduleConfig = configuration.getGlobalConfig();
         } catch (ConfigurationParseException e) {
             logger.error("Cannot read configuration", e);
         }
@@ -162,17 +163,10 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
                 return "";
             } else {
                 try {
-                    if (repositoryType == MAVEN) {
-                        return UrlUtils.buildUrl(
-                                moduleConfig.getInternalRepositoryMvnPath(),
-                                artifact.getTargetRepository().getRepositoryPath(),
-                                artifact.getDeployPath());
-                    } else {
-                        return UrlUtils.buildUrl(
-                                moduleConfig.getInternalRepositoryNpmPath(),
-                                artifact.getTargetRepository().getRepositoryPath(),
-                                artifact.getDeployPath());
-                    }
+                    return UrlUtils.buildUrl(
+                            moduleConfig.getIndyUrl(),
+                            artifact.getTargetRepository().getRepositoryPath(),
+                            artifact.getDeployPath());
                 } catch (MalformedURLException e) {
                     logger.error("Cannot construct internal artifact URL.", e);
                     return null;
@@ -193,22 +187,10 @@ public class ArtifactProvider extends AbstractProvider<Artifact, ArtifactRest> {
                 result = "";
             } else {
                 try {
-                    if ((repositoryType == MAVEN) || (repositoryType == GENERIC_PROXY)) {
-                        result = UrlUtils.buildUrl(
-                                moduleConfig.getExternalRepositoryMvnPath(),
-                                artifact.getTargetRepository().getRepositoryPath(),
-                                artifact.getDeployPath());
-                    } else if (repositoryType == NPM) {
-                        result = UrlUtils.buildUrl(
-                                moduleConfig.getExternalRepositoryNpmPath(),
-                                artifact.getTargetRepository().getRepositoryPath(),
-                                artifact.getDeployPath());
-                    } else {
-                        logger.error(
-                                "Unknown repository type {}. Cannot construct public artifact URL.",
-                                repositoryType);
-                        result = null;
-                    }
+                    result = UrlUtils.buildUrl(
+                            moduleConfig.getExternalIndyUrl(),
+                            artifact.getTargetRepository().getRepositoryPath(),
+                            artifact.getDeployPath());
                 } catch (MalformedURLException e) {
                     logger.error("Cannot construct public artifact URL.", e);
                     result = null;

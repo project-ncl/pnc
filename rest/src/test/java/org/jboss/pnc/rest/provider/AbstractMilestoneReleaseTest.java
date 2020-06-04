@@ -47,6 +47,8 @@ import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.io.IOException;
+
 import static org.mockito.Mockito.when;
 
 /**
@@ -94,7 +96,7 @@ public class AbstractMilestoneReleaseTest {
     BpmEndpoint bpmEndpoint;
 
     @Before
-    public void setUp() throws CoreException, ConfigurationParseException {
+    public void setUp() throws CoreException, ConfigurationParseException, IOException {
         bpmMock = new BpmPushMock();
         MockitoAnnotations.initMocks(this);
         releaseManager = new ProductMilestoneReleaseManager(

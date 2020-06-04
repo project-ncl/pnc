@@ -314,7 +314,7 @@ public class Artifact implements GenericEntity<Integer> {
 
     /**
      * Check if this artifact has an associated build record
-     * 
+     *
      * @return true if there is a build record for this artifact, false otherwise
      */
     public boolean isBuilt() {
@@ -323,7 +323,7 @@ public class Artifact implements GenericEntity<Integer> {
 
     /**
      * Check if this artifact was imported from a remote URL
-     * 
+     *
      * @return true if there is an originUrl
      */
     public boolean isImported() {
@@ -529,16 +529,17 @@ public class Artifact implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality + ", "
-                + targetRepository.toString() + "]";
+        String tr = (targetRepository == null) ? "targetRepository=null" : targetRepository.toString();
+        return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality + ", " + tr + "]";
     }
 
     public String getDescriptiveString() {
+        Integer trId = (targetRepository == null) ? null : targetRepository.getId();
         return String.format(
                 "Identifier=%s, Sha256=%s, Target repository=%s, Deploy path=%s, Quality=%s",
                 identifier,
                 sha256,
-                targetRepository.getId(),
+                trId,
                 deployPath,
                 artifactQuality);
 

@@ -20,23 +20,22 @@ package org.jboss.pnc.facade.providers;
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRevision;
-import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.model.ArtifactAudited;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,27 +47,16 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.facade.util.UserService;
-import org.jboss.pnc.facade.validation.DTOValidationException;
-import org.jboss.pnc.model.ArtifactAudited;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
 /**
  *
@@ -135,6 +123,12 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
 
     @Test
     public void testStore() {
+        TargetRepository repo = TargetRepository.refBuilder()
+                .identifier("repo-id")
+                .repositoryPath("/repo/path")
+                .repositoryType(RepositoryType.MAVEN)
+                .build();
+
         final String identifier = "foo:bar:0.0.1";
         Artifact artifact = Artifact.builder().identifier(identifier).artifactQuality(ArtifactQuality.NEW).build();
 
@@ -243,7 +237,7 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
         final Integer revision = 1;
         ArtifactAudited aa1 = ArtifactAudited.fromArtifact(artifact1, revision);
         ArtifactAudited aa2 = ArtifactAudited.fromArtifact(artifact1, revision + 1);
-        List<org.jboss.pnc.model.ArtifactAudited> artifactRevisions = new ArrayList<org.jboss.pnc.model.ArtifactAudited>();
+        List<org.jboss.pnc.model.ArtifactAudited> artifactRevisions = new ArrayList<>();
         artifactRevisions.add(aa1);
         artifactRevisions.add(aa2);
         when(artifactAuditedRepository.findAllByIdOrderByRevDesc(artifact1.getId())).thenReturn(artifactRevisions);

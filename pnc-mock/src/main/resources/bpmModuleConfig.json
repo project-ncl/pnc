@@ -2,10 +2,8 @@
     "@module-config": "BpmModuleConfig",
     "username": "",
     "password": "",
-    "bpmInstanceUrl": "",
     "deploymentId": "",
     "bcCreationProcessId": "",
     "componentBuildProcessId": "",
-    "httpConnectionRequestTimeout": 10,
-    "causewayBaseUrl": "http://pnc-causeway.redhat.com/causeway/rest"
+    "httpConnectionRequestTimeout": 10
 }

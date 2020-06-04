@@ -58,10 +58,10 @@ public class BpmBuildTask extends BpmTask {
     protected Serializable getProcessParameters() throws CoreException {
 
         return new ComponentBuildParameters(
-                config.getPncBaseUrl(),
-                config.getAproxBaseUrl(),
-                config.getRepourBaseUrl(),
-                config.getDaBaseUrl(),
+                globalConfig.getExternalLegacyPncUrl(),
+                globalConfig.getExternalIndyUrl(),
+                globalConfig.getExternalRepourUrl(),
+                globalConfig.getExternalDaUrl(),
                 Boolean.valueOf(Optional.ofNullable(config.getCommunityBuild()).orElse("true")),
                 Boolean.valueOf(Optional.ofNullable(config.getVersionAdjust()).orElse("false")),
                 getBuildExecutionConfiguration(buildTask));

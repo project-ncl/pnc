@@ -26,6 +26,8 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 @Setter
 public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
 
+    public static final String MODULE_NAME = "termd-build-driver";
+
     private Integer internalCancelTimeoutMillis = 5000;
     private Long livenessProbeFrequencyMillis = 5000L;
     private Long livenessFailTimeoutMillis = 15000L;

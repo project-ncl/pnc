@@ -39,17 +39,16 @@ public class IndyRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
     public void loadIndyRepoDriverConfigTest() throws ConfigurationParseException {
         Configuration configuration = new Configuration();
 
-        IndyRepoDriverModuleConfig mavenConfig = configuration
+        IndyRepoDriverModuleConfig indyDriverConfig = configuration
                 .getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
 
-        assertNotNull(mavenConfig);
-        assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
-        assertEquals(100, mavenConfig.getDefaultRequestTimeout().intValue());
-        assertEquals(true, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
-        assertEquals(0, mavenConfig.getIgnoredPathPatterns().getData().getMaven().getPatterns().size());
-        assertEquals(0, mavenConfig.getIgnoredPathPatterns().getData().getNpm().getPatterns().size());
-        assertEquals(0, mavenConfig.getIgnoredPathPatterns().getPromotion().getNpm().getPatterns().size());
-        List<Pattern> ignoredPathPatternsMaven = mavenConfig.getIgnoredPathPatterns()
+        assertNotNull(indyDriverConfig);
+        assertEquals(100, indyDriverConfig.getDefaultRequestTimeout().intValue());
+        assertEquals(true, indyDriverConfig.getBuildRepositoryAllowSnapshots().booleanValue());
+        assertEquals(0, indyDriverConfig.getIgnoredPathPatterns().getData().getMaven().getPatterns().size());
+        assertEquals(0, indyDriverConfig.getIgnoredPathPatterns().getData().getNpm().getPatterns().size());
+        assertEquals(0, indyDriverConfig.getIgnoredPathPatterns().getPromotion().getNpm().getPatterns().size());
+        List<Pattern> ignoredPathPatternsMaven = indyDriverConfig.getIgnoredPathPatterns()
                 .getPromotion()
                 .getMaven()
                 .getPatterns();
@@ -76,7 +75,6 @@ public class IndyRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
         }
 
         assertNotNull(mavenConfig);
-        assertEquals("1.1.1.1", mavenConfig.getBaseUrl());
         assertEquals(600, mavenConfig.getDefaultRequestTimeout().intValue());
         assertEquals(false, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
     }

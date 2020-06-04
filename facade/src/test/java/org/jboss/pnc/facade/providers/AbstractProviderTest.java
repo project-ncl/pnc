@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
@@ -289,11 +290,11 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     @Before
     public void prepareMockInAbstract() throws ConfigurationParseException {
-        IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig("http://url.com");
-        indyRepoDriverModuleConfig.setExternalRepositoryMvnPath("http://url.com");
-        indyRepoDriverModuleConfig.setExternalRepositoryNpmPath("http://url.com");
-        indyRepoDriverModuleConfig.setInternalRepositoryMvnPath("http://url.com");
-        indyRepoDriverModuleConfig.setInternalRepositoryNpmPath("http://url.com");
+        GlobalModuleGroup globalConfig = new GlobalModuleGroup();
+        globalConfig.setIndyUrl("http://url.com");
+        globalConfig.setExternalIndyUrl("http://url.com");
+        IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig();
+        when(configuration.getGlobalConfig()).thenReturn(globalConfig);
         when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class)))
                 .thenReturn(indyRepoDriverModuleConfig);
         when(pageInfoProducer.getPageInfo(anyInt(), anyInt())).thenAnswer(this::withPageInfo);

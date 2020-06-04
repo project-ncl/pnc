@@ -62,6 +62,8 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.NotificationOptions;
 import javax.enterprise.util.TypeLiteral;
+
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -194,7 +196,7 @@ public class CancelledBuildByBpmTest {
         BpmBuildScheduler buildScheduler;
 
         public BuildSchedulerFactory(Consumer<BpmTask> onTaskStarted)
-                throws CoreException, ConfigurationParseException {
+                throws CoreException, ConfigurationParseException, IOException {
             BpmMock manager = new BpmMock();
             manager.setOnTaskStarted(onTaskStarted);
             buildScheduler = new BpmBuildScheduler(manager, buildResultMapper);

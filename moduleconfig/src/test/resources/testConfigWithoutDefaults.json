@@ -4,11 +4,20 @@
     "configs": [
         {
             "@module-group": "global",
-            "aproxUrl": "127.0.0.1",
-            "bpmUrl": "1.2.3.4",
-            "pncUrl": "1.2.3.5",
-            "repourUrl": "1.2.3.6",
-            "daUrl": "1.2.3.7"
+            "bpmUrl": "http://127.0.0.1:8001",
+            "cartographerUrl": "http://127.0.0.1:8002",
+            "daUrl": "http://127.0.0.1:8003",
+            "indyUrl": "http://127.0.0.1:8004",
+            "pncUrl": "http://127.0.0.1:8005",
+            "repourUrl": "http://127.0.0.1:8006",
+            "externalBifrostUrl": "http://1.2.3.4",
+            "externalDaUrl": "http://1.2.3.5",
+            "externalCausewayUrl": "http://1.2.3.6",
+            "externalIndyUrl": "http://1.2.3.7",
+            "externalKafkaStoreUrl": "http://1.2.3.8",
+            "externalPncUrl": "http://1.2.3.9",
+            "externalRepourUrl": "http://1.2.3.10",
+            "externalLegacyPncUrl": "http://1.2.3.11"
         },
         {
             "@module-group": "pnc",
@@ -19,8 +28,7 @@
                     "password": "pass"
                 },
                 {
-                    "@module-config": "indy-repo-driver",
-                    "baseUrl": "1.1.1.1"
+                    "@module-config": "indy-repo-driver"
                 }
             ]
         }

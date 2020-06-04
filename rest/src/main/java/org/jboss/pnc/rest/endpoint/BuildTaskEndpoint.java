@@ -29,6 +29,7 @@ import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Date.ExpiresDate;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
@@ -212,9 +213,9 @@ public class BuildTaskEndpoint {
                     callbackUrl,
                     loginInUser.getTokenString());
 
-            UIModuleConfig uiModuleConfig = configuration
-                    .getModuleConfig(new PncConfigProvider<>(UIModuleConfig.class));
-            UriBuilder uriBuilder = UriBuilder.fromUri(uiModuleConfig.getPncUrl()).path("/ws/executor/notifications");
+            GlobalModuleGroup uiModuleConfig = configuration.getGlobalConfig();
+            UriBuilder uriBuilder = UriBuilder.fromUri(uiModuleConfig.getExternalPncUrl())
+                    .path("/ws/executor/notifications");
 
             String id = Integer.toString(buildExecutionConfiguration.getId());
             AcceptedResponse acceptedResponse = new AcceptedResponse(id, uriBuilder.build().toString());

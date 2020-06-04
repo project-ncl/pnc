@@ -43,11 +43,12 @@ public class PncConfigProvider<T extends AbstractModuleConfig> extends AbstractC
         setType(type);
         addModuleConfig(
                 new ProviderNameType(JenkinsBuildDriverModuleConfig.class, JenkinsBuildDriverModuleConfig.MODULE_NAME));
-        addModuleConfig(new ProviderNameType(TermdBuildDriverModuleConfig.class, "termd-build-driver"));
-        addModuleConfig(new ProviderNameType(SystemConfig.class, "system-config"));
+        addModuleConfig(
+                new ProviderNameType(TermdBuildDriverModuleConfig.class, TermdBuildDriverModuleConfig.MODULE_NAME));
+        addModuleConfig(new ProviderNameType(SystemConfig.class, SystemConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(IndyRepoDriverModuleConfig.class, IndyRepoDriverModuleConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(AuthenticationModuleConfig.class, AuthenticationModuleConfig.MODULE_NAME));
-        addModuleConfig(new ProviderNameType(BpmModuleConfig.class, "bpm-config"));
+        addModuleConfig(new ProviderNameType(BpmModuleConfig.class, BpmModuleConfig.MODULE_NAME));
         addModuleConfig(
                 new ProviderNameType(
                         OpenshiftEnvironmentDriverModuleConfig.class,
@@ -55,7 +56,7 @@ public class PncConfigProvider<T extends AbstractModuleConfig> extends AbstractC
         addModuleConfig(new ProviderNameType(UIModuleConfig.class, UIModuleConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(OpenshiftBuildAgentConfig.class, OpenshiftBuildAgentConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(DemoDataConfig.class, DemoDataConfig.MODULE_NAME));
-        addModuleConfig(new ProviderNameType(AlignmentConfig.class, "alignment-config"));
+        addModuleConfig(new ProviderNameType(AlignmentConfig.class, AlignmentConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(ScmModuleConfig.class, ScmModuleConfig.MODULE_NAME));
     }
 }

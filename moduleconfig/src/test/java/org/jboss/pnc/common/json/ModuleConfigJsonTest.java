@@ -46,7 +46,7 @@ public class ModuleConfigJsonTest {
         JenkinsBuildDriverModuleConfig jenkinsBuildDriverModuleConfig = new JenkinsBuildDriverModuleConfig(
                 "user",
                 "pass");
-        IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig("http://something/base");
+        IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig();
         indyRepoDriverModuleConfig.setBuildRepositoryAllowSnapshots(true);
         indyRepoDriverModuleConfig.setDefaultRequestTimeout(100);
         List<String> ignoredPatternsMaven = new ArrayList<>(2);

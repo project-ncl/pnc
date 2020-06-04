@@ -23,6 +23,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -54,28 +55,28 @@ public class KieClientConnector implements Connector {
     private final String cancelEndpointUrl;
     private final HttpConfig httpConfig;
 
-    public KieClientConnector(BpmModuleConfig bpmConfig) throws CoreException {
-        session = initKieSession(bpmConfig);
-        cancelEndpointUrl = StringUtils.stripEndingSlash(bpmConfig.getBpmInstanceUrl()) + "/nclcancelhandler";
+    public KieClientConnector(GlobalModuleGroup globalConfig, BpmModuleConfig bpmConfig) throws CoreException {
+        session = initKieSession(globalConfig, bpmConfig);
+        cancelEndpointUrl = StringUtils.stripEndingSlash(globalConfig.getBpmUrl()) + "/nclcancelhandler";
         httpConfig = new HttpConfig(
                 bpmConfig.getHttpConnectionRequestTimeout(),
                 bpmConfig.getHttpConnectTimeout(),
                 bpmConfig.getHttpSocketTimeout());
     }
 
-    private KieSession initKieSession(BpmModuleConfig bpmConfig) throws CoreException {
+    private KieSession initKieSession(GlobalModuleGroup globalConfig, BpmModuleConfig bpmConfig) throws CoreException {
         RuntimeEngine restSessionFactory;
         try {
             restSessionFactory = RemoteRuntimeEngineFactory.newRestBuilder()
                     .addDeploymentId(bpmConfig.getDeploymentId())
-                    .addUrl(new URL(bpmConfig.getBpmInstanceUrl()))
+                    .addUrl(new URL(globalConfig.getBpmUrl()))
                     .addUserName(bpmConfig.getUsername())
                     .addPassword(bpmConfig.getPassword())
                     .addTimeout(AUTHENTICATION_TIMEOUT_S)
                     .build();
         } catch (Exception e) {
             throw new CoreException(
-                    "Could not initialize connection to BPM server at '" + bpmConfig.getBpmInstanceUrl()
+                    "Could not initialize connection to BPM server at '" + globalConfig.getBpmUrl()
                             + "' check that the URL is correct.",
                     e);
         }
@@ -103,8 +104,9 @@ public class KieClientConnector implements Connector {
     public boolean isProcessInstanceCompleted(Long processInstanceId) {
         ProcessInstance processInstance = session.getProcessInstance(processInstanceId);
         log.debug("fetched: {}", processInstance);
-        if (processInstance == null) // instance has been terminated from outside
+        if (processInstance == null) {
             return true;
+        }
         int state = processInstance.getState();
         return state == STATE_COMPLETED || state == STATE_ABORTED;
     }

@@ -23,6 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -67,6 +68,8 @@ public abstract class BpmTask implements Comparable<BpmTask> {
 
     private String processName;
 
+    protected GlobalModuleGroup globalConfig;
+
     protected BpmModuleConfig config;
 
     private ConcurrentMap<BpmEventType, List<Consumer<?>>> listeners = new ConcurrentHashMap<>();
@@ -105,6 +108,10 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      * @throws CoreException
      */
     protected abstract Serializable getProcessParameters() throws CoreException;
+
+    /* package */ void setGlobalConfig(GlobalModuleGroup globalConfig) {
+        this.globalConfig = globalConfig;
+    }
 
     /* package */ void setBpmConfig(BpmModuleConfig config) {
         this.config = config;
@@ -206,10 +213,12 @@ public abstract class BpmTask implements Comparable<BpmTask> {
     @Override
     public int compareTo(BpmTask other) {
         requireNonNull(other);
-        if (taskId == null)
+        if (taskId == null) {
             return other.getTaskId() == null ? 0 : -1;
-        if (other.getTaskId() == null)
+        }
+        if (other.getTaskId() == null) {
             return 1;
+        }
         return taskId.compareTo(other.getTaskId());
     }
 

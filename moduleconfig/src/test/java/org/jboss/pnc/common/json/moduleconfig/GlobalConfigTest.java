@@ -36,8 +36,22 @@ public class GlobalConfigTest extends AbstractModuleConfigTest {
         GlobalModuleGroup globalConfig = configuration.getGlobalConfig();
 
         assertNotNull(globalConfig);
-        assertEquals("127.0.0.1", globalConfig.getAproxUrl());
-        assertEquals("1.2.3.4", globalConfig.getBpmUrl());
+        assertEquals("http://127.0.0.1:8001", globalConfig.getBpmUrl());
+        assertEquals("http://127.0.0.1:8002", globalConfig.getCartographerUrl());
+        assertEquals("http://127.0.0.1:8003", globalConfig.getDaUrl());
+        assertEquals("http://127.0.0.1:8004", globalConfig.getIndyUrl());
+        assertEquals("http://127.0.0.1:8005", globalConfig.getPncUrl());
+        assertEquals("http://127.0.0.1:8006", globalConfig.getRepourUrl());
+
+        assertEquals("http://1.2.3.4", globalConfig.getExternalBifrostUrl());
+        assertEquals("http://1.2.3.5", globalConfig.getExternalDaUrl());
+        assertEquals("http://1.2.3.6", globalConfig.getExternalCausewayUrl());
+        assertEquals("http://1.2.3.7", globalConfig.getExternalIndyUrl());
+        assertEquals("http://1.2.3.8", globalConfig.getExternalKafkaStoreUrl());
+        assertEquals("http://1.2.3.9", globalConfig.getExternalPncUrl());
+        assertEquals("http://1.2.3.10", globalConfig.getExternalRepourUrl());
+
+        assertEquals("http://1.2.3.11", globalConfig.getExternalLegacyPncUrl());
     }
 
 }

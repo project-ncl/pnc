@@ -28,6 +28,8 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.spi.exception.CoreException;
 
 import javax.ws.rs.core.Response;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,10 +41,11 @@ public class BpmPushMock extends BpmMock {
 
     private final List<Push> pushes;
 
-    public BpmPushMock() throws ConfigurationParseException, CoreException {
+    public BpmPushMock() throws ConfigurationParseException, CoreException, IOException {
         pushes = new ArrayList<>();
     }
 
+    @Override
     public boolean startTask(BpmTask task) throws CoreException {
         MilestoneReleaseTask releaseTask = (MilestoneReleaseTask) task;
         String callbackId = RandomStringUtils.randomNumeric(12);
