@@ -78,6 +78,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
     private UserService userService;
 
     private UserMapper userMapper;
+
     @Inject
     public ArtifactProviderImpl(
             ArtifactRepository repository,
@@ -177,6 +178,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
                 query,
                 withDependantBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
     }
+
     @Override
     public Page<ArtifactRevision> getRevisions(int pageIndex, int pageSize, String id) {
         List<ArtifactAudited> auditedBuildConfigs = artifactAuditedRepository

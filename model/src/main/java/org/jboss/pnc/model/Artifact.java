@@ -212,6 +212,7 @@ public class Artifact implements GenericEntity<Integer> {
     @Size(max = 200)
     @Column(length = 200)
     private String reason;
+
     @Transient
     public IdentifierSha256 getIdentifierSha256() {
         return new IdentifierSha256(identifier, sha256);
@@ -524,6 +525,7 @@ public class Artifact implements GenericEntity<Integer> {
     public void setReason(String reason) {
         this.reason = StringUtils.nullIfBlank(reason);
     }
+
     @Override
     public String toString() {
         return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality + ", "
