@@ -24,6 +24,8 @@ import java.util.Map;
 
 public class AlignmentConfig extends AbstractModuleConfig {
 
+    public static final String MODULE_NAME = "alignment-config";
+
     /**
      * Default alignment parameters concatenated into one string mapped to build type
      */

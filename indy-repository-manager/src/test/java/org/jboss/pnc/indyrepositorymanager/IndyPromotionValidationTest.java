@@ -31,7 +31,6 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.ConfigProvider;
-import org.jboss.pnc.indyrepositorymanager.RepositoryManagerDriver;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
@@ -137,13 +136,15 @@ public class IndyPromotionValidationTest {
         @Override
         public <T extends AbstractModuleConfig> T getModuleConfig(ConfigProvider<T> provider)
                 throws ConfigurationParseException {
-            IndyRepoDriverModuleConfig mvnCfg = new IndyRepoDriverModuleConfig(baseUrl);
+            IndyRepoDriverModuleConfig mvnCfg = new IndyRepoDriverModuleConfig();
             return (T) mvnCfg;
         }
 
         @Override
         public GlobalModuleGroup getGlobalConfig() throws ConfigurationParseException {
-            return super.getGlobalConfig();
+            GlobalModuleGroup result = super.getGlobalConfig();
+            result.setIndyUrl(baseUrl);
+            return result;
         }
     }
 }

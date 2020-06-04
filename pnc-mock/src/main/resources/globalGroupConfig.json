@@ -1,0 +1,19 @@
+{
+    "@module-group": "global",
+
+    "bpmUrl": "http://bpm.svc.cluster.local/business-central",
+    "cartographerUrl": "http://cartographer.svc.cluster.local/api",
+    "daUrl": "http://da.svc.cluster.local/da/rest/v-1",
+    "indyUrl": "http://indy.svc.cluster.local/",
+    "pncUrl": "http://orch.svc.cluster.local/pnc-rest-new/rest-new",
+    "repourUrl": "http://repour.svc.cluster.local",
+
+    "externalBifrostUrl" : "http://bifrost.pnc.jboss.org/",
+    "externalCausewayUrl": "http://causeway.pnc.jboss.org/causeway/rest",
+    "externalIndyUrl": "http://indy.pnc.jboss.org/",
+    "externalKafkaStoreUrl": "http://kafka-store.pnc.jboss.org/",
+    "externalPncUrl": "http://orch.pnc.jboss.com/pnc-rest-new/rest-new",
+    "externalRepourUrl": "http://repour.pnc.jboss.com",
+
+    "externalLegacyPncUrl": "http://orch.pnc.jboss.com/pnc-rest/rest"
+}

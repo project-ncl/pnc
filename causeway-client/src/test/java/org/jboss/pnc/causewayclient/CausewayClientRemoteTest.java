@@ -22,9 +22,11 @@ import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.causewayclient.remotespi.TaggedBuild;
 import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.mock.common.BpmModuleConfigMock;
+import org.jboss.pnc.mock.common.GlobalModuleGroupMock;
 import org.jboss.pnc.mock.common.SystemConfigMock;
 import org.jboss.pnc.test.category.DebugTest;
 import org.junit.Assert;
@@ -47,8 +49,9 @@ public class CausewayClientRemoteTest {
         SystemConfig systemConfig = SystemConfigMock.withKeycloakServiceAccount();
         serviceClient = new DefaultKeycloakServiceClient(systemConfig);
 
-        BpmModuleConfig config = BpmModuleConfigMock.get();
-        causewayClient = new DefaultCausewayClient(config);
+        GlobalModuleGroup globalConfig = GlobalModuleGroupMock.get();
+        BpmModuleConfig bpmConfig = BpmModuleConfigMock.get();
+        causewayClient = new DefaultCausewayClient(globalConfig, bpmConfig);
     }
 
     @Test

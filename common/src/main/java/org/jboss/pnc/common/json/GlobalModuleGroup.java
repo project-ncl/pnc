@@ -21,19 +21,23 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonTypeName(value = "global")
 public class GlobalModuleGroup extends AbstractModuleGroup {
-    private String aproxUrl;
+
     private String bpmUrl;
+    private String cartographerUrl;
+    private String daUrl;
+    private String indyUrl;
     private String pncUrl;
     private String repourUrl;
-    private String daUrl;
 
-    public String getAproxUrl() {
-        return aproxUrl;
-    }
+    private String externalBifrostUrl;
+    private String externalDaUrl;
+    private String externalCausewayUrl;
+    private String externalIndyUrl;
+    private String externalKafkaStoreUrl;
+    private String externalPncUrl;
+    private String externalRepourUrl;
 
-    public void setAproxUrl(String aproxUrl) {
-        this.aproxUrl = aproxUrl;
-    }
+    private String externalLegacyPncUrl;
 
     public String getBpmUrl() {
         return bpmUrl;
@@ -41,6 +45,30 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setBpmUrl(String bpmUrl) {
         this.bpmUrl = bpmUrl;
+    }
+
+    public String getCartographerUrl() {
+        return cartographerUrl;
+    }
+
+    public void setCartographerUrl(String cartographerUrl) {
+        this.cartographerUrl = cartographerUrl;
+    }
+
+    public String getDaUrl() {
+        return daUrl;
+    }
+
+    public void setDaUrl(String daUrl) {
+        this.daUrl = daUrl;
+    }
+
+    public String getIndyUrl() {
+        return indyUrl;
+    }
+
+    public void setIndyUrl(String indyUrl) {
+        this.indyUrl = indyUrl;
     }
 
     public String getPncUrl() {
@@ -59,12 +87,68 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
         this.repourUrl = repourUrl;
     }
 
-    public String getDaUrl() {
-        return daUrl;
+    public String getExternalBifrostUrl() {
+        return externalBifrostUrl;
     }
 
-    public void setDaUrl(String daUrl) {
-        this.daUrl = daUrl;
+    public void setExternalBifrostUrl(String externalBifrostUrl) {
+        this.externalBifrostUrl = externalBifrostUrl;
+    }
+
+    public String getExternalDaUrl() {
+        return externalDaUrl;
+    }
+
+    public void setExternalDaUrl(String externalDaUrl) {
+        this.externalDaUrl = externalDaUrl;
+    }
+
+    public String getExternalCausewayUrl() {
+        return externalCausewayUrl;
+    }
+
+    public void setExternalCausewayUrl(String externalCausewayUrl) {
+        this.externalCausewayUrl = externalCausewayUrl;
+    }
+
+    public String getExternalIndyUrl() {
+        return externalIndyUrl;
+    }
+
+    public void setExternalIndyUrl(String externalIndyUrl) {
+        this.externalIndyUrl = externalIndyUrl;
+    }
+
+    public String getExternalKafkaStoreUrl() {
+        return externalKafkaStoreUrl;
+    }
+
+    public void setExternalKafkaStoreUrl(String externalKafkaStoreUrl) {
+        this.externalKafkaStoreUrl = externalKafkaStoreUrl;
+    }
+
+    public String getExternalPncUrl() {
+        return externalPncUrl;
+    }
+
+    public void setExternalPncUrl(String externalPncUrl) {
+        this.externalPncUrl = externalPncUrl;
+    }
+
+    public String getExternalRepourUrl() {
+        return externalRepourUrl;
+    }
+
+    public void setExternalRepourUrl(String externalRepourUrl) {
+        this.externalRepourUrl = externalRepourUrl;
+    }
+
+    public String getExternalLegacyPncUrl() {
+        return externalLegacyPncUrl;
+    }
+
+    public void setExternalLegacyPncUrl(String externalLegacyPncUrl) {
+        this.externalLegacyPncUrl = externalLegacyPncUrl;
     }
 
 }

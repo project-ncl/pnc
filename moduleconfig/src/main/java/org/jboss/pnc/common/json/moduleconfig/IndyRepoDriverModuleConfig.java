@@ -40,11 +40,6 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
     public static final String MODULE_NAME = "indy-repo-driver";
 
     /**
-     * Base url to Indy repository manager
-     */
-    private String baseUrl;
-
-    /**
      * Lists of dependency repository store key patterns to use when considering whether a repository represents an
      * internal build (from a trusted build system, for instance). The structure contains a list of patterns for every
      * supported package type.
@@ -58,30 +53,6 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
      */
     @JsonProperty("ignored-path-patterns")
     private IgnoredPathPatterns ignoredPathPatterns;
-
-    /**
-     * Internal network (cloud) maven repository path
-     */
-    @JsonProperty
-    private String internalRepositoryMvnPath;
-
-    /**
-     * External network maven repository path
-     */
-    @JsonProperty
-    private String externalRepositoryMvnPath;
-
-    /**
-     * Internal network (cloud) NPM repository path
-     */
-    @JsonProperty
-    private String internalRepositoryNpmPath;
-
-    /**
-     * External network NPM repository path
-     */
-    @JsonProperty
-    private String externalRepositoryNpmPath;
 
     /**
      * Request timeout for the whole client in seconds
@@ -115,16 +86,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
     @JsonProperty(required = false)
     private String tempBuildPromotionTarget = "temporary-builds";
 
-    public IndyRepoDriverModuleConfig(@JsonProperty("base-url") String baseUrl) {
-        this.baseUrl = baseUrl;
-    }
-
-    public String getBaseUrl() {
-        return baseUrl;
-    }
-
-    public void setBaseUrl(String baseUrl) {
-        this.baseUrl = baseUrl;
+    public IndyRepoDriverModuleConfig() {
     }
 
     public List<String> getIgnoredRepoPatterns() {
@@ -141,38 +103,6 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
     public void setIgnoredPathPatterns(IgnoredPathPatterns ignoredPathPatterns) {
         this.ignoredPathPatterns = ignoredPathPatterns;
-    }
-
-    public String getInternalRepositoryMvnPath() {
-        return internalRepositoryMvnPath;
-    }
-
-    public void setInternalRepositoryMvnPath(String internalRepositoryMvnPath) {
-        this.internalRepositoryMvnPath = internalRepositoryMvnPath;
-    }
-
-    public String getExternalRepositoryMvnPath() {
-        return externalRepositoryMvnPath;
-    }
-
-    public void setExternalRepositoryMvnPath(String externalRepositoryMvnPath) {
-        this.externalRepositoryMvnPath = externalRepositoryMvnPath;
-    }
-
-    public String getInternalRepositoryNpmPath() {
-        return internalRepositoryNpmPath;
-    }
-
-    public void setInternalRepositoryNpmPath(String internalRepositoryNpmPath) {
-        this.internalRepositoryNpmPath = internalRepositoryNpmPath;
-    }
-
-    public String getExternalRepositoryNpmPath() {
-        return externalRepositoryNpmPath;
-    }
-
-    public void setExternalRepositoryNpmPath(String externalRepositoryNpmPath) {
-        this.externalRepositoryNpmPath = externalRepositoryNpmPath;
     }
 
     public static class PatternsList {

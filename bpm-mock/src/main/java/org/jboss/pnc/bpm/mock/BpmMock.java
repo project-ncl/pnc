@@ -21,6 +21,7 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
@@ -28,6 +29,7 @@ import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -42,10 +44,11 @@ public class BpmMock extends BpmManager {
     private MockKieSession session = new MockKieSession();
     private Optional<Consumer<BpmTask>> onTaskStarted = Optional.empty();
 
-    public BpmMock() throws ConfigurationParseException, CoreException {
-        super(mockBpmConfig());
+    public BpmMock() throws ConfigurationParseException, CoreException, IOException {
+        super(mockGlobalConfig(), mockBpmConfig());
     }
 
+    @Override
     public boolean startTask(BpmTask task) throws CoreException {
         Connector connector = Mockito.mock(Connector.class);
         try {
@@ -66,6 +69,13 @@ public class BpmMock extends BpmManager {
     private static BpmModuleConfig mockBpmConfig() {
         BpmModuleConfig bpmConfig = Mockito.mock(BpmModuleConfig.class);
         Mockito.when(bpmConfig.getMilestoneReleaseProcessId()).thenReturn("1.1.1");
+        return bpmConfig;
+    }
+
+    private static GlobalModuleGroup mockGlobalConfig() {
+        GlobalModuleGroup bpmConfig = Mockito.mock(GlobalModuleGroup.class);
+        Mockito.when(bpmConfig.getBpmUrl()).thenReturn("http://bpm.svc.cluster.local/business-central");
+        Mockito.when(bpmConfig.getIndyUrl()).thenReturn("http://indy.svc.cluster.local/");
         return bpmConfig;
     }
 

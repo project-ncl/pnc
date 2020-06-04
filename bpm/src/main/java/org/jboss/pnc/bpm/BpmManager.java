@@ -19,6 +19,7 @@ package org.jboss.pnc.bpm;
 
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
@@ -55,6 +56,7 @@ public class BpmManager {
 
     static final int AUTHENTICATION_TIMEOUT_S = 2 * 60;
 
+    private GlobalModuleGroup globalConfig;
     private BpmModuleConfig bpmConfig;
     private AtomicInteger nextTaskId = new AtomicInteger(1);
     private Map<Integer, BpmTask> tasks = new ConcurrentHashMap<>();
@@ -70,13 +72,14 @@ public class BpmManager {
     }
 
     @Inject
-    public BpmManager(BpmModuleConfig bpmConfig) {
+    public BpmManager(GlobalModuleGroup globalConfig, BpmModuleConfig bpmConfig) {
+        this.globalConfig = globalConfig;
         this.bpmConfig = bpmConfig;
     }
 
     @PostConstruct
     public void init() throws CoreException {
-        kieConnector = new KieClientConnector(bpmConfig);
+        kieConnector = new KieClientConnector(globalConfig, bpmConfig);
         restConnector = new RestConnector(bpmConfig);
     }
 
@@ -93,6 +96,7 @@ public class BpmManager {
     public boolean startTask(BpmTask task) throws CoreException {
         try {
             task.setTaskId(getNextTaskId());
+            task.setGlobalConfig(globalConfig);
             task.setBpmConfig(bpmConfig);
             if (!task.getConnector().isPresent()) {
                 defineConnector(task);
@@ -203,8 +207,9 @@ public class BpmManager {
                 .filter(t -> ((BpmBuildTask) t).getBuildTask().getId() == buildId)
                 .map(BpmTask::getTaskId)
                 .collect(Collectors.toList());
-        if (result.size() > 1)
+        if (result.size() > 1) {
             throw new IllegalStateException("More that one task with the same build id: " + result);
+        }
         return result.size() == 1 ? result.get(0) : null;
     }
 

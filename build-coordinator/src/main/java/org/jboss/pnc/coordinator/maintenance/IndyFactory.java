@@ -29,6 +29,7 @@ import org.commonjava.indy.model.core.io.IndyObjectMapper;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
 import org.commonjava.util.jhttpc.model.SiteConfig;
 import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 
@@ -49,10 +50,10 @@ public class IndyFactory {
     }
 
     @Inject
-    public IndyFactory(IndyRepoDriverModuleConfig config) {
+    public IndyFactory(GlobalModuleGroup globalConfig, IndyRepoDriverModuleConfig config) {
         this.defaultRequestTimeout = config.getDefaultRequestTimeout();
 
-        String baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
+        String baseUrl = StringUtils.stripEnd(globalConfig.getIndyUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
             baseUrl += "/api";
         }

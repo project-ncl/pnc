@@ -28,6 +28,7 @@ import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.junit.Assert;
@@ -76,13 +77,10 @@ public class RepositoryManagerResultSerializationTest {
 
     @Before
     public void before() throws Exception {
-        IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig("http://url.com");
-        indyRepoDriverModuleConfig.setExternalRepositoryMvnPath("http://url.com");
-        indyRepoDriverModuleConfig.setExternalRepositoryNpmPath("http://url.com");
-        indyRepoDriverModuleConfig.setInternalRepositoryMvnPath("http://url.com");
-        indyRepoDriverModuleConfig.setInternalRepositoryNpmPath("http://url.com");
-        when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class)))
-                .thenReturn(indyRepoDriverModuleConfig);
+        GlobalModuleGroup globalConfig = new GlobalModuleGroup();
+        globalConfig.setIndyUrl("http://url.com");
+        globalConfig.setExternalIndyUrl("http://url.com");
+        when(configuration.getGlobalConfig()).thenReturn(globalConfig);
         injectMethod("config", artifactMapper, configuration, AbstractArtifactMapper.class);
         injectMethod(
                 "targetRepositoryMapper",

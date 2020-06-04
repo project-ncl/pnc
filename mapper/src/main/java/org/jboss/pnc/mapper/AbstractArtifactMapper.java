@@ -19,18 +19,19 @@ package org.jboss.pnc.mapper;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.IdEntity;
 import org.jboss.pnc.mapper.api.MapperCentralConfig;
 import org.jboss.pnc.mapper.api.Reference;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
+import org.jboss.pnc.model.TargetRepository;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;
@@ -40,9 +41,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+
 import java.net.MalformedURLException;
 import java.util.function.Consumer;
-import org.jboss.pnc.mapper.api.IdEntity;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
@@ -111,45 +112,37 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
             org.jboss.pnc.model.Artifact artifactDB,
             Consumer<String> deployUrlSetter,
             Consumer<String> publicUrlSetter) {
-        IndyRepoDriverModuleConfig moduleConfig = null;
+        GlobalModuleGroup globalConfig = null;
         try {
-            moduleConfig = config.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
+            globalConfig = config.getGlobalConfig();
         } catch (ConfigurationParseException e) {
             logger.error("Cannot read configuration", e);
         }
-        if (moduleConfig == null) {
+        if (globalConfig == null) {
             return;
         }
-        RepositoryType repositoryType = artifactDB.getTargetRepository().getRepositoryType();
+        TargetRepository targetRepository = artifactDB.getTargetRepository();
+        if (targetRepository == null) {
+            logger.error("Artifact DB object does not have target repository set: {}", artifactDB);
+            return;
+        }
+        RepositoryType repositoryType = targetRepository.getRepositoryType();
         if (repositoryType.equals(RepositoryType.MAVEN) || repositoryType.equals(RepositoryType.NPM)) {
             if (artifactDB.getDeployPath() == null || artifactDB.getDeployPath().equals("")) {
                 deployUrlSetter.accept("");
                 publicUrlSetter.accept("");
             } else {
                 try {
-                    if (repositoryType.equals(RepositoryType.MAVEN)) {
-                        deployUrlSetter.accept(
-                                UrlUtils.buildUrl(
-                                        moduleConfig.getInternalRepositoryMvnPath(),
-                                        artifactDB.getTargetRepository().getRepositoryPath(),
-                                        artifactDB.getDeployPath()));
-                        publicUrlSetter.accept(
-                                UrlUtils.buildUrl(
-                                        moduleConfig.getExternalRepositoryMvnPath(),
-                                        artifactDB.getTargetRepository().getRepositoryPath(),
-                                        artifactDB.getDeployPath()));
-                    } else {
-                        deployUrlSetter.accept(
-                                UrlUtils.buildUrl(
-                                        moduleConfig.getInternalRepositoryNpmPath(),
-                                        artifactDB.getTargetRepository().getRepositoryPath(),
-                                        artifactDB.getDeployPath()));
-                        publicUrlSetter.accept(
-                                UrlUtils.buildUrl(
-                                        moduleConfig.getExternalRepositoryNpmPath(),
-                                        artifactDB.getTargetRepository().getRepositoryPath(),
-                                        artifactDB.getDeployPath()));
-                    }
+                    deployUrlSetter.accept(
+                            UrlUtils.buildUrl(
+                                    globalConfig.getIndyUrl(),
+                                    targetRepository.getRepositoryPath(),
+                                    artifactDB.getDeployPath()));
+                    publicUrlSetter.accept(
+                            UrlUtils.buildUrl(
+                                    globalConfig.getExternalIndyUrl(),
+                                    targetRepository.getRepositoryPath(),
+                                    artifactDB.getDeployPath()));
                 } catch (MalformedURLException e) {
                     logger.error("Cannot construct internal artifactDB URL.", e);
                     deployUrlSetter.accept(null);

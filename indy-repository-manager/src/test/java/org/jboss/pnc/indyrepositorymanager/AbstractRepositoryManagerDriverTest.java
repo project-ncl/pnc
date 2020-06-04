@@ -25,6 +25,7 @@ import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.test.fixture.core.CoreServerFixture;
 import org.commonjava.propulsor.boot.BootStatus;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.ModuleConfigJson;
 import org.jboss.pnc.common.json.PNCModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
@@ -76,7 +77,7 @@ public class AbstractRepositoryManagerDriverTest {
         url = fixture.getUrl();
         File configFile = temp.newFile("pnc-config.json");
         ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
-        IndyRepoDriverModuleConfig mavenRepoDriverModuleConfig = new IndyRepoDriverModuleConfig(fixture.getUrl());
+        IndyRepoDriverModuleConfig mavenRepoDriverModuleConfig = new IndyRepoDriverModuleConfig();
         mavenRepoDriverModuleConfig.setIgnoredRepoPatterns(getIgnoredRepoPatterns());
         SystemConfig systemConfig = new SystemConfig(
                 "",
@@ -92,9 +93,12 @@ public class AbstractRepositoryManagerDriverTest {
                 "14",
                 "",
                 "10");
+        GlobalModuleGroup globalConfig = new GlobalModuleGroup();
+        globalConfig.setIndyUrl(fixture.getUrl());
         PNCModuleGroup pncGroup = new PNCModuleGroup();
         pncGroup.addConfig(mavenRepoDriverModuleConfig);
         pncGroup.addConfig(systemConfig);
+        moduleConfigJson.addConfig(globalConfig);
         moduleConfigJson.addConfig(pncGroup);
 
         ObjectMapper mapper = new ObjectMapper();

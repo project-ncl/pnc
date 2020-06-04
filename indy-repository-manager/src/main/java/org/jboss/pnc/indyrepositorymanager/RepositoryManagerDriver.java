@@ -37,6 +37,7 @@ import org.commonjava.util.jhttpc.model.SiteConfig;
 import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPathPatterns;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPatterns;
@@ -118,26 +119,28 @@ public class RepositoryManagerDriver implements RepositoryManager {
     public RepositoryManagerDriver(Configuration configuration, BuildRecordRepository buildRecordRepository) {
         this.buildRecordRepository = buildRecordRepository;
 
-        IndyRepoDriverModuleConfig config;
+        GlobalModuleGroup globalConfig;
+        IndyRepoDriverModuleConfig indyDriverConfig;
         try {
-            config = configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
+            globalConfig = configuration.getGlobalConfig();
+            indyDriverConfig = configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
         } catch (ConfigurationParseException e) {
             throw new IllegalStateException("Cannot read configuration for " + DRIVER_ID + ".", e);
         }
-        this.DEFAULT_REQUEST_TIMEOUT = config.getDefaultRequestTimeout();
-        this.BUILD_PROMOTION_TARGET = config.getBuildPromotionTarget();
-        this.TEMP_BUILD_PROMOTION_TARGET = config.getTempBuildPromotionTarget();
+        this.DEFAULT_REQUEST_TIMEOUT = indyDriverConfig.getDefaultRequestTimeout();
+        this.BUILD_PROMOTION_TARGET = indyDriverConfig.getBuildPromotionTarget();
+        this.TEMP_BUILD_PROMOTION_TARGET = indyDriverConfig.getTempBuildPromotionTarget();
 
-        baseUrl = StringUtils.stripEnd(config.getBaseUrl(), "/");
+        baseUrl = StringUtils.stripEnd(globalConfig.getIndyUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
             baseUrl += "/api";
         }
 
-        ignoredRepoPatterns = config.getIgnoredRepoPatterns();
+        ignoredRepoPatterns = indyDriverConfig.getIgnoredRepoPatterns();
 
         IgnoredPatterns ignoredPathPatternsPromotion = null;
         IgnoredPatterns ignoredPathPatternsData = null;
-        IgnoredPathPatterns ignoredPathPatterns = config.getIgnoredPathPatterns();
+        IgnoredPathPatterns ignoredPathPatterns = indyDriverConfig.getIgnoredPathPatterns();
         if (ignoredPathPatterns != null) {
             ignoredPathPatternsPromotion = ignoredPathPatterns.getPromotion();
             ignoredPathPatternsData = ignoredPathPatterns.getData();

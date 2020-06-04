@@ -22,14 +22,13 @@ import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.bpm.model.mapper.RepositoryManagerResultMapper;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.mock.spi.BuildResultMock;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
@@ -82,11 +81,9 @@ public class BuildResultSerializationTest {
 
     @Before
     public void before() throws Exception {
-        IndyRepoDriverModuleConfig indyRepoDriverModuleConfig = new IndyRepoDriverModuleConfig("http://url.com");
-        indyRepoDriverModuleConfig.setExternalRepositoryMvnPath("http://url.com");
-        indyRepoDriverModuleConfig.setExternalRepositoryNpmPath("http://url.com");
-        indyRepoDriverModuleConfig.setInternalRepositoryMvnPath("http://url.com");
-        indyRepoDriverModuleConfig.setInternalRepositoryNpmPath("http://url.com");
+        GlobalModuleGroup globalConfig = new GlobalModuleGroup();
+        globalConfig.setIndyUrl("http://url.com");
+        globalConfig.setExternalIndyUrl("http://url.com");
         injectMethod(
                 "artifactMapper",
                 repositoryManagerResultMapper,
@@ -100,8 +97,7 @@ public class BuildResultSerializationTest {
                 AbstractArtifactMapperImpl.class);
         injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
         injectMethod("userMapper", artifactMapper, userMapper, AbstractArtifactMapperImpl.class);
-        when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class)))
-                .thenReturn(indyRepoDriverModuleConfig);
+        when(configuration.getGlobalConfig()).thenReturn(globalConfig);
     }
 
     private void injectMethod(String fieldName, Object to, Object what, Class clazz)

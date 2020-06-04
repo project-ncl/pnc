@@ -27,6 +27,8 @@ import java.net.MalformedURLException;
 @ToString
 public class BpmModuleConfig extends AbstractModuleConfig {
 
+    public static final String MODULE_NAME = "bpm-config";
+
     /**
      * Username to authenticate against remote BPM server for build signal callbacks
      */
@@ -37,13 +39,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
      */
     private String password;
 
-    private String bpmInstanceUrl;
-    private final String pncBaseUrl;
     private final String jenkinsBaseUrl;
-    private final String aproxBaseUrl;
-    private final String repourBaseUrl;
-    private final String daBaseUrl;
-    private final String causewayBaseUrl;
     private String deploymentId;
     private String componentBuildProcessId;
     private String releaseProcessId;
@@ -78,17 +74,11 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     public BpmModuleConfig(
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
-            @JsonProperty("bpmInstanceUrl") String bpmInstanceUrl,
             @JsonProperty("deploymentId") String deploymentId,
             @JsonProperty("componentBuildProcessId") String componentBuildProcessId,
             @JsonProperty("releaseProcessId") String releaseProcessId,
             @JsonProperty("bcCreationProcessId") String bcCreationProcessId,
-            @JsonProperty("pncBaseUrl") String pncBaseUrl,
             @JsonProperty("jenkinsBaseUrl") String jenkinsBaseUrl,
-            @JsonProperty("aproxBaseUrl") String aproxBaseUrl,
-            @JsonProperty("repourBaseUrl") String repourBaseUrl,
-            @JsonProperty("causewayBaseUrl") String causewayBaseUrl,
-            @JsonProperty("daBaseUrl") String daBaseUrl,
             @JsonProperty("communityBuild") String communityBuild,
             @JsonProperty("versionAdjust") String versionAdjust,
             @JsonProperty("connectionRequestTimeout") Integer httpConnectionRequestTimeout,
@@ -105,13 +95,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.componentBuildProcessId = componentBuildProcessId;
         this.releaseProcessId = releaseProcessId;
         this.bcCreationProcessId = bcCreationProcessId;
-        this.bpmInstanceUrl = bpmInstanceUrl;
-        this.pncBaseUrl = pncBaseUrl;
         this.jenkinsBaseUrl = jenkinsBaseUrl;
-        this.aproxBaseUrl = aproxBaseUrl;
-        this.repourBaseUrl = repourBaseUrl;
-        this.daBaseUrl = daBaseUrl;
-        this.causewayBaseUrl = causewayBaseUrl;
         this.communityBuild = communityBuild;
         this.versionAdjust = versionAdjust;
         if (httpConnectionRequestTimeout == null) {
@@ -152,10 +136,6 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.password = password;
     }
 
-    public String getBpmInstanceUrl() {
-        return bpmInstanceUrl;
-    }
-
     public String getDeploymentId() {
         return deploymentId;
     }
@@ -172,24 +152,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         return releaseProcessId;
     }
 
-    public String getPncBaseUrl() {
-        return pncBaseUrl;
-    }
-
     public String getJenkinsBaseUrl() {
         return jenkinsBaseUrl;
-    }
-
-    public String getAproxBaseUrl() {
-        return aproxBaseUrl;
-    }
-
-    public String getRepourBaseUrl() {
-        return repourBaseUrl;
-    }
-
-    public String getDaBaseUrl() {
-        return daBaseUrl;
     }
 
     public String getCommunityBuild() {
@@ -198,10 +162,6 @@ public class BpmModuleConfig extends AbstractModuleConfig {
 
     public String getVersionAdjust() {
         return versionAdjust;
-    }
-
-    public String getCausewayBaseUrl() {
-        return causewayBaseUrl;
     }
 
 }

@@ -4,11 +4,15 @@
     "configs": [
         {
             "@module-group": "global",
-            "aproxUrl": "${env.PNC_APROX_URL}",
             "bpmUrl": "${env.BPM_INSTANCE_URL}",
+            "daUrl": "${env.PNC_DA_URL}",
+            "indyUrl": "${env.PNC_APROX_URL}",
             "pncUrl": "${env.PNC_URL}",
             "repourUrl": "${env.PNC_REPOUR_URL}",
-            "daUrl": "${env.PNC_DA_URL}"
+
+            "externalDaUrl": "${env.PNC_UI_DA_URL}",
+            "externalIndyUrl": "http://localhost/indy-external/",
+            "externalPncUrl": "${env.PNC_UI_PNC_URL}"
         },
         {
             "@module-group": "pnc",
@@ -48,10 +52,7 @@
                     "internalCancelTimeoutMillis": "3000"
                 },
                 {
-                    "@module-config": "indy-repo-driver",
-                    "baseUrl": "${env.PNC_APROX_URL}",
-                    "internalRepositoryMvnPath": "http://localhost/indy-internal/",
-                    "externalRepositoryMvnPath": "http://localhost/indy-external/"
+                    "@module-config": "indy-repo-driver"
                 },
                 {
                     "@module-config": "openshift-environment-driver",
@@ -80,7 +81,6 @@
                     "@module-config": "bpm-config",
                     "username": "${env.PNC_BPM_USERNAME}",
                     "password": "${env.PNC_BPM_PASSWORD}",
-                    "bpmInstanceUrl": "${env.BPM_INSTANCE_URL}",
                     "deploymentId": "${env.BPM_DEPLOYMENT_ID}",
                     "bcCreationProcessId": "${env.BPM_BC_CREATION_PROCESS_ID}",
                     "componentBuildProcessId": "${env.BPM_COMPONENT_BUILD_PROCESS_ID}",
@@ -88,9 +88,7 @@
                 },
                 {
                     "@module-config": "ui",
-                    "pncUrl": "${env.PNC_UI_PNC_URL}",
                     "pncNotificationsUrl": "${env.PNC_UI_PNC_NOTIFICATIONS_URL}",
-                    "daUrl": "${env.PNC_UI_DA_URL}",
                     "ssoTokenLifespan": "${env.SSO_TOKEN_FILESPAN}",
                     "keycloak":
                     {

@@ -25,6 +25,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
 import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -53,8 +54,8 @@ public class DefaultCausewayClient implements CausewayClient {
     }
 
     @Inject
-    public DefaultCausewayClient(BpmModuleConfig bpmModuleConfig) {
-        String causewayBaseUrl = bpmModuleConfig.getCausewayBaseUrl();
+    public DefaultCausewayClient(GlobalModuleGroup globalConfig, BpmModuleConfig bpmModuleConfig) {
+        String causewayBaseUrl = globalConfig.getExternalCausewayUrl();
         buildPushEndpoint = causewayBaseUrl + "/import/build";
         untagEndpoint = causewayBaseUrl + "/untag/build";
     }
@@ -64,8 +65,9 @@ public class DefaultCausewayClient implements CausewayClient {
         HttpResponse response;
         try {
             logger.info("Making POST request to {}.", url);
-            if (logger.isDebugEnabled())
+            if (logger.isDebugEnabled()) {
                 logger.debug("Request body {}.", secureBodyLog(jsonMessage));
+            }
 
             Request request = Request.Post(url)
                     .addHeader(authHeader)

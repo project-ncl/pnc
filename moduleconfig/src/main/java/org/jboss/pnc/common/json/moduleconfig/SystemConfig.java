@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 public class SystemConfig extends AbstractModuleConfig {
 
+    public static final String MODULE_NAME = "system-config";
+
     private final static Logger log = LoggerFactory.getLogger(SystemConfig.class);
 
     private String buildDriverId;
