@@ -106,7 +106,7 @@ public class DefaultDatastore implements Datastore {
         this.targetRepositoryRepository = targetRepositoryRepository;
     }
 
-    private static final String ARITFACT_ALREADY_BUILT_CONFLICT_MESSAGE = "This artifact was already built in build #";
+    private static final String ARTIFACT_ALREADY_BUILT_CONFLICT_MESSAGE = "This artifact was already built in build #";
 
     @Override
     public Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts) {
@@ -116,7 +116,7 @@ public class DefaultDatastore implements Datastore {
         Map<Artifact, String> conflicts = new HashMap<>();
         for (Artifact conflict : conflicting) {
             Artifact artifact = sha256s.get(conflict.getSha256());
-            conflicts.put(artifact, ARITFACT_ALREADY_BUILT_CONFLICT_MESSAGE + conflict.getBuildRecord().getId());
+            conflicts.put(artifact, ARTIFACT_ALREADY_BUILT_CONFLICT_MESSAGE + conflict.getBuildRecord().getId());
         }
         return conflicts;
     }
