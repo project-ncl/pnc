@@ -132,6 +132,7 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
                 .username("avibelli")
                 .build();
     }
+
     @Test
     public void testStore() {
         final String identifier = "foo:bar:0.0.1";

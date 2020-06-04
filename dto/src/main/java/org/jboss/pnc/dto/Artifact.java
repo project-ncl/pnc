@@ -54,6 +54,7 @@ public class Artifact extends ArtifactRef {
      * The user who last modified the Quality label of this artifact.
      */
     private final User modificationUser;
+
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private Artifact(
             TargetRepository targetRepository,

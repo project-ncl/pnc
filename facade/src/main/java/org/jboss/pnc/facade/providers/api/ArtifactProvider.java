@@ -48,6 +48,7 @@ public interface ArtifactProvider
             String sortingRsql,
             String query,
             String buildId);
+
     Page<ArtifactRevision> getRevisions(int pageIndex, int pageSize, String id);
 
     ArtifactRevision getRevision(String id, Integer rev);
