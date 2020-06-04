@@ -26,6 +26,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
+import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -64,6 +65,9 @@ public class RepositoryManagerResultSerializationTest {
     private BuildMapper buildMapper;
 
     @Spy
+    private UserMapper userMapper;
+
+    @Spy
     private AbstractArtifactMapperImpl artifactMapper;
 
     @Spy
@@ -86,6 +90,7 @@ public class RepositoryManagerResultSerializationTest {
                 targetRepositoryMapper,
                 AbstractArtifactMapperImpl.class);
         injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
+        injectMethod("userMapper", artifactMapper, userMapper, AbstractArtifactMapperImpl.class);
     }
 
     private void injectMethod(String fieldName, Object to, Object what, Class clazz)

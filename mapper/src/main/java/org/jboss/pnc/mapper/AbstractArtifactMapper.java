@@ -26,11 +26,11 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
-import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.MapperCentralConfig;
 import org.jboss.pnc.mapper.api.Reference;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
+import org.jboss.pnc.mapper.api.UserMapper;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;
@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.util.function.Consumer;
-import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.mapper.api.IdEntity;
 
 /**
@@ -50,7 +49,8 @@ import org.jboss.pnc.mapper.api.IdEntity;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { TargetRepositoryMapper.class, BuildMapper.IDMapper.class, Configuration.class, BuildMapper.class })
+        uses = { TargetRepositoryMapper.class, BuildMapper.IDMapper.class, Configuration.class, BuildMapper.class,
+                UserMapper.class })
 public abstract class AbstractArtifactMapper implements ArtifactMapper {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractArtifactMapper.class);
@@ -63,6 +63,8 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
     @Mapping(target = "publicUrl", ignore = true)
     @Mapping(target = "build", source = "buildRecord")
     @Mapping(target = "targetRepository", qualifiedBy = Reference.class)
+    @Mapping(target = "creationUser", qualifiedBy = Reference.class)
+    @Mapping(target = "modificationUser", qualifiedBy = Reference.class)
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "distributedInProductMilestones", "identifierSha256", "built",
                     "imported", "trusted", "descriptiveString", "dependantBuildRecords" })
@@ -74,10 +76,12 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "targetRepository", "buildRecords", "dependantBuildRecords",
                     "importDate", "distributedInProductMilestones", "identifierSha256", "built", "imported", "trusted",
-                    "descriptiveString" })
+                    "descriptiveString", "creationUser", "modificationUser" })
     public abstract ArtifactRef toRef(org.jboss.pnc.model.Artifact dbEntity);
 
     @Override
+    @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
+    @Mapping(target = "modificationUser", qualifiedBy = IdEntity.class)
     @Mapping(target = "buildRecord", source = "build", qualifiedBy = IdEntity.class)
     @Mapping(target = "dependantBuildRecords", ignore = true)
     /*
