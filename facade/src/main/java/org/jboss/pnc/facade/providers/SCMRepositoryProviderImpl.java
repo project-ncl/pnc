@@ -162,11 +162,22 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException("You must specify the SCM URL.");
 
         if (scmUrl.contains(config.getInternalScmAuthority())) {
-            SCMRepository scmRepository = getInternalRepository(scmUrl);
+
+            // validation phase
+            validateInternalRepository(scmUrl);
+            validateRepositoryWithInternalURLDoesNotExist(scmUrl);
+
+            SCMRepository scmRepository = createSCMRepositoryFromValues(null, scmUrl, false);
+
             consumer.accept(new RepositoryCreated(null, Integer.valueOf(scmRepository.getId())));
             return new RepositoryCreationResponse(scmRepository);
+
         } else {
-            RepositoryCreationTask task = getExternalRepository(scmUrl, preBuildSyncEnabled, jobType, consumer);
+            validateRepositoryWithExternalURLDoesNotExist(scmUrl);
+
+            boolean sync = preBuildSyncEnabled == null || preBuildSyncEnabled;
+            BpmTask task = startRCreationTask(scmUrl, sync, jobType, consumer);
+
             return new RepositoryCreationResponse(task.getTaskId());
         }
     }
@@ -181,12 +192,6 @@ public class SCMRepositoryProviderImpl
         log.debug("Updating entity: " + restEntity.toString());
         RepositoryConfiguration saved = repository.save(mapper.toEntity(restEntity));
         return mapper.toDTO(saved);
-    }
-
-    private SCMRepository getInternalRepository(String scmUrl) {
-        validateInternalRepository(scmUrl);
-        checkIfRepositoryWithInternalURLExists(scmUrl);
-        return createSCMRepositoryFromValues(null, scmUrl, false);
     }
 
     public SCMRepository createSCMRepositoryFromValues(
@@ -204,16 +209,6 @@ public class SCMRepositoryProviderImpl
 
         RepositoryConfiguration entity = repository.save(built.build());
         return mapper.toDTO(entity);
-    }
-
-    private RepositoryCreationTask getExternalRepository(
-            String scmUrl,
-            Boolean preBuildSyncEnabled,
-            JobNotificationType jobType,
-            Consumer<RepositoryCreated> consumer) {
-        checkIfRepositoryWithExternalURLExists(scmUrl);
-        boolean sync = preBuildSyncEnabled == null || preBuildSyncEnabled;
-        return startRCreationTask(scmUrl, sync, jobType, consumer);
     }
 
     public void validateInternalRepository(String internalRepoUrl) throws InvalidEntityException {
@@ -241,7 +236,7 @@ public class SCMRepositoryProviderImpl
                 && REPOSITORY_NAME_PATTERN.matcher(internalRepoName).matches();
     }
 
-    private void checkIfRepositoryWithInternalURLExists(String internalUrl) throws ConflictedEntryException {
+    private void validateRepositoryWithInternalURLDoesNotExist(String internalUrl) throws ConflictedEntryException {
         if (internalUrl != null) {
             RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
                     .queryByInternalScm(internalUrl);
@@ -255,7 +250,7 @@ public class SCMRepositoryProviderImpl
         }
     }
 
-    private void checkIfRepositoryWithExternalURLExists(String externalUrl) throws ConflictedEntryException {
+    private void validateRepositoryWithExternalURLDoesNotExist(String externalUrl) throws ConflictedEntryException {
         if (externalUrl != null) {
             RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
                     .queryByExternalScm(externalUrl);
