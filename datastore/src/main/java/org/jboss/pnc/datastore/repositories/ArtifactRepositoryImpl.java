@@ -17,17 +17,20 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.ArtifactSpringRepository;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Stateless
 public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer> implements ArtifactRepository {
@@ -53,4 +56,26 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
         return artifactsMatchingIdentifier;
     }
 
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    public Artifact save(Artifact artifact) {
+
+        // If doing an update of the artifact
+        if (artifact.getId() != null) {
+            Artifact persisted = queryById(artifact.getId());
+            if (persisted != null) {
+                if (equalAuditedValues(persisted, artifact)) {
+                    // No changes to audit, reset the modificationUser and modificationTime to previous existing
+                    artifact.setModificationUser(persisted.getModificationUser());
+                    artifact.setModificationTime(persisted.getModificationTime());
+                }
+            }
+        }
+        return springRepository.save(artifact);
+    }
+
+    private boolean equalAuditedValues(Artifact persisted, Artifact toUpdate) {
+        return Objects.equals(persisted.getArtifactQuality(), toUpdate.getArtifactQuality())
+                && Objects.equals(persisted.getReason(), toUpdate.getReason());
+    }
 }
