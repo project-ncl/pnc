@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
+import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.rest.api.endpoints.ArtifactEndpoint;
@@ -29,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.validation.Valid;
 import java.util.Optional;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.MilestoneInfo;
@@ -102,5 +104,15 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     public Page<MilestoneInfo> getMilestonesInfo(String id, PaginationParameters pageParams) {
         return productMilestoneProvider
                 .getMilestonesOfArtifact(id, pageParams.getPageIndex(), pageParams.getPageSize());
+    }
+
+    @Override
+    public Page<ArtifactRevision> getRevisions(String id, @Valid PageParameters pageParams) {
+        return artifactProvider.getRevisions(pageParams.getPageIndex(), pageParams.getPageSize(), id);
+    }
+
+    @Override
+    public ArtifactRevision getRevision(String id, int rev) {
+        return artifactProvider.getRevision(id, rev);
     }
 }
