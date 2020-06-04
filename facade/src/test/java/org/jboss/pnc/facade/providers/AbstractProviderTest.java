@@ -24,6 +24,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
+import org.jboss.pnc.mapper.ArtifactRevisionMapperImpl;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
 import org.jboss.pnc.mapper.BuildConfigurationMapperImpl;
 import org.jboss.pnc.mapper.BuildConfigurationRevisionMapperImpl;
@@ -43,6 +44,7 @@ import org.jboss.pnc.mapper.SCMRepositoryMapperImpl;
 import org.jboss.pnc.mapper.TargetRepositoryMapperImpl;
 import org.jboss.pnc.mapper.UserMapperImpl;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
@@ -100,6 +102,9 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     @Spy
     protected ArtifactMapper artifactMapper = new AbstractArtifactMapperImpl();
+
+    @Spy
+    protected ArtifactRevisionMapper artifactRevisionMapper = new ArtifactRevisionMapperImpl();
 
     @Spy
     protected BuildConfigurationRevisionMapper buildConfigurationRevisionMapper = new BuildConfigurationRevisionMapperImpl();
@@ -162,6 +167,7 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
                 targetRepositoryMapper,
                 AbstractArtifactMapperImpl.class);
         injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
+        injectMethod("userMapper", artifactMapper, userMapper, AbstractArtifactMapperImpl.class);
         injectMethod("config", artifactMapper, configuration, AbstractArtifactMapper.class);
 
         injectMethod(
@@ -216,6 +222,7 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
                 buildConfigurationRevisionMapper,
                 userMapper,
                 BuildConfigurationRevisionMapperImpl.class);
+        injectMethod("userMapper", artifactRevisionMapper, userMapper, ArtifactRevisionMapperImpl.class);
 
         injectMethod(
                 "productMilestoneMapper",
