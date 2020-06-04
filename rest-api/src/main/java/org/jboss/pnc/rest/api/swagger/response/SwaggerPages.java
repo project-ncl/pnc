@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.api.swagger.response;
 
 import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -44,6 +45,9 @@ import org.jboss.pnc.dto.response.Page;
  */
 public class SwaggerPages {
     public static class ArtifactPage extends Page<Artifact> {
+    }
+
+    public static class ArtifactRevisionPage extends Page<ArtifactRevision> {
     }
 
     public static class BuildConfigPage extends Page<BuildConfiguration> {

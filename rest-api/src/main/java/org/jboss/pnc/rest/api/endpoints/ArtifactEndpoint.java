@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
@@ -32,6 +33,7 @@ import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactRevisionPage;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -73,6 +75,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Client
 public interface ArtifactEndpoint {
     static final String A_ID = "ID of the artifact";
+    static final String A_REV = "Revision number of the artifact";
 
     static final String GET_ALL_DESC = "Gets all artifacts.";
     static final String FILTER_SHA256_DESC = "Filter by sha256 of the artifact.";
@@ -251,4 +254,60 @@ public interface ArtifactEndpoint {
     Page<MilestoneInfo> getMilestonesInfo(
             @Parameter(description = A_ID) @PathParam("id") String id,
             @BeanParam PaginationParameters pageParams);
+    static final String GET_ARTIFACT_REVISIONS_DESC = "Gets audited revisions of this artifact.";
+
+    /**
+     * {@value GET_ARTIFACT_REVISIONS_DESC}
+     *
+     * @param id {@value A_ID}
+     * @param pageParams
+     * @return
+     */
+    @Operation(
+            summary = GET_ARTIFACT_REVISIONS_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactRevisionPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/revisions")
+    Page<ArtifactRevision> getRevisions(
+            @Parameter(description = A_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParams);
+
+    static final String GET_ARTIFACT_REVISION_DESC = "Get specific audited revision of this artifact.";
+
+    /**
+     * {@value GET_ARTIFACT_REVISION_DESC}
+     *
+     * @param id {@value A_ID}
+     * @param rev {@value A_REV}
+     * @return
+     */
+    @Operation(
+            summary = GET_ARTIFACT_REVISION_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactRevision.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/revisions/{rev}")
+    ArtifactRevision getRevision(
+            @Parameter(description = A_ID) @PathParam("id") String id,
+            @Parameter(description = A_REV) @PathParam("rev") int rev);
 }

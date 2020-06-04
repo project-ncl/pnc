@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
@@ -45,6 +46,7 @@ import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -111,6 +113,9 @@ public class DatabaseDataInitializer {
 
     @Inject
     private ArtifactRepository artifactRepository;
+
+    @Inject
+    private ArtifactAuditedRepository artifactAuditedRepository;
 
     @Inject
     private TargetRepositoryRepository targetRepositoryRepository;
@@ -543,6 +548,7 @@ public class DatabaseDataInitializer {
                 .sha1("3a8ff25c890f2a4a283876a91037ff6c57474a14")
                 .sha256("1660168483cb8a05d1cc2e77c861682a42ed9517ba945159d5538950c5db00fa")
                 .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
                 .build();
         Artifact builtArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact2:jar:1.0")
@@ -552,6 +558,7 @@ public class DatabaseDataInitializer {
                 .sha1("61dad16e14438d2d8c8cbd18b267d62944f37898")
                 .sha256("2fafc2ed0f752ac2540283d48c5cd663254a853c5cb13dec02dce023fc7471a9")
                 .size(11L)
+                .artifactQuality(ArtifactQuality.NEW)
                 .build();
         Artifact builtArtifact3 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact11:jar:1.0")
@@ -561,6 +568,7 @@ public class DatabaseDataInitializer {
                 .sha1("550748f6f58ed8d4f6b63850a867ac207da30013")
                 .sha256("b39f88c9937f201981767e539025121971e72bc590ea20ed7fdfffafc05f55a9")
                 .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact22:jar:1.0")
@@ -570,6 +578,7 @@ public class DatabaseDataInitializer {
                 .sha1("6ce2fd75c35e7eed2c45338b943be34d0b974f16")
                 .sha256("61c9ccd3ba0013311ddb89cb9a29389b6761061bdcdfb48f0096bf98c7279a21")
                 .size(11L)
+                .artifactQuality(ArtifactQuality.NEW)
                 .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
@@ -587,6 +596,7 @@ public class DatabaseDataInitializer {
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/imported1")
                 .build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder()
@@ -599,6 +609,7 @@ public class DatabaseDataInitializer {
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/imported2")
                 .build();
 
@@ -689,6 +700,7 @@ public class DatabaseDataInitializer {
                 .sha1("61dad16e14438d2d8c8cbd18b267d62944f37898")
                 .sha256("1660168483cb8a05d1cc2e77c861682a42ed9517ba945159d5538950c5db00fa")
                 .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/built3")
                 .build();
         Artifact builtArtifact6 = Artifact.Builder.newBuilder()
@@ -699,6 +711,7 @@ public class DatabaseDataInitializer {
                 .sha1("sha1-fake-abcd1234")
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/built4")
                 .build();
 
@@ -710,6 +723,7 @@ public class DatabaseDataInitializer {
                 .sha1("a56asdf87a3cvx231b87987fasd6f5ads4f32sdf")
                 .sha256("sad5f64sf87b3cvx2b1v87tr89h7d3f5g432xcz1zv87fawrv23n8796534564er")
                 .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/built5")
                 .build();
         Artifact builtArtifact8 = Artifact.Builder.newBuilder()
@@ -720,6 +734,7 @@ public class DatabaseDataInitializer {
                 .sha1("sha1-fake-abcdefg1234")
                 .sha256("sha256-fake-abcdefg1234")
                 .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/built6")
                 .build();
 

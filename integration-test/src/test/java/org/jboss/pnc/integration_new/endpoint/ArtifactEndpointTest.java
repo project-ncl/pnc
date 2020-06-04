@@ -26,13 +26,16 @@ import org.jboss.pnc.client.ArtifactClient;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.client.UserClient;
 import org.jboss.pnc.dto.Artifact;
+import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
@@ -42,11 +45,12 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.jboss.pnc.client.BuildClient;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -265,5 +269,159 @@ public class ArtifactEndpointTest {
         milestone.extracting(MilestoneInfo::isBuilt).isEqualTo(true);
         milestone.extracting(MilestoneInfo::getProductName).isEqualTo("Project Newcastle Demo Product");
         milestone.extracting(MilestoneInfo::getMilestoneVersion).isEqualTo("1.0.0.Build1");
+    }
+
+    @Test
+    public void shouldCreateArtifactRevision() throws ClientException {
+
+        String id = artifactRest1.getId();
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
+
+        Iterator<ArtifactRevision> itOriginal = client.getRevisions(id).iterator();
+        int numRevisionsOriginal = client.getRevisions(id).size();
+        // given latest revision
+        ArtifactRevision lastRevOriginal = itOriginal.next();
+        while (itOriginal.hasNext()) {
+            ArtifactRevision candidate = itOriginal.next();
+            if (candidate.getRev() > lastRevOriginal.getRev()) {
+                lastRevOriginal = candidate;
+            }
+        }
+
+        // Updating an audited property should create a new revision
+        Artifact artifact = client.getSpecific(id);
+        Artifact updatedArtifact = artifact.toBuilder()
+                .artifactQuality(ArtifactQuality.TESTED)
+                .reason("Preliminary tests passed")
+                .build();
+        client.update(id, updatedArtifact);
+
+        Iterator<ArtifactRevision> it = client.getRevisions(id).iterator();
+        int numRevisions = client.getRevisions(id).size();
+        // given latest revision
+        ArtifactRevision lastRev = it.next();
+        while (it.hasNext()) {
+            ArtifactRevision candidate = it.next();
+            if (candidate.getRev() > lastRev.getRev()) {
+                lastRev = candidate;
+            }
+        }
+
+        assertThat(numRevisions).isGreaterThan(numRevisionsOriginal);
+        assertThat(lastRev.getRev()).isGreaterThan(lastRevOriginal.getRev());
+    }
+
+    @Test
+    public void shouldGetArtifactRevision() throws Exception {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        Iterator<ArtifactRevision> itOriginal = client.getRevisions(artifactRest1.getId()).iterator();
+        // given latest revision
+        ArtifactRevision lastRevOriginal = itOriginal.next();
+        while (itOriginal.hasNext()) {
+            ArtifactRevision candidate = itOriginal.next();
+            if (candidate.getRev() > lastRevOriginal.getRev()) {
+                lastRevOriginal = candidate;
+            }
+        }
+
+        ArtifactRevision revision = client.getRevision(artifactRest1.getId(), lastRevOriginal.getRev());
+
+        assertThat(revision.getId()).isEqualTo(artifactRest1.getId());
+        assertThat(revision.getArtifactQuality()).isEqualTo(artifactRest1.getArtifactQuality());
+        assertThat(revision.getCreationTime()).isEqualTo(artifactRest1.getCreationTime());
+        assertThat(revision.getCreationUser()).isEqualTo(artifactRest1.getCreationUser());
+        assertThat(revision.getModificationTime()).isEqualTo(artifactRest1.getModificationTime());
+        assertThat(revision.getModificationUser()).isEqualTo(artifactRest1.getModificationUser());
+        assertThat(revision.getReason()).isEqualTo(artifactRest1.getReason());
+    }
+
+    @Test
+    public void shouldNotCreateBuildConfigRevision() throws ClientException {
+        String id = artifactRest1.getId();
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
+
+        Iterator<ArtifactRevision> itOriginal = client.getRevisions(id).iterator();
+        int numRevisionsOriginal = client.getRevisions(id).size();
+        // given latest revision
+        ArtifactRevision lastRevOriginal = itOriginal.next();
+        while (itOriginal.hasNext()) {
+            ArtifactRevision candidate = itOriginal.next();
+            if (candidate.getRev() > lastRevOriginal.getRev()) {
+                lastRevOriginal = candidate;
+            }
+        }
+
+        // Updating a not audited property should not create a new revision
+        Artifact artifact = client.getSpecific(id);
+        Artifact updatedArtifact = artifact.toBuilder().size(1000L).build();
+        client.update(id, updatedArtifact);
+
+        Iterator<ArtifactRevision> it = client.getRevisions(id).iterator();
+        int numRevisions = client.getRevisions(id).size();
+        // given latest revision
+        ArtifactRevision lastRev = it.next();
+        while (it.hasNext()) {
+            ArtifactRevision candidate = it.next();
+            if (candidate.getRev() > lastRev.getRev()) {
+                lastRev = candidate;
+            }
+        }
+
+        assertThat(numRevisionsOriginal).isEqualTo(numRevisions);
+        assertThat(lastRev.getRev()).isEqualTo(lastRevOriginal.getRev());
+    }
+
+    @Test
+    public void shouldNotModifyCreationModificationFields() throws ClientException {
+        String id = artifactRest1.getId();
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
+
+        // Updating a not audited property should not create a new revision and should not alter modificationUser and
+        // modificationTime. Also, creationTime should never be updated, not creationUser
+        Artifact artifact = client.getSpecific(id);
+        Artifact updatedArtifact = artifact.toBuilder()
+                .modificationTime(Instant.now())
+                .md5("md5")
+                .creationTime(Instant.now())
+                .size(1000L)
+                .build();
+        client.update(id, updatedArtifact);
+        Artifact updatedArtifactDB = client.getSpecific(id);
+
+        assertThat(updatedArtifactDB.getId()).isEqualTo(artifact.getId());
+        assertThat(updatedArtifactDB.getMd5()).isEqualTo(updatedArtifact.getMd5());
+        assertThat(updatedArtifactDB.getSize()).isEqualTo(updatedArtifact.getSize());
+        assertThat(updatedArtifactDB.getCreationTime()).isEqualTo(artifact.getCreationTime());
+        assertThat(updatedArtifactDB.getCreationUser()).isEqualTo(artifact.getCreationUser());
+        assertThat(updatedArtifactDB.getModificationTime()).isEqualTo(artifact.getModificationTime());
+        assertThat(updatedArtifactDB.getCreationTime()).isNotEqualTo(updatedArtifact.getCreationTime());
+        assertThat(updatedArtifactDB.getModificationTime()).isNotEqualTo(updatedArtifact.getModificationTime());
+    }
+
+    @Test
+    public void shouldModifyModificationFields() throws ClientException {
+        String id = artifactRest1.getId();
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
+
+        // Updating a not audited property should not create a new revision and should not alter modificationUser and
+        // modificationTime. Also, creationTime should never be updated, not creationUser
+        Artifact artifact = client.getSpecific(id);
+        Artifact updatedArtifact = artifact.toBuilder()
+                .modificationTime(Instant.now())
+                .artifactQuality(ArtifactQuality.DEPRECATED)
+                .creationTime(Instant.now())
+                .size(1000L)
+                .build();
+        client.update(id, updatedArtifact);
+        Artifact updatedArtifactDB = client.getSpecific(id);
+
+        assertThat(updatedArtifactDB.getId()).isEqualTo(artifact.getId());
+        assertThat(updatedArtifactDB.getArtifactQuality()).isEqualTo(updatedArtifact.getArtifactQuality());
+        assertThat(updatedArtifactDB.getSize()).isEqualTo(updatedArtifact.getSize());
+        assertThat(updatedArtifactDB.getCreationTime()).isEqualTo(artifact.getCreationTime());
+        assertThat(updatedArtifactDB.getCreationUser()).isEqualTo(artifact.getCreationUser());
+        assertThat(updatedArtifactDB.getModificationTime()).isNotEqualTo(artifact.getModificationTime());
+        assertThat(updatedArtifactDB.getCreationTime()).isNotEqualTo(updatedArtifact.getCreationTime());
+        assertThat(updatedArtifactDB.getModificationTime()).isNotEqualTo(updatedArtifact.getModificationTime());
     }
 }
