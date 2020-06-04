@@ -17,32 +17,45 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.dto.ArtifactRef;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.mapper.api.ArtifactMapper;
-import org.jboss.pnc.facade.providers.api.ArtifactProvider;
-import org.jboss.pnc.facade.validation.DTOValidationException;
-import org.jboss.pnc.mapper.api.BuildMapper;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.annotation.security.DenyAll;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.util.Optional;
-
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
+
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import org.jboss.pnc.dto.ArtifactRef;
+import org.jboss.pnc.dto.ArtifactRevision;
+import org.jboss.pnc.dto.User;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.providers.api.ArtifactProvider;
+import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
+import org.jboss.pnc.mapper.api.UserMapper;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.ArtifactAudited;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
@@ -58,15 +71,30 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
 
     private final TargetRepositoryRepository targetRepositoryRepository;
 
+    private ArtifactRevisionMapper artifactRevisionMapper;
+
+    private ArtifactAuditedRepository artifactAuditedRepository;
+
+    private UserService userService;
+
+    private UserMapper userMapper;
     @Inject
     public ArtifactProviderImpl(
             ArtifactRepository repository,
             ArtifactMapper mapper,
+            ArtifactRevisionMapper artifactRevisionMapper,
             BuildRecordRepository buildRecordRepository,
-            TargetRepositoryRepository targetRepositoryRepository) {
+            TargetRepositoryRepository targetRepositoryRepository,
+            ArtifactAuditedRepository artifactAuditedRepository,
+            UserService userService,
+            UserMapper userMapper) {
         super(repository, mapper, Artifact.class);
         this.buildRecordRepository = buildRecordRepository;
         this.targetRepositoryRepository = targetRepositoryRepository;
+        this.artifactRevisionMapper = artifactRevisionMapper;
+        this.artifactAuditedRepository = artifactAuditedRepository;
+        this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -91,14 +119,26 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
     @Override
     @RolesAllowed(SYSTEM_USER)
     public org.jboss.pnc.dto.Artifact store(org.jboss.pnc.dto.Artifact restEntity) throws DTOValidationException {
-        return super.store(restEntity);
+        org.jboss.pnc.model.User currentUser = userService.currentUser();
+        User user = userMapper.toDTO(currentUser);
+        Instant now = Instant.now();
+        return super.store(
+                restEntity.toBuilder()
+                        .creationUser(user)
+                        .modificationUser(user)
+                        .creationTime(now)
+                        .modificationTime(now)
+                        .build());
     }
 
     @Override
     @RolesAllowed(SYSTEM_USER)
     public org.jboss.pnc.dto.Artifact update(String id, org.jboss.pnc.dto.Artifact restEntity)
             throws DTOValidationException {
-        return super.update(id, restEntity);
+        org.jboss.pnc.model.User currentUser = userService.currentUser();
+        User user = userMapper.toDTO(currentUser);
+        Instant now = Instant.now();
+        return super.update(id, restEntity.toBuilder().modificationUser(user).modificationTime(now).build());
     }
 
     @Override
@@ -136,5 +176,28 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
                 sortingRsql,
                 query,
                 withDependantBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
+    }
+    @Override
+    public Page<ArtifactRevision> getRevisions(int pageIndex, int pageSize, String id) {
+        List<ArtifactAudited> auditedBuildConfigs = artifactAuditedRepository
+                .findAllByIdOrderByRevDesc(Integer.valueOf(id));
+
+        List<ArtifactRevision> toReturn = nullableStreamOf(auditedBuildConfigs).map(artifactRevisionMapper::toDTO)
+                .skip(pageIndex * pageSize)
+                .limit(pageSize)
+                .collect(Collectors.toList());
+
+        int totalHits = auditedBuildConfigs.size();
+        int totalPages = (totalHits + pageSize - 1) / pageSize;
+
+        return new Page<>(pageIndex, pageSize, totalPages, totalHits, toReturn);
+    }
+
+    @Override
+    public ArtifactRevision getRevision(String id, Integer rev) {
+        IdRev idRev = new IdRev(Integer.valueOf(id), rev);
+        ArtifactAudited auditedArtifact = artifactAuditedRepository.queryById(idRev);
+
+        return artifactRevisionMapper.toDTO(auditedArtifact);
     }
 }

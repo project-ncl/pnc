@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
+import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.response.Page;
 
 import java.util.Optional;
@@ -47,5 +48,8 @@ public interface ArtifactProvider
             String sortingRsql,
             String query,
             String buildId);
+    Page<ArtifactRevision> getRevisions(int pageIndex, int pageSize, String id);
+
+    ArtifactRevision getRevision(String id, Integer rev);
 
 }
