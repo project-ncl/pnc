@@ -88,9 +88,51 @@ BEGIN transaction;
 COMMIT;
 
 
--- NCL-5511 - Drop email not null constrain
+-- [NCL-5511] - Drop email not null constrain
 BEGIN transaction;
 
 ALTER TABLE usertable ALTER COLUMN email DROP NOT NULL;
+COMMIT;
+
+
+-- [NCL-5680] - Update the model related to Artifacts and revision of quality labels change
+BEGIN transaction;
+
+    ALTER TABLE artifact ADD COLUMN reason varchar(200);
+    ALTER TABLE artifact ADD COLUMN creationuser_id integer;
+    ALTER TABLE artifact ADD COLUMN modificationuser_id integer;
+    ALTER TABLE artifact ADD COLUMN creationtime DATA_TYPE timestamp with time zone;
+    ALTER TABLE artifact ADD COLUMN modificationtime DATA_TYPE timestamp with time zone;
+
+    CREATE INDEX idx_artifact_creation_user ON artifact (creationuser_id);
+    CREATE INDEX idx_artifact_modification_user ON artifact (modificationuser_id);
+
+    ALTER TABLE artifact ADD CONSTRAINT fk_artifact_creation_user
+    FOREIGN KEY (creationuser_id) REFERENCES usertable(id);
+    ALTER TABLE artifact ADD CONSTRAINT fk_artifact_modification_user
+    FOREIGN KEY (modificationuser_id) REFERENCES usertable(id);
+
+    CREATE TABLE artifact_aud (
+       id integer not null,
+       rev integer not null,
+       revtype SMALLINT,
+       creationuser_id integer,
+       modificationuser_id integer,
+       creationtime DATA_TYPE timestamp with time zone.
+       modificationtime DATA_TYPE timestamp with time zone,
+       reason varchar(200),
+       artifactquality varchar(255) not null,
+       primary key (id, rev)
+    );
+
+    CREATE INDEX idx_artifact_aud_creation_user ON artifact_aud (creationuser_id);
+    CREATE INDEX idx_artifact_aud_modification_user ON artifact_aud (modificationuser_id);
+
+    ALTER TABLE artifact_aud ADD CONSTRAINT fk_artifact_aud_creation_user
+    FOREIGN KEY (creationuser_id) REFERENCES usertable(id);
+    ALTER TABLE artifact_aud ADD CONSTRAINT fk_artifact_aud_modification_user
+    FOREIGN KEY (modificationuser_id) REFERENCES usertable(id);
+    ALTER TABLE artifact_aud ADD CONSTRAINT fk_artifact_aud_revinfo
+    FOREIGN KEY (rev) REFERENCES revinfo(rev);
 
 COMMIT;

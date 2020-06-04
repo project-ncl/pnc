@@ -20,11 +20,13 @@ package org.jboss.pnc.dto;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 import java.time.Instant;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -50,6 +52,8 @@ public class ArtifactRef implements DTOEntity {
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String identifier;
 
+    @PatchSupport({ REPLACE })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final ArtifactQuality artifactQuality;
 
     protected final String md5;
@@ -77,6 +81,21 @@ public class ArtifactRef implements DTOEntity {
      * Public url to the artifact using public network domain.
      */
     protected final String publicUrl;
+    /**
+     * The creation time of this artifact.
+     */
+    protected final Instant creationTime;
+
+    /**
+     * The time at which the Quality label of this artifact was last modified.
+     */
+    protected final Instant modificationTime;
+
+    /**
+     * The reason why the Quality label of the artifact was modified.
+     */
+    @PatchSupport({ REPLACE })
+    protected final String reason;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

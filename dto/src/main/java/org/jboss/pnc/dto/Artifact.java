@@ -19,6 +19,7 @@ package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
 
@@ -33,6 +34,7 @@ import lombok.ToString;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@PatchSupport
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
@@ -43,6 +45,15 @@ public class Artifact extends ArtifactRef {
     private final TargetRepository targetRepository;
     private final Build build;
 
+    /**
+     * The user who created this artifact.
+     */
+    private final User creationUser;
+
+    /**
+     * The user who last modified the Quality label of this artifact.
+     */
+    private final User modificationUser;
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private Artifact(
             TargetRepository targetRepository,
@@ -59,7 +70,12 @@ public class Artifact extends ArtifactRef {
             String originUrl,
             Long size,
             String deployUrl,
-            String publicUrl) {
+            String publicUrl,
+            User creationUser,
+            User modificationUser,
+            Instant creationTime,
+            Instant modificationTime,
+            String reason) {
         super(
                 id,
                 identifier,
@@ -73,9 +89,14 @@ public class Artifact extends ArtifactRef {
                 originUrl,
                 size,
                 deployUrl,
-                publicUrl);
+                publicUrl,
+                creationTime,
+                modificationTime,
+                reason);
         this.targetRepository = targetRepository;
         this.build = build;
+        this.creationUser = creationUser;
+        this.modificationUser = modificationUser;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

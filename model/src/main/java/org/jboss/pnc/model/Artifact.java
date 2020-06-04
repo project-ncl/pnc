@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,6 +47,10 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.ArtifactQuality;
 
 /**
@@ -61,6 +66,7 @@ import org.jboss.pnc.enums.ArtifactQuality;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
+@Audited
 @Table(
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_artifact_name",
@@ -69,7 +75,9 @@ import org.jboss.pnc.enums.ArtifactQuality;
                 @Index(name = "idx_artifact_identifier", columnList = "identifier"),
                 @Index(name = "idx_artifact_md5", columnList = "md5"),
                 @Index(name = "idx_artifact_sha1", columnList = "sha1"),
-                @Index(name = "idx_artifact_sha256", columnList = "sha256") })
+                @Index(name = "idx_artifact_sha256", columnList = "sha256"),
+                @Index(name = "idx_artifact_creation_user", columnList = "creationuser_id"),
+                @Index(name = "idx_artifact_modification_user", columnList = "modificationUser_id") })
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
@@ -86,43 +94,51 @@ public class Artifact implements GenericEntity<Integer> {
      * is the GATVC (groupId:artifactId:type:version[:qualifier] The format of the identifier string is determined by
      * the repoType
      */
+    @NotAudited
     @NotNull
     @Size(max = 1024)
     private String identifier;
 
+    @NotAudited
     @NotNull
     @Size(max = 32)
     private String md5;
 
+    @NotAudited
     @NotNull
     @Size(max = 40)
     private String sha1;
 
+    @NotAudited
     @NotNull
     @Size(max = 64)
     private String sha256;
 
+    @NotAudited
     private Long size;
 
     @NotNull
-    @Enumerated(EnumType.STRING) // TODO store as set, to keep history
+    @Enumerated(EnumType.STRING)
     private ArtifactQuality artifactQuality;
 
     /**
      * The type of repository which hosts this artifact (Maven, NPM, etc). This field determines the format of the
      * identifier string.
      */
+    @NotAudited
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_targetRepository"))
     @NotNull
     @ManyToOne(cascade = CascadeType.REFRESH)
     private TargetRepository targetRepository;
 
+    @NotAudited
     @Size(max = 255)
     private String filename;
 
     /**
      * Path to repository where the artifact file is available.
      */
+    @NotAudited
     @Size(max = 500)
     @Column(length = 500)
     private String deployPath;
@@ -130,6 +146,7 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The record of the build which produced this artifact.
      */
+    @NotAudited
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_buildrecord"))
     private BuildRecord buildRecord;
@@ -138,6 +155,7 @@ public class Artifact implements GenericEntity<Integer> {
      * The list of builds which depend on this artifact. For example, if the build downloaded this artifact as a Maven
      * dependency.
      */
+    @NotAudited
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildRecord> dependantBuildRecords;
@@ -145,6 +163,7 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The location from which this artifact was originally downloaded for import
      */
+    @NotAudited
     @Size(max = 500)
     @Column(unique = false, length = 500)
     private String originUrl;
@@ -152,15 +171,47 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The date when this artifact was originally imported
      */
+    @NotAudited
     private Date importDate;
 
     /**
      * The product milestone releases which distribute this artifact
      */
+    @NotAudited
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "distributedArtifacts")
     private Set<ProductMilestone> distributedInProductMilestones;
 
+    /**
+     * User who created the artifact (either triggering the build or e.g. creating via Deliverable Analyzer)
+     */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_creation_user"), updatable = false)
+    private User creationUser;
+
+    /**
+     * User who last changed any audited field related to the Quality labels
+     */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_modification_user"), updatable = true)
+    private User modificationUser;
+
+    @Column(columnDefinition = "timestamp with time zone", updatable = false)
+    private Date creationTime;
+
+    @Column(columnDefinition = "timestamp with time zone")
+    private Date modificationTime;
+
+    /**
+     * Reason for the change of the Quality label
+     */
+    @Size(max = 200)
+    @Column(length = 200)
+    private String reason;
     @Transient
     public IdentifierSha256 getIdentifierSha256() {
         return new IdentifierSha256(identifier, sha256);
@@ -174,6 +225,8 @@ public class Artifact implements GenericEntity<Integer> {
     Artifact() {
         dependantBuildRecords = new HashSet<>();
         distributedInProductMilestones = new HashSet<>();
+        creationTime = Date.from(Instant.now());
+        modificationTime = Date.from(Instant.now());
     }
 
     @PreRemove
@@ -335,6 +388,9 @@ public class Artifact implements GenericEntity<Integer> {
         }
         if (buildRecord != null) {
             buildRecord.getBuiltArtifacts().add(this);
+            // The user who produced the BuildRecord is saved as the creationUser and modificationUser of the Artifact
+            this.creationUser = buildRecord.getUser();
+            this.modificationUser = buildRecord.getUser();
         }
         this.buildRecord = buildRecord;
     }
@@ -397,6 +453,77 @@ public class Artifact implements GenericEntity<Integer> {
         this.targetRepository = targetRepository;
     }
 
+    /**
+     * @return the creationUser
+     */
+    public User getCreationUser() {
+        return creationUser;
+    }
+
+    /**
+     * @param creationUser The user who created this artifact
+     */
+    public void setCreationUser(User creationUser) {
+        this.creationUser = creationUser;
+    }
+
+    /**
+     * @return the modificationUser
+     */
+    public User getModificationUser() {
+        return modificationUser;
+    }
+
+    /**
+     * @param modificationUser The user who last modified the Quality label of this artifact
+     */
+    public void setModificationUser(User modificationUser) {
+        this.modificationUser = modificationUser;
+    }
+
+    /**
+     * @return the creationTime
+     */
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    /**
+     * @param creationTime The time at which this artifact was created
+     */
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    /**
+     * @return the modificationTime
+     */
+    public Date getModificationTime() {
+        return modificationTime;
+    }
+
+    /**
+     * @param modificationTime The time at which the Quality label of this artifact was last modified
+     */
+    public void setModificationTime(Date modificationTime) {
+        if (modificationTime != null) {
+            this.modificationTime = modificationTime;
+        }
+    }
+
+    /**
+     * @return the reason
+     */
+    public String getReason() {
+        return reason;
+    }
+
+    /**
+     * @param reason The reason why the Quality label of this artifact was modified
+     */
+    public void setReason(String reason) {
+        this.reason = StringUtils.nullIfBlank(reason);
+    }
     @Override
     public String toString() {
         return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality + ", "
@@ -468,6 +595,16 @@ public class Artifact implements GenericEntity<Integer> {
 
         private Date importDate;
 
+        private User creationUser;
+
+        private User modificationUser;
+
+        private Date creationTime;
+
+        private Date modificationTime;
+
+        private String reason;
+
         private Builder() {
             dependantBuildRecords = new HashSet<>();
             distributedInProductMilestones = new HashSet<>();
@@ -499,6 +636,11 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setDistributedInProductMilestones(distributedInProductMilestones);
             artifact.setOriginUrl(originUrl);
             artifact.setImportDate(importDate);
+            artifact.setCreationUser(creationUser);
+            artifact.setModificationUser(modificationUser);
+            artifact.setCreationTime(creationTime);
+            artifact.setModificationTime(modificationTime);
+            artifact.setReason(reason);
 
             return artifact;
         }
@@ -580,6 +722,31 @@ public class Artifact implements GenericEntity<Integer> {
 
         public Builder importDate(Date importDate) {
             this.importDate = importDate;
+            return this;
+        }
+
+        public Builder creationUser(User creationUser) {
+            this.creationUser = creationUser;
+            return this;
+        }
+
+        public Builder modificationUser(User modificationUser) {
+            this.modificationUser = modificationUser;
+            return this;
+        }
+
+        public Builder creationTime(Date creationTime) {
+            this.creationTime = creationTime;
+            return this;
+        }
+
+        public Builder modificationTime(Date modificationTime) {
+            this.modificationTime = modificationTime;
+            return this;
+        }
+
+        public Builder reason(String reason) {
+            this.reason = reason;
             return this;
         }
 

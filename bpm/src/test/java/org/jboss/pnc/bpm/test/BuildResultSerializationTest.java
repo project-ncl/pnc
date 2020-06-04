@@ -27,6 +27,7 @@ import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
+import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.mock.spi.BuildResultMock;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
@@ -67,6 +68,9 @@ public class BuildResultSerializationTest {
     private BuildMapper buildMapper;
 
     @Spy
+    private UserMapper userMapper;
+
+    @Spy
     private AbstractArtifactMapperImpl artifactMapper;
 
     @Spy
@@ -95,6 +99,7 @@ public class BuildResultSerializationTest {
                 targetRepositoryMapper,
                 AbstractArtifactMapperImpl.class);
         injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
+        injectMethod("userMapper", artifactMapper, userMapper, AbstractArtifactMapperImpl.class);
         when(configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class)))
                 .thenReturn(indyRepoDriverModuleConfig);
     }
