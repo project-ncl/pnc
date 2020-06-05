@@ -26,7 +26,6 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
