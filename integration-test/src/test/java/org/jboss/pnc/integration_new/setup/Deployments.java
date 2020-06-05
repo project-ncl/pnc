@@ -19,7 +19,7 @@ package org.jboss.pnc.integration_new.setup;
 
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
 import org.jboss.pnc.executor.DefaultBuildExecutor;
-import org.jboss.pnc.mock.auth.KeycloakServiceClientMock;
+import org.jboss.pnc.mock.client.KeycloakServiceClientMock;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
