@@ -206,7 +206,7 @@ public class BrewPusherImpl implements BrewPusher {
 
         // verify operation status
         switch (pushResult.getStatus()) {
-            case SUCCESS:
+            case ACCEPTED:
                 return result;
             case REJECTED:
                 throw new AlreadyRunningException(pushResult.getMessage(), result);
@@ -231,7 +231,7 @@ public class BrewPusherImpl implements BrewPusher {
      * @throws InvalidEntityException when the status is not SUCCESS or NO_REBUILD_REQUIRED
      */
     private BuildRecord getLatestSuccessfullyExecutedBuildRecord(Integer buildRecordId) {
-        BuildRecord buildRecord = buildRecordRepository.queryById(buildRecordId);
+        BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(buildRecordId);
         if (buildRecord == null) {
             throw new EmptyEntityException("Build record not found.");
         }

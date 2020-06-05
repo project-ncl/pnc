@@ -15,20 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mock.auth;
+package org.jboss.pnc.mock.client;
 
-import org.jboss.pnc.auth.KeycloakServiceClient;
+import org.jboss.pnc.causewayclient.CausewayClient;
+import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
+import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
 
 import javax.enterprise.context.ApplicationScoped;
 
-/**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
- */
 @ApplicationScoped
-public class KeycloakServiceClientMock implements KeycloakServiceClient {
+public class CausewayClientMock implements CausewayClient {
 
     @Override
-    public String getAuthToken() {
-        return "mocked-token";
+    public boolean importBuild(BuildImportRequest buildImportRequest, String authToken) {
+        return true;
     }
+
+    @Override
+    public boolean untagBuild(UntagRequest untagRequest, String authToken) {
+        return true;
+    }
+
 }
