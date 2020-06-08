@@ -181,7 +181,6 @@
       <artifactId>logback-classic</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
 
@@ -283,6 +282,66 @@
         <groupId>org.jboss.spec.javax.el</groupId>
         <artifactId>jboss-el-api_3.0_spec</artifactId>
         <version>${version.org.jboss.spec.javax.el}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.xnio</groupId>
+        <artifactId>xnio-api</artifactId>
+        <version>${version.org.jboss.xnio}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.xnio</groupId>
+        <artifactId>xnio-nio</artifactId>
+        <version>${version.org.jboss.xnio}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>io.undertow</groupId>
+        <artifactId>undertow-core</artifactId>
+        <version>${version.io.undertow}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.logmanager</groupId>
+        <artifactId>jboss-logmanager</artifactId>
+        <version>${version.org.jboss.logmanager}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>net.jcip</groupId>
+        <artifactId>jcip-annotations</artifactId>
+        <version>1.0.0.redhat-8</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.jcraft</groupId>
+        <artifactId>jsch</artifactId>
+        <version>${version.com.jcraft.jsch}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-jaxrs</artifactId>
+        <version>${version.org.jboss.resteasy}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.yaml</groupId>
+        <artifactId>snakeyaml</artifactId>
+        <version>1.24</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.wildfly.common</groupId>
+        <artifactId>wildfly-common</artifactId>
+        <version>1.5.1.Final-redhat-00001</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.wildfly.client</groupId>
+        <artifactId>wildfly-client-config</artifactId>
+        <version>1.0.1.Final-redhat-00001</version>
         <scope>provided</scope>
       </dependency>
 
