@@ -90,13 +90,13 @@
       <artifactId>messaging</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Remote dependencies -->
     <dependency>
       <groupId>org.jboss.pnc.metrics</groupId>
       <artifactId>pncmetrics</artifactId>
       <scope>provided</scope>
     </dependency>
-
-    <!-- Remote dependencies -->
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
@@ -222,6 +222,11 @@
     <dependency>
       <groupId>com.fasterxml.jackson.datatype</groupId>
       <artifactId>jackson-datatype-jdk8</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>

@@ -54,10 +54,6 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>spi</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc.metrics</groupId>
-      <artifactId>pncmetrics</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.jboss</groupId>
@@ -72,6 +68,15 @@
     </dependency>
 
     <!-- Remote dependencies -->
+    <dependency>
+      <groupId>org.jboss.pnc.metrics</groupId>
+      <artifactId>pncmetrics</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.spec.javax.annotation</groupId>
+      <artifactId>jboss-annotations-api_1.3_spec</artifactId>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
