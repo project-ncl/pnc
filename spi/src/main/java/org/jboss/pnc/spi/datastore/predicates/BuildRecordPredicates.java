@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.MapJoin;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
@@ -207,5 +208,22 @@ public class BuildRecordPredicates {
 
     public static Predicate<BuildRecord> temporaryBuild() {
         return (root, query, cb) -> cb.isTrue(root.get(BuildRecord_.temporaryBuild));
+    }
+
+    public static Predicate<BuildRecord> withoutImplicitDepencenciesOlderThanTimestamp(Date timestamp) {
+        return (root, query, cb) -> {
+            final SetJoin<BuildRecord, Artifact> builtArtifacts = root.join(BuildRecord_.builtArtifacts, JoinType.LEFT);
+            final SetJoin<Artifact, BuildRecord> buildRecordImplicitDependants = builtArtifacts
+                    .join(Artifact_.dependantBuildRecords, JoinType.LEFT);
+
+            query.groupBy(root.get(BuildRecord_.id));
+            query.having(
+                    cb.or(
+                            cb.lessThan(
+                                    cb.greatest(buildRecordImplicitDependants.get(BuildRecord_.endTime)),
+                                    timestamp),
+                            cb.isNull(cb.greatest(buildRecordImplicitDependants.get(BuildRecord_.endTime)))));
+            return cb.and();
+        };
     }
 }

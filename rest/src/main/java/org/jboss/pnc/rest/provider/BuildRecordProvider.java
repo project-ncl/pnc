@@ -406,7 +406,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                     buildTask.getSubmitTime(),
                     buildTask.getStartTime(),
                     buildTask.getEndTime(),
-                    user, 
+                    user,
                     buildConfigAuditedRest,
                     buildTask.getBuildOptions().isTemporaryBuild(),
                     dependencyIds,
@@ -938,6 +938,7 @@ public class BuildRecordProvider extends AbstractProvider<BuildRecord, BuildReco
                                                   String q,
                                                   long timestamp) {
         return queryForCollection(pageIndex, pageSize, sort, q, BuildRecordPredicates.temporaryBuild(),
-                BuildRecordPredicates.buildFinishedBefore(new Date(timestamp)));
+                BuildRecordPredicates.buildFinishedBefore(new Date(timestamp)),
+                BuildRecordPredicates.withoutImplicitDepencenciesOlderThanTimestamp(new Date(timestamp)));
     }
 }
