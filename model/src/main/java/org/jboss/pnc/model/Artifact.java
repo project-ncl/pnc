@@ -185,8 +185,8 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * User who created the artifact (either triggering the build or e.g. creating via Deliverable Analyzer)
      */
+    @NotAudited
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_creation_user"), updatable = false)
     private User creationUser;
@@ -200,6 +200,7 @@ public class Artifact implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_modification_user"), updatable = true)
     private User modificationUser;
 
+    @NotAudited
     @Column(columnDefinition = "timestamp with time zone", updatable = false)
     private Date creationTime;
 
