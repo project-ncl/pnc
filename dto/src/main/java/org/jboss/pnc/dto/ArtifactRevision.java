@@ -40,8 +40,6 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ArtifactRevision extends ArtifactRevisionRef {
 
-    private final User creationUser;
-
     private final User modificationUser;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
@@ -49,13 +47,10 @@ public class ArtifactRevision extends ArtifactRevisionRef {
             String id,
             Integer rev,
             String reason,
-            Instant creationTime,
             Instant modificationTime,
             ArtifactQuality artifactQuality,
-            User creationUser,
             User modificationUser) {
-        super(id, rev, reason, creationTime, modificationTime, artifactQuality);
-        this.creationUser = creationUser;
+        super(id, rev, reason, modificationTime, artifactQuality);
         this.modificationUser = modificationUser;
     }
 

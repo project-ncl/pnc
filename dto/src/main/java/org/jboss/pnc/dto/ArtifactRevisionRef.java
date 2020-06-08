@@ -51,8 +51,6 @@ public class ArtifactRevisionRef implements DTOEntity {
 
     protected final String reason;
 
-    protected final Instant creationTime;
-
     protected final Instant modificationTime;
 
     protected final ArtifactQuality artifactQuality;

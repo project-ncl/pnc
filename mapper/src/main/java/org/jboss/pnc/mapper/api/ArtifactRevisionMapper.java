@@ -33,7 +33,6 @@ import org.mapstruct.Mapping;
 public interface ArtifactRevisionMapper {
 
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
-    @Mapping(target = "creationUser", qualifiedBy = Reference.class)
     @Mapping(target = "modificationUser", qualifiedBy = Reference.class)
     @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "artifact" })
     ArtifactRevision toDTO(ArtifactAudited dbEntity);
@@ -42,7 +41,6 @@ public interface ArtifactRevisionMapper {
             target = "idRev",
             expression = "java( new IdRev( Integer.valueOf(dtoEntity.getId()), dtoEntity.getRev() ) )")
     @Mapping(target = "artifact", ignore = true)
-    @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
     @Mapping(target = "modificationUser", qualifiedBy = IdEntity.class)
     ArtifactAudited toEntity(ArtifactRevision dtoEntity);
 

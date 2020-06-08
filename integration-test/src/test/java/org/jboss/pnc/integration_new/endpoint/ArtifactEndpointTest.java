@@ -328,8 +328,6 @@ public class ArtifactEndpointTest {
 
         assertThat(revision.getId()).isEqualTo(artifactRest1.getId());
         assertThat(revision.getArtifactQuality()).isEqualTo(artifactRest1.getArtifactQuality());
-        assertThat(revision.getCreationTime()).isEqualTo(artifactRest1.getCreationTime());
-        assertThat(revision.getCreationUser()).isEqualTo(artifactRest1.getCreationUser());
         assertThat(revision.getModificationTime()).isEqualTo(artifactRest1.getModificationTime());
         assertThat(revision.getModificationUser()).isEqualTo(artifactRest1.getModificationUser());
         assertThat(revision.getReason()).isEqualTo(artifactRest1.getReason());

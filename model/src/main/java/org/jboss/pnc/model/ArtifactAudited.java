@@ -46,11 +46,7 @@ public class ArtifactAudited implements GenericEntity<Integer> {
 
     private ArtifactQuality artifactQuality;
 
-    private User creationUser;
-
     private User modificationUser;
-
-    private Date creationTime;
 
     private Date modificationTime;
 
@@ -93,28 +89,12 @@ public class ArtifactAudited implements GenericEntity<Integer> {
         this.artifactQuality = artifactQuality;
     }
 
-    public User getCreationUser() {
-        return creationUser;
-    }
-
-    public void setCreationUser(User creationUser) {
-        this.creationUser = creationUser;
-    }
-
     public User getModificationUser() {
         return modificationUser;
     }
 
     public void setModificationUser(User modificationUser) {
         this.modificationUser = modificationUser;
-    }
-
-    public Date getCreationTime() {
-        return creationTime;
-    }
-
-    public void setCreationTime(Date creationTime) {
-        this.creationTime = creationTime;
     }
 
     public Date getModificationTime() {
@@ -177,8 +157,6 @@ public class ArtifactAudited implements GenericEntity<Integer> {
             artifactAudited.setRev(rev);
             artifactAudited.setIdRev(new IdRev(artifact.getId(), rev));
             artifactAudited.setArtifactQuality(artifact.getArtifactQuality());
-            artifactAudited.setCreationUser(artifact.getCreationUser());
-            artifactAudited.setCreationTime(artifact.getCreationTime());
             artifactAudited.setModificationTime(artifact.getModificationTime());
             artifactAudited.setModificationUser(artifact.getModificationUser());
             artifactAudited.setReason(artifact.getReason());
