@@ -46,11 +46,11 @@ public class ArtifactRevision extends ArtifactRevisionRef {
     private ArtifactRevision(
             String id,
             Integer rev,
-            String reason,
+            String qualityLevelReason,
             Instant modificationTime,
             ArtifactQuality artifactQuality,
             User modificationUser) {
-        super(id, rev, reason, modificationTime, artifactQuality);
+        super(id, rev, qualityLevelReason, modificationTime, artifactQuality);
         this.modificationUser = modificationUser;
     }
 

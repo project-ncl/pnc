@@ -76,6 +76,6 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
 
     private boolean equalAuditedValues(Artifact persisted, Artifact toUpdate) {
         return Objects.equals(persisted.getArtifactQuality(), toUpdate.getArtifactQuality())
-                && Objects.equals(persisted.getReason(), toUpdate.getReason());
+                && Objects.equals(persisted.getQualityLevelReason(), toUpdate.getQualityLevelReason());
     }
 }

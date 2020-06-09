@@ -98,7 +98,7 @@ COMMIT;
 -- [NCL-5680] - Update the model related to Artifacts and revision of quality labels change
 BEGIN transaction;
 
-    ALTER TABLE artifact ADD COLUMN reason varchar(200);
+    ALTER TABLE artifact ADD COLUMN qualitylevelreason varchar(200);
     ALTER TABLE artifact ADD COLUMN creationuser_id integer;
     ALTER TABLE artifact ADD COLUMN modificationuser_id integer;
     ALTER TABLE artifact ADD COLUMN creationtime DATA_TYPE timestamp with time zone;
@@ -116,20 +116,15 @@ BEGIN transaction;
        id integer not null,
        rev integer not null,
        revtype SMALLINT,
-       creationuser_id integer,
        modificationuser_id integer,
-       creationtime DATA_TYPE timestamp with time zone.
        modificationtime DATA_TYPE timestamp with time zone,
-       reason varchar(200),
+       qualityLevelReason varchar(200),
        artifactquality varchar(255) not null,
        primary key (id, rev)
     );
 
-    CREATE INDEX idx_artifact_aud_creation_user ON artifact_aud (creationuser_id);
     CREATE INDEX idx_artifact_aud_modification_user ON artifact_aud (modificationuser_id);
 
-    ALTER TABLE artifact_aud ADD CONSTRAINT fk_artifact_aud_creation_user
-    FOREIGN KEY (creationuser_id) REFERENCES usertable(id);
     ALTER TABLE artifact_aud ADD CONSTRAINT fk_artifact_aud_modification_user
     FOREIGN KEY (modificationuser_id) REFERENCES usertable(id);
     ALTER TABLE artifact_aud ADD CONSTRAINT fk_artifact_aud_revinfo
