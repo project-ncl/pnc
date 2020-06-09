@@ -92,10 +92,10 @@ public class ArtifactRef implements DTOEntity {
     protected final Instant modificationTime;
 
     /**
-     * The reason why the Quality label of the artifact was modified.
+     * The reason for the Quality level setting (change) of this artifact.
      */
     @PatchSupport({ REPLACE })
-    protected final String reason;
+    protected final String qualityLevelReason;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

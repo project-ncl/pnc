@@ -292,7 +292,7 @@ public class ArtifactEndpointTest {
         Artifact artifact = client.getSpecific(id);
         Artifact updatedArtifact = artifact.toBuilder()
                 .artifactQuality(ArtifactQuality.TESTED)
-                .reason("Preliminary tests passed")
+                .qualityLevelReason("Preliminary tests passed")
                 .build();
         client.update(id, updatedArtifact);
 
@@ -330,7 +330,7 @@ public class ArtifactEndpointTest {
         assertThat(revision.getArtifactQuality()).isEqualTo(artifactRest1.getArtifactQuality());
         assertThat(revision.getModificationTime()).isEqualTo(artifactRest1.getModificationTime());
         assertThat(revision.getModificationUser()).isEqualTo(artifactRest1.getModificationUser());
-        assertThat(revision.getReason()).isEqualTo(artifactRest1.getReason());
+        assertThat(revision.getQualityLevelReason()).isEqualTo(artifactRest1.getQualityLevelReason());
     }
 
     @Test

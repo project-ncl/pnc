@@ -49,7 +49,7 @@ public class ArtifactRevisionRef implements DTOEntity {
 
     protected final Integer rev;
 
-    protected final String reason;
+    protected final String qualityLevelReason;
 
     protected final Instant modificationTime;
 

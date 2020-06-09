@@ -208,11 +208,11 @@ public class Artifact implements GenericEntity<Integer> {
     private Date modificationTime;
 
     /**
-     * Reason for the change of the Quality label
+     * Reason for the setting of the Quality level
      */
     @Size(max = 200)
     @Column(length = 200)
-    private String reason;
+    private String qualityLevelReason;
 
     @Transient
     public IdentifierSha256 getIdentifierSha256() {
@@ -514,17 +514,17 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     /**
-     * @return the reason
+     * @return the qualityLevelReason
      */
-    public String getReason() {
-        return reason;
+    public String getQualityLevelReason() {
+        return qualityLevelReason;
     }
 
     /**
-     * @param reason The reason why the Quality label of this artifact was modified
+     * @param reason The reason for the Quality level setting (change) of this artifact
      */
-    public void setReason(String reason) {
-        this.reason = StringUtils.nullIfBlank(reason);
+    public void setQualityLevelReason(String qualityLevelReason) {
+        this.qualityLevelReason = StringUtils.nullIfBlank(qualityLevelReason);
     }
 
     @Override
@@ -606,7 +606,7 @@ public class Artifact implements GenericEntity<Integer> {
 
         private Date modificationTime;
 
-        private String reason;
+        private String qualityLevelReason;
 
         private Builder() {
             dependantBuildRecords = new HashSet<>();
@@ -643,7 +643,7 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setModificationUser(modificationUser);
             artifact.setCreationTime(creationTime);
             artifact.setModificationTime(modificationTime);
-            artifact.setReason(reason);
+            artifact.setQualityLevelReason(qualityLevelReason);
 
             return artifact;
         }
@@ -748,8 +748,8 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder reason(String reason) {
-            this.reason = reason;
+        public Builder qualityLevelReason(String qualityLevelReason) {
+            this.qualityLevelReason = qualityLevelReason;
             return this;
         }
 

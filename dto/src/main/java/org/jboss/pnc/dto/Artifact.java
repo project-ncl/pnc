@@ -76,7 +76,7 @@ public class Artifact extends ArtifactRef {
             User modificationUser,
             Instant creationTime,
             Instant modificationTime,
-            String reason) {
+            String qualityLevelReason) {
         super(
                 id,
                 identifier,
@@ -93,7 +93,7 @@ public class Artifact extends ArtifactRef {
                 publicUrl,
                 creationTime,
                 modificationTime,
-                reason);
+                qualityLevelReason);
         this.targetRepository = targetRepository;
         this.build = build;
         this.creationUser = creationUser;

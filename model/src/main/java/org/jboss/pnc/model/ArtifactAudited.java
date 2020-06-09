@@ -50,7 +50,7 @@ public class ArtifactAudited implements GenericEntity<Integer> {
 
     private Date modificationTime;
 
-    private String reason;
+    private String qualityLevelReason;
 
     private Artifact artifact;
 
@@ -105,12 +105,12 @@ public class ArtifactAudited implements GenericEntity<Integer> {
         this.modificationTime = modificationTime;
     }
 
-    public String getReason() {
-        return reason;
+    public String getQualityLevelReason() {
+        return qualityLevelReason;
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
+    public void setQualityLevelReason(String qualityLevelReason) {
+        this.qualityLevelReason = qualityLevelReason;
     }
 
     public Artifact getArtifact() {
@@ -159,7 +159,7 @@ public class ArtifactAudited implements GenericEntity<Integer> {
             artifactAudited.setArtifactQuality(artifact.getArtifactQuality());
             artifactAudited.setModificationTime(artifact.getModificationTime());
             artifactAudited.setModificationUser(artifact.getModificationUser());
-            artifactAudited.setReason(artifact.getReason());
+            artifactAudited.setQualityLevelReason(artifact.getQualityLevelReason());
             artifactAudited.artifact = artifact;
             return artifactAudited;
         }
