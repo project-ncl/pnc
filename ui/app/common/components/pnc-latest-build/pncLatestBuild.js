@@ -19,28 +19,28 @@
   'use strict';
 
   /**
-   * The component representing latest build for given Build Configuration or Build Group Configuration
+   * The component representing latest build for given Build Config or Group Config
    */
   angular.module('pnc.common.components').component('pncLatestBuild', {
     bindings: {
       /**
-       * Object: The configuration representing Build Configuration
+       * Object: The configuration representing Build Config
        */
       buildConfig: '<?',
       /**
-       * Object: The configuration representing Build Group Configuration
+       * Object: The configuration representing Group Config
        */
-      buildGroup: '<?'
+      groupConfig: '<?'
     },
     templateUrl: 'common/components/pnc-latest-build/pnc-latest-build.html',
-    controller: ['BuildRecord', 'BuildConfigurationSetDAO', Controller]
+    controller: ['BuildResource', 'GroupBuildResource', Controller]
   });
 
 
   /*
    * This component requires extensive refactoring when BC refactor takes place
    */
-  function Controller(BuildRecord, BuildConfigurationSetDAO) {
+  function Controller(BuildResource, GroupBuildResource) {
     var $ctrl = this;
 
     $ctrl.isLoaded = false;
@@ -52,15 +52,16 @@
 
     function loadLatestBuild() {
       var resultPromise;
-      if ($ctrl.buildGroup) {
-        resultPromise = BuildConfigurationSetDAO.getLatestBuildConfigSetRecordsForConfigSet({ configurationSetId: $ctrl.buildGroup.id }).then(function (data) {
-          setLatestBuild(_.isArray(data) ? data[0] : null);
-        });
-      } else {
-        // it will be refactored when working on BuildConfigResource (NCL-4198)
-        resultPromise = BuildRecord.getLastByConfiguration({ id: $ctrl.buildConfig.id }).$promise.then(function (data) {
+      if ($ctrl.groupConfig) {
+        resultPromise = GroupBuildResource.getLatestByGroupConfig({ id: $ctrl.groupConfig.id }).$promise.then(function (data) {
           setLatestBuild(_.isArray(data.content) ? data.content[0] : null);
         });
+      } else if ($ctrl.buildConfig) {
+        resultPromise = BuildResource.getLatestByConfig({ id: $ctrl.buildConfig.id }).$promise.then(function (data) {
+          setLatestBuild(_.isArray(data.content) ? data.content[0] : null);
+        });
+      } else {
+        console.error('pncLatestBuild: no configs available')
       }
       resultPromise.finally(function() {
         $ctrl.isLoaded = true;

@@ -29,8 +29,10 @@
     '$resource',
     'restConfig',
     'GROUP_BUILD_PATH',
-    ($resource, restConfig, GROUP_BUILD_PATH) => {
+    'GROUP_CONFIG_PATH',
+    ($resource, restConfig, GROUP_BUILD_PATH, GROUP_CONFIG_PATH) => {
       const ENDPOINT = restConfig.getPncRestUrl() + GROUP_BUILD_PATH;
+      const GROUP_CONFIGS_ENDPOINT = restConfig.getPncRestUrl() + GROUP_CONFIG_PATH;
 
       const resource = $resource(ENDPOINT, {
         id: '@id'
@@ -65,6 +67,14 @@
           method: 'GET',
           isPaged: true,
           url: ENDPOINT + '/?q=user.id==:userId',
+        },
+        // NCL-5797 needs to add latest support
+        getLatestByGroupConfig: {
+          method: 'GET',
+          url: GROUP_CONFIGS_ENDPOINT + '/group-builds',
+          params: {
+            latest: true 
+          }
         }
       });
 
