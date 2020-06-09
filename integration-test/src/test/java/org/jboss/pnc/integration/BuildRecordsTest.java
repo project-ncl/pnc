@@ -150,10 +150,13 @@ public class BuildRecordsTest {
     @InSequence(-1)
     @Transactional
     public void shouldInsertValuesIntoDB() {
-        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository.queryById(new IdRev(100, 1));
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
+                .queryById(new IdRev(100, 1));
         buildConfigName = buildConfigurationAudited.getName();
-        BuildConfiguration buildConfiguration = buildConfigurationRepository.queryById(buildConfigurationAudited.getId());
-        TargetRepository targetRepository = targetRepositoryRepository.queryByIdentifierAndPath("indy-maven", "builds-untested");
+        BuildConfiguration buildConfiguration = buildConfigurationRepository
+                .queryById(buildConfigurationAudited.getId());
+        TargetRepository targetRepository = targetRepositoryRepository
+                .queryByIdentifierAndPath("indy-maven", "builds-untested");
 
         builtArtifact1 = createDummyArtifact("1", targetRepository);
         builtArtifact2 = createDummyArtifact("2", targetRepository);
@@ -245,7 +248,6 @@ public class BuildRecordsTest {
         buildRecordWithArtifacts = buildRecordRepository.save(buildRecordWithArtifacts);
 
         buildRecordWithArtifactsId = buildRecordWithArtifacts.getId();
-
 
         /* Temporary builds */
         temporaryBuiltArtifact1 = createDummyArtifact("temp1", targetRepository, Artifact.Quality.TEMPORARY);
@@ -414,7 +416,8 @@ public class BuildRecordsTest {
         long epochTwoWeeksAgo = Instant.now().getEpochSecond() - 14 * 24 * 60 * 60;
 
         // when
-        CollectionInfo<BuildRecordRest> temporaryBuilds = buildRecordProvider.getAllTemporaryOlderThanTimestamp(0, 10, null, null, epochTwoWeeksAgo * 1000);
+        CollectionInfo<BuildRecordRest> temporaryBuilds = buildRecordProvider
+                .getAllTemporaryOlderThanTimestamp(0, 10, null, null, epochTwoWeeksAgo * 1000);
 
         // then
         assertThat(temporaryBuilds).isNotNull();
@@ -468,7 +471,9 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetOnlyDependencyArtifacts() {
         // when
-        Collection<ArtifactRest> artifacts = artifactProvider.getDependencyArtifactsForBuildRecord(0, 999, null, null, buildRecord2Id).getContent();
+        Collection<ArtifactRest> artifacts = artifactProvider
+                .getDependencyArtifactsForBuildRecord(0, 999, null, null, buildRecord2Id)
+                .getContent();
 
         // then
         assertThat(artifacts).hasSize(2);
@@ -478,7 +483,9 @@ public class BuildRecordsTest {
     public void shouldGetOnlyMinimizedDependencyArtifacts() {
         // when
         // making so that offset is not 0 to avoid org.hsqldb.HsqlException with offset equal to 0
-        Collection<ArtifactRest> artifacts = artifactProvider.getDependencyArtifactsForBuildRecordMinimized(1, 1, buildRecord2Id).getContent();
+        Collection<ArtifactRest> artifacts = artifactProvider
+                .getDependencyArtifactsForBuildRecordMinimized(1, 1, buildRecord2Id)
+                .getContent();
 
         // then
         assertThat(artifacts).hasSize(1);
@@ -488,7 +495,9 @@ public class BuildRecordsTest {
     @Test
     public void shouldGetOnlyBuiltArtifacts() {
         // when
-        Collection<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 999, null, null, buildRecord2Id).getContent();
+        Collection<ArtifactRest> artifacts = artifactProvider
+                .getBuiltArtifactsForBuildRecord(0, 999, null, null, buildRecord2Id)
+                .getContent();
 
         // then
         assertThat(artifacts).hasSize(2);
@@ -499,7 +508,9 @@ public class BuildRecordsTest {
     public void shouldGetOnlyMinimizedBuiltArtifacts() {
         // when
         // making so that offset is not 0 to avoid org.hsqldb.HsqlException with offset equal to 0
-        Collection<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecordMinimized(1, 1, buildRecord2Id).getContent();
+        Collection<ArtifactRest> artifacts = artifactProvider
+                .getBuiltArtifactsForBuildRecordMinimized(1, 1, buildRecord2Id)
+                .getContent();
 
         // then
         assertThat(artifacts).hasSize(1);
@@ -508,32 +519,44 @@ public class BuildRecordsTest {
 
     @Test
     public void shouldGetBuiltArtifactsSortedByFilename() {
-        //when
-        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=filename", null, buildRecordWithArtifactsId);
+        // when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider
+                .getBuiltArtifactsForBuildRecord(0, 100, "=asc=filename", null, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds").containsExactly(
-                toRestArtifact(builtArtifact1),
-                toRestArtifact(builtArtifact2),
-                toRestArtifact(builtArtifact3));
+        assertThat(artifacts.getContent())
+                .usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
+                .containsExactly(
+                        toRestArtifact(builtArtifact1),
+                        toRestArtifact(builtArtifact2),
+                        toRestArtifact(builtArtifact3));
     }
 
     @Test
     public void shouldSortBuiltArtifactsById() {
-        //when
-        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, "=asc=id", null, buildRecordWithArtifactsId);
+        // when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider
+                .getBuiltArtifactsForBuildRecord(0, 100, "=asc=id", null, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds").containsExactly(
-                toRestArtifact(builtArtifact1),
-                toRestArtifact(builtArtifact2),
-                toRestArtifact(builtArtifact3));
+        assertThat(artifacts.getContent())
+                .usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
+                .containsExactly(
+                        toRestArtifact(builtArtifact1),
+                        toRestArtifact(builtArtifact2),
+                        toRestArtifact(builtArtifact3));
     }
 
     @Test
     public void shouldFilterBuiltArtifactsByFilename() {
-        //when
-        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, "filename==builtArtifact2.jar", buildRecordWithArtifactsId);
+        // when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(
+                0,
+                100,
+                null,
+                "filename==builtArtifact2.jar",
+                buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
+        assertThat(artifacts.getContent())
+                .usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
                 .containsExactly(toRestArtifact(builtArtifact2));
     }
 
@@ -544,13 +567,21 @@ public class BuildRecordsTest {
         Integer builtArtifact2Id = builtArtifact2.getId();
         String builtArtifact3Filename = builtArtifact3.getFilename();
 
-        //when
-        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, "id==" +  builtArtifact2Id + " or sha256==" +  builtArtifact1Sha256 + " or filename==" + builtArtifact3Filename, buildRecordWithArtifactsId);
+        // when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(
+                0,
+                100,
+                null,
+                "id==" + builtArtifact2Id + " or sha256==" + builtArtifact1Sha256 + " or filename=="
+                        + builtArtifact3Filename,
+                buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds").contains(
-                toRestArtifact(builtArtifact1),
-                toRestArtifact(builtArtifact2),
-                toRestArtifact(builtArtifact3));
+        assertThat(artifacts.getContent())
+                .usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
+                .contains(
+                        toRestArtifact(builtArtifact1),
+                        toRestArtifact(builtArtifact2),
+                        toRestArtifact(builtArtifact3));
     }
 
     @Test
@@ -559,23 +590,29 @@ public class BuildRecordsTest {
         Integer builtArtifact1Id = builtArtifact1.getId();
         String builtArtifact1Filename = builtArtifact1.getFilename();
 
-        String matchingFilter = "id==" + builtArtifact1Id + " and sha256==" + builtArtifact1Sha256 + " and filename==" + builtArtifact1Filename;
-        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, matchingFilter, buildRecordWithArtifactsId);
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
+        String matchingFilter = "id==" + builtArtifact1Id + " and sha256==" + builtArtifact1Sha256 + " and filename=="
+                + builtArtifact1Filename;
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider
+                .getBuiltArtifactsForBuildRecord(0, 100, null, matchingFilter, buildRecordWithArtifactsId);
+        assertThat(artifacts.getContent())
+                .usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
                 .containsExactly(toRestArtifact(builtArtifact1));
 
         String builtArtifact2Sha256 = builtArtifact2.getSha256();
         String builtArtifact3Filename = builtArtifact3.getFilename();
 
-        String nonMatchingFilter = "id==" + builtArtifact1Id + " and sha256==" + builtArtifact2Sha256 + " and filename==" + builtArtifact3Filename;
-        artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, nonMatchingFilter, buildRecordWithArtifactsId);
+        String nonMatchingFilter = "id==" + builtArtifact1Id + " and sha256==" + builtArtifact2Sha256
+                + " and filename==" + builtArtifact3Filename;
+        artifacts = artifactProvider
+                .getBuiltArtifactsForBuildRecord(0, 100, null, nonMatchingFilter, buildRecordWithArtifactsId);
         assertThat(artifacts.getContent()).isEmpty();
     }
 
     @Test
     public void shouldReturnEmptyCollectionForBuiltArtifactsWhenBuildRecordIsNotFound() {
         // when
-        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, null, 123456789);
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider
+                .getBuiltArtifactsForBuildRecord(0, 100, null, null, 123456789);
 
         // then
         assertThat(artifacts.getContent().isEmpty()).isTrue();
@@ -583,14 +620,16 @@ public class BuildRecordsTest {
 
     @Test
     public void shouldReturnAllWithoutFilterAndSort() {
-        //when
-        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 100, null, null, buildRecordWithArtifactsId);
+        // when
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider
+                .getBuiltArtifactsForBuildRecord(0, 100, null, null, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
-        .contains(
-                toRestArtifact(builtArtifact1),
-                toRestArtifact(builtArtifact2),
-                toRestArtifact(builtArtifact3));
+        assertThat(artifacts.getContent())
+                .usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
+                .contains(
+                        toRestArtifact(builtArtifact1),
+                        toRestArtifact(builtArtifact2),
+                        toRestArtifact(builtArtifact3));
     }
 
     @Test
@@ -598,18 +637,21 @@ public class BuildRecordsTest {
         Integer builtArtifact1Id = builtArtifact1.getId();
         String builtArtifact2Sha256 = builtArtifact2.getSha256();
 
-        //when
+        // when
         String query = "id==" + builtArtifact1Id + " or sha256==" + builtArtifact2Sha256;
-        CollectionInfo<ArtifactRest> artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(0, 1, null, query, buildRecordWithArtifactsId);
+        CollectionInfo<ArtifactRest> artifacts = artifactProvider
+                .getBuiltArtifactsForBuildRecord(0, 1, null, query, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
+        assertThat(artifacts.getContent())
+                .usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
                 .containsExactly(toRestArtifact(builtArtifact1));
         assertThat(artifacts.getTotalPages()).isEqualTo(2);
 
-        //when
+        // when
         artifacts = artifactProvider.getBuiltArtifactsForBuildRecord(1, 1, null, query, buildRecordWithArtifactsId);
         // then
-        assertThat(artifacts.getContent()).usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
+        assertThat(artifacts.getContent())
+                .usingElementComparatorIgnoringFields("targetRepository", "buildRecordIds", "dependantBuildRecordIds")
                 .containsExactly(toRestArtifact(builtArtifact2));
         assertThat(artifacts.getTotalPages()).isEqualTo(2);
     }
@@ -634,14 +676,15 @@ public class BuildRecordsTest {
 
     @Test
     public void shouldGetBuildsInDistributedRecordsetOfProductMilestone() {
-        CollectionInfo<BuildRecordRest> buildRecords = buildRecordProvider.getAllBuildRecordsWithArtifactsDistributedInProductMilestone(0, 50, null, null, 100);
+        CollectionInfo<BuildRecordRest> buildRecords = buildRecordProvider
+                .getAllBuildRecordsWithArtifactsDistributedInProductMilestone(0, 50, null, null, 100);
 
         assertThat(buildRecords.getContent().iterator().next().getId()).isEqualTo(1);
     }
 
     @Test
     public void shouldGetBuildRecordAttributes() {
-        //given
+        // given
         buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordAttributes-1", "true");
         buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordAttributes-2", "true");
         buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordAttributes-3", "true");
@@ -656,11 +699,12 @@ public class BuildRecordsTest {
 
     @Test
     public void shouldGetBuildRecordByAttribute() {
-        //given
+        // given
         buildRecordProvider.putAttribute(buildRecord1Id, "shouldGetBuildRecordByAttribute-2", "true");
 
         // when
-        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("shouldGetBuildRecordByAttribute-2", "true");
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider
+                .getByAttribute("shouldGetBuildRecordByAttribute-2", "true");
 
         // then
         assertThat(buildRecords).hasSize(1);
@@ -677,12 +721,13 @@ public class BuildRecordsTest {
 
     @Test
     public void shouldPutAttributeToBuildRecord() {
-        //given
+        // given
         buildRecordProvider.putAttribute(buildRecord1Id, "shouldPutAttributeToBuildRecord-3", "true");
         buildRecordProvider.putAttribute(buildRecord2Id, "shouldPutAttributeToBuildRecord-3", "true");
 
         // when
-        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("shouldPutAttributeToBuildRecord-3", "true");
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider
+                .getByAttribute("shouldPutAttributeToBuildRecord-3", "true");
 
         // then
         assertThat(buildRecords).hasSize(2);
@@ -690,11 +735,12 @@ public class BuildRecordsTest {
 
     @Test
     public void shouldRemoveAttributeFromBuildRecord() {
-        //given
+        // given
         buildRecordProvider.putAttribute(buildRecord1Id, "shouldRemoveAttributeFromBuildRecord", "true");
         buildRecordProvider.putAttribute(buildRecord2Id, "shouldRemoveAttributeFromBuildRecord", "true");
 
-        Collection<BuildRecordRest> buildRecords = buildRecordProvider.getByAttribute("shouldRemoveAttributeFromBuildRecord", "true");
+        Collection<BuildRecordRest> buildRecords = buildRecordProvider
+                .getByAttribute("shouldRemoveAttributeFromBuildRecord", "true");
         assertThat(buildRecords).hasSize(2);
 
         buildRecordProvider.removeAttribute(buildRecord1Id, "shouldRemoveAttributeFromBuildRecord");
@@ -707,7 +753,10 @@ public class BuildRecordsTest {
         assertThat(buildRecords).hasSize(0);
     }
 
-    public static  Artifact createDummyArtifact(String suffix, TargetRepository targetRepository, Artifact.Quality quality) {
+    public static Artifact createDummyArtifact(
+            String suffix,
+            TargetRepository targetRepository,
+            Artifact.Quality quality) {
         return Artifact.Builder.newBuilder()
                 .filename("builtArtifact" + suffix + ".jar")
                 .identifier("integration-test:built-artifact" + suffix + ":jar:1.0")
@@ -719,14 +768,15 @@ public class BuildRecordsTest {
                 .build();
     }
 
-
     public static Artifact createDummyArtifact(String suffix, TargetRepository targetRepository) {
         return createDummyArtifact(suffix, targetRepository, Artifact.Quality.NEW);
     }
 
     private List<BuildRecordRest> selectBuildRecords(String buildConfigName) {
         return buildRecordProvider.getAllForConfigurationOrProjectName(0, 999, null, null, buildConfigName)
-                .getContent().stream().collect(Collectors.toList());
+                .getContent()
+                .stream()
+                .collect(Collectors.toList());
     }
 
     private ArtifactRest toRestArtifact(Artifact artifact) {

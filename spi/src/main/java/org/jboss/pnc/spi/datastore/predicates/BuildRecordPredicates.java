@@ -63,23 +63,18 @@ public class BuildRecordPredicates {
     }
 
     public static Predicate<BuildRecord> withBuildConfigurationIdAndStatusExecuted(Integer configurationId) {
-        return (root, query, cb) ->
-            cb.and(
-                    withBuildConfigurationId(configurationId).apply(root, query, cb),
-                    cb.notEqual(root.get(BuildRecord_.status), BuildStatus.NO_REBUILD_REQUIRED) //TODO 2.0 add CANCEL
-            );
+        return (root, query, cb) -> cb.and(
+                withBuildConfigurationId(configurationId).apply(root, query, cb),
+                cb.notEqual(root.get(BuildRecord_.status), BuildStatus.NO_REBUILD_REQUIRED) // TODO 2.0 add CANCEL
+        );
     }
 
     public static Predicate<BuildRecord> withStatus(BuildStatus status) {
-        return (root, query, cb) -> (
-                cb.equal(root.get(BuildRecord_.status), status)
-            );
+        return (root, query, cb) -> (cb.equal(root.get(BuildRecord_.status), status));
     }
 
     public static Predicate<BuildRecord> withBuildLogContains(String search) {
-        return (root, query, cb) -> (
-                cb.like(root.get(BuildRecord_.buildLog), "%" + search + "%")
-        );
+        return (root, query, cb) -> (cb.like(root.get(BuildRecord_.buildLog), "%" + search + "%"));
     }
 
     public static Predicate<BuildRecord> withBuildConfigurationIds(Set<Integer> configurationIds) {
@@ -87,9 +82,9 @@ public class BuildRecordPredicates {
     }
 
     public static Predicate<BuildRecord> withBuildConfigurationIdRev(IdRev idRev) {
-        return (root, query, cb) ->
-                cb.and(cb.equal(root.get(BuildRecord_.buildConfigurationId), idRev.getId()),
-                       cb.equal(root.get(BuildRecord_.buildConfigurationRev), idRev.getRev()));
+        return (root, query, cb) -> cb.and(
+                cb.equal(root.get(BuildRecord_.buildConfigurationId), idRev.getId()),
+                cb.equal(root.get(BuildRecord_.buildConfigurationRev), idRev.getRev()));
     }
 
     public static Predicate<BuildRecord> withSuccess() {
@@ -99,12 +94,11 @@ public class BuildRecordPredicates {
     /**
      * (related to NCL-5192, NCL-5351)
      *
-     * When (re)building a temporary build:
-     * - if there are existing temporary builds having the same idRev, ignore persistent builds
-     * - if there are no existing temporary builds having the same idRev, include also persistent builds having the same idRev
+     * When (re)building a temporary build: - if there are existing temporary builds having the same idRev, ignore
+     * persistent builds - if there are no existing temporary builds having the same idRev, include also persistent
+     * builds having the same idRev
      *
-     * When (re)building a persistent build:
-     * - include only existing persistent builds having the same idRev
+     * When (re)building a persistent build: - include only existing persistent builds having the same idRev
      *
      * @param idRev the revision of the build to (re)build
      * @param temporary if requested (re)build is temporary
@@ -113,18 +107,19 @@ public class BuildRecordPredicates {
     public static Predicate<BuildRecord> includeTemporary(IdRev idRev, boolean temporary) {
         return (root, query, cb) -> {
             if (temporary) {
-                //Create subquery that counts number of temporary builds for the same BuildConfigurationAudited.idRev
+                // Create subquery that counts number of temporary builds for the same BuildConfigurationAudited.idRev
                 Subquery<Long> temporaryCount = query.subquery(Long.class);
                 Root<BuildRecord> subRoot = temporaryCount.from(BuildRecord.class);
                 temporaryCount.select(cb.count(subRoot.get(BuildRecord_.id)));
                 temporaryCount.where(
-                        cb.and(cb.isTrue(subRoot.get(BuildRecord_.temporaryBuild)),
+                        cb.and(
+                                cb.isTrue(subRoot.get(BuildRecord_.temporaryBuild)),
                                 cb.equal(subRoot.get(BuildRecord_.buildConfigurationId), idRev.getId()),
-                                cb.equal(subRoot.get(BuildRecord_.buildConfigurationRev), idRev.getRev())
-                                ));
+                                cb.equal(subRoot.get(BuildRecord_.buildConfigurationRev), idRev.getRev())));
 
                 // only false if build is persistent and there are temporaryBuilds present
-                return cb.or(cb.isTrue(root.get(BuildRecord_.temporaryBuild)), cb.lessThanOrEqualTo(temporaryCount, 0L));
+                return cb
+                        .or(cb.isTrue(root.get(BuildRecord_.temporaryBuild)), cb.lessThanOrEqualTo(temporaryCount, 0L));
             }
             return cb.isFalse(root.get(BuildRecord_.temporaryBuild));
         };
@@ -135,7 +130,8 @@ public class BuildRecordPredicates {
 
             Join<BuildRecord, BuildConfigSetRecord> builtConfigSetRecord = root.join(BuildRecord_.buildConfigSetRecord);
 
-            Join<BuildConfigSetRecord, BuildConfigurationSet> buildConfigSet = builtConfigSetRecord.join(BuildConfigSetRecord_.buildConfigurationSet);
+            Join<BuildConfigSetRecord, BuildConfigurationSet> buildConfigSet = builtConfigSetRecord
+                    .join(BuildConfigSetRecord_.buildConfigurationSet);
 
             return cb.equal(buildConfigSet.get(BuildConfigurationSet_.id), buildConfigSetId);
         };
@@ -152,7 +148,8 @@ public class BuildRecordPredicates {
 
     public static Predicate<BuildRecord> withBuildConfigSetRecordId(Integer buildConfigSetRecordId) {
         return (root, query, cb) -> {
-            Join<BuildRecord, BuildConfigSetRecord> joinedConfigSetRecord = root.join(BuildRecord_.buildConfigSetRecord);
+            Join<BuildRecord, BuildConfigSetRecord> joinedConfigSetRecord = root
+                    .join(BuildRecord_.buildConfigSetRecord);
             return cb.equal(joinedConfigSetRecord.get(BuildConfigSetRecord_.id), buildConfigSetRecordId);
         };
     }
@@ -163,11 +160,13 @@ public class BuildRecordPredicates {
         }
 
         List<String> idRevs = buildConfigurationsWithIdRevs.stream()
-                .map(idRev -> idRev.getId() + "-" + idRev.getRev()).collect(Collectors.toList());
+                .map(idRev -> idRev.getId() + "-" + idRev.getRev())
+                .collect(Collectors.toList());
 
         return (root, query, cb) -> {
             Expression<String> concat = cb.concat(root.get(BuildRecord_.buildConfigurationId).as(String.class), "-");
-            Expression<String> buildRecordIdRev = cb.concat(concat, root.get(BuildRecord_.buildConfigurationRev).as(String.class));
+            Expression<String> buildRecordIdRev = cb
+                    .concat(concat, root.get(BuildRecord_.buildConfigurationRev).as(String.class));
             logger.debug("Searching for BuildRecords with {}", idRevs);
             return buildRecordIdRev.in(idRevs);
         };
@@ -176,7 +175,8 @@ public class BuildRecordPredicates {
     public static Predicate<BuildRecord> withArtifactDistributedInMilestone(Integer productMilestoneId) {
         return (root, query, cb) -> {
             SetJoin<BuildRecord, Artifact> builtArtifacts = root.join(BuildRecord_.builtArtifacts);
-            SetJoin<Artifact, ProductMilestone> productMilestones = builtArtifacts.join(Artifact_.distributedInProductMilestones);
+            SetJoin<Artifact, ProductMilestone> productMilestones = builtArtifacts
+                    .join(Artifact_.distributedInProductMilestones);
             return cb.equal(productMilestones.get(ProductMilestone_.id), productMilestoneId);
         };
     }
@@ -198,7 +198,9 @@ public class BuildRecordPredicates {
     public static Predicate<BuildRecord> withAttribute(String key, String value) {
         return (root, query, cb) -> {
             MapJoin<Object, Object, Object> mapJoinAttributes = root.joinMap(BuildRecord_.attributes.getName());
-            return query.where(cb.and(cb.equal(mapJoinAttributes.key(), key), cb.equal(mapJoinAttributes.value(), value))).getRestriction();
+            return query
+                    .where(cb.and(cb.equal(mapJoinAttributes.key(), key), cb.equal(mapJoinAttributes.value(), value)))
+                    .getRestriction();
         };
     }
 
