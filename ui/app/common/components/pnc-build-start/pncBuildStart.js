@@ -19,29 +19,29 @@
   'use strict';
 
   /**
-   * The component representing build start buttons for given Build Configuration or Build Group Configuration
+   * The component representing build start buttons for given Build Config or Group Config
    */
   angular.module('pnc.common.components').component('pncBuildStart', {
     bindings: {
       /**
-       * Object: The configuration representing Build Configuration
+       * Object: The configuration representing Build Config
        */
       buildConfig: '<?',
       /**
-       * Object: The configuration representing Build Group Configuration
+       * Object: The configuration representing Group Config
        */
-      buildGroup: '<?',
+      groupConfig: '<?',
       /**
        * String: Value representing bootstrap button size: lg (default if empty), md, sm, xs
        */
       size: '@?'
     },
     templateUrl: 'common/components/pnc-build-start/pnc-build-start.html',
-    controller: ['$log', Controller]
+    controller: ['$log', 'BuildConfigResource', 'GroupConfigResource', Controller]
   });
 
-  function Controller($log) {
-    var $ctrl = this;
+  function Controller($log, BuildConfigResource, GroupConfigResource) {
+    const $ctrl = this;
 
     var REBUILD_MODE_INDEX_DEFAULT = 1;
 
@@ -91,11 +91,14 @@
       $ctrl.dropdownMenu = false;
 
       if ($ctrl.buildConfig) {
-        $log.debug('pncBuildStart: Initiating build of BuildConfig: %O with params: %O', $ctrl.buildConfig, $ctrl.params);
-        $ctrl.buildConfig.$build($ctrl.params);
-      } else if ($ctrl.buildGroup) {
-        $log.debug('pncBuildStart: Initiating build of GroupConfig: %O with params: %O', $ctrl.buildGroup, $ctrl.params);
-        $ctrl.buildGroup.$build($ctrl.params);
+        $log.debug('pncBuildStart: Initiating build of: %O', $ctrl.buildConfig);
+        $ctrl.params.id = $ctrl.buildConfig.id;
+        BuildConfigResource.build($ctrl.params, {});
+
+      } else if ($ctrl.groupConfig) {
+        $log.debug('pncBuildStart: Initiating build of: %O', $ctrl.groupConfig);
+        $ctrl.params.id = $ctrl.groupConfig.id;
+        GroupConfigResource.build($ctrl.params, {});
       }
 
     };
