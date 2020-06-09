@@ -101,8 +101,8 @@ BEGIN transaction;
     ALTER TABLE artifact ADD COLUMN qualitylevelreason varchar(200);
     ALTER TABLE artifact ADD COLUMN creationuser_id integer;
     ALTER TABLE artifact ADD COLUMN modificationuser_id integer;
-    ALTER TABLE artifact ADD COLUMN creationtime DATA_TYPE timestamp with time zone;
-    ALTER TABLE artifact ADD COLUMN modificationtime DATA_TYPE timestamp with time zone;
+    ALTER TABLE artifact ADD COLUMN creationtime timestamptz;
+    ALTER TABLE artifact ADD COLUMN modificationtime timestamptz;
 
     CREATE INDEX idx_artifact_creation_user ON artifact (creationuser_id);
     CREATE INDEX idx_artifact_modification_user ON artifact (modificationuser_id);
@@ -117,7 +117,7 @@ BEGIN transaction;
        rev integer not null,
        revtype SMALLINT,
        modificationuser_id integer,
-       modificationtime DATA_TYPE timestamp with time zone,
+       modificationtime timestamptz,
        qualityLevelReason varchar(200),
        artifactquality varchar(255) not null,
        primary key (id, rev)
