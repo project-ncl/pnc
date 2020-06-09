@@ -68,14 +68,20 @@
           }
         },
 
-        // getLastByConfiguration is not implemented yet
-
         getByConfiguration: {
           method: 'GET',
           isPaged: true,
           url: BUILD_CONFIGS_ENDPOINT + '/builds',
           params: {
             sort: '=desc=submitTime'
+          }
+        },
+
+        getLatestByConfig: {
+          method: 'GET',
+          url: BUILD_CONFIGS_ENDPOINT + '/builds',
+          params: {
+            latest: true
           }
         },
 
