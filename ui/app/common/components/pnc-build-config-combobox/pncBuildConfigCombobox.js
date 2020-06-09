@@ -33,12 +33,12 @@
       ngModel: '?ngModel'
     },
     templateUrl: 'common/components/pnc-build-config-combobox/pnc-build-config-combobox.html',
-    controller: ['$log', '$scope', '$element', 'BuildConfiguration', 'utils', 'rsqlQuery', '$timeout', Controller]
+    controller: ['$log', '$scope', '$element', 'BuildConfigResource', 'utils', 'rsqlQuery', '$timeout', Controller]
   });
 
-  function Controller($log, $scope, $element, BuildConfiguration, utils, rsqlQuery, $timeout) {
-    var $ctrl = this,
-        initialValues;
+  function Controller($log, $scope, $element, BuildConfigResource, utils, rsqlQuery, $timeout) {
+    const $ctrl = this;
+    var initialValues;
 
     // -- Controller API --
 
@@ -74,9 +74,7 @@
         $ctrl.input = $ctrl.ngModel.$viewValue;
       };
 
-      initialValues = BuildConfiguration.query({ pageSize: 20 }).$promise.then(function (page) {
-        return page.data;
-      });
+      initialValues = BuildConfigResource.query({ pageSize: 20 }).$promise.then(page => page.data);
     };
 
     $ctrl.$postLink = function () {
@@ -98,9 +96,7 @@
     function doSearch($viewValue) {
       var q = rsqlQuery().where('name').like('*' + $viewValue + '*').end();
 
-      return BuildConfiguration.query({ q: q }).$promise.then(function (page) {
-        return page.data;
-      });
+      return BuildConfigResource.query({ q: q }).$promise.then(page => page.data);
     }
 
     function search($viewValue) {
