@@ -48,7 +48,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.RSQLPredicateProducer;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -58,8 +57,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.ws.rs.core.StreamingOutput;
 import java.lang.invoke.MethodHandles;
+import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -100,6 +100,10 @@ public class BuildRecordsTest {
     private static Artifact temporaryBuiltArtifact1;
 
     private static Artifact temporaryBuiltArtifact2;
+
+    private static Integer savedTempRecordId1;
+
+    private static Integer savedTempRecordId2;
 
     @Inject
     private ArtifactRepository artifactRepository;
@@ -190,7 +194,7 @@ public class BuildRecordsTest {
                 .attribute("attributeKey", "attributeValue1")
                 .temporaryBuild(false)
                 .build();
-                
+
         buildRecord1 = buildRecordRepository.save(buildRecord1);
         buildRecord1Id = buildRecord1.getId();
 
@@ -287,6 +291,80 @@ public class BuildRecordsTest {
 
         temporaryBuild2 = buildRecordRepository.save(temporaryBuild2);
         temporaryBuildId2 = temporaryBuild2.getId();
+
+        Artifact builtArtifact5 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact5:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 7")
+                .md5("adsfs6df548w1327cx78he873217df98")
+                .sha1("a56asdf87a3cvx231b87987fasd6f5ads4f32sdf")
+                .sha256("sad5f64sf87b3cvx2b1v87tr89h7d3f5g432xcz1zv87fawrv23n8796534564er")
+                .size(10L)
+                .deployPath("/built5")
+                .build();
+        Artifact builtArtifact6 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact6:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 8")
+                .md5("md-fake-abcdefg1234")
+                .sha1("sha1-fake-abcdefg1234")
+                .sha256("sha256-fake-abcdefg1234")
+                .size(10L)
+                .deployPath("/built6")
+                .build();
+
+        builtArtifact5 = artifactRepository.save(builtArtifact5);
+        builtArtifact6 = artifactRepository.save(builtArtifact6);
+
+        int nextId = datastore.getNextBuildRecordId();
+
+        BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder()
+                .id(nextId)
+                .buildConfigurationAudited(buildConfigurationAudited)
+                .submitTime(Timestamp.from(Instant.now().minus(3, ChronoUnit.HOURS)))
+                .startTime(Timestamp.from(Instant.now().minus(3, ChronoUnit.HOURS)))
+                .endTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.HOURS)))
+                .builtArtifact(builtArtifact5)
+                .builtArtifact(builtArtifact6)
+                .user(user)
+                .repourLog("This is a wannabe alignment log.")
+                .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                .status(BuildStatus.SUCCESS)
+                .buildEnvironment(buildConfigurationAudited.getBuildEnvironment())
+                .scmRepoURL(buildConfigurationAudited.getRepositoryConfiguration().getInternalUrl())
+                .scmRevision(buildConfigurationAudited.getScmRevision())
+                .executionRootName("org.jboss.pnc:parent")
+                .executionRootVersion("1.2.8")
+                .temporaryBuild(true)
+                .build();
+
+        BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository
+                .queryById(new IdRev(101, 1));
+
+        tempRecord1 = buildRecordRepository.save(tempRecord1);
+        savedTempRecordId1 = tempRecord1.getId();
+        logger.debug("RECOOOORD1 ==" + savedTempRecordId1);
+
+        nextId = datastore.getNextBuildRecordId();
+        BuildRecord tempRecord2 = BuildRecord.Builder.newBuilder()
+                .id(nextId)
+                .buildConfigurationAudited(buildConfigAudited2)
+                .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.HOURS)))
+                .startTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.HOURS)))
+                .endTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.HOURS).minus(30, ChronoUnit.MINUTES)))
+                .dependency(builtArtifact5)
+                .user(user)
+                .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                .status(BuildStatus.SUCCESS)
+                .buildEnvironment(buildConfigAudited2.getBuildEnvironment())
+                .executionRootName("org.jboss.pnc:parent")
+                .executionRootVersion("1.2.5")
+                .temporaryBuild(true)
+                .build();
+
+        tempRecord2 = buildRecordRepository.save(tempRecord2);
+        savedTempRecordId2 = tempRecord2.getId();
+
     }
 
     @Test
@@ -343,6 +421,48 @@ public class BuildRecordsTest {
         assertThat(temporaryBuilds.getContent())
                 .usingElementComparatorIgnoringFields("user", "buildConfigurationAudited", "project")
                 .containsOnly(toRestBuildRecord(expectedBuildRecord));
+    }
+
+    @Test
+    public void testIgnoresIfImplicitDependencyIsOlderThanTimestamp() {
+        // given
+
+        // Temp Record with endtime -2h
+        BuildRecord expectedBuildRecord1 = buildRecordRepository.findByIdFetchAllProperties(savedTempRecordId1);
+        // Implicit Dependency with endtime -1h 30m
+        BuildRecord expectedBuildRecord2 = buildRecordRepository.findByIdFetchAllProperties(savedTempRecordId2);
+        // Older than -1h 45m
+        long timestamp = Instant.now().minus(1, ChronoUnit.HOURS).minus(45, ChronoUnit.MINUTES).getEpochSecond();
+
+        // when
+        CollectionInfo<BuildRecordRest> temporaryBuilds = buildRecordProvider
+                .getAllTemporaryOlderThanTimestamp(0, 10, null, null, timestamp * 1000);
+
+        // then
+        assertThat(temporaryBuilds).isNotNull();
+        assertThat(temporaryBuilds.getContent()).usingElementComparatorOnFields("id")
+                .doesNotContain(toRestBuildRecord(expectedBuildRecord1), toRestBuildRecord(expectedBuildRecord2));
+    }
+
+    @Test
+    public void testGetTemporaryOlderWithImplicitDependency() {
+        // given
+
+        // Temp Record with endtime -2h
+        BuildRecord expectedBuildRecord1 = buildRecordRepository.findByIdFetchAllProperties(savedTempRecordId1);
+        // Implicit Dependency with endtime -1h 30m
+        BuildRecord expectedBuildRecord2 = buildRecordRepository.findByIdFetchAllProperties(savedTempRecordId2);
+        // Older than -1h 15m
+        long timestamp = Instant.now().minus(1, ChronoUnit.HOURS).minus(15, ChronoUnit.MINUTES).getEpochSecond();
+
+        // when
+        CollectionInfo<BuildRecordRest> temporaryBuilds = buildRecordProvider
+                .getAllTemporaryOlderThanTimestamp(0, 10, null, null, timestamp * 1000);
+
+        // then
+        assertThat(temporaryBuilds).isNotNull();
+        assertThat(temporaryBuilds.getContent()).usingElementComparatorOnFields("id")
+                .contains(toRestBuildRecord(expectedBuildRecord1), toRestBuildRecord(expectedBuildRecord2));
     }
 
     @Test
