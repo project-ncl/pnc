@@ -33,6 +33,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
+ * Product version represents one product stream like "6.3", "6,4", "7.1".
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -44,22 +45,40 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductVersion extends ProductVersionRef {
 
+    /**
+     * Product that this is a version of.
+     */
     @PatchSupport({ REPLACE })
     @RefHasId(groups = { WhenCreatingNew.class })
     private final ProductRef product;
 
+    /**
+     * Current milestone of this product version that is being productized.
+     */
     @PatchSupport({ REPLACE })
     private final ProductMilestoneRef currentProductMilestone;
 
+    /**
+     * List of all milestones in this product version.
+     */
     @PatchSupport({ ADD, REPLACE })
     private final Map<String, ProductMilestoneRef> productMilestones;
 
+    /**
+     * List of all releases in this product version.
+     */
     @PatchSupport({ ADD, REPLACE })
     private final Map<String, ProductReleaseRef> productReleases;
 
+    /**
+     * List of all group configs linked to this product version.
+     */
     @PatchSupport({ ADD, REPLACE })
     private final Map<String, GroupConfigurationRef> groupConfigs;
 
+    /**
+     * List of all group configs linked to this product version.
+     */
     @PatchSupport({ ADD, REPLACE })
     private final Map<String, BuildConfigurationRef> buildConfigs;
 

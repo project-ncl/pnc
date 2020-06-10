@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 /**
+ * A PNC user.
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
@@ -38,10 +39,16 @@ import javax.validation.constraints.Null;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User implements DTOEntity {
 
+    /**
+     * ID of the user.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * Username of the user.
+     */
     protected final String username;
 
     @JsonPOJOBuilder(withPrefix = "")

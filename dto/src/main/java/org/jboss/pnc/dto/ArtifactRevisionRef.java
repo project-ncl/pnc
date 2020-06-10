@@ -34,6 +34,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * Revision of an artifact created or used by build.
  *
  * @author Andrea Vibelli &lt;avibelli@redhat.com&gt;
  */
@@ -43,16 +44,31 @@ import lombok.Data;
 @JsonDeserialize(builder = ArtifactRevisionRef.Builder.class)
 public class ArtifactRevisionRef implements DTOEntity {
 
+    /**
+     * ID of the artifact.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * Revision id of the artifact.
+     */
     protected final Integer rev;
 
+    /**
+     * The reason for the quality level setting (change) of this artifact.
+     */
     protected final String qualityLevelReason;
 
+    /**
+     * The time when the quality level of this artifact was last modified.
+     */
     protected final Instant modificationTime;
 
+    /**
+     * Quality level of the artifact.
+     */
     protected final ArtifactQuality artifactQuality;
 
     @JsonPOJOBuilder(withPrefix = "")

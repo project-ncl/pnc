@@ -35,6 +35,7 @@ import javax.validation.constraints.Pattern;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
+ * A product is a deliverable package composed of multiple project.
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
@@ -43,25 +44,46 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonDeserialize(builder = ProductRef.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductRef implements DTOEntity {
+
+    /**
+     * ID of the product.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * Product name.
+     */
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String name;
 
+    /**
+     * Product description.
+     */
     @PatchSupport({ REPLACE })
     protected final String description;
 
+    /**
+     * Product abbreviation.
+     *
+     * @see Patterns#PRODUCT_ABBREVIATION
+     */
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     @Pattern(regexp = Patterns.PRODUCT_ABBREVIATION, groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String abbreviation;
 
+    /**
+     * Comma separated list of product managers.
+     */
     @PatchSupport({ REPLACE })
     protected final String productManagers;
 
+    /**
+     * The code given to the product by Product Pages.
+     */
     @PatchSupport({ REPLACE })
     protected final String productPagesCode;
 

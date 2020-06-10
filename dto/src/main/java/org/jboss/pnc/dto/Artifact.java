@@ -31,6 +31,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
+ * An artifact created or used by build.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -42,7 +43,14 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Artifact extends ArtifactRef {
 
+    /**
+     * Repository that stores this artifact.
+     */
     private final TargetRepository targetRepository;
+
+    /**
+     * Build that produced the artifact.
+     */
     private final Build build;
 
     /**
@@ -51,7 +59,7 @@ public class Artifact extends ArtifactRef {
     private final User creationUser;
 
     /**
-     * The user who last modified the Quality label of this artifact.
+     * The user who last modified the quality level of this artifact.
      */
     private final User modificationUser;
 

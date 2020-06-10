@@ -30,6 +30,10 @@ import org.jboss.pnc.processor.annotation.PatchSupport;
 import java.time.Instant;
 
 /**
+ * A milestone represents a stage in the product(ization) process. A single product version, for example "1.0", can be
+ * associated with several product milestones such as "1.0.0.build1", "1.0.0.build2", etc. A milestone represents the
+ * set of work (build records) that was performed during a development cycle from the previous milestone until the end
+ * of the current milestone.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -41,9 +45,15 @@ import java.time.Instant;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductMilestone extends ProductMilestoneRef {
 
+    /**
+     * The ProductVersion this milestone belongs to.
+     */
     @RefHasId(groups = { WhenCreatingNew.class })
     private final ProductVersionRef productVersion;
 
+    /**
+     * Release of this milestone.
+     */
     private final ProductReleaseRef productRelease;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

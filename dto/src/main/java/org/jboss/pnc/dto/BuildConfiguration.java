@@ -37,6 +37,8 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
+ * A build config cointains the information needed to execute a build of a project, i.e. link to the sources, the build
+ * script, the build system image needed to run.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -48,32 +50,60 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildConfiguration extends BuildConfigurationRef {
 
+    /**
+     * SCM repository where the build's sources are stored.
+     */
     @PatchSupport({ REPLACE })
     @RefHasId(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final SCMRepository scmRepository;
 
+    /**
+     * The project which the build config is part of.
+     */
     @PatchSupport({ REPLACE })
     @RefHasId(groups = WhenCreatingNew.class)
     private final ProjectRef project;
 
+    /**
+     * Build environment that the build will be run in.
+     */
     @PatchSupport({ REPLACE })
     @RefHasId(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final Environment environment;
 
+    /**
+     * List of dependencies. These dependencies are normally run before build of this build config.
+     */
     @PatchSupport({ ADD, REPLACE })
     private final Map<String, BuildConfigurationRef> dependencies;
 
+    /**
+     * The product version which the build config is part of.
+     */
     @PatchSupport({ REPLACE })
     @RefHasId(groups = { WhenCreatingNew.class, WhenUpdating.class }, optional = true)
     private final ProductVersionRef productVersion;
 
+    /**
+     * The list of group configs which include this build config.
+     */
     private final Map<String, GroupConfigurationRef> groupConfigs;
 
+    /**
+     * Map of build parameters. These parameters can influence various parts of the build like alignment phase or
+     * builder pod memory available.
+     */
     @PatchSupport({ ADD, REMOVE, REPLACE })
     private final Map<String, String> parameters;
 
+    /**
+     * User who created the build config.
+     */
     private final User creationUser;
 
+    /**
+     * User who last modified the build config.
+     */
     private final User modificationUser;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

@@ -34,6 +34,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
+ * Configuration for group of build configs to run together.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -45,10 +46,16 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GroupConfiguration extends GroupConfigurationRef {
 
+    /**
+     * Product version this group config is linked to.
+     */
     @PatchSupport({ REPLACE })
     @RefHasId(groups = { WhenCreatingNew.class, WhenUpdating.class }, optional = true)
     private final ProductVersionRef productVersion;
 
+    /**
+     * List of the build configs in the group.
+     */
     @PatchSupport({ ADD, REPLACE })
     private final Map<String, BuildConfigurationRef> buildConfigs;
 

@@ -30,6 +30,8 @@ import javax.validation.constraints.NotNull;
 import java.time.Instant;
 
 /**
+ * Result of the milestone close operation.
+ *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Data
@@ -38,18 +40,30 @@ import java.time.Instant;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductMilestoneCloseResultRef implements DTOEntity {
 
+    /**
+     * ID of the close attempt.
+     */
     @NotNull(groups = WhenUpdating.class)
     @NotNull(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * Status of the close attempt.
+     */
     @NotNull(groups = WhenUpdating.class)
     @NotNull(groups = WhenCreatingNew.class)
     protected MilestoneCloseStatus status;
 
+    /**
+     * The time when the close operation started.
+     */
     @NotNull(groups = WhenUpdating.class)
     @NotNull(groups = WhenCreatingNew.class)
     protected Instant startingDate;
 
+    /**
+     * The time when the close operation ended.
+     */
     protected Instant endDate;
 
     @JsonPOJOBuilder(withPrefix = "")

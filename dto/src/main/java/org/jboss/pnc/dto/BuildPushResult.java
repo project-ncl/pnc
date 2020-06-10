@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 /**
+ * Result of a build push operation.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -37,6 +38,9 @@ import javax.validation.constraints.Null;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildPushResult extends BuildPushResultRef {
 
+    /**
+     * Product milestone close result this build push is a part of.
+     */
     private final ProductMilestoneCloseResultRef productMilestoneCloseResult;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

@@ -30,6 +30,8 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
+ * This class is used to maintain an audit trail of modifications made to a Build Config. Each instance represents a
+ * specific revision of a build config.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -40,16 +42,35 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
 
+    /**
+     * SCM repository where the build's sources are stored.
+     */
     private final SCMRepository scmRepository;
 
+    /**
+     * The project which the build config is part of.
+     */
     private final ProjectRef project;
 
+    /**
+     * Build environment that the build will be run in.
+     */
     private final Environment environment;
 
+    /**
+     * Map of build parameters. These parameters can influence various parts of the build like alignment phase or
+     * builder pod memory available.
+     */
     private final Map<String, String> parameters;
 
+    /**
+     * User who created the build config.
+     */
     private final User creationUser;
 
+    /**
+     * User who last modified the build config.
+     */
     private final User modificationUser;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

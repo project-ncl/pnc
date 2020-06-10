@@ -35,6 +35,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
+ * The build.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -46,21 +47,45 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Build extends BuildRef {
 
+    /**
+     * Project of the build.
+     */
     private final ProjectRef project;
 
+    /**
+     * SCM Repository that was used for the build.
+     */
     private final SCMRepository scmRepository;
 
+    /**
+     * Build environment used by the build.
+     */
     private final Environment environment;
 
+    /**
+     * Map of build attributes.
+     */
     @PatchSupport({ ADD, REMOVE, REPLACE })
     private final Map<String, String> attributes;
 
+    /**
+     * The user who built this build.
+     */
     private final User user;
 
+    /**
+     * The revision of build configuration that was used for this build.
+     */
     private final BuildConfigurationRevisionRef buildConfigRevision;
 
+    /**
+     * Product mileston for which this build was created.
+     */
     private final ProductMilestoneRef productMilestone;
 
+    /**
+     * Group build in which this build was built.
+     */
     private final GroupBuildRef groupBuild;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

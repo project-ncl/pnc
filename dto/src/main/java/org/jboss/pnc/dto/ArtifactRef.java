@@ -36,6 +36,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * An artifact created or used by build.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -45,31 +46,67 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ArtifactRef implements DTOEntity {
 
+    /**
+     * ID of the artifact.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * A unique identifier of the artifact in a repository. For example, for a maven artifact this is the GATVC
+     * (groupId:artifactId:type:version[:classifier] The format of the identifier string is determined by the repository
+     * type.
+     */
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String identifier;
 
+    /**
+     * Quality level of the artifact.
+     */
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final ArtifactQuality artifactQuality;
 
+    /**
+     * MD5 checksum of the artifact.
+     */
     protected final String md5;
 
+    /**
+     * SHA-1 checksum of the artifact.
+     */
     protected final String sha1;
 
+    /**
+     * SHA-256 checksum of the artifact.
+     */
     protected final String sha256;
 
+    /**
+     * Filename of the artifact.
+     */
     protected final String filename;
 
+    /**
+     * Path in the repository where the artifact file is available.
+     */
     protected final String deployPath;
 
+    /**
+     * The time when this artifact was originally imported. When this artifact was built by PNC the value is null.
+     */
     protected final Instant importDate;
 
+    /**
+     * The location from which this artifact was originally downloaded for import. When this artifact was built by PNC
+     * the value is null.
+     */
     protected final String originUrl;
 
+    /**
+     * Size of the artifact in bytes.
+     */
     protected final Long size;
 
     /**
@@ -82,17 +119,17 @@ public class ArtifactRef implements DTOEntity {
      */
     protected final String publicUrl;
     /**
-     * The creation time of this artifact.
+     * The time when the artifact was created.
      */
     protected final Instant creationTime;
 
     /**
-     * The time at which the Quality label of this artifact was last modified.
+     * The time when the quality level of this artifact was last modified.
      */
     protected final Instant modificationTime;
 
     /**
-     * The reason for the Quality level setting (change) of this artifact.
+     * The reason for the quality level setting (change) of this artifact.
      */
     @PatchSupport({ REPLACE })
     protected final String qualityLevelReason;

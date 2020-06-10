@@ -31,6 +31,7 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
+ * A product is a deliverable package composed of multiple project.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -42,6 +43,9 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Product extends ProductRef {
 
+    /**
+     * List of this product's versions.
+     */
     @PatchSupport({ ADD, REPLACE })
     private final Map<String, ProductVersionRef> productVersions;
 

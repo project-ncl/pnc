@@ -34,6 +34,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * Build of a group config.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -43,16 +44,31 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GroupBuildRef implements DTOEntity {
 
+    /**
+     * ID of the group build.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * The time when the group build started.
+     */
     protected final Instant startTime;
 
+    /**
+     * The time when the group build ended.
+     */
     protected final Instant endTime;
 
+    /**
+     * Status of the group build.
+     */
     protected final BuildStatus status;
 
+    /**
+     * Is this group build temporary?
+     */
     protected final Boolean temporaryBuild;
 
     @JsonPOJOBuilder(withPrefix = "")

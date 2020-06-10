@@ -30,6 +30,8 @@ import java.time.Instant;
 import java.util.List;
 
 /**
+ * Result of the milestone close operation.
+ *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @PatchSupport
@@ -40,8 +42,14 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductMilestoneCloseResult extends ProductMilestoneCloseResultRef {
 
+    /**
+     * Mileston that was being closed.
+     */
     private final ProductMilestoneRef milestone;
 
+    /**
+     * List of results of builds being pushed to Koji.
+     */
     private final List<BuildPushResultRef> buildPushResults;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

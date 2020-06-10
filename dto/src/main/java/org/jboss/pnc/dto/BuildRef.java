@@ -32,6 +32,7 @@ import javax.validation.constraints.Null;
 import java.time.Instant;
 
 /**
+ * The build.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -41,30 +42,66 @@ import java.time.Instant;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildRef implements DTOEntity {
 
+    /**
+     * ID of the build.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * The thime when the build was submited for building.
+     */
     protected final Instant submitTime;
 
+    /**
+     * The time when the build started building.
+     */
     protected final Instant startTime;
 
+    /**
+     * The time when the build finished building.
+     */
     protected final Instant endTime;
 
+    /**
+     * Higl level progress status of the build. This indicate if the build is waiting, in progress or finished.
+     */
     protected final BuildProgress progress;
 
+    /**
+     * The status of the build.
+     */
     protected final BuildStatus status;
 
+    /**
+     * The identifier to use when accessing repository or other content stored via external services.
+     */
     protected final String buildContentId;
 
+    /**
+     * Whether the build is temporary or not.
+     */
     protected final Boolean temporaryBuild;
 
+    /**
+     * Url to the SCM repository with the sources being built.
+     */
     protected final String scmUrl;
 
+    /**
+     * The revision number in the SCM repository of the sources being built.
+     */
     protected final String scmRevision;
 
+    /**
+     * The tag in the SCM repository that was built.
+     */
     protected final String scmTag;
 
+    /**
+     * Checksum of build logs. Used to verify the integrity of the logs in the remote storage eg. Elasticsearch.
+     */
     protected final String buildOutputChecksum;
 
     @JsonPOJOBuilder(withPrefix = "")
