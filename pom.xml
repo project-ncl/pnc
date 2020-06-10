@@ -113,7 +113,7 @@
     <version.keycloak>4.5.0.Final</version.keycloak>
     <version.undertow>2.0.22.Final</version.undertow>
     <version.shrinkwrap.descriptors>2.0.0-alpha-9</version.shrinkwrap.descriptors>
-    <version.buildagent>0.6.1</version.buildagent>
+    <version.buildagent>0.7.0</version.buildagent>
     <version.jackson.core>2.9.8</version.jackson.core>
     <version.lombok>1.18.6</version.lombok>
     <!-- needed because of a CVE in databind -->
