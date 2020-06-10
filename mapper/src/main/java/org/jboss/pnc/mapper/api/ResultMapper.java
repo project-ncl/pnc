@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.dto.DeleteOperationResult;
+import org.jboss.pnc.dto.response.DeleteOperationResult;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
