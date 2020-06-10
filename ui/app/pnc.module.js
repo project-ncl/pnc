@@ -110,7 +110,7 @@
     'authConfigProvider',
     function (pncProperties, restConfigProvider, daConfigProvider, authConfigProvider) {
       // representing PNC REST API version 1
-      restConfigProvider.setPncUrl(pncProperties.legacyExternalPncUrl);
+      restConfigProvider.setPncUrl(pncProperties.externalLegacyPncUrl);
 
       // representing PNC REST API version 2+
       restConfigProvider.setPncRestUrl(pncProperties.externalPncUrl);

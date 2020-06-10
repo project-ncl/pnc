@@ -326,12 +326,12 @@ label.required::before {
   position: relative;
   top: 1px;
   margin-right: 2px;
-};
-
+}
 
 .input-validation-spinner {
   position: relative;
 }
+
 .input-validation-spinner .spinner {
   position: absolute;
   right: 4px;
