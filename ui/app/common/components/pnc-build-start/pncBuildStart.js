@@ -37,16 +37,16 @@
       size: '@?'
     },
     templateUrl: 'common/components/pnc-build-start/pnc-build-start.html',
-    controller: ['$log', 'BuildConfigurationDAO', 'BuildConfigurationSetDAO', Controller]
+    controller: ['$log', Controller]
   });
 
-  function Controller($log, BuildConfigurationDAO, BuildConfigurationSetDAO) {
+  function Controller($log) {
     var $ctrl = this;
 
     var REBUILD_MODE_INDEX_DEFAULT = 1;
 
     $ctrl.dropdownMenu = false;
-    
+
     /*
      * When used together with forceRebuild parameter (deprecated), forceRebuild will be ignored
      */
@@ -70,7 +70,7 @@
       };
 
       $ctrl.refreshRebuildModes(REBUILD_MODE_INDEX_DEFAULT);
-      
+
       if ($ctrl.buildConfig) {
         $ctrl.params.keepPodOnFailure = false;
         $ctrl.params.buildDependencies = true;
@@ -91,14 +91,11 @@
       $ctrl.dropdownMenu = false;
 
       if ($ctrl.buildConfig) {
-        $log.debug('pncBuildStart: Initiating build of: %O', $ctrl.buildConfig);
-        $ctrl.params.configurationId = $ctrl.buildConfig.id;
-        BuildConfigurationDAO.build($ctrl.params, {});
-
+        $log.debug('pncBuildStart: Initiating build of BuildConfig: %O with params: %O', $ctrl.buildConfig, $ctrl.params);
+        $ctrl.buildConfig.$build($ctrl.params);
       } else if ($ctrl.buildGroup) {
-        $log.debug('pncBuildStart: Initiating build of: %O', $ctrl.buildGroup);
-        $ctrl.params.configurationSetId = $ctrl.buildGroup.id;
-        BuildConfigurationSetDAO.build($ctrl.params, {});
+        $log.debug('pncBuildStart: Initiating build of GroupConfig: %O with params: %O', $ctrl.buildGroup, $ctrl.params);
+        $ctrl.buildGroup.$build($ctrl.params);
       }
 
     };

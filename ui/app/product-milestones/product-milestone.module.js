@@ -22,7 +22,6 @@
     'ui.router',
     'ui.bootstrap',
     'patternfly',
-    'pnc.common.restclient',
     'pnc.common.util'
   ]);
 
@@ -51,10 +50,10 @@
           title: '{{ productMilestone.version }} | {{ product.name }} | Milestone'
         },
         resolve: {
-          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) => 
+          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
             ProductMilestoneResource.get({id: $stateParams.productMilestoneId}).$promise
           ],
-          performedBuilds: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) => 
+          performedBuilds: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
             ProductMilestoneResource.queryPerformedBuilds({id: $stateParams.productMilestoneId}).$promise
           ],
           latestCloseResult: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams, $log) =>
@@ -96,7 +95,7 @@
           requireAuth: true
         },
         resolve: {
-          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) => 
+          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
             ProductMilestoneResource.get({id: $stateParams.productMilestoneId}).$promise
           ]
         }
@@ -111,7 +110,7 @@
           requireAuth: true
         },
         resolve: {
-          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) => 
+          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
             ProductMilestoneResource.get({id: $stateParams.productMilestoneId}).$promise
           ]
         }

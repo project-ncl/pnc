@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  var module = angular.module('pnc.common.restclient');
+  var module = angular.module('pnc.common.pnc-client');
 
   /**
    * Provider for configuration of the rest client services.

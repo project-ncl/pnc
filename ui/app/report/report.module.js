@@ -21,7 +21,6 @@
   var module = angular.module('pnc.report', [
     'ui.router',
     'ui.bootstrap',
-    'pnc.common.restclient',
     'pnc.common.directives',
     'infinite-scroll',
     'angularUtils.directives.dirPagination'

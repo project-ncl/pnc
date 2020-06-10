@@ -24,7 +24,6 @@
     'bifrost',
     'pnc.common.events',
     'pnc.common.directives',
-    'pnc.common.restclient',
     'pnc.properties'
   ]);
 

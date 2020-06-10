@@ -22,7 +22,6 @@
     'ui.router',
     'ui.bootstrap',
     'xeditable',
-    'pnc.common.restclient',
     'pnc.common.directives',
     'pnc.builds',
     'infinite-scroll',
