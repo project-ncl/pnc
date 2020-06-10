@@ -110,16 +110,16 @@
     'authConfigProvider',
     function (pncProperties, restConfigProvider, daConfigProvider, authConfigProvider) {
       // representing PNC REST API version 1
-      restConfigProvider.setPncUrl(pncProperties.pncUrl);
+      restConfigProvider.setPncUrl(pncProperties.legacyExternalPncUrl);
 
       // representing PNC REST API version 2+
-      restConfigProvider.setPncRestUrl(pncProperties.pncRestUrl);
+      restConfigProvider.setPncRestUrl(pncProperties.externalPncUrl);
 
       restConfigProvider.setPncNotificationsUrl(pncProperties.pncNotificationsUrl);
-      restConfigProvider.setDaUrl(pncProperties.daUrl);
-      restConfigProvider.setKafkaStoreUrl(pncProperties.kafkaStoreUrl);
+      restConfigProvider.setDaUrl(pncProperties.externalDaUrl);
+      restConfigProvider.setKafkaStoreUrl(pncProperties.externalKafkaStoreUrl);
 
-      daConfigProvider.setDaUrl(pncProperties.daUrl);
+      daConfigProvider.setDaUrl(pncProperties.externalDaUrl);
 
       authConfigProvider.setSsoTokenLifespan(pncProperties.ssoTokenLifespan);
     }

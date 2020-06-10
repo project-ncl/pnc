@@ -21,6 +21,8 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 
 /**
@@ -30,6 +32,9 @@ import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 @NoArgsConstructor
 @Data
 public class UiConfigRest {
+
+    @JsonUnwrapped
+    private GlobalModuleGroup globalConfig;
 
     @JsonUnwrapped
     private UIModuleConfig uiModuleConfig;

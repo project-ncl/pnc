@@ -43,8 +43,8 @@ if (angular.isUndefined(window.pnc)) {
 
   var DEFAULT_CONFIG = {
     isDefaultConfiguration: true,
-    pncUrl: '/pnc-rest/rest',
-    pncRestUrl: '/pnc-rest-new/rest-new',
+    legacyExternalPncUrl: '/pnc-rest/rest',
+    externalPncUrl: '/pnc-rest-new/rest-new',
     pncNotificationsUrl: 'ws://' + window.location.host + '/pnc-rest/ws/build-records/notifications'
   };
 
@@ -72,10 +72,10 @@ if (angular.isUndefined(window.pnc)) {
 
     console.info('Starting UI with configuration: ' + JSON.stringify(config, null, 2));
 
-    /* 
+    /*
      * Override PatternFly sidebar function computing min-height for sidebar and content part.
      * JavaScript is not needed anymore, CSS already provides sufficient and more robust way to do it.
-     * 
+     *
      * https://github.com/patternfly/patternfly/blob/master/src/js/patternfly-functions-sidebar.js
      */
     window.jQuery.fn.sidebar = angular.noop;
