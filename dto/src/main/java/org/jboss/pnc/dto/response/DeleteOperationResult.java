@@ -15,17 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto;
+package org.jboss.pnc.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.jboss.pnc.enums.ResultStatus;
 
-@AllArgsConstructor
 @Data
-public class RunningBuildCount {
+public class DeleteOperationResult {
 
-    private int running;
-    private int enqueued;
-    private int awaitingForDependencies;
+    private String id;
 
+    private ResultStatus status;
+
+    private String message;
 }

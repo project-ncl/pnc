@@ -15,16 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.dto;
+package org.jboss.pnc.dto.response;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@ToString
-@Getter
-@Setter
-public class Banner {
+@AllArgsConstructor
+@Data
+public class RunningBuildCount {
 
-    private String banner;
+    private int running;
+    private int enqueued;
+    private int awaitingForDependencies;
+
 }
