@@ -46,6 +46,7 @@ public interface BuildConfigurationMapper
     @Mapping(target = "buildConfigurationSets", source = "groupConfigs")
     @Mapping(target = "repositoryConfiguration", source = "scmRepository", qualifiedBy = IdEntity.class)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "archived", ignore = true)
     @Mapping(target = "dependants", ignore = true)
     @Mapping(target = "indirectDependencies", ignore = true)
     @Mapping(target = "allDependencies", ignore = true)

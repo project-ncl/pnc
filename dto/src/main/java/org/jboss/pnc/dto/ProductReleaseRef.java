@@ -58,12 +58,6 @@ public class ProductReleaseRef implements DTOEntity {
     protected final Instant releaseDate;
 
     @PatchSupport({ REPLACE })
-    protected final String downloadUrl;
-
-    @PatchSupport({ REPLACE })
-    protected final String issueTrackerUrl;
-
-    @PatchSupport({ REPLACE })
     protected final String commonPlatformEnumeration;
 
     @PatchSupport({ REPLACE })

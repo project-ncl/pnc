@@ -92,11 +92,10 @@ public class BuildConfiguration extends BuildConfigurationRef {
             String scmRevision,
             Instant creationTime,
             Instant modificationTime,
-            boolean archived,
             BuildType buildType,
             User creationUser,
             User modificationUser) {
-        super(id, name, description, buildScript, scmRevision, creationTime, modificationTime, archived, buildType);
+        super(id, name, description, buildScript, scmRevision, creationTime, modificationTime, buildType);
         this.scmRepository = scmRepository;
         this.project = project;
         this.environment = environment;

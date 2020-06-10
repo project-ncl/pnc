@@ -69,8 +69,6 @@ public class BuildConfigurationRef implements DTOEntity {
 
     protected final Instant modificationTime;
 
-    protected final boolean archived;
-
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final BuildType buildType;
