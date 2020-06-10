@@ -38,7 +38,8 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
- *
+ * Product version represents one product stream like "6.3", "6,4", "7.1".
+ * 
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
@@ -46,18 +47,29 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonDeserialize(builder = ProductVersionRef.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductVersionRef implements DTOEntity {
+    private static final String VERSION_CONSTRAINT = "The version should consist of two numeric parts separated by a dot.";
+
+    /**
+     * ID of the product version.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * The major.minor version string. {@value VERSION_CONSTRAINT}
+     */
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     @Pattern(
-            message = "The version should consist of two numeric parts separated by a dot",
+            message = VERSION_CONSTRAINT,
             regexp = Patterns.PRODUCT_STREAM_VERSION,
             groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String version;
 
+    /**
+     * Map of attributes of the product version.
+     */
     @PatchSupport({ ADD, REMOVE, REPLACE })
     protected final Map<String, String> attributes;
 

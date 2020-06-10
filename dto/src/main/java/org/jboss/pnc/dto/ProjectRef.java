@@ -33,7 +33,8 @@ import javax.validation.constraints.Null;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
- *
+ * A PNC project is something that can be thought of as an upstream (or internal) scm repository (e.g. GitHub).
+ * 
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
@@ -41,25 +42,46 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonDeserialize(builder = ProjectRef.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectRef implements DTOEntity {
+    /**
+     * ID of the project.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * Project name. Typically in the form ${organization}/${repository}.
+     */
     @PatchSupport({ REPLACE })
     protected final String name;
 
+    /**
+     * Project description.
+     */
     @PatchSupport({ REPLACE })
     protected final String description;
 
+    /**
+     * URL of the issue tracker for the project.
+     */
     @PatchSupport({ REPLACE })
     protected final String issueTrackerUrl;
 
+    /**
+     * URL of the project.
+     */
     @PatchSupport({ REPLACE })
     protected final String projectUrl;
 
+    /**
+     * The engineering team in charge of the project.
+     */
     @PatchSupport({ REPLACE })
     protected final String engineeringTeam;
 
+    /**
+     * The technical leader of the project.
+     */
     @PatchSupport({ REPLACE })
     protected final String technicalLeader;
 

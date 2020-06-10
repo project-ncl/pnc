@@ -30,6 +30,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
+ * Revision of a an artifact created or used by build.
  *
  * @author Andrea Vibelli &lt;avibelli@redhat.com&gt;
  */
@@ -40,6 +41,9 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ArtifactRevision extends ArtifactRevisionRef {
 
+    /**
+     * The user who last modified the quality level of this artifact.
+     */
     private final User modificationUser;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

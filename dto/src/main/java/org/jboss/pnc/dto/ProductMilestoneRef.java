@@ -37,6 +37,10 @@ import java.time.Instant;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
+ * A milestone represents a stage in the product(ization) process. A single product version, for example "1.0", can be
+ * associated with several product milestones such as "1.0.0.build1", "1.0.0.build2", etc. A milestone represents the
+ * set of work (build records) that was performed during a development cycle from the previous milestone until the end
+ * of the current milestone.
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
@@ -45,10 +49,17 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonDeserialize(builder = ProductMilestoneRef.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductMilestoneRef implements DTOEntity {
+
+    /**
+     * ID of the product milestone.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * Milestone version.
+     */
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     @Pattern(
@@ -57,13 +68,23 @@ public class ProductMilestoneRef implements DTOEntity {
             message = "Version doesn't match the required pattern " + Patterns.PRODUCT_MILESTONE_VERSION)
     protected final String version;
 
+    /**
+     * The time when the work on the milestone ended. If the endDate is set, the milestone is closed and no new content
+     * can be added to it.
+     */
     @PatchSupport({ REPLACE })
     @Null(groups = WhenCreatingNew.class)
     protected final Instant endDate;
 
+    /**
+     * The scheduled starting date of this milestone.
+     */
     @PatchSupport({ REPLACE })
     protected final Instant startingDate;
 
+    /**
+     * The scheduled ending date of this milestone.
+     */
     @PatchSupport({ REPLACE })
     protected final Instant plannedEndDate;
 

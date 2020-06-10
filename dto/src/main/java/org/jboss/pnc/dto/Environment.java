@@ -34,6 +34,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * Build environment that builds are run in.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -43,24 +44,48 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Environment implements DTOEntity {
 
+    /**
+     * ID of the build environment.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     private final String id;
 
+    /**
+     * Environment name.
+     */
     private final String name;
 
+    /**
+     * Environment description.
+     */
     private final String description;
 
+    /**
+     * The URL of the repository which contains the build system image.
+     */
     private final String systemImageRepositoryUrl;
 
+    /**
+     * A unique identifier representing the system image, for example a Docker container ID or a checksum of a VM image.
+     */
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String systemImageId;
 
+    /**
+     * Map of environment attributes.
+     */
     private final Map<String, String> attributes;
 
+    /**
+     * Type of the build environment system image which will be used for the build.
+     */
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final SystemImageType systemImageType;
 
+    /**
+     * Is the environment deprecated and no longer to be used by new builds?
+     */
     private final boolean deprecated;
 
     @JsonPOJOBuilder(withPrefix = "")

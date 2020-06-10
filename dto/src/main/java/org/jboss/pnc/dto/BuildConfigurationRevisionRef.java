@@ -34,6 +34,8 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * This class is used to maintain an audit trail of modifications made to a Build Config. Each instance represents a
+ * specific revision of a build config.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -42,22 +44,46 @@ import lombok.Data;
 @JsonDeserialize(builder = BuildConfigurationRevisionRef.Builder.class)
 public class BuildConfigurationRevisionRef implements DTOEntity {
 
+    /**
+     * ID of the build config.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * Revision ID of the build config.
+     */
     protected final Integer rev;
 
+    /**
+     * Build config name.
+     */
     protected final String name;
 
+    /**
+     * Shell script to be executed.
+     */
     protected final String buildScript;
 
+    /**
+     * SCM revision to build.
+     */
     protected final String scmRevision;
 
+    /**
+     * The time when the build config was created.
+     */
     protected final Instant creationTime;
 
+    /**
+     * The time when the build config was last modified.
+     */
     protected final Instant modificationTime;
 
+    /**
+     * Build type of the build config. It defines pre-build operations and sets the proper repository.
+     */
     protected final BuildType buildType;
 
     @JsonPOJOBuilder(withPrefix = "")

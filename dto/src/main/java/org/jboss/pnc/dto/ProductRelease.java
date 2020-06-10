@@ -32,7 +32,9 @@ import org.jboss.pnc.processor.annotation.PatchSupport;
 import java.time.Instant;
 
 /**
- *
+ * Represents a released version of a product. For example, a Beta, GA, or SP release. Each release is associated with a
+ * single product milestone.
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @PatchSupport
@@ -43,9 +45,15 @@ import java.time.Instant;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProductRelease extends ProductReleaseRef {
 
+    /**
+     * Version of product this is release of.
+     */
     @RefHasId(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final ProductVersionRef productVersion;
 
+    /**
+     * Milestone that was released.
+     */
     private final ProductMilestoneRef productMilestone;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)

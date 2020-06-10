@@ -34,7 +34,8 @@ import javax.validation.constraints.Null;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
- *
+ * Configuration of the SCM repository.
+ * 
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @PatchSupport
@@ -44,18 +45,31 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SCMRepository implements DTOEntity {
 
+    /**
+     * ID of the SCM Repository.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * URL to the internal SCM repository, which is the main repository used for the builds. New commits can be added to
+     * this repository, during the pre-build steps of the build process.
+     */
     @NotBlank(groups = { WhenUpdating.class, WhenCreatingNew.class })
     @SCMUrl(groups = { WhenUpdating.class, WhenCreatingNew.class })
     protected final String internalUrl;
 
+    /**
+     * URL to the upstream SCM repository.
+     */
     @PatchSupport({ REPLACE })
     @SCMUrl(groups = { WhenUpdating.class, WhenCreatingNew.class })
     protected final String externalUrl;
 
+    /**
+     * Declares whether the pre-build repository synchronization from external repository should happen or not.
+     */
     @PatchSupport({ REPLACE })
     protected final Boolean preBuildSyncEnabled;
 

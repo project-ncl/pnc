@@ -36,6 +36,8 @@ import java.time.Instant;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
+ * A build config cointains the information needed to execute a build of a project, i.e. link to the sources, the build
+ * script, the build system image needed to run.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -45,10 +47,16 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildConfigurationRef implements DTOEntity {
 
+    /**
+     * ID of the build config.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * Build config name. It must be unique and can be made of alphanumeric characters with [_.-].
+     */
     @PatchSupport({ REPLACE })
     @NotNull(groups = WhenCreatingNew.class)
     @Pattern(
@@ -56,19 +64,37 @@ public class BuildConfigurationRef implements DTOEntity {
             groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String name;
 
+    /**
+     * Build config description.
+     */
     @PatchSupport({ REPLACE })
     protected final String description;
 
+    /**
+     * Shell script to be executed.
+     */
     @PatchSupport({ REPLACE })
     protected final String buildScript;
 
+    /**
+     * SCM revision to build.
+     */
     @PatchSupport({ REPLACE })
     protected final String scmRevision;
 
+    /**
+     * The time when the build config was created.
+     */
     protected final Instant creationTime;
 
+    /**
+     * The time when the build config was last modified.
+     */
     protected final Instant modificationTime;
 
+    /**
+     * Build type of the build config. It defines pre-build operations and sets the proper repository.
+     */
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final BuildType buildType;

@@ -31,7 +31,8 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
- *
+ * A PNC project is something that can be thought of as an upstream (or internal) scm repository (e.g. GitHub).
+ * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @PatchSupport
@@ -42,6 +43,9 @@ import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Project extends ProjectRef {
 
+    /**
+     * List of build configs in this project.
+     */
     @PatchSupport({ ADD, REPLACE })
     private final Map<String, BuildConfigurationRef> buildConfigs;
 

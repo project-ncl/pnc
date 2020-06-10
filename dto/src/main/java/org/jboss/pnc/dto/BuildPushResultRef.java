@@ -30,6 +30,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
 /**
+ * Result of a build push operation.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -39,26 +40,38 @@ import javax.validation.constraints.Null;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BuildPushResultRef implements DTOEntity {
 
+    /**
+     * ID of the operation result.
+     */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
     protected final String id;
 
+    /**
+     * ID of the build pushed.
+     */
     @NotNull
     protected final String buildId;
 
+    /**
+     * Status of the build push.
+     */
     @NotNull
     protected final BuildPushStatus status;
 
     /**
-     * build id assigned by brew
+     * Build id assigned by brew.
      */
     protected final Integer brewBuildId;
 
     /**
-     * link to brew
+     * Link to Brew.
      */
     protected final String brewBuildUrl;
 
+    /**
+     * Identificator of log context. Logs related to this operation will have this log context id set.
+     */
     protected final String logContext;
 
     /**

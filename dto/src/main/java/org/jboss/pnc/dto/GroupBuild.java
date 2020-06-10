@@ -29,6 +29,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
+ * Build of a group config.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -39,10 +40,19 @@ import lombok.ToString;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GroupBuild extends GroupBuildRef {
 
+    /**
+     * Group config that this is a build of.
+     */
     private final GroupConfigurationRef groupConfig;
 
+    /**
+     * User who started this group build.
+     */
     private final User user;
 
+    /**
+     * Product version this group build is part of.
+     */
     private final ProductVersionRef productVersion;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
