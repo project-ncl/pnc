@@ -20,7 +20,6 @@
 
   var module = angular.module('pnc.projects', [
     'ui.router',
-    'pnc.common.restclient',
     'pnc.common.directives',
     'pnc.common.authentication'
   ]);

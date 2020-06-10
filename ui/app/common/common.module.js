@@ -26,7 +26,6 @@
     'pnc.common.events',
     'pnc.common.notifications',
     'pnc.common.pnc-client',
-    'pnc.common.restclient',
     'pnc.common.select-modals',
     'pnc.common.util',
     'pnc.common.filters',
