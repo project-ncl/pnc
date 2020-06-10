@@ -101,7 +101,6 @@ public class ProductMilestoneEndpointTest {
         ProductMilestone productMilestone = ProductMilestone.builder()
                 .productVersion(productVersion)
                 .version("1.0.0.ER1")
-                .downloadUrl("https://example.com")
                 .startingDate(Instant.ofEpochMilli(100_000))
                 .plannedEndDate(Instant.ofEpochMilli(200_000))
                 .build();
@@ -136,7 +135,6 @@ public class ProductMilestoneEndpointTest {
         ProductMilestone closedMilestone = ProductMilestone.builder()
                 .productVersion(productVersion)
                 .version("1.0.0.ER2")
-                .downloadUrl("https://example.com")
                 .startingDate(Instant.ofEpochMilli(100_000))
                 .plannedEndDate(Instant.ofEpochMilli(200_000))
                 .endDate(Instant.ofEpochMilli(300_000))

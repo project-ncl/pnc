@@ -54,10 +54,8 @@ public class ProductMilestone extends ProductMilestoneRef {
             String version,
             Instant endDate,
             Instant startingDate,
-            Instant plannedEndDate,
-            String downloadUrl,
-            String issueTrackerUrl) {
-        super(id, version, endDate, startingDate, plannedEndDate, downloadUrl, issueTrackerUrl);
+            Instant plannedEndDate) {
+        super(id, version, endDate, startingDate, plannedEndDate);
         this.productVersion = productVersion;
         this.productRelease = productRelease;
     }

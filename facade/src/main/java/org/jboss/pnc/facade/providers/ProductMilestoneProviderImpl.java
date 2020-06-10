@@ -192,12 +192,6 @@ public class ProductMilestoneProviderImpl
             log.info("Milestone is already closed: no more modifications allowed");
             throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
         } else {
-            // save download url if specified
-            if (restEntity.getDownloadUrl() != null) {
-                milestoneInDb.setDownloadUrl(restEntity.getDownloadUrl());
-                repository.save(milestoneInDb);
-            }
-
             Optional<ProductMilestoneRelease> inProgress = releaseManager.getInProgress(milestoneInDb);
             if (inProgress.isPresent()) {
                 return milestoneReleaseMapper.toDTO(inProgress.get());

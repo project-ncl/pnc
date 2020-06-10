@@ -235,6 +235,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         // to BuildConfiguration, JPA will not allow the related entity to be saved unless
         // the Build Configuration contains both an ID and a non-null lastModificationTime
         lastModificationTime = Date.from(Instant.now());
+        active = Boolean.TRUE;
     }
 
     /**

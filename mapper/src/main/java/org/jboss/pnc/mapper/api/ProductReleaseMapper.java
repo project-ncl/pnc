@@ -33,6 +33,8 @@ import org.mapstruct.Mapping;
 public interface ProductReleaseMapper
         extends EntityMapper<Integer, ProductRelease, org.jboss.pnc.dto.ProductRelease, ProductReleaseRef> {
     @Override
+    @Mapping(target = "issueTrackerUrl", ignore = true)
+    @Mapping(target = "downloadUrl", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = { "productVersion" })
     ProductRelease toEntity(org.jboss.pnc.dto.ProductRelease dtoEntity);
 
@@ -52,10 +54,12 @@ public interface ProductReleaseMapper
             source = "productMilestone.productVersion",
             resultType = ProductVersionRef.class)
     @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
+    @BeanMapping(ignoreUnmappedSourceProperties = { "issueTrackerUrl", "downloadUrl" })
     org.jboss.pnc.dto.ProductRelease toDTO(ProductRelease dbEntity);
 
     @Override
-    @BeanMapping(ignoreUnmappedSourceProperties = { "productMilestone", "productVersion" })
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "productMilestone", "productVersion", "issueTrackerUrl", "downloadUrl" })
     ProductReleaseRef toRef(ProductRelease dbEntity);
 
     @Override
