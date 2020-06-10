@@ -40,29 +40,55 @@ public enum BuildStatus {
     /**
      * Build/GroupBuild has failed. The status is propagated through dependants as REJECTED_FAILED_DEPENDENCIES.
      *
-     * A GroupBuild is reported FAILED with is at least one underlying Build with the final status of (FAILED, REJECTED,
+     * A GroupBuild is reported FAILED when at least one underlying Build has the final status of (FAILED, REJECTED,
      * SYSTEM_ERROR)
      */
     FAILED(FINISHED, false),
 
     /**
-     * A Build has been requested (possibly via dependencies) but no actual build happened as it was not required (no
-     * updates to underlying BuildConfig and Configs of dependencies (depends in IMPLICIT/EXPLICIT dependency check)).
+     * A Build has been requested (possibly via dependants) but no actual build happened as it was not required.
      * 
-     * A GroupBuild is deemed unnecessary to be built if all the underlying Builds do not require rebuild.
+     * For a previously successful Build, a rebuild is required when (conditions depend on a type of check):
+     *
+     * **Explicit**
+     *
+     * 1. The BuildConfig has been modified since the last successful Build
+     * 
+     * 2. A BuildConfig, explicitly defined as a dependency of this one, has been modified since the last successful
+     * Build
+     * 
+     * 3. There exists a newer, successful Build of a BuildConfig explicitly defined as a dependency of this one.
+     *
+     *
+     * **Implicit**
+     *
+     * 1. Explicit criteria plus:
+     * 
+     * 2. There exists a newer version of an implicit dependency which can be: A Build which produced artifacts that
+     * were used for alignment during build process or automatically captured from sources such as Indy, MRRC or Maven
+     * Central
+     *
+     *
+     * **Force**
+     * 
+     * 1. Always
+     * 
+     * A GroupBuild is deemed unnecessary to be built if all the included Builds do not require rebuild.
+     *
+     *
      */
     NO_REBUILD_REQUIRED(FINISHED, true),
 
     /**
-     * Build satisfies all necessary requirements to start building process. Build is placed into a queue and waits for a free
-     * BuildCoordinator thread to be picked up.
+     * A Build satisfies all necessary requirements to start building process. Build is placed into a queue and waits
+     * for a free BuildCoordinator thread to be picked up.
      *
      * With lower number of concurrent Builds, the Build is more likely to wait for available thread.
      */
     ENQUEUED(PENDING),
 
     /**
-     * A Build has unfinished dependencies, therefore cannot start building.
+     * A Build has unfinished dependencies, therefore waits so it can start building.
      */
     WAITING_FOR_DEPENDENCIES(PENDING),
 
