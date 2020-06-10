@@ -103,10 +103,12 @@ module.exports = function (grunt) {
       cfg = grunt.file.readJSON(cfgPath);
     } else {
       cfg = {
-        'pncUrl': getOpt('pnc-url', 'PNC_UI_PNC_URL', 'http://localhost:9000/pnc-rest/rest'),
-        'pncRestUrl': getOpt('pnc-rest-url', 'PNC_UI_PNC_REST_URL', 'http://localhost:9000/pnc-rest-new/rest-new'),
+        'legacyExternalPncUrl': getOpt('pnc-url', 'PNC_UI_PNC_URL', 'http://localhost:9000/pnc-rest/rest'),
+        'externalPncUrl': getOpt('pnc-rest-url', 'PNC_UI_PNC_REST_URL', 'http://localhost:9000/pnc-rest-new/rest-new'),
+        'externalDaUrl': getOpt('da-url', 'PNC_UI_DA_URL'),
+        'externalBifrostUrl': getOpt('bifrost-url', 'PNC_UI_BIFROST_URL'),
+        'externalKafkaStoreUrl': getOpt('kafka-store-url', 'PNC_UI_KAFKA_STORE_URL'),
         'pncNotificationsUrl': getOpt('pnc-notifications-url', 'PNC_UI_PNC_NOTIFICATIONS_URL', 'ws://localhost:9000/pnc-rest/ws/build-records/notifications'),
-        'daUrl': getOpt('da-url', 'PNC_UI_DA_URL'),
         'userGuideUrl': getOpt('user-guide-url', 'PNC_UI_USER_GUIDE_URL'),
         'keycloak':
         {
@@ -119,9 +121,7 @@ module.exports = function (grunt) {
         {
           'trafficLightsUrl': getOpt('grafana-traffic-lights-url', 'PNC_UI_GRAFANA_TRAFFIC_LIGHTS_URL'),
           'statusMapUrl': getOpt('grafana-status-map-url', 'PNC_UI_GRAFANA_STATUS_MAP_URL')
-        },
-        'bifrostUrl': getOpt('bifrost-url', 'PNC_UI_BIFROST_URL'),
-        'kafkaStoreUrl': getOpt('kafka-store-url', 'PNC_UI_KAFKA_STORE_URL')
+        }
       };
     }
 
