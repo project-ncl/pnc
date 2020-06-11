@@ -48,7 +48,6 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -66,7 +65,6 @@ import org.jboss.pnc.enums.ArtifactQuality;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
-@Audited
 @Table(
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_artifact_name",
@@ -94,29 +92,25 @@ public class Artifact implements GenericEntity<Integer> {
      * is the GATVC (groupId:artifactId:type:version[:qualifier] The format of the identifier string is determined by
      * the repoType
      */
-    @NotAudited
     @NotNull
     @Size(max = 1024)
     private String identifier;
 
-    @NotAudited
     @NotNull
     @Size(max = 32)
     private String md5;
 
-    @NotAudited
     @NotNull
     @Size(max = 40)
     private String sha1;
 
-    @NotAudited
     @NotNull
     @Size(max = 64)
     private String sha256;
 
-    @NotAudited
     private Long size;
 
+    @Audited
     @NotNull
     @Enumerated(EnumType.STRING)
     private ArtifactQuality artifactQuality;
@@ -125,20 +119,17 @@ public class Artifact implements GenericEntity<Integer> {
      * The type of repository which hosts this artifact (Maven, NPM, etc). This field determines the format of the
      * identifier string.
      */
-    @NotAudited
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_targetRepository"))
     @NotNull
     @ManyToOne(cascade = CascadeType.REFRESH)
     private TargetRepository targetRepository;
 
-    @NotAudited
     @Size(max = 255)
     private String filename;
 
     /**
      * Path to repository where the artifact file is available.
      */
-    @NotAudited
     @Size(max = 500)
     @Column(length = 500)
     private String deployPath;
@@ -146,7 +137,6 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The record of the build which produced this artifact.
      */
-    @NotAudited
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_buildrecord"))
     private BuildRecord buildRecord;
@@ -155,7 +145,6 @@ public class Artifact implements GenericEntity<Integer> {
      * The list of builds which depend on this artifact. For example, if the build downloaded this artifact as a Maven
      * dependency.
      */
-    @NotAudited
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildRecord> dependantBuildRecords;
@@ -163,7 +152,6 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The location from which this artifact was originally downloaded for import
      */
-    @NotAudited
     @Size(max = 500)
     @Column(unique = false, length = 500)
     private String originUrl;
@@ -171,13 +159,11 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The date when this artifact was originally imported
      */
-    @NotAudited
     private Date importDate;
 
     /**
      * The product milestone releases which distribute this artifact
      */
-    @NotAudited
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "distributedArtifacts")
     private Set<ProductMilestone> distributedInProductMilestones;
@@ -185,8 +171,6 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * User who created the artifact (either triggering the build or e.g. creating via Deliverable Analyzer)
      */
-    @NotAudited
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_creation_user"), updatable = false)
     private User creationUser;
@@ -194,22 +178,22 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * User who last changed any audited field related to the Quality labels
      */
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_modification_user"), updatable = true)
     private User modificationUser;
 
-    @NotAudited
     @Column(columnDefinition = "timestamp with time zone", updatable = false)
     private Date creationTime;
 
+    @Audited
     @Column(columnDefinition = "timestamp with time zone")
     private Date modificationTime;
 
     /**
      * Reason for the setting of the Quality level
      */
+    @Audited
     @Size(max = 200)
     @Column(length = 200)
     private String qualityLevelReason;
