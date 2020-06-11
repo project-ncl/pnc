@@ -26,24 +26,24 @@ import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
  * Parameters for filtering build lists.
- * 
+ *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
 public class BuildsFilterParameters {
 
     /**
-     * {@value SwaggerConstants#LATEST_MILESTONE_CLOSE_DESC}
+     * {@value SwaggerConstants#LATEST_BUILD_DESC}
      */
-    @Parameter(description = SwaggerConstants.LATEST_MILESTONE_CLOSE_DESC)
+    @Parameter(description = SwaggerConstants.LATEST_BUILD_DESC)
     @QueryParam("latest")
     @DefaultValue("false")
     private boolean latest;
 
     /**
-     * {@value SwaggerConstants#RUNNING_MILESTONE_CLOSE_DESC}
+     * {@value SwaggerConstants#RUNNING_BUILDS_DESC}
      */
-    @Parameter(description = SwaggerConstants.RUNNING_MILESTONE_CLOSE_DESC)
+    @Parameter(description = SwaggerConstants.RUNNING_BUILDS_DESC)
     @QueryParam("running")
     @DefaultValue("false")
     private boolean running;

@@ -28,16 +28,16 @@ import org.jboss.pnc.rest.configuration.SwaggerConstants;
 public class ProductMilestoneCloseParameters {
 
     /**
-     * {@value SwaggerConstants#LATEST_BUILD_DESC}
+     * {@value SwaggerConstants#LATEST_MILESTONE_CLOSE_DESC}
      */
-    @Parameter(description = SwaggerConstants.LATEST_BUILD_DESC)
+    @Parameter(description = SwaggerConstants.LATEST_MILESTONE_CLOSE_DESC)
     @QueryParam("latest")
     @DefaultValue("false")
     private boolean latest;
     /**
-     * {@value SwaggerConstants#RUNNING_BUILDS_DESC}
+     * {@value SwaggerConstants#RUNNING_MILESTONE_CLOSE_DESC}
      */
-    @Parameter(description = SwaggerConstants.RUNNING_BUILDS_DESC)
+    @Parameter(description = SwaggerConstants.RUNNING_MILESTONE_CLOSE_DESC)
     @QueryParam("running")
     @DefaultValue("false")
     private boolean running;
