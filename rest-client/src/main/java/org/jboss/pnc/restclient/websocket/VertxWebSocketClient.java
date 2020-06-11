@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.WebSocket;
+import io.vertx.core.impl.ConcurrentHashSet;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
@@ -38,6 +39,7 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -56,9 +58,10 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     private WebSocket webSocketConnection;
 
-    private Set<Dispatcher> dispatchers = new HashSet<>();
+    // use concurrent version since we may modify that list concurrently
+    private Set<Dispatcher> dispatchers = ConcurrentHashMap.newKeySet();
 
-    private Set<CompletableFuture<Notification>> singleNotificationFutures = new HashSet<>();
+    private Set<CompletableFuture<Notification>> singleNotificationFutures = ConcurrentHashMap.newKeySet();
 
     /**
      * number of attempted retries before client throws an exception
