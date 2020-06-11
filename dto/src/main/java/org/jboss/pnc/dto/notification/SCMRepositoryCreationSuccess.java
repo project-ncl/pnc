@@ -46,7 +46,7 @@ import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 @Data
 public class SCMRepositoryCreationSuccess extends Notification {
 
-    private static final String BC_CREATION_SUCCESS = "SCMR_CREATION_SUCCESS";
+    public static final String BC_CREATION_SUCCESS = "SCMR_CREATION_SUCCESS";
 
     /**
      * The created SCM Repository.
