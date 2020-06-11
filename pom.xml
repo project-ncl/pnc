@@ -443,7 +443,7 @@
       <dependency>
         <groupId>org.jboss.pnc.metrics</groupId>
         <artifactId>pncmetrics</artifactId>
-        <version>1.1.10-SNAPSHOT</version>
+        <version>1.1.3</version>
         <exclusions>
           <exclusion>
             <groupId>org.jboss.spec.javax.ejb</groupId>
@@ -1734,8 +1734,19 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
-
   </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>mrrc-ga-plugins</id>
+      <name>Redhat GA</name>
+      <layout>default</layout>
+      <url>https://maven.repository.redhat.com/ga/</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
 
   <profiles>
     <profile>
