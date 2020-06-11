@@ -22,9 +22,9 @@
   angular.module('pnc.common.select-modals').controller('BuildGroupMultiSelectController', [
     '$log',
     'modalConfig',
-    'BuildConfigurationSet',
+    'GroupConfigResource',
     'rsqlQuery',
-    function ($log, modalConfig, BuildConfigurationSet, rsqlQuery) {
+    function ($log, modalConfig, GroupConfigResource, rsqlQuery) {
       var ctrl = this;
 
       console.log('modalConfig == %O', modalConfig);
@@ -92,11 +92,8 @@
                 rsqlQuery().where('productVersion').isNull().or().where('id').in(inIds).end()
             ).end();
 
-        return BuildConfigurationSet.query( {
-            q: q
-        }).$promise.then(function (page) {
-          return page.data;
-        });
+        
+        return GroupConfigResource.query({ q: q }).$promise.then(page => page.data);
       };
 
       ctrl.config = {
