@@ -17,25 +17,6 @@
  */
 package org.jboss.pnc.model;
 
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.COLLECTION_STATS_PREFIX;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.ENTITY_STATS_PREFIX;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.REGION_STATS_PREFIX;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.getGenericStats;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheCollectionsStats;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheEntitiesStats;
-import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheRegionsStats;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-
-import javax.persistence.EntityManager;
-
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.SessionStatistics;
@@ -46,6 +27,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.persistence.EntityManager;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.COLLECTION_STATS_PREFIX;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.ENTITY_STATS_PREFIX;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.REGION_STATS_PREFIX;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.getGenericStats;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheCollectionsStats;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheEntitiesStats;
+import static org.jboss.pnc.model.utils.HibernateStatsUtils.getSecondLevelCacheRegionsStats;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CacheHandlerTest extends AbstractModelTest {
 
@@ -100,7 +99,7 @@ public class CacheHandlerTest extends AbstractModelTest {
         logger.debug("All entities stats: {}", entitiesStatMap);
 
         String[] mappedEntities = { ENTITY_STATS_PREFIX + "org.hibernate.envers.DefaultRevisionEntity",
-                ENTITY_STATS_PREFIX + "org.jboss.pnc.model.Artifact",
+                // ENTITY_STATS_PREFIX + "org.jboss.pnc.model.Artifact",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigSetRecord",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigurationSet",
@@ -137,7 +136,8 @@ public class CacheHandlerTest extends AbstractModelTest {
                 statistics);
         logger.debug("All second level cache stats: {}", secondLevelCacheStatMap);
 
-        String[] mappedEntities = { REGION_STATS_PREFIX + "org.jboss.pnc.model.Artifact",
+        String[] mappedEntities = {
+                // REGION_STATS_PREFIX + "org.jboss.pnc.model.Artifact",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigSetRecord",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigurationSet",
@@ -178,24 +178,24 @@ public class CacheHandlerTest extends AbstractModelTest {
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigSetRecord.buildRecords",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.ProductVersion.buildConfigurations",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildRecord.attributes",
-                COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.TargetRepository.artifacts",
+                // COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.TargetRepository.artifacts",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration.genericParameters",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.ProductMilestone.performedBuilds",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration.dependants",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildRecord.dependencies",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.RepositoryConfiguration.buildConfigurations",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration.dependencies",
-                COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.Artifact.distributedInProductMilestones",
+                // COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.Artifact.distributedInProductMilestones",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.ProductVersion.attributes",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.User.buildRecords",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildEnvironment.attributes",
-                COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildRecord.builtArtifacts",
+                // COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildRecord.builtArtifacts",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigSetRecord.attributes",
-                COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.ProductMilestone.distributedArtifacts",
+                // COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.ProductMilestone.distributedArtifacts",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.Project.buildConfigurations",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.ProductVersion.buildConfigurationSets",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildRecord.buildRecordPushResults",
-                COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.Artifact.dependantBuildRecords",
+                // COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.Artifact.dependantBuildRecords",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.Product.productVersions",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.ProductVersion.productMilestones",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration.buildConfigurationSets",
