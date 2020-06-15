@@ -17,12 +17,11 @@
  */
 package org.jboss.pnc.model;
 
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
+import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.enums.ArtifactQuality;
 
-import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -44,13 +43,10 @@ import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
-import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.enums.ArtifactQuality;
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -62,8 +58,6 @@ import org.jboss.pnc.enums.ArtifactQuality;
  * the format for the identifier field.
  *
  */
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
         uniqueConstraints = @UniqueConstraint(
@@ -145,7 +139,6 @@ public class Artifact implements GenericEntity<Integer> {
      * The list of builds which depend on this artifact. For example, if the build downloaded this artifact as a Maven
      * dependency.
      */
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildRecord> dependantBuildRecords;
 
@@ -164,7 +157,6 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The product milestone releases which distribute this artifact
      */
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "distributedArtifacts")
     private Set<ProductMilestone> distributedInProductMilestones;
 
