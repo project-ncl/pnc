@@ -2,6 +2,18 @@
   "@class":"ModuleConfigJson","name":"pnc-config",
   "configs":[
     {
+      "@module-group": "global",
+      "bpmUrl": "http://bpmHost/",
+      "daUrl": "http://daHost/",
+      "indyUrl": "http://indyHost/",
+      "pncUrl": "http://pncHost/",
+      "repourUrl": "http://repourHost/",
+
+      "externalDaUrl": "",
+      "externalIndyUrl": "http://localhost/indy-external/",
+      "externalPncUrl": ""
+    },
+    {
       "@module-group":"pnc",
       "configs": [
         {
@@ -27,10 +39,66 @@
           ]
         },
         {
-          "@module-config": "indy-repo-driver",
-          "baseUrl": "${env.PNC_APROX_URL}",
-          "internalRepositoryMvnPath": "http://localhost/indy-internal/",
-          "externalRepositoryMvnPath": "http://localhost/indy-external/"
+          "@module-config": "indy-repo-driver"
+        },
+        {
+          "@module-config": "alignment-config",
+          "alignmentParameters" : {
+            "MVN" : "-DversionIncrementalSuffix=redhat -DallowConfigFilePrecedence=true -DrepoReportingRemoval=true -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip=",
+            "NPM" : "-DversionIncrementalSuffix=redhat -DversionIncrementalSuffixPadding=5 -DrepositoryGroup=DA",
+            "GRADLE": "--no-colour -l=/usr/share/gradle-5.5.1 -d --stacktrace generateAlignmentMetadata -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true --info -DdependencySource=REST"
+          }
+        },
+        {
+          "@module-config": "termd-build-driver",
+          "internalCancelTimeoutMillis": "3000"
+        },
+        {
+          "@module-config": "openshift-environment-driver",
+          "proxyServer": "${env.PNC_DOCKER_PROXY_SERVER}",
+          "proxyPort": "${env.PNC_DOCKER_PROXY_PORT}",
+          "firewallAllowedDestinations": "${env.PNC_FIREWALL_ALLOWED_DESTINATIONS}",
+          "allowedHttpOutgoingDestinations": [],
+          "restEndpointUrl": "${env.PNC_REST_ENDPOINT_URL}",
+          "restAuthToken": "${env.PNC_REST_AUTH_TOKEN}",
+          "buildAgentHost": "${env.PNC_BUILD_AGENT_HOST}",
+          "buildAgentBindPath": "${env.PNC_BUILD_AGENT_BIND_PATH}",
+          "podNamespace": "${env.PNC_POD_NAMESPACE}",
+          "containerPort": "${env.PNC_CONTAINER_PORT}",
+          "imageId": "${env.PNC_BUILDER_IMAGE_ID}",
+          "disabled": "false",
+          "keepBuildAgentInstance": true,
+          "exposeBuildAgentOnPublicUrl": false
+        },
+        {
+          "@module-config": "authentication-config",
+          "username": "${env.PNC_EXT_OAUTH_USERNAME}",
+          "password": "${env.PNC_EXT_OAUTH_PASSWORD}",
+          "baseAuthUrl": "${env.PNC_EXT_REST_BASE_URL}"
+        },
+        {
+          "@module-config": "bpm-config",
+          "username": "${env.PNC_BPM_USERNAME}",
+          "password": "${env.PNC_BPM_PASSWORD}",
+          "deploymentId": "${env.BPM_DEPLOYMENT_ID}",
+          "bcCreationProcessId": "${env.BPM_BC_CREATION_PROCESS_ID}",
+          "componentBuildProcessId": "${env.BPM_COMPONENT_BUILD_PROCESS_ID}",
+          "httpConnectionRequestTimeout": "${env.HTTP_CONNECTION_REQUEST_TIMEOUT}"
+        },
+        {
+          "@module-config": "ui",
+          "pncNotificationsUrl": "${env.PNC_UI_PNC_NOTIFICATIONS_URL}",
+          "ssoTokenLifespan": "${env.SSO_TOKEN_FILESPAN}",
+          "keycloak":
+          {
+            "url": "${env.PNC_UI_KEYCLOAK_URL}",
+            "realm": "${env.PNC_UI_KEYCLOAK_REALM}",
+            "clientId": "${env.PNC_UI_KEYCLOAK_CLIENT_ID}"
+          }
+        },
+        {
+          "@module-config": "scm-config",
+          "internalScmAuthority": "git@github.com:22"
         }
       ]
     }
