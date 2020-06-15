@@ -53,12 +53,12 @@
         <pf-list-view class="list-group list-view-pf list-view-pf-view cursor-pointer"
                           id="build-group-list"
                           config="ctrl.config"
-                          items="ctrl.selectedProduct.productVersionRefs"
+                          items="ctrl.selectedProduct._productVersions"
                           action-buttons="ctrl.actionButtons"
-                          ng-if="ctrl.selectedProduct.productVersionRefs">
+                          ng-if="ctrl.selectedProduct._productVersions">
             <div class="list-view-pf-description">
               <div class="list-group-item-heading">
-                {{ item.productName }}: {{ item.version }}
+                {{ item._productName }}: {{ item.version }}
             </div>
           </div>
         </pf-list-view>
