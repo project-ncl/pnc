@@ -19,6 +19,8 @@ package org.jboss.pnc.messaging;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.common.concurrent.MDCThreadPoolExecutor;
+import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -55,7 +57,9 @@ public class UnreliableMessageSenderTest extends BaseMessageSenderTest {
                 .addClass(SystemConfig.class)
                 .addClass(AbstractModuleConfig.class)
                 .addClass(KeycloakClientConfig.class)
-                .addClass(SysConfigProducer.class);
+                .addClass(SysConfigProducer.class)
+                .addClass(MDCThreadPoolExecutor.class)
+                .addClass(MDCWrappers.class);
     }
 
     @Inject
