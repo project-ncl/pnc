@@ -22,10 +22,9 @@
   angular.module('pnc.common.select-modals').controller('ProductVersionSingleSelectController', [
     '$log',
     'modalConfig',
-    'Product',
-    'ProductVersion',
+    'ProductResource',
     'rsqlQuery',
-    function ($log, modalConfig, Product, ProductVersion, rsqlQuery) {
+    function ($log, modalConfig, ProductResource, rsqlQuery) {
       var ctrl = this;
 
       ctrl.title = modalConfig.title;
@@ -41,7 +40,13 @@
 
       ctrl.onSelectProduct = function ($item) {
         ctrl.selectedProduct = $item;
+
+        // convert to plain array and add product name property
+        ctrl.selectedProduct._productVersions = Object.values(ctrl.selectedProduct.productVersions);
+        ctrl.selectedProduct._productVersions.forEach(item => { item._productName = ctrl.selectedProduct.name; });
+        
         ctrl.input = undefined;
+        console.log('selected product: %O', $item);
       };
 
       ctrl.onSelectVersion = function ($item) {
@@ -50,11 +55,9 @@
       };
 
       ctrl.fetchProducts = function ($viewValue) {
-        return Product.query({
-            q: rsqlQuery().where('name').like($viewValue + '%').end()
-        }).$promise.then(function (page) {
-          return page.data;
-        });
+        return ProductResource.query({
+          q: rsqlQuery().where('name').like($viewValue + '%').end()
+        }).$promise.then(page => page.data);
       };
 
 
@@ -66,7 +69,7 @@
        selectedItems: [],
       //  checkDisabled: checkDisabledItem,
        showSelectBox: false,
-      onSelect: ctrl.onSelectVersion,
+       onSelect: ctrl.onSelectVersion,
       //  onSelectionChange: handleSelectionChange,
       //  onCheckBoxChange: handleCheckBoxChange,
       //  onClick: handleClick,
