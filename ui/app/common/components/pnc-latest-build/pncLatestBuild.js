@@ -61,7 +61,7 @@
           setLatestBuild(_.isArray(data.content) ? data.content[0] : null);
         });
       } else {
-        console.error('pncLatestBuild: no configs available')
+        console.error('pncLatestBuild: no configs available');
       }
       resultPromise.finally(function() {
         $ctrl.isLoaded = true;
