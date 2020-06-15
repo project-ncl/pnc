@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.messaging;
 
+import org.jboss.pnc.common.concurrent.MDCThreadPoolExecutor;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
@@ -33,7 +34,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionHandler;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -76,7 +76,7 @@ public class UnreliableMessageSender extends DefaultMessageSender implements Mes
         RejectedExecutionHandler handler = (r, executor) -> {
             logUnsent(r);
         };
-        executor = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, workQueue, handler);
+        executor = new MDCThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, workQueue, handler);
 
         executor.execute(() -> {
             super.init();
