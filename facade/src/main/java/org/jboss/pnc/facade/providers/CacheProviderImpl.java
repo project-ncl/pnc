@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.SortedMap;
 
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
