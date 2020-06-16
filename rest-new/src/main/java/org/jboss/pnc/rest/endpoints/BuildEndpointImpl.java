@@ -76,7 +76,8 @@ public class BuildEndpointImpl implements BuildEndpoint {
                 page.getSort(),
                 page.getQ(),
                 builds.isLatest(),
-                builds.isRunning());
+                builds.isRunning(),
+                builds.getBuildConfigName());
     }
 
     @Inject

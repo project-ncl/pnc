@@ -326,7 +326,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
 
     @Override
     public Page<Build> getAll(int pageIndex, int pageSize, String sort, String query) {
-        BuildPageInfo pageInfo = new BuildPageInfo(pageIndex, pageSize, sort, query, false, false);
+        BuildPageInfo pageInfo = new BuildPageInfo(pageIndex, pageSize, sort, query, false, false, "");
         return getBuilds(pageInfo);
     }
 
@@ -741,6 +741,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
             BuildPageInfo pageInfo,
             java.util.function.Predicate<BuildTask> predicate,
             Predicate<BuildRecord> dbPredicate) {
+
         if (pageInfo.isRunning()) {
             if (pageInfo.isLatest()) {
                 return getLatestRunningBuild(predicate);
@@ -812,7 +813,10 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
         int lastPossibleDBIndex = (pageInfo.getPageIndex() + 1) * pageInfo.getPageSize() - 1;
         int toSkip = min(runningBuilds.size(), pageInfo.getPageIndex() * pageInfo.getPageSize());
 
-        Predicate<BuildRecord>[] predicates = preparePredicates(dbPredicate, pageInfo.getQ());
+        Predicate<BuildRecord>[] predicates = preparePredicates(
+                dbPredicate,
+                pageInfo.getQ(),
+                pageInfo.getBuildConfigName());
         Comparator<Build> comparing = Comparator.comparing(Build::getSubmitTime).reversed();
         if (!StringUtils.isEmpty(pageInfo.getSort())) {
             comparing = rsqlPredicateProducer.getComparator(pageInfo.getSort());
@@ -844,16 +848,34 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
                 resultList);
     }
 
-    private Predicate<BuildRecord>[] preparePredicates(Predicate<BuildRecord> dbPredicate, String query) {
-        Predicate<BuildRecord>[] predicates;
-        if (StringUtils.isEmpty(query)) {
-            predicates = new Predicate[1];
-        } else {
-            predicates = new Predicate[2];
-            predicates[1] = rsqlPredicateProducer.getCriteriaPredicate(BuildRecord.class, query);
+    private Predicate<BuildRecord>[] preparePredicates(
+            Predicate<BuildRecord> dbPredicate,
+            String query,
+            String buildConfigName) {
+        List<Predicate<BuildRecord>> predicates = new ArrayList<>(3);
+
+        predicates.add(dbPredicate);
+
+        if (!StringUtils.isEmpty(query)) {
+            predicates.add(rsqlPredicateProducer.getCriteriaPredicate(BuildRecord.class, query));
         }
-        predicates[0] = dbPredicate;
-        return predicates;
+
+        if (!StringUtils.isEmpty(buildConfigName)) {
+            predicates.add(getPredicateWithBuildConfigName(buildConfigName));
+        }
+
+        return predicates.toArray(new Predicate[0]);
+    }
+
+    private Predicate<BuildRecord> getPredicateWithBuildConfigName(String buildConfigName) {
+        List<IdRev> buildConfigurationAuditedIdRevs = buildConfigurationAuditedRepository
+                .searchIdRevForBuildConfigurationName(buildConfigName);
+
+        if (!buildConfigurationAuditedIdRevs.isEmpty()) {
+            return BuildRecordPredicates.withBuildConfigurationIdRev(buildConfigurationAuditedIdRevs);
+        } else {
+            return Predicate.nonMatching();
+        }
     }
 
     private List<Build> readRunningBuilds(BuildPageInfo pageInfo, java.util.function.Predicate<BuildTask> predicate) {
@@ -865,6 +887,12 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
         if (!StringUtils.isEmpty(pageInfo.getSort())) {
             comparing = rsqlPredicateProducer.getComparator(pageInfo.getSort());
         }
+
+        if (!StringUtils.isEmpty(pageInfo.getBuildConfigName())) {
+            predicate = predicate
+                    .and(t -> pageInfo.getBuildConfigName().equals(t.getBuildConfigurationAudited().getName()));
+        }
+
         return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(t -> t != null)
                 .filter(predicate)
                 .map(buildMapper::fromBuildTask)

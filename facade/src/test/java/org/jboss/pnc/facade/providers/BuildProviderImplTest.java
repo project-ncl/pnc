@@ -26,12 +26,15 @@ import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.Result;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
@@ -57,9 +60,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -101,6 +106,9 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
 
     @Mock
     private SortInfoProducer sortInfoProducer;
+
+    @Mock
+    private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Mock
     private UserService userService;
@@ -150,9 +158,18 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
     }
 
     private BuildTask mockBuildTask() {
+        return mockBuildTask(UUID.randomUUID().toString());
+    }
+
+    private BuildTask mockBuildTask(String buildConfigName) {
+        BuildConfigurationAudited bca = mock(BuildConfigurationAudited.class);
+        when(bca.getName()).thenReturn(buildConfigName);
+
         BuildTask bt = mock(BuildTask.class);
         when(bt.getId()).thenReturn(getNextId());
         when(bt.getSubmitTime()).thenReturn(new Date());
+        when(bt.getBuildConfigurationAudited()).thenReturn(bca);
+
         try {
             Thread.sleep(1L); // make sure there are no two builds with the same start date
         } catch (InterruptedException e) {
@@ -163,7 +180,26 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
     }
 
     private BuildRecord mockBuildRecord() {
-        BuildRecord br = BuildRecord.Builder.newBuilder().id(getNextId()).submitTime(new Date()).build();
+        return mockBuildRecord(UUID.randomUUID().toString());
+    }
+
+    private BuildRecord mockBuildRecord(String buildConfigName) {
+        int id = getNextId();
+        BuildRecord br = BuildRecord.Builder.newBuilder()
+                .id(id)
+                .submitTime(new Date())
+                .buildConfigurationAudited(
+                        BuildConfigurationAudited.Builder.newBuilder()
+                                .rev(id)
+                                .buildConfiguration(
+                                        BuildConfiguration.Builder.newBuilder()
+                                                .id(123456)
+                                                .name(buildConfigName)
+                                                .build())
+                                .build())
+                .buildConfigurationAuditedId(123456)
+                .buildConfigurationAuditedRev(id)
+                .build();
         try {
             Thread.sleep(1L); // make sure there are no two builds with the same start date
         } catch (InterruptedException e) {
@@ -183,7 +219,7 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
         mockBuildRecord();
 
         // When
-        BuildPageInfo pageInfo = new BuildPageInfo(0, 10, "", "", true, true);
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 10, "", "", true, true, "");
         Page<Build> builds = provider.getBuilds(pageInfo);
 
         // Verify
@@ -202,7 +238,7 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
         logger.debug("Task id: {}", latestBuild.getId());
 
         // When
-        BuildPageInfo pageInfo = new BuildPageInfo(0, 10, "", "", true, false);
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 10, "", "", true, false, "");
         Page<Build> builds = provider.getBuilds(pageInfo);
 
         // Verify
@@ -223,7 +259,7 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
         BuildTask build1 = mockBuildTask(); // hit
 
         // When
-        BuildPageInfo pageInfo = new BuildPageInfo(0, 2, "", "", false, true);
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 2, "", "", false, true, "");
         Page<Build> builds = provider.getBuilds(pageInfo);
 
         // Verify
@@ -232,6 +268,47 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
         Iterator<Build> it = builds.getContent().iterator();
         assertEquals(BuildMapper.idMapper.toDto(build1.getId()), it.next().getId());
         assertEquals(BuildMapper.idMapper.toDto(build2.getId()), it.next().getId());
+    }
+
+    @Test
+    public void testFilterRunningBuildsByBuildConfigName() {
+        // Given
+        mockBuildRecord();
+        mockBuildTask();
+
+        String givenBcName = "bcName";
+        BuildTask givenBT = mockBuildTask(givenBcName);
+
+        // When
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 2, "", "", false, true, givenBcName);
+        Page<Build> builds = provider.getBuilds(pageInfo);
+
+        // Then
+        assertEquals(1, builds.getTotalHits());
+        Iterator<Build> it = builds.getContent().iterator();
+        assertEquals(BuildMapper.idMapper.toDto(givenBT.getId()), it.next().getId());
+    }
+
+    @Test
+    public void testFilterFinishedBuildsByBuildConfigName() {
+        // Given
+        String givenBcName = "bcName";
+
+        mockBuildTask();
+        mockBuildTask();
+        BuildRecord givenBuild = mockBuildRecord(givenBcName);
+
+        when(buildConfigurationAuditedRepository.searchIdRevForBuildConfigurationName(givenBcName))
+                .thenReturn(Stream.of(givenBuild.getBuildConfigurationAuditedIdRev()).collect(Collectors.toList()));
+
+        // When
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 10, "", "", false, false, givenBcName);
+        Page<Build> builds = provider.getBuilds(pageInfo);
+
+        // Then
+        assertEquals(1, builds.getTotalHits());
+        Iterator<Build> it = builds.getContent().iterator();
+        assertEquals(BuildMapper.idMapper.toDto(givenBuild.getId()), it.next().getId());
     }
 
     @Test
@@ -247,7 +324,7 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
         BuildTask build1 = mockBuildTask(); // hit
 
         // When
-        BuildPageInfo pageInfo = new BuildPageInfo(0, 2, "", "", false, false);
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 2, "", "", false, false, "");
         Page<Build> builds = provider.getBuilds(pageInfo);
 
         // Verify
@@ -282,7 +359,7 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
     }
 
     private void testPage(int idx, int size, Integer... ids) {
-        BuildPageInfo pageInfo = new BuildPageInfo(idx, size, "", "", false, false);
+        BuildPageInfo pageInfo = new BuildPageInfo(idx, size, "", "", false, false, "");
         Page<Build> builds = provider.getBuilds(pageInfo);
 
         Iterator<Build> it = builds.getContent().iterator();

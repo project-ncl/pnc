@@ -28,6 +28,7 @@ import org.jboss.pnc.rest.configuration.SwaggerConstants;
  * Parameters for filtering build lists.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @Data
 public class BuildsFilterParameters {
@@ -47,4 +48,12 @@ public class BuildsFilterParameters {
     @QueryParam("running")
     @DefaultValue("false")
     private boolean running;
+
+    /**
+     * {@value SwaggerConstants#BC_NAME_FILTER_DESC}
+     */
+    @Parameter(description = SwaggerConstants.BC_NAME_FILTER_DESC)
+    @QueryParam("buildConfigName")
+    @DefaultValue("")
+    private String buildConfigName;
 }

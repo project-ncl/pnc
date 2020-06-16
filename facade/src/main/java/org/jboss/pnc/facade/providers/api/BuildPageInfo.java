@@ -32,5 +32,6 @@ public class BuildPageInfo {
     private final String q;
     private final boolean latest;
     private final boolean running;
+    private final String buildConfigName;
 
 }

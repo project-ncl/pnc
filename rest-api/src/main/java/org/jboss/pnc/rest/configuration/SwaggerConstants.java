@@ -85,6 +85,7 @@ public interface SwaggerConstants {
     public static final String RUNNING_BUILDS_DESC = "Should return only running builds?";
     public static final String LATEST_MILESTONE_CLOSE_DESC = "Should return only latest milestone close result?";
     public static final String RUNNING_MILESTONE_CLOSE_DESC = "Should return only running milestone close result?";
+    public static final String BC_NAME_FILTER_DESC = "Filters builds by BuildConfig name in a revision used to trigger the build.";
     public static final String REQUIRES_ADMIN = "Requires user to have admin role.";
     public static final String CALLBACK_URL = "Optional Callback URL";
 }
