@@ -129,7 +129,7 @@ public class EnvironmentProviderTest extends AbstractIntIdProviderTest<BuildEnvi
 
     private BuildEnvironment prepareBuildEnvironment(String name) {
         return BuildEnvironment.builder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .name(name)
                 .description("Am I even?")
                 .systemImageId("ID!")

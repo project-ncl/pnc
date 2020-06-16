@@ -246,7 +246,7 @@ public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConf
             int envId,
             BuildConfiguration... dependencies) {
         return BuildConfiguration.Builder.newBuilder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .name(name)
                 .creationTime(Date.from(Instant.now()))
                 .lastModificationTime(Date.from(Instant.now()))

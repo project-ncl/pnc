@@ -129,7 +129,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
                 "https://" + UUID.randomUUID().toString() + ".ca",
                 "git+ssh://" + UUID.randomUUID().toString() + ".eu",
                 true,
-                Integer.toString(entityId++));
+                Integer.toString(entityId.getAndIncrement()));
 
         // then
         assertThatThrownBy(() -> provider.store(toCreate)).isInstanceOf(InvalidEntityException.class);
@@ -289,7 +289,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     public RepositoryConfiguration createNewRepositoryConfiguration(String external, String internal, boolean preSync) {
 
         return RepositoryConfiguration.Builder.newBuilder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .externalUrl(external)
                 .internalUrl(internal)
                 .preBuildSyncEnabled(preSync)

@@ -70,7 +70,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     public void setup() {
         when(userService.currentUserToken()).thenReturn("eyUserToken");
 
-        ProductMilestoneFactory.getInstance().setIdSupplier(() -> entityId++);
+        ProductMilestoneFactory.getInstance().setIdSupplier(() -> entityId.getAndIncrement());
 
         List<ProductMilestone> productMilestones = new ArrayList<>();
 
@@ -115,7 +115,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         org.jboss.pnc.dto.ProductMilestone toCreate = createNewProductMilestoneDTO(
                 mock.getProductVersion(),
                 "6.6.7.CR1",
-                Integer.toString(entityId++));
+                Integer.toString(entityId.getAndIncrement()));
 
         // then
         assertThatThrownBy(() -> provider.store(toCreate)).isInstanceOf(InvalidEntityException.class);

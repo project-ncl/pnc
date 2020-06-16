@@ -183,7 +183,7 @@ public class ProductVersionProviderTest extends AbstractIntIdProviderTest<Produc
 
     private ProductVersion prepareProductVersion(String version, int prodId, ProductMilestone... milestones) {
         return ProductVersion.Builder.newBuilder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .version(version)
                 .product(prepareProduct(prodId, null))
                 .productMilestones(new HashSet<>(Arrays.asList(milestones)))

@@ -19,6 +19,8 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.model.GenericEntity;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -27,10 +29,10 @@ import org.jboss.pnc.model.GenericEntity;
 public abstract class AbstractIntIdProviderTest<T extends GenericEntity<java.lang.Integer>>
         extends AbstractProviderTest<Integer, T> {
 
-    protected int entityId = 1;
+    protected AtomicInteger entityId = new AtomicInteger(1);
 
     protected Integer getNextId() {
-        return entityId++;
+        return entityId.getAndIncrement();
     }
 
 }

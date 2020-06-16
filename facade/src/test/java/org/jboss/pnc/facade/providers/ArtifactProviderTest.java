@@ -261,7 +261,7 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
 
     private org.jboss.pnc.model.Artifact prepareArtifact(String identifier, String checksum) {
         return org.jboss.pnc.model.Artifact.builder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .artifactQuality(ArtifactQuality.NEW)
                 .identifier(identifier)
                 .md5("md5-" + checksum)
