@@ -86,7 +86,6 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
                     @Index(name = "idx_build_configuration_set_map_bcs", columnList = "build_configuration_set_id") })
     private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildConfigurationSet")
     private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
 
