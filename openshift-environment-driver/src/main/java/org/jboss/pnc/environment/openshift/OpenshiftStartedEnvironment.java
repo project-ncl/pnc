@@ -27,6 +27,7 @@ import com.openshift.internal.restclient.model.properties.ResourcePropertiesRegi
 import com.openshift.restclient.ClientBuilder;
 import com.openshift.restclient.IClient;
 import com.openshift.restclient.NotFoundException;
+import com.openshift.restclient.OpenShiftException;
 import com.openshift.restclient.ResourceKind;
 import com.openshift.restclient.model.IResource;
 import org.apache.commons.lang.RandomStringUtils;
@@ -600,7 +601,11 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     @Override
     public void destroyEnvironment() {
-        destroyEnvironment(route, service, sshService, pod, false);
+        try {
+            destroyEnvironment(route, service, sshService, pod, false);
+        } catch (OpenShiftException e) {
+            logger.error("Could not destroy the environment.", e);
+        }
     }
 
     private void destroyEnvironment(
