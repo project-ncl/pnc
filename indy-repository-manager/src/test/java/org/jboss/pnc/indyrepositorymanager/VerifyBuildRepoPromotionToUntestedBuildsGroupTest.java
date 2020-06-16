@@ -20,6 +20,7 @@ package org.jboss.pnc.indyrepositorymanager;
 import org.commonjava.indy.folo.client.IndyFoloContentClientModule;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
@@ -35,10 +36,9 @@ import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
-import org.jboss.pnc.enums.RepositoryType;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(ContainerTest.class)
 public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractImportTest {

@@ -21,9 +21,8 @@ import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
-import org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants;
-import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -35,7 +34,7 @@ import java.util.Collections;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(ContainerTest.class)
 public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositoryManagerDriverTest {
