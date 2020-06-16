@@ -107,7 +107,9 @@ public class ProductReleaseProviderTest extends AbstractIntIdProviderTest<Produc
     public void testStoreNewProductReleaseWithIdShouldFail() {
 
         // when
-        org.jboss.pnc.dto.ProductRelease releaseDTO = createNewProductReleaseDTO("9.9.9.GA", entityId++);
+        org.jboss.pnc.dto.ProductRelease releaseDTO = createNewProductReleaseDTO(
+                "9.9.9.GA",
+                entityId.getAndIncrement());
 
         // then
         assertThatThrownBy(() -> provider.store(releaseDTO)).isInstanceOf(InvalidEntityException.class);
@@ -174,16 +176,19 @@ public class ProductReleaseProviderTest extends AbstractIntIdProviderTest<Produc
 
     private ProductMilestone prepareNewProductMilestone() {
 
-        Product product = Product.Builder.newBuilder().id(entityId++).name(Sequence.nextId().toString()).build();
+        Product product = Product.Builder.newBuilder()
+                .id(entityId.getAndIncrement())
+                .name(Sequence.nextId().toString())
+                .build();
 
         ProductVersion productVersion = ProductVersion.Builder.newBuilder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .version("1.2")
                 .product(product)
                 .build();
 
         return ProductMilestone.Builder.newBuilder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .productVersion(productVersion)
                 .version("1.2.3.CR1")
                 .build();
@@ -192,7 +197,7 @@ public class ProductReleaseProviderTest extends AbstractIntIdProviderTest<Produc
     private ProductRelease prepareNewProductRelease(String version, ProductMilestone milestone) {
 
         ProductRelease release = ProductRelease.Builder.newBuilder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .version(version)
                 .productMilestone(milestone)
                 .build();

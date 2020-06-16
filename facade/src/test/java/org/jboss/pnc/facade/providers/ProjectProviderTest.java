@@ -95,7 +95,7 @@ public class ProjectProviderTest extends AbstractIntIdProviderTest<Project> {
     public void testStoreNewProjectWithIdShouldFail() {
 
         org.jboss.pnc.dto.Project projectDTO = org.jboss.pnc.dto.Project.builder()
-                .id(Integer.toString(entityId++))
+                .id(Integer.toString(entityId.getAndIncrement()))
                 .name("naughty-project")
                 .description("i'm a naughty project")
                 .build();
@@ -187,7 +187,11 @@ public class ProjectProviderTest extends AbstractIntIdProviderTest<Project> {
     }
 
     private Project prepareNewProject(String name) {
-        return Project.Builder.newBuilder().id(entityId++).name(name).description("Happy little project").build();
+        return Project.Builder.newBuilder()
+                .id(entityId.getAndIncrement())
+                .name(name)
+                .description("Happy little project")
+                .build();
     }
 
 }

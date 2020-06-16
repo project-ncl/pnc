@@ -197,7 +197,7 @@ public class GroupBuildProviderTest extends AbstractIntIdProviderTest<BuildConfi
 
     private BuildConfigSetRecord prepareBCSetRecord(BuildConfigurationSet buildConfigurationSet) {
         final BuildConfigSetRecord record = BuildConfigSetRecord.Builder.newBuilder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .buildConfigurationSet(buildConfigurationSet)
                 .startTime(Date.from(Instant.now()))
                 .user(mockUser())

@@ -99,7 +99,7 @@ public class ProductProviderTest extends AbstractIntIdProviderTest<Product> {
 
         // when
         org.jboss.pnc.dto.Product productDTO = org.jboss.pnc.dto.Product.builder()
-                .id(Integer.toString(entityId++))
+                .id(Integer.toString(entityId.getAndIncrement()))
                 .name("dustin-the-second")
                 .abbreviation("heya")
                 .build();
@@ -197,7 +197,7 @@ public class ProductProviderTest extends AbstractIntIdProviderTest<Product> {
     private Product prepareNewProduct(String name) {
 
         return Product.Builder.newBuilder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .name(name)
                 .abbreviation(name)
                 .description("WHO ARE YOU")

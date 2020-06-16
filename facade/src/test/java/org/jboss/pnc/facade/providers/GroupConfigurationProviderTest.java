@@ -162,7 +162,7 @@ public class GroupConfigurationProviderTest extends AbstractIntIdProviderTest<Bu
             boolean archived,
             BuildConfiguration... configurations) {
         final BuildConfigurationSet buildConfigurationSet = BuildConfigurationSet.Builder.newBuilder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .name(name)
                 .archived(archived)
                 .buildConfigurations(new HashSet<>(Arrays.asList(configurations)))

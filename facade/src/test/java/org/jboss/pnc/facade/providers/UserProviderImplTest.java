@@ -112,7 +112,7 @@ public class UserProviderImplTest extends AbstractIntIdProviderTest<User> {
 
         // when
         org.jboss.pnc.dto.User userDTO = org.jboss.pnc.dto.User.builder()
-                .id(Integer.toString(entityId++))
+                .id(Integer.toString(entityId.getAndIncrement()))
                 .username("john-cormack")
                 .build();
 
@@ -149,7 +149,7 @@ public class UserProviderImplTest extends AbstractIntIdProviderTest<User> {
     private User prepareNewUser(String username) {
 
         return User.Builder.newBuilder()
-                .id(entityId++)
+                .id(entityId.getAndIncrement())
                 .email("example@example.com")
                 .firstName("Boris")
                 .lastName("Caesar")
