@@ -298,7 +298,6 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Column(updatable = false)
     private Integer repourLogSize;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.REMOVE)
     private Set<BuildRecordPushResult> buildRecordPushResults;
 

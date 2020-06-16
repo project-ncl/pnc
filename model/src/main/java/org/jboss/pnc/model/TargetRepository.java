@@ -94,7 +94,6 @@ public class TargetRepository implements GenericEntity<Integer> {
     @Enumerated(EnumType.STRING)
     private RepositoryType repositoryType;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "targetRepository")
     private Set<Artifact> artifacts;
 

@@ -85,7 +85,6 @@ public class User implements GenericEntity<Integer> {
     @Size(max = 50)
     private String username;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "user")
     private Set<BuildRecord> buildRecords;
 
