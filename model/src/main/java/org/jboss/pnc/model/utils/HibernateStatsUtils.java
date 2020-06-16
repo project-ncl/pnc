@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class HibernateStatsUtils {
 
+    @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(HibernateStatsUtils.class);
 
     public static String ENTITY_STATS_PREFIX = "hibernate-orm.entity.";

@@ -210,13 +210,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @Column(name = "value", nullable = false, length = 8192)
     private Map<String, String> genericParameters = new HashMap<>();
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_build_configuration_creation_user"), updatable = false)
     private User creationUser;
 
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_build_configuration_modification_user"), updatable = true)
