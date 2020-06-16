@@ -157,6 +157,7 @@ public interface CacheEndpoint {
      */
     @Operation(
             summary = CLEAR_CACHE_DESC,
+            tags = "internal",
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
