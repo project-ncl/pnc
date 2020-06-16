@@ -35,6 +35,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
@@ -49,7 +50,9 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Set;
 
-import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
+import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_GENERIC_HTTP;
+import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_MAVEN;
+import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_NPM;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -58,8 +61,6 @@ import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERI
 public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private Logger logger = LoggerFactory.getLogger(DefaultRemoteBuildsCleaner.class);
-
-    public static final String MAVEN_PKG_KEY = "maven";
 
     private IndyFactory indyFactory;
 
@@ -97,8 +98,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     @Override
     public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
         Result result = deleteBuildsFromIndy(
-                buildRecord.getBuildContentId(),
-                buildRecord.getBuiltArtifacts(),
+                buildRecord,
                 authToken);
         if (!result.isSuccess()) {
             return result;
@@ -132,7 +132,12 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         return new Result(buildRecordId.toString(), ResultStatus.SUCCESS);
     }
 
-    private Result deleteBuildsFromIndy(String buildContentId, Set<Artifact> artifacts, String authToken) {
+    private Result deleteBuildsFromIndy(BuildRecord buildRecord, String authToken) {
+        String buildContentId = buildRecord.getBuildContentId();
+        Set<Artifact> artifacts = buildRecord.getBuiltArtifacts();
+        BuildType buildType = buildRecord.getBuildConfigurationAudited().getBuildType();
+        String repoPkgKey = getRepoPkgKey(buildType);
+
         Result result;
         if (buildContentId == null) {
             logger.debug("Build contentId is null. Nothing to be deleted from Indy.");
@@ -144,21 +149,28 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
         Indy indy = indyFactory.get(authToken);
         try {
-            // delete artifacts from consolidated repository
-            StoreKey consTempBuildsSK = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, tempBuildPromotionGroup);
-            for (Artifact artifact : artifacts) {
-                indy.content().delete(consTempBuildsSK, artifact.getDeployPath());
-            }
-
-            // delete the content
-            StoreKey storeKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildContentId);
             IndyStoresClientModule indyStores = indy.stores();
-            indyStores.delete(storeKey, "Scheduled cleanup of temporary builds.");
+            if (repoPkgKey != null) {
+                StoreKey tempGroupKey = new StoreKey(repoPkgKey, StoreType.group, tempBuildPromotionGroup);
+                StoreKey tempHostedKey = new StoreKey(repoPkgKey, StoreType.hosted, tempBuildPromotionGroup);
+                Group tempGroup = indy.stores().load(tempGroupKey, Group.class);
+                // check if the build repo is in the temp group or not
+                // TODO remove the check once all builds are cleared from the temp builds group
+                if (!tempGroup.getConstituents().contains(tempHostedKey)) {
+                    // delete artifacts from consolidated repository
+                    for (Artifact artifact : artifacts) {
+                        indy.content().delete(tempHostedKey, artifact.getDeployPath());
+                    }
+                }
 
+                // delete the content
+                StoreKey storeKey = new StoreKey(repoPkgKey, StoreType.hosted, buildContentId);
+                indyStores.delete(storeKey, "Scheduled cleanup of temporary builds.");
+            }
             // delete generic http repos
             List<Group> genericGroups;
             try {
-                StoreListingDTO<Group> groupListing = indyStores.listGroups(GENERIC_PKG_KEY);
+                StoreListingDTO<Group> groupListing = indyStores.listGroups(PKG_TYPE_GENERIC_HTTP);
                 genericGroups = groupListing.getItems();
 
                 for (Group genericGroup : genericGroups) {
@@ -187,6 +199,26 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
             IOUtils.closeQuietly(indy);
         }
         return result;
+    }
+
+    /**
+     * Gets the Indy package key based on build type.
+     *
+     * @param buildType the build type, cannot be {@code null}
+     * @return the package key or {@code null} in case an unsupported build type is passed in
+     */
+    private String getRepoPkgKey(BuildType buildType) {
+        switch (buildType.getRepoType()) {
+            case MAVEN:
+                return PKG_TYPE_MAVEN;
+
+            case NPM:
+                return PKG_TYPE_NPM;
+
+            default:
+                logger.error("No default repository type for build type {}.", buildType);
+                return null;
+        }
     }
 
     private void deleteRepoGroup(IndyStoresClientModule indyStores, Group group) throws IndyClientException {
