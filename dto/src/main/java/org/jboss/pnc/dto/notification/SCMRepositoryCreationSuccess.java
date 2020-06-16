@@ -33,14 +33,14 @@ import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 
 /**
  * Notification about created SCM Repository.
- * 
+ *
  * <pre>
  * Job: {@link JobNotificationType#SCM_REPOSITORY_CREATION} Notification type: {@code SCMR_CREATION_SUCCESS}
  * Progress:{@link JobNotificationProgress#FINISHED} Message: no
- * 
+ *
  * <pre>
  * For notification about failure see {@link RepositoryCreationFailure}.
- * 
+ *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
@@ -53,6 +53,9 @@ public class SCMRepositoryCreationSuccess extends Notification {
      */
     private final SCMRepository scmRepository;
 
+    /**
+     * Task id of the repository creation task.
+     */
     private final String taskId;
 
     @JsonCreator

@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * Request to push builds from group build to Koji.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -32,6 +33,9 @@ import lombok.Data;
 @JsonDeserialize(builder = GroupBuildPushRequest.Builder.class)
 public class GroupBuildPushRequest {
 
+    /**
+     * Koji tag prefix, to which the builds should be tagged upon import.
+     */
     private final String tagPrefix;
 
     @JsonPOJOBuilder(withPrefix = "")

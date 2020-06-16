@@ -48,7 +48,7 @@ public class Page<T> {
     private int totalPages;
 
     /**
-     * Number of all hits (not only this page)
+     * Number of all hits (not only this page).
      */
     private int totalHits;
 

@@ -25,6 +25,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 
 /**
+ * The result of Create&Sync call for creating SCM repository config. If the SCM repository config can be created
+ * immediately, it is returned by {@link #getRepository()} property. If the repository needs to be synchronized first,
+ * {@link #getTaskId()} property provides id of the synchronization task.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -32,8 +35,16 @@ import lombok.Data;
 @JsonDeserialize(builder = RepositoryCreationResponse.Builder.class)
 public class RepositoryCreationResponse {
 
+    /**
+     * Id of the task that will create and sync the repository. When the repository doesn't require sync, this is null
+     * and {@link #getRepository()} is returned instead.
+     */
     private Integer taskId;
 
+    /**
+     * The created SCM Repistory config. When the repository require sync, this is null and {@link #getTaskId()} is
+     * returned instead.
+     */
     private SCMRepository repository;
 
     public RepositoryCreationResponse(int taskId) {

@@ -27,6 +27,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
+ * Response to a validation request.
  *
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
@@ -35,11 +36,22 @@ import java.util.List;
 @JsonDeserialize(builder = ValidationResponse.Builder.class)
 public class ValidationResponse {
 
+    /**
+     * Is the data in the request valid?
+     */
     @NotNull
     public final Boolean isValid;
 
+    /**
+     * If the data in the request are not valid, the validation error type. If they are valid this is null.
+     * 
+     * @see ValidationErrorType
+     */
     public final ValidationErrorType errorType;
 
+    /**
+     * User readable validation hints.
+     */
     public List<String> hints;
 
     @JsonPOJOBuilder(withPrefix = "")

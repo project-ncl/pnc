@@ -25,6 +25,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * Response indicating there was an error processing request.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -34,10 +35,19 @@ import lombok.Data;
 @JsonDeserialize(builder = ErrorResponse.Builder.class)
 public class ErrorResponse {
 
+    /**
+     * Type of the error.
+     */
     private final String errorType;
 
+    /**
+     * User readable error message.
+     */
     private final String errorMessage;
 
+    /**
+     * Object with more detailed information. This can be null, otherwise the object type depends on the error type.
+     */
     private final Object details;
 
     public ErrorResponse(String errorType, String errorMessage) {

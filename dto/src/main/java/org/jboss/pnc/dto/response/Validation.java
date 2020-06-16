@@ -29,6 +29,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * A request validation error.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -38,10 +39,19 @@ import lombok.Data;
 @JsonDeserialize(builder = Validation.Builder.class)
 public class Validation {
 
+    /**
+     * Identifier of the attribute which didn't pass validation.
+     */
     private final String attribute;
 
+    /**
+     * User readable validation messages.
+     */
     private final List<String> messages;
 
+    /**
+     * The original non-valid value. Based on the validation this may not be set.
+     */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final Object value;
 

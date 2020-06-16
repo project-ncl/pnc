@@ -24,6 +24,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
+ * Vertex in graph of objects.
+ *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Getter
@@ -32,10 +34,19 @@ import lombok.Getter;
 @JsonDeserialize(builder = Vertex.Builder.class)
 public class Vertex<T> {
 
+    /**
+     * Name of the object.
+     */
     private final String name;
 
+    /**
+     * The object type.
+     */
     private final String dataType;
 
+    /**
+     * The object stored in the vertex.
+     */
     private final T data;
 
     @JsonPOJOBuilder(withPrefix = "")
