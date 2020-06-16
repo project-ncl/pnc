@@ -98,7 +98,7 @@ public class CacheHandlerTest extends AbstractModelTest {
         SortedMap<String, Map<String, HibernateMetric>> entitiesStatMap = getSecondLevelCacheEntitiesStats(statistics);
         logger.debug("All entities stats: {}", entitiesStatMap);
 
-        String[] mappedEntities = { ENTITY_STATS_PREFIX + "org.hibernate.envers.DefaultRevisionEntity",
+        String[] mappedEntities = {
                 // ENTITY_STATS_PREFIX + "org.jboss.pnc.model.Artifact",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigSetRecord",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration",
