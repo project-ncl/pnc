@@ -33,14 +33,14 @@ import static org.jboss.pnc.enums.JobNotificationProgress.IN_PROGRESS;
 
 /**
  * Notification about created Build Config.
- * 
+ *
  * <pre>
  * Job: {@link JobNotificationType#BUILD_CONFIG_CREATION} Notification type: {@code BC_CREATION_SUCCESS} - The Build
  * Config was created successfully. {@code BC_CREATION_ERROR} - The Build Config was not created.
  * Progress:{@link JobNotificationProgress#FINISHED} Message: In case of error it contains an error message.
- * 
+ *
  * <pre>
- * 
+ *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
@@ -59,6 +59,9 @@ public class BuildConfigurationCreation extends Notification {
      */
     private final BuildConfigurationRef buildConfig;
 
+    /**
+     * Task id of the repository and build config creation task.
+     */
     private final String taskId;
 
     private BuildConfigurationCreation(SCMRepository scmRepository, BuildConfigurationRef buildConfig, String taskId) {

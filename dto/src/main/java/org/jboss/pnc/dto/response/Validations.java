@@ -28,6 +28,7 @@ import lombok.Data;
 import lombok.Singular;
 
 /**
+ * Request validation errors.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -37,6 +38,9 @@ import lombok.Singular;
 @JsonDeserialize(builder = Validations.Builder.class)
 public class Validations {
 
+    /**
+     * List of all the validation erros.
+     */
     @Singular("validation")
     private final List<Validation> validation;
 

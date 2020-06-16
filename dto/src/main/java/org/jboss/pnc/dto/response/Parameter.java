@@ -25,7 +25,7 @@ import lombok.Data;
 
 /**
  * Generic parameter for build configs.
- * 
+ *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
@@ -34,8 +34,14 @@ import lombok.Data;
 @JsonDeserialize(builder = Parameter.Builder.class)
 public class Parameter {
 
+    /**
+     * Parameter name.
+     */
     public final String name;
 
+    /**
+     * Parameter description.
+     */
     public final String description;
 
     @JsonPOJOBuilder(withPrefix = "")

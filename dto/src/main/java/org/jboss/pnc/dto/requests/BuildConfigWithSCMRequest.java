@@ -29,6 +29,8 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * Request to create new build config and SCM repository config given by SCM URL. If the URL is for external SCM, new
+ * internal repository will be created and synced.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -37,12 +39,22 @@ import lombok.Data;
 @JsonDeserialize(builder = BuildConfigWithSCMRequest.Builder.class)
 public class BuildConfigWithSCMRequest {
 
+    /**
+     * The SCM repository URL. The URL can be internal or external.
+     */
     @NotBlank
     @SCMUrl
     private final String scmUrl;
 
+    /**
+     * Pre-builds sync enablement flag. Is taken into account only when scmUrl contains an external URL. Defaults to
+     * true.
+     */
     private final Boolean preBuildSyncEnabled;
 
+    /**
+     * The build config to be created.
+     */
     private final BuildConfiguration buildConfig;
 
     @JsonPOJOBuilder(withPrefix = "")

@@ -20,12 +20,24 @@ package org.jboss.pnc.dto.response;
 import lombok.Data;
 import org.jboss.pnc.enums.ResultStatus;
 
+/**
+ * Result of the build deletion operation sent by callback.
+ */
 @Data
 public class DeleteOperationResult {
 
+    /**
+     * Build id.
+     */
     private String id;
 
+    /**
+     * Status of the deletion operation.
+     */
     private ResultStatus status;
 
+    /**
+     * Result message.
+     */
     private String message;
 }

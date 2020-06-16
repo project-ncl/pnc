@@ -24,6 +24,8 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
+ * Edge in graph of objects.
+ *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Getter
@@ -32,10 +34,19 @@ import lombok.Getter;
 @JsonDeserialize(builder = Edge.Builder.class)
 public class Edge<T> {
 
+    /**
+     * Source vertex name.
+     */
     private final String source;
 
+    /**
+     * Target vertex name.
+     */
     private final String target;
 
+    /**
+     * Edge cost.
+     */
     private final int cost;
 
     @JsonPOJOBuilder(withPrefix = "")

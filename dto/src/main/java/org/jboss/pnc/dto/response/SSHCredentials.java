@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 
 /**
+ * Credentials needed to connect to the builder pod.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
@@ -33,8 +34,14 @@ import lombok.Data;
 @JsonDeserialize(builder = SSHCredentials.Builder.class)
 public class SSHCredentials {
 
+    /**
+     * Command to run to connect to the builder pod.
+     */
     private final String command;
 
+    /**
+     * The ssh password needed to connect to the builder pod.
+     */
     private final String password;
 
     @JsonPOJOBuilder(withPrefix = "")

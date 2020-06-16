@@ -33,8 +33,14 @@ import lombok.Getter;
 @Builder(builderClassName = "Builder")
 @JsonDeserialize(builder = AlignmentParameters.Builder.class)
 public class AlignmentParameters {
+    /**
+     * Build type for which the default parameters are provided.
+     */
     public final String buildType;
 
+    /**
+     * The default parameters for the buildType.
+     */
     public final String parameters;
 
     @JsonPOJOBuilder(withPrefix = "")
