@@ -63,18 +63,73 @@
           <property name="hibernate.cache.use_query_cache" value="true" />
           <property name="hibernate.cache.region_prefix" value=""/>
           <property name="hibernate.cache.infinispan.statistics" value="true"/>
+
           <!--
               Custom configurations can be made to the single entities
               https://infinispan.org/docs/stable/titles/integrating/integrating.html#configuration_properties
+
+              # Examples to override single properties for each entity
+
+              # Available options are NONE, LRU and LIRS
+              <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.strategy" value= "LRU"/>
+              # Period of thread checking expired entries (in milliseconds)
+              <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.wake_up_interval" value= "2000"/>
+              # Maximum number of entries in the cache
+              <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.max_entries" value= "5000"/>
+              # Lifespan of entry from last read/modification (in milliseconds)
+              <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.max_idle" value= "30000"/>
+              # Lifespan of entry from insert into cache (in milliseconds)
+              <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.lifespan" value= "60000"/>
           -->
-          <!--
-          # Examples to override single properties for each entity
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.strategy" value= "LRU"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.wake_up_interval" value= "2000"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.eviction.max_entries" value= "5000"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.lifespan" value= "60000"/>
-          <property name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.max_idle" value= "30000"/>
-          -->
+
+          <!-- Check expired entries every 4 mins -->
+          <property name="hibernate.cache.infinispan.entity.eviction.wake_up_interval" value= "240000"/>
+
+          <!-- If not read/modified in 20 mins, expire -->
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Product.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Product.productVersions.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductMilestone.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductMilestone.distributedArtifacts.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductMilestone.performedBuilds.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductMilestoneRelease.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductRelease.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductVersion.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductVersion.attributes.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductVersion.buildConfigurations.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.ProductVersion.buildConfigurationSets.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Project.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Project.buildConfigurations.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildRecordPushResult.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfiguration.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfiguration.buildConfigurationSets.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfiguration.dependencies.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfiguration.genericParameters.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfigurationSet.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfigurationSet.buildConfigurations.expiration.max_idle" />
+          <property value= "1200000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.RepositoryConfiguration.expiration.max_idle" />
+
+          <!-- If not read/modified in 10 mins, expire -->
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildRecord.expiration.max_idle" />
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildRecord.attributes.expiration.max_idle" />
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildRecord.builtArtifacts.expiration.max_idle" />
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildRecord.dependencies.expiration.max_idle" />
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfigSetRecord.expiration.max_idle" />
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfigSetRecord.attributes.expiration.max_idle" />
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildConfigSetRecord.buildRecords.expiration.max_idle" />
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.expiration.max_idle" />
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.buildRecords.expiration.max_idle" />
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.Artifact.dependantBuildRecords.expiration.max_idle" />
+          <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.TargetRepository.expiration.max_idle" />
+
+          <!-- If not read/modified in 2 mins, expire; always expire in 4 mins and re-read from DB  -->
+          <property value= "120000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.GenericSetting.expiration.max_idle" />
+          <property value= "240000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.GenericSetting.expiration.lifespan" />
+          <property value= "120000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.User.expiration.max_idle" />
+          <property value= "240000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.User.expiration.lifespan" />
+          <property value= "120000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildEnvironment.expiration.max_idle" />
+          <property value= "120000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildEnvironment.attributes.expiration.max_idle" />
+          <property value= "240000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildEnvironment.expiration.lifespan" />
+          <property value= "240000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildEnvironment.attributes.expiration.lifespan" />
 
       </properties>
    </persistence-unit>
