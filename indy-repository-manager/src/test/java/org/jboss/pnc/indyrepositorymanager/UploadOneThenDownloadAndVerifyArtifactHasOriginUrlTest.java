@@ -19,10 +19,11 @@ package org.jboss.pnc.indyrepositorymanager;
 
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.commonjava.indy.client.core.util.UrlUtils;
 import org.commonjava.atlas.maven.ident.ref.ProjectVersionRef;
 import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
 import org.commonjava.atlas.maven.ident.ref.SimpleProjectVersionRef;
+import org.commonjava.indy.client.core.util.UrlUtils;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
@@ -37,10 +38,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
 
-import org.jboss.pnc.enums.RepositoryType;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(ContainerTest.class)
 public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest extends AbstractImportTest {

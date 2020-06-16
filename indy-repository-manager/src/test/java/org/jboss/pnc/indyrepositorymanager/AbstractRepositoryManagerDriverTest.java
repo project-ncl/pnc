@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AbstractRepositoryManagerDriverTest {
 
@@ -65,6 +65,7 @@ public class AbstractRepositoryManagerDriverTest {
     private String oldIni;
     private File etcDir;
     private File dataDir;
+    private File storageDir;
 
     @Before
     public void setup() throws Exception {
@@ -151,6 +152,7 @@ public class AbstractRepositoryManagerDriverTest {
 
         etcDir = new File(fixture.getBootOptions().getHomeDir(), "etc/indy");
         dataDir = new File(fixture.getBootOptions().getHomeDir(), "var/lib/indy/data");
+        storageDir = new File(fixture.getBootOptions().getHomeDir(), "var/lib/indy/storage");
 
         initBaseTestConfig(fixture);
         initTestConfig(fixture);
@@ -168,8 +170,7 @@ public class AbstractRepositoryManagerDriverTest {
     protected final void initBaseTestConfig(CoreServerFixture fixture) throws IOException {
         writeConfigFile(
                 "main.conf",
-                "standalone=true\nnfc.provider=ispn\n[storage-default]\nstorage.dir=" + dataDir
-                        + "/var/lib/indy/storage");
+                "standalone=true\nnfc.provider=ispn\n[storage-default]\nstorage.dir=" + storageDir);
         writeConfigFile("conf.d/scheduler.conf", "[scheduler]\nenabled=false");
         writeConfigFile("conf.d/threadpools.conf", "[threadpools]\nenabled=false");
     }

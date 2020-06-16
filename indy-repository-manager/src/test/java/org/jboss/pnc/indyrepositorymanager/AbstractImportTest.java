@@ -42,7 +42,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.COMMON_BUILD_GROUP_CONSTITUENTS_GROUP;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.PUBLIC_GROUP_ID;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
 
@@ -113,7 +113,7 @@ public class AbstractImportTest extends AbstractRepositoryManagerDriverTest {
             assertThat(response.getStatusLine().getStatusCode(), equalTo(200));
 
             stream = response.getEntity().getContent();
-            content = IOUtils.toString(stream);
+            content = IOUtils.toString(stream, "UTF-8");
         } finally {
             IOUtils.closeQuietly(stream);
             IOUtils.closeQuietly(response);

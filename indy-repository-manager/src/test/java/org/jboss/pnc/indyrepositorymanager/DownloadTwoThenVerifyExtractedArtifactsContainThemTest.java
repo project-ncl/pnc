@@ -18,14 +18,15 @@
 package org.jboss.pnc.indyrepositorymanager;
 
 import org.apache.commons.io.IOUtils;
+import org.commonjava.atlas.maven.ident.ref.ProjectVersionRef;
+import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
+import org.commonjava.atlas.maven.ident.ref.SimpleProjectVersionRef;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.util.UrlUtils;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
-import org.commonjava.atlas.maven.ident.ref.ProjectVersionRef;
-import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
-import org.commonjava.atlas.maven.ident.ref.SimpleProjectVersionRef;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
@@ -42,12 +43,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.jboss.pnc.enums.RepositoryType;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
-import static org.junit.Assert.assertThat;
 
 @Category(ContainerTest.class)
 public class DownloadTwoThenVerifyExtractedArtifactsContainThemTest extends AbstractImportTest {
