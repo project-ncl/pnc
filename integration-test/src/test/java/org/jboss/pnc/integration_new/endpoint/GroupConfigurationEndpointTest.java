@@ -42,7 +42,6 @@ import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -75,7 +74,6 @@ public class GroupConfigurationEndpointTest {
         return Deployments.testEar();
     }
 
-    @Ignore // TODO ENABLE ME
     @Test
     public void shouldPatchGroupConfiguration() throws ClientException, PatchBuilderException {
         GroupConfigurationClient client = new GroupConfigurationClient(
@@ -85,9 +83,9 @@ public class GroupConfigurationEndpointTest {
         String id = groupConfiguration.getId();
 
         ProductVersion newProductVersion = createProductVersion();
+        ProductVersion pv = ProductVersion.builder().id(newProductVersion.getId()).build();
 
-        GroupConfigurationPatchBuilder builder = new GroupConfigurationPatchBuilder()
-                .replaceProductVersion(newProductVersion);
+        GroupConfigurationPatchBuilder builder = new GroupConfigurationPatchBuilder().replaceProductVersion(pv);
         GroupConfiguration updated = client.patch(id, builder);
 
         assertThat(updated.getProductVersion().getVersion()).isEqualTo(newProductVersion.getVersion());

@@ -38,6 +38,7 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withBuildConfigurationId;
@@ -45,6 +46,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredic
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates.withProductVersionId;
 
 @PermitAll
+@Slf4j
 @Stateless
 public class GroupConfigurationProviderImpl
         extends AbstractProvider<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef>
@@ -78,11 +80,17 @@ public class GroupConfigurationProviderImpl
     @Override
     public GroupConfiguration update(String id, GroupConfiguration restEntity) {
         validateBeforeUpdating(id, restEntity);
+        log.debug("Updating entity: " + restEntity);
         BuildConfigurationSet dbEntity = repository.queryById(Integer.valueOf(id));
-        if (dbEntity != null && dbEntity.isArchived()) {
+        if (dbEntity.isArchived()) {
             throw new RepositoryViolationException("The Group Config " + id + " is already deleted.");
         }
-        return super.update(id, restEntity);
+        // DO NOT REMOVE - Triggers the inizialization of LAZY collections (fixes NCL-5804)
+        if (dbEntity.getBuildConfigurations() != null) {
+            dbEntity.getBuildConfigSetRecords().isEmpty();
+        }
+        BuildConfigurationSet saved = repository.save(mapper.toEntity(restEntity));
+        return mapper.toDTO(saved);
     }
 
     @Override
