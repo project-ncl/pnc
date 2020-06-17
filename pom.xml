@@ -1750,13 +1750,6 @@
 
   <profiles>
     <profile>
-      <id>examples</id>
-      <modules>
-        <module>examples/oauth-client</module>
-      </modules>
-    </profile>
-
-    <profile>
       <id>debug-tests</id>
       <build>
         <plugins>
