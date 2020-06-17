@@ -22,6 +22,7 @@ import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
 import org.commonjava.indy.client.core.module.IndyStoresClientModule;
 import org.commonjava.indy.folo.client.IndyFoloAdminClientModule;
+import org.commonjava.indy.model.core.BatchDeleteRequest;
 import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
@@ -34,7 +35,6 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.model.BuildRecord;
@@ -48,7 +48,6 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.Set;
 
 import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_GENERIC_HTTP;
 import static org.commonjava.indy.pkg.PackageTypeConstants.PKG_TYPE_MAVEN;
@@ -97,9 +96,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     @Override
     public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
-        Result result = deleteBuildsFromIndy(
-                buildRecord,
-                authToken);
+        Result result = deleteBuildsFromIndy(buildRecord, authToken);
         if (!result.isSuccess()) {
             return result;
         }
@@ -134,9 +131,8 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private Result deleteBuildsFromIndy(BuildRecord buildRecord, String authToken) {
         String buildContentId = buildRecord.getBuildContentId();
-        Set<Artifact> artifacts = buildRecord.getBuiltArtifacts();
         BuildType buildType = buildRecord.getBuildConfigurationAudited().getBuildType();
-        String repoPkgKey = getRepoPkgKey(buildType);
+        String pkgKey = getRepoPkgKey(buildType);
 
         Result result;
         if (buildContentId == null) {
@@ -150,21 +146,22 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         Indy indy = indyFactory.get(authToken);
         try {
             IndyStoresClientModule indyStores = indy.stores();
-            if (repoPkgKey != null) {
-                StoreKey tempGroupKey = new StoreKey(repoPkgKey, StoreType.group, tempBuildPromotionGroup);
-                StoreKey tempHostedKey = new StoreKey(repoPkgKey, StoreType.hosted, tempBuildPromotionGroup);
+            if (pkgKey != null) {
+                StoreKey tempGroupKey = new StoreKey(pkgKey, StoreType.group, tempBuildPromotionGroup);
+                StoreKey tempHostedKey = new StoreKey(pkgKey, StoreType.hosted, tempBuildPromotionGroup);
                 Group tempGroup = indy.stores().load(tempGroupKey, Group.class);
                 // check if the build repo is in the temp group or not
                 // TODO remove the check once all builds are cleared from the temp builds group
                 if (!tempGroup.getConstituents().contains(tempHostedKey)) {
                     // delete artifacts from consolidated repository
-                    for (Artifact artifact : artifacts) {
-                        indy.content().delete(tempHostedKey, artifact.getDeployPath());
-                    }
+                    BatchDeleteRequest request = new BatchDeleteRequest();
+                    request.setTrackingID(buildContentId);
+                    request.setStoreKey(tempHostedKey);
+                    indy.module(IndyFoloAdminClientModule.class).deleteFilesFromStoreByTrackingID(request);
                 }
 
                 // delete the content
-                StoreKey storeKey = new StoreKey(repoPkgKey, StoreType.hosted, buildContentId);
+                StoreKey storeKey = new StoreKey(pkgKey, StoreType.hosted, buildContentId);
                 indyStores.delete(storeKey, "Scheduled cleanup of temporary builds.");
             }
             // delete generic http repos
@@ -202,7 +199,8 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
     }
 
     /**
-     * Gets the Indy package key based on build type.
+     * Gets the Indy package key based on build type. It reads the PNC repo type from the build type and translates it
+     * into the Indy package type.
      *
      * @param buildType the build type, cannot be {@code null}
      * @return the package key or {@code null} in case an unsupported build type is passed in
