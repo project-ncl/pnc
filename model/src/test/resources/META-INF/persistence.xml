@@ -37,7 +37,6 @@
     <class>org.jboss.pnc.model.BuildRecord</class>
     <class>org.jboss.pnc.model.BuildRecordAttribute</class>
     <class>org.jboss.pnc.model.BuildRecordPushResult</class>
-    <class>org.jboss.pnc.model.GenericSetting</class>
     <class>org.jboss.pnc.model.Product</class>
     <class>org.jboss.pnc.model.ProductMilestone</class>
     <class>org.jboss.pnc.model.ProductMilestoneRelease</class>

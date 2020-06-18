@@ -17,11 +17,8 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,13 +30,9 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(indexes = { @Index(name = "idx_key", columnList = "key") })
 public class GenericSetting implements GenericEntity<Integer> {
-
-    private static final long serialVersionUID = -1277933918628398102L;
 
     public static final String SEQUENCE_NAME = "generic_setting_id_seq";
 
