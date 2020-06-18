@@ -64,9 +64,6 @@ public class AdvancedSCMRepositoryClient extends SCMRepositoryClient {
     public CompletableFuture<SCMCreationResult> createNewAndWait(CreateAndSyncSCMRequest request)
             throws RemoteResourceException, ClientException {
 
-        WebSocketClient webSocketClient = new VertxWebSocketClient();
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
-
         RepositoryCreationResponse response = super.createNew(request);
 
         if (response.getTaskId() == null) {
@@ -83,6 +80,7 @@ public class AdvancedSCMRepositoryClient extends SCMRepositoryClient {
         }
 
         // if bpm task called, listen to either creation or failure events
+        WebSocketClient webSocketClient = createWebSocketClient();
         return CompletableFuture
                 .anyOf(
                         waitForScmCreationFailure(webSocketClient, response.getTaskId().toString()),
@@ -97,6 +95,12 @@ public class AdvancedSCMRepositoryClient extends SCMRepositoryClient {
                     }
                 })
                 .whenCompleteAsync((x, y) -> webSocketClient.disconnect());
+    }
+
+    private WebSocketClient createWebSocketClient() {
+        WebSocketClient webSocketClient = new VertxWebSocketClient();
+        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
+        return webSocketClient;
     }
 
     /**
@@ -128,6 +132,12 @@ public class AdvancedSCMRepositoryClient extends SCMRepositoryClient {
 
         public RepositoryCreationFailure getRepositoryCreationFailure() {
             return repositoryCreationFailure;
+        }
+
+        @Override
+        public String toString() {
+            return "SCMCreationResult{" + "success=" + success + ", scmRepositoryCreationSuccess="
+                    + scmRepositoryCreationSuccess + ", repositoryCreationFailure=" + repositoryCreationFailure + '}';
         }
     }
 }
