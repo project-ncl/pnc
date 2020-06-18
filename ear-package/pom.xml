@@ -153,6 +153,7 @@
             <manifestEntries combine.children="append">
               <!--
               io.undertow.core, org.jboss.xnio: required by BuildAgentClient
+              org.hibernate.validator: required by maven-repository-driver
               -->
               <Dependencies>
                 io.undertow.core,
@@ -163,7 +164,8 @@
                 org.apache.commons.lang,
                 org.apache.commons.lang3,
                 org.apache.httpcomponents.core,
-                org.jboss.xnio
+                org.jboss.xnio,
+                org.hibernate.validator
               </Dependencies>
             </manifestEntries>
           </archive>
