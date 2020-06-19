@@ -122,8 +122,6 @@
           <property value= "600000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.TargetRepository.expiration.max_idle" />
 
           <!-- If not read/modified in 2 mins, expire; always expire in 4 mins and re-read from DB  -->
-          <property value= "120000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.GenericSetting.expiration.max_idle" />
-          <property value= "240000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.GenericSetting.expiration.lifespan" />
           <property value= "120000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.User.expiration.max_idle" />
           <property value= "240000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.User.expiration.lifespan" />
           <property value= "120000" name="hibernate.cache.infinispan.ear-package.ear#primary.org.jboss.pnc.model.BuildEnvironment.expiration.max_idle" />
