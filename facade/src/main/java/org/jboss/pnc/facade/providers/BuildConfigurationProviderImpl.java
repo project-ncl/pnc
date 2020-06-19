@@ -483,7 +483,11 @@ public class BuildConfigurationProviderImpl extends
         originalBC.setLastModificationUser(user);
 
         org.jboss.pnc.model.BuildConfiguration newBc = repository.save(originalBC);
+
+        newBc.getBuildConfigurationSets().forEach(s -> s.getId());
+        newBc.getDependencies().forEach(s -> s.getId());
         repository.flushAndRefresh(newBc);
+
         return Optional.of(mapper.toDTO(newBc));
     }
 
