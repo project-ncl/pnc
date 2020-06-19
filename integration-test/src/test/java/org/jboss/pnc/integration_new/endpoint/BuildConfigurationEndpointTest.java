@@ -474,7 +474,6 @@ public class BuildConfigurationEndpointTest {
         assertThat(revision.getId()).isEqualTo(configurationId);
     }
 
-    @Ignore // Restore build configuration fails with org.hibernate.LazyInitializationException NCL-5795
     @Test
     @InSequence(50)
     public void shouldRestoreBuildConfigurationRevision() throws Exception {
@@ -507,8 +506,20 @@ public class BuildConfigurationEndpointTest {
         // then
         // we don't audit anymore the description, so it cannot be restored from a previous revision
         assertThat(restored.getDescription()).isEqualTo(toUpdate.getDescription());
-        assertThat(restored).isEqualToIgnoringGivenFields(original, "description", "modificationTime");
-        assertThat(retrieved).isEqualToIgnoringGivenFields(restored, "description", "modificationTime");
+        assertThat(restored).isEqualToIgnoringGivenFields(
+                original,
+                "description",
+                "modificationTime",
+                "modificationUser",
+                "creationTime",
+                "creationUser");
+        assertThat(retrieved).isEqualToIgnoringGivenFields(
+                restored,
+                "description",
+                "modificationTime",
+                "modificationUser",
+                "creationTime",
+                "creationUser");
     }
 
     @Test
