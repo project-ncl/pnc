@@ -293,8 +293,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFailAsRegularUser() {
-        BuildClient client = new BuildClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
 
         String buildRecordId = "1";
         assertThatThrownBy(() -> client.setBuiltArtifacts(buildRecordId, Collections.emptyList()))
@@ -309,8 +308,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldGetOldTemporaryBuild() {
-        BuildClient client = new BuildClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
+        BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
 
     }
 

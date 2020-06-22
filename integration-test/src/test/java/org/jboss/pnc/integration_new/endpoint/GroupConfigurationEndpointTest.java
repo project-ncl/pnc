@@ -76,8 +76,7 @@ public class GroupConfigurationEndpointTest {
 
     @Test
     public void shouldPatchGroupConfiguration() throws ClientException, PatchBuilderException {
-        GroupConfigurationClient client = new GroupConfigurationClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
 
         GroupConfiguration groupConfiguration = client.getAll().iterator().next();
         String id = groupConfiguration.getId();
@@ -93,12 +92,10 @@ public class GroupConfigurationEndpointTest {
     }
 
     private ProductVersion createProductVersion() throws ClientException {
-        ProductClient pClient = new ProductClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        ProductClient pClient = new ProductClient(RestClientConfiguration.asUser());
         Product product = pClient.getAll().iterator().next();
 
-        ProductVersionClient pvClient = new ProductVersionClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        ProductVersionClient pvClient = new ProductVersionClient(RestClientConfiguration.asUser());
         ProductVersion pv = ProductVersion.builder()
                 .version("3245.6742")
                 .product(ProductRef.refBuilder().id(product.getId()).build())
@@ -108,8 +105,7 @@ public class GroupConfigurationEndpointTest {
 
     @Test
     public void testCreateNewGroupConfig() throws RemoteResourceException, ClientException {
-        GroupConfigurationClient client = new GroupConfigurationClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
 
         final String name = "Testing 101";
 
@@ -126,8 +122,7 @@ public class GroupConfigurationEndpointTest {
 
     @Test
     public void testUpdateGroupConfig() throws RemoteResourceException, ClientException {
-        GroupConfigurationClient client = new GroupConfigurationClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
 
         final String name = "Testing 100 Updated";
 

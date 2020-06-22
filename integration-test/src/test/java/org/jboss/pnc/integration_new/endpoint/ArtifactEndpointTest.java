@@ -78,8 +78,7 @@ public class ArtifactEndpointTest {
 
     @Before
     public void setTargetRepository() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.NONE));
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
         List<Artifact> artifacts = new ArrayList<>();
         for (Artifact artifact : client.getAll(null, null, null)) {
@@ -175,8 +174,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldFailToSaveArtifact() {
-        ArtifactClient client = new ArtifactClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
         Artifact artifact = Artifact.builder()
                 .filename("builtArtifactInsert.jar")
                 .identifier("integration-test:built-artifact-insert:jar:1.0")
@@ -209,8 +207,7 @@ public class ArtifactEndpointTest {
                 .size(10L)
                 .build();
 
-        ArtifactClient client = new ArtifactClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.SYSTEM_USER));
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
 
         Artifact inserted = client.create(artifact);
         String id = inserted.getId();
@@ -249,8 +246,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldGetBuildsThatDependsOnArtifact() throws RemoteResourceException {
-        ArtifactClient client = new ArtifactClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
 
         RemoteCollection<Build> builds = client.getDependantBuilds(artifactRest3.getId());
 

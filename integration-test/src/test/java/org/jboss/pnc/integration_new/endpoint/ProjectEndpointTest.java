@@ -53,11 +53,9 @@ public class ProjectEndpointTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectEndpointTest.class);
 
-    private ProjectClient client = new ProjectClient(
-            RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+    private ProjectClient client = new ProjectClient(RestClientConfiguration.asUser());
 
-    private BuildConfigurationClient buildConfigClient = new BuildConfigurationClient(
-            RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER));
+    private BuildConfigurationClient buildConfigClient = new BuildConfigurationClient(RestClientConfiguration.asUser());
 
     @Deployment
     public static EnterpriseArchive deploy() {
