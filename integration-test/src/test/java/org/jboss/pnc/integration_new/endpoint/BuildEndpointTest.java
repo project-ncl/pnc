@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.integration_new.endpoint;
 
-import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -31,6 +30,7 @@ import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.util.IoUtils;
+import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -42,11 +42,11 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -234,21 +234,76 @@ public class BuildEndpointTest {
     }
 
     @Test
-    @Ignore
     public void shouldFilterByBuildConfigurationName() throws Exception {
-        BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
-        String buildConfigName = bc.getAll(null, null).iterator().next().getBuildConfigRevision().getName();
-        String rsql = "buildConfigurationAudited.name==" + buildConfigName;
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
+        BuildsFilterParameters filter = new BuildsFilterParameters();
+        filter.setBuildConfigName(buildConfigName);
 
-        List<String> buildConfigIds = bc.getAll(null, null, Optional.empty(), Optional.of(rsql))
+        List<String> buildConfigNames = client.getAll(filter, null)
                 .getAll()
                 .stream()
                 .map(Build::getBuildConfigRevision)
                 .map(BuildConfigurationRevisionRef::getName)
                 .collect(Collectors.toList());
 
-        assertThat(buildConfigIds).hasSize(2); // from DatabaseDataInitializer
-        assertThat(buildConfigIds).containsOnly(buildConfigName);
+        assertThat(buildConfigNames).hasSize(2); // from DatabaseDataInitializer
+        assertThat(buildConfigNames).containsOnly(buildConfigName);
+    }
+
+    @Test
+    public void shouldFilterByNotExistingBuildConfigurationName() throws Exception {
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        String buildConfigName = "SomeRandomName";
+        BuildsFilterParameters filter = new BuildsFilterParameters();
+        filter.setBuildConfigName(buildConfigName);
+
+        List<String> buildConfigNames = client.getAll(filter, null)
+                .getAll()
+                .stream()
+                .map(Build::getBuildConfigRevision)
+                .map(BuildConfigurationRevisionRef::getName)
+                .collect(Collectors.toList());
+
+        assertThat(buildConfigNames).isEmpty();
+    }
+
+    @Test
+    public void shouldFilterByBuildConfigurationNameAndUserId() throws Exception {
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
+        String username = "pnc-admin";
+        String rsql = "user.username==" + username;
+
+        BuildsFilterParameters filter = new BuildsFilterParameters();
+        filter.setBuildConfigName(buildConfigName);
+
+        List<Build> builds = new ArrayList<>(client.getAll(filter, null, Optional.empty(), Optional.of(rsql)).getAll());
+
+        assertThat(builds).hasSize(2);
+        assertThat(
+                builds.stream()
+                        .map(Build::getBuildConfigRevision)
+                        .map(BuildConfigurationRevisionRef::getName)
+                        .allMatch(name -> name.equals(buildConfigName)));
+        assertThat(builds.stream().map(Build::getUser).map(User::getUsername).allMatch(name -> name.equals(username)));
+    }
+
+    @Test
+    public void shouldFilterByBuildConfigurationNameAndInvalidUserId() throws Exception {
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+
+        String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
+        String username = "random-user-name";
+        String rsql = "user.username==" + username;
+
+        BuildsFilterParameters filter = new BuildsFilterParameters();
+        filter.setBuildConfigName(buildConfigName);
+
+        List<Build> builds = new ArrayList<>(client.getAll(filter, null, Optional.empty(), Optional.of(rsql)).getAll());
+
+        assertThat(builds).isEmpty();
     }
 
     @Test
@@ -498,12 +553,4 @@ public class BuildEndpointTest {
         }
         return artifactIds;
     }
-
-    private List<String> toList(String s1, String s2) {
-        List<String> list = new ArrayList<>();
-        list.add(s1);
-        list.add(s2);
-        return list;
-    }
-
 }
