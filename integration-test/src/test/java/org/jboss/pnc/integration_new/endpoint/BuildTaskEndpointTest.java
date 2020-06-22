@@ -23,6 +23,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -34,8 +35,8 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
+import org.jboss.pnc.integration_new.setup.Credentials;
 import org.jboss.pnc.integration_new.setup.Deployments;
-import org.jboss.pnc.integration_new.setup.RestClientConfiguration;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -53,8 +54,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static org.jboss.pnc.integration_new.setup.RestClientConfiguration.getAuthenticationHeaderApache;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -77,7 +76,7 @@ public class BuildTaskEndpointTest {
     @Test
     public void shouldTriggerBuildExecution() throws RemoteResourceException {
         HttpPost request = new HttpPost(url + "/pnc-rest-new/rest-new/build-tasks/execute-build");
-        request.addHeader(getAuthenticationHeaderApache(RestClientConfiguration.AuthenticateAs.USER));
+        request.addHeader(Credentials.USER.createAuthHeader(BasicHeader::new));
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
                 1,

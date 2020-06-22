@@ -75,6 +75,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
+import org.jboss.pnc.integration_new.setup.Credentials;
 import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
 
 /**
@@ -473,8 +474,7 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldFailToGetSshCredentialsForUserThatDidntTrigger() {
-        BuildClient client = new BuildClient(
-                RestClientConfiguration.getConfiguration(RestClientConfiguration.AuthenticateAs.USER2));
+        BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(Credentials.USER2));
 
         assertThatThrownBy(() -> client.getSshCredentials(buildId)).hasCauseInstanceOf(ForbiddenException.class); // 403
                                                                                                                   // means

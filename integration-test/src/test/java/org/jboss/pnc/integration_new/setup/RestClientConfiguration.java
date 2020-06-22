@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.integration_new.setup;
 
-import org.apache.http.message.BasicHeader;
 import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.integration.env.IntegrationTestEnv;
@@ -27,18 +26,10 @@ import org.jboss.pnc.integration.env.IntegrationTestEnv;
  */
 public class RestClientConfiguration {
 
-    public enum AuthenticateAs {
-        NONE, USER, USER2, SYSTEM_USER
-    }
-
-    public static Configuration getConfiguration(AuthenticateAs authAs) {
+    public static Configuration getConfiguration(Credentials credentials) {
         Configuration.ConfigurationBuilder builder = Configuration.builder();
-        if (AuthenticateAs.SYSTEM_USER.equals(authAs)) {
-            builder.basicAuth(new Configuration.BasicAuth("system", "system.1234"));
-        } else if (AuthenticateAs.USER.equals(authAs)) {
-            builder.basicAuth(new Configuration.BasicAuth("demo-user", "pass.1234"));
-        } else if (AuthenticateAs.USER2.equals(authAs)) {
-            builder.basicAuth(new Configuration.BasicAuth("user", "pass.1234"));
+        if (!Credentials.NONE.equals(credentials)) {
+            builder.basicAuth(credentials.passCredentials(Configuration.BasicAuth::new));
         }
         builder.protocol("http");
         builder.host("localhost");
@@ -50,20 +41,15 @@ public class RestClientConfiguration {
     }
 
     public static Configuration asAnonymous() {
-        return getConfiguration(AuthenticateAs.NONE);
+        return getConfiguration(Credentials.NONE);
     }
 
     public static Configuration asUser() {
-        return getConfiguration(AuthenticateAs.USER);
+        return getConfiguration(Credentials.USER);
     }
 
     public static Configuration asSystem() {
-        return getConfiguration(AuthenticateAs.SYSTEM_USER);
-    }
-
-    public static org.apache.http.Header getAuthenticationHeaderApache(RestClientConfiguration.AuthenticateAs user) {
-        String base64Credentials = getConfiguration(user).getBasicAuth().getBase64Credentials();
-        return new BasicHeader("Authorization", "Basic " + base64Credentials);
+        return getConfiguration(Credentials.SYSTEM_USER);
     }
 
 }
