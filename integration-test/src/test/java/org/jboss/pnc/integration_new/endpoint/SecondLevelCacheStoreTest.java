@@ -18,7 +18,6 @@
 package org.jboss.pnc.integration_new.endpoint;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration_new.setup.RestClientConfiguration.AuthenticateAs.USER;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Collections;
@@ -68,13 +67,12 @@ public class SecondLevelCacheStoreTest {
     private static String repositoryConfigurationBCId;
     private static String repositoryConfigurationDepBCId;
 
-    private ProjectClient projectClient = new ProjectClient(RestClientConfiguration.getConfiguration(USER));
+    private ProjectClient projectClient = new ProjectClient(RestClientConfiguration.asUser());
 
-    private ProductVersionClient productVersionClient = new ProductVersionClient(
-            RestClientConfiguration.getConfiguration(USER));
+    private ProductVersionClient productVersionClient = new ProductVersionClient(RestClientConfiguration.asUser());
 
     private BuildConfigurationClient buildConfigurationClient = new BuildConfigurationClient(
-            RestClientConfiguration.getConfiguration(USER));
+            RestClientConfiguration.asUser());
 
     @Deployment
     public static EnterpriseArchive deploy() {

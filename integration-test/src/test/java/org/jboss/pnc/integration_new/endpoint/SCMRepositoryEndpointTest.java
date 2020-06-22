@@ -46,7 +46,6 @@ import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jboss.pnc.integration_new.setup.RestClientConfiguration.AuthenticateAs.USER;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -58,7 +57,7 @@ public class SCMRepositoryEndpointTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SCMRepositoryEndpointTest.class);
 
-    SCMRepositoryClient repositoryClient = new SCMRepositoryClient(RestClientConfiguration.getConfiguration(USER));
+    SCMRepositoryClient repositoryClient = new SCMRepositoryClient(RestClientConfiguration.asUser());
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -68,7 +67,7 @@ public class SCMRepositoryEndpointTest {
     @Test
     public void testGetBuildConfigurationForARepository() throws ClientException {
         BuildConfigurationClient buildConfigurationClient = new BuildConfigurationClient(
-                RestClientConfiguration.getConfiguration(USER));
+                RestClientConfiguration.asUser());
         SCMRepository scmRepository = repositoryClient.getAll(null, null).iterator().next();
 
         Iterator<BuildConfiguration> allConfigsIterator = buildConfigurationClient.getAll().iterator();
