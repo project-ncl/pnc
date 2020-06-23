@@ -34,12 +34,6 @@
       <td>{{ productMilestone.startingDate | date:'yyyy/MM/dd'}}</td>
       <td>{{ productMilestone.plannedEndDate | date:'yyyy/MM/dd'}}</td>
       <td>{{ productMilestone.endDate | date:'yyyy/MM/dd'}}</td>
-      <td class="text-center">
-        <a ng-show="productMilestone.downloadUrl !== undefined" ng-href="{{ productMilestone.downloadUrl }}" target="_self"
-          class="btn btn-default" title="Download Deliverables">
-          <i class="glyphicon glyphicon-download-alt"></i>
-        </a>
-      </td>
       <td ng-if="!productMilestone.endDate" class="text-center">
         <pnc-product-milestone-actions product-milestone="productMilestone" product="$ctrl.product" product-version="$ctrl.productVersion" size="md"></pnc-product-milestone-actions>
       </td>

@@ -105,40 +105,6 @@
             </div>
           </div>
         </div>
-        <div class="panel panel-default">
-          <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : productReleaseForm.downloadurl.$invalid && !productReleaseForm.downloadurl.$pristine }">
-              <label for="input-downloadurl" class="col-sm-2 control-label">
-                Download URL&nbsp;<a uib-popover="Internal or public location to download the product distribution artifacts"
-                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-                   href><span class="fa fa-info-circle"></span></a>
-              </label>
-              <div class="col-sm-10">
-                <div class="input-group">
-                  <input type="url" name="downloadurl" id="input-downloadurl" class="form-control" name="downloadUrl" maxlength="255" ng-model="$ctrl.data.downloadUrl">
-                </div>
-                <span class="help-block" ng-show="productReleaseForm.downloadurl.$invalid && !productReleaseForm.downloadurl.$pristine">Malformed URL.</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="panel panel-default">
-          <div class="panel-body">
-            <div class="form-group" ng-class="{ 'has-error' : productReleaseForm.issuetrackerurl.$invalid && !productReleaseForm.issuetrackerurl.$pristine }">
-              <label for="input-issuetrackerurl" class="col-sm-2 control-label">
-                * Issue Tracker URL&nbsp;<a uib-popover="Link to issues fixed in this release"
-                   popover-placement="right" popover-class="popover-info-tip" popover-append-to-body="true"
-                   href><span class="fa fa-info-circle"></span></a>
-              </label>
-              <div class="col-sm-10">
-                <div class="input-group">
-                  <input type="url" required name="issuetrackerurl" id="input-issuetrackerurl" class="form-control" name="issueTrackerUrl" maxlength="255" ng-model="$ctrl.data.issueTrackerUrl">
-                </div>
-                <span class="help-block" ng-show="productReleaseForm.issuetrackerurl.$invalid && !productReleaseForm.issuetrackerurl.$pristine">Malformed URL.</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <div class="panel panel-default">
           <div class="panel-body">

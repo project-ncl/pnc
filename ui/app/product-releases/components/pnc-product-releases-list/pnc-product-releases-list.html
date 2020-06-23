@@ -32,12 +32,6 @@
         <pnc-product-release-label product-release="productRelease"></pnc-product-release-label>
       </td>
       <td>{{ productRelease.releaseDate | date:'yyyy/MM/dd'}}</td>
-      <td class="text-center">
-        <a ng-show="productRelease.downloadUrl != undefined" ng-href="{{ productRelease.downloadUrl }}" target="_self"
-          class="btn btn-default" title="Download Deliverables">
-          <i class="glyphicon glyphicon-download-alt"></i>
-        </a>
-      </td>
       <td>Released from milestone <pnc-milestone-label-link product-version="productRelease.productVersion" milestone="productRelease.productMilestone"></pnc-milestone-label-link></td>
       <td>{{ productRelease.supportLevel }}</td>
       <td>
