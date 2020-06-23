@@ -43,12 +43,6 @@
         <dt>End Date</dt>
         <dd>{{ $ctrl.productMilestone.endDate | date:'yyyy/MM/dd' }}</dd>
 
-        <dt>Issue Tracker URL</dt>
-        <dd>
-          <span ng-hide="$ctrl.productMilestone.issueTrackerUrl">&mdash;</span>
-          <a ng-show="$ctrl.productMilestone.issueTrackerUrl" href="{{ $ctrl.productMilestone.issueTrackerUrl }}">{{ $ctrl.productMilestone.issueTrackerUrl }}</a>
-        </dd>
-
         <dt>Status</dt>
         <dd>{{ $ctrl.latestCloseResultstatus || 'Open' }} <span ng-if="$ctrl.latestCloseResultstatus">[ <a ui-sref="product.detail.version.milestoneDetail.log({ milestoneId: $ctrl.productMilestone.id })" href>View Log</a> ]</span></dd>
 
