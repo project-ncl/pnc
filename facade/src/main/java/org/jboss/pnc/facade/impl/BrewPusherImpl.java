@@ -151,6 +151,11 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Override
     public BuildPushResult pushBuild(String buildId, BuildPushParameters buildPushParameters) throws ProcessException {
+        BuildRecord build = buildRecordRepository.queryById(Integer.valueOf(buildId));
+        if (build.getStatus().equals(BuildStatus.NO_REBUILD_REQUIRED)) {
+            throw new OperationNotAllowedException(
+                    "Build has NO_REBUILD_REQUIRED status, push last successful build or use force-rebuild.");
+        }
         Long buildPushResultId = Sequence.nextId();
         MDCUtils.addProcessContext(buildPushResultId.toString());
         MDCUtils.addCustomContext(BUILD_ID_KEY, buildId);
