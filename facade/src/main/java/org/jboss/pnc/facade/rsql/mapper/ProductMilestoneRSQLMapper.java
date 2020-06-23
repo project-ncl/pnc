@@ -60,10 +60,6 @@ public class ProductMilestoneRSQLMapper extends AbstractRSQLMapper<Integer, Prod
                 return ProductMilestone_.startingDate;
             case "plannedEndDate":
                 return ProductMilestone_.plannedEndDate;
-            case "downloadUrl":
-                return ProductMilestone_.downloadUrl;
-            case "issueTrackerUrl":
-                return ProductMilestone_.issueTrackerUrl;
             default:
                 return null;
         }

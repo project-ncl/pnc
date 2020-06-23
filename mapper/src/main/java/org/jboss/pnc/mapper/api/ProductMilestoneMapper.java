@@ -40,8 +40,6 @@ public interface ProductMilestoneMapper
     @Override
     @Mapping(target = "distributedArtifacts", ignore = true)
     @Mapping(target = "performedBuilds", ignore = true)
-    @Mapping(target = "issueTrackerUrl", ignore = true)
-    @Mapping(target = "downloadUrl", ignore = true)
     ProductMilestone toEntity(org.jboss.pnc.dto.ProductMilestone dtoEntity);
 
     @Override
@@ -57,15 +55,13 @@ public interface ProductMilestoneMapper
     @Override
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "productRelease", resultType = ProductReleaseRef.class)
-    @BeanMapping(
-            ignoreUnmappedSourceProperties = { "performedBuilds", "distributedArtifacts", "issueTrackerUrl",
-                    "downloadUrl" })
+    @BeanMapping(ignoreUnmappedSourceProperties = { "performedBuilds", "distributedArtifacts" })
     org.jboss.pnc.dto.ProductMilestone toDTO(ProductMilestone dbEntity);
 
     @Override
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "productVersion", "productRelease", "performedBuilds",
-                    "distributedArtifacts", "issueTrackerUrl", "downloadUrl" })
+                    "distributedArtifacts" })
     ProductMilestoneRef toRef(ProductMilestone dbEntity);
 
     @Override

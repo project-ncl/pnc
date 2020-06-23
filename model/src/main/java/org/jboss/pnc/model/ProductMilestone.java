@@ -93,18 +93,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
     private Date plannedEndDate;
 
     /**
-     * URL which can be used to download the product distribution
-     */
-    @Size(max = 255)
-    private String downloadUrl;
-
-    /**
-     * Issue tracker URL containing the set of issues fixed in this milestone
-     */
-    @Size(max = 255)
-    private String issueTrackerUrl;
-
-    /**
      * The product major.minor version associated with this milestone. After initial creation of the milestone, the
      * product version should never change.
      */
@@ -221,27 +209,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
         this.endDate = endDate;
     }
 
-    /**
-     * URL which can be used to download the product distribution
-     *
-     * @return The url where this milestone distribution can be downloaded
-     */
-    public String getDownloadUrl() {
-        return downloadUrl;
-    }
-
-    public void setDownloadUrl(String downloadUrl) {
-        this.downloadUrl = downloadUrl;
-    }
-
-    public String getIssueTrackerUrl() {
-        return issueTrackerUrl;
-    }
-
-    public void setIssueTrackerUrl(String issueTrackerUrl) {
-        this.issueTrackerUrl = issueTrackerUrl;
-    }
-
     public Set<BuildRecord> getPerformedBuilds() {
         return performedBuilds;
     }
@@ -299,10 +266,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private Date plannedEndDate;
 
-        private String downloadUrl;
-
-        private String issueTrackerUrl;
-
         private Set<BuildRecord> performedBuilds;
 
         private Set<Artifact> distributedArtifacts;
@@ -325,8 +288,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
             productMilestone.setEndDate(endDate);
             productMilestone.setStartingDate(startingDate);
             productMilestone.setPlannedEndDate(plannedEndDate);
-            productMilestone.setDownloadUrl(downloadUrl);
-            productMilestone.setIssueTrackerUrl(issueTrackerUrl);
 
             if (productVersion != null) {
                 productVersion.addProductMilestone(productMilestone);
@@ -366,16 +327,6 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         public Builder plannedEndDate(Date plannedEndDate) {
             this.plannedEndDate = plannedEndDate;
-            return this;
-        }
-
-        public Builder downloadUrl(String downloadUrl) {
-            this.downloadUrl = downloadUrl;
-            return this;
-        }
-
-        public Builder issueTrackerUrl(String issueTrackerUrl) {
-            this.issueTrackerUrl = issueTrackerUrl;
             return this;
         }
 
