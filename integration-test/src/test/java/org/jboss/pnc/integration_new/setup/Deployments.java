@@ -41,8 +41,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
-import static org.jboss.pnc.AbstractTest.AUTH_JAR;
-import static org.jboss.pnc.AbstractTest.EXECUTOR_JAR;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -50,6 +48,11 @@ import static org.jboss.pnc.AbstractTest.EXECUTOR_JAR;
 public class Deployments {
 
     public static final Logger logger = LoggerFactory.getLogger(Deployments.class);
+
+    public static final String EXECUTOR_JAR = "/build-executor.jar";
+    public static final String AUTH_JAR = "/auth.jar";
+    public static final String COORDINATOR_JAR = "/build-coordinator.jar";
+    public static final String CAUSEWAY_CLIENT_JAR = "/causeway-client.jar";
 
     private static final PomEquippedResolveStage resolver = Maven.resolver()
             .loadPomFromFile("pom.xml")
