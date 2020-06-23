@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import java.io.File;
 import java.time.Instant;
@@ -89,6 +90,8 @@ public class IndyRepositorySession implements RepositorySession {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-executor");
 
+    private static ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
+
     private boolean isTempBuild;
 
     private Indy indy;
@@ -102,7 +105,7 @@ public class IndyRepositorySession implements RepositorySession {
 
     private final RepositoryConnectionInfo connectionInfo;
 
-    private Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    private final Validator validator;
 
     private String buildPromotionTarget;
 
@@ -124,6 +127,7 @@ public class IndyRepositorySession implements RepositorySession {
             ArtifactFilter artifactFilter,
             String buildPromotionTarget,
             boolean isTempBuild) {
+        this.validator = validatorFactory.getValidator();
         this.indy = indy;
         this.serviceAccountIndy = serviceAccountIndy;
         this.buildContentId = buildContentId;
