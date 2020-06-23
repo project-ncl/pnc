@@ -33,14 +33,14 @@
       groupConfig: '<?'
     },
     templateUrl: 'common/components/pnc-latest-build/pnc-latest-build.html',
-    controller: ['BuildResource', 'GroupBuildResource', Controller]
+    controller: ['BuildResource', 'GroupBuildResource', 'BuildConfigResource', Controller]
   });
 
 
   /*
    * This component requires extensive refactoring when BC refactor takes place
    */
-  function Controller(BuildResource, GroupBuildResource) {
+  function Controller(BuildResource, GroupBuildResource, BuildConfigResource) {
     var $ctrl = this;
 
     $ctrl.isLoaded = false;
@@ -71,6 +71,14 @@
     $ctrl.$onInit = function() {
       loadLatestBuild();
 
+      BuildConfigResource.getLatestBuild({ id: $ctrl.buildConfig.id }).$promise.then(
+        build => {
+          console.log('latest build = %O', build);
+        },
+        err => {
+          console.log('error fetching latest build: %O', err);
+        }
+      );
     };
 
   }

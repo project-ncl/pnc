@@ -72,6 +72,13 @@
         queryBuilds: {
           method: 'GET',
           url: ENDPOINT + '/builds'
+        },
+        getLatestBuild: {
+          method: 'GET',
+          url: ENDPOINT + '/builds',
+          params: {
+            latest: true
+          }
         }
       });
 
