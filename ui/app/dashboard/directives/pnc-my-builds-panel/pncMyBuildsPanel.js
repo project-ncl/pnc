@@ -51,7 +51,8 @@
             authService.getPncUser().then(function(result) {
               return BuildResource.queryByUser({
                 userId: result.id,
-                pageSize: 10
+                pageSize: 10,
+                sort: '=desc=id'
               }).$promise.then(function(page){
                 scope.page = paginator(page);
               });
