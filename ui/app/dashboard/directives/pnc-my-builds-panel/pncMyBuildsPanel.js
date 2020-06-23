@@ -52,7 +52,7 @@
               return BuildResource.queryByUser({
                 userId: result.id,
                 pageSize: 10,
-                sort: '=desc=id'
+                sort: '=desc=submitTime'
               }).$promise.then(function(page){
                 scope.page = paginator(page);
               });
