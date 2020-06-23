@@ -20,7 +20,6 @@ package org.jboss.pnc.integration_new.endpoint;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.ClientException;
@@ -82,7 +81,7 @@ public class BuildTest {
     public static EnterpriseArchive deploy() {
         final EnterpriseArchive ear = Deployments.testEarForInContainerTest(BuildTest.class);
         Deployments.addBuildExecutorMock(ear);
-        JavaArchive coordinatorJar = ear.getAsType(JavaArchive.class, AbstractTest.COORDINATOR_JAR);
+        JavaArchive coordinatorJar = ear.getAsType(JavaArchive.class, Deployments.COORDINATOR_JAR);
         coordinatorJar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
         coordinatorJar.addClass(RemoteBuildsCleanerMock.class);
         return ear;

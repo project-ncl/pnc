@@ -20,7 +20,6 @@ package org.jboss.pnc.integration_new.endpoint;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.causewayclient.DefaultCausewayClient;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.ClientException;
@@ -61,7 +60,7 @@ public class BuildPushTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.testEar();
 
-        JavaArchive processManager = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.CAUSEWAY_CLIENT_JAR);
+        JavaArchive processManager = enterpriseArchive.getAsType(JavaArchive.class, Deployments.CAUSEWAY_CLIENT_JAR);
         processManager.deleteClass(DefaultCausewayClient.class);
         processManager.addClass(CausewayClientMock.class);
 

@@ -19,7 +19,6 @@ package org.jboss.pnc.integration_new;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.AbstractTest;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
 import org.jboss.pnc.integration_new.setup.Deployments;
 import org.jboss.pnc.mock.RemoteBuildsCleanerMock;
@@ -140,7 +139,7 @@ public class TemporaryBuildsCleanerTest {
     public static EnterpriseArchive deploy() {
         EnterpriseArchive enterpriseArchive = Deployments.testEarForInContainerTest(TemporaryBuildsCleanerTest.class);
 
-        JavaArchive coordinator = enterpriseArchive.getAsType(JavaArchive.class, AbstractTest.COORDINATOR_JAR);
+        JavaArchive coordinator = enterpriseArchive.getAsType(JavaArchive.class, Deployments.COORDINATOR_JAR);
         coordinator.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
         coordinator.addClass(RemoteBuildsCleanerMock.class);
 
