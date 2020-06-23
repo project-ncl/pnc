@@ -30,8 +30,8 @@
           <pnc-group-config-link group-config="groupConfig"></pnc-group-config-link>
         </td>
         <td ng-if="$ctrl.showColumn('buildStatus')">
-            <pnc-latest-build group-config="groupConfig"></pnc-latest-build>
-          </td>
+          <pnc-group-config-status-icon group-config="groupConfig"></pnc-group-config-status-icon>
+        </td>
         <td class="td-actions" ng-if="::$ctrl.actionsTemplateUrl" ng-include="::$ctrl.actionsTemplateUrl"></td>
       </tr>
     </tbody>

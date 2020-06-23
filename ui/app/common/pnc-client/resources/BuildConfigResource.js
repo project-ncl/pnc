@@ -30,7 +30,8 @@
     'restConfig',
     'patchHelper',
     'BUILD_CONFIG_PATH',
-    ($log, $resource, $http, restConfig, patchHelper, BUILD_CONFIG_PATH) => {
+    'BuildResource',
+    ($log, $resource, $http, restConfig, patchHelper, BUILD_CONFIG_PATH, BuildResource) => {
       const ENDPOINT = restConfig.getPncRestUrl() + BUILD_CONFIG_PATH;
 
       const resource = $resource(ENDPOINT, {
@@ -66,6 +67,17 @@
           method: 'GET',
           url: ENDPOINT + '/builds',
           isPaged: true
+        },
+        getLatestBuild: {
+          method: 'GET',
+          url: ENDPOINT + '/builds',
+          params: {
+            latest: true
+          },
+          interceptor: {
+            // Extract the single build object from the page object the REST API returns.
+            response: resp => new BuildResource(resp.resource.content[0])
+          }
         },
         getDependencies: {
           method: 'GET',
