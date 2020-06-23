@@ -87,10 +87,6 @@ public class ProductReleaseRSQLMapper extends AbstractRSQLMapper<Integer, Produc
                 return ProductRelease_.supportLevel;
             case "releaseDate":
                 return ProductRelease_.releaseDate;
-            case "downloadUrl":
-                return ProductRelease_.downloadUrl;
-            case "issueTrackerUrl":
-                return ProductRelease_.issueTrackerUrl;
             default:
                 return null;
         }

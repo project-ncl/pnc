@@ -81,15 +81,6 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     private Date releaseDate;
 
-    @Size(max = 255)
-    private String downloadUrl;
-
-    /**
-     * Issue tracker URL containing the set of issues fixed in this release
-     */
-    @Size(max = 255)
-    private String issueTrackerUrl;
-
     @NotNull
     @OneToOne(cascade = { CascadeType.REFRESH })
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_productrelease_milestone"))
@@ -167,27 +158,6 @@ public class ProductRelease implements GenericEntity<Integer> {
         this.releaseDate = releaseDate;
     }
 
-    /**
-     * URL which can be used to download the product distribution
-     * 
-     * @return The url to download this release
-     */
-    public String getDownloadUrl() {
-        return downloadUrl;
-    }
-
-    public void setDownloadUrl(String downloadUrl) {
-        this.downloadUrl = downloadUrl;
-    }
-
-    public String getIssueTrackerUrl() {
-        return issueTrackerUrl;
-    }
-
-    public void setIssueTrackerUrl(String issueTrackerUrl) {
-        this.issueTrackerUrl = issueTrackerUrl;
-    }
-
     public ProductMilestone getProductMilestone() {
         return productMilestone;
     }
@@ -241,10 +211,6 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         private Date releaseDate;
 
-        private String downloadUrl;
-
-        private String issueTrackerUrl;
-
         private String commonPlatformEnumeration;
 
         private String productPagesCode;
@@ -262,8 +228,6 @@ public class ProductRelease implements GenericEntity<Integer> {
             productRelease.setVersion(version);
             productRelease.setSupportLevel(supportLevel);
             productRelease.setReleaseDate(releaseDate);
-            productRelease.setDownloadUrl(downloadUrl);
-            productRelease.setIssueTrackerUrl(issueTrackerUrl);
             productRelease.setCommonPlatformEnumeration(commonPlatformEnumeration);
             productRelease.setProductPagesCode(productPagesCode);
 
@@ -292,16 +256,6 @@ public class ProductRelease implements GenericEntity<Integer> {
 
         public Builder releaseDate(Date releaseDate) {
             this.releaseDate = releaseDate;
-            return this;
-        }
-
-        public Builder downloadUrl(String downloadUrl) {
-            this.downloadUrl = downloadUrl;
-            return this;
-        }
-
-        public Builder issueTrackerUrl(String issueTrackerUrl) {
-            this.issueTrackerUrl = issueTrackerUrl;
             return this;
         }
 
