@@ -29,6 +29,13 @@ ALTER TABLE product DROP COLUMN productcode;
 ALTER TABLE product DROP COLUMN pgmsystemname;
 
 
+-- [NCL-5799]: Remove fields from Product Milestone/Release
+ALTER TABLE productrelease DROP COLUMN downloadUrl;
+ALTER TABLE productrelease DROP COLUMN issueTrackerUrl;
+ALTER TABLE productmilestone DROP COLUMN downloadUrl;
+ALTER TABLE productmilestone DROP COLUMN issueTrackerUrl;
+
+
 -- [NCL-5497] - Store User in BuildConfiguration and BuildConfigurationAudited
 BEGIN transaction;
 
