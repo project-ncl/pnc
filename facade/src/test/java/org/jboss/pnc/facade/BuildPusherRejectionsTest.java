@@ -89,7 +89,7 @@ public class BuildPusherRejectionsTest {
                 new Object[][] { { SUCCESS, BLACKLISTED, OperationNotAllowedException.class },
                         { SUCCESS, DELETED, OperationNotAllowedException.class },
                         { FAILED, NEW, OperationNotAllowedException.class },
-                        { NO_REBUILD_REQUIRED, NEW, InconsistentDataException.class } });
+                        { NO_REBUILD_REQUIRED, NEW, OperationNotAllowedException.class } });
     }
 
     @Rule

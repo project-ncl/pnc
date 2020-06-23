@@ -27,9 +27,10 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildPushStatus;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.integration.mock.client.CausewayClientMock;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
-import org.jboss.pnc.integration.mock.client.CausewayClientMock;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -41,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.ForbiddenException;
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +57,7 @@ public class BuildPushTest {
     private static final Logger logger = LoggerFactory.getLogger(BuildEndpointTest.class);
     private static final String ID = "1234";
     private static String buildId;
+    private static String build2Id;
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -76,6 +79,7 @@ public class BuildPushTest {
         BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
         Iterator<Build> it = bc.getAll(null, null).iterator();
         buildId = it.next().getId();
+        build2Id = it.next().getId();
     }
 
     @Test
@@ -107,6 +111,19 @@ public class BuildPushTest {
 
         assertThat(result2).isNotNull();
         assertThat(result2.getStatus()).isEqualTo(BuildPushStatus.ACCEPTED);
+    }
+
+    @Test
+    public void shouldRefuseToPushNoRebuildRequiredStatusBuild() throws ClientException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
+        Build build = client.getSpecific(build2Id);
+        Build noRebuildStatus = build.toBuilder().status(BuildStatus.NO_REBUILD_REQUIRED).build();
+
+        client.update(build2Id, noRebuildStatus);
+
+        BuildPushParameters parameters = BuildPushParameters.builder().reimport(false).tagPrefix("test-tag").build();
+
+        assertThatThrownBy(() -> client.push(build2Id, parameters)).hasCauseInstanceOf(ForbiddenException.class);
     }
 
     private BuildPushResult returnSuccessfulResult(String id) {
