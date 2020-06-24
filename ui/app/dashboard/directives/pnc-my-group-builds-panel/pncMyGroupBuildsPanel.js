@@ -51,7 +51,7 @@
               return GroupBuildResource.queryByUser({
                 userId: result.id,
                 pageSize: 10,
-                sort: '=desc=submitTime'
+                sort: '=desc=startTime'
               }).$promise.then(function(page) {
                 scope.page = paginator(page);
               });
