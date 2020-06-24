@@ -24,15 +24,14 @@
       alignmentLog: '<'
     },
     templateUrl: 'builds/detail/alignment-log/pnc-build-detail-alignment-log-page.html',
-    controller: ['REST_BASE_REST_URL', 'BUILD_PATH', Controller]
+    controller: [Controller]
   });
 
 
-  function Controller(REST_BASE_REST_URL, BUILD_PATH) {
+  function Controller() {
     const $ctrl = this;
 
     // -- Controller API --
-    $ctrl.logUrl = null;
     $ctrl.logFileName = null;
     $ctrl.sshCredentialsBtn = {
       clicked: false
@@ -42,7 +41,6 @@
     // --------------------
 
     $ctrl.$onInit = function () {
-      $ctrl.logUrl = REST_BASE_REST_URL + BUILD_PATH.replace(':id', $ctrl.build.id) + '/logs/align';
       $ctrl.logFileName = $ctrl.build.id + '_' + $ctrl.build.buildConfigRevision.name + '_' + $ctrl.build.status + '_alignment-log.txt';
     };
 

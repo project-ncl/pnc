@@ -18,10 +18,10 @@
 
 -->
 <div class="pull-left">
-  <a class="btn btn-default btn-sm" href="{{$ctrl.logUrl}}" target="_blank" title="View the log as a plain text">
+  <a class="btn btn-default btn-sm" href="{{$ctrl.build.$alignLogUrl()}}" target="_blank" title="View the log as a plain text">
     View <span class="pficon pficon-arrow"></span>
   </a>
-  <a class="btn btn-default btn-sm" href="{{$ctrl.logUrl}}" target="_blank" title="Download the log as a plain text" download="{{$ctrl.logFileName}}">
+  <a class="btn btn-default btn-sm" href="{{$ctrl.build.$alignLogUrl()}}" target="_blank" title="Download the log as a plain text" download="{{$ctrl.logFileName}}">
     Download <span class="fa fa-arrow-circle-o-down"></span>
   </a>
 </div>
