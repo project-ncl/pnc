@@ -162,23 +162,8 @@ public class SCMRepositoryProviderImpl
                         + preBuildSyncEnabled + ")");
         if (StringUtils.isEmpty(scmUrl))
             throw new InvalidEntityException("You must specify the SCM URL.");
-        if (scmUrl.startsWith("http") || scmUrl.startsWith("https")) {
-            try {
-                URL url = new URL(scmUrl);
-                if (url.getProtocol().equals("http") || url.getProtocol().equals("https")) {
-                    StringBuilder stringBuilder = new StringBuilder("git+http://");
-                    stringBuilder.append(url.getHost());
-                    if (url.getPort() != -1) {
-                        stringBuilder.append(":" + url.getPort());
-                    }
-                    stringBuilder.append(url.getFile());
-                    scmUrl = stringBuilder.toString();
-                }
-            } catch (MalformedURLException e) {
-                throw new InvalidEntityException("URL is malformed." + e.getMessage());
-            }
-        }
         if (scmUrl.contains(config.getInternalScmAuthority())) {
+            scmUrl = changeSCMProtocol(scmUrl);
 
             // validation phase
             validateInternalRepository(scmUrl);
@@ -336,5 +321,25 @@ public class SCMRepositoryProviderImpl
         log.debug("Received BPM event error: " + notification);
         final String taskId = task.getTaskId() == null ? null : task.getTaskId().toString();
         return new RepositoryCreationFailure(jobType, notification.getEventType(), notification.getData(), taskId);
+    }
+
+    private String changeSCMProtocol(String originalScm) {
+        if (originalScm.startsWith("http") || originalScm.startsWith("https")) {
+            try {
+                URL url = new URL(originalScm);
+                if (url.getProtocol().equals("http") || url.getProtocol().equals("https")) {
+                    StringBuilder stringBuilder = new StringBuilder("git+http://");
+                    stringBuilder.append(url.getHost());
+                    if (url.getPort() != -1) {
+                        stringBuilder.append(":" + url.getPort());
+                    }
+                    stringBuilder.append(url.getFile());
+                    return stringBuilder.toString();
+                }
+            } catch (MalformedURLException e) {
+                throw new InvalidEntityException("URL is malformed." + e.getMessage());
+            }
+        }
+        return originalScm;
     }
 }
