@@ -178,39 +178,55 @@ public class IndyRepositorySession implements RepositorySession {
         List<Artifact> uploadedArtifacts = uploads.getData();
         Collections.sort(uploadedArtifacts, comp);
 
-        List<Artifact> downloadedArtifacts = processDownloads(report, liveBuild);
-        Collections.sort(downloadedArtifacts, comp);
+        List<Artifact> downloadedArtifacts = null;
+        String log = "";
+        CompletionStatus status = CompletionStatus.SUCCESS;
+
+        try {
+            downloadedArtifacts = processDownloads(report, liveBuild);
+            Collections.sort(downloadedArtifacts, comp);
+        } catch (PromotionValidationException ex) {
+            status = CompletionStatus.FAILED;
+            log = ex.getMessage();
+            logger.error("Dependencies promotion failed. Error(s): {}", log);
+            userLog.error("Built artifact promotion failed. Error(s): {}", log);
+        }
 
         if (liveBuild) {
             deleteBuildGroup();
         }
 
-        logger.info(
-                "Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
-                StringUtils.join(uploads.getData(), "\n  "),
-                StringUtils.join(downloadedArtifacts, "\n  "));
+        // if the promotion of dependencies succeeded...
+        if (status == CompletionStatus.SUCCESS) {
+            logger.info(
+                    "Returning built artifacts / dependencies:\nUploads:\n  {}\n\nDownloads:\n  {}\n\n",
+                    StringUtils.join(uploads.getData(), "\n  "),
+                    StringUtils.join(downloadedArtifacts, "\n  "));
 
-        String log = "";
-        CompletionStatus status = CompletionStatus.SUCCESS;
+            if (liveBuild) {
+                logger.info("BEGIN: promotion to build content set");
+                StopWatch stopWatch = StopWatch.createStarted();
 
-        if (liveBuild) {
-            logger.info("BEGIN: promotion to build content set");
-            StopWatch stopWatch = StopWatch.createStarted();
+                try {
+                    promoteToBuildContentSet(uploads.getPromotion());
+                } catch (PromotionValidationException ex) {
+                    status = CompletionStatus.FAILED;
+                    log = ex.getMessage();
+                    logger.error("Built artifact promotion failed. Error(s): {}", log);
+                    userLog.error("Built artifact promotion failed. Error(s): {}", log);
+                }
 
-            try {
-                promoteToBuildContentSet(uploads.getPromotion());
-            } catch (RepositoryManagerException rme) {
-                status = CompletionStatus.FAILED;
-                log = rme.getMessage();
-                logger.error("Built artifact promotion failed. Error(s): {}", log);
-                userLog.error("Built artifact promotion failed. Error(s): {}", log);
-                // prevent saving artifacts and dependencies to a failed build
-                downloadedArtifacts = Collections.emptyList();
-                uploadedArtifacts = Collections.emptyList();
+                logger.info(
+                        "END: promotion to build content set, took: {} seconds",
+                        stopWatch.getTime(TimeUnit.SECONDS));
+                stopWatch.reset();
             }
+        }
 
-            logger.info("END: promotion to build content set, took: {} seconds", stopWatch.getTime(TimeUnit.SECONDS));
-            stopWatch.reset();
+        if (status == CompletionStatus.FAILED) {
+            // prevent saving artifacts and dependencies to a failed build
+            downloadedArtifacts = Collections.emptyList();
+            uploadedArtifacts = Collections.emptyList();
         }
 
         return new IndyRepositoryManagerResult(uploadedArtifacts, downloadedArtifacts, buildContentId, log, status);
@@ -276,9 +292,10 @@ public class IndyRepositorySession implements RepositorySession {
      * @return List of dependency artifacts meta data
      * @throws RepositoryManagerException In case of a client API transport error or an error during promotion of
      *         artifacts
+     * @throws PromotionValidationException when the promotion process results in an error due to validation failure
      */
     private List<Artifact> processDownloads(final TrackedContentDTO report, final boolean promote)
-            throws RepositoryManagerException {
+            throws RepositoryManagerException, PromotionValidationException {
         List<Artifact> deps;
 
         logger.info("BEGIN: Process artifacts downloaded by build");
@@ -408,9 +425,11 @@ public class IndyRepositorySession implements RepositorySession {
      * another map, where key is promotion source store key and value is list of paths to be promoted.
      *
      * @param depMap dependencies map
-     * @throws RepositoryManagerException in case of an error during promotion
+     * @throws RepositoryManagerException in case of an unexpected error during promotion
+     * @throws PromotionValidationException when the promotion process results in an error due to validation failure
      */
-    private void promoteDownloads(Map<StoreKey, Map<StoreKey, Set<String>>> depMap) throws RepositoryManagerException {
+    private void promoteDownloads(Map<StoreKey, Map<StoreKey, Set<String>>> depMap)
+            throws RepositoryManagerException, PromotionValidationException {
         for (Map.Entry<StoreKey, Map<StoreKey, Set<String>>> targetToSources : depMap.entrySet()) {
             StoreKey target = targetToSources.getKey();
             for (Map.Entry<StoreKey, Set<String>> sourceToPaths : targetToSources.getValue().entrySet()) {
@@ -733,11 +752,12 @@ public class IndyRepositorySession implements RepositorySession {
      *        set of paths to promote
      * @param setTargetRO flag telling if the target repo should be set to readOnly
      * @param setSourceRO flag telling if the source repo should be set to readOnly
-     * @throws RepositoryManagerException When either the client API throws an exception due to something unexpected in
-     *         transport, or if the promotion process results in an error.
+     * @throws RepositoryManagerException when the client API throws an exception due to something unexpected in
+     *         transport
+     * @throws PromotionValidationException when the promotion process results in an error due to validation failure
      */
     private void doPromoteByPath(PathsPromoteRequest req, boolean setSourceRO, boolean setTargetRO)
-            throws RepositoryManagerException {
+            throws RepositoryManagerException, PromotionValidationException {
         IndyPromoteClientModule promoter;
         try {
             promoter = serviceAccountIndy.module(IndyPromoteClientModule.class);
@@ -759,7 +779,7 @@ public class IndyRepositorySession implements RepositorySession {
                 }
             } else {
                 String error = getValidationError(result);
-                throw new RepositoryManagerException("Failed to promote: %s. Reason given was: %s", req, error);
+                throw new PromotionValidationException("Failed to promote: %s. Reason given was: %s", req, error);
             }
         } catch (IndyClientException e) {
             throw new RepositoryManagerException("Failed to promote: %s. Reason: %s", e, req, e.getMessage());
@@ -812,8 +832,12 @@ public class IndyRepositorySession implements RepositorySession {
      * added to the repo's contents) and marks the build output as readonly.
      *
      * @param uploads artifacts to be promoted
+     * @throws RepositoryManagerException when the repository client API throws an exception due to something unexpected
+     *         in transport
+     * @throws PromotionValidationException when the promotion process results in an error due to validation failure
      */
-    public void promoteToBuildContentSet(List<String> uploads) throws RepositoryManagerException {
+    public void promoteToBuildContentSet(List<String> uploads)
+            throws RepositoryManagerException, PromotionValidationException {
         userLog.info("Validating and promoting built artifacts");
 
         StoreKey source = new StoreKey(packageType, StoreType.hosted, buildContentId);
