@@ -237,6 +237,13 @@
         return buildLogUrl(this);
       };
 
+      function alignLogUrl(build) {
+        return ENDPOINT.replace(':id', build.id) + '/logs/align';
+      }
+      resource.prototype.$alignLogUrl = function () {
+        return alignLogUrl(this);
+      };
+
       return resource;
     }
 
