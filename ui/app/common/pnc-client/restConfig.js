@@ -27,15 +27,11 @@
 
     // Set the defaults initially, these can be overriden by injecting the
     // provider and invoking the corresponding mutator methods.
-    var pncUrl = '/pnc-rest/rest';
     var pncRestUrl = '/pnc-rest-new/rest-new';
     var pncNotificationsUrl = 'ws://' + window.location.host + '/pnc-rest/ws/build-records/notifications';
     var daUrl;
     var kafkaStoreUrl;
 
-    this.setPncUrl = function (url) {
-      pncUrl = url;
-    };
 
     this.setPncRestUrl = function (url) {
       pncRestUrl = url;
@@ -55,10 +51,6 @@
 
     this.$get = function () {
       var restConfig = {};
-
-      restConfig.getPncUrl = function () {
-        return pncUrl;
-      };
 
       restConfig.getPncRestUrl = function () {
         return pncRestUrl;
