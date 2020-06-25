@@ -24,7 +24,7 @@
       build: '<',
       shortLink: '@'
     },
-    transclude: true, 
+    transclude: true,
     templateUrl: 'builds/directives/pnc-build-link/pnc-build-link.html',
     controller: [Controller]
   });
@@ -43,6 +43,9 @@
     };
 
     function getLinkText() {
+      if (angular.isUndefined($ctrl.build)) {
+        console.error('getLinkText() :: $ctrl.build is undefined // $ctrl = %O', $ctrl);
+      }
       if ($ctrl.shortLink === 'true') {
         return '#' + $ctrl.build.id;
       } else {
