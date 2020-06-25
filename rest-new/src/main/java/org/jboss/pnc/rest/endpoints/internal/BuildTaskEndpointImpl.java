@@ -27,18 +27,11 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.facade.executor.BuildExecutorTriggerer;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.rest.endpoints.internal.api.BuildTaskEndpoint;
-import org.jboss.pnc.rest.restmodel.response.AcceptedResponse;
-import org.jboss.pnc.rest.restmodel.response.Singleton;
-import org.jboss.pnc.rest.validation.ValidationBuilder;
-import org.jboss.pnc.rest.validation.exceptions.InvalidEntityException;
-import org.jboss.pnc.rest.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
@@ -51,6 +44,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.util.Optional;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.rest.endpoints.internal.dto.AcceptedResponse;
 
 @Dependent
 public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
@@ -181,7 +178,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             String id = Integer.toString(buildExecutionConfiguration.getId());
             AcceptedResponse acceptedResponse = new AcceptedResponse(id, uriBuilder.build().toString());
 
-            return Response.ok().entity(new Singleton(acceptedResponse)).build();
+            return Response.ok().entity(acceptedResponse).build();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);
@@ -220,7 +217,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             String id = Integer.toString(buildExecutionConfiguration.getId());
             AcceptedResponse acceptedResponse = new AcceptedResponse(id, uriBuilder.build().toString());
 
-            return Response.ok().entity(new Singleton(acceptedResponse)).build();
+            return Response.ok().entity(acceptedResponse).build();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(e);

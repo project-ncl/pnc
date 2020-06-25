@@ -22,7 +22,6 @@ import org.jboss.pnc.notification.MessageType;
 import org.jboss.pnc.notification.ProgressUpdatesRequest;
 import org.jboss.pnc.notification.RequestParser;
 import org.jboss.pnc.notification.SessionBasedAttachedClient;
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
@@ -41,6 +40,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
+import org.jboss.pnc.dto.response.ErrorResponse;
 
 /**
  * Web Sockets notification implementation.
@@ -127,7 +127,7 @@ public class NotificationsEndpoint {
 
     private void respondWithErrorMessage(String errorMessage, Response.Status status, Session session, Exception e) {
         String statusCode = Integer.toString(status.getStatusCode());
-        String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
+        String error = JsonOutputConverterMapper.apply(new ErrorResponse(statusCode, errorMessage));
         if (e != null) {
             logger.warn(errorMessage, e);
         } else {
@@ -158,7 +158,7 @@ public class NotificationsEndpoint {
             String statusCode = Integer.toString(Response.Status.NOT_ACCEPTABLE.getStatusCode());
             String errorMessage = "Invalid action: " + progressUpdatesRequest.getAction()
                     + ". Supported actions are: {}." + Action.values();
-            String error = JsonOutputConverterMapper.apply(new ErrorResponseRest(statusCode, errorMessage));
+            String error = JsonOutputConverterMapper.apply(new ErrorResponse(statusCode, errorMessage));
             logger.warn(errorMessage);
             session.getAsyncRemote().sendText(error);
         }

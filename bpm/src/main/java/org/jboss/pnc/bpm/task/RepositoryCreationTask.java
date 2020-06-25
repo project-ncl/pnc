@@ -51,7 +51,7 @@ public class RepositoryCreationTask extends BpmTask {
     protected Serializable getProcessParameters() throws CoreException {
         try {
             HashMap<String, String> params = new HashMap<>();
-            params.put("pncBaseUrl", globalConfig.getExternalLegacyPncUrl());
+            params.put("pncBaseUrl", globalConfig.getPncUrl());
             params.put("repourBaseUrl", globalConfig.getExternalRepourUrl());
             params.put("taskData", MAPPER.writeValueAsString(repositoryCreationProcessRest));
             return params;
