@@ -88,15 +88,6 @@
       <artifactId>model</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>rest-model</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>rest</artifactId>
-      <type>war</type>
-    </dependency>
-    <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>rest-new</artifactId>
         <type>war</type>
@@ -157,10 +148,6 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>notifications</artifactId>
-    </dependency>
-    <dependency><!-- TODO: This can be removed after old rest module is deleted-->
-      <groupId>io.swagger.core.v3</groupId>
-      <artifactId>swagger-annotations</artifactId>
     </dependency>
   </dependencies>
 
@@ -266,12 +253,6 @@
             </jarModule>
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
-              <artifactId>rest-model</artifactId>
-              <includeInApplicationXml>true</includeInApplicationXml>
-              <bundleDir>/</bundleDir>
-            </jarModule>
-            <jarModule>
-              <groupId>org.jboss.pnc</groupId>
               <artifactId>spi</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
@@ -354,12 +335,6 @@
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
-            <webModule>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>rest</artifactId>
-              <bundleDir>/</bundleDir>
-              <contextRoot>/pnc-rest</contextRoot>
-            </webModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>rest-new</artifactId>
