@@ -67,9 +67,6 @@
     <java>notifications.jar</java>
   </module>
   <module>
-    <java>rest-model.jar</java>
-  </module>
-  <module>
     <java>spi.jar</java>
   </module>
   <module>
