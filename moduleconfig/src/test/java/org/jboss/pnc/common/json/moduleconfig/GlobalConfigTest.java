@@ -50,8 +50,6 @@ public class GlobalConfigTest extends AbstractModuleConfigTest {
         assertEquals("http://1.2.3.8", globalConfig.getExternalKafkaStoreUrl());
         assertEquals("http://1.2.3.9", globalConfig.getExternalPncUrl());
         assertEquals("http://1.2.3.10", globalConfig.getExternalRepourUrl());
-
-        assertEquals("http://1.2.3.11", globalConfig.getExternalLegacyPncUrl());
     }
 
 }
