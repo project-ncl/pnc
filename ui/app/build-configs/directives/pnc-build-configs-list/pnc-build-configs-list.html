@@ -20,6 +20,7 @@
 <table class="table table-bordered table-striped table-hover build-status-table actions-table" ng-show="$ctrl.showTable()">
   <thead>
     <th ng-if="::$ctrl.showColumn('name')">Name</th>
+    <th ng-if="::$ctrl.showColumn('description')">Description</th>
     <th ng-if="::$ctrl.showColumn('project')">Project</th>
     <th ng-if="::$ctrl.showColumn('creationTime')">Created</th>
     <th ng-if="::$ctrl.showColumn('modificationTime')">Modified</th>
@@ -33,6 +34,7 @@
           {{ buildConfig.name }}
         </a>
       </td>
+      <td ng-if="::$ctrl.showColumn('description')" ng-mouseover="{{ buildConfig.description }}">{{ buildConfig.description.substr(0,100) }}</td>
       <td ng-if="::$ctrl.showColumn('project')">
         <a ui-sref="projects.detail({ projectId: buildConfig.project.id })" href>
           {{ buildConfig.project.name }}
