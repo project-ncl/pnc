@@ -34,7 +34,7 @@
           {{ buildConfig.name }}
         </a>
       </td>
-      <td ng-if="::$ctrl.showColumn('description')" ng-mouseover="{{ buildConfig.description }}">{{ buildConfig.description.substr(0,100) }}</td>
+      <td ng-if="::$ctrl.showColumn('description')" title="{{ buildConfig.description }}">{{ buildConfig.description.substr(0,100) }}</td>
       <td ng-if="::$ctrl.showColumn('project')">
         <a ui-sref="projects.detail({ projectId: buildConfig.project.id })" href>
           {{ buildConfig.project.name }}
