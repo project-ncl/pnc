@@ -37,8 +37,6 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalPncUrl;
     private String externalRepourUrl;
 
-    private String externalLegacyPncUrl;
-
     public String getBpmUrl() {
         return bpmUrl;
     }
@@ -141,14 +139,6 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalRepourUrl(String externalRepourUrl) {
         this.externalRepourUrl = externalRepourUrl;
-    }
-
-    public String getExternalLegacyPncUrl() {
-        return externalLegacyPncUrl;
-    }
-
-    public void setExternalLegacyPncUrl(String externalLegacyPncUrl) {
-        this.externalLegacyPncUrl = externalLegacyPncUrl;
     }
 
 }

@@ -13,7 +13,5 @@
     "externalIndyUrl": "http://indy.pnc.jboss.org/",
     "externalKafkaStoreUrl": "http://kafka-store.pnc.jboss.org/",
     "externalPncUrl": "http://orch.pnc.jboss.com/pnc-rest-new/rest-new",
-    "externalRepourUrl": "http://repour.pnc.jboss.com",
-
-    "externalLegacyPncUrl": "http://orch.pnc.jboss.com/pnc-rest/rest"
+    "externalRepourUrl": "http://repour.pnc.jboss.com"
 }
