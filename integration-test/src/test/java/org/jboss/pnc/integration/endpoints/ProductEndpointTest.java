@@ -43,7 +43,6 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.client.ProductClient;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductVersion;
-import org.jboss.pnc.rest.validation.exceptions.RestValidationException;
 
 import static org.junit.Assert.fail;
 
@@ -135,8 +134,7 @@ public class ProductEndpointTest {
 
     @Test
     @InSequence(30)
-    public void shouldFailToAddConflictingProduct()
-            throws RestValidationException, URISyntaxException, ClientException {
+    public void shouldFailToAddConflictingProduct() throws URISyntaxException, ClientException {
         ProductClient client = new ProductClient(RestClientConfiguration.asUser());
 
         Product product = Product.builder()

@@ -49,7 +49,7 @@ public class MilestoneReleaseTask extends BpmTask {
     protected Serializable getProcessParameters() throws CoreException {
         return new MilestoneReleaseParameters(
                 createMilestoneRest(milestone),
-                globalConfig.getExternalLegacyPncUrl(),
+                globalConfig.getPncUrl(),
                 globalConfig.getExternalCausewayUrl());
     }
 

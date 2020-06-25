@@ -58,7 +58,7 @@ public class BpmBuildTask extends BpmTask {
     protected Serializable getProcessParameters() throws CoreException {
 
         return new ComponentBuildParameters(
-                globalConfig.getExternalLegacyPncUrl(),
+                globalConfig.getPncUrl(),
                 globalConfig.getExternalIndyUrl(),
                 globalConfig.getExternalRepourUrl(),
                 globalConfig.getExternalDaUrl(),

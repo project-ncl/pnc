@@ -31,7 +31,6 @@ import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
-import org.jboss.pnc.rest.restmodel.response.error.ErrorResponseRest;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
@@ -54,6 +53,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.jboss.pnc.dto.response.ErrorResponse;
 
 /**
  * Notification mechanism for Web Sockets. All implementation details should be placed in AttachedClient.
@@ -163,13 +163,13 @@ public class DefaultNotifier implements Notifier {
                 } else {
                     String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
                     String errorMessage = "No events for id: " + messagesId;
-                    ErrorResponseRest error = new ErrorResponseRest(statusCode, errorMessage);
+                    ErrorResponse error = new ErrorResponse(statusCode, errorMessage);
                     client.sendMessage(error, messageCallback);
                 }
             } else {
                 String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
                 String errorMessage = "No process for id: " + messagesId;
-                ErrorResponseRest error = new ErrorResponseRest(statusCode, errorMessage);
+                ErrorResponse error = new ErrorResponse(statusCode, errorMessage);
                 client.sendMessage(error, messageCallback);
             }
         }
