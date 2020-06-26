@@ -38,6 +38,9 @@
 
     $ctrl.$onInit = () => {
       $ctrl.data = $ctrl.closeResult.data[0];
+
+      $ctrl.prefixFilters = 'loggerName.keyword:org.jboss.pnc.causeway.ctl.PncImportControllerImpl';
+      $ctrl.matchFilters = `mdc.processContext.keyword:${$ctrl.data.id}`;
     };
 
   }
