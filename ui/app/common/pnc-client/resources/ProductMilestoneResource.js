@@ -24,12 +24,10 @@
 
   module.factory('ProductMilestoneResource', [
     '$resource',
-    '$rootScope',
     'restConfig',
     'PRODUCT_MILESTONES_PATH',
     'patchHelper',
-    'events',
-    ($resource, $rootScope, restConfig, PRODUCT_MILESTONES_PATH, patchHelper, events) => {
+    ($resource, restConfig, PRODUCT_MILESTONES_PATH, patchHelper) => {
       const ENDPOINT = restConfig.getPncRestUrl() + PRODUCT_MILESTONES_PATH;
 
       const resource = $resource(ENDPOINT, {
