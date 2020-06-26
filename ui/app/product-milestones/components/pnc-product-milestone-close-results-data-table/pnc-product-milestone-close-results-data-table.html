@@ -17,17 +17,5 @@
     limitations under the License.
 
 -->
-<div>
-
-  <!-- <pre>
-    {{ $ctrl.closeResults.data | json }}
-  </pre>
-  <span>-- toolbar --</span> -->
-  <!-- <pnc-toolbar filtering-page="$ctrl.performedBuildsFilteringPage" filtering-fields="$ctrl.performedBuildsFilteringFields"
-    sorting-fields="$ctrl.performedBuildsSortingFields" sorting-configs="$ctrl.performedBuildsSortingConfigs"></pnc-toolbar> -->
-</div>
-<div>
-  <pnc-product-milestone-close-results-list close-results="$ctrl.closeResults.data" display-fields="$ctrl.displayFields"></pnc-product-milestone-close-results-list>
-  <!-- <pnc-builds-list builds="$ctrl.performedBuildsFilteringPage.data" display-fields="$ctrl.displayFields"></pnc-builds-list> -->
-  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.filterPage"></pnc-page-controls>
-</div>
+<pnc-product-milestone-close-results-list close-results="$ctrl.closeResults.data" display-fields="$ctrl.displayFields"></pnc-product-milestone-close-results-list>
+<pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.filterPage"></pnc-page-controls>

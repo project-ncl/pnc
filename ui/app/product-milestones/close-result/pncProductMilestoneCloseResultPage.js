@@ -20,9 +20,9 @@
 
   angular.module('pnc.product-milestones').component('pncProductMilestoneCloseResultPage', {
     bindings: {
-      // product: '<',
-      // productVersion: '<',
-      // productMilestone: '<',
+      /**
+       * Page: the page of close result objects to display.
+       */
       closeResult: '<'
     },
     templateUrl: 'product-milestones/close-result/pnc-product-milestone-close-result-page.html',
