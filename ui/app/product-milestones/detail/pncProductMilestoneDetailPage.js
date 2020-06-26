@@ -27,10 +27,10 @@
       productVersion: '<'
     },
     templateUrl: 'product-milestones/detail/pnc-product-milestone-detail-page.html',
-    controller: ['$scope', 'events', Controller]
+    controller: [Controller]
   });
 
-  function Controller($scope, events) {
+  function Controller() {
     const $ctrl = this;
 
     // -- Controller API --
@@ -41,10 +41,6 @@
     $ctrl.$onInit = () => {
       $ctrl.closeStatus = $ctrl.productMilestone.endDate ? 'CLOSED' : 'OPEN';
       $ctrl.latestCloseResult = $ctrl.closeResults.data[0];
-
-      $scope.$on(events.PRODUCT_MILESTONE_CLOSE_STARTED, (event, closeResult) => {
-        console.log('PRODUCT_MILESTONE_CLOSE_STARTED :: %O', closeResult);
-      });
     };
 
   }

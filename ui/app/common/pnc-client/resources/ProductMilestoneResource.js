@@ -71,17 +71,7 @@
           method: 'POST',
           url: ENDPOINT + '/close',
           successNotification: 'Product Milestone close process started',
-          interceptor: {
-            response: r => r.data
-            // // Allow components to react to milestone close started events, even though there is currently no
-            // // websocket support from the backend.
-            // response: resp => {
-            //   if (resp.status === 202) {
-            //     $rootScope.$broadcast(events.PRODUCT_MILESTONE_CLOSE_STARTED, resp.data);
-            //   }
-            //   return resp.data;
-            // }
-          }
+          interceptor: { response: r => r.data }
         },
 
         validateVersion: {

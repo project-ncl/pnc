@@ -20,10 +20,10 @@
 
   angular.module('pnc.product-milestones').component('pncProductMilestoneCloseResultsDataTable', {
     bindings: {
-      //productMilestone: '<',
-      closeResults: '<',
-      //product: '<',
-      //productVersion: '<'
+      /**
+       * Page object: The page of close results to display.
+       */
+      closeResults: '<'
     },
     templateUrl: 'product-milestones/components/pnc-product-milestone-close-results-data-table/pnc-product-milestone-close-results-data-table.html',
     controller: [

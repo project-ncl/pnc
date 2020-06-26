@@ -20,10 +20,10 @@
 
   angular.module('pnc.product-milestones').component('pncProductMilestoneCloseResultsList', {
     bindings: {
-      //productMilestone: '<',
-      closeResults: '<',
-      //product: '<',
-      //productVersion: '<'
+      /**
+       * Array: The list of close results to display in the table
+       */
+      closeResults: '<'
     },
     templateUrl: 'product-milestones/components/pnc-product-milestone-close-results-data-table/pnc-product-milestone-close-results-list.html',
     controller: [Controller]
@@ -48,9 +48,10 @@
     }
 
     function showColumn(property) {
-      console.log(property);
-      return true;
-      //return $ctrl.fields.includes(property);
+      if (property) {
+        return true;
+      }
+      return false;
     }
 
   }
