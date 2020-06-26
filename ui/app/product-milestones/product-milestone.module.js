@@ -59,11 +59,11 @@
           closeResults: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
             ProductMilestoneResource.queryCloseResults({ id: $stateParams.productMilestoneId }).$promise
           ],
-          latestCloseResult: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams, $log) =>
-            ProductMilestoneResource.getLatestCloseResult({ id: $stateParams.productMilestoneId }).$promise.catch((error) => {
-              $log.error('Error loading release workflow: ' + JSON.stringify(error));
-            })
-          ]
+          // latestCloseResult: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams, $log) =>
+          //   ProductMilestoneResource.getLatestCloseResult({ id: $stateParams.productMilestoneId }).$promise.catch((error) => {
+          //     $log.error('Error loading release workflow: ' + JSON.stringify(error));
+          //   })
+          // ]
         }
       })
 
