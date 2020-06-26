@@ -18,37 +18,31 @@
 (function() {
   'use strict';
 
-  angular.module('pnc.product-milestones').component('pncProductMilestoneClosePage', {
+  angular.module('pnc.product-milestones').component('pncMilestoneCloseStatusLabel', {
     bindings: {
-      product: '<',
-      productVersion: '<',
-      productMilestone: '<'
+      closeResult: '<'
     },
-    templateUrl: 'product-milestones/close/pnc-product-milestone-close-page.html',
-    controller: ['$state', Controller]
+    templateUrl: 'product-milestones/components/pnc-milestone-status-label/pnc-milestone-status-label.html',
+    controller: [Controller]
   });
 
-  function Controller($state) {
+  function Controller() {
     const $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.submit = submit;
+    $ctrl.getStatus = getStatus;
 
     // --------------------
 
-    $ctrl.$onInit = () => {
-      $ctrl.data = $ctrl.productMilestone;
-    };
+    $ctrl.$onInit = () => {};
 
-    function submit() {
-      $ctrl.data.$close().then(closeResult => {
-        console.log('close mileston:: closeResult = %O', closeResult);
-        $state.go('products.detail.product-versions.detail.milestone.detail.close-result', {
-          productMilestoneId: closeResult.milestone.id,
-          closeResultId: closeResult.id
-        });
-      });
+    function getStatus() {
+      if (angular.isUndefined($ctrl.closeResult)) {
+        return null;
+      }
+
+      return $ctrl.closeResult.status;
     }
 
   }

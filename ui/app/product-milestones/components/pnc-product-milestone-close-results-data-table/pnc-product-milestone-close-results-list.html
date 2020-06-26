@@ -28,7 +28,7 @@
         <a href ui-sref="products.detail.product-versions.detail.milestone.detail.close-result({ closeResultId: item.id })">{{ item.endDate | date:'medium' }}</a>
       </td>
       <td ng-if="::$ctrl.showColumn('status')">
-        {{ item.status }}
+        <pnc-milestone-close-status-label close-result="item"></pnc-milestone-close-status-label>
       </td>
     </tr>
   </tbody>

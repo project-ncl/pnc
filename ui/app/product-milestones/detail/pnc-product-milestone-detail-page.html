@@ -31,8 +31,8 @@
 
       <dl class="dl-horizontal">
 
-        <dt>Version</dt>
-        <dd>{{ $ctrl.productMilestone.version }}</dd>
+        <dt>Status</dt>
+        <dd>{{ $ctrl.closeStatus }}</dd>
 
         <dt>Start Date</dt>
         <dd>{{ $ctrl.productMilestone.startingDate | date:'yyyy/MM/dd' }}</dd>
@@ -41,11 +41,10 @@
         <dd>{{ $ctrl.productMilestone.plannedEndDate | date:'yyyy/MM/dd' }}</dd>
 
         <dt>End Date</dt>
-        <dd>{{ $ctrl.productMilestone.endDate | date:'yyyy/MM/dd' }}</dd>
+        <dd>{{ ($ctrl.productMilestone.endDate | date:'yyyy/MM/dd') || '&mdash;' }}</dd>
 
-        <dt>Status</dt>
-        <dd>{{ $ctrl.latestCloseResultstatus || 'Open' }} <span ng-if="$ctrl.latestCloseResultstatus">[ <a ui-sref="product.detail.version.milestoneDetail.log({ milestoneId: $ctrl.productMilestone.id })" href>View Log</a> ]</span></dd>
-
+        <dt>Last Close Result</dt>
+        <dd><pnc-milestone-close-status-label close-result="$ctrl.latestCloseResult"></pnc-milestone-close-status-label></dd>
       </dl>
     </div>
   </div>
