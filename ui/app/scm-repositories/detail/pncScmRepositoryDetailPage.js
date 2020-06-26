@@ -30,11 +30,11 @@
       buildConfigs: '<'
     },
     templateUrl: 'scm-repositories/detail/pnc-scm-repository-detail-page.html',
-    controller: ['$state', 'BuildConfiguration', 'rsqlQuery', 'paginator', Controller]
+    controller: ['$state', 'paginator', Controller]
   });
 
-  function Controller($state, BuildConfiguration, rsqlQuery, paginator) {
-    var $ctrl = this;
+  function Controller($state, paginator) {
+    const $ctrl = this;
 
     // -- Controller API --
     
