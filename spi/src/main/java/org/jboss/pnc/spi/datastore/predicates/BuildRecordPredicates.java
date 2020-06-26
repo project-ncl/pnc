@@ -94,9 +94,9 @@ public class BuildRecordPredicates {
     /**
      * (related to NCL-5192, NCL-5351)
      *
-     * When (re)building a temporary build: - if there are existing temporary builds having the same idRev, ignore
-     * persistent builds - if there are no existing temporary builds having the same idRev, include also persistent
-     * builds having the same idRev
+     * When (re)building a temporary build: - if there are existing *successful* temporary builds having the same idRev,
+     * ignore persistent builds - if there are no existing temporary builds having the same idRev, include also
+     * persistent builds having the same idRev
      *
      * When (re)building a persistent build: - include only existing persistent builds having the same idRev
      *
@@ -114,6 +114,7 @@ public class BuildRecordPredicates {
                 temporaryCount.where(
                         cb.and(
                                 cb.isTrue(subRoot.get(BuildRecord_.temporaryBuild)),
+                                cb.equal(subRoot.get(BuildRecord_.status), BuildStatus.SUCCESS),
                                 cb.equal(subRoot.get(BuildRecord_.buildConfigurationId), idRev.getId()),
                                 cb.equal(subRoot.get(BuildRecord_.buildConfigurationRev), idRev.getRev())));
 
