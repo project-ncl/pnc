@@ -457,7 +457,7 @@ public class DefaultDatastore implements Datastore {
     private boolean hasNewerVersion(BuildRecord buildRecord, boolean temporaryBuild) {
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(buildRecord.getBuildConfigurationAuditedIdRev(), temporaryBuild);
         if (latestSuccessfulBuildRecord == null) {
-            logger.error("Something went wrong, the buildRecord should be successful (ot this lattest or the BuildRecord that produced artifacts.).");
+            logger.error("Something went wrong, the buildRecord {} should be successful (to this latest or the BuildRecord that produced artifacts.).", buildRecord.getId());
         }
         return !buildRecord.getId().equals(latestSuccessfulBuildRecord.getId());
     }
