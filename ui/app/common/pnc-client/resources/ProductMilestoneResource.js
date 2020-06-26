@@ -59,7 +59,10 @@
         queryCloseResults: {
           method: 'GET',
           url: ENDPOINT + '/close-results',
-          isPaged: true
+          isPaged: true,
+          params: {
+            sort: '=desc=startingDate'
+          }
         },
 
         getLatestCloseResult: {
