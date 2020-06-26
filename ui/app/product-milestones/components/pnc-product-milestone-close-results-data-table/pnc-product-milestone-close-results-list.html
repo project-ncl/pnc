@@ -25,7 +25,7 @@
   <tbody>
     <tr ng-repeat="item in $ctrl.items">
       <td ng-if="::$ctrl.showColumn('endDate')">
-        <a href ui-sref="products.detail.product-versions.detail.milestone.detail.close-result({ closeResultId: item.id })">{{ item.endDate | date:'medium' }}</a>
+        <a href ui-sref="products.detail.product-versions.detail.milestone.detail.close-result({ closeResultId: item.id })">{{ (item.endDate || item.startingDate) | date:'medium' }}</a>
       </td>
       <td ng-if="::$ctrl.showColumn('status')">
         <pnc-milestone-close-status-label close-result="item"></pnc-milestone-close-status-label>
