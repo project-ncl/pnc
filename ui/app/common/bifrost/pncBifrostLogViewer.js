@@ -28,11 +28,11 @@
       /**
        * The prefixFilters parameter to pass to bifrost
        */
-      prefixFilters: '@',
+      prefixFilters: '<',
       /**
        * the matchFilters parameter to pass to bifrost
        */
-      matchFilters: '@'
+      matchFilters: '<'
     },
     templateUrl: 'common/bifrost/pnc-bifrost-log-viewer.html',
     controller: ['bifrostConfig', Controller]
