@@ -22,7 +22,7 @@
     bindings: {
       closeResult: '<'
     },
-    templateUrl: 'product-milestones/components/pnc-milestone-status-label/pnc-milestone-status-label.html',
+    templateUrl: 'product-milestones/components/pnc-milestone-close-status-label/pnc-milestone-close-status-label.html',
     controller: [Controller]
   });
 
@@ -35,14 +35,39 @@
 
     // --------------------
 
-    $ctrl.$onInit = () => {};
+    const CLOSE_STATUSES = {
+      IN_PROGRESS: {
+        text: 'IN PROGRESS',
+        class: 'label label-primary'
+      },
+      FAILED: {
+        text: 'FAILED',
+        class: 'label label-danger'
+      },
+      SUCCEEDED: {
+        text: 'SUCCEEDED',
+        class: 'label label-success'
+      },
+      CANCELED: {
+        text: 'CANCELLED',
+        class: 'label label-default'
+      },
+      SYSTEM_ERROR: {
+        text: 'SYSTEM ERROR',
+        class: 'label label-danger'
+      }
+    };
+
+    $ctrl.$onInit = () => {
+      $ctrl.closeStatus = getStatus();
+    };
 
     function getStatus() {
       if (angular.isUndefined($ctrl.closeResult)) {
         return null;
       }
 
-      return $ctrl.closeResult.status;
+      return CLOSE_STATUSES[$ctrl.closeResult.status];
     }
 
   }

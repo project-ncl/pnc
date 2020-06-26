@@ -17,4 +17,6 @@
     limitations under the License.
 
 -->
-<span>{{ $ctrl.getStatus() || '&mdash;' }}</span>
+<span ng-if="!$ctrl.closeStatus">&mdash;</span>
+<span ng-if="$ctrl.closeStatus" ng-class="$ctrl.closeStatus.class">{{ $ctrl.closeStatus.text }}</span>
+<!-- <span>{{ $ctrl.getStatus() || '&mdash;' }}</span> -->
