@@ -27,7 +27,7 @@
       <td ng-if="::$ctrl.showColumn('endDate')">
         <a href ui-sref="products.detail.product-versions.detail.milestone.detail.close-result({ closeResultId: item.id })">{{ (item.endDate || item.startingDate) | date:'medium' }}</a>
       </td>
-      <td ng-if="::$ctrl.showColumn('status')">
+      <td ng-if="::$ctrl.showColumn('status')" class="text-center">
         <pnc-milestone-close-status-label close-result="item"></pnc-milestone-close-status-label>
       </td>
     </tr>

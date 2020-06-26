@@ -22,19 +22,18 @@
 </div>
 
 <dl class="dl-horizontal">
-  <dt>Id</dt>
+  <dt>Id:</dt>
   <dd>{{ $ctrl.data.id }}</dd>
-  <dt>Status</dt>
-  <dd>{{ $ctrl.data.status }}</dd>
-  <dt>Close Started</dt>
+  <dt>Status:</dt>
+  <dd><pnc-milestone-close-status-label close-result="$ctrl.data"></pnc-milestone-close-status-label></dd>
+  <dt>Close Started:</dt>
   <dd>{{ $ctrl.data.startingDate | date:'medium' }}</dd>
-  <dt>Close Finished</dt>
+  <dt>Close Finished:</dt>
   <dd>{{ ($ctrl.data.endDate | date:'medium') || '&mdash;' }}</dd>
-  <dt></dt>
 </dl>
 
 <div class="page-header">
   <h3>Log</h3>
 </div>
 
-<pnc-bifrost-log-viewer match-filters=" $ctrl.matchFilters" prefix-filters="$ctrl.prefixFilters"></pnc-bifrost-log-viewer>
+<pnc-bifrost-log-viewer match-filters="$ctrl.matchFilters" prefix-filters="$ctrl.prefixFilters"></pnc-bifrost-log-viewer>
