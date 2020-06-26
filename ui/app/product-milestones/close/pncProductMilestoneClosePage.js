@@ -43,7 +43,6 @@
 
     function submit() {
       $ctrl.data.$close().then(closeResult => {
-        console.log('close mileston:: closeResult = %O', closeResult);
         $state.go('products.detail.product-versions.detail.milestone.detail.close-result', {
           productMilestoneId: closeResult.milestone.id,
           closeResultId: closeResult.id
