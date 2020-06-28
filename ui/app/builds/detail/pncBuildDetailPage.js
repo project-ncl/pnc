@@ -23,7 +23,6 @@
     bindings: {
       build: '<',
       dependencyGraph: '<',
-      brewPushResult: '<',
       buildConfigRevision: '<'
     },
     templateUrl: 'builds/detail/pnc-build-detail-page.html',
@@ -35,16 +34,14 @@
     const $ctrl = this;
 
     // -- Controller API --
+
     $ctrl.isFinished = false;
-    $ctrl.hasPushResults = false;
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
       $ctrl.isFinished = $ctrl.build.progress === 'FINISHED';
-      $ctrl.hasPushResults = !!$ctrl.brewPushResult.status;
-
 
       $scope.$on(events.BUILD_STATUS_CHANGED, (event, build) => {
         if ($ctrl.build.id === build.id) {

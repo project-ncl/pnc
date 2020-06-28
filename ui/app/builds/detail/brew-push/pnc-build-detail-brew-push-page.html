@@ -17,27 +17,27 @@
     limitations under the License.
 
 -->
-<div class="row">
-  <div class="col-md-12">
-    <div class="pnc-build-details">
-      <dl class="dl-horizontal">
-        <dt>Status</dt>
-        <dd>{{ $ctrl.brewPushResult.status || '&mdash;' }}</dd>
-        <dt>Brew Build Id</dt>
-        <dd>{{ $ctrl.brewPushResult.brewBuildId || '&mdash;' }}</dd>
-        <dt>Brew Build URL</dt>
-        <dd>
-          <a ng-if="$ctrl.brewPushResult.brewBuildUrl" target="_blank" href="{{ ::$ctrl.brewPushResult.brewBuildUrl }}">{{ ::$ctrl.brewPushResult.brewBuildUrl }}</a>
-          <span ng-if="!$ctrl.brewPushResult.brewBuildUrl">&mdash;</span>
-        </dd>
-      </dl>
-    </div>
+<div ng-if="::$ctrl.brewPushResult">
+  <div class="pnc-build-details">
+    <dl class="dl-horizontal">
+      <dt>Status</dt>
+      <dd>{{ $ctrl.brewPushResult.status || '&mdash;' }}</dd>
+      <dt>Brew Build Id</dt>
+      <dd>{{ $ctrl.brewPushResult.brewBuildId || '&mdash;' }}</dd>
+      <dt>Brew Build URL</dt>
+      <dd>
+        <a ng-if="$ctrl.brewPushResult.brewBuildUrl" target="_blank" href="{{ ::$ctrl.brewPushResult.brewBuildUrl }}">{{ ::$ctrl.brewPushResult.brewBuildUrl }}</a>
+        <span ng-if="!$ctrl.brewPushResult.brewBuildUrl">&mdash;</span>
+      </dd>
+    </dl>
   </div>
+
+  <div class="page-header">
+    <h3>Log</h3>
+  </div>
+  <pnc-bifrost-log-viewer match-filters="$ctrl.matchFilters" prefix-filters="$ctrl.prefixFilters"></pnc-bifrost-log-viewer>
 </div>
-<div class="row">
-  <div class="col-md-12">
-    <div class="pnc-log-canvas-parent log-console well well-sm pre-wrap push-log">
-      <div class="pnc-log-canvas-content">{{ ::$ctrl.brewPushResult.log }}</div>
-    </div>
-  </div>
+
+<div ng-if="::!$ctrl.brewPushResult">
+  <p class="text-center"><em>There are no brew push records for this build.</em></p>
 </div>

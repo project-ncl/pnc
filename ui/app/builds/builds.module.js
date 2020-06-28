@@ -200,6 +200,13 @@
         data: {
           displayName: 'Brew Push Results',
           title: '#{{ build.id }} {{ build.buildConfigRevision.name }} | Brew Push'
+        },
+        resolve: {
+          brewPushResult: [
+            'BuildResource',
+            'build',
+            (BuildResource, build) => BuildResource.getBrewPushResult({ id: build.id }).$promise
+          ]
         }
       });
 

@@ -120,7 +120,7 @@
         /**
          * ssh-credentials is the only one GET REST endpoint requiring authentication, this is the reason
          * why url structure is not compliant with the REST standards: /builds/:id/ssh-credentials, see NCL-5250
-         * 
+         *
          * This method shouldn't be called directly, but getSshCredentials() should be used.
          */
         _getSshCredentials :{
@@ -160,7 +160,15 @@
         getBrewPushResult: {
           method: 'GET',
           url: ENDPOINT + '/brew-push',
-          error404Notification: false // Response Code 404 is valid when there is no result available, see NCL-5336
+          error404Notification: false, // Response Code 404 is valid when there is no result available, see NCL-5336
+          interceptor: {
+            responseError: resp => {
+              if (resp.status === 404) {
+                // Resolve promise as 404 should not cause an error, see NCL-5336
+                return $q.when(null);
+              }
+            }
+          }
         },
 
         /**
@@ -206,7 +214,7 @@
         }, {
           successNotification: false
         });
-      }; 
+      };
 
 
       resource.prototype.$isSuccess = function () {

@@ -29,12 +29,17 @@
     });
 
     function Controller() {
-      //var $ctrl = this;
+      const $ctrl = this;
 
       // -- Controller API --
 
 
       // --------------------
+
+      $ctrl.$onInit = () => {
+        $ctrl.prefixFilters = 'loggerName.keyword:org.jboss.pnc.causeway.ctl.PncImportControllerImpl';
+        $ctrl.matchFilters = `mdc.processContext.keyword:${$ctrl.brewPushResult.logContex}`;
+      };
 
     }
 
