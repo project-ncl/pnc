@@ -28,35 +28,6 @@
 
       var resource = {};
 
-      resource.getWhitelistProducts = function () {
-        return $http.get(ENDPOINT + '/listings/whitelist/products').then(function (r) {
-          return r.data;
-        });
-      };
-
-      resource.getWhitelistProductArtifacts = function (product) {
-        return $http.get(ENDPOINT + '/listings/whitelist/artifacts/product', {
-          params: {
-            name: product.name,
-            version: product.version
-          }
-        }).then(function (r) {
-          return r.data;
-        });
-      };
-
-      resource.getProductsByGAV = function (groupId, artifactId, version) {
-        return $http.get(ENDPOINT + '/listings/whitelist/artifacts/gav', {
-          params: {
-            groupid: groupId,
-            artifactid: artifactId,
-            version: version
-          }
-        }).then(function (r) {
-          return r.data;
-        });
-      };
-
       resource.getBlacklistedArtifactsInProject = function (scmUrl, revision, pomPath, additionalRepos) {
         return $http.post(ENDPOINT  + '/reports/align', {
           products: [],
@@ -70,17 +41,6 @@
         });
       };
 
-      resource.getDifferentArtifactsInProducts = function (product1, product2) {
-        return $http.get(ENDPOINT + '/products/diff', {
-          params: {
-            leftProduct: product1.id,
-            rightProduct: product2.id
-          }
-        }).then(function (r) {
-          return r.data;
-        });
-      };
-
       resource.getBuiltArtifactsInProject = function (scmUrl, revision, pomPath, additionalRepos) {
         return $http.post(ENDPOINT + '/reports/built', {
           scmUrl: scmUrl,
@@ -88,12 +48,6 @@
           pomPath: pomPath,
           additionalRepos: additionalRepos
         }).then(function (r) {
-          return r.data;
-        });
-      };
-
-      resource.diffProjectProduct = function (data) {
-        return $http.post(ENDPOINT + '/reports/align', data).then(function (r) {
           return r.data;
         });
       };
