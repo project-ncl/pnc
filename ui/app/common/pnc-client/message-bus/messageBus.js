@@ -67,6 +67,10 @@
         }
       });
 
+      messageBus.onBuildPushStatusChange((buildPushResult, notification) => {
+        $rootScope.$broadcast(events.BUILD_PUSH_STATUS_CHANGE, buildPushResult, notification);
+      });
+
       return messageBus;
     }
   ]);
