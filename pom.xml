@@ -1356,7 +1356,6 @@
               <exclude>.license-header.txt</exclude>
               <exclude>**/plugins.txt</exclude>
               <exclude>**/Dockerfile</exclude>
-              <exclude>**/apidocs/**</exclude>
               <exclude>**/nbactions.xml</exclude>
 
               <!-- Exclude downloaded/generated -->
