@@ -37,18 +37,6 @@
       }
     });
 
-    $stateProvider.state('report.products-for-artifact', {
-      url: '/products-for-artifact',
-      templateUrl: 'report/views/products.for.artifact.html',
-      data: {
-        displayName: 'Products for whitelisted artifacts',
-        title: 'Products for whitelisted artifacts | Report'
-      },
-      controller: 'ProductsForArtifactReportController',
-      controllerAs: 'productsForArtifactReportCtrl'
-    });
-
-
     $stateProvider.state('report.blacklisted-artifacts-in-project', {
       url: '/blacklisted-artifacts-in-project',
       templateUrl: 'report/views/blacklisted.artifacts.in.project.html',
