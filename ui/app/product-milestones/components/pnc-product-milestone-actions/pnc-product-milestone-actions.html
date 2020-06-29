@@ -21,7 +21,7 @@
 
   <!-- milestone is closed -->
   <a ng-if="$ctrl.productMilestone.endDate"
-     title="Milestone is already closed. No more modifications allowed." 
+     title="Milestone is already closed. No more modifications allowed."
      class="btn btn-default btn-{{ $ctrl.size ? $ctrl.size : 'lg'}}"
      disabled="disabled">
     <i class="fa fa-clock-o"></i>
@@ -29,30 +29,32 @@
   </a>
 
   <!-- milestone is not closed -->
-  <a ng-if="!$ctrl.productMilestone.endDate"
+  <button ng-if="!$ctrl.productMilestone.endDate"
      pnc-confirm-click="$ctrl.markMilestoneAsCurrent($ctrl.productMilestone)"
      pnc-confirm-message="{{ 'Mark Milestone ' + $ctrl.productMilestone.version + ' as current ?'}}"
-     title="Mark Milestone as current" 
+     title="Mark Milestone as current"
      class="btn btn-default btn-{{ $ctrl.size ? $ctrl.size : 'lg'}}"
      pnc-requires-auth>
     <i class="fa fa-clock-o"></i>
     <span ng-if="!$ctrl.size">Mark as current</span>
-  </a>
+  </button>
 
-  <a ui-sref="products.detail.product-versions.detail.milestone.update({ productMilestoneId: $ctrl.productMilestone.id })" 
-     title="{{ !$ctrl.productMilestone.endDate ? 'Update Milestone' : 'Milestone is already closed. No more modifications allowed.'}}" 
+  <button ui-sref="products.detail.product-versions.detail.milestone.update({ productMilestoneId: $ctrl.productMilestone.id })"
+     title="{{ !$ctrl.productMilestone.endDate ? 'Update Milestone' : 'Milestone is already closed. No more modifications allowed.'}}"
      class="btn btn-default btn-{{ $ctrl.size ? $ctrl.size : 'lg'}}"
-     ng-disabled="$ctrl.productMilestone.endDate">
+     ng-show="!$ctrl.productMilestone.endDate"
+     pnc-requires-auth>
     <i class="pficon pficon-edit"></i>
     <span ng-if="!$ctrl.size">Update</span>
-  </a>
+  </button>
 
-  <a ui-sref="products.detail.product-versions.detail.milestone.close({ productMilestoneId: $ctrl.productMilestone.id })"
-     title="{{ !$ctrl.productMilestone.endDate ? 'Close Milestone' : 'Milestone is already closed. No more modifications allowed.'}}" 
+  <button ui-sref="products.detail.product-versions.detail.milestone.close({ productMilestoneId: $ctrl.productMilestone.id })"
+     title="{{ !$ctrl.productMilestone.endDate ? 'Close Milestone' : 'Milestone is already closed. No more modifications allowed.'}}"
      class="btn btn-default btn-{{ $ctrl.size ? $ctrl.size : 'lg'}}"
-     ng-disabled="$ctrl.productMilestone.endDate">
+     ng-show="!$ctrl.productMilestone.endDate"
+     pnc-requires-auth>
     <i class="fa fa-lock"></i>
     <span ng-if="!$ctrl.size">Close</span>
-  </a>
+  </button>
 
 </div>
