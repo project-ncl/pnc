@@ -59,27 +59,6 @@
       controllerAs: 'builtArtifactsInProjectReportCtrl'
     });
 
-
-    $stateProvider.state('report.project-product-diff', {
-      url: '/project-product-diff',
-    	templateUrl: 'report/views/project.product.diff.html',
-    	data: {
-        displayName: 'Diff a project against a product',
-        title: 'Diff a project against a product | Report'
-    	},
-    	controller: 'ProjectProductDiff',
-    	controllerAs: 'ctr',
-    	resolve: {
-    	  productList: ['ReportResource', function(ReportResource) {
-          return ReportResource.getWhitelistProducts().then(function(products) {
-            return _(products).sortBy(function(p) {
-              return p.name + p.version;
-            }).value().reverse();
-          });
-        }]
-      }
-    });
-
   }]);
 
 })();
