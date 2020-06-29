@@ -31,26 +31,12 @@
   <artifactId>web</artifactId>
   <packaging>war</packaging>
 
-  <description>Web UI packaging (UI resources, Swagger).</description>
+  <description>Web UI packaging (UI resources).</description>
 
   <dependencies>
     <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>ui</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>common</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.spec.javax.servlet</groupId>
       <artifactId>jboss-servlet-api_4.0_spec</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -65,43 +51,11 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <configuration>
-          <failOnMissingWebXml>false</failOnMissingWebXml>
-          <webResources>
-            <resource>
-              <directory>src/main/webapp</directory>
-              <includes>
-                <include>apidocs/index.html</include>
-                <include>ws/tester.html</include>
-              </includes>
-              <filtering>true</filtering>
-            </resource>
-          </webResources>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
-  <profiles>
-    <profile>
-      <id>auth</id>
-      <properties>
-        <enable.security.start>--&gt;</enable.security.start>
-        <enable.security.end>&lt;!--</enable.security.end>
-      </properties>
-    </profile>
-
-  </profiles>
 </project>

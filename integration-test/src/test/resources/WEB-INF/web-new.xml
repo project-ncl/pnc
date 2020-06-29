@@ -24,20 +24,6 @@
 
     <module-name>rest</module-name>
 
-    <security-constraint>
-       <web-resource-collection>
-         <web-resource-name>All Access for api docs</web-resource-name>
-         <url-pattern>/rest-new/api-docs/*</url-pattern>
-       </web-resource-collection>
-    </security-constraint>
-
-    <security-constraint>
-       <web-resource-collection>
-         <web-resource-name>All Access for api docs</web-resource-name>
-         <url-pattern>/rest-new/api-docs</url-pattern>
-       </web-resource-collection>
-    </security-constraint>
-
     <!-- Allow logged users to access debug data -->
     <security-constraint>
         <web-resource-collection>
