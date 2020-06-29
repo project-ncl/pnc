@@ -25,10 +25,10 @@
         brewPushResult: '<'
       },
       templateUrl: 'builds/detail/brew-push/pnc-build-detail-brew-push-page.html',
-      controller: [Controller]
+      controller: ['$scope', Controller]
     });
 
-    function Controller() {
+    function Controller($scope) {
       const $ctrl = this;
 
       // -- Controller API --
@@ -37,10 +37,22 @@
       // --------------------
 
       $ctrl.$onInit = () => {
-        $ctrl.prefixFilters = 'loggerName.keyword:org.jboss.pnc.causeway.ctl.PncImportControllerImpl';
-        $ctrl.matchFilters = `mdc.processContext.keyword:${$ctrl.brewPushResult.logContex}`;
+        load($ctrl.brewPushResult);
+
+        $scope.$on('BUILD_PUSH_STATUS_CHANGE', (event, brewPushResult) => {
+          if (brewPushResult.buildId === $ctrl.build.id) {
+            $scope.$applyAsync(() => load(brewPushResult));
+          }
+        });
       };
 
+      function load(brewPushResult) {
+        if (brewPushResult) {
+          $ctrl.data = brewPushResult;
+          $ctrl.prefixFilters = 'loggerName.keyword:org.jboss.pnc.causeway.ctl.PncImportControllerImpl';
+          $ctrl.matchFilters = `mdc.processContext.keyword:${$ctrl.brewPushResult.logContext}`;
+        }
+      }
     }
 
   })();
