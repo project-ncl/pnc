@@ -48,23 +48,6 @@
       controllerAs: 'blacklistedArtifactsInProjectReportCtrl'
     });
 
-    $stateProvider.state('report.different-artifacts-in-products', {
-        url: '/different-artifacts-in-products',
-        templateUrl: 'report/views/different.artifacts.in.products.html',
-        data: {
-          displayName: 'Different artifacts between products',
-          title: 'Different artifacts between products| Report'
-        },
-        controller: 'DifferentArtifactsInProductsReportController',
-        controllerAs: 'diffGAVInProdReportCtrl',
-        resolve: {
-           whitelistProducts: ['ReportResource', function(ReportResource) {
-             return ReportResource.getWhitelistProducts();
-           }]
-        }
-      });
-
-
     $stateProvider.state('report.built-artifacts-in-project', {
       url: '/built-artifacts-in-project',
       templateUrl: 'report/views/built.artifacts.in.project.html',
