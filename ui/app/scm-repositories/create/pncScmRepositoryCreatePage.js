@@ -38,7 +38,7 @@
 
     // set default only if there is no initial value coming from ngModel
     if (typeof $ctrl.scmRepository.preBuildSyncEnabled === 'undefined') {
-      $ctrl.scmRepository.preBuildSyncEnabled = false;
+      $ctrl.scmRepository.preBuildSyncEnabled = true;
     }
 
     function gotoScmRepositoryDetailPage(id) {
