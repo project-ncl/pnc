@@ -241,7 +241,7 @@ public interface BuildEndpoint {
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
-    static final String SET_BUILT_ARTIFACTS = "Set built artifacts on the BuildRecord. Note that operation replaces existing collection!";
+    static final String SET_BUILT_ARTIFACTS = "Set built artifacts on the Build. Note that operation replaces existing collection!";
 
     /**
      * {@value SET_BUILT_ARTIFACTS} {@value SwaggerConstants#REQUIRES_ADMIN}
@@ -301,7 +301,7 @@ public interface BuildEndpoint {
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
-    static final String SET_DEPENDANT_ARTIFACTS_DESC = "Set dependent artifacts on the BuildRecord. Note that operation replaces existing collection!";
+    static final String SET_DEPENDANT_ARTIFACTS_DESC = "Set dependent artifacts on the Build. Note that operation replaces existing collection!";
 
     /**
      * {@value SET_DEPENDANT_ARTIFACTS_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
@@ -673,7 +673,8 @@ public interface BuildEndpoint {
     SSHCredentials getSshCredentials(@Parameter(description = B_ID) @PathParam("id") String id);
 
     static final String LOG_SEARCH = "Log search string";
-    static final String GET_ALL_BY_STATUS_AND_LOG_CONTAINING_DESC = "Gets the Build Records produced from the BuildConfiguration by name.";
+    static final String GET_ALL_BY_STATUS_AND_LOG_CONTAINING_DESC = "Gets the Builds by given status and with specific"
+            + " string in the build logs.";
 
     /**
      * {@value GET_ALL_BY_STATUS_AND_LOG_CONTAINING_DESC}
