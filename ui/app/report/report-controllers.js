@@ -21,61 +21,6 @@
 
   var module = angular.module('pnc.report');
 
-
-  module.controller('ProductsForArtifactReportController', [
-    '$scope',
-    '$state',
-    '$log',
-    'ReportResource',
-    function($scope, $state, $log, ReportResource) {
-
-      var that = this;
-
-      that.reportResults = [];
-      that.gav = {};
-      that.afterSearch = false;
-
-      that.defaultSortKey = 'name';
-      that.defaultReverse = false;
-
-      that.isResultNotEmpty = function() {
-        return !_.isEmpty(that.reportResults);
-      };
-
-      that.reset = function(form) {
-        if (form) {
-          that.gav = {};
-          that.reportResults = [];
-          that.afterSearch = false;
-          form.$setPristine();
-          form.$setUntouched();
-        }
-      };
-
-      that.search = function() {
-        ReportResource.getProductsByGAV(that.gav.groupId, that.gav.artifactId, that.gav.version).then(function(result) {
-            that.reportResults = result;
-            that.sortKey = that.defaultSortKey;
-            that.reverse = that.defaultReverse;
-            that.afterSearch = true;
-
-            // Default sorting
-            that.reportResults = _.chain(that.reportResults).sortBy(function(result){ return result[that.defaultSortKey]; }).value();
-        });
-      };
-
-      that.sort = function(keyname){
-        that.sortKey = keyname;
-        that.reverse = !that.reverse;
-      };
-
-    }
-
-  ]);
-
-
-
-
   module.controller('BlacklistedArtifactsInProjectReportController', [
     '$scope',
     '$state',
