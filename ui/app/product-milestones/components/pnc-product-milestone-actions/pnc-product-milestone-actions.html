@@ -20,13 +20,13 @@
 <div class="btn-group">
 
   <!-- milestone is closed -->
-  <a ng-if="$ctrl.productMilestone.endDate"
+  <button ng-if="$ctrl.productMilestone.endDate"
      title="Milestone is already closed. No more modifications allowed."
      class="btn btn-default btn-{{ $ctrl.size ? $ctrl.size : 'lg'}}"
      disabled="disabled">
     <i class="fa fa-clock-o"></i>
     <span ng-if="!$ctrl.size">Milestone is closed</span>
-  </a>
+  </button>
 
   <!-- milestone is not closed -->
   <button ng-if="!$ctrl.productMilestone.endDate"
