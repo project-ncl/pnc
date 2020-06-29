@@ -37,22 +37,6 @@
       }
     });
 
-    $stateProvider.state('report.product-shipped', {
-      url: '/product-shipped',
-	  templateUrl: 'report/views/product.shipped.artifacts.html',
-	  data: {
-      displayName: 'Whitelisted artifacts of products',
-      title: 'Whitelisted artifacts of products | Report'
-	  },
-	  controller: 'ProductShippedReportController',
-	  controllerAs: 'productShippedReportCtrl',
-	  resolve: {
-		 whitelistProducts: ['ReportResource', function(ReportResource) {
-	       return ReportResource.getWhitelistProducts();
-	     }]
-      }
-    });
-
     $stateProvider.state('report.products-for-artifact', {
       url: '/products-for-artifact',
       templateUrl: 'report/views/products.for.artifact.html',
