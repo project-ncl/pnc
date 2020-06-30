@@ -49,7 +49,7 @@
       function load(brewPushResult) {
         if (brewPushResult) {
           $ctrl.data = brewPushResult;
-          $ctrl.prefixFilters = 'loggerName.keyword:org.jboss.pnc.causeway.ctl.PncImportControllerImpl';
+          $ctrl.prefixFilters = 'loggerName.keyword:org.jboss.pnc.causeway';
           $ctrl.matchFilters = `mdc.processContext.keyword:${$ctrl.brewPushResult.logContext}`;
         }
       }
