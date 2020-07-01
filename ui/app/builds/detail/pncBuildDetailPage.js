@@ -46,6 +46,7 @@
       $scope.$on(events.BUILD_STATUS_CHANGED, (event, build) => {
         if ($ctrl.build.id === build.id) {
           $scope.$applyAsync(() => $ctrl.build = build);
+          $ctrl.isFinished = build.progress === 'FINISHED';
         }
       });
     };
