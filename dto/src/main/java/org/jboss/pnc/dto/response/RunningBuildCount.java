@@ -26,6 +26,6 @@ public class RunningBuildCount {
 
     private int running;
     private int enqueued;
-    private int awaitingForDependencies;
+    private int waitingForDependencies;
 
 }
