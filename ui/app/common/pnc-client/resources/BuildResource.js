@@ -252,6 +252,13 @@
         return alignLogUrl(this);
       };
 
+      function scmArchive(build) {
+        return ENDPOINT.replace(':id', build.id) + '/scm-archive';
+      }
+      resource.prototype.$scmArchive = function () {
+        return scmArchive(this);
+      };
+
       return resource;
     }
 

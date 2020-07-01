@@ -74,7 +74,7 @@
             href><span class="fa fa-info-circle"></span></a> :
         </dt>
         <dd class="m-t-10">
-          <span ng-show="$ctrl.build.scmRevision">{{ $ctrl.build.scmRevision }}</span>
+          <span ng-show="$ctrl.build.scmRevision">{{ $ctrl.build.scmRevision }} [ <a ng-href="{{ $ctrl.build.$scmArchive() }}" >Download Source Code Tarball</a> ]</span>
           <span ng-hide="$ctrl.build.scmRevision">
             <span class="pficon pficon-warning-triangle-o" ng-if="$ctrl.buildStatusHelper.isFailed($ctrl.build.status)" title="Something went wrong, probably during alignment process, you should check logs for more details."></span>
             Not available, based on <code>{{ $ctrl.build.buildConfigRevision.scmRevision }}</code>
