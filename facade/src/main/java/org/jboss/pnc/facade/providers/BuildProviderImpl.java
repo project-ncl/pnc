@@ -32,6 +32,7 @@ import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
@@ -54,6 +55,7 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.rest.restmodel.RunningBuildsCountRest;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.Result;
@@ -694,6 +696,32 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
                 .collect(Collectors.toSet());
         buildRecord.setDependencies(artifacts);
         repository.save(buildRecord);
+    }
+
+    @Override
+    public RunningBuildCount getRunningCount() {
+
+        List<BuildTask> x = buildCoordinator.getSubmittedBuildTasks();
+
+        int waitingForDependencies = 0;
+        int running = 0;
+        int enqueued = 0;
+
+        for (BuildTask task : x) {
+            switch (task.getStatus()) {
+                case ENQUEUED:
+                    enqueued++;
+                    continue;
+                case BUILDING:
+                    running++;
+                    continue;
+                case WAITING_FOR_DEPENDENCIES:
+                    waitingForDependencies++;
+                    continue;
+            }
+        }
+
+        return new RunningBuildCount(running, enqueued, waitingForDependencies);
     }
 
     public Page<Build> getByAttribute(BuildPageInfo buildPageInfo, Map<String, String> attributeConstraints) {

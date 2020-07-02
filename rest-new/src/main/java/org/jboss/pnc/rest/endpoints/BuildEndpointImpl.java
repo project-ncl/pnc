@@ -27,6 +27,7 @@ import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
@@ -46,7 +47,9 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.BufferedWriter;
@@ -299,5 +302,10 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Override
     public SSHCredentials getSshCredentials(String id) {
         return provider.getSshCredentials(id);
+    }
+
+    @Override
+    public RunningBuildCount getCount() {
+        return provider.getRunningCount();
     }
 }
