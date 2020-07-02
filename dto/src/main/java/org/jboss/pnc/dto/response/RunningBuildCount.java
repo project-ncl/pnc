@@ -40,6 +40,6 @@ public class RunningBuildCount {
     /**
      * Number of builds waiting for dependencies.
      */
-    private int awaitingForDependencies;
+    private int waitingForDependencies;
 
 }
