@@ -111,7 +111,7 @@
     <version.mockito>3.3.3</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.jbpm>6.2.0.Final</version.jbpm>
-    <version.kie-services-client>6.2.0.Final</version.kie-services-client>
+    <version.kie-services-client>6.5.0.Final</version.kie-services-client>
     <version.keycloak>9.0.3.redhat-00002</version.keycloak>
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
     <version.swagger2>2.1.2</version.swagger2>
