@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
 
@@ -97,4 +98,11 @@ public interface BuildProvider extends Provider<Integer, org.jboss.pnc.model.Bui
     void setDependentArtifacts(String id, List<String> artifactIds);
 
     Page<Build> getByAttribute(BuildPageInfo pageInfo, Map<String, String> attributeConstraints);
+
+    /**
+     * Return count of current running builds
+     *
+     * @return count
+     */
+    RunningBuildCount getRunningCount();
 }
