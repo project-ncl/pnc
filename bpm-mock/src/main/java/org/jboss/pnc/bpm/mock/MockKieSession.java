@@ -361,4 +361,19 @@ public class MockKieSession implements KieSession {
     public void onStartProcess(BiFunction<String, Map, ProcessInstance> onStartProcess) {
         this.onStartProcess = onStartProcess;
     }
+
+    @Override
+    public void submit(AtomicAction action) {
+
+    }
+
+    @Override
+    public void delete(FactHandle fh, FactHandle.State state) {
+
+    }
+
+    @Override
+    public void update(FactHandle fh, Object o, String... strings) {
+
+    }
 }
