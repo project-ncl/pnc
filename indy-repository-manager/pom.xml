@@ -214,12 +214,6 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.jboss.resteasy</groupId>
-        <artifactId>resteasy-jaxb-provider</artifactId>
-        <version>${version.indy-resteasy}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>org.apache.derby</groupId>
         <artifactId>derby</artifactId>
         <version>10.10.2.0</version>
