@@ -133,11 +133,6 @@
       <artifactId>jakarta.xml.bind-api</artifactId>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-runtime</artifactId>
-      <scope>provided</scope>
-    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
@@ -173,7 +168,6 @@
               <manifestEntries combine.children="append">
                 <Dependencies>
                   org.jboss.resteasy.resteasy-jaxrs export meta-inf,
-                  org.jboss.resteasy.resteasy-jaxb-provider export meta-inf,
                   org.apache.httpcomponents export meta-inf
                 </Dependencies>
               </manifestEntries>

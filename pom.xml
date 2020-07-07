@@ -1097,12 +1097,12 @@
         <version>${version.org.jboss.spec.javax.el}</version>
         <scope>provided</scope>
       </dependency>
-      <dependency>
+      <!--dependency>
         <groupId>org.jboss.spec.javax.xml.bind</groupId>
         <artifactId>jboss-jaxb-api_2.3_spec</artifactId>
         <version>${version.org.jboss.spec.javax.xml.bind}</version>
         <scope>provided</scope>
-      </dependency>
+      </dependency-->
       <dependency>
         <groupId>org.jboss.spec.javax.xml.ws</groupId>
         <artifactId>jboss-jaxws-api_2.3_spec</artifactId>
