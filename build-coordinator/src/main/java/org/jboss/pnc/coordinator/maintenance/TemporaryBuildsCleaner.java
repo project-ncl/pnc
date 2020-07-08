@@ -143,10 +143,8 @@ public class TemporaryBuildsCleaner {
         log.info("Starting deletion of a temporary build record set " + buildConfigSetRecord);
 
         for (BuildRecord br : buildConfigSetRecord.getBuildRecords()) {
-            Result result = deleteTemporaryBuild(br.getId(), authToken);
-            if (!result.isSuccess()) {
-                return result;
-            }
+            br.setBuildConfigSetRecord(null);
+            buildRecordRepository.save(br);
         }
         buildConfigSetRecordRepository.delete(buildConfigSetRecord.getId());
 

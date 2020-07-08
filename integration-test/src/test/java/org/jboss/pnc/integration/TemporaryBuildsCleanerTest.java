@@ -408,7 +408,7 @@ public class TemporaryBuildsCleanerTest {
 
         // then
         assertNull(buildConfigSetRecordRepository.queryById(buildConfigSetRecord.getId()));
-        assertNull(buildRecordRepository.queryById(tempBr.getId()));
+        assertNull(buildRecordRepository.queryById(tempBr.getId()).getBuildConfigSetRecord());
 
     }
 
