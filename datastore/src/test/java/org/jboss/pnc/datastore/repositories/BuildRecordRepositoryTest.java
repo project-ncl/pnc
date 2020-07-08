@@ -96,7 +96,8 @@ public class BuildRecordRepositoryTest {
         buildRecordRepository.save(givenBr);
 
         // when
-        List<BuildRecord> found = buildRecordRepository.findTemporaryBuildsOlderThan(new Date(now.getTime() - 1000));
+        List<BuildRecord> found = buildRecordRepository
+                .findIndependentTemporaryBuildsOlderThan(new Date(now.getTime() - 1000));
 
         // then
         assertEquals(0, found.size());
@@ -112,7 +113,7 @@ public class BuildRecordRepositoryTest {
         givenBr = buildRecordRepository.save(givenBr);
 
         // when
-        List<BuildRecord> found = buildRecordRepository.findTemporaryBuildsOlderThan(new Date(1000));
+        List<BuildRecord> found = buildRecordRepository.findIndependentTemporaryBuildsOlderThan(new Date(1000));
 
         // then
         assertEquals(1, found.size());
