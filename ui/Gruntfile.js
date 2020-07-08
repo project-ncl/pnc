@@ -107,7 +107,7 @@ module.exports = function (grunt) {
         'externalDaUrl': getOpt('da-url', 'PNC_UI_DA_URL'),
         'externalBifrostUrl': getOpt('bifrost-url', 'PNC_UI_BIFROST_URL'),
         'externalKafkaStoreUrl': getOpt('kafka-store-url', 'PNC_UI_KAFKA_STORE_URL'),
-        'pncNotificationsUrl': getOpt('pnc-notifications-url', 'PNC_UI_PNC_NOTIFICATIONS_URL', 'ws://localhost:9000/pnc-rest/ws/build-records/notifications'),
+        'pncNotificationsUrl': getOpt('pnc-notifications-url', 'PNC_UI_PNC_NOTIFICATIONS_URL', 'ws://localhost:9000/pnc-rest-new/notifications'),
         'userGuideUrl': getOpt('user-guide-url', 'PNC_UI_USER_GUIDE_URL'),
         'keycloak':
         {
