@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -77,7 +77,7 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
 
     List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId);
 
-    List<BuildRecord> findTemporaryBuildsOlderThan(Date date);
+    List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date);
 
     /**
      *

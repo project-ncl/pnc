@@ -41,6 +41,7 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -59,7 +60,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.util.List;
 
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CALLBACK_URL;
@@ -71,6 +71,8 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_C
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_PUSH_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.MOVED_TEMPORARILY_CODE;
@@ -81,8 +83,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_COD
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_PUSH_DESCRIPTION;
 
 @Tag(name = "Builds")
 @Path("/builds")
@@ -95,6 +95,7 @@ public interface BuildEndpoint {
     static final String ARTIFACT_IDS = "List of artifact ids";
     static final String ATTRIBUTE_KEY = "Attribute key. The key must match '[a-zA-Z_0-9]+'.";
     static final String ATTRIBUTE_VALUE = "Attribute value";
+    static final String TIMESTAMP_PARAM = "Timestamp using Linux epoch in milliseconds";
 
     static final String GET_ALL_DESC = "Gets all builds.";
     static final String GET_ALL_DESC2 = "Query by attribute: when the attributes are specified only the completed "
@@ -732,5 +733,36 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/count")
-    public RunningBuildCount getCount();
+    RunningBuildCount getCount();
+
+    static final String GET_ALL_INDEPENDENT_TEMPORARY_BUILDS_OLDER_THAN_TIMESTAMP_DESC = "Returns a collection of temporary builds"
+            + " older than timestamp without implicit dependants (no Build depends on these)";
+
+    /**
+     * {@value GET_ALL_INDEPENDENT_TEMPORARY_BUILDS_OLDER_THAN_TIMESTAMP_DESC}
+     *
+     * @param pageParams
+     * @param timestamp {@value TIMESTAMP_PARAM}
+     * @return
+     */
+    @Operation(
+            summary = GET_ALL_INDEPENDENT_TEMPORARY_BUILDS_OLDER_THAN_TIMESTAMP_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/independent-temporary-older-than-timestamp")
+    Page<Build> getAllIndependentTempBuildsOlderThanTimestamp(
+            @Valid @BeanParam PageParameters pageParams,
+            @Parameter(description = TIMESTAMP_PARAM) @QueryParam("timestamp") long timestamp);
 }

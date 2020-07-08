@@ -48,11 +48,12 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.includeTemporary;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSuccess;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.includeTemporary;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
 
 @Stateless
 public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer>
@@ -133,8 +134,8 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     }
 
     @Override
-    public List<BuildRecord> findTemporaryBuildsOlderThan(Date date) {
-        return queryWithPredicates(temporaryBuild(), buildFinishedBefore(date));
+    public List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date) {
+        return queryWithPredicates(temporaryBuild(), buildFinishedBefore(date), withoutImplicitDependants());
     }
 
     @Override
