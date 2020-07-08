@@ -272,7 +272,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * Otherwise, this field will be null.
      */
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_buildconfigsetrecord"), updatable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_buildconfigsetrecord"), updatable = true)
     private BuildConfigSetRecord buildConfigSetRecord;
 
     /**
