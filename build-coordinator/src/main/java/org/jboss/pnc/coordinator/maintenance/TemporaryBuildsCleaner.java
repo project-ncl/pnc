@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.coordinator.maintenance;
 
-import java.util.HashSet;
-import java.util.Set;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.model.Artifact;
@@ -36,6 +34,8 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Bean providing an interface to delete temporary builds
@@ -104,22 +104,9 @@ public class TemporaryBuildsCleaner {
 
         removeBuiltArtifacts(buildRecord);
 
-        deleteDependencies(buildRecord);
-
         buildRecordRepository.delete(buildRecord.getId());
         log.info("Deletion of the temporary build {} finished successfully.", buildRecord);
         return new Result(buildRecordId.toString(), ResultStatus.SUCCESS);
-    }
-
-    private void deleteDependencies(BuildRecord buildRecord) {
-        for (Artifact artifact : buildRecord.getDependencies()) {
-            // check if the BR in which this artifact was produced has been already deleted
-            if (ArtifactQuality.DELETED.equals(artifact.getArtifactQuality())) {
-                if (artifact.getDependantBuildRecords().size() == 0) {
-                    artifactRepository.delete(artifact.getId());
-                }
-            }
-        }
     }
 
     private void deleteArtifact(Artifact artifact) {
