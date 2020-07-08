@@ -67,6 +67,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -383,6 +384,20 @@ public class BuildConfigurationEndpointTest {
         RemoteCollection<BuildConfiguration> all = client.getDependencies(configuration3Id);
 
         assertThat(all).hasSize(2);
+    }
+
+    @Test
+    @InSequence(30)
+    public void testGetDependants() throws ClientException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+
+        List<String> allDependantIds = client.getDependants(configuration2Id)
+                .getAll()
+                .stream()
+                .map(BuildConfiguration::getId)
+                .collect(Collectors.toList());
+
+        assertThat(allDependantIds).containsOnly(configuration3Id);
     }
 
     @Test

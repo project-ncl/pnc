@@ -382,6 +382,36 @@ public interface BuildConfigurationEndpoint {
             @Parameter(description = BC_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParams);
 
+    static final String GET_DEPENDANTS_DESC = "Get the direct dependants of the specified build config.";
+
+    /**
+     * {@value GET_DEPENDANTS_DESC}
+     *
+     * @param id {@value BC_ID}
+     * @param pageParams
+     * @return
+     */
+    @Operation(
+            summary = GET_DEPENDANTS_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildConfigPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/dependants")
+    Page<BuildConfiguration> getDependants(
+            @Parameter(description = BC_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParams);
+
     static final String ADD_DEPENDENCY_DESC = "Adds a dependency to the specified build config.";
     static final String DEPENDENCY_ADD_DESC = "Depenendency to be added to the build config. Only id is important.";
 

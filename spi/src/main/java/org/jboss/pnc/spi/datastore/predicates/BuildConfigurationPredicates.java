@@ -54,6 +54,14 @@ public class BuildConfigurationPredicates {
         };
     }
 
+    public static Predicate<BuildConfiguration> withDependencyConfiguration(Integer childBuildConfigurationId) {
+        return (root, query, cb) -> {
+            SetJoin<BuildConfiguration, BuildConfiguration> dependencyBuildConfigurationsJoin = root
+                    .join(BuildConfiguration_.dependencies);
+            return cb.equal(dependencyBuildConfigurationsJoin.get(BuildConfiguration_.id), childBuildConfigurationId);
+        };
+    }
+
     public static Predicate<BuildConfiguration> withName(String name) {
         return (root, query, cb) -> cb.equal(root.get(BuildConfiguration_.name), name);
     }

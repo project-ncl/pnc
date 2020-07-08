@@ -76,6 +76,7 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependencyConfiguration;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withName;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
@@ -376,6 +377,22 @@ public class BuildConfigurationProviderImpl extends
                 sortingRsql,
                 query,
                 withDependantConfiguration(Integer.valueOf(configId)));
+    }
+
+    @Override
+    public Page<BuildConfiguration> getDependants(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String configId) {
+
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withDependencyConfiguration(Integer.valueOf(configId)));
     }
 
     @Override
