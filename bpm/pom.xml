@@ -168,6 +168,7 @@
               <manifestEntries combine.children="append">
                 <Dependencies>
                   org.jboss.resteasy.resteasy-jaxrs export meta-inf,
+                  com.sun.xml.bind export meta-inf,
                   org.apache.httpcomponents export meta-inf
                 </Dependencies>
               </manifestEntries>
