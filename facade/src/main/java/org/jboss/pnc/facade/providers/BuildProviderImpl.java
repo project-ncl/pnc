@@ -120,6 +120,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withB
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutAttribute;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
 
 @PermitAll
 @Stateless
@@ -226,7 +227,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
     }
 
     @Override
-    public Page<Build> getAllTemporaryOlderThanTimestamp(
+    public Page<Build> getAllIndependentTemporaryOlderThanTimestamp(
             int pageIndex,
             int pageSize,
             String sort,
@@ -238,7 +239,8 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
                 sort,
                 q,
                 temporaryBuild(),
-                buildFinishedBefore(new Date(timestamp)));
+                buildFinishedBefore(new Date(timestamp)),
+                withoutImplicitDependants());
     }
 
     @Override

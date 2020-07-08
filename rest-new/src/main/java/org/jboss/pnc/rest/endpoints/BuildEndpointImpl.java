@@ -47,9 +47,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.BufferedWriter;
@@ -307,5 +305,15 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Override
     public RunningBuildCount getCount() {
         return provider.getRunningCount();
+    }
+
+    @Override
+    public Page<Build> getAllIndependentTempBuildsOlderThanTimestamp(PageParameters pageParams, long timestamp) {
+        return provider.getAllIndependentTemporaryOlderThanTimestamp(
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ(),
+                timestamp);
     }
 }

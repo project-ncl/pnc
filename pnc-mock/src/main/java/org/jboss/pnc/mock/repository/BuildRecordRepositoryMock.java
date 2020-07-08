@@ -95,7 +95,7 @@ public class BuildRecordRepositoryMock extends IntIdRepositoryMock<BuildRecord> 
     }
 
     @Override
-    public List<BuildRecord> findTemporaryBuildsOlderThan(Date date) {
+    public List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date) {
         return null;
     }
 

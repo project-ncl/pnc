@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 import javax.persistence.criteria.Subquery;
@@ -231,6 +232,21 @@ public class BuildRecordPredicates {
                             cb.equal(subRoot.get(BuildRecordAttribute_.key), key),
                             cb.equal(root.get(BuildRecord_.id), subRoot.get(BuildRecordAttribute_.buildRecord))));
             return query.where(cb.not(cb.exists(subquery))).getRestriction();
+        };
+    }
+
+    public static Predicate<BuildRecord> withoutImplicitDependants() {
+        return (root, query, cb) -> {
+            final SetJoin<BuildRecord, Artifact> builtArtifacts = root.join(BuildRecord_.builtArtifacts, JoinType.LEFT);
+            final SetJoin<Artifact, BuildRecord> buildRecordImplicitDependants = builtArtifacts
+                    .join(Artifact_.dependantBuildRecords, JoinType.LEFT);
+
+            query.groupBy(root.get(BuildRecord_.id));
+
+            // All entries in a column have to be NULL which is equivalent to count being 0 (aggregation functions
+            // ignore NULLs)
+            query.having(cb.equal(cb.count(buildRecordImplicitDependants.get(BuildRecord_.id)), 0));
+            return cb.and();
         };
     }
 
