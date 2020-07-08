@@ -144,6 +144,16 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     @Override
+    public Page<BuildConfiguration> getDependants(String id, PageParameters pageParams) {
+        return buildConfigurationProvider.getDependants(
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ(),
+                id);
+    }
+
+    @Override
     public void addDependency(String id, BuildConfigurationRef dependency) {
         buildConfigurationProvider.addDependency(id, dependency.getId());
     }

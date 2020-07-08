@@ -70,6 +70,13 @@ public interface BuildConfigurationProvider
             String query,
             String configId);
 
+    Page<BuildConfiguration> getDependants(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String configId);
+
     Page<BuildConfigurationRevision> getRevisions(int pageIndex, int pageSize, String id);
 
     BuildConfigurationRevision getRevision(String id, Integer rev);
