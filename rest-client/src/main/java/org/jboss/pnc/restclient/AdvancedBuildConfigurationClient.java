@@ -58,6 +58,28 @@ public class AdvancedBuildConfigurationClient extends BuildConfigurationClient {
         return future;
     }
 
+    public CompletableFuture<Build> executeBuild(String buildConfigId, int revision, BuildParameters parameters)
+            throws RemoteResourceException {
+        CompletableFuture<Build> future = waitForBuild(buildConfigId);
+        super.triggerRevision(buildConfigId, revision, parameters);
+        return future;
+    }
+
+    public Build executeBuild(
+            String buildConfigId,
+            int revision,
+            BuildParameters parameters,
+            long timeout,
+            TimeUnit timeUnit) throws RemoteResourceException {
+        try {
+            return executeBuild(buildConfigId, revision, parameters).get(timeout, timeUnit);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            throw new RuntimeException(e);
+        } finally {
+            webSocketClient.disconnect();
+        }
+    }
+
     public Build executeBuild(String buildConfigId, BuildParameters parameters, long timeout, TimeUnit timeUnit)
             throws RemoteResourceException {
         try {
