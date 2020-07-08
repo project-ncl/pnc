@@ -17,18 +17,23 @@
  */
 package org.jboss.pnc.integration;
 
+import org.assertj.core.api.Condition;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleaner;
-import org.jboss.pnc.integration.setup.Deployments;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
+import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -61,7 +66,6 @@ import javax.transaction.NotSupportedException;
 import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Date;
 import java.util.HashSet;
@@ -70,8 +74,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jboss.pnc.enums.ArtifactQuality;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.integration.setup.Deployments.addBuildExecutorMock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -115,6 +118,9 @@ public class TemporaryBuildsCleanerTest {
 
     @Inject
     private TargetRepositoryRepository targetRepositoryRepository;
+
+    @Inject
+    private BuildProvider buildProvider;
 
     @Inject
     private Datastore datastore;
@@ -271,6 +277,100 @@ public class TemporaryBuildsCleanerTest {
         }
 
         fail("Deletion of non-temporary artifacts should be prohibited");
+    }
+
+    @Test
+    public void shouldReturnOnlyTopLevelTemporaryBuilds() throws Exception {
+        // with
+        // top level BR1
+        BuildRecord br1 = initBuildRecordBuilder().temporaryBuild(true).build();
+        br1 = buildRecordRepository.save(br1);
+
+        Artifact art1br1 = initArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).buildRecord(br1).build();
+        Artifact art2br1 = initArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).buildRecord(br1).build();
+        artifactRepository.save(art1br1);
+        artifactRepository.save(art2br1);
+
+        Set<Artifact> depArtBr2 = new HashSet<>();
+
+        // independent BR2
+        BuildRecord br2 = initBuildRecordBuilder().temporaryBuild(true).dependencies(depArtBr2).build();
+        br2 = buildRecordRepository.save(br2);
+
+        Artifact art1br2 = initArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).buildRecord(br2).build();
+        Artifact art2br2 = initArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).buildRecord(br2).build();
+        artifactRepository.save(art1br2);
+        artifactRepository.save(art2br2);
+
+        Set<Artifact> depArtBr3 = new HashSet<>();
+        depArtBr3.add(art1br1);
+        depArtBr3.add(art1br2);
+
+        // create implicitly dependent BR3 (BR3 is dependent on BR1)
+        BuildRecord br3 = initBuildRecordBuilder().temporaryBuild(true).dependencies(depArtBr3).build();
+        br3 = buildRecordRepository.save(br3);
+
+        Artifact art1br3 = initArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).buildRecord(br3).build();
+        Artifact art2br3 = initArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).buildRecord(br3).build();
+        artifactRepository.save(art1br3);
+        artifactRepository.save(art2br3);
+
+        Set<Artifact> depArtBr4 = new HashSet<>();
+        depArtBr4.add(art2br2);
+        depArtBr4.add(art1br3);
+
+        // create implicitly dependent BR4 (BR4 is dependent on BR2 and BR3)
+        BuildRecord br4 = initBuildRecordBuilder().temporaryBuild(true).dependencies(depArtBr4).build();
+        br4 = buildRecordRepository.save(br4);
+
+        Artifact art1br4 = initArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).buildRecord(br4).build();
+        Artifact art2br4 = initArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).buildRecord(br4).build();
+        artifactRepository.save(art1br4);
+        artifactRepository.save(art2br4);
+
+        BuildRecord finalBr1 = br1;
+        Condition<Build> hasBr1 = new Condition<>(
+                (build -> build.getId().equals(finalBr1.getId().toString())),
+                "Is Br1 with id " + finalBr1.getId().toString());
+
+        BuildRecord finalBr2 = br2;
+        Condition<Build> hasBr2 = new Condition<>(
+                (build -> build.getId().equals(finalBr2.getId().toString())),
+                "Is Br2 with id " + finalBr2.getId().toString());
+
+        BuildRecord finalBr3 = br3;
+        Condition<Build> hasBr3 = new Condition<>(
+                (build -> build.getId().equals(finalBr3.getId().toString())),
+                "Is Br3 with id " + finalBr3.getId().toString());
+
+        BuildRecord finalBr4 = br4;
+        Condition<Build> hasBr4 = new Condition<>(
+                (build -> build.getId().equals(finalBr4.getId().toString())),
+                "Is Br4 with id " + finalBr4.getId().toString());
+
+        // when #1
+        Page<Build> builds = buildProvider
+                .getAllIndependentTemporaryOlderThanTimestamp(0, 50, null, null, new Date().getTime());
+
+        // then #1
+        assertThat(builds.getContent()).doNotHave(hasBr1).doNotHave(hasBr2).doNotHave(hasBr3).haveExactly(1, hasBr4);
+
+        // when #2
+        temporaryBuildsCleaner.deleteTemporaryBuild(br4.getId(), "");
+        builds = buildProvider.getAllIndependentTemporaryOlderThanTimestamp(0, 50, null, null, new Date().getTime());
+
+        // then #2
+        assertThat(builds.getContent()).doNotHave(hasBr1).doNotHave(hasBr2).haveExactly(1, hasBr3).doNotHave(hasBr4);
+
+        // when #3
+        temporaryBuildsCleaner.deleteTemporaryBuild(br3.getId(), "");
+        builds = buildProvider.getAllIndependentTemporaryOlderThanTimestamp(0, 50, null, null, new Date().getTime());
+
+        // then #3
+        assertThat(builds.getContent()).haveExactly(1, hasBr1)
+                .haveExactly(1, hasBr2)
+                .doNotHave(hasBr3)
+                .doNotHave(hasBr4);
     }
 
     @Test(expected = ValidationException.class)

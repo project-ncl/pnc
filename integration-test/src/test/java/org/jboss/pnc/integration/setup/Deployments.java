@@ -92,6 +92,7 @@ public class Deployments {
         ear.setApplicationXML("application-new.xml");
 
         addKeycloakServiceClientMock(ear);
+        addAssertJ(ear, resolver);
 
         logger.info("Ear archive listing: {}", ear.toString(true));
 
@@ -168,6 +169,11 @@ public class Deployments {
         logger.info(jar.toString(true));
 
         enterpriseArchive.addAsModule(jar);
+    }
+
+    private static void addAssertJ(EnterpriseArchive archive, PomEquippedResolveStage mavenResolver) {
+        File[] libs = mavenResolver.resolve("org.assertj:assertj-core").withTransitivity().asFile();
+        archive.addAsLibraries(libs);
     }
 
     public static void addBuildExecutorMock(EnterpriseArchive enterpriseArchive) {
