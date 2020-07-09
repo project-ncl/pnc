@@ -84,6 +84,10 @@
           url: ENDPOINT + '/dependencies',
           isPaged: true
         },
+        removeDependency: {
+          method: 'DELETE',
+          url: ENDPOINT + '/dependencies/:dependencyId'
+        },
         getGroupConfigs: {
           method: 'GET',
           url: ENDPOINT + '/group-configs',

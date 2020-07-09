@@ -45,10 +45,14 @@
 
     function onRemove(dependency) {
       console.log('Remove dependency: %O', dependency);
+      return $ctrl.buildConfig.$removeDependency({ dependencyId: dependency.id });
     }
 
     function onEdit(dependencies) {
       console.log('Update dependencies: %O', dependencies);
+      $ctrl.buildConfig.dependencies = dependencies.reduce((map, dep) => (map[dep.id] = dep, map), {});
+
+      return $ctrl.buildConfig.$update();
     }
   }
 
