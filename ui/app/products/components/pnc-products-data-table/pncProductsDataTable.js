@@ -50,6 +50,12 @@
           title: 'Name',
           placeholder: 'Filter by Name',
           filterType: 'text'
+        },
+        {
+          id: 'abbreviation',
+          title: 'Abbreviation',
+          placeholder: 'Filter by abbreviation',
+          filterType: 'text'
         }
       ];
 
