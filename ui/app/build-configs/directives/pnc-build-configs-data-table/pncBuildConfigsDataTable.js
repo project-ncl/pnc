@@ -27,11 +27,11 @@
       onEdit: '&'
     },
     templateUrl: 'build-configs/directives/pnc-build-configs-data-table/pnc-build-configs-data-table.html',
-    controller: ['$scope', '$q', 'modalSelectService', 'filteringPaginator', 'SortHelper', Controller]
+    controller: ['$scope', '$q', 'modalSelectService', 'filteringPaginator', 'paginator', 'SortHelper', Controller]
   });
 
 
-  function Controller($scope, $q, modalSelectService, filteringPaginator, SortHelper) {
+  function Controller($scope, $q, modalSelectService, filteringPaginator, paginator, SortHelper) {
     var $ctrl = this;
     const DEFAULT_FIELDS = ['name', 'project', 'buildStatus'];
 
@@ -53,6 +53,7 @@
       $ctrl.displayFields = $ctrl.displayFields || DEFAULT_FIELDS;
 
       $ctrl.filterPage = filteringPaginator($ctrl.page);
+      $ctrl.pageCopy = paginator($ctrl.page);
 
       $ctrl.filterFields = [
         {
@@ -89,16 +90,17 @@
     function remove(buildConfig) {
       $q.when($ctrl.onRemove()(buildConfig)).then(() => {
         $ctrl.filterPage.refresh();
+        $ctrl.pageCopy.refresh();
       });
     }
 
     function edit() {
       $q.when()
         .then(function () {
-          if ($ctrl.page.total === 1) {
-            return $ctrl.page.data;
+          if ($ctrl.pageCopy.total === 1) {
+            return $ctrl.pageCopy.data;
           } else {
-            return $ctrl.page.getWithNewSize($ctrl.page.total * $ctrl.page.count).then(function (resp) { return resp.data; });
+            return $ctrl.pageCopy.getWithNewSize($ctrl.pageCopy.total * $ctrl.pageCopy.size).then(function (resp) { return resp.data; });
           }
         })
         .then(function (buildConfigs) {
@@ -109,7 +111,8 @@
         })
         .then(function (editedBuildConfigs) {
           $q.when($ctrl.onEdit()(editedBuildConfigs)).then(function () {
-            $ctrl.page.refresh();
+            $ctrl.filterPage.refresh();
+            $ctrl.pageCopy.refresh();
           });
         });
     }
