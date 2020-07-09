@@ -201,9 +201,12 @@
       });
 
 
-      resource.getSshCredentials = params => $q.when(authService.isAuthenticated()).then(authenticated => {
-        if (authenticated) {
+      resource.getSshCredentials = params => $q.when(authService.getPncUser()).then(currentUser => {
+        // only user who performed the build can get SSH credentials
+        if (currentUser.id === params.buildUser.id) {
           return resource._getSshCredentials(params);
+        } else {
+          return $q.when(null);
         }
       });
 
