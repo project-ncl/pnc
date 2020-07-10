@@ -40,13 +40,20 @@
       $log.debug('pncGroupConfigCreatePage::$onInit [productVersion: %O]', $ctrl.productVersion);
     };
 
+ /*Check version data and remove it if product is changed or not selected*/
+    $ctrl.checkVersionData = function (groupConfig) {
+      if (!groupConfig.product || (groupConfig.version && groupConfig.product.id !== groupConfig.version.product.id)) {
+        groupConfig.version = null;
+      }
+    };
+
 
     function create(formValues) {
       console.log('create -> %O', formValues);
 
       let groupConfig = new GroupConfigResource(formValues);
 
-      let productVersion = $ctrl.productVersion || formValues.productVersion;
+      let productVersion = $ctrl.productVersion || formValues.version;
 
       if (productVersion) {
         groupConfig.productVersion = { id: productVersion.id };
