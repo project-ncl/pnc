@@ -41,7 +41,7 @@
     };
 
  /*Check version data and remove it if product is changed or not selected*/
-    $ctrl.checkVersionData = function (groupConfig) {
+    $ctrl.checkVersionData = groupConfig => {
       if (!groupConfig.product || (groupConfig.version && groupConfig.product.id !== groupConfig.version.product.id)) {
         groupConfig.version = null;
       }
@@ -60,7 +60,11 @@
       }
 
       groupConfig.$save().then(() => $state.go('group-configs.detail', { groupConfigId: groupConfig.id }));
-    }
+    };
+
+    $ctrl.reset = () => {
+      $ctrl.data.groupConfig = null;
+    };
   }
 
 })();
