@@ -18,7 +18,7 @@
 
 -->
 <div class="pnc-build-status">
-  <div ng-show="$ctrl.item && $ctrl.isLoaded">
+  <div ng-show="$ctrl.item && $ctrl.isLoaded && $ctrl.item.status">
     <pnc-build-status-icon build="$ctrl.item"></pnc-build-status-icon>
 
     <pnc-build-link ng-if="::$ctrl.build" build="$ctrl.build" short-link="true"></pnc-build-link>
