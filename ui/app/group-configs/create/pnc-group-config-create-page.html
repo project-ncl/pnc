@@ -29,7 +29,7 @@
       <div class="form-group" ng-class="{ 'has-error': groupConfigForm.name.$invalid && groupConfigForm.name.$touched, 'has-success': groupConfigForm.name.$valid && groupConfigForm.name.$touched }">
         <label for="input-name" class="col-sm-3 col-lg-2 control-label required">Name</label>
         <div class="col-sm-9 col-lg-7">
-          <input type="text" id="input-name" class="form-control" name="name" maxlength="255" ng-model="groupConfig.name" required>
+          <input type="text" id="input-name" class="form-control" name="name" maxlength="255" ng-model="$ctrl.data.groupConfig.name" required>
           <span class="help-block" ng-show="groupConfigForm.name.$error.required && groupConfigForm.name.$touched">Required field.</span>
         </div>
       </div>
@@ -38,25 +38,25 @@
       <div class="form-group" ng-class="{ 'has-error': groupConfigForm.product.$invalid && groupConfigForm.product.$touched, 'has-success': groupConfigForm.product.$valid && groupConfigForm.product.$touched}" >
         <label class="col-sm-3 col-lg-2 control-label">Product</label>
         <div class="col-sm-9 col-lg-7">
-          <pnc-product-combobox name="product" ng-change="$ctrl.checkVersionData(groupConfig)" ng-model="groupConfig.product">
+          <pnc-product-combobox name="product" ng-change="$ctrl.checkVersionData($ctrl.data.groupConfig)" ng-model="$ctrl.data.groupConfig.product">
           </pnc-product-combobox>
         </div>
       </div>
-      <div class="form-group" ng-if="groupConfig.product"
+      <div class="form-group" ng-if="$ctrl.data.groupConfig.product"
            ng-class="{ 'has-error' : groupConfigForm.version.$invalid && groupConfigForm.version.$touched, 'has-success': groupConfigForm.product.$touched && groupConfigForm.version.$touched }">
         <label class="col-sm-3 col-lg-2 control-label">Version</label>
         <div class="col-sm-9 col-lg-7">
-          <pnc-product-version-combobox name="version" product="groupConfig.product" ng-model="groupConfig.version">
+          <pnc-product-version-combobox name="version" product="$ctrl.data.groupConfig.product" ng-model="$ctrl.data.groupConfig.version">
           </pnc-product-version-combobox>
-          <p ng-show="groupConfigForm.version.$invalid && groupConfigForm.version.$touched" class="help-block">
+          <p ng-show="groupConfigForm.version.$invalid && $ctrl.data.groupConfigForm.version.$touched" class="help-block">
             Version is a required field if you selected any product.</p>
         </div>
       </div>
 
       <div class="form-group">
         <div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">
-          <input type="submit" class="btn btn-primary" value="Create" ng-click="$ctrl.create(groupConfig)" ng-disabled="groupConfigForm.$invalid">
-          <input type="reset" class="btn btn-default" value="Clear" ng-click="$ctrl.reset(groupConfigForm)">
+          <input type="submit" class="btn btn-primary" value="Create" ng-click="$ctrl.create($ctrl.data.groupConfig)" ng-disabled="groupConfigForm.$invalid">
+          <input type="reset" class="btn btn-default" value="Clear" ng-click="$ctrl.reset($ctrl.data.groupConfig)">
         </div>
       </div>
 
