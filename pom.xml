@@ -106,7 +106,7 @@
     <atlasVersion>1.1.0</atlasVersion>
     <indyVersion>2.2.0</indyVersion>
     <version.assertj-core>3.16.1</version.assertj-core>
-    <version.mockito>3.3.3</version.mockito>
+    <version.mockito>3.4.0</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.kie-services-client>6.5.0.Final</version.kie-services-client>
@@ -1360,6 +1360,7 @@
 
               <!-- Exclude downloaded/generated -->
               <exclude>**/.tmp/**</exclude>
+              <exclude>**/.cache/**</exclude>
               <exclude>**/.build-tmp/**</exclude>
               <exclude>**/.sass-cache/**</exclude>
               <exclude>**/bower_components/**</exclude>
@@ -1654,7 +1655,7 @@
       <plugin>
           <groupId>net.revelc.code.formatter</groupId>
           <artifactId>formatter-maven-plugin</artifactId>
-          <version>2.11.0</version>
+          <version>2.12.1</version>
           <configuration>
               <configFile>../eclipse-codeStyle.xml</configFile>
           </configuration>
