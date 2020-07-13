@@ -22,3 +22,6 @@ nbactions*
 indy-repository-manager/derby.log
 indy-repository-manager/indexedStorePath
 indy-repository-manager/org.commonjava.indy.folo.model.TrackedContentEntry
+
+# From formatter-maven-plugin
+.cache
