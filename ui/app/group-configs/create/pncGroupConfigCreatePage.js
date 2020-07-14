@@ -60,7 +60,7 @@
       }
 
       groupConfig.$save().then(() => $state.go('group-configs.detail', { groupConfigId: groupConfig.id }));
-    };
+    }
 
     $ctrl.reset = () => {
       $ctrl.data.groupConfig = null;
