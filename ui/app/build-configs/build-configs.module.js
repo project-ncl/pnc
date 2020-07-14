@@ -144,11 +144,11 @@
         }
       });
 
-      $stateProvider.state('projects.detail.build-configs.detail.build-groups', {
-        url: '/build-groups',
-        component: 'pncBuildConfigBuildGroupsTab',
+      $stateProvider.state('projects.detail.build-configs.detail.group-configs', {
+        url: '/group-configs',
+        component: 'pncBuildConfigGroupConfigsTab',
         data: {
-          displayName: 'Build Groups'
+          displayName: 'Group Configs'
         },
         bindings: {
           buildConfig: 'configurationDetail'
