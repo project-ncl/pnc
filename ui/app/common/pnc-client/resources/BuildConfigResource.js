@@ -84,6 +84,11 @@
           url: ENDPOINT + '/dependencies',
           isPaged: true
         },
+        getDependants: {
+          method: 'GET',
+          url: ENDPOINT + '/dependants',
+          isPaged: true
+        },
         getRevisions: {
           method: 'GET',
           url: ENDPOINT + '/revisions',
