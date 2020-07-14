@@ -25,7 +25,8 @@
         <pnc-build-start build-config="$ctrl.buildConfig"></pnc-build-start>
         <button type="button" class="btn btn-lg btn-default" uib-tooltip="Clone Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="$ctrl.clone()" pnc-requires-auth><i class="fa fa-files-o"></i> Clone</button>
         <button ng-if="false" type="button" class="btn btn-lg btn-default" uib-tooltip="Edit Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="$ctrl.edit()" pnc-requires-auth><i class="pficon pficon-edit"></i> Edit</button>
-        <button type="button" class="btn btn-lg btn-danger" uib-tooltip="Delete Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" pnc-confirm-click="$ctrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + $ctrl.buildConfig.name + ' ?'}}" pnc-requires-auth><i class="pficon pficon-delete"></i> Delete</button>
+<!--          Commented for NCL-5847 Remove delete buttons on Build Config or Group Config-->
+<!--        <button type="button" class="btn btn-lg btn-danger" uib-tooltip="Delete Build Config" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" pnc-confirm-click="$ctrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Build Configuration: ' + $ctrl.buildConfig.name + ' ?'}}" pnc-requires-auth><i class="pficon pficon-delete"></i> Delete</button>-->
       </pnc-header-buttons>
     </pnc-header>
   </div> <!-- /col -->
