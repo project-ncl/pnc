@@ -18,15 +18,15 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-configs').component('pncBuildConfigBuildGroupsTab', {
+  angular.module('pnc.build-configs').component('pncBuildConfigGroupConfigsTab', {
     bindings: {
       buildConfig: '<',
-      buildGroups: '<'
+      groupConfigs: '<'
     },
     require : {
       mainCtrl: '^^pncBuildConfigDetailMain'
     },
-    templateUrl: 'build-configs/detail/build-groups-tab/pnc-build-config-build-groups-tab.html',
+    templateUrl: 'build-configs/detail/group-configs-tab/pnc-build-config-group-configs-tab.html',
     controller: ['paginator', Controller]
   });
 
@@ -42,7 +42,7 @@
 
 
     $ctrl.$onInit = function () {
-      $ctrl.page = paginator($ctrl.buildGroups);
+      $ctrl.page = paginator($ctrl.groupConfigs);
     };
   }
 
