@@ -30,9 +30,10 @@
           <button type="button" class="btn btn-lg btn-default" uib-tooltip="Edit Group Config" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" ng-click="groupConfigEditForm.$show()" ng-class="{ 'active': groupConfigEditForm.$visible }" pnc-requires-auth>
             <i class="pficon pficon-edit"></i> Edit
           </button>
-          <button type="button" class="btn btn-lg btn-danger" uib-tooltip="Delete Group Config" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="$ctrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Group Config: ' + $ctrl.groupConfig.name + ' ?'}}" pnc-requires-auth>
-            <i class="pficon pficon-delete"></i> Delete
-          </button>
+<!--          Commented for NCL-5847 Remove delete buttons on Build Config or Group Config-->
+<!--          <button type="button" class="btn btn-lg btn-danger" uib-tooltip="Delete Group Config" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="$ctrl.delete()" pnc-confirm-message="{{ 'Confirm the deletion of Group Config: ' + $ctrl.groupConfig.name + ' ?'}}" pnc-requires-auth>-->
+<!--            <i class="pficon pficon-delete"></i> Delete-->
+<!--          </button>-->
           <div class="btn-group dropdown dropdown-kebab-pf">
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownKebab" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" pnc-requires-auth>
               <span class="fa fa-ellipsis-v"></span>
