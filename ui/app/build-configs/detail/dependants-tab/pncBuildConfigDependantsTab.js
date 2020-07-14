@@ -20,30 +20,24 @@
 
   angular.module('pnc.build-configs').component('pncBuildConfigDependantsTab', {
     bindings: {
-      buildConfig: '<',
       dependants: '<'
     },
     require : {
       mainCtrl: '^^pncBuildConfigDetailMain'
     },
     templateUrl: 'build-configs/detail/dependants-tab/pnc-build-config-dependants-tab.html',
-    controller: ['paginator', 'BuildConfiguration', Controller]
+    controller: [Controller]
   });
 
 
-  function Controller(paginator) {
-    var $ctrl = this;
+  function Controller() {
+    const $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.displayFields = ['name', 'project', 'buildStatus'];
-
     // --------------------
+    $ctrl.$onInit = () => {};
 
-
-    $ctrl.$onInit = function () {
-      $ctrl.page = paginator($ctrl.dependants);
-    };
   }
 
 })();

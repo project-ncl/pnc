@@ -139,16 +139,8 @@
         data: {
           displayName: 'Dependants'
         },
-        bindings: {
-          buildConfig: 'configurationDetail'
-        },
         resolve: {
-          dependants: [
-            'configurationDetail',
-            function (configurationDetail) {
-              return configurationDetail.$getDependants();
-            }
-          ]
+          dependants: ['configurationDetail', buildConfig => buildConfig.$getDependants()]
         }
       });
 
