@@ -112,7 +112,7 @@
     <version.kie-services-client>6.5.0.Final</version.kie-services-client>
     <version.keycloak>9.0.3.redhat-00002</version.keycloak>
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
-    <version.swagger2>2.1.2</version.swagger2>
+    <version.swagger2>2.1.3</version.swagger2>
     <version.buildagent>0.7.0-SNAPSHOT</version.buildagent>
     <version.lombok>1.18.12</version.lombok>
     <version.mapstruct>1.3.1.Final</version.mapstruct>
