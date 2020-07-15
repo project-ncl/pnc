@@ -100,6 +100,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- Enterprise dependencies -->
         <dependency>
             <groupId>org.jboss.spec.javax.ejb</groupId>

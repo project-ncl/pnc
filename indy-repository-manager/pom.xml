@@ -119,6 +119,18 @@
       <scope>test</scope>
       <exclusions>
         <exclusion>
+          <groupId>io.swagger</groupId>
+          <artifactId>swagger-jaxrs</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.swagger</groupId>
+          <artifactId>swagger-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.swagger</groupId>
+          <artifactId>swagger-models</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>javax.validation</groupId>
           <artifactId>validation-api</artifactId>
         </exclusion>
@@ -129,6 +141,10 @@
       <artifactId>indy-test-fixtures-core</artifactId>
       <scope>test</scope>
       <exclusions>
+        <exclusion>
+          <groupId>io.swagger</groupId>
+          <artifactId>swagger-jaxrs</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>com.sun</groupId>
           <artifactId>tools</artifactId>
