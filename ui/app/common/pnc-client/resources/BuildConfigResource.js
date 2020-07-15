@@ -84,6 +84,11 @@
           url: ENDPOINT + '/dependencies',
           isPaged: true
         },
+        getGroupConfigs: {
+          method: 'GET',
+          url: ENDPOINT + '/group-configs',
+          isPaged: true
+        },
         getDependants: {
           method: 'GET',
           url: ENDPOINT + '/dependants',

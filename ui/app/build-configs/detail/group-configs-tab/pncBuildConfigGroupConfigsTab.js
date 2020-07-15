@@ -20,29 +20,40 @@
 
   angular.module('pnc.build-configs').component('pncBuildConfigGroupConfigsTab', {
     bindings: {
-      buildConfig: '<',
       groupConfigs: '<'
     },
     require : {
       mainCtrl: '^^pncBuildConfigDetailMain'
     },
     templateUrl: 'build-configs/detail/group-configs-tab/pnc-build-config-group-configs-tab.html',
-    controller: ['paginator', Controller]
+    controller: ['filteringPaginator', 'SortHelper', Controller]
   });
 
 
-  function Controller(paginator) {
-    var $ctrl = this;
+  function Controller(filteringPaginator, SortHelper) {
+    const $ctrl = this;
+    const PAGE_NAME = 'groupConfigsList';
 
-    // -- Controller API --
-
-    $ctrl.displayFields = ['name', 'productVersion', 'buildStatus'];
+    $ctrl.groupConfigsSortingFields = [{
+      id: 'name',
+      title: 'Name'
+    }];
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
-      $ctrl.page = paginator($ctrl.groupConfigs);
+
+      $ctrl.groupConfigsFilteringPage = filteringPaginator($ctrl.groupConfigs);
+
+      $ctrl.groupConfigsFilterFields = [{
+        id: 'name',
+        title: 'Name',
+        placeholder: 'Filter by Name',
+        filterType: 'text'
+      }];
+
+      $ctrl.groupConfigsSortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
     };
   }
 

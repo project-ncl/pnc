@@ -16,11 +16,11 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 
--->
+-->  
 <div class="row">
-  <div class="col-md-12">
-    <pnc-build-groups-data-table page="$ctrl.page" display-fields="$ctrl.displayFields"></pnc-build-groups-data-table>
-  </div>
+  <pnc-toolbar filtering-page="$ctrl.groupConfigsFilteringPage" filtering-fields="$ctrl.groupConfigsFilterFields" sorting-fields="$ctrl.groupConfigsSortingFields" sorting-configs="$ctrl.groupConfigsSortingConfigs"></pnc-toolbar>
 </div>
-  
-    
+<div>
+  <pnc-group-configs-list group-configs="$ctrl.groupConfigsFilteringPage.data"></pnc-group-configs-list>
+  <pnc-page-controls class="pull-right m-b-10" pnc-page="$ctrl.groupConfigsFilteringPage" ng-if="$ctrl.groupConfigsFilteringPage"></pnc-page-controls>
+</div>

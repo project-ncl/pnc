@@ -150,17 +150,8 @@
         data: {
           displayName: 'Group Configs'
         },
-        bindings: {
-          buildConfig: 'configurationDetail'
-        },
         resolve: {
-          buildGroups: [
-            'configurationDetail',
-            'BuildConfigurationSet',
-            function (configurationDetail, BuildConfigurationSet) {
-              return BuildConfigurationSet.queryContainsBuildConfiguration({}, { id: configurationDetail.id }).$promise;
-            }
-          ]
+          groupConfigs: ['configurationDetail', buildConfig => buildConfig.$getGroupConfigs()]
         }
       });
 
