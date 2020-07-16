@@ -430,9 +430,13 @@ public class DefaultDatastore implements Datastore {
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
                 .getLatestSuccessfulBuildRecord(buildConfigurationAudited.getId(), temporaryBuild);
         if (latestSuccessfulBuildRecord == null) {
-            logger.warn(
-                    "The check should be done once it's known there is a successful BuildRecord. There is no successful BuildRecord for BuildConfigurationAudited {}.",
-                    buildConfigurationAudited.getIdRev());
+            if (!temporaryBuild) { // When building temporary, there might be only persistent builds done before.
+                logger.warn(
+                        "The check should be done once it's known there is a successful BuildRecord. There is no"
+                                + " successful BuildRecord for BuildConfigurationAudited {}.",
+                        buildConfigurationAudited.getIdRev());
+            }
+            return false;
         }
         if (latestSuccessfulBuildRecord.getBuildConfigurationAuditedIdRev()
                 .equals(buildConfigurationAudited.getIdRev())) {
