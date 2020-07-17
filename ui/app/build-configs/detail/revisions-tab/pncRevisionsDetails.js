@@ -23,11 +23,11 @@
       revision: '<'
     },
     templateUrl: 'build-configs/detail/revisions-tab/pnc-revisions-details.html',
-    controller: ['$state', 'BuildConfiguration', 'pncNotify', Controller]
+    controller: ['$state', 'BuildConfigResource', 'pncNotify', Controller]
   });
 
 
-  function Controller($state, BuildConfiguration, pncNotify) {
+  function Controller($state, BuildConfigResource, pncNotify) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -43,7 +43,7 @@
 
     
     function restore() {
-      BuildConfiguration.restoreRevision($ctrl.revision).$promise.then(() => {
+      BuildConfigResource.restoreRevision($ctrl.revision).$promise.then(() => {
         $state.go('^.^.default', {}, { reload: true });
         pncNotify.success('Revision: ' + $ctrl.revision.rev + ' of ' + $ctrl.revision.name + ' restored');
       });
