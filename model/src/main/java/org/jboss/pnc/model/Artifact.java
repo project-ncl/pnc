@@ -17,11 +17,14 @@
  */
 package org.jboss.pnc.model;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.ArtifactQuality;
 
+import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -58,6 +61,8 @@ import java.util.Set;
  * the format for the identifier field.
  *
  */
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
         uniqueConstraints = @UniqueConstraint(
@@ -139,6 +144,7 @@ public class Artifact implements GenericEntity<Integer> {
      * The list of builds which depend on this artifact. For example, if the build downloaded this artifact as a Maven
      * dependency.
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "dependencies")
     private Set<BuildRecord> dependantBuildRecords;
 
@@ -157,6 +163,7 @@ public class Artifact implements GenericEntity<Integer> {
     /**
      * The product milestone releases which distribute this artifact
      */
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany(mappedBy = "distributedArtifacts")
     private Set<ProductMilestone> distributedInProductMilestones;
 
