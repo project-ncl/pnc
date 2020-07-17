@@ -69,6 +69,7 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
                     artifact.setModificationUser(persisted.getModificationUser());
                     artifact.setModificationTime(persisted.getModificationTime());
                 }
+                artifact.setCreationTime(persisted.getCreationTime());
             }
         }
         return springRepository.save(artifact);
