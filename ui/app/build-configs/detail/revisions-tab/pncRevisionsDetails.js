@@ -28,7 +28,7 @@
 
 
   function Controller($state, BuildConfigResource, pncNotify) {
-    var $ctrl = this;
+    const $ctrl = this;
 
     // -- Controller API --
 
@@ -43,7 +43,13 @@
 
     
     function restore() {
-      BuildConfigResource.restoreRevision($ctrl.revision).$promise.then(() => {
+      BuildConfigResource.restoreRevision({
+        id: $ctrl.revision.id,
+        revisionId: $ctrl.revision.rev
+      }, {
+        /* postData need to be explicitly set as empty, otherwise the first argument would be send as postData 
+           and URL parameters mapping wouldn't work correctly */
+      }).$promise.then(() => {
         $state.go('^.^.default', {}, { reload: true });
         pncNotify.success('Revision: ' + $ctrl.revision.rev + ' of ' + $ctrl.revision.name + ' restored');
       });
