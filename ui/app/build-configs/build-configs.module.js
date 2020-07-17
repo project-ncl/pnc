@@ -178,7 +178,6 @@
       $stateProvider.state('projects.detail.build-configs.detail.revisions', {
         url: '/revisions',
         redirectTo: function (trans) {
-          //'projects.detail.build-configs.detail.revisions.detail',
           return trans.injector().getAsync('revisions').then(function (revisions) {
             var revision = revisions.data[0];
             return {
@@ -223,15 +222,13 @@
           }
         },
         data: {
-          displayName: '{{ revision.lastModificationTime | date : \'medium\' }}'
+          displayName: '{{ revision.modificationTime | date : \'medium\' }}'
         },
         resolve: {
           revision : [
-            'configurationDetail',
-            '$stateParams',
-            function (configurationDetail, $stateParams) {
-              return configurationDetail.$getRevision({ revisionId: $stateParams.revisionId });
-            }
+            'configurationDetail', 
+            '$stateParams', 
+            (configurationDetail, $stateParams) => configurationDetail.$getRevision({ revisionId: $stateParams.revisionId })
           ]
         }
       });
