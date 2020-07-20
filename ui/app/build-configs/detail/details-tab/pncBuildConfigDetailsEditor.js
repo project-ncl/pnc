@@ -25,6 +25,10 @@
        */
       buildConfig: '<',
       /**
+       * Object: The detailed productVersion object of the build config
+       */
+      productVersion: '=',
+      /**
        * Function: Callback function when the buildConfig is successfully
        * updated. The function is passed the updated buildConfig.
        */
@@ -60,7 +64,16 @@
       // Ensure this components copy of the BC can't be updated from outside.
       $ctrl.buildConfig = angular.copy($ctrl.buildConfig);
       $ctrl.originalBuildType = $ctrl.formData.general.buildType;
+      $ctrl.formData.productVersion = $ctrl.productVersion ? $ctrl.productVersion : null;
+      $ctrl.formData.product = $ctrl.productVersion ? $ctrl.productVersion.product : null;
     };
+
+   /*Check version data and remove it if product is changed or not selected*/
+      $ctrl.checkVersionData = () => {
+        if (!$ctrl.formData.product || ($ctrl.formData.productVersion && $ctrl.formData.product.id !== $ctrl.formData.productVersion.product.id)) {
+          $ctrl.formData.productVersion = null;
+        }
+      };
 
     function submit() {
       $ctrl.working = true;
@@ -69,6 +82,7 @@
       BuildConfigResource.safePatchRemovingParameters($ctrl.buildConfig, buildConfig).$promise
           .then(resp => $ctrl.onSuccess({ buildConfig: resp}))
           .finally(() => $ctrl.working = false);
+      $ctrl.productVersion = buildConfig.productVersion;
       console.log('UPDATE BC -> formData: %O | buildConfig: %O', $ctrl.formData, buildConfig);
     }
 
@@ -95,6 +109,7 @@
       formData.general.scmRevision = buildConfig.scmRevision;
 
       formData.scmRepository = buildConfig.scmRepository;
+      formData.productVersion = buildConfig.productVersion;
 
       // Make copy so form changes do not affect this component's BC
       formData.parameters = angular.copy(buildConfig.parameters);
@@ -107,6 +122,7 @@
 
       newBc.scmRepository = formData.scmRepository;
       newBc.parameters = formData.parameters;
+      newBc.productVersion = formData.productVersion;
 
       return newBc;
     }
