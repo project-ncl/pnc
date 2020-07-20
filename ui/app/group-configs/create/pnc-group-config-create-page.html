@@ -35,7 +35,7 @@
       </div>
 
       <!-- Validation: This field is optional and has no constraints -->
-      <div class="form-group" ng-class="{ 'has-error': groupConfigForm.product.$invalid && groupConfigForm.product.$touched, 'has-success': groupConfigForm.product.$valid && groupConfigForm.product.$touched}" >
+      <div class="form-group" ng-class="{ 'has-error': groupConfigForm.product.$invalid && groupConfigForm.product.$touched, 'has-success': groupConfigForm.product.$touched && groupConfigForm.version.$touched }" >
         <label class="col-sm-3 col-lg-2 control-label">Product</label>
         <div class="col-sm-9 col-lg-7">
           <pnc-product-combobox name="product" ng-change="$ctrl.checkVersionData($ctrl.data.groupConfig)" ng-model="$ctrl.data.groupConfig.product">
