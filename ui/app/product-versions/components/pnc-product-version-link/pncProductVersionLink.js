@@ -30,7 +30,6 @@
   });
 
   function Controller() {
-    var $ctrl = this;
 
     // -- Controller API --
 
