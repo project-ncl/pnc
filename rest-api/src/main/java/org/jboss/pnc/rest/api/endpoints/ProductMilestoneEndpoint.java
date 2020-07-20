@@ -231,7 +231,6 @@ public interface ProductMilestoneEndpoint {
      * {@value CLOSE_MILESTONE_DESC}
      * 
      * @param id {@value PM_ID}
-     * @param productMilestone
      * @return
      */
     @Operation(
@@ -252,9 +251,7 @@ public interface ProductMilestoneEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/close")
-    ProductMilestoneCloseResult closeMilestone(
-            @Parameter(description = PM_ID) @PathParam("id") String id,
-            ProductMilestone productMilestone);
+    ProductMilestoneCloseResult closeMilestone(@Parameter(description = PM_ID) @PathParam("id") String id);
 
     static final String CLOSE_MILESTONE_CANCEL_DESC = "Cancel product milestone close process.";
 

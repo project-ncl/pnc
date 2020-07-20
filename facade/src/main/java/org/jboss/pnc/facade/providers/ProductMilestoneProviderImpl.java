@@ -174,20 +174,17 @@ public class ProductMilestoneProviderImpl
     }
 
     @Override
-    public ProductMilestoneCloseResult closeMilestone(String id, ProductMilestone restEntity) {
+    public ProductMilestoneCloseResult closeMilestone(String id) {
         try {
             Long milestoneReleaseId = Sequence.nextId();
             MDCUtils.addProcessContext(milestoneReleaseId.toString());
-            return doCloseMilestone(id, restEntity, milestoneReleaseId);
+            return doCloseMilestone(id, milestoneReleaseId);
         } finally {
             MDCUtils.removeProcessContext();
         }
     }
 
-    private ProductMilestoneCloseResult doCloseMilestone(
-            String id,
-            ProductMilestone restEntity,
-            Long milestoneReleaseId) {
+    private ProductMilestoneCloseResult doCloseMilestone(String id, Long milestoneReleaseId) {
         org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
 
         if (milestoneInDb.getEndDate() != null) {

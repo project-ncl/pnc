@@ -264,7 +264,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         org.jboss.pnc.dto.ProductMilestone milestone = provider.getSpecific(closed.getId().toString());
 
         // when then
-        assertThatThrownBy(() -> provider.closeMilestone(milestone.getId(), milestone))
+        assertThatThrownBy(() -> provider.closeMilestone(milestone.getId()))
                 .isInstanceOf(RepositoryViolationException.class);
     }
 
@@ -273,7 +273,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
 
         // when
         when(releaseManager.noReleaseInProgress(any())).thenReturn(true);
-        provider.closeMilestone(mock.getId().toString(), productMilestoneMapper.toDTO(mock));
+        provider.closeMilestone(mock.getId().toString());
 
         // then
         verify(releaseManager, times(1)).startRelease(any(), any(), any());
