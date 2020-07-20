@@ -94,9 +94,9 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
-    public ProductMilestoneCloseResult closeMilestone(String id, ProductMilestone productMilestone) {
-        MDCUtils.addProcessContext(productMilestone.getId());
-        ProductMilestoneCloseResult milestoneRelease = productMilestoneProvider.closeMilestone(id, productMilestone);
+    public ProductMilestoneCloseResult closeMilestone(String id) {
+        MDCUtils.addProcessContext(id);
+        ProductMilestoneCloseResult milestoneRelease = productMilestoneProvider.closeMilestone(id);
         MDCUtils.removeProcessContext();
         return milestoneRelease;
     }
