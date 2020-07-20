@@ -21,6 +21,7 @@
   angular.module('pnc.build-configs').component('pncBuildConfigProperties', {
     bindings: {
       buildConfig: '<',
+      productVersion: '<',
       hideFields: '<'
     },
     templateUrl: 'build-configs/detail/details-tab/pnc-build-config-properties.html',

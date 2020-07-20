@@ -116,6 +116,13 @@
         },
         bindings: {
           buildConfig: 'configurationDetail'
+        },
+        resolve: {
+          productVersion: [
+            'configurationDetail',
+            'ProductVersionResource',
+            (configurationDetail, ProductVersionResource) => {return configurationDetail.productVersion ? ProductVersionResource.get({ id: configurationDetail.productVersion.id }).$promise : null}
+          ]
         }
       });
 
@@ -167,26 +174,6 @@
             'BuildConfigurationSet',
             function (configurationDetail, BuildConfigurationSet) {
               return BuildConfigurationSet.queryContainsBuildConfiguration({}, { id: configurationDetail.id }).$promise;
-            }
-          ]
-        }
-      });
-
-      $stateProvider.state('projects.detail.build-configs.detail.products', {
-        url: '/products',
-        component: 'pncBuildConfigProductsTab',
-        data: {
-          displayName: 'Products'
-        },
-        bindings: {
-          buildConfig: 'configurationDetail'
-        },
-        resolve: {
-          productVersions: [
-            'configurationDetail',
-            'ProductVersion',
-            function (configurationDetail, ProductVersion) {
-              return ProductVersion.queryContainsBuildConfiguration({}, { id: configurationDetail.id }).$promise;
             }
           ]
         }
