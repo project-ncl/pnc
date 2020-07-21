@@ -53,6 +53,8 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Supplier;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_PATH;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.NOTIFICATION_PATH;
 
 import static org.junit.Assert.assertTrue;
 
@@ -88,7 +90,7 @@ public class ProcessProgressNotificationTest {
     public void before() throws Exception {
         notificationCollector = new NotificationCollector();
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        String uri = "ws://localhost:8080/pnc-rest-new/" + NotificationsEndpoint.ENDPOINT_PATH;
+        String uri = "ws://localhost:8080" + NOTIFICATION_PATH;
         Session session = container.connectToServer(notificationCollector, URI.create(uri));
         waitForWSClientConnection();
         notificationCollector.clear();

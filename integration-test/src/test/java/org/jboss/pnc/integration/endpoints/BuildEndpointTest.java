@@ -76,6 +76,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.entry;
 import org.jboss.pnc.integration.setup.Credentials;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
 
 /**
@@ -153,7 +154,7 @@ public class BuildEndpointTest {
                     .follow(false)
                     .port(8080)
                     .when()
-                    .get(String.format("/pnc-rest-new/rest-new/builds/?pageIndex=%d&pageSize=%d", pageIndex, pageSize));
+                    .get(String.format(BASE_REST_PATH + "/builds/?pageIndex=%d&pageSize=%d", pageIndex, pageSize));
 
             List<Build> builds = response.getBody().jsonPath().getList("content", Build.class);
 
@@ -174,7 +175,7 @@ public class BuildEndpointTest {
                     .follow(false)
                     .port(8080)
                     .when()
-                    .get(String.format("/pnc-rest-new/rest-new/builds/?pageIndex=%d&pageSize=%d", pageIndex, pageSize));
+                    .get(String.format(BASE_REST_PATH + "/builds/?pageIndex=%d&pageSize=%d", pageIndex, pageSize));
 
             List<Build> builds = response.getBody().jsonPath().getList("content", Build.class);
             pagedBuildIds.add(builds.get(0).getId());
@@ -191,7 +192,7 @@ public class BuildEndpointTest {
                 .follow(false)
                 .port(8080)
                 .when()
-                .get(String.format("/pnc-rest-new/rest-new/builds/?pageSize=%d", pageSize));
+                .get(String.format(BASE_REST_PATH + "/builds/?pageSize=%d", pageSize));
 
         int pageCount = response.getBody().jsonPath().get("totalPages");
 

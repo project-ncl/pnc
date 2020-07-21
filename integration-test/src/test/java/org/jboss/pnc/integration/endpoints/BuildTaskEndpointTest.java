@@ -54,6 +54,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -75,7 +76,7 @@ public class BuildTaskEndpointTest {
 
     @Test
     public void shouldTriggerBuildExecution() throws RemoteResourceException {
-        HttpPost request = new HttpPost(url + "/pnc-rest-new/rest-new/build-tasks/execute-build");
+        HttpPost request = new HttpPost(url + BASE_REST_PATH + "/build-tasks/execute-build");
         request.addHeader(Credentials.USER.createAuthHeader(BasicHeader::new));
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(

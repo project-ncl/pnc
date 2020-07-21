@@ -43,7 +43,7 @@ public class AdvancedBuildConfigurationClient extends BuildConfigurationClient {
     }
 
     public CompletableFuture<Build> waitForBuild(String buildConfigId) {
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
+        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
 
         return webSocketClient
                 .catchBuildChangedNotification(withBuildConfiguration(buildConfigId), withBuildCompleted())

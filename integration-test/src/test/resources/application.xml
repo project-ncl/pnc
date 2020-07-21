@@ -89,8 +89,8 @@
   </module>
   <module>
     <web>
-      <web-uri>rest-new.war</web-uri>
-      <context-root>/pnc-rest-new</context-root>
+      <web-uri>rest.war</web-uri>
+      <context-root>/pnc-rest</context-root>
     </web>
   </module>
   <module>

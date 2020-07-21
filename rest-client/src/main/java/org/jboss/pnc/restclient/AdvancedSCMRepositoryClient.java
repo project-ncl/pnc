@@ -99,7 +99,7 @@ public class AdvancedSCMRepositoryClient extends SCMRepositoryClient {
 
     private WebSocketClient createWebSocketClient() {
         WebSocketClient webSocketClient = new VertxWebSocketClient();
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
+        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
         return webSocketClient;
     }
 

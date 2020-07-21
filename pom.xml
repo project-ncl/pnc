@@ -79,7 +79,7 @@
     <module>dto</module>
     <module>facade</module>
     <module>rest-api</module>
-    <module>rest-new</module>
+    <module>rest</module>
     <module>notifications</module>
     <module>spi</module>
     <module>ui</module>
@@ -518,7 +518,7 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>rest-new</artifactId>
+        <artifactId>rest</artifactId>
         <version>${project.version}</version>
         <type>war</type>
       </dependency>
@@ -526,7 +526,7 @@
       <!-- Use this dependency to attach war classes -->
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>rest-new</artifactId>
+        <artifactId>rest</artifactId>
         <version>${project.version}</version>
         <classifier>classes</classifier>
       </dependency>

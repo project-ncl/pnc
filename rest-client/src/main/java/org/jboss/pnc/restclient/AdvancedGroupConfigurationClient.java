@@ -45,7 +45,7 @@ public class AdvancedGroupConfigurationClient extends GroupConfigurationClient {
 
     public CompletableFuture<GroupBuild> waitForGroupBuild(String buildConfigId) {
 
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
+        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
 
         return webSocketClient.catchGroupBuildChangedNotification(withGConfigId(buildConfigId), withGBuildCompleted())
                 .thenApply(GroupBuildChangedNotification::getGroupBuild)

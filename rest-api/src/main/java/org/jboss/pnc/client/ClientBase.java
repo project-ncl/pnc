@@ -47,8 +47,10 @@ public abstract class ClientBase<T> {
 
     private Logger logger = LoggerFactory.getLogger(ClientBase.class);
 
+    protected final String BASE_PATH = "/pnc-rest";
+
     // TODO: change it when the endpoint is updated
-    protected final String BASE_PATH = "/pnc-rest-new/rest-new";
+    protected final String BASE_REST_PATH = BASE_PATH + "/rest-new";
 
     protected final Client client;
 
@@ -78,7 +80,7 @@ public abstract class ClientBase<T> {
         client.register(RequestLoggingFilter.class);
         target = client.target(
                 configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort()
-                        + BASE_PATH);
+                        + BASE_REST_PATH);
         Configuration.BasicAuth basicAuth = configuration.getBasicAuth();
 
         if (basicAuth != null) {

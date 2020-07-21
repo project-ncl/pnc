@@ -52,7 +52,7 @@ import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
 import static org.jboss.pnc.integration.setup.IntegrationTestEnv.getHttpPort;
-import org.jboss.pnc.integration.endpoints.RestTest;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 
 /**
@@ -272,7 +272,7 @@ public class RSQLTest {
                 .contentType(ContentType.JSON)
                 .port(getHttpPort())
                 .when()
-                .get(RestTest.REST_PATH + "build-configs?pageSize=1")
+                .get(BASE_REST_PATH + "/build-configs?pageSize=1")
                 .then()
                 .statusCode(200)
                 .extract()

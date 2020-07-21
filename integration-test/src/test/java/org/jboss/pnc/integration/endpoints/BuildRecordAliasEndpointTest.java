@@ -28,6 +28,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 
 import static io.restassured.RestAssured.given;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -46,13 +47,13 @@ public class BuildRecordAliasEndpointTest {
                 .follow(false)
                 .port(8080)
                 .when()
-                .get(String.format("/pnc-rest-new/rest-new/build-records/%d", buildRecordId))
+                .get(String.format(BASE_REST_PATH + "/build-records/%d", buildRecordId))
                 .then()
                 .assertThat()
                 .statusCode(301)
                 .and()
                 .header(
                         "Location",
-                        String.format("http://localhost:8080/pnc-rest-new/rest-new/builds/%d", buildRecordId));
+                        String.format("http://localhost:8080" + BASE_REST_PATH + "/builds/%d", buildRecordId));
     }
 }

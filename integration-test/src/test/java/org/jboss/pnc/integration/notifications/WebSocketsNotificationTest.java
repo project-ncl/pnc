@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.User;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.NOTIFICATION_PATH;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -89,7 +90,7 @@ public class WebSocketsNotificationTest {
     public void setUp() throws Exception {
         notificationCollector = new NotificationCollector();
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        String uri = "ws://localhost:8080/pnc-rest-new/" + NotificationsEndpoint.ENDPOINT_PATH;
+        String uri = "ws://localhost:8080" + NOTIFICATION_PATH;
         container.connectToServer(notificationCollector, URI.create(uri));
         waitForWSClientConnection();
         logger.info("Connected to notification client.");
