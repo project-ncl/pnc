@@ -33,6 +33,7 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withAbbrev;
 import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withName;
 
 @PermitAll
@@ -88,6 +89,15 @@ public class ProductProviderImpl extends AbstractProvider<Integer, org.jboss.pnc
                         product.getId(),
                         org.jboss.pnc.model.Product.class,
                         "Product with the same name already exists");
+            }
+
+            product = repository.queryByPredicates(withAbbrev(productRest.getAbbreviation()));
+
+            if (product != null && !product.getId().equals(productId)) {
+                return new ConflictedEntryValidator.ConflictedEntryValidationError(
+                        product.getId(),
+                        org.jboss.pnc.model.Product.class,
+                        "Product with the same abbreviation already exists");
             }
 
             return null;
