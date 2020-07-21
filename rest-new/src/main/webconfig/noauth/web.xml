@@ -20,34 +20,4 @@
 -->
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
 
-  <!-- try resteasy filter instead of adding jetty dependency
-  https://docs.jboss.org/resteasy/docs/3.0.7.Final/userguide/html/ch30.html
-  http://www.codingpedia.org/ama/how-to-enable-cors-filter-in-resteasy
-
-  or WildFly standalone.xml config
-  https://forum.camunda.org/t/enable-cors-on-wildfly/673/2
--->
-
-
-  <!--filter>
-      <filter-name>cross-origin</filter-name>
-      <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
-      <init-param>
-          <param-name>allowedMethods</param-name>
-          <param-value>GET,POST,PUT,DELETE,OPTIONS,HEAD</param-value>
-      </init-param>
-      <init-param>
-          <param-name>allowedHeaders</param-name>
-          <param-value>X-Requested-With,Content-Type,Accept,Origin,Authorization</param-value>
-      </init-param>
-      <init-param>
-          <param-name>chainPreflight</param-name>
-          <param-value>false</param-value>
-      </init-param>
-  </filter>
-  <filter-mapping>
-      <filter-name>cross-origin</filter-name>
-      <url-pattern>/rest-new/*</url-pattern>
-  </filter-mapping-->
-
 </web-app>
