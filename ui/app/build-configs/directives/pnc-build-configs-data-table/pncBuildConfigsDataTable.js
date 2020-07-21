@@ -90,17 +90,17 @@
     function remove(buildConfig) {
       $q.when($ctrl.onRemove()(buildConfig)).then(() => {
         $ctrl.filterPage.refresh();
-        $ctrl.pageCopy.refresh();
+        $ctrl.page.refresh();
       });
     }
 
     function edit() {
       $q.when()
         .then(function () {
-          if ($ctrl.pageCopy.total === 1) {
-            return $ctrl.pageCopy.data;
+          if ($ctrl.page.total === 1) {
+            return $ctrl.page.data;
           } else {
-            return $ctrl.pageCopy.getWithNewSize($ctrl.pageCopy.total * $ctrl.pageCopy.size).then(function (resp) { return resp.data; });
+            return $ctrl.page.getWithNewSize($ctrl.page.total * $ctrl.page.size).then(function (resp) { return resp.data; });
           }
         })
         .then(function (buildConfigs) {
@@ -111,8 +111,8 @@
         })
         .then(function (editedBuildConfigs) {
           $q.when($ctrl.onEdit()(editedBuildConfigs)).then(function () {
+            $ctrl.page.refresh();
             $ctrl.filterPage.refresh();
-            $ctrl.pageCopy.refresh();
           });
         });
     }

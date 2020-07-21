@@ -25,10 +25,10 @@
       buildConfigs: '<'
     },
     templateUrl: 'group-configs/detail/build-configs-tab/pnc-group-config-build-configs-tab.html',
-    controller: ['$log', 'paginator', Controller]
+    controller: ['$log', 'paginator', 'GroupConfigResource', Controller]
   });
 
-  function Controller($log, paginator) {
+  function Controller($log, paginator, GroupConfigResource) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -43,13 +43,16 @@
     };
 
     function onEdit(buildConfigs) {
-      $log.error('Batch update of Build Configs not yet implemented. Build Configs: %O', buildConfigs);
+      $log.info('Edit Build Configs: %O', buildConfigs);
+      $ctrl.groupConfig.$get();
+      return GroupConfigResource.patchBuildConfigs($ctrl.groupConfig, buildConfigs);
     }
 
     function onRemove(buildConfig) {
       $log.info('remove BuildConfig: %O', buildConfig);
       return $ctrl.groupConfig.$removeBuildConfig({ buildConfigId: buildConfig.id });
     }
+
   }
 
 })();

@@ -64,6 +64,11 @@
           url: ENDPOINT + '/build-configs',
           isPaged: true
         },
+        addBuildConfig: {
+          method: 'POST',
+          url: ENDPOINT + 'build-configs',
+          successNotification: false
+        },
         removeBuildConfig: {
           method: 'DELETE',
           url: ENDPOINT + '/build-configs/:buildConfigId',
@@ -83,6 +88,20 @@
       });
 
       patchHelper.assignPatchMethods(resource);
+
+      resource.patchBuildConfigs = function (groupConfig, buildConfigs) {
+        let originalIds = {buildConfigs: {}}, modifiedIds = {buildConfigs: {}};
+
+        for (const id of Object.keys(groupConfig.buildConfigs)){
+          originalIds.buildConfigs[id] = {id: id};
+        }
+        for (const id of buildConfigs.map(bc => bc.id)){
+          modifiedIds.buildConfigs[id] = {id: id};
+        }
+
+        let patch = patchHelper.createJsonPatch(originalIds, modifiedIds, true);
+        return resource.patch({id: groupConfig.id}, patch);
+      };
 
       resource.linkWithProductVersion = function (groupConfig, productVersion) {
         return resource.safePatch(groupConfig, { productVersion: { id: productVersion.id }}).$promise;
