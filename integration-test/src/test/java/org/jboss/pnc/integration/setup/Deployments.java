@@ -53,6 +53,7 @@ public class Deployments {
     public static final String AUTH_JAR = "/auth.jar";
     public static final String COORDINATOR_JAR = "/build-coordinator.jar";
     public static final String CAUSEWAY_CLIENT_JAR = "/causeway-client.jar";
+    public static final String REST_WAR = "/rest.war";
 
     private static final PomEquippedResolveStage resolver = Maven.resolver()
             .loadPomFromFile("pom.xml")
@@ -85,11 +86,9 @@ public class Deployments {
 
         WebArchive restWar = prepareRestArchive(ear);
         ear.addAsModule(archiveToTest(restWar));
-        // remove the old rest
-        ear.delete("rest.war");
 
         addTestPersistenceXml(ear);
-        ear.setApplicationXML("application-new.xml");
+        ear.setApplicationXML("application.xml");
 
         addKeycloakServiceClientMock(ear);
         addAssertJ(ear, resolver);
@@ -112,7 +111,7 @@ public class Deployments {
      */
     public static EnterpriseArchive testEarForInContainerTest(Class<?>... classes) {
         EnterpriseArchive ear = testEarForInContainerTest();
-        WebArchive restWar = ear.getAsType(WebArchive.class, "/rest-new.war");
+        WebArchive restWar = ear.getAsType(WebArchive.class, REST_WAR);
         restWar.addClasses(classes);
         return ear;
     }
@@ -129,7 +128,7 @@ public class Deployments {
             List<Package> packagesRecursive,
             Class<?>... classes) {
         EnterpriseArchive ear = testEarForInContainerTest();
-        WebArchive restWar = ear.getAsType(WebArchive.class, "/rest-new.war");
+        WebArchive restWar = ear.getAsType(WebArchive.class, REST_WAR);
         restWar.addClasses(classes);
 
         if (packages != null) {
@@ -151,8 +150,8 @@ public class Deployments {
     }
 
     private static WebArchive prepareRestArchive(EnterpriseArchive ear) {
-        WebArchive restWar = ear.getAsType(WebArchive.class, "/rest-new.war");
-        restWar.addAsWebInfResource("WEB-INF/web-new.xml", "web.xml");
+        WebArchive restWar = ear.getAsType(WebArchive.class, REST_WAR);
+        restWar.addAsWebInfResource("WEB-INF/web.xml", "web.xml");
         restWar.addAsWebInfResource("WEB-INF/jboss-web.xml");
         logger.info("REST archive listing: {}", restWar.toString(true));
         return restWar;

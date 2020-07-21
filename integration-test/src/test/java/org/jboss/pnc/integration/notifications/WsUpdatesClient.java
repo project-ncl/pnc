@@ -31,6 +31,7 @@ import javax.websocket.WebSocketContainer;
 import java.io.IOException;
 import java.net.URI;
 import java.util.function.Consumer;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.NOTIFICATION_PATH;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -45,7 +46,7 @@ public class WsUpdatesClient {
         UpdatesMessageHandler updatesMessageHandler = new UpdatesMessageHandler(onMessage);
 
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        String uri = "ws://localhost:8080/pnc-rest-new/" + NotificationsEndpoint.ENDPOINT_PATH;
+        String uri = "ws://localhost:8080" + NOTIFICATION_PATH;
         Session session = container.connectToServer(updatesMessageHandler, URI.create(uri));
 
         RemoteEndpoint.Basic asyncRemote = session.getBasicRemote();

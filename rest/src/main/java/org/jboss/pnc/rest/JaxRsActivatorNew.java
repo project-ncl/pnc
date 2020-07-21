@@ -136,7 +136,7 @@ public class JaxRsActivatorNew extends Application {
                 .termsOfService("http://swagger.io/terms/")
                 .license(new License().name("Apache 2.0").url("http://www.apache.org/licenses/LICENSE-2.0.html"));
         oas.info(info);
-        oas.addServersItem(new Server().url("/pnc-rest-new"));
+        oas.addServersItem(new Server().url("/pnc-rest"));
 
         final SecurityScheme authScheme = getAuthScheme();
         if (authScheme == null) {

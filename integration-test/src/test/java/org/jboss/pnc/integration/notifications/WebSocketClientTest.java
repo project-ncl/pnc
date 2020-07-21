@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.NOTIFICATION_PATH;
 import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildCompleted;
 import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildConfiguration;
 
@@ -50,7 +51,7 @@ import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotifica
 @Category(ContainerTest.class)
 public class WebSocketClientTest {
 
-    private static final String PNC_SOCKET_URL = "ws://localhost:8080/pnc-rest-new/notifications";
+    private static final String PNC_SOCKET_URL = "ws://localhost:8080" + NOTIFICATION_PATH;
 
     public static final Logger logger = LoggerFactory.getLogger(WebSocketClientTest.class);
 

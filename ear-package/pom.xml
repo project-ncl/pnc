@@ -89,7 +89,7 @@
     </dependency>
     <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>rest-new</artifactId>
+        <artifactId>rest</artifactId>
         <type>war</type>
     </dependency>
     <dependency>
@@ -337,9 +337,9 @@
             </jarModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>
-              <artifactId>rest-new</artifactId>
+              <artifactId>rest</artifactId>
               <bundleDir>/</bundleDir>
-              <contextRoot>/pnc-rest-new</contextRoot>
+              <contextRoot>/pnc-rest</contextRoot>
             </webModule>
             <webModule>
               <groupId>org.jboss.pnc</groupId>

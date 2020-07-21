@@ -44,7 +44,7 @@ public class AdvancedBuildClient extends BuildClient {
 
     public CompletableFuture<BuildPushResult> waitForBrewPush(String buildId) {
 
-        webSocketClient.connect("ws://" + configuration.getHost() + "/pnc-rest-new/notifications").join();
+        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
 
         return webSocketClient.catchBuildPushResult(withBuildId(buildId), withPushCompleted())
                 .thenApply(BuildPushResultNotification::getBuildPushResult)

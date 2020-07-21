@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.restassured.http.ContentType;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -43,9 +44,6 @@ import io.restassured.http.ContentType;
 public class RestResponseFormattingTest {
 
     private static final Logger logger = LoggerFactory.getLogger(RestResponseFormattingTest.class);
-
-    // TODO: change it when the endpoint is updated
-    protected final String BASE_PATH = "/pnc-rest-new/rest-new";
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -61,7 +59,7 @@ public class RestResponseFormattingTest {
                 .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
                 .body("errorMessage", IsEqual.equalTo("Test exception."))
                 .when()
-                .get(BASE_PATH + "/debug/throw")
+                .get(BASE_REST_PATH + "/debug/throw")
                 .asString();
         logger.info(response);
     }
@@ -74,7 +72,7 @@ public class RestResponseFormattingTest {
                 .expect()
                 .statusCode(Response.Status.NOT_FOUND.getStatusCode())
                 .when()
-                .get(BASE_PATH + "/does-not-exists")
+                .get(BASE_REST_PATH + "/does-not-exists")
                 .asString();
         logger.info(response);
         org.junit.Assert.assertTrue(response.isEmpty());
@@ -88,7 +86,7 @@ public class RestResponseFormattingTest {
                 .expect()
                 .statusCode(Response.Status.NO_CONTENT.getStatusCode())
                 .when()
-                .get(BASE_PATH + "/debug/nocontent")
+                .get(BASE_REST_PATH + "/debug/nocontent")
                 .asString();
         logger.info(response);
     }
@@ -102,7 +100,7 @@ public class RestResponseFormattingTest {
                 .statusCode(Response.Status.UNAUTHORIZED.getStatusCode())
                 .header("WWW-Authenticate", IsEqual.equalTo("Basic realm=\"debug\""))
                 .when()
-                .get(BASE_PATH + "/debug/unauthorized")
+                .get(BASE_REST_PATH + "/debug/unauthorized")
                 .asString();
         logger.info("response: {}", response);
     }

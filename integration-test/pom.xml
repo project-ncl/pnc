@@ -64,7 +64,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>rest-new</artifactId>
+      <artifactId>rest</artifactId>
       <scope>test</scope>
       <classifier>classes</classifier>
     </dependency>

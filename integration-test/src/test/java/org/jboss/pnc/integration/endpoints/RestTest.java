@@ -45,6 +45,7 @@ import io.restassured.specification.RequestSpecification;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.jboss.pnc.integration.setup.IntegrationTestEnv.getHttpPort;
+import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 
 /**
  * @author <a href="mailto:dbrazdil@redhat.com">Dominik Brazdil</a>
@@ -58,11 +59,10 @@ public class RestTest {
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String REST_PATH = "/pnc-rest-new/rest-new/";
-    private static final String USER_REST_ENDPOINT = REST_PATH + "users/";
-    private static final String PRODUCT_REST_ENDPOINT = REST_PATH + "products/";
-    private static final String PRODUCT_VERSION_REST_ENDPOINT = REST_PATH + "product-versions/";
-    private static final String PROJECT_REST_ENDPOINT = REST_PATH + "projects/";
+    private static final String USER_REST_ENDPOINT = BASE_REST_PATH + "/users/";
+    private static final String PRODUCT_REST_ENDPOINT = BASE_REST_PATH + "/products/";
+    private static final String PRODUCT_VERSION_REST_ENDPOINT = BASE_REST_PATH + "/product-versions/";
+    private static final String PROJECT_REST_ENDPOINT = BASE_REST_PATH + "/projects/";
     private static final String JSON_PATCH = "application/json-patch+json";
     private static final String FIRST_CONTENT_ID = "content[0].id";
 
