@@ -30,4 +30,8 @@ public class ProductPredicates {
         return (root, query, cb) -> cb.equal(root.get(Product_.name), name);
     }
 
+    public static Predicate<Product> withAbbrev(String abbrev) {
+        return (root, query, cb) -> cb.equal(root.get(Product_.abbreviation), abbrev);
+    }
+
 }
