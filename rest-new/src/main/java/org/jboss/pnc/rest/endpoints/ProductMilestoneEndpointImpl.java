@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
@@ -95,9 +94,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Override
     public ProductMilestoneCloseResult closeMilestone(String id) {
-        MDCUtils.addProcessContext(id);
         ProductMilestoneCloseResult milestoneRelease = productMilestoneProvider.closeMilestone(id);
-        MDCUtils.removeProcessContext();
         return milestoneRelease;
     }
 
