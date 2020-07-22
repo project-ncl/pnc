@@ -27,7 +27,7 @@
 
     // Set the defaults initially, these can be overriden by injecting the
     // provider and invoking the corresponding mutator methods.
-    var pncRestUrl = '/pnc-rest/rest-new';
+    var pncRestUrl = '/pnc-rest/v2';
     var pncNotificationsUrl = 'ws://' + window.location.host + '/pnc-rest/notifications';
     var daUrl;
     var kafkaStoreUrl;

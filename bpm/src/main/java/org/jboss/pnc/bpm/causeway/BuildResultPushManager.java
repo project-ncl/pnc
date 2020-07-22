@@ -69,9 +69,9 @@ public class BuildResultPushManager {
      */
     private static final String BREW_BUILD_NAME = "BREW_BUILD_NAME";
 
-    private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/rest/build-records/%d";
-    private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/rest/build-records/%d/log";
-    private static final String PNC_REPOUR_LOG_PATH = "/pnc-rest/rest/build-records/%d/repour-log";
+    private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/v2/builds/%d";
+    private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/v2/builds/%d/logs/build";
+    private static final String PNC_REPOUR_LOG_PATH = "/pnc-rest/v2/builds/%d/logs/align";
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;

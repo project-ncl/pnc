@@ -44,8 +44,8 @@ public interface DebugEndpoint {
     String getBuildQueueInfo();
 
     /**
-     * curl -v -X POST http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message curl -v -X POST
-     * http://localhost:8080/pnc-rest/rest/debug/mq-send-dummy-message?type=status
+     * curl -v -X POST http://localhost:8080/pnc-rest/v2/debug/mq-send-dummy-message curl -v -X POST
+     * http://localhost:8080/pnc-rest/v2/debug/mq-send-dummy-message?type=status
      */
     @POST
     @Path("/mq-send-dummy-message")

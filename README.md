@@ -42,7 +42,7 @@ JEE Server requirements:
 
 **REST API documentation and testing**
 
-OpenAPI api doc is available via any OpenAPI viewer using this spec http://hostname/pnc-rest/rest-new/openapi.json
+OpenAPI api doc is available via any OpenAPI viewer using this spec http://hostname/pnc-rest/v2/openapi.json
 
 *Requires running instance of PNC 
 

@@ -103,7 +103,7 @@ module.exports = function (grunt) {
       cfg = grunt.file.readJSON(cfgPath);
     } else {
       cfg = {
-        'externalPncUrl': getOpt('pnc-rest-url', 'PNC_UI_PNC_REST_URL', 'http://localhost:9000/pnc-rest/rest-new'),
+        'externalPncUrl': getOpt('pnc-rest-url', 'PNC_UI_PNC_REST_URL', 'http://localhost:9000/pnc-rest/v2'),
         'externalDaUrl': getOpt('da-url', 'PNC_UI_DA_URL'),
         'externalBifrostUrl': getOpt('bifrost-url', 'PNC_UI_BIFROST_URL'),
         'externalKafkaStoreUrl': getOpt('kafka-store-url', 'PNC_UI_KAFKA_STORE_URL'),
