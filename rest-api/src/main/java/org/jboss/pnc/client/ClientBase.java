@@ -49,8 +49,7 @@ public abstract class ClientBase<T> {
 
     protected final String BASE_PATH = "/pnc-rest";
 
-    // TODO: change it when the endpoint is updated
-    protected final String BASE_REST_PATH = BASE_PATH + "/rest-new";
+    protected final String BASE_REST_PATH = BASE_PATH + "/v2";
 
     protected final Client client;
 

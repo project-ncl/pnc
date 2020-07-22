@@ -81,7 +81,7 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
-@ApplicationPath("/rest-new")
+@ApplicationPath("/v2")
 @ApplicationScoped
 public class JaxRsActivatorNew extends Application {
     private static final Logger logger = LoggerFactory.getLogger(JaxRsActivatorNew.class);

@@ -26,7 +26,7 @@ import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
  */
 public class RestClientConfiguration {
     public static final String BASE_PATH = "/pnc-rest";
-    public static final String BASE_REST_PATH = BASE_PATH + "/rest-new";
+    public static final String BASE_REST_PATH = BASE_PATH + "/v2";
     public static final String NOTIFICATION_PATH = BASE_PATH + NotificationsEndpoint.ENDPOINT_PATH;
 
     public static Configuration getConfiguration(Credentials credentials) {

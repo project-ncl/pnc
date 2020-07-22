@@ -31,7 +31,7 @@ PNC_UI_KEYCLOAK_CLIENT_ID #The keycloak client id
 Example configuration:
 
 ```bash
-export PNC_UI_PNC_URL=http://127.0.0.1:8080/pnc-rest/rest
+export PNC_UI_PNC_URL=http://127.0.0.1:8080/pnc-rest/v2
 export PNC_UI_PNC_NOTIFICATIONS_URL=ws://127.0.0.1:8080/pnc-rest/notifications
 export PNC_UI_DA_URL=http://127.0.0.1/da/rest/v-0.4
 export PNC_UI_DA_IMPORT_URL=http://127.0.0.1/da-bcg/rest/v-0.3

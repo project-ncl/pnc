@@ -29,8 +29,8 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Authorized users access to debug data</web-resource-name>
-            <url-pattern>/rest-new/builds/ssh-credentials/*</url-pattern>
-            <url-pattern>/rest-new/users/current</url-pattern>
+            <url-pattern>/v2/builds/ssh-credentials/*</url-pattern>
+            <url-pattern>/v2/users/current</url-pattern>
             <http-method>GET</http-method>
         </web-resource-collection>
         <auth-constraint>
@@ -42,7 +42,7 @@
     <security-constraint>
        <web-resource-collection>
          <web-resource-name>All Access for users on GET</web-resource-name>
-         <url-pattern>/rest-new/*</url-pattern>
+         <url-pattern>/v2/*</url-pattern>
          <http-method>GET</http-method>
          <http-method>OPTIONS</http-method>
        </web-resource-collection>
@@ -52,7 +52,7 @@
     <security-constraint>
        <web-resource-collection>
          <web-resource-name>Authorized users Access</web-resource-name>
-         <url-pattern>/rest-new/*</url-pattern>
+         <url-pattern>/v2/*</url-pattern>
          <http-method>DELETE</http-method>
          <http-method>PUT</http-method>
          <http-method>HEAD</http-method>
