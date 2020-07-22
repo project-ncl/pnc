@@ -29,6 +29,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface BuildProvider extends Provider<Integer, org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
 
@@ -110,4 +111,6 @@ public interface BuildProvider extends Provider<Integer, org.jboss.pnc.model.Bui
      * @return count
      */
     RunningBuildCount getRunningCount();
+
+    Set<String> getBuiltArtifactIds(String buildId);
 }

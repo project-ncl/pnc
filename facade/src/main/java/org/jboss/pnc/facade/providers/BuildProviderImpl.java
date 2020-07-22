@@ -688,6 +688,14 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
         oldBuiltArtifacts.stream().filter(a -> !ids.contains(a.getId())).forEach(a -> a.setBuildRecord(null));
     }
 
+    @Override
+    public Set<String> getBuiltArtifactIds(String buildId) {
+        final Integer id = BuildMapper.idMapper.toEntity(buildId);
+        BuildRecord buildRecord = repository.queryById(id);
+        return nullableStreamOf(buildRecord.getBuiltArtifacts()).map(builtArtifact -> builtArtifact.getId().toString())
+                .collect(Collectors.toSet());
+    }
+
     @RolesAllowed(SYSTEM_USER)
     @Override
     public void setDependentArtifacts(String buildId, List<String> artifactIds) {

@@ -26,7 +26,6 @@ import org.jboss.pnc.client.ArtifactClient;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.client.UserClient;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
@@ -35,7 +34,6 @@ import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Before;
@@ -50,7 +48,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.ws.rs.BadRequestException;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -417,5 +417,43 @@ public class ArtifactEndpointTest {
         assertThat(updatedArtifactDB.getModificationTime()).isNotEqualTo(artifact.getModificationTime());
         assertThat(updatedArtifactDB.getCreationTime()).isNotEqualTo(updatedArtifact.getCreationTime());
         assertThat(updatedArtifactDB.getModificationTime()).isNotEqualTo(updatedArtifact.getModificationTime());
+    }
+
+    @Test
+    public void shouldModifyQualityLevel() throws ClientException {
+        String id = artifactRest4.getId();
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
+        String REASON = "This artifact has become old enough";
+
+        Artifact artifact = client.getSpecific(id);
+        client.createQualityLevelRevision(id, "DEPrecated", REASON);
+        Artifact updatedArtifactDB = client.getSpecific(id);
+
+        assertThat(updatedArtifactDB.getId()).isEqualTo(artifact.getId());
+        assertThat(updatedArtifactDB.getArtifactQuality()).isEqualTo(ArtifactQuality.DEPRECATED);
+        assertThat(updatedArtifactDB.getQualityLevelReason()).isEqualTo(REASON);
+        assertThat(updatedArtifactDB.getCreationTime()).isEqualTo(artifact.getCreationTime());
+        assertThat(updatedArtifactDB.getModificationTime()).isNotEqualTo(artifact.getModificationTime());
+        assertThat(updatedArtifactDB.getModificationUser().getUsername()).isEqualTo("demo-user");
+    }
+
+    @Test
+    public void shouldNotStandardUserModifyUnallowedQualityLevel() throws ClientException {
+        String id = artifactRest4.getId();
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
+        String REASON = "This artifact has become dangerous";
+
+        assertThatThrownBy(() -> client.createQualityLevelRevision(id, "BLACKLISTED", REASON))
+                .hasCauseInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    public void shouldNotApplyUnknownQualityLevel() throws ClientException {
+        String id = artifactRest4.getId();
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asUser());
+        String REASON = "This artifact will be marked as WHITELISTED";
+
+        assertThatThrownBy(() -> client.createQualityLevelRevision(id, "WHITELISTED", REASON))
+                .hasCauseInstanceOf(BadRequestException.class);
     }
 }

@@ -273,6 +273,38 @@ public interface BuildEndpoint {
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Parameter(description = ARTIFACT_IDS) List<String> artifactIds);
 
+    static final String CREATE_BUILT_ARTIFACTS_QUALITY_REVISION = "Add a new quality level revision for the built artifacts of this build. Accepted values from standard users are NEW, VERIFIED, TESTED, DEPRECATED. Users with system-user role can also specify BLACKLISTED and DELETED quality levels.";
+    static final String ARTIFACT_QUALITY = "Quality level of the artifact.";
+    static final String ARTIFACT_QUALITY_REASON = "The reason for adding a new quality level for this artifact.";
+
+    /**
+     * {@value CREATE_BUILT_ARTIFACTS_QUALITY_REVISION}
+     *
+     * @param id {@value B_ID}
+     * @param quality {@value ARTIFACT_QUALITY}
+     * @param reason {@value ARTIFACT_QUALITY_REASON}
+     */
+    @Operation(
+            summary = CREATE_BUILT_ARTIFACTS_QUALITY_REVISION,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @POST
+    @Path("/{id}/artifacts/built/quality")
+    void createBuiltArtifactsQualityLevelRevisions(
+            @Parameter(description = B_ID) @PathParam("id") String id,
+            @Parameter(description = ARTIFACT_QUALITY, required = true) @QueryParam("quality") String quality,
+            @Parameter(description = ARTIFACT_QUALITY_REASON, required = true) @QueryParam("reason") String reason);
     static final String GET_DEPENDENCY_ARTIFACTS_DESC = "Gets dependency artifacts for specific build.";
 
     /**

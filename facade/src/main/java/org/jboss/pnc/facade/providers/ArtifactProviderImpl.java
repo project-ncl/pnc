@@ -26,6 +26,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,9 +40,12 @@ import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
@@ -142,6 +146,34 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
     }
 
     @Override
+    public org.jboss.pnc.dto.Artifact createQualityLevelRevision(String id, String quality, String reason)
+            throws DTOValidationException {
+
+        boolean isLoggedInUserSystemUser = userService.hasLoggedInUserRole(SYSTEM_USER);
+
+        ArtifactQuality newQuality = validateArtifactQuality(quality, isLoggedInUserSystemUser);
+
+        org.jboss.pnc.dto.Artifact artifact = getSpecific(id);
+        if (artifact == null) {
+            throw new InvalidEntityException("Artifact with id: " + id + " does not exist.");
+        }
+
+        validateIfArtifactQualityIsModifiable(artifact);
+
+        org.jboss.pnc.model.User currentUser = userService.currentUser();
+        User user = userMapper.toDTO(currentUser);
+        Instant now = Instant.now();
+        return super.update(
+                id,
+                artifact.toBuilder()
+                        .modificationUser(user)
+                        .modificationTime(now)
+                        .artifactQuality(newQuality)
+                        .qualityLevelReason(reason)
+                        .build());
+    }
+
+    @Override
     @DenyAll
     public void delete(String id) throws DTOValidationException {
         throw new UnsupportedOperationException("Direct artifact manipulation is not available.");
@@ -200,5 +232,46 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
         ArtifactAudited auditedArtifact = artifactAuditedRepository.queryById(idRev);
 
         return artifactRevisionMapper.toDTO(auditedArtifact);
+    }
+
+    private ArtifactQuality validateArtifactQuality(String quality, boolean isLoggedInUserSystemUser) {
+
+        ArtifactQuality newQuality;
+        try {
+            newQuality = ArtifactQuality.valueOf(quality.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new InvalidEntityException("Artifact quality: " + quality + " does not exist.");
+        }
+
+        EnumSet<ArtifactQuality> allowedQualities = EnumSet
+                .of(ArtifactQuality.NEW, ArtifactQuality.VERIFIED, ArtifactQuality.TESTED, ArtifactQuality.DEPRECATED);
+
+        if (isLoggedInUserSystemUser) {
+            allowedQualities.add(ArtifactQuality.BLACKLISTED);
+            allowedQualities.add(ArtifactQuality.DELETED);
+        }
+
+        if (!allowedQualities.contains(newQuality)) {
+            throw new InvalidEntityException("Artifact quality level can be changed only to " + allowedQualities);
+        }
+
+        return newQuality;
+    }
+
+    private void validateIfArtifactQualityIsModifiable(org.jboss.pnc.dto.Artifact artifact) {
+        // Artifacts which have TEMPORARY, DELETED, BLACKLISTED, DEPRECATED quality levels cannot be changed
+        EnumSet<ArtifactQuality> forbiddenQualities = EnumSet.of(
+                ArtifactQuality.TEMPORARY,
+                ArtifactQuality.DELETED,
+                ArtifactQuality.BLACKLISTED,
+                ArtifactQuality.DEPRECATED);
+
+        if (forbiddenQualities.contains(artifact.getArtifactQuality())) {
+            throw new ConflictedEntryException(
+                    "Artifact " + artifact.getId() + " with quality " + artifact.getArtifactQuality()
+                            + " cannot be changed to another quality level.",
+                    Artifact.class,
+                    artifact.getId().toString());
+        }
     }
 }

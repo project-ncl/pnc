@@ -197,6 +197,43 @@ public interface ArtifactEndpoint {
     @Path("/{id}")
     void update(@PathParam("id") String id, @NotNull Artifact artifact);
 
+    static final String CREATE_ARTIFACT_QUALITY_REVISION = "Add a new quality level revision for this artifact. Accepted values from standard users are NEW, VERIFIED, TESTED, DEPRECATED. Users with system-user role can also specify BLACKLISTED and DELETED quality levels.";
+    static final String ARTIFACT_QUALITY = "Quality level of the artifact.";
+    static final String ARTIFACT_QUALITY_REASON = "The reason for adding a new quality level for this artifact.";
+
+    /**
+     * {@value CREATE_ARTIFACT_QUALITY_REVISION}
+     *
+     * @param id {@value A_ID}
+     * @param quality {@value ARTIFACT_QUALITY}
+     * @param reason {@value ARTIFACT_QUALITY_REASON}
+     */
+    @Operation(
+            summary = CREATE_ARTIFACT_QUALITY_REVISION,
+            responses = {
+                    @ApiResponse(
+                            responseCode = ENTITY_CREATED_CODE,
+                            description = ENTITY_CREATED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactRevision.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = CONFLICTED_CODE,
+                            description = CONFLICTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @POST
+    @RespondWithStatus(Response.Status.CREATED)
+    @Path("/{id}/artifacts/quality")
+    void createQualityLevelRevision(
+            @Parameter(description = A_ID) @PathParam("id") String id,
+            @Parameter(description = ARTIFACT_QUALITY, required = true) @QueryParam("quality") String quality,
+            @Parameter(description = ARTIFACT_QUALITY_REASON, required = true) @QueryParam("reason") String reason);
     static final String GET_DEPENDANT_BUILDS_DESC = "Gets the build(s) that depends on this artifact.";
 
     /**

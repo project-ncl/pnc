@@ -91,6 +91,12 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
+    public void createQualityLevelRevision(String id, String quality, String reason) {
+        logger.debug("quality: " + quality + ", reason:" + reason);
+        artifactProvider.createQualityLevelRevision(id, quality, reason);
+    }
+
+    @Override
     public Page<Build> getDependantBuilds(String id, PageParameters pageParams) {
         return buildProvider.getDependantBuildsForArtifact(
                 pageParams.getPageIndex(),
