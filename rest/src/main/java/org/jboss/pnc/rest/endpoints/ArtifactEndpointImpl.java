@@ -91,9 +91,9 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
-    public void createQualityLevelRevision(String id, String quality, String reason) {
-        logger.debug("quality: " + quality + ", reason:" + reason);
-        artifactProvider.createQualityLevelRevision(id, quality, reason);
+    public ArtifactRevision createQualityLevelRevision(String id, String quality, String reason) {
+        logger.debug("Updating quality of artifact with id {} to level {} for reason: {}", id, quality, reason);
+        return artifactProvider.createQualityLevelRevision(id, quality, reason);
     }
 
     @Override

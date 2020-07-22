@@ -46,12 +46,14 @@ import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactAudited;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -146,12 +148,12 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
     }
 
     @Override
-    public org.jboss.pnc.dto.Artifact createQualityLevelRevision(String id, String quality, String reason)
+    public ArtifactRevision createQualityLevelRevision(String id, String quality, String reason)
             throws DTOValidationException {
 
         boolean isLoggedInUserSystemUser = userService.hasLoggedInUserRole(SYSTEM_USER);
 
-        ArtifactQuality newQuality = validateArtifactQuality(quality, isLoggedInUserSystemUser);
+        ArtifactQuality newQuality = validateProvidedArtifactQuality(quality, isLoggedInUserSystemUser);
 
         org.jboss.pnc.dto.Artifact artifact = getSpecific(id);
         if (artifact == null) {
@@ -163,7 +165,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
         org.jboss.pnc.model.User currentUser = userService.currentUser();
         User user = userMapper.toDTO(currentUser);
         Instant now = Instant.now();
-        return super.update(
+        super.update(
                 id,
                 artifact.toBuilder()
                         .modificationUser(user)
@@ -171,6 +173,12 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
                         .artifactQuality(newQuality)
                         .qualityLevelReason(reason)
                         .build());
+
+        ArtifactAudited latestRevision = artifactAuditedRepository.findLatestById(Integer.parseInt(id));
+        if (latestRevision == null) {
+            throw new RepositoryViolationException("Entity should exist in the DB");
+        }
+        return artifactRevisionMapper.toDTO(latestRevision);
     }
 
     @Override
@@ -234,7 +242,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
         return artifactRevisionMapper.toDTO(auditedArtifact);
     }
 
-    private ArtifactQuality validateArtifactQuality(String quality, boolean isLoggedInUserSystemUser) {
+    private ArtifactQuality validateProvidedArtifactQuality(String quality, boolean isLoggedInUserSystemUser) {
 
         ArtifactQuality newQuality;
         try {
