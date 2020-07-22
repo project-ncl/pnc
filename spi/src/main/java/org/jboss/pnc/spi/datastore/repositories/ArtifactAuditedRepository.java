@@ -36,4 +36,12 @@ public interface ArtifactAuditedRepository {
      */
     ArtifactAudited queryById(IdRev idRev);
 
+    /**
+     * Finds latest revision of an artifact with given ID.
+     * 
+     * @param artifactId ID of the Artifact.
+     * @return Latest audited revision of the Artifact or null if the Artifact does not exists.
+     */
+    ArtifactAudited findLatestById(int artifactId);
+
 }

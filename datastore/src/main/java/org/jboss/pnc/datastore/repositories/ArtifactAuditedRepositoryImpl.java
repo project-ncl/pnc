@@ -67,6 +67,23 @@ public class ArtifactAuditedRepositoryImpl implements ArtifactAuditedRepository 
     }
 
     @Override
+    public ArtifactAudited findLatestById(int artifactId) {
+        Object result = AuditReaderFactory.get(entityManager)
+                .createQuery()
+                .forRevisionsOfEntity(Artifact.class, false, false)
+                .add(AuditEntity.id().eq(artifactId))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .setMaxResults(1)
+                .getSingleResult();
+        if (result == null) {
+            return null;
+        }
+
+        Object[] parts = (Object[]) result;
+        return createAudited(parts[0], parts[1]);
+    }
+
+    @Override
     public ArtifactAudited queryById(IdRev idRev) {
         logger.trace("Querying for ArtifactAudited.idRev: {}.", idRev);
         Artifact artifact = AuditReaderFactory.get(entityManager).find(Artifact.class, idRev.getId(), idRev.getRev());

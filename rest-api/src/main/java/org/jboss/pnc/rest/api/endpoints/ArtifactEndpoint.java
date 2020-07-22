@@ -230,7 +230,7 @@ public interface ArtifactEndpoint {
     @POST
     @RespondWithStatus(Response.Status.CREATED)
     @Path("/{id}/artifacts/quality")
-    void createQualityLevelRevision(
+    ArtifactRevision createQualityLevelRevision(
             @Parameter(description = A_ID) @PathParam("id") String id,
             @Parameter(description = ARTIFACT_QUALITY, required = true) @QueryParam("quality") String quality,
             @Parameter(description = ARTIFACT_QUALITY_REASON, required = true) @QueryParam("reason") String reason);

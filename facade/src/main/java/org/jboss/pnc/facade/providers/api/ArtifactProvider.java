@@ -54,6 +54,6 @@ public interface ArtifactProvider
 
     ArtifactRevision getRevision(String id, Integer rev);
 
-    Artifact createQualityLevelRevision(String id, String quality, String reason) throws DTOValidationException;
+    ArtifactRevision createQualityLevelRevision(String id, String quality, String reason) throws DTOValidationException;
 
 }
