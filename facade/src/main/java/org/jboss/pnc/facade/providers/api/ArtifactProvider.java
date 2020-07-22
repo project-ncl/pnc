@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.validation.DTOValidationException;
 
 import java.util.Optional;
 
@@ -52,5 +53,7 @@ public interface ArtifactProvider
     Page<ArtifactRevision> getRevisions(int pageIndex, int pageSize, String id);
 
     ArtifactRevision getRevision(String id, Integer rev);
+
+    Artifact createQualityLevelRevision(String id, String quality, String reason) throws DTOValidationException;
 
 }

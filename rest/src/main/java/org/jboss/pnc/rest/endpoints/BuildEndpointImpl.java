@@ -59,6 +59,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  *
@@ -169,6 +170,14 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Override
     public void setBuiltArtifacts(String id, List<String> artifactIds) {
         provider.setBuiltArtifacts(id, artifactIds);
+    }
+
+    @Override
+    public void createBuiltArtifactsQualityLevelRevisions(String id, String quality, String reason) {
+        Set<String> builtArtifactIds = provider.getBuiltArtifactIds(id);
+        for (String builtArtifactId : builtArtifactIds) {
+            artifactProvider.createQualityLevelRevision(builtArtifactId, quality, reason);
+        }
     }
 
     @Override

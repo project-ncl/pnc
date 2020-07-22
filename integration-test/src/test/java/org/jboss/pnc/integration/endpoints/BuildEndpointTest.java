@@ -70,6 +70,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -545,6 +546,42 @@ public class BuildEndpointTest {
         assertThatThrownBy(
                 () -> client.push(build2Id, BuildPushParameters.builder().reimport(true).tagPrefix("test-tag").build()))
                         .hasCauseInstanceOf(ForbiddenException.class);
+    }
+
+    @Test
+    public void shouldModifyBuiltArtifactQualityLevels() throws RemoteResourceException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
+        String buildRecordId = "1";
+        String REASON = "This artifact has become old enough";
+        client.setBuiltArtifacts(buildRecordId, Stream.of("100", "101").collect(Collectors.toList()));
+        client.createBuiltArtifactsQualityLevelRevisions(buildRecordId, "BLACKListed", REASON);
+
+        RemoteCollection<Artifact> artifacts = client.getBuiltArtifacts(buildRecordId);
+        for (Artifact artifact : artifacts) {
+            assertThat(artifact.getArtifactQuality()).isEqualTo(ArtifactQuality.BLACKLISTED);
+            assertThat(artifact.getQualityLevelReason()).isEqualTo(REASON);
+            assertThat(artifact.getModificationUser().getUsername()).isEqualTo("system");
+        }
+    }
+
+    @Test
+    public void shouldNotStandardUserModifyUnallowedQualityLevel() throws RemoteResourceException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
+        String buildRecordId = "1";
+        String REASON = "This artifact has become old enough";
+
+        assertThatThrownBy(() -> client.createBuiltArtifactsQualityLevelRevisions(buildRecordId, "BLACKListed", REASON))
+                .hasCauseInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    public void shouldNotApplyUnknownQualityLevel() throws RemoteResourceException {
+        BuildClient client = new BuildClient(RestClientConfiguration.asUser());
+        String buildRecordId = "1";
+        String REASON = "This artifact will be marked as WHITELISTED";
+
+        assertThatThrownBy(() -> client.createBuiltArtifactsQualityLevelRevisions(buildRecordId, "WHITELISTED", REASON))
+                .hasCauseInstanceOf(BadRequestException.class);
     }
 
     private Set<Integer> artifactIds(RemoteCollection<Artifact> artifacts) {
