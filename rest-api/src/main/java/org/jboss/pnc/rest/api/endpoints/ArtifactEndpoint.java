@@ -234,6 +234,7 @@ public interface ArtifactEndpoint {
             @Parameter(description = A_ID) @PathParam("id") String id,
             @Parameter(description = ARTIFACT_QUALITY, required = true) @QueryParam("quality") String quality,
             @Parameter(description = ARTIFACT_QUALITY_REASON, required = true) @QueryParam("reason") String reason);
+
     static final String GET_DEPENDANT_BUILDS_DESC = "Gets the build(s) that depends on this artifact.";
 
     /**
