@@ -86,7 +86,8 @@ public class BuildPusherRejectionsTest {
     @Parameterized.Parameters
     public static List<Object[]> testQualities() {
         return Arrays.asList(
-                new Object[][] { { SUCCESS, BLACKLISTED, OperationNotAllowedException.class },
+                new Object[][] {
+                        { SUCCESS, BLACKLISTED, OperationNotAllowedException.class },
                         { SUCCESS, DELETED, OperationNotAllowedException.class },
                         { FAILED, NEW, OperationNotAllowedException.class },
                         { NO_REBUILD_REQUIRED, NEW, OperationNotAllowedException.class } });

@@ -32,7 +32,10 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { ProductVersionMapper.class, ProductReleaseMapper.class, BuildMapper.IDMapper.class,
+        uses = {
+                ProductVersionMapper.class,
+                ProductReleaseMapper.class,
+                BuildMapper.IDMapper.class,
                 AbstractArtifactMapper.IDMapper.class })
 public interface ProductMilestoneMapper
         extends EntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
@@ -60,7 +63,10 @@ public interface ProductMilestoneMapper
 
     @Override
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "productVersion", "productRelease", "performedBuilds",
+            ignoreUnmappedSourceProperties = {
+                    "productVersion",
+                    "productRelease",
+                    "performedBuilds",
                     "distributedArtifacts" })
     ProductMilestoneRef toRef(ProductMilestone dbEntity);
 

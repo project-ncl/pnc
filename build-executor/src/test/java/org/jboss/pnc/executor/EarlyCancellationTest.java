@@ -77,16 +77,24 @@ public class EarlyCancellationTest extends BuildExecutionBase {
             throws InterruptedException, TimeoutException, ExecutorException, BuildDriverException {
         BuildExecutionStatus cancelAfter = BuildExecutionStatus.NEW;
 
-        BuildExecutionStatus[] expectedStatuses = { BuildExecutionStatus.NEW, BuildExecutionStatus.FINALIZING_EXECUTION,
+        BuildExecutionStatus[] expectedStatuses = {
+                BuildExecutionStatus.NEW,
+                BuildExecutionStatus.FINALIZING_EXECUTION,
                 BuildExecutionStatus.CANCELLED };
 
-        BuildExecutionStatus[] unexpectedStatuses = { BuildExecutionStatus.BUILD_ENV_SETTING_UP,
-                BuildExecutionStatus.BUILD_ENV_WAITING, BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
-                BuildExecutionStatus.REPO_SETTING_UP, BuildExecutionStatus.BUILD_SETTING_UP,
-                BuildExecutionStatus.BUILD_WAITING, BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER,
+        BuildExecutionStatus[] unexpectedStatuses = {
+                BuildExecutionStatus.BUILD_ENV_SETTING_UP,
+                BuildExecutionStatus.BUILD_ENV_WAITING,
+                BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
+                BuildExecutionStatus.REPO_SETTING_UP,
+                BuildExecutionStatus.BUILD_SETTING_UP,
+                BuildExecutionStatus.BUILD_WAITING,
+                BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER,
                 BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER,
-                BuildExecutionStatus.BUILD_ENV_DESTROYING, BuildExecutionStatus.BUILD_ENV_DESTROYED,
-                BuildExecutionStatus.DONE, BuildExecutionStatus.DONE_WITH_ERRORS };
+                BuildExecutionStatus.BUILD_ENV_DESTROYING,
+                BuildExecutionStatus.BUILD_ENV_DESTROYED,
+                BuildExecutionStatus.DONE,
+                BuildExecutionStatus.DONE_WITH_ERRORS };
 
         try {
             testBuild(cancelAfter, expectedStatuses, unexpectedStatuses);
@@ -100,15 +108,23 @@ public class EarlyCancellationTest extends BuildExecutionBase {
             throws InterruptedException, TimeoutException, ExecutorException, BuildDriverException {
         BuildExecutionStatus cancelAfter = BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS;
 
-        BuildExecutionStatus[] expectedStatuses = { BuildExecutionStatus.NEW, BuildExecutionStatus.REPO_SETTING_UP,
-                BuildExecutionStatus.BUILD_ENV_SETTING_UP, BuildExecutionStatus.BUILD_ENV_WAITING,
-                BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS, BuildExecutionStatus.BUILD_ENV_DESTROYING,
-                BuildExecutionStatus.BUILD_ENV_DESTROYED, BuildExecutionStatus.FINALIZING_EXECUTION,
+        BuildExecutionStatus[] expectedStatuses = {
+                BuildExecutionStatus.NEW,
+                BuildExecutionStatus.REPO_SETTING_UP,
+                BuildExecutionStatus.BUILD_ENV_SETTING_UP,
+                BuildExecutionStatus.BUILD_ENV_WAITING,
+                BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
+                BuildExecutionStatus.BUILD_ENV_DESTROYING,
+                BuildExecutionStatus.BUILD_ENV_DESTROYED,
+                BuildExecutionStatus.FINALIZING_EXECUTION,
                 BuildExecutionStatus.CANCELLED };
 
-        BuildExecutionStatus[] unexpectedStatuses = { BuildExecutionStatus.BUILD_SETTING_UP,
-                BuildExecutionStatus.BUILD_WAITING, BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER,
-                BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER, BuildExecutionStatus.DONE,
+        BuildExecutionStatus[] unexpectedStatuses = {
+                BuildExecutionStatus.BUILD_SETTING_UP,
+                BuildExecutionStatus.BUILD_WAITING,
+                BuildExecutionStatus.COLLECTING_RESULTS_FROM_BUILD_DRIVER,
+                BuildExecutionStatus.COLLECTING_RESULTS_FROM_REPOSITORY_MANAGER,
+                BuildExecutionStatus.DONE,
                 BuildExecutionStatus.DONE_WITH_ERRORS };
 
         try {

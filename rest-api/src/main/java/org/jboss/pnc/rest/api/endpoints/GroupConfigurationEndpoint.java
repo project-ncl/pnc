@@ -176,7 +176,8 @@ public interface GroupConfigurationEndpoint {
      */
     @Operation(
             summary = UPDATE_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -304,7 +305,8 @@ public interface GroupConfigurationEndpoint {
      */
     @Operation(
             summary = ADD_BUILD_CONFIG_DESC,
-            responses = { @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -327,7 +329,8 @@ public interface GroupConfigurationEndpoint {
      */
     @Operation(
             summary = REMOVE_BUILD_CONFIG_DESC,
-            responses = { @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,

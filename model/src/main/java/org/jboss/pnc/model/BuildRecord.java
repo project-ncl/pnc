@@ -79,7 +79,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
-        indexes = { @Index(name = "idx_buildrecord_user", columnList = "user_id"),
+        indexes = {
+                @Index(name = "idx_buildrecord_user", columnList = "user_id"),
                 @Index(name = "idx_buildrecord_buildenvironment", columnList = "buildenvironment_id"),
                 @Index(name = "idx_buildrecord_buildconfigsetrecord", columnList = "buildconfigsetrecord_id"),
                 @Index(name = "idx_buildrecord_buildconfiguration", columnList = "buildconfiguration_id"),
@@ -231,20 +232,23 @@ public class BuildRecord implements GenericEntity<Integer> {
     @ManyToMany
     @JoinTable(
             name = "build_record_artifact_dependencies_map",
-            joinColumns = { @JoinColumn(
-                    name = "build_record_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_buildrecord")) },
-            inverseJoinColumns = { @JoinColumn(
-                    name = "dependency_artifact_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_dependency")) },
+            joinColumns = {
+                    @JoinColumn(
+                            name = "build_record_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_buildrecord")) },
+            inverseJoinColumns = {
+                    @JoinColumn(
+                            name = "dependency_artifact_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_record_artifact_dependencies_map_dependency")) },
             uniqueConstraints = @UniqueConstraint(
                     name = "uk_build_record_id_dependency_artifact_id",
                     columnNames = { "build_record_id", "dependency_artifact_id" }),
-            indexes = { @Index(
-                    name = "idx_build_record_artifact_dependencies_map",
-                    columnList = "dependency_artifact_id") })
+            indexes = {
+                    @Index(
+                            name = "idx_build_record_artifact_dependencies_map",
+                            columnList = "dependency_artifact_id") })
     @Column(updatable = false)
     private Set<Artifact> dependencies;
 

@@ -38,7 +38,8 @@ public interface HealthCheckEndpoint {
 
     @Operation(
             summary = "Performs health checks on the system to see if all the components are go",
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success"),
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = "Success"),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
                             description = "At least one of the health checks has failed") })

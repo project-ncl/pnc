@@ -50,7 +50,11 @@ import java.util.function.Consumer;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { TargetRepositoryMapper.class, BuildMapper.IDMapper.class, Configuration.class, BuildMapper.class,
+        uses = {
+                TargetRepositoryMapper.class,
+                BuildMapper.IDMapper.class,
+                Configuration.class,
+                BuildMapper.class,
                 UserMapper.class })
 public abstract class AbstractArtifactMapper implements ArtifactMapper {
 
@@ -67,17 +71,33 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
     @Mapping(target = "creationUser", qualifiedBy = Reference.class)
     @Mapping(target = "modificationUser", qualifiedBy = Reference.class)
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "distributedInProductMilestones", "identifierSha256", "built",
-                    "imported", "trusted", "descriptiveString", "dependantBuildRecords" })
+            ignoreUnmappedSourceProperties = {
+                    "distributedInProductMilestones",
+                    "identifierSha256",
+                    "built",
+                    "imported",
+                    "trusted",
+                    "descriptiveString",
+                    "dependantBuildRecords" })
     public abstract Artifact toDTO(org.jboss.pnc.model.Artifact dbEntity);
 
     @Override
     @Mapping(target = "deployUrl", ignore = true)
     @Mapping(target = "publicUrl", ignore = true)
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "targetRepository", "buildRecords", "dependantBuildRecords",
-                    "importDate", "distributedInProductMilestones", "identifierSha256", "built", "imported", "trusted",
-                    "descriptiveString", "creationUser", "modificationUser" })
+            ignoreUnmappedSourceProperties = {
+                    "targetRepository",
+                    "buildRecords",
+                    "dependantBuildRecords",
+                    "importDate",
+                    "distributedInProductMilestones",
+                    "identifierSha256",
+                    "built",
+                    "imported",
+                    "trusted",
+                    "descriptiveString",
+                    "creationUser",
+                    "modificationUser" })
     public abstract ArtifactRef toRef(org.jboss.pnc.model.Artifact dbEntity);
 
     @Override

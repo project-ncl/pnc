@@ -170,8 +170,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     .withMaxConnections(1)
                     .build();
 
-            IndyClientModule[] modules = new IndyClientModule[] { new IndyFoloAdminClientModule(),
-                    new IndyFoloContentClientModule(), new IndyPromoteClientModule() };
+            IndyClientModule[] modules = new IndyClientModule[] {
+                    new IndyFoloAdminClientModule(),
+                    new IndyFoloContentClientModule(),
+                    new IndyPromoteClientModule() };
 
             return new Indy(
                     siteConfig,

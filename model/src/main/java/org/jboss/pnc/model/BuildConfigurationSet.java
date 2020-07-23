@@ -74,15 +74,18 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     @ManyToMany
     @JoinTable(
             name = "build_configuration_set_map",
-            joinColumns = { @JoinColumn(
-                    name = "build_configuration_set_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfigurationset")) },
-            inverseJoinColumns = { @JoinColumn(
-                    name = "build_configuration_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfiguration")) },
-            indexes = { @Index(name = "idx_build_configuration_set_map_bc", columnList = "build_configuration_id"),
+            joinColumns = {
+                    @JoinColumn(
+                            name = "build_configuration_set_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfigurationset")) },
+            inverseJoinColumns = {
+                    @JoinColumn(
+                            name = "build_configuration_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfiguration")) },
+            indexes = {
+                    @Index(name = "idx_build_configuration_set_map_bc", columnList = "build_configuration_id"),
                     @Index(name = "idx_build_configuration_set_map_bcs", columnList = "build_configuration_set_id") })
     private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
 

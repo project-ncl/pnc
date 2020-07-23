@@ -62,8 +62,7 @@ public enum BuildExecutionStatus {
      * @deprecated executor is not dealing with rejections, rejection can be done only at coordination stage. Once the
      *             task reaches executor, the executor will try to complete the task.
      */
-    @Deprecated
-    REJECTED(true, true),
+    @Deprecated REJECTED(true, true),
 
     SYSTEM_ERROR(true, true),
 

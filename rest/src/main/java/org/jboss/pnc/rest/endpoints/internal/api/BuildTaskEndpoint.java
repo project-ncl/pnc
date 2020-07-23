@@ -78,7 +78,8 @@ public interface BuildTaskEndpoint {
 
     @Operation(
             summary = "DEPRECATED: Triggers the build execution for a given configuration.",
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                     @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION),
                     @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION),
                     @ApiResponse(responseCode = FORBIDDEN_CODE, description = FORBIDDEN_DESCRIPTION), })
@@ -96,7 +97,8 @@ public interface BuildTaskEndpoint {
 
     @Operation(
             summary = "Triggers the build execution for a given configuration.",
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                     @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION),
                     @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION),
                     @ApiResponse(responseCode = FORBIDDEN_CODE, description = FORBIDDEN_DESCRIPTION), })
@@ -110,7 +112,8 @@ public interface BuildTaskEndpoint {
 
     @Operation(
             summary = "Cancel the build execution defined with given executionConfigurationId.",
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION),
                     @ApiResponse(responseCode = INVALID_CODE, description = INVALID_DESCRIPTION),
                     @ApiResponse(responseCode = SERVER_ERROR_CODE, description = SERVER_ERROR_DESCRIPTION),
                     @ApiResponse(responseCode = FORBIDDEN_CODE, description = FORBIDDEN_DESCRIPTION), })

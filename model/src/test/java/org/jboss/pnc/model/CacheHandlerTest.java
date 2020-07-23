@@ -136,7 +136,8 @@ public class CacheHandlerTest extends AbstractModelTest {
                 statistics);
         logger.debug("All second level cache stats: {}", secondLevelCacheStatMap);
 
-        String[] mappedEntities = { REGION_STATS_PREFIX + "org.jboss.pnc.model.Artifact",
+        String[] mappedEntities = {
+                REGION_STATS_PREFIX + "org.jboss.pnc.model.Artifact",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigSetRecord",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigurationSet",

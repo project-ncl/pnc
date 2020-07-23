@@ -82,7 +82,8 @@ import org.jboss.pnc.enums.BuildType;
 @Audited
 @Table(
         uniqueConstraints = @UniqueConstraint(name = "uk_build_configuration_name", columnNames = { "name", "active" }),
-        indexes = { @Index(name = "idx_build_configuration_product_version", columnList = "productversion_id"),
+        indexes = {
+                @Index(name = "idx_build_configuration_product_version", columnList = "productversion_id"),
                 @Index(name = "idx_buildconfiguration_buildenvironment", columnList = "buildenvironment_id"),
                 @Index(name = "idx_buildconfiguration_project", columnList = "project_id"),
                 @Index(
@@ -178,15 +179,18 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @ManyToMany(cascade = { CascadeType.REFRESH })
     @JoinTable(
             name = "build_configuration_dep_map",
-            joinColumns = { @JoinColumn(
-                    name = "dependency_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependency")) },
-            inverseJoinColumns = { @JoinColumn(
-                    name = "dependant_id",
-                    referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependant")) },
-            indexes = { @Index(name = "idx_build_configuration_dep_map_dependant", columnList = "dependant_id"),
+            joinColumns = {
+                    @JoinColumn(
+                            name = "dependency_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependency")) },
+            inverseJoinColumns = {
+                    @JoinColumn(
+                            name = "dependant_id",
+                            referencedColumnName = "id",
+                            foreignKey = @ForeignKey(name = "fk_build_configuration_dep_map_dependant")) },
+            indexes = {
+                    @Index(name = "idx_build_configuration_dep_map_dependant", columnList = "dependant_id"),
                     @Index(name = "idx_build_configuration_dep_map_dependency", columnList = "dependency_id") })
     private Set<BuildConfiguration> dependencies;
 

@@ -138,7 +138,8 @@ public interface GroupBuildEndpoint {
     @Operation(
             summary = DELETE_DESC,
             description = DELETE_DESC2,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
@@ -193,7 +194,8 @@ public interface GroupBuildEndpoint {
      */
     @Operation(
             summary = BREW_PUSH_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -222,7 +224,8 @@ public interface GroupBuildEndpoint {
      */
     @Operation(
             summary = CANCEL_DESC,
-            responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,

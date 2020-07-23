@@ -202,14 +202,23 @@ public class RSQLTest {
     @Test
     public void shouldFilterProjectsBasedOnLikeOperator() throws RemoteResourceException {
         String sortQury = "sort=asc=name";
-        String[] queries = new String[] { "name=like=%De%", "name=like=%de%", "name=like=*de*", "name=like=P%",
-                "name=like=P*", "name=like=%termd%", "name=like=_auseway", "name=like=?auseway" };
+        String[] queries = new String[] {
+                "name=like=%De%",
+                "name=like=%de%",
+                "name=like=*de*",
+                "name=like=P%",
+                "name=like=P*",
+                "name=like=%termd%",
+                "name=like=_auseway",
+                "name=like=?auseway" };
         String[][] results = new String[][] { // must be sorted lexicographically
                 { "Dependency Analysis", "Project Newcastle Demo Project 1" },
                 { "Dependency Analysis", "Project Newcastle Demo Project 1" },
                 { "Dependency Analysis", "Project Newcastle Demo Project 1" },
                 { "Pnc Build Agent", "Project Newcastle Demo Project 1" },
-                { "Pnc Build Agent", "Project Newcastle Demo Project 1" }, { "termd" }, { "Causeway" },
+                { "Pnc Build Agent", "Project Newcastle Demo Project 1" },
+                { "termd" },
+                { "Causeway" },
                 { "Causeway" } };
 
         for (int i = 0; i < queries.length; i++) {
@@ -221,12 +230,20 @@ public class RSQLTest {
     @Test
     public void shouldFilterProjectsBasedOnNotLikeOperator() throws RemoteResourceException {
         String sortQury = "sort=asc=name";
-        String[] queries = new String[] { "name=notlike=%De%", "name=notlike=%de%", "name=notlike=*de*",
-                "name=notlike=P%", "name=notlike=P*", "name=notlike=%termd%", "name=notlike=_auseway",
+        String[] queries = new String[] {
+                "name=notlike=%De%",
+                "name=notlike=%de%",
+                "name=notlike=*de*",
+                "name=notlike=P%",
+                "name=notlike=P*",
+                "name=notlike=%termd%",
+                "name=notlike=_auseway",
                 "name=notlike=?auseway" };
         String[][] results = new String[][] { // must be sorted lexicographically
-                { "Causeway", "Pnc Build Agent", "termd" }, { "Causeway", "Pnc Build Agent", "termd" },
-                { "Causeway", "Pnc Build Agent", "termd" }, { "Causeway", "Dependency Analysis", "termd" },
+                { "Causeway", "Pnc Build Agent", "termd" },
+                { "Causeway", "Pnc Build Agent", "termd" },
+                { "Causeway", "Pnc Build Agent", "termd" },
+                { "Causeway", "Dependency Analysis", "termd" },
                 { "Causeway", "Dependency Analysis", "termd" },
                 { "Causeway", "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1" },
                 { "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1", "termd" },

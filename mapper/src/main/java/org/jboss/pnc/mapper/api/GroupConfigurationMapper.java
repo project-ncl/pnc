@@ -54,15 +54,23 @@ public interface GroupConfigurationMapper
 
     @Override
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "productVersion", "buildConfigurations", "buildConfigSetRecords",
-                    "archived", "active", "currentProductMilestone" })
+            ignoreUnmappedSourceProperties = {
+                    "productVersion",
+                    "buildConfigurations",
+                    "buildConfigSetRecords",
+                    "archived",
+                    "active",
+                    "currentProductMilestone" })
     GroupConfigurationRef toRef(BuildConfigurationSet dbEntity);
 
     @Override
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "buildConfigs", source = "buildConfigurations")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "buildConfigSetRecords", "active", "currentProductMilestone",
+            ignoreUnmappedSourceProperties = {
+                    "buildConfigSetRecords",
+                    "active",
+                    "currentProductMilestone",
                     "archived" })
     GroupConfiguration toDTO(BuildConfigurationSet dbEntity);
 

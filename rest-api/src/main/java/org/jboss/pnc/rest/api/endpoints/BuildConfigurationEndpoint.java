@@ -183,7 +183,8 @@ public interface BuildConfigurationEndpoint {
      */
     @Operation(
             summary = UPDATE_DESC,
-            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -423,7 +424,8 @@ public interface BuildConfigurationEndpoint {
      */
     @Operation(
             summary = ADD_DEPENDENCY_DESC,
-            responses = { @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -449,7 +451,8 @@ public interface BuildConfigurationEndpoint {
      */
     @Operation(
             summary = REMOVE_DEPENDECY_DESC,
-            responses = { @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
+            responses = {
+                    @ApiResponse(responseCode = NO_CONTENT_CODE, description = NO_CONTENT_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
@@ -670,12 +673,14 @@ public interface BuildConfigurationEndpoint {
     @Operation(
             summary = GET_SUPPORTED_PARAMS_DESC,
             description = GET_SUPPORTED_PARAMS_DESC2,
-            responses = { @ApiResponse(
-                    responseCode = SUCCESS_CODE,
-                    description = SUCCESS_DESCRIPTION,
-                    content = @Content(
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = org.jboss.pnc.dto.response.Parameter.class)))) })
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(
+                                    array = @ArraySchema(
+                                            schema = @Schema(
+                                                    implementation = org.jboss.pnc.dto.response.Parameter.class)))) })
     @GET
     @Path("/supported-parameters")
     Set<org.jboss.pnc.dto.response.Parameter> getSupportedParameters();
@@ -693,10 +698,11 @@ public interface BuildConfigurationEndpoint {
     @Operation(
             summary = GET_DEFAULT_ALIGNMENT_PARAMS_DESC,
             description = GET_DEFAULT_ALIGNMENT_PARAMS_DESC2,
-            responses = { @ApiResponse(
-                    responseCode = SUCCESS_CODE,
-                    description = SUCCESS_DESCRIPTION,
-                    content = @Content(schema = @Schema(implementation = AlignmentParameters.class))) })
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = AlignmentParameters.class))) })
     @GET
     @Path("/default-alignment-parameters/{buildType}")
     AlignmentParameters getBuildTypeDefaultAlignmentParameters(

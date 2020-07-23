@@ -69,11 +69,17 @@ class BuildExecutionBase {
     @Inject
     Configuration configuration;
 
-    BuildExecutionStatus[] baseBuildStatuses = { BuildExecutionStatus.NEW, BuildExecutionStatus.BUILD_ENV_SETTING_UP,
-            BuildExecutionStatus.BUILD_ENV_WAITING, BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
-            BuildExecutionStatus.REPO_SETTING_UP, BuildExecutionStatus.BUILD_SETTING_UP,
-            BuildExecutionStatus.BUILD_WAITING, BuildExecutionStatus.BUILD_ENV_DESTROYING,
-            BuildExecutionStatus.BUILD_ENV_DESTROYED, BuildExecutionStatus.FINALIZING_EXECUTION, };
+    BuildExecutionStatus[] baseBuildStatuses = {
+            BuildExecutionStatus.NEW,
+            BuildExecutionStatus.BUILD_ENV_SETTING_UP,
+            BuildExecutionStatus.BUILD_ENV_WAITING,
+            BuildExecutionStatus.BUILD_ENV_SETUP_COMPLETE_SUCCESS,
+            BuildExecutionStatus.REPO_SETTING_UP,
+            BuildExecutionStatus.BUILD_SETTING_UP,
+            BuildExecutionStatus.BUILD_WAITING,
+            BuildExecutionStatus.BUILD_ENV_DESTROYING,
+            BuildExecutionStatus.BUILD_ENV_DESTROYED,
+            BuildExecutionStatus.FINALIZING_EXECUTION, };
 
     protected List<BuildExecutionStatus> getBuildExecutionStatusesSuccess() {
         List<BuildExecutionStatus> expectedStatuses = getBuildExecutionStatusesBase();

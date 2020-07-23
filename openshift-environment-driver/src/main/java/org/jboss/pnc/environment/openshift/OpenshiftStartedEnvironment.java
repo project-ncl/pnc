@@ -100,7 +100,11 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      * For pod creation, the failure reason we expect when docker registry is not behaving is 'ErrImagePull' or
      * 'ImagePullBackOff'
      */
-    private static final String[] POD_FAILED_STATUSES = { "Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull",
+    private static final String[] POD_FAILED_STATUSES = {
+            "Failed",
+            "Unknown",
+            "CrashLoopBackOff",
+            "ErrImagePull",
             "ImagePullBackOff" };
 
     /**

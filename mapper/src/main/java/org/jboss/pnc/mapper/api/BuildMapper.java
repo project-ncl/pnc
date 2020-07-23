@@ -46,10 +46,20 @@ import java.util.stream.Collectors;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { BuildConfigurationMapper.class, UserMapper.class, StatusMapper.class, BuildMapper.IDMapper.class,
-                SCMRepositoryMapper.class, ProjectMapper.class, BuildConfigurationRevisionMapper.class,
-                EnvironmentMapper.class, BuildMapper.BuildTaskIdMapper.class, BrewNameWorkaround.class,
-                GroupBuildMapper.class, BuildBCRevisionFetcher.class, ProductMilestoneMapper.class })
+        uses = {
+                BuildConfigurationMapper.class,
+                UserMapper.class,
+                StatusMapper.class,
+                BuildMapper.IDMapper.class,
+                SCMRepositoryMapper.class,
+                ProjectMapper.class,
+                BuildConfigurationRevisionMapper.class,
+                EnvironmentMapper.class,
+                BuildMapper.BuildTaskIdMapper.class,
+                BrewNameWorkaround.class,
+                GroupBuildMapper.class,
+                BuildBCRevisionFetcher.class,
+                ProductMilestoneMapper.class })
 
 public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, BuildRef> {
 
@@ -68,12 +78,31 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "progress", source = "status")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "buildLog", "buildLogMd5", "buildLogSha256", "buildLogSize",
-                    "sshCommand", "sshPassword", "executionRootName", "executionRootVersion", "builtArtifacts",
-                    "dependencies", "repourLog", "repourLogMd5", "repourLogSha256", "repourLogSize",
-                    "buildRecordPushResults", "buildConfigurationId", "buildConfigurationRev",
-                    "buildConfigurationAuditedIdRev", "buildEnvironment", "buildConfigurationAudited",
-                    "buildOutputChecksum", "dependentBuildRecordIds", "dependencyBuildRecordIds", "attributesMap" })
+            ignoreUnmappedSourceProperties = {
+                    "buildLog",
+                    "buildLogMd5",
+                    "buildLogSha256",
+                    "buildLogSize",
+                    "sshCommand",
+                    "sshPassword",
+                    "executionRootName",
+                    "executionRootVersion",
+                    "builtArtifacts",
+                    "dependencies",
+                    "repourLog",
+                    "repourLogMd5",
+                    "repourLogSha256",
+                    "repourLogSize",
+                    "buildRecordPushResults",
+                    "buildConfigurationId",
+                    "buildConfigurationRev",
+                    "buildConfigurationAuditedIdRev",
+                    "buildEnvironment",
+                    "buildConfigurationAudited",
+                    "buildOutputChecksum",
+                    "dependentBuildRecordIds",
+                    "dependencyBuildRecordIds",
+                    "attributesMap" })
     Build toDTO(BuildRecord dbEntity);
 
     @Override
@@ -91,13 +120,37 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "scmUrl", source = "scmRepoURL")
     @Mapping(target = "progress", source = "status")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "scmRevision", "scmTag", "buildLog", "buildLogMd5", "buildLogSha256",
-                    "buildLogSize", "sshCommand", "sshPassword", "executionRootName", "executionRootVersion",
-                    "builtArtifacts", "dependencies", "productMilestone", "buildConfigSetRecord", "repourLog",
-                    "repourLogMd5", "repourLogSha256", "repourLogSize", "buildRecordPushResults",
-                    "buildConfigurationId", "buildConfigurationRev", "buildEnvironment", "buildConfigurationAudited",
-                    "dependentBuildRecordIds", "dependencyBuildRecordIds", "user", "attributes", "attributesMap",
-                    "buildConfigurationAuditedIdRev", "buildOutputChecksum" })
+            ignoreUnmappedSourceProperties = {
+                    "scmRevision",
+                    "scmTag",
+                    "buildLog",
+                    "buildLogMd5",
+                    "buildLogSha256",
+                    "buildLogSize",
+                    "sshCommand",
+                    "sshPassword",
+                    "executionRootName",
+                    "executionRootVersion",
+                    "builtArtifacts",
+                    "dependencies",
+                    "productMilestone",
+                    "buildConfigSetRecord",
+                    "repourLog",
+                    "repourLogMd5",
+                    "repourLogSha256",
+                    "repourLogSize",
+                    "buildRecordPushResults",
+                    "buildConfigurationId",
+                    "buildConfigurationRev",
+                    "buildEnvironment",
+                    "buildConfigurationAudited",
+                    "dependentBuildRecordIds",
+                    "dependencyBuildRecordIds",
+                    "user",
+                    "attributes",
+                    "attributesMap",
+                    "buildConfigurationAuditedIdRev",
+                    "buildOutputChecksum" })
     BuildRef toRef(BuildRecord dbEntity);
 
     @Override
@@ -161,8 +214,14 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "progress", source = "status")
     @Mapping(target = "buildOutputChecksum", ignore = true)
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "statusDescription", "buildSetTask", "buildConfigSetRecordId",
-                    "buildOptions", "dependants", "dependencies", "requestContext" })
+            ignoreUnmappedSourceProperties = {
+                    "statusDescription",
+                    "buildSetTask",
+                    "buildConfigSetRecordId",
+                    "buildOptions",
+                    "dependants",
+                    "dependencies",
+                    "requestContext" })
     Build fromBuildTask(BuildTask buildTask);
 
     public static <T> T unwrap(Optional<T> optional) {

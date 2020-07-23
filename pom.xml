@@ -1658,6 +1658,7 @@
           <version>2.12.1</version>
           <configuration>
               <configFile>../eclipse-codeStyle.xml</configFile>
+              <cachedir>${project.build.directory}</cachedir>
           </configuration>
           <executions>
               <execution>

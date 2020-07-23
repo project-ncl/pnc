@@ -72,7 +72,8 @@ public class IndyFactory {
                     .withMaxConnections(IndyClientHttp.GLOBAL_MAX_CONNECTIONS)
                     .build();
 
-            IndyClientModule[] modules = new IndyClientModule[] { new IndyFoloAdminClientModule(),
+            IndyClientModule[] modules = new IndyClientModule[] {
+                    new IndyFoloAdminClientModule(),
                     new IndyPromoteClientModule() };
             return new Indy(
                     siteConfig,

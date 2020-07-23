@@ -66,7 +66,8 @@ import org.jboss.util.StringPropertyReplacer;
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_productversion_version_prod_id",
                 columnNames = { "version", "product_id" }),
-        indexes = { @Index(name = "idx_productversion_currentmilestone", columnList = "currentproductmilestone_id"),
+        indexes = {
+                @Index(name = "idx_productversion_currentmilestone", columnList = "currentproductmilestone_id"),
                 @Index(name = "idx_productversion_product", columnList = "product_id") })
 public class ProductVersion implements GenericEntity<Integer> {
 

@@ -32,7 +32,10 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { ProductVersionMapper.class, GroupConfigurationMapper.class, BuildMapper.IDMapper.class,
+        uses = {
+                ProductVersionMapper.class,
+                GroupConfigurationMapper.class,
+                BuildMapper.IDMapper.class,
                 UserMapper.class })
 public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
 
@@ -64,7 +67,11 @@ public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRe
     // Workaround for NCL-4228
     @Reference
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "attributes", "buildRecords", "buildConfigurationSet", "user",
+            ignoreUnmappedSourceProperties = {
+                    "attributes",
+                    "buildRecords",
+                    "buildConfigurationSet",
+                    "user",
                     "productVersion" })
     GroupBuildRef toRef(BuildConfigSetRecord dbEntity);
 

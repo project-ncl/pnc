@@ -168,7 +168,8 @@ public enum BuildStatus {
         BuildCoordinationStatus[] cancelled = { BuildCoordinationStatus.CANCELLED };
         BuildCoordinationStatus[] newBuild = { BuildCoordinationStatus.NEW };
         BuildCoordinationStatus[] enqueued = { BuildCoordinationStatus.ENQUEUED };
-        BuildCoordinationStatus[] building = { BuildCoordinationStatus.BUILDING,
+        BuildCoordinationStatus[] building = {
+                BuildCoordinationStatus.BUILDING,
                 BuildCoordinationStatus.BUILD_COMPLETED };
         BuildCoordinationStatus[] waitingForDependencies = { BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES };
         BuildCoordinationStatus[] notRequired = { BuildCoordinationStatus.REJECTED_ALREADY_BUILT };

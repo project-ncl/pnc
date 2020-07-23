@@ -59,7 +59,8 @@ import org.jboss.pnc.enums.BuildStatus;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
-        indexes = { @Index(name = "idx_buildconfigsetrecord_buildconfigset", columnList = "buildconfigurationset_id"),
+        indexes = {
+                @Index(name = "idx_buildconfigsetrecord_buildconfigset", columnList = "buildconfigurationset_id"),
                 @Index(name = "idx_buildconfigsetrecord_productversion", columnList = "productversion_id"),
                 @Index(name = "idx_buildconfigsetrecord_user", columnList = "user_id") })
 public class BuildConfigSetRecord implements GenericEntity<Integer> {
