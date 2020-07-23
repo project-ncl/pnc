@@ -38,4 +38,15 @@ public class Attributes {
      * Attribute key for org.jboss.pnc.dto.Build representing Brew version of the build.
      */
     public static final String BUILD_BREW_VERSION = "BREW_BUILD_VERSION";
+
+    /**
+     * Attribute key for org.jboss.pnc.dto.Build representing the reason for the deletion of its built artifacts.
+     */
+    public static final String DELETE_REASON = "DELETE_REASON";
+
+    /**
+     * Attribute key for org.jboss.pnc.dto.Build representing the reason for the blacklist of its built artifacts.
+     */
+    public static final String BLACKLIST_REASON = "BLACKLIST_REASON";
+
 }

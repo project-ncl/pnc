@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -29,12 +30,14 @@ import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -177,6 +180,12 @@ public class BuildEndpointImpl implements BuildEndpoint {
         Set<String> builtArtifactIds = provider.getBuiltArtifactIds(id);
         for (String builtArtifactId : builtArtifactIds) {
             artifactProvider.createQualityLevelRevision(builtArtifactId, quality, reason);
+        }
+        ArtifactQuality newQuality = ArtifactQuality.valueOf(quality.toUpperCase());
+        if (ArtifactQuality.DELETED.equals(newQuality)) {
+            provider.addAttribute(id, Attributes.DELETE_REASON, reason);
+        } else if (ArtifactQuality.BLACKLISTED.equals(newQuality)) {
+            provider.addAttribute(id, Attributes.BLACKLIST_REASON, reason);
         }
     }
 
