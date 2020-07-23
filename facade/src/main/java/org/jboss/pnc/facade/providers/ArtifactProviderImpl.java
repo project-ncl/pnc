@@ -53,7 +53,6 @@ import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactAudited;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -71,6 +70,20 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
         implements ArtifactProvider {
 
     private static Logger logger = LoggerFactory.getLogger(ArtifactProviderImpl.class);
+
+    private static final EnumSet<ArtifactQuality> USER_ALLOWED_ARTIFACT_QUALITIES = EnumSet
+            .of(ArtifactQuality.NEW, ArtifactQuality.VERIFIED, ArtifactQuality.TESTED, ArtifactQuality.DEPRECATED);
+
+    private static final EnumSet<ArtifactQuality> ADMIN_ALLOWED_ARTIFACT_QUALITIES = EnumSet.of(
+            ArtifactQuality.NEW,
+            ArtifactQuality.VERIFIED,
+            ArtifactQuality.TESTED,
+            ArtifactQuality.DEPRECATED,
+            ArtifactQuality.BLACKLISTED,
+            ArtifactQuality.DELETED);
+
+    private static final EnumSet<ArtifactQuality> NOT_MODIFIABLE_ARTIFACT_QUALITIES = EnumSet
+            .of(ArtifactQuality.DELETED, ArtifactQuality.BLACKLISTED);
 
     private BuildRecordRepository buildRecordRepository;
 
@@ -160,7 +173,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
             throw new InvalidEntityException("Artifact with id: " + id + " does not exist.");
         }
 
-        validateIfArtifactQualityIsModifiable(artifact);
+        validateIfArtifactQualityIsModifiable(artifact, newQuality);
 
         org.jboss.pnc.model.User currentUser = userService.currentUser();
         User user = userMapper.toDTO(currentUser);
@@ -251,13 +264,10 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
             throw new InvalidEntityException("Artifact quality: " + quality + " does not exist.");
         }
 
-        EnumSet<ArtifactQuality> allowedQualities = EnumSet
-                .of(ArtifactQuality.NEW, ArtifactQuality.VERIFIED, ArtifactQuality.TESTED, ArtifactQuality.DEPRECATED);
-
-        if (isLoggedInUserSystemUser) {
-            allowedQualities.add(ArtifactQuality.BLACKLISTED);
-            allowedQualities.add(ArtifactQuality.DELETED);
-        }
+        // User can specify NEW, TESTED, VERIFIED, DEPRECATED quality levels; admins can also specify DELETED and
+        // BLACKLISTED
+        EnumSet<ArtifactQuality> allowedQualities = isLoggedInUserSystemUser ? ADMIN_ALLOWED_ARTIFACT_QUALITIES
+                : USER_ALLOWED_ARTIFACT_QUALITIES;
 
         if (!allowedQualities.contains(newQuality)) {
             throw new InvalidEntityException("Artifact quality level can be changed only to " + allowedQualities);
@@ -266,18 +276,25 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
         return newQuality;
     }
 
-    private void validateIfArtifactQualityIsModifiable(org.jboss.pnc.dto.Artifact artifact) {
-        // Artifacts which have TEMPORARY, DELETED, BLACKLISTED, DEPRECATED quality levels cannot be changed
-        EnumSet<ArtifactQuality> forbiddenQualities = EnumSet.of(
-                ArtifactQuality.TEMPORARY,
-                ArtifactQuality.DELETED,
-                ArtifactQuality.BLACKLISTED,
-                ArtifactQuality.DEPRECATED);
+    private void validateIfArtifactQualityIsModifiable(
+            org.jboss.pnc.dto.Artifact artifact,
+            ArtifactQuality newQuality) {
 
-        if (forbiddenQualities.contains(artifact.getArtifactQuality())) {
+        // Artifacts with DELETED, BLACKLISTED quality levels cannot be changed
+        if (NOT_MODIFIABLE_ARTIFACT_QUALITIES.contains(artifact.getArtifactQuality())) {
             throw new ConflictedEntryException(
                     "Artifact " + artifact.getId() + " with quality " + artifact.getArtifactQuality()
                             + " cannot be changed to another quality level.",
+                    Artifact.class,
+                    artifact.getId().toString());
+        }
+
+        // If the artifact is TEMPORARY, quality level can only change to DELETED
+        if (ArtifactQuality.TEMPORARY.equals(artifact.getArtifactQuality())
+                && !newQuality.equals(ArtifactQuality.DELETED)) {
+
+            throw new ConflictedEntryException(
+                    "Temporary artifact " + artifact.getId() + " can only be changed to DELETED quality level.",
                     Artifact.class,
                     artifact.getId().toString());
         }
