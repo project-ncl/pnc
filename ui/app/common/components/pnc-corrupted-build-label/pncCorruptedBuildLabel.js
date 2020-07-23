@@ -47,7 +47,9 @@
       return attrs && (
         attrs.POST_BUILD_REPO_VALIDATION === 'REPO_SYSTEM_ERROR' ||
         attrs.PNC_SYSTEM_ERROR           === 'DISABLED_FIREWALL' ||
-        attrs.BUILD_PROCESS_ISSUE
+        attrs.BUILD_PROCESS_ISSUE                                ||
+        attrs.BLACKLIST_REASON                                   ||
+        attrs.DELETE_REASON
       );
     }
   }
