@@ -30,6 +30,7 @@ import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.util.IoUtils;
+import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
@@ -67,6 +68,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -79,6 +81,7 @@ import static org.assertj.core.api.Assertions.entry;
 import org.jboss.pnc.integration.setup.Credentials;
 import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -94,6 +97,7 @@ public class BuildEndpointTest {
     private static final Logger logger = LoggerFactory.getLogger(BuildEndpointTest.class);
     private static String buildId;
     private static String build2Id;
+    private static String build3Id;
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -106,6 +110,7 @@ public class BuildEndpointTest {
         Iterator<Build> it = bc.getAll(null, null).iterator();
         buildId = it.next().getId();
         build2Id = it.next().getId();
+        build3Id = it.next().getId();
     }
 
     @Test
@@ -551,9 +556,24 @@ public class BuildEndpointTest {
     @Test
     public void shouldModifyBuiltArtifactQualityLevels() throws RemoteResourceException {
         BuildClient client = new BuildClient(RestClientConfiguration.asSystem());
-        String buildRecordId = "1";
+        String buildRecordId = build3Id;
         String REASON = "This artifact has become old enough";
-        client.setBuiltArtifacts(buildRecordId, Stream.of("100", "101").collect(Collectors.toList()));
+
+        ArtifactClient artifactClient = new ArtifactClient(RestClientConfiguration.asSystem());
+
+        Artifact newArtifact = artifactClient.create(
+                Artifact.builder()
+                        .artifactQuality(ArtifactQuality.NEW)
+                        .filename("builtArtifactInsertNew.jar")
+                        .identifier("integration-test:built-artifact-new:jar:1.0")
+                        .targetRepository(artifactClient.getSpecific("100").getTargetRepository())
+                        .md5("insert-md5-22")
+                        .sha1("insert-22")
+                        .sha256("insert-22")
+                        .size(10L)
+                        .build());
+
+        client.setBuiltArtifacts(build3Id, Collections.singletonList(newArtifact.getId()));
         client.createBuiltArtifactsQualityLevelRevisions(buildRecordId, "BLACKListed", REASON);
 
         RemoteCollection<Artifact> artifacts = client.getBuiltArtifacts(buildRecordId);
@@ -562,6 +582,8 @@ public class BuildEndpointTest {
             assertThat(artifact.getQualityLevelReason()).isEqualTo(REASON);
             assertThat(artifact.getModificationUser().getUsername()).isEqualTo("system");
         }
+        Build withAttribute = client.getSpecific(buildRecordId);
+        assertThat(withAttribute.getAttributes()).contains(entry(Attributes.BLACKLIST_REASON, REASON));
     }
 
     @Test
