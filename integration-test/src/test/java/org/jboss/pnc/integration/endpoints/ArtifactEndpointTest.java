@@ -49,6 +49,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -397,8 +399,8 @@ public class ArtifactEndpointTest {
         String id = artifactRest1.getId();
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
 
-        // Updating a not audited property should not create a new revision and should not alter modificationUser and
-        // modificationTime. Also, creationTime should never be updated, not creationUser
+        // Updating an audited property should create a new revision and should alter modificationUser and
+        // modificationTime. But, creationTime should never be updated, not creationUser
         Artifact artifact = client.getSpecific(id);
         Artifact updatedArtifact = artifact.toBuilder()
                 .modificationTime(Instant.now())
@@ -455,5 +457,87 @@ public class ArtifactEndpointTest {
 
         assertThatThrownBy(() -> client.createQualityLevelRevision(id, "WHITELISTED", REASON))
                 .hasCauseInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    public void shouldNotModifyBlacklistedQualityLevel() throws ClientException {
+        String id = artifactRest3.getId();
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
+        String REASON = "This artifact has severe CVEs";
+
+        Artifact artifact = client.getSpecific(id);
+        client.createQualityLevelRevision(id, "BLACKLISTED", REASON);
+        Artifact updatedArtifactDB = client.getSpecific(id);
+
+        assertThat(updatedArtifactDB.getId()).isEqualTo(artifact.getId());
+        assertThat(updatedArtifactDB.getArtifactQuality()).isEqualTo(ArtifactQuality.BLACKLISTED);
+        assertThat(updatedArtifactDB.getQualityLevelReason()).isEqualTo(REASON);
+        assertThat(updatedArtifactDB.getCreationTime()).isEqualTo(artifact.getCreationTime());
+        assertThat(updatedArtifactDB.getModificationTime()).isNotEqualTo(artifact.getModificationTime());
+        assertThat(updatedArtifactDB.getModificationUser().getUsername()).isEqualTo("system");
+
+        assertThatThrownBy(() -> client.createQualityLevelRevision(id, "DEPRECATED", REASON))
+                .hasCauseInstanceOf(ClientErrorException.class);
+    }
+
+    @Test
+    public void shouldNotModifyTemporaryQualityLevel() throws ClientException {
+
+        Artifact artifact = Artifact.builder()
+                .artifactQuality(ArtifactQuality.TEMPORARY)
+                .filename("temp-builtArtifactInsert2.jar")
+                .identifier("integration-test:temp-built-artifact-insert2:jar:1.0")
+                .targetRepository(targetRepositoryRef)
+                .md5("insert-md5-13")
+                .sha1("insert-13")
+                .sha256("insert-13")
+                .size(13L)
+                .build();
+
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
+
+        Artifact inserted = client.create(artifact);
+        String id = inserted.getId();
+        Artifact retrieved = client.getSpecific(id);
+        Assertions.assertThat(retrieved.getArtifactQuality()).isEqualTo(ArtifactQuality.TEMPORARY);
+
+        String REASON = "This artifact has severe CVEs";
+
+        assertThatThrownBy(() -> client.createQualityLevelRevision(id, "BLACKLISTED", REASON))
+                .hasCauseInstanceOf(ClientErrorException.class);
+    }
+
+    @Test
+    public void shouldDeleteTemporaryQualityLevel() throws ClientException {
+
+        Artifact artifact = Artifact.builder()
+                .artifactQuality(ArtifactQuality.TEMPORARY)
+                .filename("temp-builtArtifactInsert3.jar")
+                .identifier("integration-test:temp-built-artifact-insert3:jar:1.0")
+                .targetRepository(targetRepositoryRef)
+                .md5("insert-md5-131")
+                .sha1("insert-131")
+                .sha256("insert-131")
+                .size(131L)
+                .build();
+
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
+
+        Artifact inserted = client.create(artifact);
+        String id = inserted.getId();
+        Artifact retrieved = client.getSpecific(id);
+        Assertions.assertThat(retrieved.getArtifactQuality()).isEqualTo(ArtifactQuality.TEMPORARY);
+
+        String REASON = "This artifact can be nuked";
+
+        client.createQualityLevelRevision(id, "DELEted", REASON);
+        Artifact updatedArtifactDB = client.getSpecific(id);
+
+        assertThat(updatedArtifactDB.getId()).isEqualTo(retrieved.getId());
+        assertThat(updatedArtifactDB.getArtifactQuality()).isEqualTo(ArtifactQuality.DELETED);
+        assertThat(updatedArtifactDB.getQualityLevelReason()).isEqualTo(REASON);
+        assertThat(updatedArtifactDB.getCreationTime()).isEqualTo(retrieved.getCreationTime());
+        assertThat(updatedArtifactDB.getModificationTime()).isNotEqualTo(retrieved.getModificationTime());
+        assertThat(updatedArtifactDB.getModificationUser().getUsername()).isEqualTo("system");
     }
 }
