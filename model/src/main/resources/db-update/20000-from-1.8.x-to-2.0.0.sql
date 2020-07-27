@@ -126,7 +126,7 @@ BEGIN transaction;
        modificationuser_id integer,
        modificationtime timestamptz,
        qualityLevelReason varchar(200),
-       artifactquality varchar(255) not null,
+       artifactquality varchar(255),
        primary key (id, rev)
     );
 
