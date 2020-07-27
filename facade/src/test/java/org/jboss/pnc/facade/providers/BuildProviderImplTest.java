@@ -145,22 +145,16 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
     public void prepareMock() throws ReflectiveOperationException, IllegalArgumentException {
         when(repository.queryWithPredicatesUsingCursor(any(PageInfo.class), any(SortInfo.class), any()))
                 .thenAnswer(new ListAnswer(repositoryList));
-        when(repository.findByIdFetchAllProperties(anyInt())).thenAnswer(inv -> {
-            Integer id = inv.getArgument(0);
-            return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
-        });
         when(repository.findByIdFetchProperties(anyInt())).thenAnswer(inv -> {
             Integer id = inv.getArgument(0);
             return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
         });
 
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(runningBuilds);
-        when(sortInfoProducer.getSortInfo(any(String.class))).thenAnswer(i -> mock(SortInfo.class));
         when(sortInfoProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
         when(rsqlPredicateProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
 
         user = mock(User.class);
-        when(user.getId()).thenReturn(CURRENT_USER);
         when(user.getLoginToken()).thenReturn(USER_TOKEN);
         when(userService.currentUser()).thenReturn(user);
 
