@@ -22,106 +22,84 @@ import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class GraphBuilder<T> {
+public class GraphBuilder<T, S> {
 
     private final Logger logger = LoggerFactory.getLogger(GraphBuilder.class);
 
-    private List<Integer> missingNodes = new ArrayList<>();
+    private Function<S, T> nodeSupplier;
 
-    private Function<Integer, Optional<T>> nodeSupplier;
+    private Function<T, Collection<S>> dependencySupplier;
 
-    private Function<T, Collection<Integer>> dependencySupplier;
-
-    private Function<T, Collection<Integer>> dependantSupplier;
+    private Function<T, Collection<S>> dependantSupplier;
 
     public GraphBuilder(
-            Function<Integer, Optional<T>> nodeSupplier,
-            Function<T, Collection<Integer>> dependencySupplier,
-            Function<T, Collection<Integer>> dependantSupplier) {
+            Function<S, T> nodeSupplier,
+            Function<T, Collection<S>> dependencySupplier,
+            Function<T, Collection<S>> dependantSupplier) {
         this.nodeSupplier = nodeSupplier;
         this.dependencySupplier = dependencySupplier;
         this.dependantSupplier = dependantSupplier;
     }
 
-    private Optional<T> getNode(Integer id) {
+    private T getNode(S id) {
         return nodeSupplier.apply(id);
     }
 
-    private Collection<Integer> getDependencyIds(T node) {
+    private Collection<S> getDependencyIds(T node) {
         return dependencySupplier.apply(node);
     }
 
-    private Collection<Integer> getDependantIds(T node) {
+    private Collection<S> getDependantIds(T node) {
         return dependantSupplier.apply(node);
     }
 
-    public Vertex<T> buildDependencyGraph(Graph<T> graph, Integer nodeId) {
-        Optional<T> maybeNode = getNode(nodeId);
-        if (maybeNode.isPresent()) {
-            T node = maybeNode.get();
-            Vertex<T> vertex = getVisited(nodeId, graph);
-            if (vertex == null) {
-                vertex = new NameUniqueVertex<>(Integer.toString(nodeId), node);
-                graph.addVertex(vertex);
-            }
-            for (Integer dependencyId : getDependencyIds(node)) {
-                Vertex<T> dependency = getVisited(dependencyId, graph);
-                if (dependency == null) {
-                    dependency = buildDependencyGraph(graph, dependencyId);
-                }
-                if (dependency != null) {
-                    logger.trace("Creating new dependency edge from {} to {}.", vertex, dependency);
-                    graph.addEdge(vertex, dependency, 1);
-                }
-            }
-            return vertex;
-        } else {
-            logger.debug("Cannot find node with id {}.", nodeId);
-            missingNodes.add(nodeId);
-            return null;
+    public Vertex<T> buildDependencyGraph(Graph<T> graph, S nodeId) {
+        T node = getNode(nodeId);
+        Vertex<T> vertex = getVisited(nodeId, graph);
+        if (vertex == null) {
+            vertex = new NameUniqueVertex<>(nodeId.toString(), node);
+            graph.addVertex(vertex);
         }
-    }
-
-    public Vertex<T> buildDependentGraph(Graph<T> graph, Integer nodeId) {
-        Optional<T> maybeNode = getNode(nodeId);
-        if (maybeNode.isPresent()) {
-            T node = maybeNode.get();
-            Vertex<T> vertex = getVisited(nodeId, graph);
-            if (vertex == null) {
-                vertex = new NameUniqueVertex<>(Integer.toString(nodeId), node);
-                graph.addVertex(vertex);
+        for (S dependencyId : getDependencyIds(node)) {
+            Vertex<T> dependency = getVisited(dependencyId, graph);
+            if (dependency == null) {
+                dependency = buildDependencyGraph(graph, dependencyId);
             }
-            for (Integer dependantId : getDependantIds(node)) {
-                Vertex<T> dependant = getVisited(dependantId, graph);
-                if (dependant == null) {
-                    dependant = buildDependentGraph(graph, dependantId);
-                }
-                if (dependant != null) {
-                    logger.trace("Creating new dependant edge from {} to {}.", dependant, vertex);
-                    graph.addEdge(dependant, vertex, 1);
-                }
+            if (dependency != null) {
+                logger.trace("Creating new dependency edge from {} to {}.", vertex, dependency);
+                graph.addEdge(vertex, dependency, 1);
             }
-            return vertex;
-        } else {
-            missingNodes.add(nodeId);
-            return null;
         }
+        return vertex;
     }
 
-    private Vertex<T> getVisited(Integer nodeId, Graph<T> graph) {
-        return graph.findVertexByName(Integer.toString(nodeId));
+    public Vertex<T> buildDependentGraph(Graph<T> graph, S nodeId) {
+        T node = getNode(nodeId);
+        Vertex<T> vertex = getVisited(nodeId, graph);
+        if (vertex == null) {
+            vertex = new NameUniqueVertex<>(nodeId.toString(), node);
+            graph.addVertex(vertex);
+        }
+        for (S dependantId : getDependantIds(node)) {
+            Vertex<T> dependant = getVisited(dependantId, graph);
+            if (dependant == null) {
+                dependant = buildDependentGraph(graph, dependantId);
+            }
+            if (dependant != null) {
+                logger.trace("Creating new dependant edge from {} to {}.", dependant, vertex);
+                graph.addEdge(dependant, vertex, 1);
+            }
+        }
+        return vertex;
     }
 
-    public List<Integer> getMissingNodes() {
-        return missingNodes;
+    private Vertex<T> getVisited(S nodeId, Graph<T> graph) {
+        return graph.findVertexByName(nodeId.toString());
     }
 }

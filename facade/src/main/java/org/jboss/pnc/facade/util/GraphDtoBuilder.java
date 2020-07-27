@@ -17,44 +17,42 @@
  */
 package org.jboss.pnc.facade.util;
 
-import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Edge;
+import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Vertex;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
+ * @param <S> Source graph data type
+ * @param <T> Target graph data type
+ *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class GraphDtoBuilder<T> {
-    private final Map<String, String> metadata;
-
-    public GraphDtoBuilder() {
-        metadata = Collections.EMPTY_MAP;
-    }
-
-    public GraphDtoBuilder(Map<String, String> metadata) {
-        this.metadata = metadata;
-    }
-
-    public Graph<T> from(org.jboss.util.graph.Graph<T> graph, Class<T> dataType) {
-        Map<String, Vertex<T>> verticies = new LinkedHashMap<>();
+public class GraphDtoBuilder<S, T> {
+    public Graph<T> from(
+            org.jboss.util.graph.Graph<S> graph,
+            Class<T> dataType,
+            Function<org.jboss.util.graph.Vertex<S>, T> dataMapper) {
+        Map<String, Vertex<T>> vertices = new LinkedHashMap<>();
         List<Edge<T>> edges = new ArrayList<>();
 
-        for (org.jboss.util.graph.Vertex<T> vertex : graph.getVerticies()) {
-            Vertex<T> vertexRest = new Vertex<>(vertex.getName(), dataType.getName(), vertex.getData());
-            verticies.put(vertexRest.getName(), vertexRest);
+        for (org.jboss.util.graph.Vertex<S> vertex : graph.getVerticies()) {
+            Vertex<T> vertexRest = new Vertex<>(vertex.getName(), dataType.getName(), dataMapper.apply(vertex));
+            vertices.put(vertexRest.getName(), vertexRest);
         }
 
-        for (org.jboss.util.graph.Edge<T> edge : graph.getEdges()) {
+        for (org.jboss.util.graph.Edge<S> edge : graph.getEdges()) {
             Edge<T> edgeDto = new Edge<>(edge.getFrom().getName(), edge.getTo().getName(), edge.getCost());
             edges.add(edgeDto);
         }
 
-        Graph<T> graphRest = new Graph<>(verticies, edges, metadata);
+        Graph<T> graphRest = new Graph<>(vertices, edges);
         return graphRest;
     }
+
 }

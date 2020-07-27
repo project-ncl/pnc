@@ -21,11 +21,16 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.response.Edge;
+import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.Vertex;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.facade.validation.CorruptedDataException;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
@@ -34,6 +39,7 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.Result;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
@@ -41,8 +47,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-import org.jboss.util.graph.Graph;
-import org.jboss.util.graph.Vertex;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,6 +59,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -103,6 +108,9 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
 
     @Mock
     private BuildCoordinator buildCoordinator;
+
+    @Mock
+    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Mock
     private SortInfoProducer sortInfoProducer;
@@ -155,6 +163,11 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
         when(user.getId()).thenReturn(CURRENT_USER);
         when(user.getLoginToken()).thenReturn(USER_TOKEN);
         when(userService.currentUser()).thenReturn(user);
+
+        BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
+                .temporaryBuild(false)
+                .build();
+        when(buildConfigSetRecordRepository.queryById(any())).thenReturn(buildConfigSetRecord);
     }
 
     private BuildTask mockBuildTask() {
@@ -180,25 +193,26 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
     }
 
     private BuildRecord mockBuildRecord() {
-        return mockBuildRecord(UUID.randomUUID().toString());
+        return mockBuildRecord(getNextId(), new Integer[0], new Integer[0]);
     }
 
-    private BuildRecord mockBuildRecord(String buildConfigName) {
-        int id = getNextId();
+    private BuildRecord mockBuildRecord(Integer buildRecordId, Integer[] dependencies, Integer[] dependents) {
         BuildRecord br = BuildRecord.Builder.newBuilder()
-                .id(id)
+                .id(buildRecordId)
+                .dependencyBuildRecordIds(dependencies)
+                .dependentBuildRecordIds(dependents)
                 .submitTime(new Date())
                 .buildConfigurationAudited(
                         BuildConfigurationAudited.Builder.newBuilder()
-                                .rev(id)
+                                .rev(1)
                                 .buildConfiguration(
                                         BuildConfiguration.Builder.newBuilder()
-                                                .id(123456)
-                                                .name(buildConfigName)
+                                                .id(buildRecordId)
+                                                .name(buildRecordId.toString())
                                                 .build())
                                 .build())
-                .buildConfigurationAuditedId(123456)
-                .buildConfigurationAuditedRev(id)
+                .buildConfigurationAuditedId(buildRecordId)
+                .buildConfigurationAuditedRev(1)
                 .build();
         try {
             Thread.sleep(1L); // make sure there are no two builds with the same start date
@@ -292,17 +306,17 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
     @Test
     public void testFilterFinishedBuildsByBuildConfigName() {
         // Given
-        String givenBcName = "bcName";
+        Integer givenIdAndBcName = 85792;
 
         mockBuildTask();
         mockBuildTask();
-        BuildRecord givenBuild = mockBuildRecord(givenBcName);
+        BuildRecord givenBuild = mockBuildRecord(givenIdAndBcName, new Integer[0], new Integer[0]);
 
-        when(buildConfigurationAuditedRepository.searchIdRevForBuildConfigurationName(givenBcName))
+        when(buildConfigurationAuditedRepository.searchIdRevForBuildConfigurationName(givenIdAndBcName.toString()))
                 .thenReturn(Stream.of(givenBuild.getBuildConfigurationAuditedIdRev()).collect(Collectors.toList()));
 
         // When
-        BuildPageInfo pageInfo = new BuildPageInfo(0, 10, "", "", false, false, givenBcName);
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 10, "", "", false, false, givenIdAndBcName.toString());
         Page<Build> builds = provider.getBuilds(pageInfo);
 
         // Then
@@ -478,15 +492,89 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
         when(taskDep.getDependencies()).thenReturn(asSet(taskDepDep));
 
         // When
-        Graph<BuildTask> graph = provider.getRunningBuildGraphForGroupBuild(buildSetTaskId);
+        Graph<Build> graph = provider.getBuildGraphForGroupBuild(Integer.toString(buildSetTaskId));
 
         // Then
-        assertThat(graph.getVerticies()).hasSize(3);
-        assertThat(graph.getVerticies().stream().map(Vertex::getName)).containsExactly(
+        assertThat(graph.getVertices()).hasSize(3);
+        assertThat(graph.getVertices().values().stream().map(Vertex::getName)).containsExactly(
                 String.valueOf(task.getId()),
                 String.valueOf(taskDep.getId()),
                 String.valueOf(taskDepDep.getId()));
+    }
 
+    @Test
+    public void dependencyGraphTest() {
+        // given
+        BuildTask bt100002 = mock(BuildTask.class);
+        when(bt100002.getId()).thenReturn(100002);
+        BuildTask bt110000 = mock(BuildTask.class);
+        when(bt110000.getId()).thenReturn(110000);
+        when(bt110000.getDependencies()).thenReturn(Collections.emptySet());
+        when(bt110000.getDependants()).thenReturn(Collections.singleton(bt100002));
+        runningBuilds.add(bt110000);
+
+        mockBuildRecord(100000, new Integer[] { 100002 }, new Integer[] {});
+        mockBuildRecord(100001, new Integer[] { 100002 }, new Integer[] {});
+
+        BuildRecord currentBuild = mockBuildRecord(
+                100002,
+                new Integer[] { 100003, 100005, 100006 },
+                new Integer[] { 100000, 100001, bt110000.getId() });
+
+        mockBuildRecord(100003, new Integer[] { 100004 }, new Integer[] { 100002 });
+        mockBuildRecord(100004, new Integer[] {}, new Integer[] { 100003 });
+        mockBuildRecord(100005, new Integer[] {}, new Integer[] { 100002 });
+        mockBuildRecord(100006, new Integer[] {}, new Integer[] { 100002 });
+
+        // when
+        Graph<Build> dependencyGraph = provider.getDependencyGraph("100002");
+
+        // then
+        logger.info("Graph: {}", dependencyGraph.toString());
+        assertEquals(8, dependencyGraph.getVertices().size());
+
+        Vertex<Build> vertex = getBuildVertexByName(dependencyGraph, currentBuild.getId().toString());
+        Build build = vertex.getData();
+        assertEquals(currentBuild.getId().toString(), build.getId());
+        assertEquals(4, getOutgoingEdges(dependencyGraph, vertex).count());
+        assertEquals(3, getIncommingEdges(dependencyGraph, vertex).count());
+
+        Vertex<Build> vertex3 = getBuildVertexByName(dependencyGraph, 100003 + "");
+        assertEquals(1, getOutgoingEdges(dependencyGraph, vertex3).count());
+        assertEquals(1, getIncommingEdges(dependencyGraph, vertex3).count());
+
+        // then from running build
+        Graph<Build> dependencyGraphFromRunning = provider.getDependencyGraph(bt110000.getId() + "");
+        Vertex<Build> runningVertex = getBuildVertexByName(dependencyGraphFromRunning, bt110000.getId() + "");
+        assertEquals(1, getOutgoingEdges(dependencyGraphFromRunning, runningVertex).count());
+        assertEquals(1, getIncommingEdges(dependencyGraphFromRunning, runningVertex).count());
+    }
+
+    @Test(expected = CorruptedDataException.class)
+    public void shouldThrowCorruptedDataExceptionTest() {
+        // given
+        mockBuildRecord(200000, new Integer[] {}, new Integer[] {});
+        mockBuildRecord(200001, new Integer[] { 200000, 220000 }, new Integer[] {});
+
+        // when
+        Graph<Build> dependencyGraph = provider.getDependencyGraph("200001");
+    }
+
+    protected Stream<Edge<Build>> getIncommingEdges(Graph<Build> dependencyGraph, Vertex<Build> vertex2) {
+        return dependencyGraph.getEdges().stream().filter(e -> e.getTarget().equals(vertex2.getName()));
+    }
+
+    protected Stream<Edge<Build>> getOutgoingEdges(Graph<Build> dependencyGraph, Vertex<Build> vertex2) {
+        return dependencyGraph.getEdges().stream().filter(e -> e.getSource().equals(vertex2.getName()));
+    }
+
+    protected Vertex<Build> getBuildVertexByName(Graph<Build> dependencyGraph, String name) {
+        return dependencyGraph.getVertices()
+                .values()
+                .stream()
+                .filter(v -> v.getName().equals(name))
+                .findAny()
+                .orElse(null);
     }
 
     @Test
