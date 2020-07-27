@@ -83,21 +83,27 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
 
     @Override
     public BuildRecord findByIdFetchAllProperties(Integer id) {
-        return repository.findByIdFetchAllProperties(id);
+        BuildRecord buildRecord = repository.findByIdFetchAllProperties(id);
+        if (buildRecord != null) {
+            fetchBuildConfigurationAudited(buildRecord);
+        }
+        return buildRecord;
     }
 
     @Override
     public BuildRecord findByIdFetchProperties(Integer id) {
         BuildRecord buildRecord = repository.findByIdFetchProperties(id);
-        if (buildRecord == null) {
-            return null;
+        if (buildRecord != null) {
+            fetchBuildConfigurationAudited(buildRecord);
         }
+        return buildRecord;
+    }
 
+    private void fetchBuildConfigurationAudited(BuildRecord buildRecord) {
         Integer revision = buildRecord.getBuildConfigurationRev();
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
                 .queryById(new IdRev(buildRecord.getBuildConfigurationId(), revision));
         buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
-        return buildRecord;
     }
 
     @Override
