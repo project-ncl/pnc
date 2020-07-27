@@ -36,11 +36,17 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
+import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
+import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
+import org.jboss.pnc.common.maven.Gav;
+import org.jboss.pnc.coordinator.maintenance.BlacklistAsyncInvoker;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -85,6 +91,11 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
     private static final EnumSet<ArtifactQuality> NOT_MODIFIABLE_ARTIFACT_QUALITIES = EnumSet
             .of(ArtifactQuality.DELETED, ArtifactQuality.BLACKLISTED);
 
+    private static final EnumSet<ArtifactQuality> DA_SYNCRONIZED_ARTIFACT_QUALITIES = EnumSet
+            .of(ArtifactQuality.DELETED, ArtifactQuality.BLACKLISTED);
+
+    private static final String MVN_BLACKLIST_JSON_PAYLOAD = "{\"groupId\":\"%s\",\"artifactId\":\"%s\",\"version\":\"%s\"}";
+
     private BuildRecordRepository buildRecordRepository;
 
     private final TargetRepositoryRepository targetRepositoryRepository;
@@ -92,6 +103,8 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
     private ArtifactRevisionMapper artifactRevisionMapper;
 
     private ArtifactAuditedRepository artifactAuditedRepository;
+
+    private BlacklistAsyncInvoker blacklistAsyncInvoker;
 
     private UserService userService;
 
@@ -105,6 +118,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
             BuildRecordRepository buildRecordRepository,
             TargetRepositoryRepository targetRepositoryRepository,
             ArtifactAuditedRepository artifactAuditedRepository,
+            BlacklistAsyncInvoker blacklistAsyncInvoker,
             UserService userService,
             UserMapper userMapper) {
         super(repository, mapper, Artifact.class);
@@ -112,6 +126,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
         this.targetRepositoryRepository = targetRepositoryRepository;
         this.artifactRevisionMapper = artifactRevisionMapper;
         this.artifactAuditedRepository = artifactAuditedRepository;
+        this.blacklistAsyncInvoker = blacklistAsyncInvoker;
         this.userService = userService;
         this.userMapper = userMapper;
     }
@@ -191,7 +206,25 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
         if (latestRevision == null) {
             throw new RepositoryViolationException("Entity should exist in the DB");
         }
+
+        if (DA_SYNCRONIZED_ARTIFACT_QUALITIES.contains(newQuality)) {
+            String jsonPayload = createBlacklistJSONPayload(artifact);
+            blacklistAsyncInvoker.notifyBlacklistToDA(jsonPayload);
+        }
+
         return artifactRevisionMapper.toDTO(latestRevision);
+    }
+
+    private String createBlacklistJSONPayload(org.jboss.pnc.dto.Artifact artifact) {
+        switch (artifact.getTargetRepository().getRepositoryType()) {
+            case MAVEN: {
+                Gav gav = Gav.parse(artifact.getIdentifier());
+                return String
+                        .format(MVN_BLACKLIST_JSON_PAYLOAD, gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
+            }
+            default:
+                return null;
+        }
     }
 
     @Override
