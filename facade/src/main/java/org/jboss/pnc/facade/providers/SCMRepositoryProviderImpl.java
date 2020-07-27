@@ -54,8 +54,6 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -162,22 +160,7 @@ public class SCMRepositoryProviderImpl
                         + preBuildSyncEnabled + ")");
         if (StringUtils.isEmpty(scmUrl))
             throw new InvalidEntityException("You must specify the SCM URL.");
-        if (scmUrl.startsWith("http") || scmUrl.startsWith("https")) {
-            try {
-                URL url = new URL(scmUrl);
-                if (url.getProtocol().equals("http") || url.getProtocol().equals("https")) {
-                    StringBuilder stringBuilder = new StringBuilder("git+http://");
-                    stringBuilder.append(url.getHost());
-                    if (url.getPort() != -1) {
-                        stringBuilder.append(":" + url.getPort());
-                    }
-                    stringBuilder.append(url.getFile());
-                    scmUrl = stringBuilder.toString();
-                }
-            } catch (MalformedURLException e) {
-                throw new InvalidEntityException("URL is malformed." + e.getMessage());
-            }
-        }
+
         if (scmUrl.contains(config.getInternalScmAuthority())) {
 
             // validation phase
