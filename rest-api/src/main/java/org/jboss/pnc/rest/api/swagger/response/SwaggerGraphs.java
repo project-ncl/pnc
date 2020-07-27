@@ -32,8 +32,8 @@ import java.util.Map;
 public class SwaggerGraphs {
     public class BuildsGraph extends Graph<Build> {
 
-        public BuildsGraph(Map<String, Vertex<Build>> vertices, List<Edge<Build>> edges, Map<String, String> metadata) {
-            super(vertices, edges, metadata);
+        public BuildsGraph(Map<String, Vertex<Build>> vertices, List<Edge<Build>> edges) {
+            super(vertices, edges);
         }
     }
 }

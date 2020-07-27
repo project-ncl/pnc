@@ -33,11 +33,9 @@ import org.jboss.pnc.spi.datastore.predicates.UserPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.util.graph.Vertex;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -49,7 +47,6 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Jakub Bartecek
@@ -118,81 +115,6 @@ public class BuildRecordRepositoryTest {
         // then
         assertEquals(1, found.size());
         assertEquals(givenBr.getId(), found.get(0).getId());
-    }
-
-    @InSequence(3)
-    @Test
-    public void dependencyGraphTest() {
-        // given
-        Date now = new Date();
-        BuildRecord buildRecord0 = initBuildRecordBuilder(100000).endTime(now)
-                .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[] { 100002 })
-                .dependentBuildRecordIds(new Integer[] {})
-                .build();
-        buildRecordRepository.save(buildRecord0);
-
-        BuildRecord buildRecord1 = initBuildRecordBuilder(100001).endTime(now)
-                .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[] { 100002 })
-                .dependentBuildRecordIds(new Integer[] {})
-                .build();
-        buildRecordRepository.save(buildRecord1);
-
-        BuildRecord buildRecord2 = initBuildRecordBuilder(100002).endTime(now)
-                .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[] { 100003, 100005, 110000, 100006 }) // missing record: 110000
-                .dependentBuildRecordIds(new Integer[] { 100000, 100001 })
-                .build();
-        buildRecordRepository.save(buildRecord2);
-
-        BuildRecord buildRecord3 = initBuildRecordBuilder(100003).endTime(now)
-                .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[] { 100004 })
-                .dependentBuildRecordIds(new Integer[] { 100002 })
-                .build();
-        buildRecordRepository.save(buildRecord3);
-
-        BuildRecord buildRecord4 = initBuildRecordBuilder(100004).endTime(now)
-                .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[] {})
-                .dependentBuildRecordIds(new Integer[] { 100003 })
-                .build();
-        buildRecordRepository.save(buildRecord4);
-
-        BuildRecord buildRecord5 = initBuildRecordBuilder(100005).endTime(now)
-                .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[] {})
-                .dependentBuildRecordIds(new Integer[] { 100002 })
-                .build();
-        buildRecordRepository.save(buildRecord5);
-
-        BuildRecord buildRecord6 = initBuildRecordBuilder(100006).endTime(now)
-                .temporaryBuild(true)
-                .dependencyBuildRecordIds(new Integer[] {})
-                .dependentBuildRecordIds(new Integer[] { 100002 })
-                .build();
-        buildRecordRepository.save(buildRecord6);
-
-        // when
-        GraphWithMetadata<BuildRecord, Integer> dependencyGraph = buildRecordRepository.getDependencyGraph(100002);
-
-        // then
-        logger.info("Graph: {}", dependencyGraph.getGraph().toString());
-        assertEquals(7, dependencyGraph.getGraph().size());
-
-        Vertex<BuildRecord> vertex2 = dependencyGraph.getGraph().findVertexByName(100002 + "");
-        BuildRecord buildRecord = vertex2.getData();
-        assertNotNull(buildRecord.getBuildConfigurationAudited().getName());
-        assertEquals(3, vertex2.getOutgoingEdgeCount());
-        assertEquals(2, vertex2.getIncomingEdgeCount());
-
-        Vertex<BuildRecord> vertex3 = dependencyGraph.getGraph().findVertexByName(100003 + "");
-        assertEquals(1, vertex3.getOutgoingEdgeCount());
-        assertEquals(1, vertex3.getIncomingEdgeCount());
-
-        assertEquals(1, dependencyGraph.getMissingNodeIds().size());
-        assertEquals("110000", dependencyGraph.getMissingNodeIds().get(0) + "");
     }
 
     @InSequence(4)

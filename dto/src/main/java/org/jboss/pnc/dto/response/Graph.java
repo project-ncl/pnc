@@ -47,11 +47,6 @@ public class Graph<T> {
      */
     private final List<Edge<T>> edges;
 
-    /**
-     * Generic map of key-value properties describing the graph.
-     */
-    private final Map<String, String> metadata;
-
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder<T> {
     }

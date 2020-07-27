@@ -18,11 +18,11 @@
 package org.jboss.pnc.facade.providers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.Getter;
 import org.jboss.pnc.common.gerrit.Gerrit;
 import org.jboss.pnc.common.gerrit.GerritException;
 import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.common.graph.GraphUtils;
-import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.constants.Attributes;
@@ -41,6 +41,7 @@ import org.jboss.pnc.facade.util.GraphDtoBuilder;
 import org.jboss.pnc.facade.util.MergeIterator;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
+import org.jboss.pnc.facade.validation.CorruptedDataException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -64,14 +65,12 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.exception.ValidationException;
-import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,10 +83,11 @@ import javax.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -422,162 +422,68 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
 
     @Override
     public Graph<Build> getBuildGraphForGroupBuild(String groupBuildId) {
-        org.jboss.util.graph.Graph<BuildTask> runningBuildTaskGraph = getRunningBuildGraphForGroupBuild(
-                Integer.valueOf(groupBuildId));
-        org.jboss.util.graph.Graph<Build> runningBuildGraph = convertBuildTaskToBuildDto(runningBuildTaskGraph);
+        List<String> runningAndStoredIds = getBuildIdsInTheGroup(groupBuildId);
 
-        GraphWithMetadata<Build, Integer> groupBuildGraph = getBuildConfigSetRecordGraph(Integer.valueOf(groupBuildId));
-        org.jboss.util.graph.Graph<Build> graph = groupBuildGraph.getGraph();
+        org.jboss.util.graph.Graph<BuildWithDependencies> buildGraph = new org.jboss.util.graph.Graph<>();
+        for (String buildId : runningAndStoredIds) {
+            org.jboss.util.graph.Graph<BuildWithDependencies> dependencyGraph = createBuildDependencyGraph(buildId);
+            GraphUtils.merge(buildGraph, dependencyGraph);
+            logger.trace(
+                    "Merged graph from buildRecordId {} to BuildConfigSetRecordGraph {}; Edges {},",
+                    buildId,
+                    buildGraph,
+                    buildGraph.getEdges());
+        }
 
-        GraphUtils.merge(graph, runningBuildGraph);
-
-        Map<String, String> metadata = getGraphMetadata(groupBuildGraph.getMissingNodeIds());
-        GraphDtoBuilder graphBuilder = new GraphDtoBuilder(metadata);
-
-        Graph<Build> graphDto = graphBuilder.from(graph, Build.class);
+        GraphDtoBuilder<BuildWithDependencies, Build> graphBuilder = new GraphDtoBuilder();
+        Graph<Build> graphDto = graphBuilder.from(buildGraph, Build.class, vertex -> vertex.getData().getBuild());
         return graphDto;
+    }
+
+    /**
+     * @param buildGroupId
+     * @return Running and completed build ids from the Build Group.
+     */
+    private List<String> getBuildIdsInTheGroup(String buildGroupId) {
+        List<String> runningTaskIds = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
+                .filter(Objects::nonNull)
+                .filter(t -> t.getBuildSetTask() != null && buildGroupId.equals(t.getBuildSetTask().getId().toString()))
+                .sorted(Comparator.comparingInt(BuildTask::getId))
+                .map(t -> Integer.toString(t.getId()))
+                .collect(Collectors.toList());
+
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository
+                .queryById(Integer.valueOf(buildGroupId));
+        Set<String> storedBuildIds = buildConfigSetRecord.getBuildRecords()
+                .stream()
+                .map(br -> Integer.toString(br.getId()))
+                .collect(Collectors.toSet());
+
+        List<String> runningAndStoredIds = new ArrayList<>(runningTaskIds);
+        runningAndStoredIds.addAll(storedBuildIds);
+        return runningAndStoredIds;
     }
 
     @Override
     public Graph<Build> getDependencyGraph(String buildId) {
-        GraphWithMetadata<Build, Integer> buildGraph = getDependencyGraph(BuildMapper.idMapper.toEntity(buildId));
-
-        Map<String, String> metadata = getGraphMetadata(buildGraph.getMissingNodeIds());
-        GraphDtoBuilder graphBuilder = new GraphDtoBuilder(metadata);
-        return graphBuilder.from(buildGraph.getGraph(), Build.class);
+        org.jboss.util.graph.Graph<BuildWithDependencies> buildGraph = createBuildDependencyGraph(buildId);
+        GraphDtoBuilder<BuildWithDependencies, Build> graphBuilder = new GraphDtoBuilder();
+        return graphBuilder.from(buildGraph, Build.class, vertex -> vertex.getData().getBuild());
     }
 
-    org.jboss.util.graph.Graph<BuildTask> getRunningBuildGraphForGroupBuild(Integer groupBuildId) {
-        List<BuildTask> buildTasks = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
-                .filter(Objects::nonNull)
-                .filter(t -> t.getBuildSetTask() != null && groupBuildId.equals(t.getBuildSetTask().getId()))
-                .sorted(Comparator.comparingInt(BuildTask::getId))
-                .collect(Collectors.toList());
+    private org.jboss.util.graph.Graph<BuildWithDependencies> createBuildDependencyGraph(String buildId) {
+        org.jboss.util.graph.Graph<BuildWithDependencies> graph = new org.jboss.util.graph.Graph<>();
+        GraphBuilder<BuildWithDependencies, String> graphBuilder = new GraphBuilder<>(
+                id -> getRunningOrCompletedBuild(id),
+                bt -> bt.getDependencies(),
+                bt -> bt.getDependants());
 
-        org.jboss.util.graph.Graph<BuildTask> buildGraph = new org.jboss.util.graph.Graph<>();
-        for (BuildTask buildTask : buildTasks) {
-            // Adds buildTask and related tasks (dependencies and dependents) to the graph if they don't already exists
-            org.jboss.util.graph.Graph<BuildTask> dependencyGraph = getBuiltTaskDependencyGraph(buildTask.getId());
-            GraphUtils.merge(buildGraph, dependencyGraph);
-        }
-        return buildGraph;
-    }
-
-    private org.jboss.util.graph.Graph<BuildTask> getBuiltTaskDependencyGraph(Integer buildId) {
-        org.jboss.util.graph.Graph<BuildTask> graph = new org.jboss.util.graph.Graph<>();
-        GraphBuilder<BuildTask> graphBuilder = new GraphBuilder<BuildTask>(
-                id -> Optional.ofNullable(getSubmittedBuild(id)),
-                bt -> bt.getDependencies().stream().map(BuildTask::getId).collect(Collectors.toList()),
-                bt -> bt.getDependants().stream().map(BuildTask::getId).collect(Collectors.toList()));
-
-        Vertex<BuildTask> current = graphBuilder.buildDependencyGraph(graph, buildId);
+        Vertex<BuildWithDependencies> current = graphBuilder.buildDependencyGraph(graph, buildId);
         if (current != null) {
-            BuildTask currentTask = current.getData();
-            graphBuilder.buildDependentGraph(graph, currentTask.getId());
+            BuildWithDependencies currentTask = current.getData();
+            graphBuilder.buildDependentGraph(graph, currentTask.getBuild().getId());
         }
         return graph;
-    }
-
-    private org.jboss.util.graph.Graph<Build> convertBuildTaskToBuildDto(
-            org.jboss.util.graph.Graph<BuildTask> taskGraph) {
-        org.jboss.util.graph.Graph<Build> buildGraph = new org.jboss.util.graph.Graph<>();
-
-        for (Vertex<BuildTask> buildTaskVertex : taskGraph.getVerticies()) {
-            Build recordRest = buildMapper.fromBuildTask(buildTaskVertex.getData());
-            Vertex<Build> buildRecordVertex = new NameUniqueVertex<>(recordRest.getId(), recordRest);
-            buildGraph.addVertex(buildRecordVertex);
-        }
-
-        // create edges
-        for (Vertex<BuildTask> vertex : taskGraph.getVerticies()) {
-            for (Object o : vertex.getOutgoingEdges()) {
-                Edge<BuildTask> edge = (Edge<BuildTask>) o;
-                buildGraph.addEdge(
-                        buildGraph.findVertexByName(edge.getFrom().getName()),
-                        buildGraph.findVertexByName(edge.getTo().getName()),
-                        edge.getCost());
-            }
-        }
-        return buildGraph;
-    }
-
-    private GraphWithMetadata<Build, Integer> getBuildConfigSetRecordGraph(Integer groupBuildId) {
-        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(groupBuildId);
-        org.jboss.util.graph.Graph<Build> buildGraph = new org.jboss.util.graph.Graph<>();
-        List<Integer> missingBuildRecordId = new ArrayList<>();
-        for (BuildRecord buildRecord : buildConfigSetRecord.getBuildRecords()) {
-            GraphWithMetadata<Build, Integer> dependencyGraph = getDependencyGraph(buildRecord.getId());
-            GraphUtils.merge(buildGraph, dependencyGraph.getGraph());
-            logger.trace(
-                    "Merged graph from buildRecordId {} to BuildConfigSetRecordGraph {}; Edges {},",
-                    buildRecord.getId(),
-                    buildGraph,
-                    buildGraph.getEdges());
-            missingBuildRecordId.addAll(dependencyGraph.getMissingNodeIds());
-        }
-        return new GraphWithMetadata<>(buildGraph, missingBuildRecordId);
-    }
-
-    private GraphWithMetadata<Build, Integer> getDependencyGraph(int buildId) {
-        BuildTask buildTask = getSubmittedBuild(buildId);
-
-        GraphWithMetadata<Build, Integer> buildRecordGraph;
-        if (buildTask == null) {
-            logger.debug("Looking for stored buildRecordId: {}.", buildId);
-            BuildRecord buildRecord = repository.queryById(buildId);
-            if (buildRecord == null) {
-                logger.warn("Cannot find build {}", buildId);
-                return null;
-            } else {
-                GraphWithMetadata<BuildRecord, Integer> dependencyGraph = buildRecordRepository
-                        .getDependencyGraph(buildId);
-                org.jboss.util.graph.Graph<Build> buildGraph = convertBuildRecordToRest(dependencyGraph.getGraph());
-                logger.trace(
-                        "Rest graph for buildRecordId {} {}; Graph edges {}.",
-                        buildId,
-                        buildGraph,
-                        buildGraph.getEdges());
-                buildRecordGraph = new GraphWithMetadata<>(buildGraph, dependencyGraph.getMissingNodeIds());
-            }
-        } else {
-            logger.debug("Getting dependency graph for running build: {}.", buildId);
-
-            org.jboss.util.graph.Graph<BuildTask> graph = getBuiltTaskDependencyGraph(buildId);
-
-            org.jboss.util.graph.Graph<Build> buildGraph = convertBuildTaskToBuildDto(graph);
-            buildRecordGraph = new GraphWithMetadata<>(buildGraph, new ArrayList<>());
-        }
-        return buildRecordGraph;
-    }
-
-    private org.jboss.util.graph.Graph<Build> convertBuildRecordToRest(
-            org.jboss.util.graph.Graph<BuildRecord> recordGraph) {
-        org.jboss.util.graph.Graph<Build> buildGraph = new org.jboss.util.graph.Graph<>();
-
-        for (Vertex<BuildRecord> buildRecordVertex : recordGraph.getVerticies()) {
-            Build recordRest = mapper.toDTO(buildRecordVertex.getData());
-            Vertex<Build> buildRecordRestVertex = new NameUniqueVertex<>(recordRest.getId(), recordRest);
-            buildGraph.addVertex(buildRecordRestVertex);
-        }
-        // create edges
-        for (Edge<BuildRecord> edge : recordGraph.getEdges()) {
-            buildGraph.addEdge(
-                    buildGraph.findVertexByName(edge.getFrom().getName()),
-                    buildGraph.findVertexByName(edge.getTo().getName()),
-                    edge.getCost());
-        }
-        return buildGraph;
-    }
-
-    private Map<String, String> getGraphMetadata(List<Integer> missingBuildIds) {
-        Map<String, String> metadata = new HashMap<>();
-        if (missingBuildIds.size() > 0) {
-            metadata.put("status", "INCOMPLETE");
-            for (Integer buildId : missingBuildIds) {
-                metadata.put("description", "Missing some Build Records: " + buildId);
-            }
-        }
-        return metadata;
     }
 
     @Override
@@ -617,12 +523,20 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
         }
     }
 
-    private BuildTask getSubmittedBuild(Integer id) {
-        return buildCoordinator.getSubmittedBuildTasks()
+    private BuildWithDependencies getRunningOrCompletedBuild(String id) {
+        Optional<BuildTask> buildTask = buildCoordinator.getSubmittedBuildTasks()
                 .stream()
-                .filter(submittedBuild -> id.equals(submittedBuild.getId()))
-                .findFirst()
-                .orElse(null);
+                .filter(submittedBuild -> Integer.toString(submittedBuild.getId()).equals(id))
+                .findFirst();
+        if (buildTask.isPresent()) {
+            return new BuildWithDependencies(buildTask.get());
+        } else {
+            BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(Integer.parseInt(id));
+            if (buildRecord == null) {
+                throw new CorruptedDataException("Missing build with id:" + id);
+            }
+            return new BuildWithDependencies(buildRecord);
+        }
     }
 
     @Override
@@ -729,7 +643,6 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
                     continue;
             }
         }
-
         return new RunningBuildCount(running, enqueued, waitingForDependencies);
     }
 
@@ -1012,6 +925,35 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
             } else {
                 firstIndex += size;
             }
+        }
+    }
+
+    @Getter
+    private class BuildWithDependencies {
+        private final Build build;
+        private final Collection<String> dependencies;
+        private final Collection<String> dependants;
+
+        public BuildWithDependencies(BuildTask buildTask) {
+            build = buildMapper.fromBuildTask(buildTask);
+            dependencies = buildTask.getDependencies()
+                    .stream()
+                    .map(bt -> Integer.toString(bt.getId()))
+                    .collect(Collectors.toSet());
+            dependants = buildTask.getDependants()
+                    .stream()
+                    .map(bt -> Integer.toString(bt.getId()))
+                    .collect(Collectors.toSet());
+        }
+
+        public BuildWithDependencies(BuildRecord buildRecord) {
+            build = buildMapper.toDTO(buildRecord);
+            dependencies = Arrays.stream(buildRecord.getDependencyBuildRecordIds())
+                    .map(i -> Integer.toString(i))
+                    .collect(Collectors.toSet());
+            dependants = Arrays.stream(buildRecord.getDependentBuildRecordIds())
+                    .map(i -> Integer.toString(i))
+                    .collect(Collectors.toSet());
         }
     }
 }

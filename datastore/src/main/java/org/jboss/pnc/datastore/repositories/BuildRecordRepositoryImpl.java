@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
-import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
 import org.jboss.pnc.datastore.repositories.internal.PageableMapper;
@@ -28,23 +27,18 @@ import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
-import org.jboss.util.graph.Graph;
-import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
@@ -136,36 +130,6 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
     @Override
     public List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date) {
         return queryWithPredicates(temporaryBuild(), buildFinishedBefore(date), withoutImplicitDependants());
-    }
-
-    @Override
-    public GraphWithMetadata<BuildRecord, Integer> getDependencyGraph(Integer buildRecordId) {
-        GraphBuilder graphBuilder = new GraphBuilder<BuildRecord>(
-                id -> Optional.ofNullable(findByIdFetchProperties(id)),
-                buildRecord -> Arrays.asList(buildRecord.getDependencyBuildRecordIds()),
-                buildRecord -> Arrays.asList(buildRecord.getDependentBuildRecordIds()));
-
-        Graph<BuildRecord> graph = new Graph<>();
-        logger.debug("Building dependency graph for buildRecordId: {}.", buildRecordId);
-        Vertex<BuildRecord> current = graphBuilder.buildDependencyGraph(graph, buildRecordId);
-        logger.trace(
-                "Dependency graph of buildRecord.id {} {}; Graph edges: {}.",
-                buildRecordId,
-                graph,
-                graph.getEdges());
-
-        // if it is stored in the DB, add dependent nodes
-        if (current != null) {
-            BuildRecord buildRecord = current.getData();
-            graphBuilder.buildDependentGraph(graph, buildRecord.getId());
-        }
-        logger.trace(
-                "Graph with dependents of buildRecord.id {} {}; Graph edges: {}.",
-                buildRecordId,
-                graph,
-                graph.getEdges());
-
-        return new GraphWithMetadata(graph, graphBuilder.getMissingNodes());
     }
 
     @Override

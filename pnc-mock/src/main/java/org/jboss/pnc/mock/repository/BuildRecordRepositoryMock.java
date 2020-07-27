@@ -22,7 +22,6 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.GraphWithMetadata;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
@@ -97,11 +96,6 @@ public class BuildRecordRepositoryMock extends IntIdRepositoryMock<BuildRecord> 
     @Override
     public List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date) {
         return null;
-    }
-
-    @Override
-    public GraphWithMetadata<BuildRecord, Integer> getDependencyGraph(Integer buildRecordId) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

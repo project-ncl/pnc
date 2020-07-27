@@ -15,31 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
+package org.jboss.pnc.facade.validation;
 
-import org.jboss.util.graph.Graph;
-
-import java.util.List;
+import java.util.Optional;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * Thrown when missing or invalid reference is found.
  */
-public class GraphWithMetadata<T, S> {
-
-    Graph<T> graph;
-
-    List<S> missingNodeIds;
-
-    public GraphWithMetadata(Graph<T> graph, List<S> missingNodeIds) {
-        this.graph = graph;
-        this.missingNodeIds = missingNodeIds;
+public class CorruptedDataException extends DTOValidationException {
+    public CorruptedDataException(String message) {
+        super(message);
     }
 
-    public Graph<T> getGraph() {
-        return graph;
-    }
-
-    public List<S> getMissingNodeIds() {
-        return missingNodeIds;
+    @Override
+    public Optional<Object> getRestModelForException() {
+        return Optional.empty();
     }
 }
