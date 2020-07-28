@@ -28,6 +28,7 @@
     <img ng-switch-when="FAILED" uib-tooltip="Build Failed" tooltip-popup-delay="1000" alt="{{ $ctrl.build.status }}" width="28px" height="28px" src="images/red.svg">
     <img ng-switch-when="DONE_WITH_ERRORS" uib-tooltip="Build Failed" tooltip-popup-delay="1000" alt="{{ $ctrl.build.status }}" width="28px" height="28px" src="images/red.svg">
     <img ng-switch-when="REJECTED_ALREADY_BUILT" uib-tooltip="Build rejected: already built" tooltip-popup-delay="1000" alt="{{ $ctrl.build.status }}" width="28px" height="28px" src="images/green.svg" style="filter: brightness(125%) opacity(50%)">
+    <img ng-switch-when="NO_REBUILD_REQUIRED" uib-tooltip="No rebuild required" tooltip-popup-delay="1000" alt="{{ $ctrl.build.status }}" width="28px" height="28px" src="images/green.svg" style="filter: brightness(125%) opacity(50%)">
     <img ng-switch-when="REJECTED_FAILED_DEPENDENCIES" uib-tooltip="Build rejected: dependencies failed" tooltip-popup-delay="1000" alt="{{ $ctrl.build.status }}" width="28px" height="28px" src="images/orange.svg">
     <img ng-switch-when="REJECTED" uib-tooltip="Build rejected" tooltip-popup-delay="1000" alt="{{ $ctrl.build.status }}" width="28px" height="28px" src="images/red.svg">
     <img ng-switch-when="ABORTED" uib-tooltip="Build aborted" tooltip-popup-delay="1000" alt="{{ $ctrl.build.status }}" width="28px" height="28px" src="images/grey.svg">
