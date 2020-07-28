@@ -89,18 +89,18 @@
 
       patchHelper.assignPatchMethods(resource);
 
-      resource.patchBuildConfigs = function (groupConfig, buildConfigs) {
+      resource.patchBuildConfigs = function (original, modified, groupConfigId) {
         let originalIds = {buildConfigs: {}}, modifiedIds = {buildConfigs: {}};
 
-        for (const id of Object.keys(groupConfig.buildConfigs)){
+        for (const id of original.map(bc => bc.id)){
           originalIds.buildConfigs[id] = {id: id};
         }
-        for (const id of buildConfigs.map(bc => bc.id)){
+        for (const id of modified.map(bc => bc.id)){
           modifiedIds.buildConfigs[id] = {id: id};
         }
 
         let patch = patchHelper.createJsonPatch(originalIds, modifiedIds, true);
-        return resource.patch({id: groupConfig.id}, patch);
+        return resource.patch({id: groupConfigId}, patch).$promise;
       };
 
       resource.linkWithProductVersion = function (groupConfig, productVersion) {

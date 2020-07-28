@@ -40,6 +40,7 @@
 
     $ctrl.onRemove = onRemove;
     $ctrl.onEdit = onEdit;
+    $ctrl.refreshDependencies = refreshDependencies;
 
     // --------------------
 
@@ -53,6 +54,10 @@
       $ctrl.buildConfig.dependencies = dependencies.reduce((map, dep) => (map[dep.id] = dep, map), {});
 
       return $ctrl.buildConfig.$update();
+    }
+
+    function refreshDependencies(dependencies) {
+      $ctrl.dependencies.data = dependencies;
     }
   }
 

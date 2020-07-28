@@ -24,14 +24,15 @@
       displayFields: '<',
       hideActions: '@',
       onRemove: '&',
-      onEdit: '&'
+      onEdit: '&',
+      refreshBuildConfigs: '&'
     },
     templateUrl: 'build-configs/directives/pnc-build-configs-data-table/pnc-build-configs-data-table.html',
-    controller: ['$scope', '$q', 'modalSelectService', 'filteringPaginator', 'paginator', 'SortHelper', Controller]
+    controller: ['$scope', '$q', 'modalSelectService', 'filteringPaginator', 'SortHelper', Controller]
   });
 
 
-  function Controller($scope, $q, modalSelectService, filteringPaginator, paginator, SortHelper) {
+  function Controller($scope, $q, modalSelectService, filteringPaginator, SortHelper) {
     var $ctrl = this;
     const DEFAULT_FIELDS = ['name', 'project', 'buildStatus'];
 
@@ -53,7 +54,6 @@
       $ctrl.displayFields = $ctrl.displayFields || DEFAULT_FIELDS;
 
       $ctrl.filterPage = filteringPaginator($ctrl.page);
-      $ctrl.pageCopy = paginator($ctrl.page);
 
       $ctrl.filterFields = [
         {
@@ -89,8 +89,8 @@
 
     function remove(buildConfig) {
       $q.when($ctrl.onRemove()(buildConfig)).then(() => {
+        $ctrl.refreshBuildConfigs()($ctrl.page.data.filter(bc => bc.id !== buildConfig.id));
         $ctrl.filterPage.refresh();
-        $ctrl.page.refresh();
       });
     }
 
@@ -111,7 +111,7 @@
         })
         .then(function (editedBuildConfigs) {
           $q.when($ctrl.onEdit()(editedBuildConfigs)).then(function () {
-            $ctrl.page.refresh();
+            $ctrl.refreshBuildConfigs()(editedBuildConfigs);
             $ctrl.filterPage.refresh();
           });
         });
