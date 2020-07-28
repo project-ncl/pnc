@@ -138,3 +138,11 @@ BEGIN transaction;
     FOREIGN KEY (rev) REFERENCES revinfo(rev);
 
 COMMIT;
+
+-- [NCL-5884] - Add a defaultAlignmentParams field in BuildConfiguration and BuildConfigurationAudited
+BEGIN transaction;
+
+    ALTER TABLE buildconfiguration ADD COLUMN defaultAlignmentParams text;
+    ALTER TABLE buildconfiguration_aud ADD COLUMN defaultAlignmentParams text;
+
+COMMIT;

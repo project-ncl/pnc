@@ -124,8 +124,18 @@ public class BuildConfiguration extends BuildConfigurationRef {
             Instant modificationTime,
             BuildType buildType,
             User creationUser,
-            User modificationUser) {
-        super(id, name, description, buildScript, scmRevision, creationTime, modificationTime, buildType);
+            User modificationUser,
+            String defaultAlignmentParams) {
+        super(
+                id,
+                name,
+                description,
+                buildScript,
+                scmRevision,
+                creationTime,
+                modificationTime,
+                buildType,
+                defaultAlignmentParams);
         this.scmRepository = scmRepository;
         this.project = project;
         this.environment = environment;
