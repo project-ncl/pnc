@@ -22,6 +22,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
 import org.jboss.pnc.datastore.predicates.SpringDataRSQLPredicateProducer;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
@@ -165,6 +166,7 @@ public class DatastoreTest {
                 .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
                 .name("test build config")
                 .buildScript("mvn deploy")
+                .buildType(BuildType.MVN)
                 .build();
 
         project = projectRepository.save(project);
@@ -177,7 +179,7 @@ public class DatastoreTest {
         buildConfig.setBuildEnvironment(buildEnv);
         buildConfig = buildConfigurationRepository.save(buildConfig);
         Assert.assertNotNull(buildConfig.getId());
-
+        assertThat(buildConfig.getDefaultAlignmentParams().contains("-DdependencySource=REST"));
     }
 
     /**
