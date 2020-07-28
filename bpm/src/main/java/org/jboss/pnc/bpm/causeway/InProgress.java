@@ -17,28 +17,40 @@
  */
 package org.jboss.pnc.bpm.causeway;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @ApplicationScoped
 public class InProgress {
-    private Map<Integer, String> inProgress = new ConcurrentHashMap<Integer, String>();
+    private Map<Integer, Context> inProgress = new ConcurrentHashMap<>();
 
-    public boolean add(Integer id, String tagPrefix) {
-        return inProgress.putIfAbsent(id, tagPrefix) == null;
+    public boolean add(Integer id, String tagPrefix, String pushResultId) {
+        return inProgress.putIfAbsent(id, new Context(id, tagPrefix, pushResultId)) == null;
     }
 
-    public String remove(Integer id) {
+    public Context remove(Integer id) {
         return inProgress.remove(id);
     }
 
-    public Set<Integer> getAllIds() {
-        return Collections.unmodifiableSet(inProgress.keySet());
+    public Set<Context> getAll() {
+        return Collections.unmodifiableSet(inProgress.values().stream().collect(Collectors.toSet()));
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public class Context {
+        Integer id;
+        String tagPrefix;
+        String pushResultId;
     }
 }

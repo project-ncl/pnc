@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.impl;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.bpm.causeway.BuildPushOperation;
 import org.jboss.pnc.bpm.causeway.BuildResultPushManager;
+import org.jboss.pnc.bpm.causeway.InProgress;
 import org.jboss.pnc.bpm.causeway.Result;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -49,6 +50,8 @@ import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -56,6 +59,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.jboss.pnc.constants.MDCKeys.BUILD_ID_KEY;
@@ -92,6 +96,8 @@ public class BrewPusherImpl implements BrewPusher {
     private UserService userService;
 
     private final static EnumSet<ArtifactQuality> ARTIFACT_BAD_QUALITIES = EnumSet.of(DELETED, BLACKLISTED);
+
+    private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.brewpush");
 
     @Override
     public Set<BuildPushResult> pushGroup(int buildGroupId, String tagPrefix) {
@@ -172,6 +178,7 @@ public class BrewPusherImpl implements BrewPusher {
             BuildPushParameters buildPushParameters,
             Long buildPushResultId) throws ProcessException {
 
+        userLog.info("Push started."); // TODO START timing event
         // collect and validate input data
         BuildRecord buildRecord = getLatestSuccessfullyExecutedBuildRecord(buildId);
         List<Artifact> artifacts = artifactRepository
@@ -212,14 +219,16 @@ public class BrewPusherImpl implements BrewPusher {
         // verify operation status
         switch (pushResult.getStatus()) {
             case ACCEPTED:
+                userLog.info("Push ACCEPTED.");
                 return result;
             case REJECTED:
+                userLog.warn("Push REJECTED.");
                 throw new AlreadyRunningException(pushResult.getMessage(), result);
             case SYSTEM_ERROR:
-                log.error("Brew push failed: " + pushResult.getMessage());
+                userLog.error("Brew push failed: " + pushResult.getMessage());
                 throw new ProcessException(pushResult.getMessage());
             default:
-                log.error("Invalid push result status.");
+                userLog.error("Invalid push result status.");
                 throw new ProcessException("Invalid push result status.");
         }
     }
@@ -263,7 +272,20 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Override
     public boolean brewPushCancel(int buildId) {
-        return buildResultPushManager.cancelInProgressPush(buildId);
+        Optional<InProgress.Context> pushContext = buildResultPushManager.getContext(buildId);
+        if (pushContext.isPresent()) {
+            MDCUtils.addProcessContext(pushContext.get().getPushResultId());
+            MDCUtils.addCustomContext(BUILD_ID_KEY, Integer.toString(buildId));
+            userLog.info("Build push cancel requested.");
+            try {
+                return buildResultPushManager.cancelInProgressPush(buildId);
+            } finally {
+                MDCUtils.removeProcessContext();
+                MDCUtils.removeCustomContext(BUILD_ID_KEY);
+            }
+        } else {
+            throw new EmptyEntityException("There is no running push operation for build id: " + buildId);
+        }
     }
 
     @Override
@@ -277,6 +299,7 @@ public class BrewPusherImpl implements BrewPusher {
                     buildPushResult);
 
             buildResultPushManager.complete(buildId, buildPushResultMapper.toEntity(buildPushResult));
+            userLog.info("Brew push completed."); // TODO END timing event
             return buildPushResult;
         } finally {
             MDCUtils.removeProcessContext();
@@ -287,7 +310,7 @@ public class BrewPusherImpl implements BrewPusher {
     @Override
     public BuildPushResult getBrewPushResult(int buildId) {
         BuildPushResult result = null;
-        if (buildResultPushManager.getInProgress().contains(buildId)) {
+        if (buildResultPushManager.getContext(buildId).isPresent()) {
             result = BuildPushResult.builder()
                     .buildId(String.valueOf(buildId))
                     .status(BuildPushStatus.ACCEPTED)
