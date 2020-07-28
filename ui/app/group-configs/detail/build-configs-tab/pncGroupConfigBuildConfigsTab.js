@@ -35,6 +35,7 @@
 
     $ctrl.onEdit = onEdit;
     $ctrl.onRemove = onRemove;
+    $ctrl.refreshBuildConfigs = refreshBuildConfigs;
 
     // --------------------
 
@@ -44,14 +45,18 @@
 
     function onEdit(buildConfigs) {
       $log.info('Edit Build Configs: %O', buildConfigs);
-      $ctrl.groupConfig.$get();
-      return GroupConfigResource.patchBuildConfigs($ctrl.groupConfig, buildConfigs);
+      return GroupConfigResource.patchBuildConfigs($ctrl.buildConfigs.data, buildConfigs, $ctrl.groupConfig.id);
     }
 
     function onRemove(buildConfig) {
       $log.info('remove BuildConfig: %O', buildConfig);
       return $ctrl.groupConfig.$removeBuildConfig({ buildConfigId: buildConfig.id });
     }
+
+    function refreshBuildConfigs(buildConfigs) {
+      $ctrl.buildConfigs.data = buildConfigs;
+    }
+
 
   }
 
