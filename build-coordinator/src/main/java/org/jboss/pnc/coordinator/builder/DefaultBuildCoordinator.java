@@ -561,7 +561,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         userLog.info("Build status updated to {}; previous: {}", status, oldStatus);
 
-        if (BuildStatus.fromBuildCoordinationStatus(oldStatus) != BuildStatus.fromBuildCoordinationStatus(status)) {
+        BuildStatus oldBuildStatus = BuildStatus.fromBuildCoordinationStatus(oldStatus);
+        BuildStatus newBuildStatus = BuildStatus.fromBuildCoordinationStatus(status);
+        if ((oldBuildStatus != newBuildStatus) && !(oldBuildStatus.isFinal() && newBuildStatus.isFinal())) {
             // only fire notification when BuildStatus changes
             buildStatusChangedEventNotifier.fire(buildStatusChanged);
             log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
