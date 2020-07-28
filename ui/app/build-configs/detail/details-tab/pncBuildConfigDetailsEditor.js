@@ -27,7 +27,7 @@
       /**
        * Object: The detailed productVersion object of the build config
        */
-      productVersion: '=',
+      productVersion: '<',
       /**
        * Function: Callback function when the buildConfig is successfully
        * updated. The function is passed the updated buildConfig.
@@ -40,11 +40,11 @@
       onCancel: '&'
     },
     templateUrl: 'build-configs/detail/details-tab/pnc-build-config-details-editor.html',
-    controller: ['BuildConfigResource', Controller]
+    controller: ['$state', 'BuildConfigResource', Controller]
   });
 
 
-  function Controller(BuildConfigResource) {
+  function Controller($state, BuildConfigResource) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -80,9 +80,16 @@
       var buildConfig = toBuildConfig($ctrl.formData, $ctrl.buildConfig);
 
       BuildConfigResource.safePatchRemovingParameters($ctrl.buildConfig, buildConfig).$promise
-          .then(resp => $ctrl.onSuccess({ buildConfig: resp}))
+          .then(resp => {
+            $ctrl.onSuccess({ buildConfig: resp})
+            $state.go('projects.detail.build-configs.detail', {
+              projectId: $ctrl.buildConfig.project.id,
+              configurationId: $ctrl.buildConfig.id
+            }, {
+              reload: true
+            });
+          })
           .finally(() => $ctrl.working = false);
-      $ctrl.productVersion = buildConfig.productVersion;
       console.log('UPDATE BC -> formData: %O | buildConfig: %O', $ctrl.formData, buildConfig);
     }
 

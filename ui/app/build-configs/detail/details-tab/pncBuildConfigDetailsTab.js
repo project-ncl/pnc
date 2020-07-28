@@ -21,7 +21,7 @@
   angular.module('pnc.build-configs').component('pncBuildConfigDetailsTab', {
     bindings: {
       buildConfig: '<',
-      productVersion: '='
+      productVersion: '<'
     },
     require : {
       mainCtrl: '^^pncBuildConfigDetailMain'
