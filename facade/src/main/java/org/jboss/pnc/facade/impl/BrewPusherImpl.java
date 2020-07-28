@@ -42,7 +42,6 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.InconsistentDataException;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
@@ -310,17 +309,17 @@ public class BrewPusherImpl implements BrewPusher {
     @Override
     public BuildPushResult getBrewPushResult(int buildId) {
         BuildPushResult result = null;
-        if (buildResultPushManager.getContext(buildId).isPresent()) {
+        Optional<InProgress.Context> pushContext = buildResultPushManager.getContext(buildId);
+        if (pushContext.isPresent()) {
             result = BuildPushResult.builder()
                     .buildId(String.valueOf(buildId))
                     .status(BuildPushStatus.ACCEPTED)
-                    .logContext(Integer.toString(buildId))
+                    .logContext(pushContext.get().getPushResultId())
                     .build();
         } else {
             BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository
                     .getLatestForBuildRecord(buildId);
             if (latestForBuildRecord != null) {
-                ProductMilestoneRelease productMilestoneRelease = latestForBuildRecord.getProductMilestoneRelease();
                 return buildPushResultMapper.toDTO(latestForBuildRecord);
             }
         }
