@@ -121,7 +121,7 @@
           productVersion: [
             'configurationDetail',
             'ProductVersionResource',
-            (configurationDetail, ProductVersionResource) => {return configurationDetail.productVersion ? ProductVersionResource.get({ id: configurationDetail.productVersion.id }).$promise : null;}
+            (configurationDetail, ProductVersionResource) => configurationDetail.productVersion ? ProductVersionResource.get({ id: configurationDetail.productVersion.id }).$promise : null
           ]
         }
       });

@@ -17,6 +17,7 @@
     limitations under the License.
 
 -->
-<a href
+<a ng-if="$ctrl.productVersion.id" href
    ui-sref="products.detail.product-versions.detail({ productVersionId: $ctrl.productVersion.id, productId: $ctrl.productVersion.product.id })">{{$ctrl.productVersion.product.name
   + ' - ' + $ctrl.productVersion.version}}</a>
+<span ng-if="!$ctrl.productVersion.id"> — </span>
