@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -79,6 +80,7 @@ public class Producers {
                 .buildEnvironment(buildEnv())
                 .project(project())
                 .name(name)
+                .buildType(BuildType.MVN)
                 .repositoryConfiguration(repositoryConfiguration())
                 .build();
     }

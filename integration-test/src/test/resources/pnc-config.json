@@ -44,9 +44,9 @@
         {
           "@module-config": "alignment-config",
           "alignmentParameters" : {
-            "MVN" : "-DversionIncrementalSuffix=redhat -DallowConfigFilePrecedence=true -DrepoReportingRemoval=true -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip=",
-            "NPM" : "-DversionIncrementalSuffix=redhat -DversionIncrementalSuffixPadding=5 -DrepositoryGroup=DA",
-            "GRADLE": "--no-colour -l=/usr/share/gradle-5.5.1 -d --stacktrace generateAlignmentMetadata -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true --info -DdependencySource=REST"
+            "MVN" : "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
+            "NPM" : "",
+            "GRADLE": "--info -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true"
           }
         },
         {

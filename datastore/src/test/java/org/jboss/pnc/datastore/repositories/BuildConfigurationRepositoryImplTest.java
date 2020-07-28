@@ -20,10 +20,12 @@ package org.jboss.pnc.datastore.repositories;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.datastore.DeploymentFactory;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.Archive;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -34,6 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
@@ -42,6 +45,11 @@ import static org.assertj.core.api.Assertions.fail;
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
 public class BuildConfigurationRepositoryImplTest {
+
+    private final String MVN_DEFAULT_ALIGN_PARAMS = "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true";
+    private final String NPM_DEFAULT_ALIGN_PARAMS = "";
+    private final String GRADLE_DEFAULT_ALIGN_PARAMS = "--info -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true";
+
     @Inject
     private BuildConfigurationRepository repository;
 
@@ -87,6 +95,17 @@ public class BuildConfigurationRepositoryImplTest {
         config2.setArchived(true);
         repository.save(config2);
         repository.save(producers.createValidBuildConfiguration(name));
+    }
+
+    @Test
+    public void shouldCreateAndUpdateBuildConfigurationWithDefaultAlignmentParams() {
+        String name = randomAlphabetic(10);
+        BuildConfiguration config1 = producers.createValidBuildConfiguration(name);
+        BuildConfiguration savedBC = repository.save(config1);
+        assertThat(savedBC.getDefaultAlignmentParams().contains("-DversionSuffixStrip="));
+        savedBC.setBuildType(BuildType.GRADLE);
+        savedBC = repository.save(savedBC);
+        assertThat(savedBC.getDefaultAlignmentParams().contains("-DignoreUnresolvableDependencies=true"));
     }
 
     private void assertThrows(Runnable runnable, Class<? extends Exception> exceptionClass) {
