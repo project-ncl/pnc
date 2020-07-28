@@ -213,8 +213,8 @@
         },
         resolve: {
           revision : [
-            'configurationDetail', 
-            '$stateParams', 
+            'configurationDetail',
+            '$stateParams',
             (configurationDetail, $stateParams) => configurationDetail.$getRevision({ revisionId: $stateParams.revisionId })
           ]
         }
