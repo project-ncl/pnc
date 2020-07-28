@@ -86,6 +86,11 @@ public class BuildConfigurationRevisionRef implements DTOEntity {
      */
     protected final BuildType buildType;
 
+    /**
+     * The default alignment parameters for this build config type.
+     */
+    protected final String defaultAlignmentParams;
+
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
