@@ -50,6 +50,7 @@ public class BuildExecutionConfigurationMock {
                 null,
                 new HashMap<>(),
                 false,
-                null);
+                null,
+                "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true");
     }
 }
