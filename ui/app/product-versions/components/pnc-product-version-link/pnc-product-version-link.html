@@ -17,10 +17,7 @@
     limitations under the License.
 
 -->
-<div class="row">
-  <div class="col-md-12">
-    <pnc-product-versions-data-table page="$ctrl.page" display-fields="$ctrl.displayFields"></pnc-product-versions-data-table>
-  </div>
-</div>
-  
-  
+<a ng-if="$ctrl.productVersion.id" href
+   ui-sref="products.detail.product-versions.detail({ productVersionId: $ctrl.productVersion.id, productId: $ctrl.productVersion.product.id })">{{$ctrl.productVersion.product.name
+  + ' - ' + $ctrl.productVersion.version}}</a>
+<span ng-if="!$ctrl.productVersion.id"> — </span>

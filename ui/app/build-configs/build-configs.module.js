@@ -116,6 +116,13 @@
         },
         bindings: {
           buildConfig: 'configurationDetail'
+        },
+        resolve: {
+          productVersion: [
+            'configurationDetail',
+            'ProductVersionResource',
+            (configurationDetail, ProductVersionResource) => configurationDetail.productVersion ? ProductVersionResource.get({ id: configurationDetail.productVersion.id }).$promise : null
+          ]
         }
       });
 
@@ -152,26 +159,6 @@
         },
         resolve: {
           groupConfigs: ['configurationDetail', buildConfig => buildConfig.$getGroupConfigs()]
-        }
-      });
-
-      $stateProvider.state('projects.detail.build-configs.detail.products', {
-        url: '/products',
-        component: 'pncBuildConfigProductsTab',
-        data: {
-          displayName: 'Products'
-        },
-        bindings: {
-          buildConfig: 'configurationDetail'
-        },
-        resolve: {
-          productVersions: [
-            'configurationDetail',
-            'ProductVersion',
-            function (configurationDetail, ProductVersion) {
-              return ProductVersion.queryContainsBuildConfiguration({}, { id: configurationDetail.id }).$promise;
-            }
-          ]
         }
       });
 
@@ -226,8 +213,8 @@
         },
         resolve: {
           revision : [
-            'configurationDetail', 
-            '$stateParams', 
+            'configurationDetail',
+            '$stateParams',
             (configurationDetail, $stateParams) => configurationDetail.$getRevision({ revisionId: $stateParams.revisionId })
           ]
         }

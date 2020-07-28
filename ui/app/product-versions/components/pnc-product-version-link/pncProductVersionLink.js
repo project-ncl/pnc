@@ -18,31 +18,23 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.build-configs').component('pncBuildConfigProductsTab', {
+  angular.module('pnc.product-versions').component('pncProductVersionLink', {
     bindings: {
-      buildConfig: '<',
-      productVersions: '<'
+      /**
+       * object representing SCM Repository
+       */
+      productVersion: '<'
     },
-    require : {
-      mainCtrl: '^^pncBuildConfigDetailMain'
-    },
-    templateUrl: 'build-configs/detail/products-tab/pnc-build-config-products-tab.html',
+    templateUrl: 'product-versions/components/pnc-product-version-link/pnc-product-version-link.html',
     controller: [Controller]
   });
 
-
   function Controller() {
-    var $ctrl = this;
 
     // -- Controller API --
 
-    $ctrl.displayFields = ['name', 'version'];
 
     // --------------------
-
-    $ctrl.$onInit = function() {
-      $ctrl.page = $ctrl.productVersions;
-    };
 
   }
 
