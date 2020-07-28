@@ -31,6 +31,7 @@ import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuild;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
@@ -55,8 +56,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.jboss.pnc.constants.MDCKeys.BUILD_ID_KEY;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -110,8 +114,11 @@ public class BuildResultPushManager {
 
     public Result push(BuildPushOperation buildPushOperation, String authToken) {
         logger.info("Pushing to causeway {}", buildPushOperation.toString());
-
-        if (!inProgress.add(buildPushOperation.getBuildRecord().getId(), buildPushOperation.getTagPrefix())) {
+        boolean added = inProgress.add(
+                buildPushOperation.getBuildRecord().getId(),
+                buildPushOperation.getTagPrefix(),
+                buildPushOperation.getPushResultId().toString());
+        if (!added) {
             logger.warn("Push for build.id {} already running.", buildPushOperation.getBuildRecord().getId());
             return new Result(
                     buildPushOperation.getPushResultId().toString(),
@@ -401,28 +408,27 @@ public class BuildResultPushManager {
 
     public Long complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) {
         // accept only listed elements otherwise a new request might be wrongly completed from response of an older one
-        String completedTag = inProgress.remove(buildRecordId);
-        if (completedTag == null) {
+        InProgress.Context pushContext = inProgress.remove(buildRecordId);
+        if (pushContext == null) {
             throw new MissingInternalReferenceException("Did not find the referenced element.");
         }
-
-        buildRecordPushResult.setTagPrefix(completedTag);
+        buildRecordPushResult.setTagPrefix(pushContext.getTagPrefix());
         BuildRecordPushResult saved = buildRecordPushResultRepository.save(buildRecordPushResult);
         buildPushResultEvent.fire(mapper.toDTO(saved));
         return saved.getId();
     }
 
     public boolean cancelInProgressPush(Integer buildRecordId) {
+        InProgress.Context pushContext = inProgress.remove(buildRecordId);
         BuildPushResult buildRecordPushResultRest = BuildPushResult.builder()
                 .status(BuildPushStatus.CANCELED)
                 .buildId(buildRecordId.toString())
                 .build();
-        boolean canceled = inProgress.remove(buildRecordId) != null;
         buildPushResultEvent.fire(buildRecordPushResultRest);
-        return canceled;
+        return pushContext != null;
     }
 
-    public Set<Integer> getInProgress() {
-        return inProgress.getAllIds();
+    public Optional<InProgress.Context> getContext(int buildId) {
+        return inProgress.getAll().stream().filter(c -> c.getId().equals(buildId)).findAny();
     }
 }
