@@ -71,7 +71,8 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
             Map<String, String> genericParameters,
             boolean tempBuild,
             String tempBuildTimestamp,
-            String completionCallbackUrl) {
+            String completionCallbackUrl,
+            String defaultAlignmentParams) {
         super(
                 id,
                 buildContentId,
@@ -91,7 +92,8 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
                 artifactRepositories,
                 genericParameters,
                 tempBuild,
-                tempBuildTimestamp);
+                tempBuildTimestamp,
+                defaultAlignmentParams);
         this.completionCallbackUrl = completionCallbackUrl;
     }
 

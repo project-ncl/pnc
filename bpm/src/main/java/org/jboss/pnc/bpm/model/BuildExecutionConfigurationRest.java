@@ -75,6 +75,8 @@ public class BuildExecutionConfigurationRest {
 
     protected String tempBuildTimestamp;
 
+    protected String defaultAlignmentParams;
+
     public static BuildExecutionConfigurationRest valueOf(String serialized) throws IOException {
         TypeReference<BuildExecutionConfigurationRest> type = new TypeReference<BuildExecutionConfigurationRest>() {
         };
@@ -100,6 +102,7 @@ public class BuildExecutionConfigurationRest {
         genericParameters = buildExecutionConfiguration.getGenericParameters();
         tempBuild = buildExecutionConfiguration.isTempBuild();
         tempBuildTimestamp = buildExecutionConfiguration.getTempBuildTimestamp();
+        defaultAlignmentParams = buildExecutionConfiguration.getDefaultAlignmentParams();
 
         artifactRepositories = new ArrayList<>();
         if (buildExecutionConfiguration.getArtifactRepositories() != null) {
@@ -132,7 +135,8 @@ public class BuildExecutionConfigurationRest {
                 artifactRepositories,
                 genericParameters,
                 tempBuild,
-                tempBuildTimestamp);
+                tempBuildTimestamp,
+                defaultAlignmentParams);
     }
 
     @JsonIgnore
