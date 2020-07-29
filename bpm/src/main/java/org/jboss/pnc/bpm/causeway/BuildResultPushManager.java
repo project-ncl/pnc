@@ -31,7 +31,6 @@ import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuild;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
-import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
@@ -59,8 +58,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.jboss.pnc.constants.MDCKeys.BUILD_ID_KEY;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -135,7 +132,7 @@ public class BuildResultPushManager {
                     buildPushOperation.getTagPrefix(),
                     String.format(
                             buildPushOperation.getCompleteCallbackUrlTemplate(),
-                            buildPushOperation.getPushResultId()),
+                            buildPushOperation.getBuildRecord().getId()),
                     authToken,
                     buildPushOperation.isReImport());
             boolean successfullyStarted = causewayClient.importBuild(buildImportRequest, authToken);
