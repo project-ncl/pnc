@@ -81,7 +81,7 @@
 
       BuildConfigResource.safePatchRemovingParameters($ctrl.buildConfig, buildConfig).$promise
           .then(resp => {
-            $ctrl.onSuccess({ buildConfig: resp})
+            $ctrl.onSuccess({ buildConfig: resp});
             $state.go('projects.detail.build-configs.detail', {
               projectId: $ctrl.buildConfig.project.id,
               configurationId: $ctrl.buildConfig.id
