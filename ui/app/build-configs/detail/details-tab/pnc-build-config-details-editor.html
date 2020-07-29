@@ -24,7 +24,7 @@
       <div class="row">
         <div class="col-md-12">
 
-          <pnc-create-build-config-general-form is-edit-form="$ctrl.isEditForm" original-build-type="$ctrl.originalBuildType" ng-model="$ctrl.formData.general"></pnc-create-build-config-general-form>
+          <pnc-create-build-config-general-form ng-model="$ctrl.formData.general"></pnc-create-build-config-general-form>
 
           <div class="form-group" ng-class="{ 'has-error' : editBuildConfigForm.scmRepository.$invalid && editBuildConfigForm.scmRepository.$touched, 'has-success': editBuildConfigForm.scmRepository.$valid && editBuildConfigForm.scmRepository.$touched }">
             <label class="control-label required">SCM Repository</label>
@@ -44,7 +44,7 @@
       <div class="row">
         <div class="col-md-12">
           <label class="text-divider">Build Parameters</label>
-          <pnc-select-build-parameters is-edit-form="$ctrl.isEditForm" original-build-type="$ctrl.originalBuildType" build-type="$ctrl.formData.general.buildType" ng-model="$ctrl.formData.parameters"></pnc-select-build-parameters>
+          <pnc-select-build-parameters ng-model="$ctrl.formData.parameters"></pnc-select-build-parameters>
           <hr class="m-t-20" ng-if="$ctrl.numberOfBuildParameters() > 0">
         </div>
       </div>
