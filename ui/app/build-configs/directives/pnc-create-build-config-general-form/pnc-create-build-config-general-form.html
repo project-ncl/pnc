@@ -42,7 +42,6 @@
     <br>
     <select name="buildType" pf-bootstrap-select="{ noneSelectedText: 'Select Build Type' }" ng-model="$ctrl.data.buildType" id="build-config-build-type" ng-options="buildType.id as buildType.name for buildType in $ctrl.buildTypes" required></select>
     <p ng-show="form.buildType.$invalid && form.buildType.$touched" class="help-block">Build Type is a required field.</p>
-    <p ng-show="$ctrl.data.buildType !== $ctrl.originalBuildType && $ctrl.isEditForm" class="text-warning p-t-10 p-b-10">ALIGNMENT_PARAMETERS should be updated when the Build Type is changed, see Build Parameters section below</p>
   </div>
 
   <div class="form-group" ng-class="{ 'has-error' : form.buildScript.$invalid && form.buildScript.$touched, 'has-success': form.buildScript.$valid && form.buildScript.$touched }">
