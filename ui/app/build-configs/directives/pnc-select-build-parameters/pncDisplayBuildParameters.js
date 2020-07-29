@@ -25,10 +25,10 @@
       onRemove: '&'
     },
     templateUrl: 'build-configs/directives/pnc-select-build-parameters/pnc-display-build-parameters.html',
-    controller: ['$scope', Controller]
+    controller: [Controller]
   });
 
-  function Controller($scope) {
+  function Controller() {
     var $ctrl = this,
         editMap = {};
 
@@ -45,9 +45,7 @@
     }
 
     $ctrl.$onInit = function(){
-      $scope.$watchCollection('$ctrl.params', function () {
-        copyParams();
-      });
+      copyParams();
     };
 
     $ctrl.$doCheck = function () {
