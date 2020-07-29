@@ -26,10 +26,10 @@
       buildType: '<'
     },
     templateUrl: 'build-configs/directives/pnc-select-build-parameters/pnc-select-build-parameters.html',
-    controller: ['$scope', 'utils', Controller]
+    controller: ['$scope', 'utils', 'BuildConfigResource', Controller]
   });
 
-  function Controller($scope, utils) {
+  function Controller($scope, utils, BuildConfigResource) {
     var $ctrl = this;
 
     // -- Controller API --
