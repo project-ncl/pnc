@@ -55,7 +55,6 @@ import static org.jboss.pnc.integration.setup.Deployments.addBuildExecutorMock;
 public class BuildPushTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildEndpointTest.class);
-    private static final String ID = "1234";
     private static String buildId;
     private static String build2Id;
 
@@ -90,6 +89,7 @@ public class BuildPushTest {
         // first push accepted
         BuildPushParameters parameters = BuildPushParameters.builder().reimport(false).tagPrefix("test-tag").build();
         BuildPushResult result = client.push(build.getId(), parameters);
+        String buildPushResultId = result.getId();
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(BuildPushStatus.ACCEPTED);
@@ -97,14 +97,18 @@ public class BuildPushTest {
         // second push rejected because already in process
         assertThatThrownBy(() -> client.push(build.getId(), parameters)).hasCauseInstanceOf(ClientErrorException.class);
 
+        // should reject completion with invalid result id
+        assertThatThrownBy(() -> client.completePush(buildId, returnSuccessfulResult(buildId, "1111")))
+                .hasCauseInstanceOf(ClientErrorException.class);
+
         // successful complete of first push
-        client.completePush(buildId, returnSuccessfulResult(buildId));
+        client.completePush(buildId, returnSuccessfulResult(buildId, buildPushResultId));
 
         // get result from db
         BuildPushResult successPushResult = client.getPushResult(buildId);
 
         assertThat(successPushResult.getStatus()).isEqualTo(BuildPushStatus.SUCCESS);
-        assertThat(successPushResult.getLogContext()).isEqualTo(ID);
+        assertThat(successPushResult.getLogContext()).isEqualTo(buildPushResultId);
 
         // next push should accept again
         BuildPushResult result2 = client.push(build.getId(), parameters);
@@ -126,7 +130,7 @@ public class BuildPushTest {
         assertThatThrownBy(() -> client.push(build2Id, parameters)).hasCauseInstanceOf(ForbiddenException.class);
     }
 
-    private BuildPushResult returnSuccessfulResult(String id) {
-        return BuildPushResult.builder().status(BuildPushStatus.SUCCESS).buildId(id).id(ID).build();
+    private BuildPushResult returnSuccessfulResult(String id, String buildPushResultId) {
+        return BuildPushResult.builder().status(BuildPushStatus.SUCCESS).buildId(id).id(buildPushResultId).build();
     }
 }

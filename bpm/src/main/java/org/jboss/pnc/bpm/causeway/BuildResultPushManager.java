@@ -18,6 +18,7 @@
 package org.jboss.pnc.bpm.causeway;
 
 import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
+import org.jboss.pnc.bpm.InvalidReferenceException;
 import org.jboss.pnc.bpm.MissingInternalReferenceException;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.Build;
@@ -405,10 +406,22 @@ public class BuildResultPushManager {
 
     public Long complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) {
         // accept only listed elements otherwise a new request might be wrongly completed from response of an older one
-        InProgress.Context pushContext = inProgress.remove(buildRecordId);
+        // get context for validation
+        InProgress.Context pushContext = inProgress.get(buildRecordId);
         if (pushContext == null) {
-            throw new MissingInternalReferenceException("Did not find the referenced element.");
+            throw new MissingInternalReferenceException("Did not find referenced element.");
         }
+        Long expectedPushResultId = BuildPushResultMapper.idMapper.toEntity(pushContext.getPushResultId());
+        // if the result id is set it must match the id generated when the remote operation has been triggered
+        if (buildRecordPushResult.getId() != null && !buildRecordPushResult.getId().equals(expectedPushResultId)) {
+            throw new InvalidReferenceException("Unexpected result id: " + buildRecordPushResult.getId());
+        }
+        // get and remove the context atomically
+        pushContext = inProgress.remove(buildRecordId);
+        if (pushContext == null) {
+            throw new MissingInternalReferenceException("Referenced element has gone.");
+        }
+        buildRecordPushResult.setId(expectedPushResultId);
         buildRecordPushResult.setTagPrefix(pushContext.getTagPrefix());
         BuildRecordPushResult saved = buildRecordPushResultRepository.save(buildRecordPushResult);
         buildPushResultEvent.fire(mapper.toDTO(saved));
