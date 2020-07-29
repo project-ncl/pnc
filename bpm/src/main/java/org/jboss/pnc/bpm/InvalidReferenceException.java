@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.bpm;
 
-public class NoEntityException extends BpmException {
+public class InvalidReferenceException extends BpmException {
 
-    public NoEntityException(String message) {
+    public InvalidReferenceException(String message) {
         super(message);
     }
 }

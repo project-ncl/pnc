@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.bpm;
 
-public class MissingInternalReferenceException extends RuntimeException {
+public class MissingInternalReferenceException extends BpmException {
 
     public MissingInternalReferenceException(String message) {
         super(message);
