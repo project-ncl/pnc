@@ -26,10 +26,10 @@
       buildType: '<'
     },
     templateUrl: 'build-configs/directives/pnc-select-build-parameters/pnc-select-build-parameters.html',
-    controller: ['$scope', 'utils', 'BuildConfigResource', Controller]
+    controller: ['$scope', 'utils', Controller]
   });
 
-  function Controller($scope, utils, BuildConfigResource) {
+  function Controller($scope, utils) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -40,7 +40,6 @@
     $ctrl.addParam = addParam;
     $ctrl.removeParam = removeParam;
     $ctrl.hasParams = hasParams;
-
 
     // --------------------
 
@@ -60,14 +59,6 @@
       $ctrl.ngModel.$render = function () {
         $ctrl.params = angular.isDefined($ctrl.ngModel.$viewValue) ? $ctrl.ngModel.$viewValue : {};
       };
-
-      $scope.$watch('$ctrl.buildType', function (newBuildType) {
-        if (newBuildType) {
-          BuildConfigResource.getAlignmentParameters(newBuildType).then(function (parameters) {
-            addParam('ALIGNMENT_PARAMETERS', parameters);
-          });
-        }
-      });
     };
 
     function addParam(key, value) {

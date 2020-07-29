@@ -52,7 +52,7 @@
       </pf-wizard-substep>
 
       <pf-wizard-substep step-title="Build Parameters" next-enabled="true" step-id="parameters" step-priority="20" show-review="true" show-review-details="false" review-template="build-configs/directives/pnc-create-build-config-wizard/review-build-parameters.html">
-          <pnc-select-build-parameters build-type="$ctrl.wizardData.general.buildType" ng-model="$ctrl.wizardData.buildParameters"></pnc-select-build-parameters>
+          <pnc-select-build-parameters ng-model="$ctrl.wizardData.buildParameters"></pnc-select-build-parameters>
       </pf-wizard-substep>
 
       <pf-wizard-substep step-title="Dependencies" next-enabled="true" step-id="parameters" step-priority="30" show-review="true" show-review-details="false" review-template="build-configs/directives/pnc-create-build-config-wizard/review-dependencies.html">
