@@ -111,6 +111,8 @@
                   projectId: $ctrl.build.project.id,
                   configurationId: $ctrl.build.buildConfigRevision.id,
                   buildId: $ctrl.build.id
+                }, {
+                  reload: true
                 }
               );
     }
