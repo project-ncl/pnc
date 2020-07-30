@@ -50,7 +50,7 @@
         if (brewPushResult) {
           $ctrl.data = brewPushResult;
           $ctrl.prefixFilters = 'loggerName.keyword:org.jboss.pnc.causeway|org.jboss.pnc._userlog_.brewpush,level.keyword:INFO|ERROR|WARN';
-          $ctrl.matchFilters = `mdc.buildRecord.keyword:${brewPushResult.buildId},mdc.processContext.keyword:${brewPushResult.logContext}`; //`mdc.buildId.keyword:${$ctrl.brewPushResult.buildId}`;
+          $ctrl.matchFilters = `mdc.buildId.keyword:${brewPushResult.buildId},mdc.processContext.keyword:${brewPushResult.logContext}`;
         }
       }
     }
