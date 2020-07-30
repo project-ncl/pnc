@@ -32,7 +32,9 @@ import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
 import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuild;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
+import org.jboss.pnc.constants.MDCKeys;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildType;
@@ -53,6 +55,7 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -135,6 +138,7 @@ public class BuildResultPushManager {
                             buildPushOperation.getCompleteCallbackUrlTemplate(),
                             buildPushOperation.getBuildRecord().getId()),
                     authToken,
+                    buildPushOperation.getPushResultId(),
                     buildPushOperation.isReImport());
             boolean successfullyStarted = causewayClient.importBuild(buildImportRequest, authToken);
             if (successfullyStarted) {
@@ -165,6 +169,7 @@ public class BuildResultPushManager {
             String tagPrefix,
             String callBackUrl,
             String authToken,
+            Long pushResultId,
             boolean reimport) {
         BuildEnvironment buildEnvironment = buildRecord.getBuildConfigurationAudited().getBuildEnvironment();
         logger.debug("BuildRecord: {}", buildRecord.getId());
@@ -192,7 +197,10 @@ public class BuildResultPushManager {
         Set<Dependency> dependencies = collectDependencies(dependencyEntities);
         Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(builtArtifactEntities, buildType);
 
-        CallbackTarget callbackTarget = CallbackTarget.callbackPost(callBackUrl, authToken);
+        Map<String, String> callbackHeaders = Collections.singletonMap(
+                MDCUtils.getMDCToHeaderMappings().get(MDCKeys.PROCESS_CONTEXT_KEY),
+                pushResultId.toString());
+        CallbackTarget callbackTarget = CallbackTarget.callbackPost(callBackUrl, authToken, callbackHeaders);
 
         String executionRootName = null;
         // prefer execution root name from generic parameters
