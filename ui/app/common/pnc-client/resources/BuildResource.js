@@ -201,14 +201,21 @@
       });
 
 
-      resource.getSshCredentials = params => $q.when(authService.getPncUser()).then(currentUser => {
-        // only user who performed the build can get SSH credentials
-        if (currentUser.id === params.buildUser.id) {
-          return resource._getSshCredentials(params);
-        } else {
-          return $q.when(null);
+      resource.getSshCredentials = params => {  
+        // check whether user is authenticated to prevent forcing logging
+        if (authService.isAuthenticated()) {
+          return $q.when(authService.getPncUser()).then(currentUser => {
+            // only user who performed the build can get SSH credentials
+            if (currentUser.id === params.buildUser.id) {
+              return resource._getSshCredentials(params);
+            }
+            console.info('SSH Credentials: not available for current user');
+            return $q.when(null);
+          });
         }
-      });
+        console.info('SSH Credentials: user is not authenticated');
+        return $q.when(null);
+      };
 
 
       resource.getBuildMetrics = function(buildIds) {
