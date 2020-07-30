@@ -56,4 +56,12 @@ public class CallbackTarget {
 
         return new CallbackTarget(callBackUrl, CallbackMethod.POST, callbackHeaders);
     }
+
+    public static CallbackTarget callbackPost(String callBackUrl, String authToken, Map<String, String> headers) {
+        Map<String, String> callbackHeaders = new HashMap<>();
+        callbackHeaders.put("Authorization", "Bearer " + authToken);
+        callbackHeaders.putAll(headers);
+
+        return new CallbackTarget(callBackUrl, CallbackMethod.POST, callbackHeaders);
+    }
 }
