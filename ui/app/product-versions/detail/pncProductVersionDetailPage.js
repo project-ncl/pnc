@@ -41,6 +41,8 @@
     $ctrl.editBuildConfigs = editBuildConfigs;
     $ctrl.editGroupConfigs = editGroupConfigs;
     $ctrl.fetchGroupConfigRefs = fetchGroupConfigRefs;
+    $ctrl.refreshBuildConfigs = refreshBuildConfigs;
+    $ctrl.removeBuildConfig = removeBuildConfig;
 
     // --------------------
 
@@ -64,10 +66,12 @@
 
     function editBuildConfigs(result) {
       console.log('EDIT BCs: %O', result);
-      const updated = {
-        buildConfigs: _.keyBy(result, 'id')
-      };
-      ProductVersionResource.safePatch($ctrl.productVersion, updated);
+      return ProductVersionResource.arrayPatch($ctrl.buildConfigs.data, result, 'buildConfigs', $ctrl.productVersion.id).$promise;
+    }
+
+    function removeBuildConfig(buildConfig) {
+      console.log('REMOVE BC: %O', buildConfig);
+      return $ctrl.productVersion.$removeBuildConfig({ buildConfigId: buildConfig.id });
     }
 
     function editGroupConfigs(result) {
@@ -83,6 +87,10 @@
       return $ctrl.productVersion.$get().then(productVersion => {
         return Object.values(productVersion.groupConfigs);
       });
+    }
+
+    function refreshBuildConfigs(buildConfigs) {
+      $ctrl.buildConfigs.data = buildConfigs;
     }
   }
 

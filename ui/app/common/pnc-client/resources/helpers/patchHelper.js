@@ -44,6 +44,20 @@
         return patch;
       }
 
+      function doArrayPatch(resource, originalArr, modifiedArr, arrName, id) {
+        let originalIds = {[arrName]: {}}, modifiedIds = {[arrName]: {}};
+
+        for (const id of originalArr.map(bc => bc.id)){
+          originalIds[arrName][id] = {id: id};
+        }
+        for (const id of modifiedArr.map(bc => bc.id)){
+          modifiedIds[arrName][id] = {id: id};
+        }
+
+        let patch = createJsonPatch(originalIds, modifiedIds, true);
+        return resource.patch({id: id}, patch);
+      }
+
       function doPatch(resource, original, modified, destructive) {
         const patch = createJsonPatch(original, modified, destructive);
 
@@ -51,7 +65,7 @@
       }
 
       /**
-       * Assigns a safePatch and destructivePatch method to the given resource class.
+       * Assigns a safePatch, destructivePatch and arrayPatch methods to the given resource class.
        *
        *
        * safePatch: Will only create delete operations in the output patch when they have been explicitly set to
@@ -63,6 +77,10 @@
        * are not present on the modified object that are present on the original will cause a delete operation to be
        * added to the patch. In most cases this is probably _NOT_ the method you're looking for.
        *
+       * arrayPatch: Serves for editing the content of array of objects inside another object. It creates a destructive
+       * patch on the object ids and therefore relies on the backend to fetch the complete objects. This can be used to
+       * edit the content of an array of entities related to the edited entity.
+       *
        */
       function assignPatchMethods(resource) {
         resource.safePatch = function (original, modified) {
@@ -71,6 +89,10 @@
 
         resource.destructivePatch = function (original, modified) {
           return doPatch(resource, original, modified, true);
+        };
+
+        resource.arrayPatch = function (originalArr, modifiedArr, arrName, id) {
+          return doArrayPatch(resource, originalArr, modifiedArr, arrName, id);
         };
       }
 
