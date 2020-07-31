@@ -125,8 +125,7 @@
     <pnc-header sub-header="true">
       <pnc-header-title>Build Configs</pnc-header-title>
     </pnc-header>
-    <p>Functionality is currently broken and being fixed in NCL-4205</p>
-    <pnc-build-configs-data-table page="$ctrl.buildConfigs" on-edit="$ctrl.editBuildConfigs"></pnc-build-configs-data-table>
+    <pnc-build-configs-data-table page="$ctrl.buildConfigs" on-edit="$ctrl.editBuildConfigs" on-remove="$ctrl.removeBuildConfig" refresh-build-configs="$ctrl.refreshBuildConfigs"></pnc-build-configs-data-table>
   </div>
 </div>
 
