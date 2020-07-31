@@ -45,7 +45,7 @@
 
     function onEdit(buildConfigs) {
       $log.info('Edit Build Configs: %O', buildConfigs);
-      return GroupConfigResource.patchBuildConfigs($ctrl.buildConfigs.data, buildConfigs, $ctrl.groupConfig.id);
+      return GroupConfigResource.arrayPatch($ctrl.buildConfigs.data, buildConfigs,'buildConfigs', $ctrl.groupConfig.id).$promise;
     }
 
     function onRemove(buildConfig) {
