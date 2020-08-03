@@ -119,6 +119,7 @@
     <version.junit>4.13</version.junit>
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
     <version.vertx.core>3.8.5</version.vertx.core>
+    <version.pnc-api>2.0.1-SNAPSHOT</version.pnc-api>
     <!-- same base version (no -redhat) as version.org.apache.httpcomponents.httpclient from the eap BOM-->
     <version.org.apache.httpcomponents.fluent-hc>4.5.4</version.org.apache.httpcomponents.fluent-hc>
 
@@ -604,6 +605,13 @@
         <groupId>org.jboss.pnc.build-agent</groupId>
         <artifactId>server</artifactId>
         <version>${version.buildagent}</version>
+      </dependency>
+
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>pnc-api</artifactId>
+        <version>${version.pnc-api}</version>
       </dependency>
 
       <!-- We need to have these keycloaks here becasue they are not provided

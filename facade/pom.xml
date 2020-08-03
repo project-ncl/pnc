@@ -31,13 +31,13 @@
 
     <artifactId>facade</artifactId>
     <packaging>jar</packaging>
-  
+
     <name>PNC :: facade</name>
     <description>Common module for front-facing implementations like REST.</description>
-  
-  
+
+
     <dependencies>
-      
+
         <!-- Project dependencies -->
         <dependency>
             <groupId>org.jboss.pnc</groupId>
@@ -75,6 +75,10 @@
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>build-coordinator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-api</artifactId>
         </dependency>
 
         <!-- Java EE dependencies -->
@@ -184,5 +188,5 @@
             </plugin>
         </plugins>
     </build>
-  
+
 </project>
