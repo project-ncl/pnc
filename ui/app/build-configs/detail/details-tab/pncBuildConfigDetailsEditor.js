@@ -46,7 +46,6 @@
     // -- Controller API --
 
     $ctrl.working = false;
-    $ctrl.isEditForm = true;
 
     $ctrl.submit = submit;
     $ctrl.cancel = cancel;
@@ -59,8 +58,6 @@
       $ctrl.formData = fromBuildConfig($ctrl.buildConfig);
       // Ensure this components copy of the BC can't be updated from outside.
       $ctrl.buildConfig = angular.copy($ctrl.buildConfig);
-      $ctrl.originalBuildType = $ctrl.formData.general.buildType;
-
       //Fetch full product version data from endpoint to get the product information by productVersion.id
       ProductVersionResource.get({ id: $ctrl.buildConfig.productVersion.id }).$promise.then(function (productVersionRes){
         $ctrl.formData.productVersion = productVersionRes;
@@ -112,8 +109,7 @@
       formData.scmRepository = buildConfig.scmRepository;
       formData.productVersion = buildConfig.productVersion;
 
-      // Make copy so form changes do not affect this component's BC
-      formData.parameters = angular.copy(buildConfig.parameters);
+      formData.parameters = buildConfig.parameters;
 
       return formData;
     }

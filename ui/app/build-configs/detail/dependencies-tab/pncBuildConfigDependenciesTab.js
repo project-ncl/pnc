@@ -40,15 +40,24 @@
 
     $ctrl.onRemove = onRemove;
     $ctrl.onEdit = onEdit;
+    $ctrl.refreshDependencies = refreshDependencies;
 
     // --------------------
 
     function onRemove(dependency) {
       console.log('Remove dependency: %O', dependency);
+      return $ctrl.buildConfig.$removeDependency({ dependencyId: dependency.id });
     }
 
     function onEdit(dependencies) {
       console.log('Update dependencies: %O', dependencies);
+      $ctrl.buildConfig.dependencies = dependencies.reduce((map, dep) => (map[dep.id] = dep, map), {});
+
+      return $ctrl.buildConfig.$update();
+    }
+
+    function refreshDependencies(dependencies) {
+      $ctrl.dependencies.data = dependencies;
     }
   }
 

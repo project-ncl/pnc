@@ -49,7 +49,6 @@
     $ctrl.createStatusMessages = [];
     $ctrl.wizardDone = false;
     $ctrl.createError = false;
-    $ctrl.isEditForm = false;
 
     $ctrl.onStepChange = onStepChange;
     $ctrl.onShowReviewSummary = onShowReviewSummary;

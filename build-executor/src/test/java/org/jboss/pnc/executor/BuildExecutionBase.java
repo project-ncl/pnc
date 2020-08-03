@@ -160,7 +160,8 @@ class BuildExecutionBase {
                 null,
                 buildConfiguration.getGenericParameters(),
                 false,
-                null);
+                null,
+                buildConfiguration.getDefaultAlignmentParams());
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");
     }

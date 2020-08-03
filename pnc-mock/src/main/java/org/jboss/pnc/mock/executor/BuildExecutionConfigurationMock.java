@@ -50,6 +50,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private Map<String, String> genericParameters;
     private boolean tempBuild;
     private String tempBuildTimestamp;
+    private String defaultAlignmentParams;
 
     public static BuildExecutionConfiguration mockConfig() {
         BuildExecutionConfigurationMock mock = new BuildExecutionConfigurationMock();
@@ -67,6 +68,8 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         mock.setGenericParameters(new HashMap<>());
         mock.setTempBuild(false);
         mock.setTempBuildTimestamp(null);
+        mock.setDefaultAlignmentParams(
+                "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true");
 
         return mock;
     }
@@ -236,6 +239,14 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public void setTempBuildTimestamp(String tempBuildTimestamp) {
         this.tempBuildTimestamp = tempBuildTimestamp;
+    }
+
+    public String getDefaultAlignmentParams() {
+        return defaultAlignmentParams;
+    }
+
+    public void setDefaultAlignmentParams(String defaultAlignmentParams) {
+        this.defaultAlignmentParams = defaultAlignmentParams;
     }
 
 }

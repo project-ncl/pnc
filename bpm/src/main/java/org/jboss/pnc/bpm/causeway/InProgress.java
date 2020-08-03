@@ -46,6 +46,10 @@ public class InProgress {
         return Collections.unmodifiableSet(inProgress.values().stream().collect(Collectors.toSet()));
     }
 
+    public Context get(Integer id) {
+        return inProgress.get(id);
+    }
+
     @Getter
     @AllArgsConstructor
     public class Context {

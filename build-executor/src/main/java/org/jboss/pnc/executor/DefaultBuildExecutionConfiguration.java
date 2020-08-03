@@ -50,6 +50,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final Map<String, String> genericParameters;
     private final boolean tempBuild;
     private final String tempBuildTimestamp;
+    private final String defaultAlignmentParams;
 
     public DefaultBuildExecutionConfiguration(
             int id,
@@ -70,7 +71,8 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             List<ArtifactRepository> artifactRepositories,
             Map<String, String> genericParameters,
             boolean tempBuild,
-            String tempBuildTimestamp) {
+            String tempBuildTimestamp,
+            String defaultAlignmentParams) {
 
         this.id = id;
         this.buildContentId = buildContentId;
@@ -91,6 +93,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.genericParameters = genericParameters;
         this.tempBuild = tempBuild;
         this.tempBuildTimestamp = tempBuildTimestamp;
+        this.defaultAlignmentParams = defaultAlignmentParams;
     }
 
     @Override
@@ -186,5 +189,10 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     @Override
     public String getTempBuildTimestamp() {
         return tempBuildTimestamp;
+    }
+
+    @Override
+    public String getDefaultAlignmentParams() {
+        return defaultAlignmentParams;
     }
 }

@@ -99,6 +99,11 @@ public class BuildConfigurationRef implements DTOEntity {
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final BuildType buildType;
 
+    /**
+     * The default alignment parameters for this build config type.
+     */
+    protected final String defaultAlignmentParams;
+
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {

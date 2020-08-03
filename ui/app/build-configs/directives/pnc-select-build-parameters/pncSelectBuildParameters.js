@@ -23,9 +23,7 @@
       ngModel: '?ngModel'
     },
     bindings: {
-      buildType: '<',
-      isEditForm: '<',
-      originalBuildType: '='
+      buildType: '<'
     },
     templateUrl: 'build-configs/directives/pnc-select-build-parameters/pnc-select-build-parameters.html',
     controller: ['$scope', 'utils', 'BuildConfigResource', Controller]
@@ -38,12 +36,10 @@
 
     $ctrl.knownKeys = undefined;
     $ctrl.params = {};
-    $ctrl.paramsUpdated = false;
 
     $ctrl.addParam = addParam;
     $ctrl.removeParam = removeParam;
     $ctrl.hasParams = hasParams;
-
 
     // --------------------
 
@@ -67,12 +63,10 @@
 
     function addParam(key, value) {
       $ctrl.params[key] = value;
-      $ctrl.paramsUpdated = true;
     }
 
     function removeParam(key) {
       delete $ctrl.params[key];
-      $ctrl.paramsUpdated = true;
     }
 
     function hasParams() {

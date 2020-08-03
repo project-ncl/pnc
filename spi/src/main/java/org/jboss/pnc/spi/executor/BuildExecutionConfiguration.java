@@ -63,6 +63,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     Map<String, String> getGenericParameters();
 
+    String getDefaultAlignmentParams();
+
     static BuildExecutionConfiguration build(
             int id,
             String buildContentId,
@@ -81,7 +83,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             boolean podKeptAfterFailure,
             Map<String, String> genericParameters,
             boolean tempBuild,
-            String tempBuildTimestamp) {
+            String tempBuildTimestamp,
+            String defaultAlignmentParams) {
         return build(
                 id,
                 buildContentId,
@@ -101,7 +104,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
                 null,
                 genericParameters,
                 tempBuild,
-                tempBuildTimestamp);
+                tempBuildTimestamp,
+                defaultAlignmentParams);
     }
 
     static BuildExecutionConfiguration build(
@@ -123,7 +127,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             List<ArtifactRepository> artifactRepositories,
             Map<String, String> genericParameters,
             boolean tempBuild,
-            String tempBuildTimestamp) {
+            String tempBuildTimestamp,
+            String defaultAlignmentParams) {
 
         List<ArtifactRepository> builtRepositories;
         if (artifactRepositories == null) {
@@ -236,6 +241,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public String getTempBuildTimestamp() {
                 return tempBuildTimestamp;
+            }
+
+            @Override
+            public String getDefaultAlignmentParams() {
+                return defaultAlignmentParams;
             }
         };
     }

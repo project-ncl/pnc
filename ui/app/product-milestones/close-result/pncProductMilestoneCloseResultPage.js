@@ -39,7 +39,7 @@
     $ctrl.$onInit = () => {
       $ctrl.data = $ctrl.closeResult.data[0];
 
-      $ctrl.prefixFilters = 'loggerName.keyword:org.jboss.pnc.causeway';
+      $ctrl.prefixFilters = 'loggerName.keyword:org.jboss.pnc.causeway|org.jboss.pnc._userlog_,level.keyword:INFO|ERROR|WARN';
       $ctrl.matchFilters = `mdc.processContext.keyword:${$ctrl.data.id}`;
     };
 

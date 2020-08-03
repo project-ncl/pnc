@@ -23,9 +23,6 @@
   </div>
   <hr ng-if="$ctrl.hasParams()">
   <div>
-    <pnc-display-build-parameters is-edit-form="$ctrl.isEditForm" original-build-type="$ctrl.originalBuildType" build-type="$ctrl.buildType" params="$ctrl.params" on-edit="$ctrl.addParam(key, value)" on-remove="$ctrl.removeParam(key)">
-    </pnc-display-build-parameters>
+    <pnc-display-build-parameters params="$ctrl.params" on-edit="$ctrl.addParam(key, value)" on-remove="$ctrl.removeParam(key)"></pnc-display-build-parameters>
   </div>
-  <p ng-show="$ctrl.paramsUpdated && $ctrl.isEditForm" class="help-block">Changes in parameters need to be saved down below</p>
-  <hr class="m-t-20" ng-if="!$ctrl.hasParams() && $ctrl.paramsUpdated">
 </form>

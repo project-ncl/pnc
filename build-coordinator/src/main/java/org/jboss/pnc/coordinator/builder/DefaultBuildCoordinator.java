@@ -540,7 +540,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status, String statusDescription) {
         BuildCoordinationStatus oldStatus = task.getStatus();
 
-        if (status.isCompleted()) {
+        // avoid marking the same task second time which could happen f.e. with transition
+        // REJECTED_ALREADY_BUILT -> DONE
+        if (status.isCompleted() && !oldStatus.isCompleted()) {
             markFinished(task, status, statusDescription);
         } else {
             task.setStatus(status);
@@ -561,8 +563,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
         userLog.info("Build status updated to {}; previous: {}", status, oldStatus);
 
-        if (BuildStatus.fromBuildCoordinationStatus(oldStatus) != BuildStatus.fromBuildCoordinationStatus(status)) {
+        BuildStatus oldBuildStatus = BuildStatus.fromBuildCoordinationStatus(oldStatus);
+        BuildStatus newBuildStatus = BuildStatus.fromBuildCoordinationStatus(status);
+        if ((oldBuildStatus != newBuildStatus) && !(oldBuildStatus.isFinal() && newBuildStatus.isFinal())) {
             // only fire notification when BuildStatus changes
+            // and avoid firing the notification when old and new statuses are final (NCL-5885)
             buildStatusChangedEventNotifier.fire(buildStatusChanged);
             log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
         }

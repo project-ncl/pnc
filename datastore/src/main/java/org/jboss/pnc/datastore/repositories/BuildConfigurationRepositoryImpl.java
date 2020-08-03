@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSpringRepository;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -34,6 +35,8 @@ import java.util.Objects;
 public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildConfiguration, Integer>
         implements BuildConfigurationRepository {
 
+    private AlignmentConfig alignmentConfig;
+
     /**
      * @deprecated Created for CDI.
      */
@@ -43,8 +46,12 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
     }
 
     @Inject
-    public BuildConfigurationRepositoryImpl(BuildConfigurationSpringRepository buildConfigurationSpringRepository) {
+    public BuildConfigurationRepositoryImpl(
+            BuildConfigurationSpringRepository buildConfigurationSpringRepository,
+            AlignmentConfig alignmentConfig) {
+
         super(buildConfigurationSpringRepository, buildConfigurationSpringRepository);
+        this.alignmentConfig = alignmentConfig;
     }
 
     @Override
@@ -64,6 +71,10 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
                 buildConfiguration.setLastModificationUser(persisted.getLastModificationUser());
             }
         }
+        // Update or save need to set the default alignment parameters
+        buildConfiguration.setDefaultAlignmentParams(
+                alignmentConfig.getAlignmentParameters().get(buildConfiguration.getBuildType().toString()));
+
         return springRepository.save(buildConfiguration);
     }
 

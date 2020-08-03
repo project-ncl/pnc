@@ -17,9 +17,8 @@
  */
 package org.jboss.pnc.bpm;
 
-public class NoEntityException extends BpmException {
-
-    public NoEntityException(String message) {
+public class BpmException extends RuntimeException {
+    public BpmException(String message) {
         super(message);
     }
 }

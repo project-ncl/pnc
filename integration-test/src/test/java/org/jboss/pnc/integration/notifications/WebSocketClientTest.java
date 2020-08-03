@@ -109,7 +109,7 @@ public class WebSocketClientTest {
         Thread.sleep(1000);
         unsubscriber.run();
         wsClient.disconnect().get();
-        assertThat(notificationCounter).hasValueGreaterThan(2);
+        assertThat(notificationCounter).hasValueGreaterThanOrEqualTo(2);
     }
 
     @Test

@@ -220,6 +220,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_build_configuration_modification_user"), updatable = true)
     private User lastModificationUser;
 
+    private String defaultAlignmentParams;
+
     /**
      * Instantiates a new project build configuration.
      */
@@ -612,6 +614,20 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         this.lastModificationUser = lastModificationUser;
     }
 
+    /**
+     * @return the default alignment parameters for this build config type
+     */
+    public String getDefaultAlignmentParams() {
+        return defaultAlignmentParams;
+    }
+
+    /**
+     * @param defaultAlignmentParams the default alignment parameters
+     */
+    public void setDefaultAlignmentParams(String defaultAlignmentParams) {
+        this.defaultAlignmentParams = StringUtils.nullIfBlank(defaultAlignmentParams);
+    }
+
     @Override
     public String toString() {
         return "BuildConfiguration " + getId() + " [project=" + getProject() + ", name=" + getName() + ", active="
@@ -668,6 +684,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         clone.scmRevision = scmRevision;
         clone.creationUser = null;
         clone.lastModificationUser = null;
+        clone.defaultAlignmentParams = defaultAlignmentParams;
         return clone;
     }
 
@@ -770,6 +787,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         private User lastModificationUser;
 
+        private String defaultAlignmentParams;
+
         private Builder() {
             dependencies = new HashSet<>();
             dependants = new HashSet<>();
@@ -822,6 +841,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
             buildConfiguration.setDependants(dependants);
             buildConfiguration.setCreationUser(creationUser);
             buildConfiguration.setLastModificationUser(lastModificationUser);
+
+            buildConfiguration.setDefaultAlignmentParams(defaultAlignmentParams);
 
             return buildConfiguration;
         }
@@ -923,6 +944,11 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
 
         public Builder lastModificationUser(User lastModificationUser) {
             this.lastModificationUser = lastModificationUser;
+            return this;
+        }
+
+        public Builder defaultAlignmentParams(String defaultAlignmentParams) {
+            this.defaultAlignmentParams = defaultAlignmentParams;
             return this;
         }
     }

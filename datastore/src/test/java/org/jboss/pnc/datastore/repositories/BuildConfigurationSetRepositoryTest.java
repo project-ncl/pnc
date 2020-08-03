@@ -26,6 +26,7 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
@@ -102,6 +103,10 @@ public class BuildConfigurationSetRepositoryTest {
 
         assertThat(buildConfigurationsLoaded).isNotEmpty();
         assertThat(buildConfigurationsLoaded.size()).isEqualTo(1);
+
+        assertThat(buildConfiguration1.getDefaultAlignmentParams().contains("-DdependencySource=REST"));
+        assertThat(buildConfiguration2.getDefaultAlignmentParams().contains("-DdependencySource=REST"));
+        assertThat(buildConfiguration3.getDefaultAlignmentParams().contains("-DdependencySource=REST"));
     }
 
     private class BuildConfigurationFactory {
@@ -135,6 +140,7 @@ public class BuildConfigurationSetRepositoryTest {
                     .project(project)
                     .creationTime(new Date())
                     .lastModificationTime(new Date())
+                    .buildType(BuildType.MVN)
                     .build();
 
             return buildConfigurationRepository.save(buildConfiguration);
@@ -142,7 +148,10 @@ public class BuildConfigurationSetRepositoryTest {
 
         BuildConfiguration createDetached(String name) {
             BuildConfiguration buildConfiguration = createBuildConfiguration(name);
-            return BuildConfiguration.Builder.newBuilder().id(buildConfiguration.getId()).build();
+            return BuildConfiguration.Builder.newBuilder()
+                    .id(buildConfiguration.getId())
+                    .defaultAlignmentParams(buildConfiguration.getDefaultAlignmentParams())
+                    .build();
         }
     }
 }

@@ -36,6 +36,8 @@ import org.mapstruct.Mapping;
 public interface BuildPushResultMapper
         extends EntityMapper<Long, BuildRecordPushResult, BuildPushResult, BuildPushResultRef> {
 
+    IdMapper<Long, String> idMapper = new LongIdMapper();
+
     @Override
     default BuildRecordPushResult toIDEntity(BuildPushResultRef dtoEntity) {
         if (dtoEntity == null) {
@@ -82,6 +84,6 @@ public interface BuildPushResultMapper
 
     @Override
     default IdMapper<Long, String> getIdMapper() {
-        return new LongIdMapper();
+        return idMapper;
     }
 }

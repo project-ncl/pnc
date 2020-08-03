@@ -67,6 +67,8 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
 
     private User lastModificationUser;
 
+    private String defaultAlignmentParams;
+
     private BuildConfiguration buildConfiguration;
 
     /**
@@ -205,6 +207,14 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
         this.lastModificationUser = lastModificationUser;
     }
 
+    public String getDefaultAlignmentParams() {
+        return defaultAlignmentParams;
+    }
+
+    public void setDefaultAlignmentParams(String defaultAlignmentParams) {
+        this.defaultAlignmentParams = defaultAlignmentParams;
+    }
+
     @Override
     public String toString() {
         return "BuildConfigurationAudit [project=" + project + ", name=" + name + ", id=" + id + ", rev=" + rev + "]";
@@ -252,6 +262,7 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
             configurationAudited.setLastModificationTime(buildConfiguration.getLastModificationTime());
             configurationAudited.setCreationUser(buildConfiguration.getCreationUser());
             configurationAudited.setLastModificationUser(buildConfiguration.getLastModificationUser());
+            configurationAudited.setDefaultAlignmentParams(buildConfiguration.getDefaultAlignmentParams());
             configurationAudited.buildConfiguration = buildConfiguration;
             return configurationAudited;
         }

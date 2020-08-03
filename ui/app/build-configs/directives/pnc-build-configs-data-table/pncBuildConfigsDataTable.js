@@ -24,7 +24,8 @@
       displayFields: '<',
       hideActions: '@',
       onRemove: '&',
-      onEdit: '&'
+      onEdit: '&',
+      refreshBuildConfigs: '&'
     },
     templateUrl: 'build-configs/directives/pnc-build-configs-data-table/pnc-build-configs-data-table.html',
     controller: ['$scope', '$q', 'modalSelectService', 'filteringPaginator', 'SortHelper', Controller]
@@ -88,6 +89,7 @@
 
     function remove(buildConfig) {
       $q.when($ctrl.onRemove()(buildConfig)).then(() => {
+        $ctrl.refreshBuildConfigs()($ctrl.page.data.filter(bc => bc.id !== buildConfig.id));
         $ctrl.filterPage.refresh();
       });
     }
@@ -98,7 +100,7 @@
           if ($ctrl.page.total === 1) {
             return $ctrl.page.data;
           } else {
-            return $ctrl.page.getWithNewSize($ctrl.page.total * $ctrl.page.count).then(function (resp) { return resp.data; });
+            return $ctrl.page.getWithNewSize($ctrl.page.total * $ctrl.page.size).then(function (resp) { return resp.data; });
           }
         })
         .then(function (buildConfigs) {
@@ -109,7 +111,8 @@
         })
         .then(function (editedBuildConfigs) {
           $q.when($ctrl.onEdit()(editedBuildConfigs)).then(function () {
-            $ctrl.page.refresh();
+            $ctrl.refreshBuildConfigs()(editedBuildConfigs);
+            $ctrl.filterPage.refresh();
           });
         });
     }

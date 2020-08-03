@@ -18,6 +18,7 @@
 package org.jboss.pnc.bpm.causeway;
 
 import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
+import org.jboss.pnc.bpm.InvalidReferenceException;
 import org.jboss.pnc.bpm.MissingInternalReferenceException;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.causewayclient.remotespi.Build;
@@ -33,6 +34,7 @@ import org.jboss.pnc.causewayclient.remotespi.NpmBuild;
 import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
+import org.jboss.pnc.constants.MDCKeys;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildType;
@@ -53,14 +55,13 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.jboss.pnc.constants.MDCKeys.BUILD_ID_KEY;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -135,8 +136,9 @@ public class BuildResultPushManager {
                     buildPushOperation.getTagPrefix(),
                     String.format(
                             buildPushOperation.getCompleteCallbackUrlTemplate(),
-                            buildPushOperation.getPushResultId()),
+                            buildPushOperation.getBuildRecord().getId()),
                     authToken,
+                    buildPushOperation.getPushResultId(),
                     buildPushOperation.isReImport());
             boolean successfullyStarted = causewayClient.importBuild(buildImportRequest, authToken);
             if (successfullyStarted) {
@@ -167,6 +169,7 @@ public class BuildResultPushManager {
             String tagPrefix,
             String callBackUrl,
             String authToken,
+            Long pushResultId,
             boolean reimport) {
         BuildEnvironment buildEnvironment = buildRecord.getBuildConfigurationAudited().getBuildEnvironment();
         logger.debug("BuildRecord: {}", buildRecord.getId());
@@ -194,7 +197,10 @@ public class BuildResultPushManager {
         Set<Dependency> dependencies = collectDependencies(dependencyEntities);
         Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(builtArtifactEntities, buildType);
 
-        CallbackTarget callbackTarget = CallbackTarget.callbackPost(callBackUrl, authToken);
+        Map<String, String> callbackHeaders = Collections.singletonMap(
+                MDCUtils.getMDCToHeaderMappings().get(MDCKeys.PROCESS_CONTEXT_KEY),
+                pushResultId.toString());
+        CallbackTarget callbackTarget = CallbackTarget.callbackPost(callBackUrl, authToken, callbackHeaders);
 
         String executionRootName = null;
         // prefer execution root name from generic parameters
@@ -408,10 +414,22 @@ public class BuildResultPushManager {
 
     public Long complete(Integer buildRecordId, BuildRecordPushResult buildRecordPushResult) {
         // accept only listed elements otherwise a new request might be wrongly completed from response of an older one
-        InProgress.Context pushContext = inProgress.remove(buildRecordId);
+        // get context for validation
+        InProgress.Context pushContext = inProgress.get(buildRecordId);
         if (pushContext == null) {
-            throw new MissingInternalReferenceException("Did not find the referenced element.");
+            throw new MissingInternalReferenceException("Did not find referenced element.");
         }
+        Long expectedPushResultId = BuildPushResultMapper.idMapper.toEntity(pushContext.getPushResultId());
+        // if the result id is set it must match the id generated when the remote operation has been triggered
+        if (buildRecordPushResult.getId() != null && !buildRecordPushResult.getId().equals(expectedPushResultId)) {
+            throw new InvalidReferenceException("Unexpected result id: " + buildRecordPushResult.getId());
+        }
+        // get and remove the context atomically
+        pushContext = inProgress.remove(buildRecordId);
+        if (pushContext == null) {
+            throw new MissingInternalReferenceException("Referenced element has gone.");
+        }
+        buildRecordPushResult.setId(expectedPushResultId);
         buildRecordPushResult.setTagPrefix(pushContext.getTagPrefix());
         BuildRecordPushResult saved = buildRecordPushResultRepository.save(buildRecordPushResult);
         buildPushResultEvent.fire(mapper.toDTO(saved));

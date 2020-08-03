@@ -60,6 +60,7 @@ import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 public class ProductMilestoneReleaseManager {
 
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneReleaseManager.class);
+    private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.milestone");
 
     private BpmManager bpmManager;
 
@@ -154,12 +155,11 @@ public class ProductMilestoneReleaseManager {
                     r -> onFailedPush(milestone.getId(), r));
             release.setStatus(MilestoneCloseStatus.IN_PROGRESS);
             bpmManager.startTask(releaseTask);
-            release.setLog("Brew push task started\n");
-
+            userLog.info("Release process started.");
             return release;
         } catch (CoreException e) {
             log.error("Error trying to start brew push task for milestone: {}", milestone.getId(), e);
-            release.setLog("Brew push BPM task creation failed.\nCheck log for more details.\n");
+            userLog.error("Release process creation failed.", e);
             release.setStatus(MilestoneCloseStatus.SYSTEM_ERROR);
             release.setEndDate(new Date());
             return release;
@@ -169,11 +169,13 @@ public class ProductMilestoneReleaseManager {
     private void onSuccessfulPush(Integer milestoneId, MilestoneReleaseResultRest result) {
         log.debug("Storing milestone release result: {}", result);
         withMilestone(milestoneId, result, this::storeSuccess);
+        userLog.info("Milestone release result stored.");
     }
 
     private void onFailedPush(Integer milestoneId, BpmStringMapNotificationRest result) {
         log.debug("Storing failed milestone release result: {}", result);
         withMilestone(milestoneId, result, this::storeFailure);
+        userLog.info("Failed milestone release result stored.");
     }
 
     private <T> void withMilestone(Integer milestoneId, T result, BiConsumer<ProductMilestone, T> consumer) {
