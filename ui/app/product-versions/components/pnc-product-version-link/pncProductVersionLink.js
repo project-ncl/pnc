@@ -26,16 +26,21 @@
       productVersion: '<'
     },
     templateUrl: 'product-versions/components/pnc-product-version-link/pnc-product-version-link.html',
-    controller: [Controller]
+    controller: ['ProductVersionResource', Controller]
   });
 
-  function Controller() {
-
+  function Controller(ProductVersionResource) {
+    var $ctrl = this;
+    $ctrl.productVersionData = $ctrl.productVersion;
     // -- Controller API --
 
 
     // --------------------
-
+    $ctrl.$onInit = function () {
+      ProductVersionResource.get({ id: $ctrl.productVersion.id }).$promise.then(function (productVersionRes){
+        $ctrl.productVersionData = productVersionRes;
+      });
+    };
   }
 
 })();

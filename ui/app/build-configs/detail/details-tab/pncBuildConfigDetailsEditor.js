@@ -25,10 +25,6 @@
        */
       buildConfig: '<',
       /**
-       * Object: The detailed productVersion object of the build config
-       */
-      productVersion: '<',
-      /**
        * Function: Callback function when the buildConfig is successfully
        * updated. The function is passed the updated buildConfig.
        */
@@ -40,11 +36,11 @@
       onCancel: '&'
     },
     templateUrl: 'build-configs/detail/details-tab/pnc-build-config-details-editor.html',
-    controller: ['$state', 'BuildConfigResource', Controller]
+    controller: ['$state', 'BuildConfigResource', 'ProductVersionResource', Controller]
   });
 
 
-  function Controller($state, BuildConfigResource) {
+  function Controller($state, BuildConfigResource, ProductVersionResource) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -64,8 +60,12 @@
       // Ensure this components copy of the BC can't be updated from outside.
       $ctrl.buildConfig = angular.copy($ctrl.buildConfig);
       $ctrl.originalBuildType = $ctrl.formData.general.buildType;
-      $ctrl.formData.productVersion = $ctrl.productVersion ? $ctrl.productVersion : null;
-      $ctrl.formData.product = $ctrl.productVersion ? $ctrl.productVersion.product : null;
+
+      //Fetch full product version data from endpoint to get the product information by productVersion.id
+      ProductVersionResource.get({ id: $ctrl.buildConfig.productVersion.id }).$promise.then(function (productVersionRes){
+        $ctrl.formData.productVersion = productVersionRes;
+        $ctrl.formData.product = productVersionRes ? productVersionRes.product : null;
+      });
     };
 
    /*Check version data and remove it if product is changed or not selected*/
@@ -82,12 +82,6 @@
       BuildConfigResource.safePatchRemovingParameters($ctrl.buildConfig, buildConfig).$promise
           .then(resp => {
             $ctrl.onSuccess({ buildConfig: resp});
-            $state.go('projects.detail.build-configs.detail', {
-              projectId: $ctrl.buildConfig.project.id,
-              configurationId: $ctrl.buildConfig.id
-            }, {
-              reload: true
-            });
           })
           .finally(() => $ctrl.working = false);
       console.log('UPDATE BC -> formData: %O | buildConfig: %O', $ctrl.formData, buildConfig);

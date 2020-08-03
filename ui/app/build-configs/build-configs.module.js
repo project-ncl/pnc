@@ -116,13 +116,6 @@
         },
         bindings: {
           buildConfig: 'configurationDetail'
-        },
-        resolve: {
-          productVersion: [
-            'configurationDetail',
-            'ProductVersionResource',
-            (configurationDetail, ProductVersionResource) => configurationDetail.productVersion ? ProductVersionResource.get({ id: configurationDetail.productVersion.id }).$promise : null
-          ]
         }
       });
 
