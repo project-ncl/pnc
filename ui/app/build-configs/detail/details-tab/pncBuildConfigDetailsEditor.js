@@ -36,11 +36,11 @@
       onCancel: '&'
     },
     templateUrl: 'build-configs/detail/details-tab/pnc-build-config-details-editor.html',
-    controller: ['BuildConfigResource', Controller]
+    controller: ['BuildConfigResource', 'ProductVersionResource', Controller]
   });
 
 
-  function Controller(BuildConfigResource) {
+  function Controller(BuildConfigResource, ProductVersionResource) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -58,14 +58,30 @@
       $ctrl.formData = fromBuildConfig($ctrl.buildConfig);
       // Ensure this components copy of the BC can't be updated from outside.
       $ctrl.buildConfig = angular.copy($ctrl.buildConfig);
+      //Fetch full product version data from endpoint to get the product information by productVersion.id
+      if($ctrl.buildConfig.productVersion){
+         ProductVersionResource.get({ id: $ctrl.buildConfig.productVersion.id }).$promise.then(function (productVersionRes){
+                $ctrl.formData.productVersion = productVersionRes;
+                $ctrl.formData.product = productVersionRes ? productVersionRes.product : null;
+              });
+      }
     };
+
+   /*Check version data and remove it if product is changed or not selected*/
+      $ctrl.checkVersionData = () => {
+        if (!$ctrl.formData.product || ($ctrl.formData.productVersion && $ctrl.formData.product.id !== $ctrl.formData.productVersion.product.id)) {
+          $ctrl.formData.productVersion = null;
+        }
+      };
 
     function submit() {
       $ctrl.working = true;
       var buildConfig = toBuildConfig($ctrl.formData, $ctrl.buildConfig);
 
       BuildConfigResource.safePatchRemovingParameters($ctrl.buildConfig, buildConfig).$promise
-          .then(resp => $ctrl.onSuccess({ buildConfig: resp}))
+          .then(resp => {
+            $ctrl.onSuccess({ buildConfig: resp});
+          })
           .finally(() => $ctrl.working = false);
       console.log('UPDATE BC -> formData: %O | buildConfig: %O', $ctrl.formData, buildConfig);
     }
@@ -93,6 +109,7 @@
       formData.general.scmRevision = buildConfig.scmRevision;
 
       formData.scmRepository = buildConfig.scmRepository;
+      formData.productVersion = buildConfig.productVersion;
 
       formData.parameters = buildConfig.parameters;
 
@@ -104,6 +121,7 @@
 
       newBc.scmRepository = formData.scmRepository;
       newBc.parameters = formData.parameters;
+      newBc.productVersion = formData.productVersion;
 
       return newBc;
     }

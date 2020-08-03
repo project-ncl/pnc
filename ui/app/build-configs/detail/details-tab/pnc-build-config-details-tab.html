@@ -27,11 +27,11 @@
     <pnc-inline-notification name="edit-build-config"></pnc-inline-notification>
 
     <div ng-if="!$ctrl.isEditModeActive()">
-      <pnc-build-config-properties build-config="$ctrl.buildConfig"></pnc-build-config-properties>
+      <pnc-build-config-properties build-config="$ctrl.buildConfig" product-version="$ctrl.productVersion"></pnc-build-config-properties>
     </div>
     <div ng-if="$ctrl.isEditModeActive()">
       <div>
-        <pnc-build-config-details-editor build-config="$ctrl.buildConfig" on-success="$ctrl.onSuccess(buildConfig)" on-cancel="$ctrl.onCancelEdit()"></pnc-build-config-details-editor>
+        <pnc-build-config-details-editor build-config="$ctrl.buildConfig" product-version="$ctrl.productVersion" on-success="$ctrl.onSuccess(buildConfig)" on-cancel="$ctrl.onCancelEdit()"></pnc-build-config-details-editor>
       </div>
     </div>
   </div>
