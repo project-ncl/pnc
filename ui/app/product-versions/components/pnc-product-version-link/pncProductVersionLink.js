@@ -37,9 +37,11 @@
 
     // --------------------
     $ctrl.$onInit = function () {
-      ProductVersionResource.get({ id: $ctrl.productVersion.id }).$promise.then(function (productVersionRes){
-        $ctrl.productVersionData = productVersionRes;
-      });
+      if($ctrl.productVersion){
+        ProductVersionResource.get({ id: $ctrl.productVersion.id }).$promise.then(function (productVersionRes){
+          $ctrl.productVersionData = productVersionRes;
+        });
+      }
     };
   }
 
