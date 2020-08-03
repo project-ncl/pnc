@@ -86,6 +86,7 @@ public class ProductMilestoneProviderImpl
         implements ProductMilestoneProvider {
 
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProviderImpl.class);
+    private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.milestone");
 
     private ProductMilestoneReleaseManager releaseManager;
     private final ProductMilestoneCloseResultMapper milestoneReleaseMapper;
@@ -178,7 +179,9 @@ public class ProductMilestoneProviderImpl
         try {
             Long milestoneReleaseId = Sequence.nextId();
             MDCUtils.addProcessContext(milestoneReleaseId.toString());
-            return doCloseMilestone(id, milestoneReleaseId);
+            userLog.info("Processing milestone close request ...");
+            ProductMilestoneCloseResult closeResult = doCloseMilestone(id, milestoneReleaseId);
+            return closeResult;
         } finally {
             MDCUtils.removeProcessContext();
         }
@@ -188,11 +191,12 @@ public class ProductMilestoneProviderImpl
         org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
 
         if (milestoneInDb.getEndDate() != null) {
-            log.info("Milestone is already closed: no more modifications allowed");
+            userLog.info("Milestone is already closed: no more modifications allowed");
             throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
         } else {
             Optional<ProductMilestoneRelease> inProgress = releaseManager.getInProgress(milestoneInDb);
             if (inProgress.isPresent()) {
+                userLog.warn("Milestone close is already in progress.");
                 return milestoneReleaseMapper.toDTO(inProgress.get());
             } else {
                 log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
@@ -206,26 +210,19 @@ public class ProductMilestoneProviderImpl
 
     @Override
     public void cancelMilestoneCloseProcess(String id) throws RepositoryViolationException, EmptyEntityException {
-
         org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
-
         // If we want to close a milestone, make sure it's not already released (by checking end date)
         // and there are no release in progress
         if (milestoneInDb.getEndDate() != null) {
-
-            log.info("Milestone is already closed.");
+            userLog.info("Milestone is already closed.");
             throw new RepositoryViolationException("Milestone is already closed!");
-
         } else {
-
             if (releaseManager.noReleaseInProgress(milestoneInDb)) {
-
-                log.debug(
+                userLog.warn(
                         "Milestone's 'end date' set and no release in progress! Cannot run cancel process for given id");
                 throw new EmptyEntityException("No running cancel process for given id.");
-
             } else {
-
+                userLog.info("Cancelling milestone release process ...");
                 releaseManager.cancel(milestoneInDb);
             }
         }
