@@ -38,6 +38,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
+import org.jboss.pnc.facade.util.RepourClient;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -64,6 +65,7 @@ import static org.jboss.pnc.constants.Patterns.INTERNAL_REPOSITORY_NAME;
 import static org.jboss.pnc.enums.JobNotificationType.SCM_REPOSITORY_CREATION;
 import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.matchByScmUrl;
 import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.searchByScmUrl;
+import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.withExactInternalScmRepoUrl;
 
 @PermitAll
 @Stateless
@@ -72,6 +74,8 @@ public class SCMRepositoryProviderImpl
         implements SCMRepositoryProvider {
 
     private static final Logger log = LoggerFactory.getLogger(SCMRepositoryProviderImpl.class);
+
+    private static final String RC_REPO_CREATION_CONFLICT = "RC_REPO_CREATION_CONFLICT";
 
     private ScmModuleConfig config;
 
@@ -88,6 +92,9 @@ public class SCMRepositoryProviderImpl
 
     @Inject
     private BpmManager bpmManager;
+
+    @Inject
+    private RepourClient repour;
 
     @Inject
     public SCMRepositoryProviderImpl(
@@ -195,7 +202,7 @@ public class SCMRepositoryProviderImpl
         return mapper.toDTO(saved);
     }
 
-    public SCMRepository createSCMRepositoryFromValues(
+    private SCMRepository createSCMRepositoryFromValues(
             String externalScmUrl,
             String internalScmUrl,
             boolean preBuildSyncEnabled) {
@@ -238,31 +245,29 @@ public class SCMRepositoryProviderImpl
     }
 
     private void validateRepositoryWithInternalURLDoesNotExist(String internalUrl) throws ConflictedEntryException {
-        if (internalUrl != null) {
-            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
-                    .queryByInternalScm(internalUrl);
-            if (repositoryConfiguration != null) {
-                String message = "SCM Repository already exists (id: " + repositoryConfiguration.getId() + ")";
-                throw new ConflictedEntryException(
-                        message,
-                        RepositoryConfiguration.class,
-                        repositoryConfiguration.getId().toString());
-            }
+        RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
+                .queryByInternalScm(internalUrl);
+        if (repositoryConfiguration != null) {
+            String message = "SCM Repository already exists (id: " + repositoryConfiguration.getId() + ")";
+            throw new ConflictedEntryException(
+                    message,
+                    RepositoryConfiguration.class,
+                    repositoryConfiguration.getId().toString());
         }
     }
 
     private void validateRepositoryWithExternalURLDoesNotExist(String externalUrl) throws ConflictedEntryException {
-        if (externalUrl != null) {
-            RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
-                    .queryByExternalScm(externalUrl);
-            if (repositoryConfiguration != null) {
-                String message = "SCM Repository already exists (id: " + repositoryConfiguration.getId() + ")";
-                throw new ConflictedEntryException(
-                        message,
-                        RepositoryConfiguration.class,
-                        repositoryConfiguration.getId().toString());
-            }
+        RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
+                .queryByExternalScm(externalUrl);
+        if (repositoryConfiguration != null) {
+            String message = "SCM Repository already exists (id: " + repositoryConfiguration.getId() + ")";
+            throw new ConflictedEntryException(
+                    message,
+                    RepositoryConfiguration.class,
+                    repositoryConfiguration.getId().toString());
         }
+        String internalUrl = repour.translateExternalUrl(externalUrl);
+        validateRepositoryWithInternalURLDoesNotExist(internalUrl);
     }
 
     private RepositoryCreationTask startRCreationTask(
@@ -286,15 +291,13 @@ public class SCMRepositoryProviderImpl
                 repositoryCreationProcess,
                 userToken);
 
-        Consumer<RepositoryCloneSuccess> successListener = n -> {
-            final Integer taskId = repositoryCreationTask.getTaskId();
-            SCMRepository repository = createSCMRepositoryFromValues(
-                    externalURL,
-                    n.getData().getInternalUrl(),
-                    preBuildSyncEnabled);
-            RepositoryCreated notification = new RepositoryCreated(taskId, Integer.parseInt(repository.getId()));
-            consumer.accept(notification);
-        };
+        Consumer<RepositoryCloneSuccess> successListener = event -> onRepoCloneSuccess(
+                event,
+                repositoryCreationTask,
+                consumer,
+                jobType,
+                externalURL,
+                preBuildSyncEnabled);
         repositoryCreationTask.addListener(BpmEventType.RC_REPO_CLONE_SUCCESS, MDCWrappers.wrap(successListener));
         addErrorListeners(jobType, repositoryCreationTask);
 
@@ -304,6 +307,31 @@ public class SCMRepositoryProviderImpl
             throw new RuntimeException("Could not start BPM task: " + repositoryCreationTask, e);
         }
         return repositoryCreationTask;
+    }
+
+    private void onRepoCloneSuccess(
+            RepositoryCloneSuccess event,
+            RepositoryCreationTask repositoryCreationTask,
+            Consumer<RepositoryCreated> consumer,
+            JobNotificationType jobType,
+            String externalURL,
+            boolean preBuildSyncEnabled) throws NumberFormatException {
+        final String internalScmUrl = event.getData().getInternalUrl();
+        final Integer taskId = repositoryCreationTask.getTaskId();
+
+        RepositoryConfiguration existing = repository.queryByPredicates(withExactInternalScmRepoUrl(internalScmUrl));
+        if (existing != null) {
+            RepositoryCreationFailure error = new RepositoryCreationFailure(
+                    jobType,
+                    RC_REPO_CREATION_CONFLICT,
+                    existing,
+                    taskId.toString());
+            notifier.sendMessage(error);
+        } else {
+            SCMRepository scmRepo = createSCMRepositoryFromValues(externalURL, internalScmUrl, preBuildSyncEnabled);
+            RepositoryCreated notification = new RepositoryCreated(taskId, Integer.parseInt(scmRepo.getId()));
+            consumer.accept(notification);
+        }
     }
 
     private void addErrorListeners(JobNotificationType jobType, RepositoryCreationTask task) {
