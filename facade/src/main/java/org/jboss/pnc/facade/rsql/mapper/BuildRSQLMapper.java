@@ -44,6 +44,8 @@ public class BuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildRecord> {
                 return BuildRecord_.user;
             case "groupBuild":
                 return BuildRecord_.buildConfigSetRecord;
+            case "productMilestone":
+                return BuildRecord_.productMilestone;
             default:
                 return null;
         }
