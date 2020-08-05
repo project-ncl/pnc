@@ -34,7 +34,13 @@ import java.util.concurrent.TimeoutException;
 import static org.jboss.pnc.restclient.websocket.predicates.BuildPushResultNotificationPredicates.withBuildId;
 import static org.jboss.pnc.restclient.websocket.predicates.BuildPushResultNotificationPredicates.withPushCompleted;
 
-public class AdvancedBuildClient extends BuildClient {
+/**
+ * AdvancedBuildClient that provides additional features to wait for a build to finish.
+ *
+ * It is highly recommended to use the class inside a try-with-resources statement to properly cleanup the websocket
+ * client. Otherwise the program using this class may hang indefinitely
+ */
+public class AdvancedBuildClient extends BuildClient implements AutoCloseable {
 
     private WebSocketClient webSocketClient = new VertxWebSocketClient();
 
@@ -68,6 +74,20 @@ public class AdvancedBuildClient extends BuildClient {
             throw new RuntimeException(e);
         } finally {
             webSocketClient.disconnect();
+        }
+    }
+
+    /**
+     * Run this auto-close to make sure all vertx event loops are closed
+     */
+    @Override
+    public void close() {
+        if (webSocketClient != null) {
+            try {
+                webSocketClient.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Couldn't close websocket", e);
+            }
         }
     }
 }
