@@ -34,7 +34,13 @@ import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
-public class AdvancedBuildConfigurationClient extends BuildConfigurationClient {
+/**
+ * AdvancedBuildConfigurationClient that provides additional features to wait for a build to finish.
+ *
+ * It is highly recommended to use the class inside a try-with-resources statement to properly cleanup the websocket
+ * client. Otherwise the program using this class may hang indefinitely
+ */
+public class AdvancedBuildConfigurationClient extends BuildConfigurationClient implements AutoCloseable {
 
     private WebSocketClient webSocketClient = new VertxWebSocketClient();
 
@@ -88,6 +94,20 @@ public class AdvancedBuildConfigurationClient extends BuildConfigurationClient {
             throw new RuntimeException(e);
         } finally {
             webSocketClient.disconnect();
+        }
+    }
+
+    /**
+     * Run this auto-close to make sure all vertx event loops are closed
+     */
+    @Override
+    public void close() {
+        if (webSocketClient != null) {
+            try {
+                webSocketClient.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Couldn't close websocket", e);
+            }
         }
     }
 }
