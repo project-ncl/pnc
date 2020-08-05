@@ -44,6 +44,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Collections;
@@ -52,13 +53,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withOriginUrl;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256InAndBuilt;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierInAndBuilt;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 
@@ -110,13 +108,28 @@ public class DefaultDatastore implements Datastore {
 
     @Override
     public Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts) {
-        Map<String, Artifact> sha256s = artifacts.stream()
-                .collect(Collectors.toMap(Artifact::getSha256, Function.identity()));
-        List<Artifact> conflicting = artifactRepository.queryWithPredicates(withSha256InAndBuilt(sha256s.keySet()));
+        Map<RepositoryType, Map<String, Artifact>> repoTypes = new HashMap<>();
+        for (Artifact artifact : artifacts) {
+            RepositoryType repoType = artifact.getTargetRepository().getRepositoryType();
+            if (!repoTypes.containsKey(repoType)) {
+                repoTypes.put(repoType, new HashMap<>());
+            }
+            Map<String, Artifact> identifiers = repoTypes.get(repoType);
+            identifiers.put(artifact.getIdentifier(), artifact);
+        }
+
         Map<Artifact, String> conflicts = new HashMap<>();
-        for (Artifact conflict : conflicting) {
-            Artifact artifact = sha256s.get(conflict.getSha256());
-            conflicts.put(artifact, ARTIFACT_ALREADY_BUILT_CONFLICT_MESSAGE + conflict.getBuildRecord().getId());
+        for (RepositoryType repoType : repoTypes.keySet()) {
+            Map<String, Artifact> identifiers = repoTypes.get(repoType);
+            List<Artifact> conflicting = artifactRepository
+                    .queryWithPredicates(withIdentifierInAndBuilt(identifiers.keySet()));
+            for (Artifact conflict : conflicting) {
+                if (conflict.getTargetRepository().getRepositoryType() == repoType) {
+                    Artifact artifact = identifiers.get(conflict.getIdentifier());
+                    conflicts
+                            .put(artifact, ARTIFACT_ALREADY_BUILT_CONFLICT_MESSAGE + conflict.getBuildRecord().getId());
+                }
+            }
         }
         return conflicts;
     }

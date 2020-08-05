@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildRecord;
@@ -26,6 +27,7 @@ import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
+
 import java.util.Optional;
 import java.util.Set;
 
@@ -76,12 +78,21 @@ public class ArtifactPredicates {
                 cb.equal(root.get(Artifact_.sha256), sha256));
     }
 
+    public static Predicate<Artifact> withIdentifierInAndBuilt(Set<String> identifiers) {
+        if (CollectionUtils.isEmpty(identifiers)) {
+            return Predicate.nonMatching();
+        } else {
+            return (root, query, cb) -> cb
+                    .and(root.get(Artifact_.buildRecord).isNotNull(), root.get(Artifact_.identifier).in(identifiers));
+        }
+    }
+
     public static Predicate<Artifact> withSha256In(Set<String> sha256s) {
         return (root, query, cb) -> root.get(Artifact_.sha256).in(sha256s);
     }
 
     public static Predicate<Artifact> withSha256InAndBuilt(Set<String> sha256s) {
-        if (sha256s == null || sha256s.isEmpty()) {
+        if (CollectionUtils.isEmpty(sha256s)) {
             return Predicate.nonMatching();
         } else {
             return (root, query, cb) -> cb
