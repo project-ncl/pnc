@@ -146,3 +146,11 @@ BEGIN transaction;
     ALTER TABLE buildconfiguration_aud ADD COLUMN defaultAlignmentParams text;
 
 COMMIT;
+
+-- Optimize query in BuilcConfig page (problems with loading http://orch.psi.redhat.com/pnc-web/#/projects/632/build-configs/2888 posted by Honza on PNC Users)
+-- Commented as already executed by avibelli on Aug 5th, 2020
+--
+-- CREATE INDEX idx_build_configuration_parameters_aud_revinfo ON public.build_configuration_parameters_AUD USING btree (rev)
+-- CREATE INDEX idx_build_configuration_parameters_aud_rev ON public.build_configuration_parameters_AUD USING btree (buildconfiguration_id, rev)
+
+
