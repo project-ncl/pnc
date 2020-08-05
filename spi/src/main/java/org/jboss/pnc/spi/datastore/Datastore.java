@@ -37,7 +37,8 @@ import java.util.Set;
 public interface Datastore {
 
     /**
-     * Check a list of artifacts if any of them was already built
+     * Check a list of artifacts if any of them was already built. The check is based on repository type and identifier.
+     * It allows multiple same binaries with different identifier or different repository type.
      *
      * @param artifacts The artifacts to check
      * @return A Map containing the conflicting artifact and an error message, empty if there are no conflicts
@@ -84,7 +85,7 @@ public interface Datastore {
 
     /**
      * Save build config set record to db
-     * 
+     *
      * @param buildConfigSetRecord The record to save
      * @return The updated BuildConfigSetRecord
      * @throws DatastoreException If there is a problem saving to the datastore
@@ -93,7 +94,7 @@ public interface Datastore {
 
     /**
      * Get the latest audited version of the given build configuration.
-     * 
+     *
      * @param buildConfigId The id of the config to check
      * @return The latest audited version of the build configuration
      */
