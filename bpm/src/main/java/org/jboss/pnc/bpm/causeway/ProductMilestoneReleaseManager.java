@@ -50,6 +50,7 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import org.jboss.pnc.common.concurrent.Sequence;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 
@@ -92,7 +93,7 @@ public class ProductMilestoneReleaseManager {
 
     /**
      * Starts milestone release process
-     * 
+     *
      * @param milestone product milestone to start the release for
      * @param accessToken
      * @param milestoneReleaseId
@@ -230,6 +231,7 @@ public class ProductMilestoneReleaseManager {
         }
 
         BuildRecordPushResult buildRecordPush = BuildRecordPushResult.newBuilder()
+                .id(Sequence.nextId())
                 .buildRecord(record)
                 .status(status)
                 .brewBuildId(buildRest.getBrewBuildId())
