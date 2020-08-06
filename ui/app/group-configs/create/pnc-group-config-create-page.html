@@ -42,7 +42,7 @@
           </pnc-product-combobox>
         </div>
       </div>
-      <div class="form-group" ng-if="$ctrl.data.groupConfig.product"
+      <div class="form-group" ng-if="$ctrl.data.groupConfig.product && $ctrl.data.groupConfig.product.id"
            ng-class="{ 'has-error' : groupConfigForm.version.$invalid && groupConfigForm.version.$touched, 'has-success': groupConfigForm.product.$touched && groupConfigForm.version.$touched }">
         <label class="col-sm-3 col-lg-2 control-label">Version</label>
         <div class="col-sm-9 col-lg-7">
