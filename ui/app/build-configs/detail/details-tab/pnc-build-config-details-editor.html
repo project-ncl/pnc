@@ -51,7 +51,7 @@
 
           <!-- Validation: This field is mandatory if Product is selected-->
           <div class="form-group"
-               ng-if="$ctrl.formData.product"
+               ng-if="$ctrl.formData.product && $ctrl.formData.product.id"
                ng-class="{ 'has-error' : editBuildConfigForm.version.$invalid && editBuildConfigForm.version.$touched, 'has-success': editBuildConfigForm.product.$touched && editBuildConfigForm.version.$touched }">
             <label class="control-label required">Version</label>
             <pnc-product-version-combobox
