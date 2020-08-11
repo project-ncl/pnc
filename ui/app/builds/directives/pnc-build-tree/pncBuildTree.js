@@ -51,6 +51,7 @@
     $ctrl.buildTree = null;
     $ctrl.buildItem = null;
     $ctrl.isLoaded = false;
+    $ctrl.loadingErrorMessage = '';
     $ctrl.expandNodes = expandNodes;
     $ctrl.componentIdAttr = 'build-tree-' + UNIQUE_ID;
 
@@ -91,6 +92,8 @@
       buildItemPromise.then(function (dependencyGraph) {
         calculateDependencies(dependencyGraph);
         $ctrl.buildTree = convertGraphToTree(dependencyGraph, { expandLevel: 2 });
+      }).catch((error) => {
+        $ctrl.loadingErrorMessage = error.data.errorMessage;
       }).finally(function () {
         $ctrl.isLoaded = true;
       });
