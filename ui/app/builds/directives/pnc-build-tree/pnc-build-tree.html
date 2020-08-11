@@ -74,7 +74,7 @@
     <tbody ng-if="!$ctrl.buildTree.dependencyStructure" class="border-t-w-1">
       <tr>
         <td class="text-center">
-          <span ng-show="$ctrl.isLoaded">Build Tree could not be constructed properly.</span>
+          <span ng-show="$ctrl.isLoaded">Build Tree could not be displayed properly<span ng-if="$ctrl.loadingErrorMessage">: <span class="info-warning">{{$ctrl.loadingErrorMessage}}</span></span></span>
           <div ng-hide="$ctrl.isLoaded" class="loading-placeholder w-100-20"></div>
         </td>
       </tr>

@@ -338,3 +338,10 @@ label.required::before {
   top: 4px;
   z-index: 1000;
 }
+
+.info-warning {
+  padding: 2px 4px;
+  color: #ec7a08;
+  background-color: #ffebd7;
+  border-radius: 1px;
+}
