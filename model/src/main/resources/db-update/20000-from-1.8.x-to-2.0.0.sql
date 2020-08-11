@@ -147,6 +147,14 @@ BEGIN transaction;
 
 COMMIT;
 
+-- [NCL-5923][NCL-3702] Add SQL migration for group config's new 'active' column, and populate them as true for existing group configs
+BEGIN transaction;
+    -- add column active
+    ALTER TABLE buildconfigurationset ADD COLUMN active boolean;
+    -- set all existing build configuration sets to be active
+    UPDATE buildconfigurationset set active = true;
+COMMIT;
+
 -- Optimize query in BuilcConfig page (problems with loading http://orch.psi.redhat.com/pnc-web/#/projects/632/build-configs/2888 posted by Honza on PNC Users)
 -- Commented as already executed by avibelli on Aug 5th, 2020
 --
