@@ -26,8 +26,10 @@ import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
@@ -51,6 +53,7 @@ public class ProductVersionProviderImpl
     private ProductRepository productRepository;
     private BuildConfigurationSetRepository groupConfigRepository;
     private SystemConfig systemConfig;
+    private BuildConfigurationRepository buildConfigurationRepository;
 
     @Inject
     public ProductVersionProviderImpl(
@@ -58,6 +61,7 @@ public class ProductVersionProviderImpl
             ProductVersionMapper mapper,
             ProductRepository productRepository,
             BuildConfigurationSetRepository groupConfigRepository,
+            BuildConfigurationRepository buildConfigurationRepository,
             SystemConfig systemConfig) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductVersion.class);
@@ -65,6 +69,7 @@ public class ProductVersionProviderImpl
         this.productRepository = productRepository;
         this.groupConfigRepository = groupConfigRepository;
         this.systemConfig = systemConfig;
+        this.buildConfigurationRepository = buildConfigurationRepository;
     }
 
     @Override
@@ -100,7 +105,21 @@ public class ProductVersionProviderImpl
                     "Cannot change version id due to having closed milestone. Product version id: " + id);
         }
 
-        updateGroupConfigs(current, restEntity.getGroupConfigs());
+        // get Hibernate-managed entity
+        org.jboss.pnc.model.ProductVersion managedModel = repository.queryById(Integer.parseInt(id));
+        org.jboss.pnc.model.ProductVersion updatedModel = mapper.toEntity(restEntity);
+
+        groupConfigRepository.cascadeUpdates(
+                managedModel,
+                updatedModel,
+                org.jboss.pnc.model.ProductVersion::getBuildConfigurationSets,
+                BuildConfigurationSet::setProductVersion);
+
+        buildConfigurationRepository.cascadeUpdates(
+                managedModel,
+                updatedModel,
+                org.jboss.pnc.model.ProductVersion::getBuildConfigurations,
+                BuildConfiguration::setProductVersion);
 
         return super.update(id, restEntity);
     }
@@ -164,28 +183,4 @@ public class ProductVersionProviderImpl
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(Integer.valueOf(productId)));
     }
 
-    private void updateGroupConfigs(ProductVersion current, Map<String, GroupConfigurationRef> buildConfigs) {
-        Set<String> newIds;
-        if (buildConfigs == null) {
-            newIds = Collections.emptySet();
-        } else {
-            newIds = new HashSet<>(buildConfigs.keySet());
-        }
-        for (String id : current.getGroupConfigs().keySet()) {
-            if (!newIds.contains(id)) {
-                BuildConfigurationSet set = groupConfigRepository.queryById(Integer.valueOf(id));
-                set.setProductVersion(null);
-                groupConfigRepository.save(set);
-            }
-            newIds.remove(id);
-        }
-        if (!newIds.isEmpty()) {
-            org.jboss.pnc.model.ProductVersion productVersion = repository.queryById(Integer.valueOf(current.getId()));
-            for (String id : newIds) {
-                BuildConfigurationSet set = groupConfigRepository.queryById(Integer.valueOf(id));
-                set.setProductVersion(productVersion);
-                groupConfigRepository.save(set);
-            }
-        }
-    }
 }
