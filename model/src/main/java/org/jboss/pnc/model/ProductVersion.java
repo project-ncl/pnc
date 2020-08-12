@@ -281,6 +281,10 @@ public class ProductVersion implements GenericEntity<Integer> {
                 buildConfigurationSet.setProductVersion(productVersion);
             }
             productVersion.setBuildConfigurationSets(buildConfigurationSets);
+
+            for (BuildConfiguration buildConfiguration : buildConfigurations) {
+                buildConfiguration.setProductVersion(productVersion);
+            }
             productVersion.setBuildConfigurations(buildConfigurations);
 
             for (ProductMilestone productMilestone : productMilestones) {
@@ -335,6 +339,16 @@ public class ProductVersion implements GenericEntity<Integer> {
 
         public Builder buildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
             this.buildConfigurationSets.add(buildConfigurationSet);
+            return this;
+        }
+
+        public Builder buildConfigurationSet(Set<BuildConfiguration> buildConfigurationSet) {
+            this.buildConfigurations = buildConfigurationSet;
+            return this;
+        }
+
+        public Builder buildConfigurationSet(BuildConfiguration buildConfigurationSet) {
+            this.buildConfigurations.add(buildConfigurationSet);
             return this;
         }
 
