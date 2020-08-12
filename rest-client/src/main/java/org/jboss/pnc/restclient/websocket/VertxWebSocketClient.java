@@ -52,7 +52,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     private static final ObjectMapper objectMapper = JsonOutputConverterMapper.getMapper();
 
-    private final Vertx vertx;
+    private Vertx vertx;
 
     private HttpClient httpClient;
 
@@ -83,14 +83,10 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     private int reconnectDelay;
 
     public VertxWebSocketClient() {
-        this.vertx = Vertx.vertx();
-        this.httpClient = vertx.createHttpClient();
         reconnectDelay = initialDelay;
     }
 
     public VertxWebSocketClient(int maximumRetries, int initialDelay, int delayMultiplier) {
-        this.vertx = Vertx.vertx();
-        this.httpClient = vertx.createHttpClient();
         this.delayMultiplier = delayMultiplier;
         this.maximumRetries = maximumRetries;
         this.initialDelay = initialDelay;
@@ -108,6 +104,11 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
             serverURI = new URI(webSocketServerUrl);
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException("WebSocketServerUrl is not valid URI", e);
+        }
+
+        if (this.vertx == null) {
+            this.vertx = Vertx.vertx();
+            this.httpClient = vertx.createHttpClient();
         }
 
         if (webSocketConnection != null && !webSocketConnection.isClosed()) {
