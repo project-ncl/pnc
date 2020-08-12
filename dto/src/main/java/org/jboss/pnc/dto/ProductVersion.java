@@ -30,6 +30,7 @@ import org.jboss.pnc.processor.annotation.PatchSupport;
 import java.util.Map;
 
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
@@ -73,13 +74,13 @@ public class ProductVersion extends ProductVersionRef {
     /**
      * List of all group configs linked to this product version.
      */
-    @PatchSupport({ ADD, REPLACE })
+    @PatchSupport({ ADD, REPLACE, REMOVE })
     private final Map<String, GroupConfigurationRef> groupConfigs;
 
     /**
      * List of all group configs linked to this product version.
      */
-    @PatchSupport({ ADD, REPLACE })
+    @PatchSupport({ ADD, REPLACE, REMOVE })
     private final Map<String, BuildConfigurationRef> buildConfigs;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
