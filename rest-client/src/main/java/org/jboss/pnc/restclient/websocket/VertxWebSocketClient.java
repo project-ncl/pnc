@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.WebSocket;
-import io.vertx.core.impl.ConcurrentHashSet;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
@@ -36,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -317,6 +315,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     @Override
     public void close() throws Exception {
         disconnect().join();
-        vertx.close();
+        if (vertx != null)
+            vertx.close();
     }
 }
