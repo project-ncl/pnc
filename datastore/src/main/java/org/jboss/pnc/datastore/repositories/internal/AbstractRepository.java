@@ -31,11 +31,14 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializable> implements Repository<T, ID> {
 
@@ -132,38 +135,43 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
             Function<N, Collection<T>> collectionGetter,
             BiConsumer<T, N> owningSetter,
             java.util.function.Predicate<T>... filter) {
-        // we want only to compare IDs because the data from request can be partial (due to dto refs in Maps)
-        Comparator<T> idComparator = (t, t1) -> t.getId().equals(t1.getId()) ? 0 : 1;
-
         Collection<T> original = collectionGetter.apply(managedNonOwning);
         Collection<T> updated = collectionGetter.apply(updatedNonOwning);
 
-        Set<T> toRemove = new TreeSet<>(idComparator);
-        toRemove.addAll(original);
-        toRemove.removeAll(updated);
+        Map<ID, T> toRemove = new HashMap<>();
+        insertToMap(original, toRemove);
+        removeFromMap(updated, toRemove);
 
-        for (T owning : toRemove) {
+        for (T owning : toRemove.values()) {
             owningSetter.accept(owning, null);
             save(owning);
         }
 
-        Set<T> toAdd = new TreeSet<>(idComparator);
-        toAdd.addAll(updated);
-        toAdd.removeAll(original);
+        Map<ID, T> toAdd = new HashMap<>();
+        insertToMap(updated, toAdd);
+        removeFromMap(original, toAdd);
 
         java.util.function.Predicate<T> dontMatchAll = Arrays.stream(filter)
                 .reduce(x -> true, java.util.function.Predicate::and)
                 .negate();
 
-        // the entry has to match all the filters (remove if it doesn't match all)
-        toAdd.removeIf(dontMatchAll);
+        // the entry value has to match all the filters (remove if it doesn't match all)
+        toAdd.values().removeIf(dontMatchAll);
 
-        for (T owning : toAdd) {
-            // get full entity to avoid saving partial data (data from request may be partial)
+        for (T owning : toAdd.values()) {
+            // get full entity to avoid saving partial data from request(due to refs in dto maps)
             T fullEntity = queryById(owning.getId());
             owningSetter.accept(fullEntity, managedNonOwning);
             save(fullEntity);
         }
+    }
+
+    private void insertToMap(Collection<T> entityCollection, Map<ID, T> map) {
+        map.putAll(entityCollection.stream().collect(toMap(T::getId, id -> id)));
+    }
+
+    private void removeFromMap(Collection<T> entityCollection, Map<ID, T> map) {
+        map.keySet().removeAll(entityCollection.stream().map(T::getId).collect(toSet()));
     }
 
 }
