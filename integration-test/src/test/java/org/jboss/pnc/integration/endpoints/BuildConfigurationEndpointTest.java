@@ -801,4 +801,32 @@ public class BuildConfigurationEndpointTest {
         assertThatThrownBy(() -> client.restoreRevision(configurationId, 9999))
                 .hasCauseInstanceOf(NotFoundException.class);
     }
+
+    @Test
+    @InSequence(100)
+    public void shouldDeleteDependencyWithPatch() throws Exception {
+        // given
+        BuildConfigurationClient bcClient = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        BuildConfiguration gc = null;
+        for (BuildConfiguration bc1 : bcClient.getAll()) {
+            if (!bc1.getDependencies().isEmpty()) {
+                gc = bc1;
+                break;
+            }
+        }
+        assertThat(gc).isNotNull();
+
+        BuildConfiguration toRemove = bcClient.getSpecific(gc.getDependencies().keySet().iterator().next());
+
+        BuildConfigurationPatchBuilder builder = new BuildConfigurationPatchBuilder();
+        builder.removeDependencies(Collections.singletonList(toRemove.getId()));
+
+        // when
+        bcClient.patch(gc.getId(), builder);
+
+        // then
+        BuildConfiguration refresh = bcClient.getSpecific(gc.getId());
+
+        assertThat(refresh.getDependencies().keySet()).doesNotContain(toRemove.getId());
+    }
 }

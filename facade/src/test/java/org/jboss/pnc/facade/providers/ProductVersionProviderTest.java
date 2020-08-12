@@ -27,6 +27,8 @@ import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -53,6 +55,12 @@ public class ProductVersionProviderTest extends AbstractIntIdProviderTest<Produc
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private BuildConfigurationSetRepository configurationSetRepository;
+
+    @Mock
+    private BuildConfigurationRepository configurationRepository;
 
     @Mock
     SystemConfig systemConfig;

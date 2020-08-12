@@ -74,7 +74,7 @@ public class BuildConfiguration extends BuildConfigurationRef {
     /**
      * List of dependencies. These dependencies are normally run before build of this build config.
      */
-    @PatchSupport({ ADD, REPLACE })
+    @PatchSupport({ ADD, REPLACE, REMOVE })
     private final Map<String, BuildConfigurationRef> dependencies;
 
     /**

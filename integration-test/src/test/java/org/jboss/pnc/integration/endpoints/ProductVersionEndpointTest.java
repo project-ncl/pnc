@@ -20,6 +20,7 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.ProductClient;
@@ -333,5 +334,64 @@ public class ProductVersionEndpointTest {
 
         // then
         assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate)).isInstanceOf(ClientException.class);
+    }
+
+    @Test
+    public void shouldAdd2GroupConfigsWithPatch() throws Exception {
+        // given #1
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
+        GroupConfigurationClient gcClient = new GroupConfigurationClient(RestClientConfiguration.asUser());
+
+        ProductVersion productVersion = client.getSpecific(productVersionsId2);
+        GroupConfiguration toAdd = gcClient.createNew(GroupConfiguration.builder().name("New GC1").build());
+
+        ProductVersionPatchBuilder builder = new ProductVersionPatchBuilder();
+        Map<String, GroupConfigurationRef> toAddMap = new HashMap<>();
+        toAddMap.put(toAdd.getId(), toAdd);
+        builder.addGroupConfigs(toAddMap);
+
+        // when #1
+        client.patch(productVersion.getId(), builder);
+
+        // then #1
+        ProductVersion refresh = client.getSpecific(productVersionsId2);
+        assertThat(refresh.getGroupConfigs()).containsKey(toAdd.getId());
+
+        // given #2 add second GC
+        GroupConfiguration toAdd2 = gcClient.createNew(GroupConfiguration.builder().name("New GC2").build());
+
+        builder = new ProductVersionPatchBuilder();
+        toAddMap.clear();
+        toAddMap.put(toAdd2.getId(), toAdd2);
+        builder.addGroupConfigs(toAddMap);
+
+        // when #2
+        client.patch(productVersion.getId(), builder);
+
+        // then #2
+        refresh = client.getSpecific(productVersionsId2);
+        assertThat(refresh.getGroupConfigs()).containsKey(toAdd2.getId()).containsKey(toAdd.getId());
+    }
+
+    @Test
+    public void shouldDeleteBuildConfigWithPatch() throws Exception {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
+        BuildConfigurationClient bcClient = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        ProductVersion productVersion = client.getSpecific(productVersionsId2);
+
+        assertThat(productVersion.getBuildConfigs()).isNotEmpty();
+
+        BuildConfiguration toRemove = bcClient.getSpecific(productVersion.getBuildConfigs().keySet().iterator().next());
+
+        ProductVersionPatchBuilder builder = new ProductVersionPatchBuilder();
+        builder.removeBuildConfigs(Collections.singletonList(toRemove.getId()));
+
+        // when
+        client.patch(productVersion.getId(), builder);
+
+        // then
+        ProductVersion refresh = client.getSpecific(productVersionsId2);
+        assertThat(refresh.getBuildConfigs().keySet()).doesNotContain(toRemove.getId());
     }
 }

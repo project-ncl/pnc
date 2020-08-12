@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ClientErrorException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -282,6 +283,30 @@ public class GroupConfigurationEndpointTest {
                         new Condition<Throwable>(
                                 (e -> ((ClientErrorException) e.getCause()).getResponse().getStatus() == 409),
                                 "Has Cause with conflicted status code 409"));
+    }
+
+    @Test
+    public void shouldDeleteBuildConfigWithPatch() throws Exception {
+        // given
+        GroupConfigurationClient groupConfigurationClient = new GroupConfigurationClient(
+                RestClientConfiguration.asUser());
+        BuildConfigurationClient bcClient = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        GroupConfiguration gc = groupConfigurationClient.getAll().iterator().next();
+
+        assertThat(gc.getBuildConfigs()).isNotEmpty();
+
+        BuildConfiguration toRemove = bcClient.getSpecific(gc.getBuildConfigs().keySet().iterator().next());
+
+        GroupConfigurationPatchBuilder builder = new GroupConfigurationPatchBuilder();
+        builder.removeBuildConfigs(Collections.singletonList(toRemove.getId()));
+
+        // when
+        groupConfigurationClient.patch(gc.getId(), builder);
+
+        // then
+        GroupConfiguration refresh = groupConfigurationClient.getSpecific(gc.getId());
+
+        assertThat(refresh.getBuildConfigs().keySet()).doesNotContain(toRemove.getId());
     }
 
 }

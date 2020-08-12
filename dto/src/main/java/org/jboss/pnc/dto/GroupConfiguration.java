@@ -31,6 +31,7 @@ import org.jboss.pnc.processor.annotation.PatchSupport;
 import java.util.Map;
 
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.ADD;
+import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REMOVE;
 import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
@@ -56,7 +57,7 @@ public class GroupConfiguration extends GroupConfigurationRef {
     /**
      * List of the build configs in the group.
      */
-    @PatchSupport({ ADD, REPLACE })
+    @PatchSupport({ ADD, REPLACE, REMOVE })
     private final Map<String, BuildConfigurationRef> buildConfigs;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
