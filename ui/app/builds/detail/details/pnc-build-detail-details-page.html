@@ -122,4 +122,7 @@
 </div>
 
 <pnc-build-tree build="$ctrl.build"></pnc-build-tree>
-<pnc-log-streamer build="$ctrl.build" ng-if="$ctrl.buildStatusHelper.isInProgress($ctrl.build)"></pnc-log-streamer>
+<div class="p-b-40">
+  <pnc-log-streamer build="$ctrl.build" ng-if="$ctrl.buildStatusHelper.isInProgress($ctrl.build)"></pnc-log-streamer>
+</div>
+
