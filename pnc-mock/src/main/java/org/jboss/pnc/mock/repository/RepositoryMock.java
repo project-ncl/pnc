@@ -29,6 +29,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/29/16 Time: 7:03 AM
@@ -106,6 +108,16 @@ public abstract class RepositoryMock<ID extends Serializable, EntityType extends
 
     @Override
     public void flushAndRefresh(EntityType entity) {
+    }
+
+    @Override
+    public <D extends GenericEntity<ID>> void cascadeUpdates(
+            D managedNonOwning,
+            D updatedNonOwning,
+            Function<D, Collection<EntityType>> collectionGetter,
+            BiConsumer<EntityType, D> owningSetter,
+            java.util.function.Predicate<EntityType>... filters) {
+        throw new UnsupportedOperationException("Not implemented, don't use");
     }
 
     public void clear() {

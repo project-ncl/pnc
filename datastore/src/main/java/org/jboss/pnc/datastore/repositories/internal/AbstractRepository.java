@@ -28,8 +28,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializable> implements Repository<T, ID> {
 
@@ -108,6 +114,56 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
         return springSpecificationsExecutor
                 .findAll(SpecificationsMapper.map(predicates), PageableMapper.map(pageInfo, sortInfo))
                 .getContent();
+    }
+
+    /**
+     * @see Repository#cascadeUpdates) for full docs
+     * 
+     * @param managedNonOwning current version of entity from DB (MUST be Hibernate managed (due to LAZY fetching))
+     * @param updatedNonOwning proposed version of entity from request
+     * @param collectionGetter getter with collection of owning side (f.e ProductVersion::getBuildConfigurations)
+     * @param owningSetter setter which updates the owning side (f.e BuildConfiguration::setProductVersion)
+     * @param filter
+     * @param <N>
+     */
+    public <N extends GenericEntity<ID>> void cascadeUpdates(
+            N managedNonOwning,
+            N updatedNonOwning,
+            Function<N, Collection<T>> collectionGetter,
+            BiConsumer<T, N> owningSetter,
+            java.util.function.Predicate<T>... filter) {
+        // we want only to compare IDs because the data from request can be partial (due to dto refs in Maps)
+        Comparator<T> idComparator = (t, t1) -> t.getId().equals(t1.getId()) ? 0 : 1;
+
+        Collection<T> original = collectionGetter.apply(managedNonOwning);
+        Collection<T> updated = collectionGetter.apply(updatedNonOwning);
+
+        Set<T> toRemove = new TreeSet<>(idComparator);
+        toRemove.addAll(original);
+        toRemove.removeAll(updated);
+
+        for (T owning : toRemove) {
+            owningSetter.accept(owning, null);
+            save(owning);
+        }
+
+        Set<T> toAdd = new TreeSet<>(idComparator);
+        toAdd.addAll(updated);
+        toAdd.removeAll(original);
+
+        java.util.function.Predicate<T> dontMatchAll = Arrays.stream(filter)
+                .reduce(x -> true, java.util.function.Predicate::and)
+                .negate();
+
+        // the entry has to match all the filters (remove if it doesn't match all)
+        toAdd.removeIf(dontMatchAll);
+
+        for (T owning : toAdd) {
+            // get full entity to avoid saving partial data (data from request may be partial)
+            T fullEntity = queryById(owning.getId());
+            owningSetter.accept(fullEntity, managedNonOwning);
+            save(fullEntity);
+        }
     }
 
 }

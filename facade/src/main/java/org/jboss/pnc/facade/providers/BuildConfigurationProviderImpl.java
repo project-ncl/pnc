@@ -152,11 +152,11 @@ public class BuildConfigurationProviderImpl extends
         org.jboss.pnc.model.User currentUser = userService.currentUser();
         User user = userMapper.toDTO(currentUser);
         // Do not use super.update to allow the lazy initialization fix
-        restEntity = restEntity.toBuilder().id(id.toString()).modificationUser(user).build();
+        restEntity = restEntity.toBuilder().id(id).modificationUser(user).build();
         validateBeforeUpdating(id, restEntity);
         logger.debug("Updating entity: " + restEntity.toString());
 
-        // DO NOT REMOVE - Triggers the inizialization of LAZY collections (fixes NCL-5686)
+        // DO NOT REMOVE - Triggers the initialization of LAZY collections (fixes NCL-5686)
         org.jboss.pnc.model.BuildConfiguration persistedBc = repository.queryById(Integer.valueOf(id));
         if (persistedBc != null) {
             if (persistedBc.getDependencies() != null) {
