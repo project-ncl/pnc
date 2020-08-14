@@ -36,6 +36,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.Closeable;
 import java.io.InputStream;
 import java.util.Optional;
 
@@ -43,7 +44,7 @@ import java.util.Optional;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  * @author Jakub Bartecek
  */
-public abstract class ClientBase<T> {
+public abstract class ClientBase<T> implements Closeable {
 
     private Logger logger = LoggerFactory.getLogger(ClientBase.class);
 
@@ -169,5 +170,10 @@ public abstract class ClientBase<T> {
             }
         }
         return null;
+    }
+
+    @Override
+    public void close() {
+        client.close();
     }
 }
