@@ -71,7 +71,7 @@ public class GroupConfigurationProviderImpl
     @Override
     public GroupConfiguration getSpecific(String id) {
         BuildConfigurationSet dbEntity = repository.queryById(Integer.valueOf(id));
-        if (dbEntity.isArchived()) {
+        if (dbEntity != null && dbEntity.isArchived()) {
             return null;
         }
         return mapper.toDTO(dbEntity);
