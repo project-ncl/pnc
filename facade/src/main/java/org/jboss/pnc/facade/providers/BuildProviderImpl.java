@@ -527,6 +527,12 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
         }
     }
 
+    /**
+     *
+     * @param id
+     * @return BuildWithDependencies
+     * @throws CorruptedDataException when there is no running nor completed build for a given id
+     */
     private BuildWithDependencies getRunningOrCompletedBuild(String id) {
         Optional<BuildTask> buildTask = buildCoordinator.getSubmittedBuildTasks()
                 .stream()
