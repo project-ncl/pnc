@@ -86,12 +86,10 @@
       return ScmRepositoryResource.query({ 'search-url': url }).$promise.then(function (result) {
         var repos = result.data;
 
-        if (repos.length === 1) {
+        if (repos.length > 0) {
           return repos[0];
-        } else if (repos.length > 1) {
-          $ctrl.multipleRCError = true;
-          return undefined;
-        } else {
+        }
+        else {
           // No repo config exists
           return undefined;
         }
