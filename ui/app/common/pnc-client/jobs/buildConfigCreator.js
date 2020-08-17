@@ -38,8 +38,18 @@
           data: params,
           successNotification: false
         }).then(resp => {
+          if (resp.status === 201) {
+            deferred.resolve(resp.data.buildConfig);
+            return;
+          }
+
           if (resp.status === 202) {
-            const taskId = resp.data.taskId.toString();
+            const taskId = resp.data.taskId;
+
+            if (taskId === null) {
+              deferred.resolve(resp.data);
+              return;
+            }
 
             // Work around inconsistency in PNC WebSocket API and notify of job acceptance
             deferred.notify({
