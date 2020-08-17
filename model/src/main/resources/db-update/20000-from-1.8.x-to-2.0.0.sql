@@ -161,4 +161,9 @@ COMMIT;
 -- CREATE INDEX idx_build_configuration_parameters_aud_revinfo ON public.build_configuration_parameters_AUD USING btree (rev)
 -- CREATE INDEX idx_build_configuration_parameters_aud_rev ON public.build_configuration_parameters_AUD USING btree (buildconfiguration_id, rev)
 
-
+-- Insert NPM repositories
+BEGIN transaction;
+    insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (false, 'indy-npm', '/api/content/npm/group/builds-untested', 'NPM');
+    insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (true, 'indy-npm', '/api/content/npm/group/temporary-builds', 'NPM');
+    insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (false, 'indy-npm', '/api/content/npm/hosted/shared-imports', 'NPM');
+COMMIT;
