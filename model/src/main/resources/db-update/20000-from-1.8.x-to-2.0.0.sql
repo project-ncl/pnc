@@ -167,3 +167,14 @@ BEGIN transaction;
     insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (true, 'indy-npm', '/api/content/npm/group/temporary-builds', 'NPM');
     insert into TargetRepository (temporaryRepo, identifier, repositoryPath, repositoryType) values (false, 'indy-npm', '/api/content/npm/hosted/shared-imports', 'NPM');
 COMMIT;
+
+-- NCL-4888 - Change EXECUTION_ROOT_NAME parameter name
+BEGIN transaction;
+    update build_configuration_parameters set KEY='BREW_BUILD_NAME' where KEY='EXECUTION_ROOT_NAME';
+    update build_configuration_parameters_aud set KEY='BREW_BUILD_NAME' where KEY='EXECUTION_ROOT_NAME';
+COMMIT;
+
+-- NCL-4679
+BEGIN transaction;
+    alter table buildrecord add column buildoutputchecksum varchar(255);
+COMMIT;
