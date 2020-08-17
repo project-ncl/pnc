@@ -423,7 +423,9 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
     @Override
     public Graph<Build> getBuildGraphForGroupBuild(String groupBuildId) {
         List<String> runningAndStoredIds = getBuildIdsInTheGroup(groupBuildId);
-
+        if (runningAndStoredIds.isEmpty()) {
+            throw new EmptyEntityException("Build group " + groupBuildId + " does not exists or has no builds.");
+        }
         org.jboss.util.graph.Graph<BuildWithDependencies> buildGraph = new org.jboss.util.graph.Graph<>();
         for (String buildId : runningAndStoredIds) {
             org.jboss.util.graph.Graph<BuildWithDependencies> dependencyGraph = createBuildDependencyGraph(buildId);
@@ -452,15 +454,17 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
                 .map(t -> Integer.toString(t.getId()))
                 .collect(Collectors.toList());
 
+        List<String> runningAndStoredIds = new ArrayList<>(runningTaskIds);
+
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository
                 .queryById(Integer.valueOf(buildGroupId));
-        Set<String> storedBuildIds = buildConfigSetRecord.getBuildRecords()
-                .stream()
-                .map(br -> Integer.toString(br.getId()))
-                .collect(Collectors.toSet());
-
-        List<String> runningAndStoredIds = new ArrayList<>(runningTaskIds);
-        runningAndStoredIds.addAll(storedBuildIds);
+        if (buildConfigSetRecord != null) {
+            Set<String> storedBuildIds = buildConfigSetRecord.getBuildRecords()
+                    .stream()
+                    .map(br -> Integer.toString(br.getId()))
+                    .collect(Collectors.toSet());
+            runningAndStoredIds.addAll(storedBuildIds);
+        }
         return runningAndStoredIds;
     }
 

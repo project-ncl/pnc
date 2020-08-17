@@ -29,6 +29,7 @@ import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.CorruptedDataException;
+import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -494,6 +495,19 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
                 String.valueOf(task.getId()),
                 String.valueOf(taskDep.getId()),
                 String.valueOf(taskDepDep.getId()));
+    }
+
+    @Test(expected = EmptyEntityException.class)
+    public void shouldThrowAnExceptionWhenTheGroupDoesNotExist() {
+        // Given some group
+        Integer buildSetTaskId = 1;
+        BuildSetTask buildSetTask = mock(BuildSetTask.class);
+        when(buildSetTask.getId()).thenReturn(buildSetTaskId);
+
+        // When getting non-existing group
+        Graph<Build> graph = provider.getBuildGraphForGroupBuild("42");
+
+        // Then should throw
     }
 
     @Test
