@@ -18,6 +18,7 @@
 
 -->
 <a ng-if="$ctrl.productVersionData.id" href
-   ui-sref="products.detail.product-versions.detail({ productVersionId: $ctrl.productVersionData.id, productId: $ctrl.productVersionData.product.id })">{{$ctrl.productVersionData.product.name
-  + ' - ' + $ctrl.productVersionData.version}}</a>
+   ui-sref="products.detail.product-versions.detail({ productVersionId: $ctrl.productVersionData.id, productId: $ctrl.productVersionData.product.id })">
+  {{$ctrl.productVersionData.product.name}} - {{$ctrl.productVersionData.version}}
+</a>
 <span ng-if="!$ctrl.productVersionData.id"> — </span>

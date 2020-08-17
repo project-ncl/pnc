@@ -21,7 +21,7 @@
   angular.module('pnc.product-versions').component('pncProductVersionLink', {
     bindings: {
       /**
-       * object representing SCM Repository
+       * The brief version of productVersion object from build config object
        */
       productVersion: '<'
     },
