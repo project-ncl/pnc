@@ -153,6 +153,15 @@ public class BuildConfigurationProviderImpl extends
     }
 
     @Override
+    public BuildConfiguration getSpecific(String id) {
+        org.jboss.pnc.model.BuildConfiguration dbEntity = repository.queryById(Integer.valueOf(id));
+        if (dbEntity != null && dbEntity.isArchived()) {
+            return null;
+        }
+        return mapper.toDTO(dbEntity);
+    }
+
+    @Override
     public BuildConfiguration update(String id, BuildConfiguration restEntity) {
         org.jboss.pnc.model.User currentUser = userService.currentUser();
         User user = userMapper.toDTO(currentUser);
