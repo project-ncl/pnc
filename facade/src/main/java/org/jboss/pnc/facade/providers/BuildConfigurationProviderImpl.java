@@ -137,6 +137,11 @@ public class BuildConfigurationProviderImpl extends
     }
 
     @Override
+    public Page<BuildConfiguration> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, isNotArchived());
+    }
+
+    @Override
     public BuildConfiguration store(BuildConfiguration restEntity) throws DTOValidationException {
         validateBeforeSaving(restEntity);
         Long id = sequenceHandlerRepository.getNextID(org.jboss.pnc.model.BuildConfiguration.SEQUENCE_NAME);
