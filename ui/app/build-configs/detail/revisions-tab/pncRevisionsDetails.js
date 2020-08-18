@@ -38,16 +38,16 @@
 
 
     $ctrl.$onInit = function () {
-      $ctrl.hideFields = ['description'];
+      $ctrl.hideFields = ['description', 'productVersion'];
     };
 
-    
+
     function restore() {
       BuildConfigResource.restoreRevision({
         id: $ctrl.revision.id,
         revisionId: $ctrl.revision.rev
       }, {
-        /* postData need to be explicitly set as empty, otherwise the first argument would be send as postData 
+        /* postData need to be explicitly set as empty, otherwise the first argument would be send as postData
            and URL parameters mapping wouldn't work correctly */
       }).$promise.then(() => {
         $state.go('^.^.default', {}, { reload: true });
