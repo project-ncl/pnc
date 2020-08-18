@@ -321,10 +321,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void build(BuildSetTask buildSetTask) {
-
         synchronized (buildMethodLock) {
-
-            if (!REJECTED_STATES.containsKey(buildSetTask.getStatus())) {
+            // if the set is rejected stop further processing but process when NO_REBUILD_REQUIRED to create build
+            // records
+            if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
                 buildQueue.enqueueTaskSet(buildSetTask);
                 buildSetTask.getBuildTasks()
                         .stream()
@@ -332,7 +332,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                         .sorted(this::dependantsFirst)
                         .forEach(this::addTaskToBuildQueue);
             }
-
         }
     }
 

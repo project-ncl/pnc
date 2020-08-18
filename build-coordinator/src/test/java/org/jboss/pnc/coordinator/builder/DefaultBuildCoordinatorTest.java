@@ -53,6 +53,7 @@ import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -62,12 +63,16 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.enterprise.event.Event;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -76,9 +81,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.anySet;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/12/16 Time: 2:33 PM
@@ -126,7 +131,7 @@ public class DefaultBuildCoordinatorTest {
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
     @Mock
     private BuildSchedulerFactory buildSchedulerFactory;
-    @Mock
+
     private BuildQueue buildQueue;
     @Mock
     private SystemConfig systemConfig;
@@ -148,12 +153,10 @@ public class DefaultBuildCoordinatorTest {
     public void setUp() throws DatastoreException {
         MockitoAnnotations.initMocks(this);
         when(systemConfig.getTemporaryBuildsLifeSpan()).thenReturn(14);
-        when(
-                datastore.requiresRebuild(
-                        any(BuildConfigurationAudited.class),
-                        any(Boolean.class),
-                        any(Boolean.class),
-                        anySet())).thenReturn(true);
+        when(systemConfig.getCoordinatorThreadPoolSize()).thenReturn(1);
+        when(systemConfig.getCoordinatorMaxConcurrentBuilds()).thenReturn(10);
+        buildQueue = new BuildQueue(systemConfig);
+        buildQueue.initSemaphore();
         when(
                 datastore.requiresRebuild(
                         any(BuildConfigurationAudited.class),
@@ -211,6 +214,40 @@ public class DefaultBuildCoordinatorTest {
 
         BuildSetTask bsTask = coordinator.build(bcSet, USER, BUILD_OPTIONS);
         assertThat(bsTask.getBuildConfigSetRecord().get().getStatus()).isEqualTo(BuildStatus.NO_REBUILD_REQUIRED);
+    }
+
+    @Test
+    public void shouldCreateNoRebuildRequiredRecords() throws CoreException, TimeoutException, InterruptedException {
+        when(
+                datastore.requiresRebuild(
+                        any(BuildConfigurationAudited.class),
+                        any(Boolean.class),
+                        any(Boolean.class),
+                        anySet())).thenReturn(false);
+
+        BuildConfigurationAudited bca1 = new BuildConfigurationAudited();
+        bca1.setId(BC_1.getId());
+        bca1.setProject(PROJECT);
+        when(datastore.getLatestBuildConfigurationAuditedLoadBCDependencies(BC_1.getId())).thenReturn(bca1);
+        BuildConfigurationAudited bca3 = new BuildConfigurationAudited();
+        bca3.setId(BC_3.getId());
+        bca3.setProject(PROJECT);
+        when(datastore.getLatestBuildConfigurationAuditedLoadBCDependencies(BC_3.getId())).thenReturn(bca3);
+
+        Set<BuildConfiguration> buildConfigs = new HashSet<>();
+        buildConfigs.add(BC_1);
+        buildConfigs.add(BC_3);
+        when(datastore.getBuildConfigurations(any())).thenReturn(buildConfigs);
+
+        Set<BuildRecord> storedRecords = new HashSet<>();
+        when(datastore.storeRecordForNoRebuild(any())).thenAnswer(new SaveRecordForNoRebuildAnswer(storedRecords));
+
+        BuildSetTask bsTask = coordinator.build(BCS, USER, BUILD_OPTIONS);
+        coordinator.start();
+        assertThat(bsTask.getBuildConfigSetRecord().get().getStatus()).isEqualTo(BuildStatus.NO_REBUILD_REQUIRED);
+
+        Wait.forCondition(() -> storedRecords.size() == 2, 3, ChronoUnit.SECONDS);
+        assertThat(storedRecords.size()).isEqualTo(2);
     }
 
     @Test
@@ -365,6 +402,25 @@ public class DefaultBuildCoordinatorTest {
             if (arg.getId() == null) {
                 arg.setId(id++);
             }
+            return arg;
+        }
+    }
+
+    private static class SaveRecordForNoRebuildAnswer implements Answer<BuildRecord> {
+        private static int id = 1;
+        private Set<BuildRecord> storedRecords;
+
+        public SaveRecordForNoRebuildAnswer(Set<BuildRecord> storedRecords) {
+            this.storedRecords = storedRecords;
+        }
+
+        @Override
+        public BuildRecord answer(InvocationOnMock invocation) throws Throwable {
+            BuildRecord arg = invocation.getArgument(0);
+            if (arg.getId() == null) {
+                arg.setId(id++);
+            }
+            storedRecords.add(arg);
             return arg;
         }
     }
