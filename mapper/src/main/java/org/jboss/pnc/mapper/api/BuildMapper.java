@@ -64,6 +64,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "scmRepository", ignore = true)
     @Mapping(target = "groupBuild", source = "buildConfigSetRecord", qualifiedBy = Reference.class)
     @Mapping(target = "user", qualifiedBy = Reference.class)
+    @Mapping(target = "noRebuildCause", resultType = BuildRef.class)
     @Mapping(target = "scmUrl", source = "scmRepoURL")
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "progress", source = "status")
@@ -97,7 +98,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
                     "repourLogMd5", "repourLogSha256", "repourLogSize", "buildRecordPushResults",
                     "buildConfigurationId", "buildConfigurationRev", "buildEnvironment", "buildConfigurationAudited",
                     "dependentBuildRecordIds", "dependencyBuildRecordIds", "user", "attributes", "attributesMap",
-                    "buildConfigurationAuditedIdRev", "buildOutputChecksum" })
+                    "buildConfigurationAuditedIdRev", "buildOutputChecksum", "noRebuildRequired" })
     BuildRef toRef(BuildRecord dbEntity);
 
     @Override
@@ -152,6 +153,7 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     // resulted in NPE in Mapstruct processor
     @Mapping(target = "groupBuild", source = "buildSetTask.buildConfigSetRecord", qualifiedBy = Reference.class)
     @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
+    @Mapping(target = "noRebuildCause", resultType = BuildRef.class)
     @Mapping(target = "buildContentId", source = "contentId")
     @Mapping(target = "temporaryBuild", source = "buildOptions.temporaryBuild")
     @Mapping(target = "scmUrl", ignore = true)

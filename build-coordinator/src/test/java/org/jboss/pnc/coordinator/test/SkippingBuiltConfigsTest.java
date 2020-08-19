@@ -103,6 +103,7 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
                 .filter(r -> r.getStatus() == BuildStatus.NO_REBUILD_REQUIRED)
                 .collect(Collectors.toList());
         assertThat(collectNoRebuildRequired.size()).isEqualTo(1);
+        assertThat(collectNoRebuildRequired.iterator().next().getNoRebuildCause()).isNotNull();
     }
 
     @Test

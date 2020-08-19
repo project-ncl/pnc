@@ -40,6 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
 import org.mockito.Mockito;
 
 /**
@@ -177,7 +179,8 @@ public class DatastoreMock implements Datastore {
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
-            Set<Integer> processedDependenciesCache) {
+            Set<Integer> processedDependenciesCache,
+            Consumer<BuildRecord> nonRebuildCauseSetter) {
         return true;
     }
 

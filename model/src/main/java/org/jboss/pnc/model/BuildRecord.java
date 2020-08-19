@@ -45,6 +45,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.PersistenceException;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
@@ -316,6 +317,13 @@ public class BuildRecord implements GenericEntity<Integer> {
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     private String dependencyBuildRecordIds;
+
+    /**
+     * In case of status NO_REBUILD_REQUIRED, this field references the BuildRecord that caused the decision of not
+     * rebuilding.
+     */
+    @OneToOne
+    private BuildRecord noRebuildCause;
 
     /**
      * Instantiates a new project build result.
@@ -821,6 +829,14 @@ public class BuildRecord implements GenericEntity<Integer> {
         }
     }
 
+    public BuildRecord getNoRebuildCause() {
+        return noRebuildCause;
+    }
+
+    public void setNoRebuildCause(BuildRecord noRebuildCause) {
+        this.noRebuildCause = noRebuildCause;
+    }
+
     public static class Builder {
 
         private Integer id;
@@ -878,6 +894,8 @@ public class BuildRecord implements GenericEntity<Integer> {
         private Integer[] dependentBuildRecordIds;
 
         private Integer[] dependencyBuildRecordIds;
+
+        private BuildRecord noRebuildCause;
 
         public Builder() {
             dependencies = new HashSet<>();
@@ -971,6 +989,7 @@ public class BuildRecord implements GenericEntity<Integer> {
                     .map(kv -> new BuildRecordAttribute(buildRecord, kv.getKey(), kv.getValue()))
                     .collect(Collectors.toSet());
             buildRecord.setAttributes(buildRecordAttributes);
+            buildRecord.setNoRebuildCause(noRebuildCause);
 
             return buildRecord;
         }
@@ -1133,6 +1152,11 @@ public class BuildRecord implements GenericEntity<Integer> {
 
         public BuildRecord.Builder dependentBuildRecordIds(Integer[] dependentBuildRecordIds) {
             this.dependentBuildRecordIds = dependentBuildRecordIds;
+            return this;
+        }
+
+        public BuildRecord.Builder noRebuildCause(BuildRecord noRebuildCause) {
+            this.noRebuildCause = noRebuildCause;
             return this;
         }
     }
