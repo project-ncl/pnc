@@ -178,3 +178,11 @@ COMMIT;
 BEGIN transaction;
     alter table buildrecord add column buildoutputchecksum varchar(255);
 COMMIT;
+
+-- NCL-5933 -- add a BR <-> BR OneToOne constraint to be able to specify no-rebuild cause
+BEGIN transaction;
+    ALTER TABLE buildrecord ADD COLUMN norebuildcause_id INTEGER;
+
+    ALTER TABLE buildrecord ADD CONSTRAINT fk_buildrecord_norebuildcause
+    FOREIGN KEY (norebuildcause_id) REFERENCES buildrecord(id);
+COMMIT;
