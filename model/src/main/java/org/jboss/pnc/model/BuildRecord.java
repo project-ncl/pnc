@@ -323,6 +323,7 @@ public class BuildRecord implements GenericEntity<Integer> {
      * rebuilding.
      */
     @OneToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_norebuildcause"))
     private BuildRecord noRebuildCause;
 
     /**
