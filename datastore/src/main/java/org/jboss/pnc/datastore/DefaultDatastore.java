@@ -53,6 +53,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
@@ -384,7 +385,8 @@ public class DefaultDatastore implements Datastore {
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
-            Set<Integer> processedDependenciesCache) {
+            Set<Integer> processedDependenciesCache,
+            Consumer<BuildRecord> nonRebuildCauseSetter) {
         IdRev idRev = buildConfigurationAudited.getIdRev();
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
                 .getLatestSuccessfulBuildRecord(idRev, temporaryBuild);
@@ -408,7 +410,7 @@ public class DefaultDatastore implements Datastore {
                     idRev,
                     rebuild);
             if (rebuild) {
-                return rebuild;
+                return true;
             }
         }
         // check explicit dependencies
@@ -418,6 +420,9 @@ public class DefaultDatastore implements Datastore {
                 "Explicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.",
                 idRev,
                 rebuild);
+        if (!rebuild) {
+            nonRebuildCauseSetter.accept(latestSuccessfulBuildRecord);
+        }
         return rebuild;
     }
 

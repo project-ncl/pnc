@@ -343,7 +343,8 @@ public class DatastoreAdapter {
                 .submitTime(buildTask.getSubmitTime())
                 .startTime(buildTask.getStartTime())
                 .productMilestone(buildTask.getProductMilestone())
-                .temporaryBuild(buildOptions.isTemporaryBuild());
+                .temporaryBuild(buildOptions.isTemporaryBuild())
+                .noRebuildCause(buildTask.getNoRebuildCause());
 
         if (buildTask.getEndTime() == null) {
             buildTask.setEndTime(Date.from(Instant.now()));
@@ -390,7 +391,8 @@ public class DatastoreAdapter {
                 task.getBuildConfigurationAudited(),
                 task.getBuildOptions().isImplicitDependenciesCheck(),
                 task.getBuildOptions().isTemporaryBuild(),
-                processedDependenciesCache);
+                processedDependenciesCache,
+                task::setNoRebuildCause);
     }
 
     public Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet) {

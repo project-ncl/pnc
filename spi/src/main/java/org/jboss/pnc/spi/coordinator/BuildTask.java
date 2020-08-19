@@ -22,6 +22,7 @@ import lombok.Getter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -76,6 +77,11 @@ public class BuildTask {
 
     // called when all dependencies are built
     private final Integer buildConfigSetRecordId;
+
+    /**
+     * This BR is set when Build Task is not required to be built.
+     */
+    private BuildRecord noRebuildCause;
 
     /**
      * Request that started the builds
@@ -333,5 +339,13 @@ public class BuildTask {
 
     public String getContentId() {
         return contentId;
+    }
+
+    public BuildRecord getNoRebuildCause() {
+        return noRebuildCause;
+    }
+
+    public void setNoRebuildCause(BuildRecord noRebuildCause) {
+        this.noRebuildCause = noRebuildCause;
     }
 }

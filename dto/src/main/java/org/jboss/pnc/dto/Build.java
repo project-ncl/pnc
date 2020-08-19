@@ -88,6 +88,12 @@ public class Build extends BuildRef {
      */
     private final GroupBuildRef groupBuild;
 
+    /**
+     * In case of status NO_REBUILD_REQUIRED, this field references the Build that caused the decision of not
+     * rebuilding.
+     */
+    private final BuildRef noRebuildCause;
+
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private Build(
             ProjectRef project,
@@ -109,7 +115,8 @@ public class Build extends BuildRef {
             String scmTag,
             GroupBuildRef groupBuild,
             ProductMilestoneRef productMilestone,
-            String buildOutputChecksum) {
+            String buildOutputChecksum,
+            BuildRef noRebuildCause) {
         super(
                 id,
                 submitTime,
@@ -131,6 +138,7 @@ public class Build extends BuildRef {
         this.buildConfigRevision = buildConfigRevision;
         this.productMilestone = productMilestone;
         this.groupBuild = groupBuild;
+        this.noRebuildCause = noRebuildCause;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

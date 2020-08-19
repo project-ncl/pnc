@@ -446,6 +446,31 @@ public class BuildTest {
                 TimeUnit.SECONDS);
     }
 
+    @Test
+    public void shouldHaveNoRebuildCauseFilled() throws Exception {
+        // with
+        BuildConfiguration buildConfiguration = buildConfigurationClient.getAll().iterator().next();
+
+        // when #1
+        Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), getPersistentParameters(true));
+        assertThat(build).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
+
+        EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
+        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, null), 15, TimeUnit.SECONDS);
+
+        // when #2
+        EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.SUCCESS, BuildStatus.FAILED);
+        Build rebuild = buildConfigurationClient.trigger(buildConfiguration.getId(), getBuildParameters(false, false));
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildToFinish(rebuild.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), isNotIn),
+                15,
+                TimeUnit.SECONDS);
+
+        // then
+        Build refresh = buildClient.getSpecific(rebuild.getId());
+        assertThat(refresh.getNoRebuildCause()).isNotNull().extracting("id").isEqualTo(build.getId());
+    }
+
     private BuildParameters getTemporaryParameters() {
         return getBuildParameters(true, false);
     }
@@ -491,7 +516,7 @@ public class BuildTest {
             if (!build.getStatus().isFinal())
                 return false;
         } catch (RemoteResourceNotFoundException e) {
-            fail(String.format("Build with id:{} not present", buildId), e);
+            fail(String.format("Build with id:%s not present", buildId), e);
         } catch (ClientException e) {
             fail("Client has failed in an unexpected way.", e);
         }

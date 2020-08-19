@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Topmost datastore interface.
@@ -119,11 +120,35 @@ public interface Datastore {
      * @param temporaryBuild true if requested build is going to be temporary
      * @return
      */
+    default boolean requiresRebuild(
+            BuildConfigurationAudited buildConfigurationAudited,
+            boolean checkImplicitDependencies,
+            boolean temporaryBuild,
+            Set<Integer> processedDependenciesCache) {
+        return requiresRebuild(
+                buildConfigurationAudited,
+                checkImplicitDependencies,
+                temporaryBuild,
+                processedDependenciesCache,
+                ign -> {});
+    }
+
+    /**
+     * Check if a build configuration should be rebuilt (if some of its dependencies were rebuild or configuration was
+     * modified)
+     *
+     * @param buildConfigurationAudited
+     * @param checkImplicitDependencies when true check also automatically captured dependencies.
+     * @param temporaryBuild true if requested build is going to be temporary
+     * @param nonRebuildCauseSetter this Consumer is used for setting a reference of BuildRecord causing not rebuilding
+     * @return
+     */
     boolean requiresRebuild(
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
-            Set<Integer> processedDependenciesCache);
+            Set<Integer> processedDependenciesCache,
+            Consumer<BuildRecord> nonRebuildCauseSetter);
 
     @Deprecated
     boolean requiresRebuild(BuildTask task, Set<Integer> processedDependenciesCache);
