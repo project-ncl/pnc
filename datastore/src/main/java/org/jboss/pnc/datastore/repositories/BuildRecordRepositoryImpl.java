@@ -46,6 +46,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.inclu
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIdRev;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withCausingBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSuccess;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
 
@@ -162,4 +163,8 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
         return repository.findByBuiltArtifacts(artifactsId);
     }
 
+    @Override
+    public List<BuildRecord> getBuildByCausingRecord(Integer causingRecordId) {
+        return queryWithPredicates(withCausingBuildRecordId(causingRecordId));
+    }
 }

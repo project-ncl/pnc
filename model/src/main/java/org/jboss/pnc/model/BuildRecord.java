@@ -87,7 +87,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
                 @Index(
                         name = "idx_buildrecord_buildconfiguration_aud",
                         columnList = "buildconfiguration_id,buildconfiguration_rev"),
-                @Index(name = "idx_buildrecord_productmilestone", columnList = "productmilestone_id") })
+                @Index(name = "idx_buildrecord_productmilestone", columnList = "productmilestone_id"),
+                @Index(name = "idx_buildrecord_norebuildcause", columnList = "norebuildcause_id") })
 public class BuildRecord implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = -5472083609387609797L;
@@ -322,8 +323,8 @@ public class BuildRecord implements GenericEntity<Integer> {
      * In case of status NO_REBUILD_REQUIRED, this field references the BuildRecord that caused the decision of not
      * rebuilding.
      */
-    @OneToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_norebuildcause"))
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_norebuildcause"), updatable = false)
     private BuildRecord noRebuildCause;
 
     /**

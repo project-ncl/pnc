@@ -137,4 +137,9 @@ public class BuildRecordRepositoryMock extends IntIdRepositoryMock<BuildRecord> 
             return !Collections.disjoint(artifactsId, builtArtifactsId);
         }).collect(Collectors.toSet());
     }
+
+    @Override
+    public List<BuildRecord> getBuildByCausingRecord(Integer causingRecordId) {
+        return null;
+    }
 }
