@@ -422,10 +422,12 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
 
     @Override
     public Graph<Build> getBuildGraphForGroupBuild(String groupBuildId) {
-        List<String> runningAndStoredIds = getBuildIdsInTheGroup(groupBuildId);
-        if (runningAndStoredIds.isEmpty()) {
-            throw new EmptyEntityException("Build group " + groupBuildId + " does not exists or has no builds.");
+        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository
+                .queryById(Integer.valueOf(groupBuildId));
+        if (buildConfigSetRecord == null) {
+            throw new EmptyEntityException("Build group " + groupBuildId + " does not exists.");
         }
+        List<String> runningAndStoredIds = getBuildIdsInTheGroup(buildConfigSetRecord);
         org.jboss.util.graph.Graph<BuildWithDependencies> buildGraph = new org.jboss.util.graph.Graph<>();
         for (String buildId : runningAndStoredIds) {
             org.jboss.util.graph.Graph<BuildWithDependencies> dependencyGraph = createBuildDependencyGraph(buildId);
@@ -443,28 +445,25 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
     }
 
     /**
-     * @param buildGroupId
      * @return Running and completed build ids from the Build Group.
      */
-    private List<String> getBuildIdsInTheGroup(String buildGroupId) {
+    private List<String> getBuildIdsInTheGroup(BuildConfigSetRecord buildConfigSetRecord) {
         List<String> runningTaskIds = nullableStreamOf(buildCoordinator.getSubmittedBuildTasks())
                 .filter(Objects::nonNull)
-                .filter(t -> t.getBuildSetTask() != null && buildGroupId.equals(t.getBuildSetTask().getId().toString()))
+                .filter(
+                        t -> t.getBuildSetTask() != null
+                                && buildConfigSetRecord.getId().equals(t.getBuildSetTask().getId()))
                 .sorted(Comparator.comparingInt(BuildTask::getId))
                 .map(t -> Integer.toString(t.getId()))
                 .collect(Collectors.toList());
 
         List<String> runningAndStoredIds = new ArrayList<>(runningTaskIds);
 
-        BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository
-                .queryById(Integer.valueOf(buildGroupId));
-        if (buildConfigSetRecord != null) {
-            Set<String> storedBuildIds = buildConfigSetRecord.getBuildRecords()
-                    .stream()
-                    .map(br -> Integer.toString(br.getId()))
-                    .collect(Collectors.toSet());
-            runningAndStoredIds.addAll(storedBuildIds);
-        }
+        Set<String> storedBuildIds = buildConfigSetRecord.getBuildRecords()
+                .stream()
+                .map(br -> Integer.toString(br.getId()))
+                .collect(Collectors.toSet());
+        runningAndStoredIds.addAll(storedBuildIds);
         return runningAndStoredIds;
     }
 

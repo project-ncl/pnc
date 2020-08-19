@@ -160,6 +160,7 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
         when(userService.currentUser()).thenReturn(user);
 
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
+                .id(1)
                 .temporaryBuild(false)
                 .build();
         when(buildConfigSetRecordRepository.queryById(any())).thenReturn(buildConfigSetRecord);
@@ -500,9 +501,7 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
     @Test(expected = EmptyEntityException.class)
     public void shouldThrowAnExceptionWhenTheGroupDoesNotExist() {
         // Given some group
-        Integer buildSetTaskId = 1;
-        BuildSetTask buildSetTask = mock(BuildSetTask.class);
-        when(buildSetTask.getId()).thenReturn(buildSetTaskId);
+        when(buildConfigSetRecordRepository.queryById(42)).thenReturn(null);
 
         // When getting non-existing group
         Graph<Build> graph = provider.getBuildGraphForGroupBuild("42");
