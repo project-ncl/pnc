@@ -82,4 +82,6 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Integer> 
     BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild);
 
     Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId);
+
+    List<BuildRecord> getBuildByCausingRecord(Integer causingRecordId);
 }

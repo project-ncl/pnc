@@ -35,6 +35,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -102,11 +103,20 @@ public class TemporaryBuildsCleaner {
                     "Failed to delete remote temporary builds.");
         }
 
+        removeRebuildCauseRelationship(buildRecord);
         removeBuiltArtifacts(buildRecord);
 
         buildRecordRepository.delete(buildRecord.getId());
         log.info("Deletion of the temporary build {} finished successfully.", buildRecord);
         return new Result(buildRecordId.toString(), ResultStatus.SUCCESS);
+    }
+
+    private void removeRebuildCauseRelationship(BuildRecord buildRecord) {
+        List<BuildRecord> buildByCausingRecord = buildRecordRepository.getBuildByCausingRecord(buildRecord.getId());
+        for (BuildRecord record : buildByCausingRecord) {
+            record.setNoRebuildCause(null);
+            buildRecordRepository.save(record);
+        }
     }
 
     private void deleteArtifact(Artifact artifact) {
