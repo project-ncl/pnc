@@ -25,6 +25,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.facade.validation.EmptyEntityException;
 
 import java.net.URI;
 import java.util.List;
@@ -89,6 +90,12 @@ public interface BuildProvider extends Provider<Integer, org.jboss.pnc.model.Bui
 
     Graph<Build> getBuildGraphForGroupBuild(String id);
 
+    /**
+     *
+     * @param id
+     * @return
+     * @throws EmptyEntityException when there is no record for given id
+     */
     Graph<Build> getDependencyGraph(String id);
 
     Page<Build> getAllByStatusAndLogContaining(
