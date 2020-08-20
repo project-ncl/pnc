@@ -40,6 +40,7 @@
     $ctrl.save = save;
     $ctrl.editBuildConfigs = editBuildConfigs;
     $ctrl.editGroupConfigs = editGroupConfigs;
+    $ctrl.editGroupConfigs = null; // temporarily hide Group Config "Edit" functionality available on Product Version page, remove this line to display it
     $ctrl.fetchGroupConfigRefs = fetchGroupConfigRefs;
     $ctrl.refreshBuildConfigs = refreshBuildConfigs;
     $ctrl.removeBuildConfig = removeBuildConfig;
