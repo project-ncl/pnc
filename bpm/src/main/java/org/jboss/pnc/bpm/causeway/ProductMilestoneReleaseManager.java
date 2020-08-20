@@ -148,12 +148,7 @@ public class ProductMilestoneReleaseManager {
         try {
             MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone, accessToken);
             Integer id = milestone.getId();
-            releaseTask.<MilestoneReleaseResultRest> addListener(
-                    BpmEventType.BREW_IMPORT_SUCCESS,
-                    r -> onSuccessfulPush(id, r));
-            releaseTask.<BpmStringMapNotificationRest> addListener(
-                    BpmEventType.BREW_IMPORT_ERROR,
-                    r -> onFailedPush(milestone.getId(), r));
+            releaseTask.<MilestoneReleaseResultRest> addListener(BpmEventType.BREW_IMPORT, r -> onPushResult(id, r));
             release.setStatus(MilestoneCloseStatus.IN_PROGRESS);
             bpmManager.startTask(releaseTask);
             userLog.info("Release process started.");
@@ -167,29 +162,18 @@ public class ProductMilestoneReleaseManager {
         }
     }
 
-    private void onSuccessfulPush(Integer milestoneId, MilestoneReleaseResultRest result) {
+    private void onPushResult(Integer milestoneId, MilestoneReleaseResultRest result) {
         log.debug("Storing milestone release result: {}", result);
-        withMilestone(milestoneId, result, this::storeSuccess);
-        userLog.info("Milestone release result stored.");
-    }
-
-    private void onFailedPush(Integer milestoneId, BpmStringMapNotificationRest result) {
-        log.debug("Storing failed milestone release result: {}", result);
-        withMilestone(milestoneId, result, this::storeFailure);
-        userLog.info("Failed milestone release result stored.");
-    }
-
-    private <T> void withMilestone(Integer milestoneId, T result, BiConsumer<ProductMilestone, T> consumer) {
         ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
-
         if (milestone == null) {
             log.error("No milestone found for milestone id {}", milestoneId);
             return;
         }
-        consumer.accept(milestone, result);
+        storeResult(milestone, result);
+        userLog.info("Milestone release result stored.");
     }
 
-    private void storeSuccess(ProductMilestone milestone, MilestoneReleaseResultRest result) {
+    private void storeResult(ProductMilestone milestone, MilestoneReleaseResultRest result) {
         ProductMilestoneRelease productMilestoneRelease = updateRelease(
                 milestone,
                 result.getReleaseStatus().getMilestoneReleaseStatus())
@@ -206,10 +190,6 @@ public class ProductMilestoneReleaseManager {
 
             removeCurrentFlagFromMilestone(milestone);
         }
-    }
-
-    private <T> void storeFailure(ProductMilestone milestone, BpmStringMapNotificationRest result) {
-        updateRelease(milestone, MilestoneCloseStatus.SYSTEM_ERROR);
     }
 
     private void storeBuildRecordPush(

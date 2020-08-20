@@ -22,6 +22,7 @@ package org.jboss.pnc.enums;
  */
 public enum ReleaseStatus {
     SUCCESS(MilestoneCloseStatus.SUCCEEDED),
+    FAILURE(MilestoneCloseStatus.FAILED),
     IMPORT_ERROR(MilestoneCloseStatus.FAILED),
     SET_UP_ERROR(MilestoneCloseStatus.SYSTEM_ERROR);
 
