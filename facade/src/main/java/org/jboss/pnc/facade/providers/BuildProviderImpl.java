@@ -469,6 +469,10 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
 
     @Override
     public Graph<Build> getDependencyGraph(String buildId) {
+        Build specific = getSpecific(buildId);
+        if (specific == null) {
+            throw new EmptyEntityException("there is no record for given buildId.");
+        }
         org.jboss.util.graph.Graph<BuildWithDependencies> buildGraph = createBuildDependencyGraph(buildId);
         GraphDtoBuilder<BuildWithDependencies, Build> graphBuilder = new GraphDtoBuilder();
         return graphBuilder.from(buildGraph, Build.class, vertex -> vertex.getData().getBuild());
