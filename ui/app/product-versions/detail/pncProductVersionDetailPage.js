@@ -27,11 +27,11 @@
       productMilestones: '<'
     },
     templateUrl: 'product-versions/detail/pnc-product-version-detail-page.html',
-    controller: ['ProductVersionResource', 'paginator', Controller]
+    controller: ['ProductVersionResource', 'BuildConfigResource', 'paginator', Controller]
   });
 
 
-  function Controller(ProductVersionResource, paginator) {
+  function Controller(ProductVersionResource, BuildConfigResource, paginator) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -71,7 +71,8 @@
 
     function removeBuildConfig(buildConfig) {
       console.log('REMOVE BC: %O', buildConfig);
-      return $ctrl.productVersion.$removeBuildConfig({ buildConfigId: buildConfig.id });
+      buildConfig.productVersion = null;
+      return BuildConfigResource.update(buildConfig).$promise;
     }
 
     function editGroupConfigs(result) {

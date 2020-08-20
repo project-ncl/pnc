@@ -47,11 +47,6 @@
           url: ENDPOINT + '/build-configs',
           isPaged: true
         },
-        removeBuildConfig: {
-          method: 'DELETE',
-          url: ENDPOINT + '/build-configs/:buildConfigId',
-          successNotification: false
-        },
         queryGroupConfigs: {
           method: 'GET',
           url: ENDPOINT + '/group-configs',
