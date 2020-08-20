@@ -1,6 +1,7 @@
 {
   "name": "pnc-ui",
-  "version": "0.5.0",
+  "private": true,
+  "version": "2.0.0",
   "dependencies": {},
   "devDependencies": {
     "bower": "^1.8.4",

@@ -1,6 +1,5 @@
 {
   "name": "pnc-ui",
-  "version": "0.5.0",
   "dependencies": {
     "jquery": "^3.4.1",
     "angular": "1.7.8",
