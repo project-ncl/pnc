@@ -163,14 +163,14 @@ public class ProductMilestoneReleaseManagerTest {
         releaseManager.startRelease(milestone, null, Sequence.nextId());
         List<ProductMilestoneRelease> releases = productMilestoneReleaseRepository.queryAll();
         assertThat(releases).hasSize(1);
-        taskCapture.task.notify(BpmEventType.BREW_IMPORT_SUCCESS, successfulReleaseResult(brewBuildId, records));
+        taskCapture.task.notify(BpmEventType.BREW_IMPORT, successfulReleaseResult(brewBuildId, records));
     }
 
     private void release(ProductMilestone milestone, MilestoneReleaseResultRest releaseResultRest) {
         releaseManager.startRelease(milestone, null, Sequence.nextId());
         List<ProductMilestoneRelease> releases = productMilestoneReleaseRepository.queryAll();
         assertThat(releases).hasSize(1);
-        taskCapture.task.notify(BpmEventType.BREW_IMPORT_SUCCESS, releaseResultRest);
+        taskCapture.task.notify(BpmEventType.BREW_IMPORT, releaseResultRest);
     }
 
     private void assertPushResultLinkedToRecord(BuildRecord record, Integer expectedBrewId, String expectedBrewLink) {

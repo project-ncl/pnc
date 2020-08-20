@@ -34,11 +34,7 @@ import static java.util.Objects.requireNonNull;
 public enum BpmEventType { // TODO merge with org.jboss.pnc.spi.notifications.model.EventType ?
     // <T extends BpmNotificationRest>
     DEBUG(BpmStringMapNotificationRest.class),
-    BREW_IMPORT_SUCCESS(MilestoneReleaseResultRest.class), // TODO remove
-                                                           // SUCCESS|ERROR
-                                                           // from the
-                                                           // event types ?
-    BREW_IMPORT_ERROR(BpmStringMapNotificationRest.class),
+    BREW_IMPORT(MilestoneReleaseResultRest.class),
     BUILD_COMPLETE(BuildResultRest.class),
     RC_REPO_CREATION_SUCCESS(BpmStringMapNotificationRest.class),
     RC_REPO_CREATION_ERROR(BpmStringMapNotificationRest.class),

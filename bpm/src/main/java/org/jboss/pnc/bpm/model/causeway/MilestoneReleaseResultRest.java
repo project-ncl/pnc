@@ -40,7 +40,7 @@ public class MilestoneReleaseResultRest extends BpmEvent {
 
     @Override
     public String getEventType() {
-        return "BREW_IMPORT_SUCCESS";
+        return "BREW_IMPORT";
     }
 
     @JsonIgnore
