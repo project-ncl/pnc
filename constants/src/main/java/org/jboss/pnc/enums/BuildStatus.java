@@ -113,7 +113,7 @@ public enum BuildStatus {
     /**
      * User cancelled the Build/GroupBuild. The status is propagated through dependants.
      */
-    CANCELLED(FINISHED, true),
+    CANCELLED(FINISHED, false),
 
     /**
      * A system error prevented the build from completing.
