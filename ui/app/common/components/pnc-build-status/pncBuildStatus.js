@@ -19,10 +19,10 @@
   'use strict';
 
   /**
-   * The dumb component representing Build Status displaying information like build status icon, 
+   * The dumb component representing Build Status displaying information like build status icon,
    * start / end time or started by user for given Build or Group Build.
-   * 
-   * @example 
+   *
+   * @example
    * <pnc-build-status build="build" is-loaded="isLoaded"></pnc-build-status>
    */
   angular.module('pnc.common.components').component('pncBuildStatus', {
@@ -40,16 +40,16 @@
        */
       isLoaded: '<',
       /**
-       * Object: Truthy of falsy object indicating whether click should be propagated or not. 
+       * Object: Truthy of falsy object indicating whether click should be propagated or not.
        * Sometimes propagated clicks can cause side effects that should be stopped.
        */
       stopPropagation: '<'
     },
     templateUrl: 'common/components/pnc-build-status/pnc-build-status.html',
-    controller: [Controller]
+    controller: ['$scope', Controller]
   });
 
-  function Controller() {
+  function Controller($scope) {
     var $ctrl = this;
 
     $ctrl.$onInit = function() {
@@ -58,12 +58,16 @@
 
     $ctrl.$onChanges = function(changedBindings) {
       if (changedBindings.build) {
-        $ctrl.item = $ctrl.build;
+        updateState($ctrl.build);
       } else if (changedBindings.groupBuild) {
-        $ctrl.item = $ctrl.groupBuild;
+        updateState($ctrl.groupBuild);
       }
     };
-    
+
+    function updateState(buildable) {
+      $scope.$applyAsync(() => $ctrl.item = buildable);
+    }
+
   }
 
 })();

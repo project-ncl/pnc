@@ -38,9 +38,20 @@
     // --------------------
 
 
-    $ctrl.$onInit = function () {
-      $ctrl.linkText = getLinkText();
+    $ctrl.$onInit = () => {
+      updateState();
     };
+
+    $ctrl.$onChanges = changesObj => {
+      if (changesObj.build) {
+        updateState();
+      }
+    };
+
+    function updateState() {
+      $ctrl.buildId = $ctrl.build.id;
+      $ctrl.linkText = getLinkText();
+    }
 
     function getLinkText() {
       if (angular.isUndefined($ctrl.build)) {
