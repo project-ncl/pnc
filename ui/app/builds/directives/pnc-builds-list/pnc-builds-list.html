@@ -22,7 +22,7 @@
     <th ng-if="::$ctrl.showColumn('status')">Status</th>
     <th ng-if="::$ctrl.showColumn('statusIcon')">&nbsp;</th>
     <th ng-if="::$ctrl.showColumn('id')">Id</th>
-    <th ng-if="::$ctrl.showColumn('configurationName')">Build Config</th>
+    <th ng-if="::$ctrl.showColumn('configurationName')">{{ $ctrl.builds ? 'Build' : 'Group' }} Config</th>
     <th ng-if="::$ctrl.showColumn('canonicalName')">Build</th>
     <th ng-if="::$ctrl.showColumn('submitTime')">Submit Time</th>
     <th ng-if="::$ctrl.showColumn('startTime')">Start Time</th>
