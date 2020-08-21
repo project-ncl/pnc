@@ -34,6 +34,11 @@
         var that = {};
 
         that.onFilterChange = function (filters) {
+          // This is a hack, on the below line "this.fields" references internal state within the pfFilter
+          // object from the angular-patternfly lib. This is possible due to an oddity of javascript and how it
+          // defines what "this" references in a given context. We're accessing private internal state of a 3rd party
+          // library here so the usual warnings apply.
+          //
           const filterDefinitions = this.fields;
           paginator.clearFilters();
 
@@ -42,7 +47,8 @@
             paginator.addFilter({
               field: filter.id,
               value: filter.value,
-              comparator: PF_FILTER_TYPES[filterDef.filterType]
+              comparator: PF_FILTER_TYPES[filterDef.filterType],
+              method: filterDef.filterMethod || 'RSQL'
             });
           });
           paginator.apply();

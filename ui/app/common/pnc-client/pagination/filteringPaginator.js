@@ -64,8 +64,10 @@
 
           if (activeFilters.length > 0) {
 
+            const activeRsqlFilters = activeFilters.filter(f => f.method === 'RSQL');
+
             // Apply filters
-            activeFilters.forEach(function (filter) {
+            activeRsqlFilters.forEach(function (filter) {
               if (!q.where) {
                 q = q.and();
               }
@@ -93,7 +95,6 @@
           return q.end ? q.end() : undefined;
         }
 
-
        /**
         * Overides prototype method.
         */
@@ -105,6 +106,11 @@
           if (!_.isEmpty(sortBy)) {
             params.sort = sortBy;
           }
+
+          // Add filters for search by direct query param
+          activeFilters
+              .filter(f => f.method === 'QUERY_PARAM')
+              .forEach(f => params[f.field] = f.value);
 
           return prototype.fetch.call(this, params);
         };
@@ -127,6 +133,10 @@
          * @param {string} filter.comparator - the RSQL comparator to use, should be
          * string name of a method from common/pnc-client/rsql/comparator.js. Default value
          * is 'like'.
+         * @param {string} filter.method - the method of making the query with the backend, supported values are:
+         *  'RSQL' - The query is made by generating an RSQL query
+         *  'QUERY_PARAM' - the query is made by using a dedicated querystring param.
+         * Default value is 'RSQL'.
          * @returns this - to support method chaining.
          */
         that.addFilter = function (filter) {
@@ -146,6 +156,9 @@
             }
             if (!f.comparator) {
               f.comparator = 'like';
+            }
+            if (!f.method) {
+              f.method = 'RSQL';
             }
             activeFilters.push(f);
           });

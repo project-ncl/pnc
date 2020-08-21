@@ -40,7 +40,7 @@
       filterMethod: 'RSQL'
     }, {
       id: 'buildConfigName',
-      title: 'Build Config name',
+      title: 'Build Config Name',
       placeholder: 'Filter by Build Config name',
       filterType: 'text',
       filterMethod: 'QUERY_PARAM'
