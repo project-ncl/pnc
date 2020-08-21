@@ -36,12 +36,14 @@
       id: 'user.username',
       title: 'Username',
       placeholder: 'Filter by Username',
-      filterType: 'text'
+      filterType: 'text',
+      filterMethod: 'RSQL'
     }, {
-      id: 'buildConfig.name',
+      id: 'buildConfigName',
       title: 'Build Config name',
       placeholder: 'Filter by Build Config name',
-      filterType: 'text'
+      filterType: 'text',
+      filterMethod: 'QUERY_PARAM'
     }, {
       id: 'status',
       title: 'Status',
@@ -55,7 +57,8 @@
         'BUILDING',
         'NO_REBUILD_REQUIRED',
         'SYSTEM_ERROR'
-      ]
+      ],
+      filterMethod: 'RSQL'
     }, {
       id: 'temporaryBuild',
       title: 'Temporary Build',
@@ -64,7 +67,8 @@
       filterValues: [
         'FALSE',
         'TRUE'
-      ]
+      ],
+      filterMethod: 'RSQL'
     }];
 
 
