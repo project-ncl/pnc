@@ -22,8 +22,12 @@
   <!-- Validation: This field is optional-->
   <div class="form-group"
        ng-class="{ 'has-error': productVersionForm.product.$invalid && productVersionForm.product.$touched, 'has-success': productVersionForm.product.$touched && productVersionForm.version.$touched }">
-    <label class="control-label" ng-class="{ 'col-sm-3 col-lg-2' : $ctrl.createGroupConfigLayout }">Product</label>
-    <div ng-class="{ 'col-sm-9 col-lg-7' : $ctrl.createGroupConfigLayout }">
+    <label class="control-label"
+           ng-class="{ 'col-sm-3 col-lg-2' : $ctrl.layout === 'group-config-create' , 'col-md-1' :  $ctrl.layout === 'group-config-detail'}">
+      Product
+    </label>
+    <div
+      ng-class="{ 'col-sm-9 col-lg-7' : $ctrl.layout === 'group-config-create', 'col-md-11' :  $ctrl.layout === 'group-config-detail'}">
       <div ng-if="$ctrl.isProductVersionLoading" class="spinner spinner-sm pull-left"></div>
       <pnc-product-combobox
         ng-if="!$ctrl.isProductVersionLoading"
@@ -38,8 +42,12 @@
   <div class="form-group"
        ng-if="!$ctrl.isProductVersionLoading && $ctrl.formData.product && $ctrl.formData.product.id"
        ng-class="{ 'has-error' : productVersionForm.version.$invalid && productVersionForm.version.$touched, 'has-success': productVersionForm.product.$touched && productVersionForm.version.$touched }">
-    <label class="control-label required" ng-class="{ 'col-sm-3 col-lg-2' : $ctrl.createGroupConfigLayout }">Version</label>
-    <div ng-class="{ 'col-sm-9 col-lg-7' : $ctrl.createGroupConfigLayout }">
+    <label class="control-label required"
+           ng-class="{ 'col-sm-3 col-lg-2' : $ctrl.layout === 'group-config-create' , 'col-md-1' :  $ctrl.layout === 'group-config-detail'}">
+      Version
+    </label>
+    <div
+      ng-class="{ 'col-sm-9 col-lg-7' : $ctrl.layout === 'group-config-create', 'col-md-11' :  $ctrl.layout === 'group-config-detail'}">
       <pnc-product-version-combobox
         name="version"
         product="$ctrl.formData.product"
