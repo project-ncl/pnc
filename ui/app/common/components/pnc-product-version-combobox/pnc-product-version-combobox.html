@@ -17,12 +17,14 @@
     limitations under the License.
 
 -->
+<div ng-if="$ctrl.isProductVersionLoading" class="spinner spinner-sm pull-left"></div>
 <px-combobox
         name="version"
         px-expression="productVersion as $ctrl.generateLabel(productVersion) for productVersion in $ctrl.search($viewValue)"
         ng-model="$ctrl.input"
         debounce-ms=500
         placeholder="Select or search for a Product Version"
+        ng-if="!$ctrl.isProductVersionLoading"
         ng-show="$ctrl.versionListLength != 0">
 </px-combobox>
 <p ng-show="$ctrl.showNoVersionScript" class="help-block has-error">No version available for the product you selected.</p>
