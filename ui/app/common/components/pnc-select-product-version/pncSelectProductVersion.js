@@ -29,9 +29,9 @@
     },
     bindings: {
       /**
-       * Object: The boolean value of whether it is for create Group Config page
+       * Object: The layout type of the product version component, e.g., create-group-config, edit-group-config.
        */
-      createGroupConfigLayout: '<',
+      layout: '<',
     },
     controller: ['$scope', 'ProductVersionResource', Controller]
   });
