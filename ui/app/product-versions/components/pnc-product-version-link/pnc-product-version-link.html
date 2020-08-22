@@ -21,7 +21,7 @@
 <div ng-if="!$ctrl.isProductVersionLoading">
   <a ng-if="$ctrl.productVersionData && $ctrl.productVersionData.id" href
      ui-sref="products.detail.product-versions.detail({ productVersionId: $ctrl.productVersionData.id, productId: $ctrl.productVersionData.product.id })">
-    {{$ctrl.productVersionData.product.name}} - {{$ctrl.productVersionData.version}}
+    {{$ctrl.productVersionData.product.name}} - v{{$ctrl.productVersionData.version}}
   </a>
   <span ng-if="!$ctrl.productVersionData || !$ctrl.productVersionData.id"> — </span>
 </div>
