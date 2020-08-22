@@ -34,24 +34,7 @@
         </div>
       </div>
 
-      <!-- Validation: This field is optional and has no constraints -->
-      <div class="form-group" ng-class="{ 'has-error': groupConfigForm.product.$invalid && groupConfigForm.product.$touched, 'has-success': groupConfigForm.product.$touched && groupConfigForm.version.$touched }" >
-        <label class="col-sm-3 col-lg-2 control-label">Product</label>
-        <div class="col-sm-9 col-lg-7">
-          <pnc-product-combobox name="product" ng-change="$ctrl.checkVersionData($ctrl.data.groupConfig)" ng-model="$ctrl.data.groupConfig.product">
-          </pnc-product-combobox>
-        </div>
-      </div>
-      <div class="form-group" ng-if="$ctrl.data.groupConfig.product && $ctrl.data.groupConfig.product.id"
-           ng-class="{ 'has-error' : groupConfigForm.version.$invalid && groupConfigForm.version.$touched, 'has-success': groupConfigForm.product.$touched && groupConfigForm.version.$touched }">
-        <label class="col-sm-3 col-lg-2 control-label">Version</label>
-        <div class="col-sm-9 col-lg-7">
-          <pnc-product-version-combobox name="version" product="$ctrl.data.groupConfig.product" ng-model="$ctrl.data.groupConfig.version">
-          </pnc-product-version-combobox>
-          <p ng-show="groupConfigForm.version.$invalid && $ctrl.data.groupConfigForm.version.$touched" class="help-block">
-            Version is a required field if you selected any product.</p>
-        </div>
-      </div>
+      <pnc-select-product-version create-group-config-layout=true ng-model="$ctrl.data.groupConfig.version"></pnc-select-product-version>
 
       <div class="form-group">
         <div class="col-sm-offset-3 col-lg-offset-2 col-sm-9 col-lg-10">

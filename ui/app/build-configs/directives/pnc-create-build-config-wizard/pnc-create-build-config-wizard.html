@@ -42,12 +42,11 @@
       </pf-wizard-substep>
 
       <pf-wizard-substep step-title="Product Version" step-id="productVersion"
-        next-enabled="!$ctrl.wizardData.productVersion.product || $ctrl.productVersionForm.$valid" step-priority="15"
+        next-enabled="$ctrl.productVersionForm.$valid" step-priority="15"
         show-review="true" show-review-details="true"
         review-template="build-configs/directives/pnc-create-build-config-wizard/review-product-version.html">
         <form name="$ctrl.productVersionForm" novalidate>
-          <pnc-create-build-config-product-version-form ng-model="$ctrl.wizardData.productVersion">
-          </pnc-create-build-config-product-version-form>
+          <pnc-select-product-version ng-model="$ctrl.wizardData.productVersion"></pnc-select-product-version>
         </form>
       </pf-wizard-substep>
 

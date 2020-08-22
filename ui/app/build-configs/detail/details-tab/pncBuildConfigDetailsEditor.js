@@ -36,11 +36,11 @@
       onCancel: '&'
     },
     templateUrl: 'build-configs/detail/details-tab/pnc-build-config-details-editor.html',
-    controller: ['BuildConfigResource', 'ProductVersionResource', Controller]
+    controller: ['BuildConfigResource', Controller]
   });
 
 
-  function Controller(BuildConfigResource, ProductVersionResource) {
+  function Controller(BuildConfigResource) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -58,21 +58,7 @@
       $ctrl.formData = fromBuildConfig($ctrl.buildConfig);
       // Ensure this components copy of the BC can't be updated from outside.
       $ctrl.buildConfig = angular.copy($ctrl.buildConfig);
-      //Fetch full product version data from endpoint to get the product information by productVersion.id
-      if($ctrl.buildConfig.productVersion){
-         ProductVersionResource.get({ id: $ctrl.buildConfig.productVersion.id }).$promise.then(function (productVersionRes){
-                $ctrl.formData.productVersion = productVersionRes;
-                $ctrl.formData.product = productVersionRes ? productVersionRes.product : null;
-              });
-      }
     };
-
-   /*Check version data and remove it if product is changed or not selected*/
-      $ctrl.checkVersionData = () => {
-        if (!$ctrl.formData.product || ($ctrl.formData.productVersion && $ctrl.formData.product.id !== $ctrl.formData.productVersion.product.id)) {
-          $ctrl.formData.productVersion = null;
-        }
-      };
 
     function submit() {
       $ctrl.working = true;

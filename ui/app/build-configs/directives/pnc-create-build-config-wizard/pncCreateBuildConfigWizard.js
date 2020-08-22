@@ -174,7 +174,7 @@
 
       // Optional properties
       if (utils.isNotEmpty(wizardData.productVersion)) {
-        bc.productVersion = { id: wizardData.productVersion.version.id.toString() };
+        bc.productVersion = { id: wizardData.productVersion.id.toString() };
       }
 
       if (utils.isNotEmpty(wizardData.buildParameters)) {

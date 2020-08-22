@@ -41,6 +41,7 @@
       $ctrl.generateLabel = generateLabel;
       $ctrl.showNoVersionScript = false;
       $ctrl.versionListLength = 0;
+      $ctrl.isProductVersionLoading = true;
       // --------------------
 
 
@@ -51,6 +52,14 @@
           return $ctrl.input;
         }, function () {
           $ctrl.ngModel.$setViewValue($ctrl.input);
+        });
+
+        // Refresh initial values if the product passed in is different from the product of the productVersion
+        $scope.$watch(function () {
+          return $ctrl.product;
+        }, function () {
+          $ctrl.isProductVersionLoading = true;
+          refreshInitialValues();
         });
 
         // Transform the combobox's value to the correct ng-model value.
@@ -70,12 +79,8 @@
           }
           $ctrl.input = $ctrl.ngModel.$viewValue;
         };
-
-        initialValues = ProductResource.queryProductVersions({ id: $ctrl.product.id }).$promise.then(function (page) {
-          $ctrl.versionListLength = page.data.length;
-          $ctrl.showNoVersionScript = page.data.length ===0;
-          return page.data;
-        });
+        $ctrl.isProductVersionLoading = true;
+        refreshInitialValues();
       };
 
       $ctrl.$postLink = function () {
@@ -119,6 +124,18 @@
         result = 'v' + productVersion.version;
 
         return result;
+      }
+
+      function refreshInitialValues() {
+        if($ctrl.product && $ctrl.product.id){
+          initialValues = ProductResource.queryProductVersions({ id: $ctrl.product.id }).$promise.then(function (page) {
+            $ctrl.isProductVersionLoading = false;
+            $ctrl.versionListLength = page.data.length;
+            $ctrl.showNoVersionScript = page.data.length ===0;
+            $ctrl.isProductVersionLoading = false;
+            return page.data;
+          });
+        }
       }
     }
 
