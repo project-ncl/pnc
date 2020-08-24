@@ -74,7 +74,8 @@ import java.util.Set;
                 @Index(name = "idx_artifact_sha1", columnList = "sha1"),
                 @Index(name = "idx_artifact_sha256", columnList = "sha256"),
                 @Index(name = "idx_artifact_creation_user", columnList = "creationuser_id"),
-                @Index(name = "idx_artifact_modification_user", columnList = "modificationUser_id") })
+                @Index(name = "idx_artifact_modification_user", columnList = "modificationUser_id"),
+                @Index(name = "idx_artifact_buildrecord", columnList = "buildrecord_id") })
 public class Artifact implements GenericEntity<Integer> {
 
     private static final long serialVersionUID = 1L;

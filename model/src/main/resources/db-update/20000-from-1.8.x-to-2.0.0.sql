@@ -188,3 +188,34 @@ BEGIN transaction;
     ALTER TABLE buildrecord ADD CONSTRAINT fk_buildrecord_norebuildcause
     FOREIGN KEY (norebuildcause_id) REFERENCES buildrecord(id);
 COMMIT;
+
+
+BEGIN transaction;
+
+    -- Verify that there are no duplicate data
+    do $$
+    declare
+        total_dupes integer;
+    begin
+        SELECT count(*)
+        INTO total_dupes
+        FROM (SELECT built_artifact_id FROM build_record_built_artifact_map GROUP BY built_artifact_id HAVING count(*) > 1) AS agg;
+
+        assert total_dupes = 0;
+    end$$;
+
+    -- Add new column to artifact table
+    ALTER TABLE artifact ADD column buildrecord_id int4;
+    CREATE INDEX idx_artifact_buildrecord ON artifact (buildrecord_id);
+    ALTER TABLE artifact ADD CONSTRAINT fk_artifact_buildrecord FOREIGN KEY (buildrecord_id) REFERENCES buildrecord(id);
+
+    -- Copy data from old table
+    UPDATE artifact
+        SET buildrecord_id = build_record_built_artifact_map.build_record_id
+        FROM build_record_built_artifact_map
+        WHERE artifact.id = build_record_built_artifact_map.built_artifact_id;
+
+    -- Drop the old table
+    DROP TABLE build_record_built_artifact_map;
+
+COMMIT;
