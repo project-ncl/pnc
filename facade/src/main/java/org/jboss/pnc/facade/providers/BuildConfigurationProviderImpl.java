@@ -287,7 +287,8 @@ public class BuildConfigurationProviderImpl extends
                 pageSize,
                 sortingRsql,
                 query,
-                withProductVersionId(Integer.valueOf(productVersionId)));
+                withProductVersionId(Integer.valueOf(productVersionId)),
+                isNotArchived());
     }
 
     @Override
@@ -299,7 +300,13 @@ public class BuildConfigurationProviderImpl extends
             String projectId) {
         ValidationBuilder.validateObject(null)
                 .validateAgainstRepository(projectRepository, Integer.valueOf(projectId), true);
-        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProjectId(Integer.valueOf(projectId)));
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withProjectId(Integer.valueOf(projectId)),
+                isNotArchived());
 
     }
 
@@ -317,7 +324,8 @@ public class BuildConfigurationProviderImpl extends
                 pageSize,
                 sortingRsql,
                 query,
-                withScmRepositoryId(Integer.valueOf(scmRepositoryId)));
+                withScmRepositoryId(Integer.valueOf(scmRepositoryId)),
+                isNotArchived());
     }
 
     @Override
@@ -390,7 +398,8 @@ public class BuildConfigurationProviderImpl extends
                 pageSize,
                 sortingRsql,
                 query,
-                withDependantConfiguration(Integer.valueOf(configId)));
+                withDependantConfiguration(Integer.valueOf(configId)),
+                isNotArchived());
     }
 
     @Override
@@ -406,7 +415,8 @@ public class BuildConfigurationProviderImpl extends
                 pageSize,
                 sortingRsql,
                 query,
-                withDependencyConfiguration(Integer.valueOf(configId)));
+                withDependencyConfiguration(Integer.valueOf(configId)),
+                isNotArchived());
     }
 
     @Override
@@ -452,7 +462,8 @@ public class BuildConfigurationProviderImpl extends
                 pageSize,
                 sortingRsql,
                 query,
-                withBuildConfigurationSetId(Integer.valueOf(groupConfigId)));
+                withBuildConfigurationSetId(Integer.valueOf(groupConfigId)),
+                isNotArchived());
     }
 
     @Override
