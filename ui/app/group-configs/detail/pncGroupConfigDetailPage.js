@@ -40,6 +40,7 @@
     // -- Controller API --
 
     $ctrl.update = update;
+    $ctrl.refresh = refresh;
     $ctrl.delete = deleteGroupConfig;
     $ctrl.linkWithProductVersion = linkWithProductVersion;
     $ctrl.unlinkFromProductVersion = unlinkFromProductVersion;
@@ -59,12 +60,16 @@
     }
 
     function update(data) {
-      return GroupConfigResource.safePatch($ctrl.groupConfig, data)
+      return GroupConfigResource.safePatch($ctrl.groupConfig, {'name': data.name, 'productVersion': { 'id': $ctrl.formModel.productVersion.id}})
           .$promise
           .catch(
             // String retval signals to x-editable lib that the request failed and to rollback the changes in the view.
             error => error.data.errorMessage
           );
+    }
+
+    function refresh() {
+      $ctrl.productVersion = $ctrl.formModel.productVersion;
     }
 
     function deleteGroupConfig() {

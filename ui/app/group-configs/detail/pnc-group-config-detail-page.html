@@ -47,7 +47,7 @@
       </pnc-header-buttons>
     </pnc-header>
 
-    <form editable-form class="form-horizontal" name="groupConfigEditForm" onbeforesave="$ctrl.update($data)" novalidate>
+    <form editable-form class="form-horizontal" name="groupConfigEditForm" onbeforesave="$ctrl.update($data)" novalidate onaftersave="$ctrl.refresh()">
       <div class="form-group" ng-class="{ 'has-error': groupConfigEditForm.name.$invalid && !groupConfigEditForm.name.$pristine, 'has-success': groupConfigEditForm.name.$valid && groupConfigEditForm.name.$touched }">
         <label for="input-name" class="col-md-1 control-label" ng-class="{ 'required': groupConfigEditForm.$visible }">Name</label>
         <div class="col-md-11">
@@ -55,8 +55,8 @@
           <span class="help-block" ng-show="groupConfigEditForm.name.$error.required && !groupConfigEditForm.name.$pristine">Required field.</span>
         </div>
       </div>
-      <div class="form-group">
-        <label for="product-version-name" class="col-md-1 control-label">Product Version</label>
+      <div class="form-group" ng-show="!groupConfigEditForm.$visible">
+        <label for="product-version-name" class="col-md-1 control-label" >Product Version</label>
         <div class="col-md-11">
           <p id="product-version-name" class="form-control-static">
             <span ng-if="$ctrl.productVersion">
@@ -68,9 +68,12 @@
           </p>
         </div>
       </div>
+      <div ng-show="groupConfigEditForm.$visible">
+        <pnc-select-product-version layout="'group-config-detail'" ng-model="$ctrl.formModel.productVersion"></pnc-select-product-version>
+      </div>
       <div class="form-group" ng-show="groupConfigEditForm.$visible">
         <div class="col-sm-offset-1 col-sm-11">
-          <button type="submit" class="btn btn-primary" ng-disabled="groupConfigEditForm.$waiting || groupConfigEditForm.name.$invalid">
+          <button type="submit" class="btn btn-primary" ng-disabled="groupConfigEditForm.$waiting || groupConfigEditForm.$invalid">
             Save
           </button>
           <button type="button" class="btn btn-default" ng-disabled="groupConfigEditForm.$waiting" ng-click="groupConfigEditForm.$cancel(); groupConfigEditForm.$setPristine(); groupConfigEditForm.$setUntouched();">
