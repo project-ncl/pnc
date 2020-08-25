@@ -26,10 +26,10 @@
       productVersion: '<'
     },
     templateUrl: 'product-versions/components/pnc-product-version-link/pnc-product-version-link.html',
-    controller: ['ProductVersionResource', Controller]
+    controller: ['$scope', 'ProductVersionResource', Controller]
   });
 
-  function Controller(ProductVersionResource) {
+  function Controller($scope, ProductVersionResource) {
     var $ctrl = this;
     $ctrl.isProductVersionLoading = true;
     // -- Controller API --
@@ -37,14 +37,16 @@
 
     // --------------------
     $ctrl.$onInit = function () {
-      if($ctrl.productVersion){
-        ProductVersionResource.get({ id: $ctrl.productVersion.id }).$promise.then(function (productVersionRes){
+      $scope.$watch('$ctrl.productVersion', function () {
+        if ($ctrl.productVersion) {
+          ProductVersionResource.get({id: $ctrl.productVersion.id}).$promise.then(function (productVersionRes) {
+            $ctrl.isProductVersionLoading = false;
+            $ctrl.productVersionData = productVersionRes;
+          });
+        } else {
           $ctrl.isProductVersionLoading = false;
-          $ctrl.productVersionData = productVersionRes;
-        });
-      }else{
-          $ctrl.isProductVersionLoading = false;
-      }
+        }
+      });
     };
   }
 
