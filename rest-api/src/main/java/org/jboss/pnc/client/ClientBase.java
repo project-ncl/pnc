@@ -79,8 +79,8 @@ public abstract class ClientBase<T> implements Closeable {
         client.register(new MdcToHeadersFilter(configuration.getMdcToHeadersMappings()));
         client.register(RequestLoggingFilter.class);
         target = client.target(
-                configuration.getProtocol() + "://" + configuration.getHost() + ":" + configuration.getPort()
-                        + BASE_REST_PATH);
+                configuration.getProtocol() + "://" + configuration.getHost()
+                        + (configuration.getPort() == null ? "" : ":" + configuration.getPort()) + BASE_REST_PATH);
         Configuration.BasicAuth basicAuth = configuration.getBasicAuth();
 
         if (basicAuth != null) {
