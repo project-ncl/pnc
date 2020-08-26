@@ -40,7 +40,7 @@
     $ctrl.save = save;
     $ctrl.editBuildConfigs = editBuildConfigs;
     $ctrl.editGroupConfigs = editGroupConfigs;
-    $ctrl.editGroupConfigs = null; // temporarily hide Group Config "Edit" functionality available on Product Version page, remove this line to display it
+    //$ctrl.editGroupConfigs = null; // temporarily hide Group Config "Edit" functionality available on Product Version page, remove this line to display it
     $ctrl.fetchGroupConfigRefs = fetchGroupConfigRefs;
     $ctrl.refreshBuildConfigs = refreshBuildConfigs;
     $ctrl.removeBuildConfig = removeBuildConfig;
@@ -78,11 +78,8 @@
 
     function editGroupConfigs(result) {
       console.log('EDIT GCs: %O', result);
-        const updated = {
-          groupConfigs: _.keyBy(result, 'id')
-        };
 
-        ProductVersionResource.safePatch($ctrl.productVersion, updated);
+      return ProductVersionResource.arrayPatch($ctrl.groupConfigs.data, result, 'groupConfigs', $ctrl.productVersion.id).$promise;
     }
 
     function fetchGroupConfigRefs() {
