@@ -61,7 +61,7 @@
 
             // Notify caller of updates and finally resolve or reject promise on job completion.
             const unsubscribe = messageBus.onMessage(notification => {
-              if (notification.job === 'BUILD_CONFIG_CREATION' && notification.taskId.toString() === taskId) {
+              if (notification.job === 'BUILD_CONFIG_CREATION' && notification.taskId === taskId) {
                 if (notification.progress === 'FINISHED') {
                   if (notification.notificationType === 'BC_CREATION_SUCCESS') {
                     deferred.resolve(notification);
