@@ -52,6 +52,7 @@ import javax.ws.rs.core.MediaType;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -217,7 +218,7 @@ public interface SCMRepositoryEndpoint {
                             description = SCM_REPOSITORY_CREATING,
                             content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
                     @ApiResponse(
-                            responseCode = SUCCESS_CODE,
+                            responseCode = ENTITY_CREATED_CODE,
                             description = SCM_REPOSITORY_CREATED,
                             content = @Content(schema = @Schema(implementation = RepositoryCreationResponse.class))),
                     @ApiResponse(
