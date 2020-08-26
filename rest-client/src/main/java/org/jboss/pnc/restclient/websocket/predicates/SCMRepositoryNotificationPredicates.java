@@ -44,7 +44,7 @@ public class SCMRepositoryNotificationPredicates {
      * @return predicate
      */
     public static Predicate<RepositoryCreationFailure> withFailedTaskId(String taskId) {
-        return (notification) -> notification.getTaskId().equals(taskId)
+        return (notification) -> taskId.equals(notification.getTaskId())
                 && JobNotificationProgress.FINISHED.equals(notification.getProgress())
                 && notification.getNotificationType().toString().contains("ERROR");
     }
@@ -59,7 +59,7 @@ public class SCMRepositoryNotificationPredicates {
      * @return predicate
      */
     public static Predicate<SCMRepositoryCreationSuccess> withSuccessTaskId(String taskId) {
-        return (notification) -> notification.getTaskId().equals(taskId)
+        return (notification) -> taskId.equals(notification.getTaskId())
                 && JobNotificationProgress.FINISHED.equals(notification.getProgress())
                 && notification.getScmRepository() != null
                 && notification.getJob().equals(JobNotificationType.SCM_REPOSITORY_CREATION)
