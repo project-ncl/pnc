@@ -72,7 +72,7 @@
         modalSelectService.openForBuildGroups({
           title: 'Add or Remove Group Configs from Product Version',
           selected: selected
-        }).result.then(res => console.log('Modal Result: %O', res));
+        }).result.then(res => $ctrl.onEdit()(res));
       });
       // $q.when()
       //   .then(() => {
