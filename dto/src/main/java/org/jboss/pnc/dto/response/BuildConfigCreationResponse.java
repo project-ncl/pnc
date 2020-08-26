@@ -39,7 +39,7 @@ public class BuildConfigCreationResponse {
      * Id of the task that will create and sync the repository and create build config. When the repository doesn't
      * require sync, this is null and {@link #getBuildConfig()} is returned instead.
      */
-    private Integer taskId;
+    private String taskId;
 
     /**
      * The created build config. When the repository require sync, this is null and {@link #getTaskId()} is returned
@@ -51,12 +51,12 @@ public class BuildConfigCreationResponse {
         this.buildConfig = buildConfiguration;
     }
 
-    public BuildConfigCreationResponse(int taskId) {
+    public BuildConfigCreationResponse(String taskId) {
         this.taskId = taskId;
     }
 
     @lombok.Builder(builderClassName = "Builder")
-    private BuildConfigCreationResponse(Integer taskId, BuildConfiguration buildConfig) {
+    private BuildConfigCreationResponse(String taskId, BuildConfiguration buildConfig) {
         this.taskId = taskId;
         this.buildConfig = buildConfig;
     }

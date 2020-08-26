@@ -498,7 +498,7 @@ public class BuildConfigurationProviderImpl extends
                     .queryByPredicates(withName(newBuildConfigurationWithId.getName()), isNotArchived());
             response = new BuildConfigCreationResponse(mapper.toDTO(buildConfigurationFromDB));
         } else {
-            response = new BuildConfigCreationResponse(rcResponse.getTaskId());
+            response = new BuildConfigCreationResponse(rcResponse.getTaskId().toString());
         }
         MDCUtils.removeProcessContext();
         return response;
