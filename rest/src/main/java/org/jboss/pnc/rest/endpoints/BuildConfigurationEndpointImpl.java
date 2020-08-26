@@ -28,6 +28,7 @@ import org.jboss.pnc.dto.response.AlignmentParameters;
 import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Parameter;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericParametersProvider;
@@ -35,6 +36,7 @@ import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.rest.api.endpoints.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -48,7 +50,11 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.OptionalInt;
 import java.util.Set;
 
@@ -71,6 +77,9 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Inject
     private BuildTriggerer buildTriggerer;
+
+    @Context
+    private HttpServletResponse servletResponse;
 
     @Inject
     private AlignmentConfig alignmentConfig;
@@ -194,7 +203,28 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public BuildConfigCreationResponse createWithSCM(BuildConfigWithSCMRequest request) {
-        return buildConfigurationProvider.createWithScm(request);
+        ValidationBuilder.validateObject(request, WhenCreatingNew.class)
+                .validateNotEmptyArgument()
+                .validateAnnotations();
+
+        BuildConfigCreationResponse responseDTO = buildConfigurationProvider.createWithScm(request);
+
+        if (responseDTO.getTaskId() == null) {
+            // created, return 201
+            servletResponse.setStatus(Response.Status.CREATED.getStatusCode());
+        } else {
+            // not in database, it is being created, return 202
+            servletResponse.setStatus(Response.Status.ACCEPTED.getStatusCode());
+        }
+        servletResponse.setContentType(MediaType.APPLICATION_JSON);
+
+        try {
+            servletResponse.flushBuffer();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return responseDTO;
     }
 
     @Override

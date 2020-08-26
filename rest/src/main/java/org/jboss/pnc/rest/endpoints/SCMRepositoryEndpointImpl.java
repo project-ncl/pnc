@@ -93,15 +93,18 @@ public class SCMRepositoryEndpointImpl implements SCMRepositoryEndpoint {
                 .createSCMRepository(request.getScmUrl(), request.getPreBuildSyncEnabled());
 
         if (responseDTO.getRepository() == null) {
-            // not in database, it is being created
+            // not in database, it is being created, return 202
             servletResponse.setStatus(Response.Status.ACCEPTED.getStatusCode());
-            servletResponse.setContentType(MediaType.APPLICATION_JSON);
+        } else {
+            // created, return 201
+            servletResponse.setStatus(Response.Status.CREATED.getStatusCode());
+        }
+        servletResponse.setContentType(MediaType.APPLICATION_JSON);
 
-            try {
-                servletResponse.flushBuffer();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+        try {
+            servletResponse.flushBuffer();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return responseDTO;

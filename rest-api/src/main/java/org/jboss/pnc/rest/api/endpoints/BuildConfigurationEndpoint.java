@@ -638,7 +638,7 @@ public interface BuildConfigurationEndpoint {
                             description = BUILD_CONFIG_CREATING,
                             content = @Content(schema = @Schema(implementation = BuildConfigCreationResponse.class))),
                     @ApiResponse(
-                            responseCode = SUCCESS_CODE,
+                            responseCode = ENTITY_CREATED_CODE,
                             description = BUILD_CONFIG_CREATED,
                             content = @Content(schema = @Schema(implementation = BuildConfigCreationResponse.class))),
                     @ApiResponse(
@@ -654,7 +654,6 @@ public interface BuildConfigurationEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
-    @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/create-with-scm")
     BuildConfigCreationResponse createWithSCM(BuildConfigWithSCMRequest request);
 
