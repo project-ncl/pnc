@@ -195,6 +195,6 @@
         reload: true
       });
       $ctrl.onClose();
-    }
+    };
   }
 })();
