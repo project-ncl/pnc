@@ -39,7 +39,7 @@
         <label for="external-url" class="col-sm-3 col-lg-2 control-label" ng-class="{ 'required': configurationForm.$visible }">External SCM URL</label>
         <div class="col-sm-9 col-lg-7">
           <p id="external-url" class="form-control-static" e-class="form-control" editable-text="$ctrl.scmRepository.externalUrl" e-name="externalUrl" e-maxlength="255" e-ng-required="repositoryConfigurationForm.preBuildSync.$modelValue">{{ $ctrl.scmRepository.externalUrl || 'Empty' }}</p>
-          <span class="help-block" ng-show="repositoryConfigurationForm.externalUrl.$error.required && repositoryConfigurationForm.externalUrl.$touched">Required field.</span>
+          <span class="help-block" ng-show="repositoryConfigurationForm.externalUrl.$error.required && repositoryConfigurationForm.externalUrl.$dirty">The field is required when Pre-build Sync is enabled.</span>
         </div>
       </div>
 
