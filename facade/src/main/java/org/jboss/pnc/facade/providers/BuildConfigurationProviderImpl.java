@@ -537,14 +537,17 @@ public class BuildConfigurationProviderImpl extends
         final int scmRepositoryId = event.getRepositoryId();
         RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(scmRepositoryId);
         final String taskId = event.getTaskId() == null ? null : event.getTaskId().toString();
+        final boolean sendMessage = event.getTaskId() != null;
         if (repositoryConfiguration == null) {
             String errorMessage = "Repository Configuration was not found in database.";
             logger.error(errorMessage);
-            sendErrorMessage(
-                    SCMRepository.builder().id(Integer.toString(scmRepositoryId)).build(),
-                    null,
-                    errorMessage,
-                    taskId);
+            if (sendMessage) {
+                sendErrorMessage(
+                        SCMRepository.builder().id(Integer.toString(scmRepositoryId)).build(),
+                        null,
+                        errorMessage,
+                        taskId);
+            }
             return;
         }
 
@@ -569,14 +572,17 @@ public class BuildConfigurationProviderImpl extends
             addBuildConfigurationToSet(buildConfigurationSaved, bcSetIds);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            sendErrorMessage(scmRepository, buildConfig, e.getMessage(), taskId);
+            if (sendMessage) {
+                sendErrorMessage(scmRepository, buildConfig, e.getMessage(), taskId);
+            }
             return;
         }
 
-        BuildConfigurationCreation successMessage = BuildConfigurationCreation
-                .success(scmRepository, buildConfig, taskId);
-
-        notifier.sendMessage(successMessage);
+        if (sendMessage) {
+            BuildConfigurationCreation successMessage = BuildConfigurationCreation
+                    .success(scmRepository, buildConfig, taskId);
+            notifier.sendMessage(successMessage);
+        }
     }
 
     private void addBuildConfigurationToSet(org.jboss.pnc.model.BuildConfiguration buildConfig, Set<Integer> bcSetIds) {

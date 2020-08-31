@@ -146,7 +146,8 @@ public class SCMRepositoryProviderImpl
     private void onSCMRepositoryCreated(RepositoryCreated event) {
         final SCMRepository repository = getSpecific(Integer.toString(event.getRepositoryId()));
         final String taskId = event.getTaskId() == null ? null : event.getTaskId().toString();
-        notifier.sendMessage(new SCMRepositoryCreationSuccess(repository, taskId));
+        if (taskId != null)
+            notifier.sendMessage(new SCMRepositoryCreationSuccess(repository, taskId));
     }
 
     @Override
