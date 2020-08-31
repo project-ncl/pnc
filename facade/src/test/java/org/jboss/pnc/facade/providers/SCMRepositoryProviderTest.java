@@ -220,7 +220,8 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
                 .createSCMRepository("http://github.com/project-ncl/cleaner.git", true);
 
         // then
-        verify(notifier, times(1)).sendMessage(any());
+        // NCL-5989 don't send WS message if repository is created immediately (happens with internal url)
+        // verify(notifier, times(1)).sendMessage(any());
         assertThat(response).isNotNull();
 
         if (response.getRepository() == null && response.getTaskId() == null) {
