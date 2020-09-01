@@ -1434,7 +1434,42 @@
 <!--            <release>8</release>-->
 <!--          </configuration>-->
         </plugin>
-
+        <plugin>
+          <!--
+          Override the javadoc-plugin version and use the configuraiton from jboss-parent:35.
+          Version override is required to avoid: [ERROR] Error fetching link: .../target/apidocs/package-list. Ignored it.
+          -->
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.2.0</version>
+          <configuration>
+            <header><![CDATA[<b>${project.name} ${project.version}</b>]]></header>
+            <footer><![CDATA[<b>${project.name} ${project.version}</b>]]></footer>
+            <archive>
+              <index>true</index>
+              <manifest>
+                <addDefaultSpecificationEntries>
+                  true
+                </addDefaultSpecificationEntries>
+                <addDefaultImplementationEntries>
+                  true
+                </addDefaultImplementationEntries>
+              </manifest>
+              <manifestEntries>
+                <Implementation-URL>${project.url}</Implementation-URL>
+                <Java-Version>${java.version}</Java-Version>
+                <Java-Vendor>${java.vendor}</Java-Vendor>
+                <Os-Name>${os.name}</Os-Name>
+                <Os-Arch>${os.arch}</Os-Arch>
+                <Os-Version>${os.version}</Os-Version>
+                <Scm-Url>${project.scm.url}</Scm-Url>
+                <Scm-Connection>${project.scm.connection}</Scm-Connection>
+                <Scm-Revision>${buildNumber}</Scm-Revision>
+              </manifestEntries>
+            </archive>
+            <additionalOptions>${javadoc.additional.params}</additionalOptions>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
 
@@ -1825,6 +1860,9 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+              <source>8</source>
+            </configuration>
             <executions>
               <execution>
                 <goals>
@@ -1833,8 +1871,6 @@
                 <configuration>
                   <detectOfflineLinks>false</detectOfflineLinks>
                   <quiet>true</quiet>
-                  <additionalOptions>-source 1.8</additionalOptions>
-                  <!--              <doclint>syntax</doclint>-->
                   <doclint>none</doclint>
                 </configuration>
               </execution>
