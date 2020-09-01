@@ -43,8 +43,9 @@
 
 
 <script type="text/ng-template" id="pnc-build-configs-data-table-actions.html">
-  <div class="btn-group" role="group" aria-label="Item Actions">
-    <button class="btn btn-block btn-default" uib-tooltip="Remove Build Configuration" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="actions.remove(buildConfig)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + buildConfig.name +  ' ?'}}">Remove</button>
+  <div class="btn-group p-l-10 p-r-10" role="group" aria-label="Item Actions">
+    <pnc-build-start build-config="buildConfig" size="md"></pnc-build-start>
+    <button class="btn btn-md btn-default" uib-tooltip="Remove Build Configuration" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="actions.remove(buildConfig)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + buildConfig.name +  ' ?'}}">Remove</button>
   </div>
 </script>
 
