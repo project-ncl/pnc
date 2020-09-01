@@ -45,7 +45,6 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.PersistenceException;
 import javax.persistence.PrePersist;
 import javax.persistence.PreRemove;
@@ -936,15 +935,7 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setExecutionRootVersion(executionRootVersion);
             buildRecord.setBuildConfigurationId(buildConfigurationAuditedId);
             buildRecord.setBuildConfigurationRev(buildConfigurationAuditedRev);
-            if (sanitizeLogs) {
-                buildRecord.setRepourLog(repourLog.replaceAll("\u0000", ""));
-                buildRecord.setBuildLog(buildLog.replaceAll("\u0000", ""));
-            } else {
-                buildRecord.setRepourLog(repourLog);
-                buildRecord.setBuildLog(buildLog);
-            }
-            buildRecord.setRepourLogSize(buildRecord.repourLog.getBytes(UTF_8).length);
-            buildRecord.setBuildLogSize(buildRecord.buildLog.getBytes(UTF_8).length);
+            setLogs(buildRecord, sanitizeLogs);
 
             try {
                 buildRecord.setBuildLogMd5(Md5.digest(buildRecord.buildLog));
@@ -994,6 +985,25 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setNoRebuildCause(noRebuildCause);
 
             return buildRecord;
+        }
+
+        private void setLogs(BuildRecord buildRecord, boolean sanitizeLogs) {
+            if (repourLog != null) {
+                if (sanitizeLogs) {
+                    buildRecord.setRepourLog(repourLog.replaceAll("\u0000", ""));
+                } else {
+                    buildRecord.setRepourLog(repourLog);
+                }
+                buildRecord.setRepourLogSize(buildRecord.repourLog.getBytes(UTF_8).length);
+            }
+            if (buildLog != null) {
+                if (sanitizeLogs) {
+                    buildRecord.setBuildLog(buildLog.replaceAll("\u0000", ""));
+                } else {
+                    buildRecord.setBuildLog(buildLog);
+                }
+                buildRecord.setBuildLogSize(buildRecord.buildLog.getBytes(UTF_8).length);
+            }
         }
 
         public Builder id(Integer id) {
