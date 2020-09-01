@@ -17,6 +17,12 @@
     limitations under the License.
 
 -->
+<script type="text/ng-template" id="pnc-group-configs-data-table-actions.html">
+  <div class="btn-group" role="group" aria-label="Item Actions">
+    <pnc-build-start group-config="groupConfig" size="md"></pnc-build-start>
+  </div>
+</script>
+
 <div class="row">
   <pnc-toolbar filtering-page="$ctrl.filterPage"
                filtering-fields="$ctrl.filterFields"
@@ -25,6 +31,6 @@
                actions-config="$ctrl.toolbarActions"></pnc-toolbar>
 </div>
 <div>
-  <pnc-group-configs-list group-configs="$ctrl.filterPage.data"></pnc-group-configs-list>
+  <pnc-group-configs-list group-configs="$ctrl.filterPage.data" actions-template-url="pnc-group-configs-data-table-actions.html"></pnc-group-configs-list>
   <pnc-page-controls class="pull-right m-t-10 m-b-10" pnc-page="$ctrl.filterPage" ng-if="$ctrl.filterPage"></pnc-page-controls>
 </div>
