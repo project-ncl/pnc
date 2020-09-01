@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.common.util;
 
+import org.jboss.pnc.common.net.GitSCPUrl;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -107,7 +109,21 @@ public final class UrlUtils {
         URI uri = URI.create(url);
         String host = uri.getHost();
         String path = uri.getPath();
-        return (host == null ? "" : host) + (path == null ? "" : path);
+
+        // URI cannot parse git's scp-like syntax (git@github.com:project-ncl/pnc.com). Instead of throwing an
+        // exception, it will incorrectly have host equaling null. We have to use custom parser to support these types
+        // of urls. (NCL-5990)
+        if (host == null) {
+            try {
+                return GitSCPUrl.parse(StringUtils.stripProtocol(url)).getHostWithPath();
+            } catch (MalformedURLException e) {
+                throw new IllegalArgumentException(
+                        "Supplied URL:" + url + " is neither regular URI nor in Git SCP-style format.",
+                        e);
+            }
+        }
+
+        return host + (path == null ? "" : path);
     }
 
     public static String stripProtocolAndPort(String url) {
