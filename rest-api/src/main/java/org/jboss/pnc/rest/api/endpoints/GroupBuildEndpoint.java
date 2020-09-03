@@ -30,6 +30,7 @@ import org.jboss.pnc.dto.requests.GroupBuildPushRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -98,6 +99,7 @@ public interface GroupBuildEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
+    @TimedMetric
     Page<GroupBuild> getAll(@Valid @BeanParam PageParameters pageParams);
 
     static final String GET_SPECIFIC_DESC = "Gets specific group build.";
@@ -178,6 +180,7 @@ public interface GroupBuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/builds")
+    @TimedMetric
     Page<Build> getBuilds(
             @Parameter(description = GB_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParams,
@@ -255,6 +258,7 @@ public interface GroupBuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/dependency-graph")
+    @TimedMetric
     Graph<Build> getDependencyGraph(@Parameter(description = GB_ID) @PathParam("id") String id);
 
 }

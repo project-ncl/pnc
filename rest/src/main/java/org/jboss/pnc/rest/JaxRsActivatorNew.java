@@ -32,6 +32,9 @@ import io.swagger.v3.oas.models.servers.Server;
 import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.pncmetrics.rest.GeneralRestMetricsFilter;
+import org.jboss.pnc.pncmetrics.rest.TimedMetric;
+import org.jboss.pnc.pncmetrics.rest.TimedMetricFilter;
 import org.jboss.pnc.rest.endpoints.ArtifactEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildEndpointImpl;
@@ -234,6 +237,9 @@ public class JaxRsActivatorNew extends Application {
     }
 
     private void addMetricsResources(Set<Class<?>> resources) {
+        resources.add(GeneralRestMetricsFilter.class);
+        resources.add(TimedMetric.class);
+        resources.add(TimedMetricFilter.class);
     }
 
     private void addRespondWithStatusFilter(Set<Class<?>> resources) {
