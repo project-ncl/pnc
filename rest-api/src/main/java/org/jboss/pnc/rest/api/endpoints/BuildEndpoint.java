@@ -34,6 +34,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -128,6 +129,7 @@ public interface BuildEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
+    @TimedMetric
     Page<Build> getAll(
             @Valid @BeanParam PageParameters pageParams,
             @BeanParam BuildsFilterParameters filterParams,
@@ -239,6 +241,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/artifacts/built")
+    @TimedMetric
     Page<Artifact> getBuiltArtifacts(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
@@ -332,6 +335,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/artifacts/dependencies")
+    @TimedMetric
     Page<Artifact> getDependencyArtifacts(
             @Parameter(description = B_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
@@ -460,6 +464,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/brew-push")
+    @TimedMetric
     BuildPushResult getPushResult(@Parameter(description = B_ID) @PathParam("id") String id);
 
     static final String PUSH_DESC = "Push build to Brew.";
@@ -625,6 +630,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/dependency-graph")
+    @TimedMetric
     Graph<Build> getDependencyGraph(@Parameter(description = B_ID) @PathParam("id") String id);
 
     static final String GET_ALIGN_LOGS_DESC = "Gets alignment logs for specific build.";
@@ -649,6 +655,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/logs/align")
+    @TimedMetric
     @Produces(MediaType.TEXT_PLAIN)
     StreamingOutput getAlignLogs(@Parameter(description = B_ID) @PathParam("id") String id);
 
@@ -674,6 +681,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/{id}/logs/build")
+    @TimedMetric
     @Produces(MediaType.TEXT_PLAIN)
     StreamingOutput getBuildLogs(@Parameter(description = B_ID) @PathParam("id") String id);
 
@@ -736,6 +744,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/with-status-and-log")
+    @TimedMetric
     Page<Build> getAllByStatusAndLogContaining(
             @Parameter(description = BUILD_STATUS) @QueryParam("status") BuildStatus status,
             @Parameter(description = LOG_SEARCH) @QueryParam("search") String search,
@@ -766,6 +775,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/count")
+    @TimedMetric
     RunningBuildCount getCount();
 
     static final String GET_ALL_INDEPENDENT_TEMPORARY_BUILDS_OLDER_THAN_TIMESTAMP_DESC = "Returns a collection of temporary builds"
@@ -795,6 +805,7 @@ public interface BuildEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/independent-temporary-older-than-timestamp")
+    @TimedMetric
     Page<Build> getAllIndependentTempBuildsOlderThanTimestamp(
             @Valid @BeanParam PageParameters pageParams,
             @Parameter(description = TIMESTAMP_PARAM) @QueryParam("timestamp") long timestamp);

@@ -33,6 +33,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.processor.annotation.Client;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -68,6 +69,7 @@ public interface CacheEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/statistics")
+    @TimedMetric
     public Response getGenericStats();
 
     static final String GET_SLC_ENTITIES_STATS_DESC = "Get statistics of all entities in second-level cache.";
@@ -94,6 +96,7 @@ public interface CacheEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/entity-statistics")
+    @TimedMetric
     public Response getSecondLevelCacheEntitiesStats();
 
     static final String GET_SLC_REGIONS_STATS_DESC = "Get statistics of all cache region names in second-level cache.";
@@ -120,6 +123,7 @@ public interface CacheEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/region-statistics")
+    @TimedMetric
     public Response getSecondLevelCacheRegionsStats();
 
     static final String GET_SLC_COLLECTIONS_STATS_DESC = "Get statistics of all collections in second-level cache.";
@@ -146,6 +150,7 @@ public interface CacheEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/collection-statistics")
+    @TimedMetric
     public Response getSecondLevelCacheCollectionsStats();
 
     static final String CLEAR_CACHE_DESC = "Delete all content from second level cache. Needs to be admin";

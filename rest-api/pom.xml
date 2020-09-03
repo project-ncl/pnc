@@ -73,6 +73,11 @@
 
         <!-- REST dependencies -->
         <dependency>
+            <groupId>org.jboss.pnc.metrics</groupId>
+            <artifactId>pncmetrics</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
             <scope>provided</scope>
