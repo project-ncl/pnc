@@ -208,14 +208,12 @@ public class BuildRecord implements GenericEntity<Integer> {
      * information comes from Repour/PME and has to be stored in the build record to be used in the release process.
      */
     @Size(max = 255)
-    @Column(updatable = false)
     private String executionRootName;
 
     /**
      * See {@link BuildRecord#executionRootName}. Contains corresponding version.
      */
     @Size(max = 100)
-    @Column(updatable = false)
     private String executionRootVersion;
 
     /**

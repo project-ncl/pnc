@@ -193,7 +193,11 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
     @RolesAllowed(SYSTEM_USER)
     @Override
     public Build update(String id, Build restEntity) {
-        return super.update(id, restEntity);
+        validateBeforeUpdating(id, restEntity);
+        logger.debug("Updating build: " + restEntity.toString());
+        BuildRecord entityInDB = repository.queryById(Integer.valueOf(id));
+        entityInDB.setStatus(restEntity.getStatus());
+        return mapper.toDTO(entityInDB);
     }
 
     @RolesAllowed(SYSTEM_USER)
@@ -517,7 +521,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
 
     /**
      * If a build record with the id is not found, EmptyEntityException is thrown
-     * 
+     *
      * @param buildId
      * @return BuildRecord
      * @throws EmptyEntityException if build record with associated id does not exist
