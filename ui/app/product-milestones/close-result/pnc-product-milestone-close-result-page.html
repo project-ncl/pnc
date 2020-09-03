@@ -30,6 +30,21 @@
   <dd>{{ $ctrl.data.startingDate | date:'medium' }}</dd>
   <dt>Close Finished:</dt>
   <dd>{{ ($ctrl.data.endDate | date:'medium') || '&mdash;' }}</dd>
+
+  <div ng-repeat="buildPushResult in $ctrl.data.buildPushResults">
+    <dt>Status:</dt>
+    <dd>{{ buildPushResult.status || '&mdash;' }}</dd>
+    <dt>PNC Build Id:</dt>
+    <dd>{{ buildPushResult.buildId || '&mdash;' }}</dd>
+    <dt>Brew Build Id:</dt>
+    <dd>{{ buildPushResult.brewBuildId || '&mdash;' }}</dd>
+    <dt>Brew Build URL:</dt>
+    <dd>
+      <a ng-if="buildPushResult.brewBuildUrl" target="_blank" href="{{ ::buildPushResult.brewBuildUrl }}">{{ ::buildPushResult.brewBuildUrl }}</a>
+      <span ng-if="!buildPushResult.brewBuildUrl">&mdash;</span>
+    </dd>
+  </div>
+
 </dl>
 
 <div class="page-header">
