@@ -47,7 +47,6 @@ import java.util.Collections;
 import org.jboss.pnc.enums.RepositoryType;
 
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @Category({ DebugTest.class })

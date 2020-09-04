@@ -117,7 +117,7 @@ public class CacheHandlerTest extends AbstractModelTest {
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.TargetRepository",
                 ENTITY_STATS_PREFIX + "org.jboss.pnc.model.User",
                 ENTITY_STATS_PREFIX + "build_configuration_parameters_AUD" };
-        Set<String> mappedEntitiesSet = new HashSet<String>(Arrays.asList(mappedEntities));
+        Set<String> mappedEntitiesSet = new HashSet<>(Arrays.asList(mappedEntities));
         assertTrue(entitiesStatMap.keySet().containsAll(mappedEntitiesSet));
     }
 
@@ -153,7 +153,7 @@ public class CacheHandlerTest extends AbstractModelTest {
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.TargetRepository",
                 REGION_STATS_PREFIX + "org.jboss.pnc.model.User" };
 
-        Set<String> mappedEntitiesSet = new HashSet<String>(Arrays.asList(mappedEntities));
+        Set<String> mappedEntitiesSet = new HashSet<>(Arrays.asList(mappedEntities));
         assertTrue(secondLevelCacheStatMap.keySet().containsAll(mappedEntitiesSet));
     }
 
@@ -199,7 +199,7 @@ public class CacheHandlerTest extends AbstractModelTest {
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.ProductVersion.productMilestones",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfiguration.buildConfigurationSets",
                 COLLECTION_STATS_PREFIX + "org.jboss.pnc.model.BuildConfigurationSet.buildConfigSetRecords" };
-        Set<String> mappedCollectionsSet = new HashSet<String>(Arrays.asList(mappedCollections));
+        Set<String> mappedCollectionsSet = new HashSet<>(Arrays.asList(mappedCollections));
         assertTrue(collectionStatMap.keySet().containsAll(mappedCollectionsSet));
     }
 

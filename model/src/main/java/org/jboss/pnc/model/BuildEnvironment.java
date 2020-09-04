@@ -107,7 +107,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
                     foreignKey = @ForeignKey(name = "fk_build_environment_attributes_buildenvironment")))
     @MapKeyColumn(name = "name")
     @Column(name = "value")
-    private Map<String, String> attributes = new HashMap<String, String>();
+    private Map<String, String> attributes = new HashMap<>();
 
     @NotNull
     private boolean deprecated = false;

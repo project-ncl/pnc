@@ -50,13 +50,13 @@ public class HibernateStatsUtils {
     public static SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheEntitiesStats(
             Statistics statistics) {
 
-        SortedMap<String, Map<String, HibernateMetric>> entitiesStatMap = new TreeMap<String, Map<String, HibernateMetric>>();
+        SortedMap<String, Map<String, HibernateMetric>> entitiesStatMap = new TreeMap<>();
 
         if (statistics.isStatisticsEnabled()) {
             String[] entityNames = statistics.getEntityNames();
             Stream.of(entityNames).forEach(eN -> {
                 EntityStatistics entityStat = statistics.getEntityStatistics(eN);
-                SortedMap<String, HibernateMetric> entityStatMap = new TreeMap<String, HibernateMetric>();
+                SortedMap<String, HibernateMetric> entityStatMap = new TreeMap<>();
 
                 // Entity cache stats
                 entityStatMap.put(
@@ -148,14 +148,14 @@ public class HibernateStatsUtils {
     public static SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheRegionsStats(
             Statistics statistics) {
 
-        SortedMap<String, Map<String, HibernateMetric>> secondLevelCachesStatMap = new TreeMap<String, Map<String, HibernateMetric>>();
+        SortedMap<String, Map<String, HibernateMetric>> secondLevelCachesStatMap = new TreeMap<>();
 
         if (statistics.isStatisticsEnabled()) {
             String[] cacheRegionNames = statistics.getSecondLevelCacheRegionNames();
             Stream.of(cacheRegionNames).forEach(crN -> {
                 try {
                     CacheRegionStatistics sLCStats = statistics.getDomainDataRegionStatistics(crN);
-                    SortedMap<String, HibernateMetric> sLCStatMap = new TreeMap<String, HibernateMetric>();
+                    SortedMap<String, HibernateMetric> sLCStatMap = new TreeMap<>();
 
                     sLCStatMap.put(
                             "second-level-cache.cache.region.name",
@@ -237,13 +237,13 @@ public class HibernateStatsUtils {
     public static SortedMap<String, Map<String, HibernateMetric>> getSecondLevelCacheCollectionsStats(
             Statistics statistics) {
 
-        SortedMap<String, Map<String, HibernateMetric>> collectionsStatMap = new TreeMap<String, Map<String, HibernateMetric>>();
+        SortedMap<String, Map<String, HibernateMetric>> collectionsStatMap = new TreeMap<>();
 
         if (statistics.isStatisticsEnabled()) {
             String[] collectionRoleNames = statistics.getCollectionRoleNames();
             Stream.of(collectionRoleNames).forEach(crN -> {
                 CollectionStatistics cStats = statistics.getCollectionStatistics(crN);
-                SortedMap<String, HibernateMetric> cStatMap = new TreeMap<String, HibernateMetric>();
+                SortedMap<String, HibernateMetric> cStatMap = new TreeMap<>();
 
                 // Collection cache stats
                 cStatMap.put(
@@ -329,7 +329,7 @@ public class HibernateStatsUtils {
      */
     public static SortedMap<String, HibernateMetric> getGenericStats(Statistics statistics) {
 
-        SortedMap<String, HibernateMetric> genericStatsMap = new TreeMap<String, HibernateMetric>();
+        SortedMap<String, HibernateMetric> genericStatsMap = new TreeMap<>();
 
         if (statistics.isStatisticsEnabled()) {
 

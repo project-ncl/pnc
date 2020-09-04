@@ -108,7 +108,7 @@ public class BuildTasksInitializer {
         toBuild.add(buildConfigurationAudited);
         if (buildOptions.isBuildDependencies()) {
 
-            Set<Integer> processedDependenciesCache = new HashSet<Integer>();
+            Set<Integer> processedDependenciesCache = new HashSet<>();
             buildConfigurationAudited.getBuildConfiguration()
                     .getDependencies()
                     .forEach(

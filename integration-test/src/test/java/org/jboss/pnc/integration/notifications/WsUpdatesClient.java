@@ -53,8 +53,7 @@ public class WsUpdatesClient {
     }
 
     public String toJson(ProgressUpdatesRequest progressUpdatesRequest) {
-        return JsonOutputConverterMapper
-                .apply(new TypedMessage<ProgressUpdatesRequest>(MessageType.PROCESS_UPDATES, progressUpdatesRequest));
+        return JsonOutputConverterMapper.apply(new TypedMessage<>(MessageType.PROCESS_UPDATES, progressUpdatesRequest));
     }
 
 }

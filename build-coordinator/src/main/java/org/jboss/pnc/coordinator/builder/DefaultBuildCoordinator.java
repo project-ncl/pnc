@@ -300,7 +300,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         int requiresRebuild = buildConfigurations.size();
         log.debug("There are {} configurations in a set {}.", requiresRebuild, buildConfigurationSet.getId());
 
-        Set<Integer> processedDependenciesCache = new HashSet<Integer>();
+        Set<Integer> processedDependenciesCache = new HashSet<>();
         for (BuildConfiguration buildConfiguration : buildConfigurations) {
             BuildConfigurationAudited buildConfigurationAudited = datastoreAdapter
                     .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
@@ -634,7 +634,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 }
 
                 if (!task.getBuildOptions().isForceRebuild()
-                        && !datastoreAdapter.requiresRebuild(task, new HashSet<Integer>())) {
+                        && !datastoreAdapter.requiresRebuild(task, new HashSet<>())) {
                     completeNoBuild(task, CompletionStatus.NO_REBUILD_REQUIRED);
                     return;
                 }

@@ -84,10 +84,10 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
                     foreignKey = @ForeignKey(name = "fk_build_configuration_set_map_buildconfiguration")) },
             indexes = { @Index(name = "idx_build_configuration_set_map_bc", columnList = "build_configuration_id"),
                     @Index(name = "idx_build_configuration_set_map_bcs", columnList = "build_configuration_set_id") })
-    private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
+    private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 
     @OneToMany(mappedBy = "buildConfigurationSet")
-    private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
+    private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<>();
 
     /**
      * Normally set to true. If BuildConfigurationSet is no longer to be used (is archived) - this is set to **null**
@@ -249,9 +249,9 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
 
         private ProductVersion productVersion;
 
-        private Set<BuildConfiguration> buildConfigurations = new HashSet<BuildConfiguration>();
+        private Set<BuildConfiguration> buildConfigurations = new HashSet<>();
 
-        private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<BuildConfigSetRecord>();
+        private Set<BuildConfigSetRecord> buildConfigSetRecords = new HashSet<>();
 
         private boolean archived = false;
 
