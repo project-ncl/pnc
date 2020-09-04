@@ -34,6 +34,8 @@
 
     // -- Controller API --
 
+    $ctrl.showTable = showTable;
+
     // --------------------
 
     $ctrl.$onInit = () => {
@@ -42,6 +44,10 @@
       $ctrl.prefixFilters = 'loggerName.keyword:org.jboss.pnc.causeway|org.jboss.pnc._userlog_,level.keyword:INFO|ERROR|WARN';
       $ctrl.matchFilters = `mdc.processContext.keyword:${$ctrl.data.id}`;
     };
+
+    function showTable() {
+        return $ctrl.data.buildPushResults && $ctrl.data.buildPushResults.length;
+    }
 
   }
 
