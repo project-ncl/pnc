@@ -28,6 +28,7 @@ import javax.persistence.PersistenceException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -87,7 +88,7 @@ public class ArtifactTest extends AbstractModelTest {
         em.persist(artifact);
         em.getTransaction().commit();
         int artifactId = artifact.getId();
-        assertTrue(artifact.getId() != null);
+        assertNotNull(artifact.getId());
         assertTrue(artifact.getId() != 0);
 
         // when
@@ -96,7 +97,7 @@ public class ArtifactTest extends AbstractModelTest {
         em.getTransaction().commit();
 
         // then
-        assertTrue(em.find(Artifact.class, artifactId) == null);
+        assertNull(em.find(Artifact.class, artifactId));
     }
 
     @Test
@@ -116,7 +117,7 @@ public class ArtifactTest extends AbstractModelTest {
         em.getTransaction().commit();
 
         // then
-        assertTrue(em.find(Artifact.class, artifactId) == null);
+        assertNull(em.find(Artifact.class, artifactId));
     }
 
     private void insertBasicTargetRepository() {

@@ -51,15 +51,15 @@ public class ModelValidationTest extends AbstractModelTest {
 
         // Test validation of product version
         Set<ConstraintViolation<ProductVersion>> productVersionViolations = validator.validate(productVersion);
-        Assert.assertTrue(productVersionViolations.size() == 0);
+        Assert.assertEquals(0, productVersionViolations.size());
 
         productVersion.setVersion("1.0.x");
         productVersionViolations = validator.validate(productVersion);
-        Assert.assertTrue(productVersionViolations.size() == 1);
+        Assert.assertEquals(1, productVersionViolations.size());
 
         productVersion.setVersion("foo");
         productVersionViolations = validator.validate(productVersion);
-        Assert.assertTrue(productVersionViolations.size() == 1);
+        Assert.assertEquals(1, productVersionViolations.size());
 
         // Test product milestone versions
         ProductMilestone milestone = ProductMilestone.Builder.newBuilder()
@@ -67,19 +67,19 @@ public class ModelValidationTest extends AbstractModelTest {
                 .version("1.0.0.ER1")
                 .build();
         Set<ConstraintViolation<ProductMilestone>> milestoneVersionViolations = validator.validate(milestone);
-        Assert.assertTrue(milestoneVersionViolations.size() == 0);
+        Assert.assertEquals(0, milestoneVersionViolations.size());
 
         milestone.setVersion("1.0");
         milestoneVersionViolations = validator.validate(milestone);
-        Assert.assertTrue(milestoneVersionViolations.size() == 1);
+        Assert.assertEquals(1, milestoneVersionViolations.size());
 
         milestone.setVersion("1.0-DR1");
         milestoneVersionViolations = validator.validate(milestone);
-        Assert.assertTrue(milestoneVersionViolations.size() == 1);
+        Assert.assertEquals(1, milestoneVersionViolations.size());
 
         milestone.setVersion("1.0-x");
         milestoneVersionViolations = validator.validate(milestone);
-        Assert.assertTrue(milestoneVersionViolations.size() == 1);
+        Assert.assertEquals(1, milestoneVersionViolations.size());
 
         // Test product release versions
         ProductRelease release = ProductRelease.Builder.newBuilder()
@@ -87,19 +87,19 @@ public class ModelValidationTest extends AbstractModelTest {
                 .version("1.0.0.GA")
                 .build();
         Set<ConstraintViolation<ProductRelease>> releaseVersionViolations = validator.validate(release);
-        Assert.assertTrue(releaseVersionViolations.size() == 0);
+        Assert.assertEquals(0, releaseVersionViolations.size());
 
         release.setVersion("1.0");
         releaseVersionViolations = validator.validate(release);
-        Assert.assertTrue(releaseVersionViolations.size() == 1);
+        Assert.assertEquals(1, releaseVersionViolations.size());
 
         release.setVersion("1.0-DR1");
         releaseVersionViolations = validator.validate(release);
-        Assert.assertTrue(releaseVersionViolations.size() == 1);
+        Assert.assertEquals(1, releaseVersionViolations.size());
 
         release.setVersion("1.0-x");
         releaseVersionViolations = validator.validate(release);
-        Assert.assertTrue(releaseVersionViolations.size() == 1);
+        Assert.assertEquals(1, releaseVersionViolations.size());
 
     }
 
