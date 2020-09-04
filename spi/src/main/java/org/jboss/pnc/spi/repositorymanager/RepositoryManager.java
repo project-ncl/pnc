@@ -19,7 +19,6 @@ package org.jboss.pnc.spi.repositorymanager;
 
 import java.util.Map;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;

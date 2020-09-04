@@ -21,7 +21,6 @@ import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.NoEntityException;
-import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
@@ -48,7 +47,6 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import org.jboss.pnc.common.concurrent.Sequence;
 
