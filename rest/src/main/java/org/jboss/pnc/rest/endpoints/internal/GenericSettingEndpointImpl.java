@@ -49,6 +49,11 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     }
 
     @Override
+    public Boolean isCurrentUserAllowedToTriggerBuilds() {
+        return genericSettingProvider.isCurrentUserAllowedToTriggerBuilds();
+    }
+
+    @Override
     public void activateMaintenanceMode(String reason) {
         genericSettingProvider.activateMaintenanceMode(reason);
 

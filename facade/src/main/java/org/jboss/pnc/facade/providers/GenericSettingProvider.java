@@ -19,10 +19,13 @@ package org.jboss.pnc.facade.providers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.dto.notification.GenericSettingNotification;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.GenericSetting;
 import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.util.Strings;
+
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -39,6 +42,9 @@ public class GenericSettingProvider {
 
     @Inject
     private GenericSettingRepository genericSettingRepository;
+
+    @Inject
+    private UserService userService;
 
     @Inject
     private Notifier notifier;
@@ -90,7 +96,17 @@ public class GenericSettingProvider {
         } else {
             return Boolean.parseBoolean(maintenanceMode.getValue());
         }
+    }
 
+    public boolean isCurrentUserAllowedToTriggerBuilds() {
+
+        boolean isLoggedInUserSystemUser = userService.hasLoggedInUserRole(SYSTEM_USER);
+        if (isLoggedInUserSystemUser) {
+            log.info("Users with system-role are always allowed to trigger builds");
+            return true;
+        }
+
+        return !isInMaintenanceMode();
     }
 
     @RolesAllowed("system-user")

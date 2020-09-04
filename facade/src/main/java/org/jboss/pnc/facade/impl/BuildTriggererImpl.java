@@ -101,7 +101,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     public int triggerBuild(final int buildConfigId, OptionalInt buildConfigurationRevision, BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
 
-        throwCoreExceptionIfInMaintenanceMode();
+        throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
 
         BuildSetTask result = doTriggerBuild(buildConfigId, buildConfigurationRevision, buildOptions);
         return selectBuildRecordIdOf(result.getBuildTasks(), buildConfigId);
@@ -111,7 +111,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     public int triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
 
-        throwCoreExceptionIfInMaintenanceMode();
+        throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
 
         BuildSetTask result = doTriggerGroupBuild(groupConfigId, revs, buildOptions);
         return result.getId();
@@ -240,9 +240,9 @@ public class BuildTriggererImpl implements BuildTriggerer {
                 .orElseThrow(() -> new CoreException("No build id for the triggered configuration"));
     }
 
-    private void throwCoreExceptionIfInMaintenanceMode() throws BuildConflictException {
+    private void throwCoreExceptionIfInMaintenanceModeAndNonSystemUser() throws BuildConflictException {
 
-        if (genericSettingProvider.isInMaintenanceMode()) {
+        if (!genericSettingProvider.isCurrentUserAllowedToTriggerBuilds()) {
             String reason = genericSettingProvider.getAnnouncementBanner();
 
             if (reason == null) {
