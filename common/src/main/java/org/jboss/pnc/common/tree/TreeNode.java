@@ -33,11 +33,11 @@ public class TreeNode<T> implements Iterable<TreeNode<T>> {
 
     public TreeNode(T data) {
         this.data = data;
-        this.children = new LinkedList<TreeNode<T>>();
+        this.children = new LinkedList<>();
     }
 
     public TreeNode<T> addChild(T child) {
-        TreeNode<T> childNode = new TreeNode<T>(child);
+        TreeNode<T> childNode = new TreeNode<>(child);
         childNode.parent = this;
         this.children.add(childNode);
         return childNode;

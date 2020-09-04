@@ -48,9 +48,7 @@ public class MDCExecutorTest {
         AtomicReference<Future> waitToComplete = new AtomicReference<>();
         AtomicReference<Future> modifiedWaitToComplete = new AtomicReference<>();
 
-        Runnable taskNoContext = () -> {
-            logger.info("no-context");
-        };
+        Runnable taskNoContext = () -> logger.info("no-context");
         // each new thread in the pool uses calling thread as a parent
         // run first task to have a main thread as a parent thread
         executorService.submit(taskNoContext);

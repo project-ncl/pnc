@@ -23,6 +23,7 @@ import org.junit.Test;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -33,7 +34,7 @@ public class TimeUtilsTest {
     @Test
     public void generateTimestampDisabledTest() {
         String timestamp = TimeUtils.generateTimestamp(false, new Date());
-        assertEquals(null, timestamp);
+        assertNull(timestamp);
     }
 
     @Test

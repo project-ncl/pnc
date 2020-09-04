@@ -19,6 +19,7 @@ package org.jboss.pnc.common.security;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -38,7 +39,7 @@ public class Md5 {
     }
 
     public void add(String message) throws UnsupportedEncodingException {
-        md.update(message.getBytes("UTF-8"));
+        md.update(message.getBytes(StandardCharsets.UTF_8));
     }
 
     public String digest() {

@@ -38,7 +38,7 @@ public class CollectionUtils {
     }
 
     public static <T> boolean hasCycle(Collection<T> vertices, Function<T, Collection<T>> neighborExtractor) {
-        Map<T, Collection<T>> parents = vertices.stream().collect(toMap(identity(), v -> new ArrayList<T>()));
+        Map<T, Collection<T>> parents = vertices.stream().collect(toMap(identity(), v -> new ArrayList<>()));
         vertices.forEach(
                 v -> nullSafeCollection(neighborExtractor.apply(v)).forEach(child -> parents.get(child).add(v)));
 
