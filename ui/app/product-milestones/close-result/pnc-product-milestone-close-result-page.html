@@ -30,22 +30,38 @@
   <dd>{{ $ctrl.data.startingDate | date:'medium' }}</dd>
   <dt>Close Finished:</dt>
   <dd>{{ ($ctrl.data.endDate | date:'medium') || '&mdash;' }}</dd>
-
-  <div ng-repeat="buildPushResult in $ctrl.data.buildPushResults">
-    <dt>Status:</dt>
-    <dd>{{ buildPushResult.status || '&mdash;' }}</dd>
-    <dt>PNC Build Id:</dt>
-    <dd>{{ buildPushResult.buildId || '&mdash;' }}</dd>
-    <dt>Brew Build Id:</dt>
-    <dd>{{ buildPushResult.brewBuildId || '&mdash;' }}</dd>
-    <dt>Brew Build URL:</dt>
-    <dd>
-      <a ng-if="buildPushResult.brewBuildUrl" target="_blank" href="{{ ::buildPushResult.brewBuildUrl }}">{{ ::buildPushResult.brewBuildUrl }}</a>
-      <span ng-if="!buildPushResult.brewBuildUrl">&mdash;</span>
-    </dd>
-  </div>
-
 </dl>
+
+<div class="page-header">
+  <h3>Pushed Builds</h3>
+</div>
+
+<table class="table table-bordered table-striped table-hover" ng-show="$ctrl.showTable()">
+  <thead>
+    <th>Status</th>
+    <th>PNC Build Id</th>
+    <th>Brew Build Id</th>
+    <th>Brew Build URL</th>
+  </thead>
+  <tbody>
+    <tr ng-repeat="buildPushResult in $ctrl.data.buildPushResults">
+      <td>{{ ::buildPushResult.status || '&mdash;' }}</td>
+      <td>{{ ::buildPushResult.buildId || '&mdash;' }}</td>
+      <td>{{ ::buildPushResult.brewBuildId || '&mdash;' }}</td>
+      <td>
+        <a ng-if="buildPushResult.brewBuildUrl" target="_blank" href="{{ ::buildPushResult.brewBuildUrl }}">{{ ::buildPushResult.brewBuildUrl }}</a>
+        <span ng-if="!buildPushResult.brewBuildUrl">&mdash;</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="table table-bordered table-striped table-hover" ng-hide="$ctrl.showTable()">
+  <tbody>
+    <tr>
+      <td class="text-center p-t-10 p-b-10"><em>There are no pushed builds to display</em></td>
+    </tr>
+  </tbody>
+</table>
 
 <div class="page-header">
   <h3>Log</h3>
