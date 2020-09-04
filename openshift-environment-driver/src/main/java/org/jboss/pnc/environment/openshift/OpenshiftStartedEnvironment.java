@@ -190,7 +190,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         final String buildAgentHost = environmentConfiguration.getBuildAgentHost();
         String expiresDateStamp = Long.toString(temporaryBuildExpireDate.toEpochMilli());
 
-        Boolean proxyActive = !StringUtils.isEmpty(environmentConfiguration.getProxyServer())
+        boolean proxyActive = !StringUtils.isEmpty(environmentConfiguration.getProxyServer())
                 && !StringUtils.isEmpty(environmentConfiguration.getProxyPort());
 
         environmetVariables.put("image", imageId);
@@ -200,7 +200,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         environmetVariables.put(
                 "allowedHttpOutgoingDestinations",
                 toEscapedJsonString(environmentConfiguration.getAllowedHttpOutgoingDestinations()));
-        environmetVariables.put("isHttpActive", proxyActive.toString().toLowerCase());
+        environmetVariables.put("isHttpActive", Boolean.toString(proxyActive).toLowerCase());
         environmetVariables.put("proxyServer", environmentConfiguration.getProxyServer());
         environmetVariables.put("proxyPort", environmentConfiguration.getProxyPort());
         environmetVariables.put("nonProxyHosts", environmentConfiguration.getNonProxyHosts());
@@ -420,13 +420,13 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         cancelHook = () -> onComplete.accept(null);
 
         CompletableFuture<Void> podFuture = creatingPod.thenComposeAsync(nul -> {
-            CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isPodRunning());
+            CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(this::isPodRunning);
             addFuture(monitor);
             return monitor;
         }, executor);
 
         CompletableFuture<Void> serviceFuture = creatingService.thenComposeAsync(nul -> {
-            CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isServiceRunning());
+            CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(this::isServiceRunning);
             addFuture(monitor);
             return monitor;
         }, executor);
@@ -434,7 +434,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         CompletableFuture<Void> routeFuture;
         if (creatingRoute.isPresent()) {
             routeFuture = creatingRoute.get().thenComposeAsync(nul -> {
-                CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(() -> isRouteRunning());
+                CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(this::isRouteRunning);
                 addFuture(monitor);
                 return monitor;
             }, executor);
@@ -500,7 +500,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private void cancelAndClearMonitors() {
         logger.debug("Cancelling existing monitors for this build environment");
-        runningMonitors.stream().forEach(f -> f.cancel(false));
+        runningMonitors.forEach(f -> f.cancel(false));
         runningMonitors.clear();
     }
 
