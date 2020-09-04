@@ -70,7 +70,7 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
 
         super.initialize();
 
-        configSet.getBuildConfigurations().forEach(bc -> saveConfig(bc));
+        configSet.getBuildConfigurations().forEach(this::saveConfig);
     }
 
     @Test

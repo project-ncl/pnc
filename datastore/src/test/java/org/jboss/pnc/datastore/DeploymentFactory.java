@@ -73,7 +73,9 @@ public class DeploymentFactory {
             throw new RuntimeException(new DeploymentException("Cannot find model*.jar"));
         }
 
-        Optional<File> mockJarOptional = Arrays.stream(dependencies).filter(jar -> mockJarMatches(jar)).findAny();
+        Optional<File> mockJarOptional = Arrays.stream(dependencies)
+                .filter(DeploymentFactory::mockJarMatches)
+                .findAny();
         if (!mockJarOptional.isPresent()) {
             throw new RuntimeException(new DeploymentException("Cannot find mock*.jar"));
         }

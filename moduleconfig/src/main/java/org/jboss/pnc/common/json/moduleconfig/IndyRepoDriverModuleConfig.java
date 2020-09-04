@@ -169,7 +169,7 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
 
         private List<String> genStringList(PatternsList patternsList) {
             if (patternsList != null && patternsList.patterns != null) {
-                return patternsList.patterns.stream().map(p -> p.pattern()).collect(Collectors.toList());
+                return patternsList.patterns.stream().map(Pattern::pattern).collect(Collectors.toList());
             } else {
                 return Collections.emptyList();
             }

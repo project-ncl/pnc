@@ -65,9 +65,8 @@ public class BuildExecutorTriggerer {
         Consumer<BuildExecutionStatusChangedEvent> onExecutionStatusChange = (statusChangedEvent) -> {
             log.debug("Received BuildExecutionStatusChangedEvent: " + statusChangedEvent);
             if (statusChangedEvent.isFinal() && callbackUrl != null && !callbackUrl.isEmpty()) {
-                statusChangedEvent.getBuildResult().ifPresent((buildResult) -> {
-                    bpmNotifier.sendBuildExecutionCompleted(callbackUrl, buildResult);
-                });
+                statusChangedEvent.getBuildResult()
+                        .ifPresent((buildResult) -> bpmNotifier.sendBuildExecutionCompleted(callbackUrl, buildResult));
             }
         };
         BuildExecutionSession buildExecutionSession = buildExecutor

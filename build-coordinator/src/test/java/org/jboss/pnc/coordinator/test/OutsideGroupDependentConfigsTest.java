@@ -73,7 +73,7 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
         super.initialize();
 
         saveConfig(config1);
-        configSet.getBuildConfigurations().forEach(bc -> saveConfig(bc));
+        configSet.getBuildConfigurations().forEach(this::saveConfig);
 
         insertNewBuildRecords(config1, configA, configB, configC);
         makeResult(configA).dependOn(config1);

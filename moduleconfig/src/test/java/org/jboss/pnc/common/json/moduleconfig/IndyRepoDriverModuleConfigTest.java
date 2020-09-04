@@ -54,7 +54,7 @@ public class IndyRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
                 .getPatterns();
         assertNotNull(ignoredPathPatternsMaven);
         assertEquals(2, ignoredPathPatternsMaven.size());
-        List<String> strings = ignoredPathPatternsMaven.stream().map(p -> p.pattern()).collect(Collectors.toList());
+        List<String> strings = ignoredPathPatternsMaven.stream().map(Pattern::pattern).collect(Collectors.toList());
         assertTrue(strings.contains(".*/maven-metadata\\.xml$"));
         assertTrue(strings.contains(".*\\.sha1$"));
     }

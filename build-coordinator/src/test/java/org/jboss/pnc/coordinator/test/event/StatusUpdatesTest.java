@@ -116,9 +116,7 @@ public class StatusUpdatesTest {
     public void buildSetStatusShouldUpdateWhenAllBuildStatusChangeToCompletedState()
             throws DatastoreException, InterruptedException, CoreException {
         ObjectWrapper<BuildSetStatusChangedEvent> receivedBuildSetStatusChangedEvent = new ObjectWrapper<>();
-        Consumer<BuildSetStatusChangedEvent> statusUpdateListener = (event) -> {
-            receivedBuildSetStatusChangedEvent.set(event);
-        };
+        Consumer<BuildSetStatusChangedEvent> statusUpdateListener = receivedBuildSetStatusChangedEvent::set;
         testCDIBuildSetStatusChangedReceiver.addBuildSetStatusChangedEventListener(statusUpdateListener);
 
         User user = User.Builder.newBuilder().id(1).username("test-user-1").build();
@@ -143,21 +141,15 @@ public class StatusUpdatesTest {
         Set<Integer> tasksIds = buildTasks.stream().map((BuildTask::getId)).collect(Collectors.toSet());
 
         Set<Integer> receivedUpdatesForId = new HashSet<>();
-        Consumer<BuildStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
-            receivedUpdatesForId.add(Integer.valueOf(statusChangedEvent.getBuild().getId()));
-        };
+        Consumer<BuildStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> receivedUpdatesForId
+                .add(Integer.valueOf(statusChangedEvent.getBuild().getId()));
 
-        tasksIds.forEach((id) -> {
-            buildStatusNotifications.subscribe(new BuildCallBack(id, statusChangeEventConsumer));
-        });
+        tasksIds.forEach((id) -> buildStatusNotifications.subscribe(new BuildCallBack(id, statusChangeEventConsumer)));
 
-        buildTasks.forEach((bt) -> {
-            buildCoordinator.updateBuildTaskStatus(bt, BuildCoordinationStatus.DONE);
-        });
+        buildTasks.forEach((bt) -> buildCoordinator.updateBuildTaskStatus(bt, BuildCoordinationStatus.DONE));
 
-        tasksIds.forEach((id) -> {
-            Assert.assertTrue("Did not receive update for task " + id, receivedUpdatesForId.contains(id));
-        });
+        tasksIds.forEach(
+                (id) -> Assert.assertTrue("Did not receive update for task " + id, receivedUpdatesForId.contains(id)));
     }
 
     private BuildSetTask initializeBuildTaskSet(
@@ -186,7 +178,7 @@ public class StatusUpdatesTest {
                 buildConfigurationSet,
                 user,
                 buildOptions,
-                () -> atomicInteger.getAndIncrement(),
+                atomicInteger::getAndIncrement,
                 buildQueue.getUnfinishedTasks());
     }
 

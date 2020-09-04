@@ -283,7 +283,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                     buildExecutionConfiguration.isTempBuild(),
                     buildExecutionConfiguration.getGenericParameters());
 
-            buildExecutionSession.setCancelHook(() -> startedEnv.cancel());
+            buildExecutionSession.setCancelHook(startedEnv::cancel);
 
             return waitForEnvironmentInitialization(buildExecutionSession, startedEnv);
         } catch (Throwable e) {
@@ -361,7 +361,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             RunningBuild runningBuild = buildDriver
                     .startProjectBuild(buildExecutionSession, runningEnvironment, onComplete, onError);
 
-            buildExecutionSession.setCancelHook(() -> runningBuild.cancel());
+            buildExecutionSession.setCancelHook(runningBuild::cancel);
 
             buildExecutionSession.setStatus(BuildExecutionStatus.BUILD_WAITING);
         } catch (Throwable e) {

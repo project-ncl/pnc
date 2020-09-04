@@ -143,12 +143,8 @@ public class RSQLProducerImpl implements RSQLProducer {
             RSQLNodeTraveller<javax.persistence.criteria.Predicate> visitor = new EntityRSQLNodeTraveller(
                     root,
                     cb,
-                    new BiFunction<From<?, DB>, RSQLSelectorPath, Path>() {
-                        @Override
-                        public Path apply(From<?, DB> from, RSQLSelectorPath selector) {
-                            return mapper.toPath(type, from, selector);
-                        }
-                    });
+                    (BiFunction<From<?, DB>, RSQLSelectorPath, Path>) (from, selector) -> mapper
+                            .toPath(type, from, selector));
             return rootNode.accept(visitor);
         };
     }

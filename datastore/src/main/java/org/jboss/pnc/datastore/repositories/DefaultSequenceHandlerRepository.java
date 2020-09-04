@@ -65,21 +65,18 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
     @Override
     public Long getNextID(final String sequenceName) {
 
-        ReturningWork<Long> maxReturningWork = new ReturningWork<Long>() {
-            @Override
-            public Long execute(Connection connection) throws SQLException {
-                DialectResolver dialectResolver = new StandardDialectResolver();
-                Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
-                try (PreparedStatement preparedStatement = connection
-                        .prepareStatement(dialect.getSequenceNextValString(sequenceName));
-                        ResultSet resultSet = preparedStatement.executeQuery()) {
-                    resultSet.next();
-                    return resultSet.getLong(1);
-                } catch (SQLException e) {
-                    throw e;
-                }
-
+        ReturningWork<Long> maxReturningWork = connection -> {
+            DialectResolver dialectResolver = new StandardDialectResolver();
+            Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
+            try (PreparedStatement preparedStatement = connection
+                    .prepareStatement(dialect.getSequenceNextValString(sequenceName));
+                    ResultSet resultSet = preparedStatement.executeQuery()) {
+                resultSet.next();
+                return resultSet.getLong(1);
+            } catch (SQLException e) {
+                throw e;
             }
+
         };
 
         Session session = (Session) entityManager.getDelegate();
@@ -95,29 +92,26 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
         if (sequenceExists(sequenceName)) {
             return;
         }
-        Work work = new Work() {
-            @Override
-            public void execute(Connection connection) throws SQLException {
-                DialectResolver dialectResolver = new StandardDialectResolver();
-                Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
-                PreparedStatement preparedStatement = null;
-                ResultSet resultSet = null;
-                try {
-                    preparedStatement = connection
-                            .prepareStatement(dialect.getCreateSequenceStrings(sequenceName, 1, 1)[0]);
-                    preparedStatement.execute();
-                } catch (SQLException e) {
-                    throw e;
-                } finally {
-                    if (preparedStatement != null) {
-                        preparedStatement.close();
-                    }
-                    if (resultSet != null) {
-                        resultSet.close();
-                    }
+        Work work = connection -> {
+            DialectResolver dialectResolver = new StandardDialectResolver();
+            Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
+            PreparedStatement preparedStatement = null;
+            ResultSet resultSet = null;
+            try {
+                preparedStatement = connection
+                        .prepareStatement(dialect.getCreateSequenceStrings(sequenceName, 1, 1)[0]);
+                preparedStatement.execute();
+            } catch (SQLException e) {
+                throw e;
+            } finally {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
                 }
-
+                if (resultSet != null) {
+                    resultSet.close();
+                }
             }
+
         };
 
         Session session = (Session) entityManager.getDelegate();
@@ -131,25 +125,21 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
 
     @Override
     public boolean sequenceExists(final String sequenceName) {
-        ReturningWork<Boolean> work = new ReturningWork<Boolean>() {
-            @Override
-            public Boolean execute(Connection connection) throws SQLException {
-                DialectResolver dialectResolver = new StandardDialectResolver();
-                Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
-                try (PreparedStatement preparedStatement = connection
-                        .prepareStatement(dialect.getQuerySequencesString());
-                        ResultSet resultSet = preparedStatement.executeQuery()) {
-                    while (resultSet.next()) {
-                        if (sequenceName.equals(resultSet.getString(1))) {
-                            return true;
-                        }
+        ReturningWork<Boolean> work = connection -> {
+            DialectResolver dialectResolver = new StandardDialectResolver();
+            Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
+            try (PreparedStatement preparedStatement = connection.prepareStatement(dialect.getQuerySequencesString());
+                    ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    if (sequenceName.equals(resultSet.getString(1))) {
+                        return true;
                     }
-                } catch (SQLException e) {
-                    throw e;
                 }
-                return false;
-
+            } catch (SQLException e) {
+                throw e;
             }
+            return false;
+
         };
 
         Session session = (Session) entityManager.getDelegate();
@@ -160,28 +150,25 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
     @Override
     public void dropSequence(final String sequenceName) {
 
-        Work work = new Work() {
-            @Override
-            public void execute(Connection connection) throws SQLException {
-                DialectResolver dialectResolver = new StandardDialectResolver();
-                Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
-                PreparedStatement preparedStatement = null;
-                ResultSet resultSet = null;
-                try {
-                    preparedStatement = connection.prepareStatement(dialect.getDropSequenceStrings(sequenceName)[0]);
-                    preparedStatement.execute();
-                } catch (SQLException e) {
-                    throw e;
-                } finally {
-                    if (preparedStatement != null) {
-                        preparedStatement.close();
-                    }
-                    if (resultSet != null) {
-                        resultSet.close();
-                    }
+        Work work = connection -> {
+            DialectResolver dialectResolver = new StandardDialectResolver();
+            Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
+            PreparedStatement preparedStatement = null;
+            ResultSet resultSet = null;
+            try {
+                preparedStatement = connection.prepareStatement(dialect.getDropSequenceStrings(sequenceName)[0]);
+                preparedStatement.execute();
+            } catch (SQLException e) {
+                throw e;
+            } finally {
+                if (preparedStatement != null) {
+                    preparedStatement.close();
                 }
-
+                if (resultSet != null) {
+                    resultSet.close();
+                }
             }
+
         };
 
         Session session = (Session) entityManager.getDelegate();

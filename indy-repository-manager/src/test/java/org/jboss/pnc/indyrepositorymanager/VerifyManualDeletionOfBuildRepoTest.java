@@ -93,12 +93,12 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractImportTest {
 
         // manually delete the build to the public group (since it's convenient)
         RunningRepositoryDeletion deletion = driver.deleteBuild(record, pkgType, accessToken);
-        deletion.monitor(completed -> {
-            assertThat("Manual deletion failed.", completed.isSuccessful(), equalTo(true));
-        }, error -> {
-            error.printStackTrace();
-            fail("Failed to manually delete: " + error.getMessage());
-        });
+        deletion.monitor(
+                completed -> assertThat("Manual deletion failed.", completed.isSuccessful(), equalTo(true)),
+                error -> {
+                    error.printStackTrace();
+                    fail("Failed to manually delete: " + error.getMessage());
+                });
 
         // end result: the build hosted repo should no longer exist.
         assertThat(indyStoreAdmin.exists(hostedKey), equalTo(false));

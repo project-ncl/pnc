@@ -117,7 +117,7 @@ public class SortInfoTest {
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
         List<String> sorted = tester.stream()
                 .sorted(testedSorting.getComparator())
-                .map(value -> value.getField1())
+                .map(SortTester::getField1)
                 .collect(Collectors.toList());
 
         // then
@@ -137,7 +137,7 @@ public class SortInfoTest {
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
         List<String> sorted = tester.stream()
                 .sorted(testedSorting.getComparator())
-                .map(value -> value.getField2())
+                .map(SortTester::getField2)
                 .collect(Collectors.toList());
 
         // then
@@ -157,7 +157,7 @@ public class SortInfoTest {
         SortInfo testedSorting = defaultSortInfoProducer.getSortInfo(sorting);
         List<String> sorted = tester.stream()
                 .sorted(testedSorting.getComparator())
-                .map(value -> value.getField1())
+                .map(SortTester::getField1)
                 .collect(Collectors.toList());
 
         // then

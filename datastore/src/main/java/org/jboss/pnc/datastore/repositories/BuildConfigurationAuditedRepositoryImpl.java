@@ -131,7 +131,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
         // WORKAROUND: as I cannot concatenate AuditEntity property to match
         // `AuditEntity.property("id")-AuditEntity.property("rev")` in idRevConcatenated list
         // I can query all BuildConfigurationAudited with the only id and later on filter id and rev
-        List<Integer> bcaRevIds = idRevs.stream().map(idRev -> idRev.getRev()).collect(Collectors.toList());
+        List<Integer> bcaRevIds = idRevs.stream().map(IdRev::getRev).collect(Collectors.toList());
         // Getting all revisions of BuildConfiguration with specified list of IDs
         List<Object[]> result = AuditReaderFactory.get(entityManager)
                 .createQuery()
@@ -222,9 +222,7 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
             List<Project> projectsMatchingName,
             String name) {
         AuditDisjunction disjunction = AuditEntity.disjunction();
-        projectsMatchingName.forEach(project -> {
-            disjunction.add(AuditEntity.relatedId("project").eq(project.getId()));
-        });
+        projectsMatchingName.forEach(project -> disjunction.add(AuditEntity.relatedId("project").eq(project.getId())));
         disjunction.add(AuditEntity.property("name").like(name));
 
         List<Object[]> result = AuditReaderFactory.get(entityManager)

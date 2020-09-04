@@ -91,10 +91,11 @@ public class BuildConfigurationAuditedRepositoryMock implements BuildConfigurati
 
     public Map<IdRev, BuildConfigurationAudited> queryById(Set<IdRev> idRevs) {
 
-        return idRevs.stream().map(idRev -> {
-            return getOptionalById(idRev)
-                    .orElseThrow(() -> new RuntimeException("Didn't find entity for id: " + idRev));
-        }).collect(Collectors.toMap(BuildConfigurationAudited::getIdRev, bca -> bca));
+        return idRevs.stream()
+                .map(
+                        idRev -> getOptionalById(idRev)
+                                .orElseThrow(() -> new RuntimeException("Didn't find entity for id: " + idRev)))
+                .collect(Collectors.toMap(BuildConfigurationAudited::getIdRev, bca -> bca));
     }
 
     @Override

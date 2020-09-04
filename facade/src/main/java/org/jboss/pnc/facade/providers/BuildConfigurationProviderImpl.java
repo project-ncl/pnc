@@ -542,8 +542,8 @@ public class BuildConfigurationProviderImpl extends
 
         org.jboss.pnc.model.BuildConfiguration newBc = repository.save(originalBC);
 
-        newBc.getBuildConfigurationSets().forEach(s -> s.getId());
-        newBc.getDependencies().forEach(s -> s.getId());
+        newBc.getBuildConfigurationSets().forEach(BuildConfigurationSet::getId);
+        newBc.getDependencies().forEach(org.jboss.pnc.model.BuildConfiguration::getId);
         repository.flushAndRefresh(newBc);
 
         return Optional.of(mapper.toDTO(newBc));

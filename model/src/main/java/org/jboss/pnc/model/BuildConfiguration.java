@@ -381,7 +381,9 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
         // Verify that we are not creating a circular dependency
         if (dependency.getAllDependencies().contains(this)) {
             List<BuildConfiguration> depPath = dependency.dependencyDepthFirstSearch(this);
-            String depPathString = depPath.stream().map(dep -> dep.getName()).collect(Collectors.joining(" -> "));
+            String depPathString = depPath.stream()
+                    .map(BuildConfiguration::getName)
+                    .collect(Collectors.joining(" -> "));
             throw new PersistenceException(
                     "Unable to add dependency, would create a circular reference: " + depPathString);
         }

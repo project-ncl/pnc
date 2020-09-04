@@ -66,7 +66,7 @@ public class DefaultRemoteCollection<T> implements RemoteCollection<T> {
     @Override
     public Collection<T> getAll() {
         List<T> list = new ArrayList<>();
-        forEach(e -> list.add(e));
+        forEach(list::add);
         return list;
     }
 

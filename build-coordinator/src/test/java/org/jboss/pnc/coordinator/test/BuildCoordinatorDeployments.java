@@ -67,7 +67,8 @@ public class BuildCoordinatorDeployments {
 
     public enum Options {
 
-        WITH_DATASTORE(() -> datastoreArchive()), WITH_BPM(() -> bpmArchive());
+        WITH_DATASTORE(BuildCoordinatorDeployments::datastoreArchive),
+        WITH_BPM(BuildCoordinatorDeployments::bpmArchive);
 
         Supplier<Archive> archiveSupplier;
 

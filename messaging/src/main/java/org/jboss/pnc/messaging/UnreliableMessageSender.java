@@ -73,14 +73,10 @@ public class UnreliableMessageSender extends DefaultMessageSender implements Mes
     @Override
     public void init() {
         workQueue = new ArrayBlockingQueue<>(workQueueSize);
-        RejectedExecutionHandler handler = (r, executor) -> {
-            logUnsent(r);
-        };
+        RejectedExecutionHandler handler = (r, executor) -> logUnsent(r);
         executor = new MDCThreadPoolExecutor(1, 1, 0L, TimeUnit.SECONDS, workQueue, handler);
 
-        executor.execute(() -> {
-            super.init();
-        });
+        executor.execute(super::init);
     }
 
     @Override
@@ -89,11 +85,11 @@ public class UnreliableMessageSender extends DefaultMessageSender implements Mes
         logger.info("Destroying JMS sender.");
         logger.debug("There are {} messages in queue.", workQueue.size());
         List<Runnable> unSentMessages = executor.shutdownNow();
-        unSentMessages.forEach(r -> logUnsent(r));
+        unSentMessages.forEach(this::logUnsent);
 
         List<Runnable> messagesInQueue = new ArrayList<>();
         workQueue.drainTo(messagesInQueue);
-        messagesInQueue.forEach(r -> logUnsent(r));
+        messagesInQueue.forEach(this::logUnsent);
 
         closeConnection();
         logger.info("JMS sender destroyed.");
