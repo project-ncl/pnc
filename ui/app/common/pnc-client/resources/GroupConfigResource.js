@@ -57,7 +57,10 @@
         queryGroupBuilds: {
           method: 'GET',
           url: ENDPOINT + '/group-builds',
-          isPaged: true
+          isPaged: true,
+          params: {
+            sort: '=desc=startTime'
+          }
         },
         queryBuildConfigs: {
           method: 'GET',
