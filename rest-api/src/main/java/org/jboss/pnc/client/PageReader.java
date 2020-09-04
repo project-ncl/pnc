@@ -37,7 +37,7 @@ public class PageReader<T> {
     }
 
     public RemoteCollection<T> getCollection() {
-        return new DefaultRemoteCollection<T>(endpoint, config);
+        return new DefaultRemoteCollection<>(endpoint, config);
     }
 
 }

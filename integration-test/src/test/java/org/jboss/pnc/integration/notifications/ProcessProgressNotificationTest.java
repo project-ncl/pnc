@@ -117,7 +117,7 @@ public class ProcessProgressNotificationTest {
                 "component-build",
                 taskId.toString());
         String text = JsonOutputConverterMapper
-                .apply(new TypedMessage<ProgressUpdatesRequest>(MessageType.PROCESS_UPDATES, progressUpdatesRequest));
+                .apply(new TypedMessage<>(MessageType.PROCESS_UPDATES, progressUpdatesRequest));
         logger.info("Sending test message:" + text);
         asyncRemote.sendText(text);
         waitForMessages(1);

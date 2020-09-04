@@ -169,7 +169,7 @@ public class ProductVersion implements GenericEntity<Integer> {
     }
 
     public Set<ProductRelease> getProductReleases() {
-        Set<ProductRelease> productReleases = new HashSet<ProductRelease>();
+        Set<ProductRelease> productReleases = new HashSet<>();
         for (ProductMilestone milestone : productMilestones) {
             if (milestone.getProductRelease() != null) {
                 productReleases.add(milestone.getProductRelease());
@@ -212,7 +212,7 @@ public class ProductVersion implements GenericEntity<Integer> {
 
     public void setBuildConfigurations(Set<BuildConfiguration> buildConfigurations) {
         if (buildConfigurations == null) {
-            this.buildConfigurations = new HashSet<BuildConfiguration>();
+            this.buildConfigurations = new HashSet<>();
         } else {
             this.buildConfigurations = buildConfigurations;
         }

@@ -40,7 +40,7 @@ public class TypedMessage<T> implements Serializable {
     private final T data;
 
     public static <T> TypedMessageBuilder<T> builder() {
-        return new TypedMessageBuilder<T>();
+        return new TypedMessageBuilder<>();
     }
 
     @JsonPOJOBuilder(withPrefix = "")

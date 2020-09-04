@@ -64,7 +64,7 @@ public class DatastoreMock implements Datastore {
 
     @Override
     public Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts) {
-        return new HashMap<Artifact, String>();
+        return new HashMap<>();
     }
 
     @Override

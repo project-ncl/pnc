@@ -410,8 +410,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * @return The set of indirect dependencies
      */
     public Set<BuildConfiguration> getIndirectDependencies() {
-        Set<BuildConfiguration> indirectDependencies = new HashSet<BuildConfiguration>();
-        List<BuildConfiguration> configsToCheck = new ArrayList<BuildConfiguration>();
+        Set<BuildConfiguration> indirectDependencies = new HashSet<>();
+        List<BuildConfiguration> configsToCheck = new ArrayList<>();
         configsToCheck.addAll(getDependencies());
         while (!configsToCheck.isEmpty()) {
             BuildConfiguration nextConfig = configsToCheck.get(0);
@@ -467,7 +467,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * @return A set containing both direct and indirect dependencies
      */
     public Set<BuildConfiguration> getAllDependencies() {
-        Set<BuildConfiguration> allDependencies = new HashSet<BuildConfiguration>();
+        Set<BuildConfiguration> allDependencies = new HashSet<>();
         allDependencies.addAll(getDependencies());
         allDependencies.addAll(getIndirectDependencies());
         return allDependencies;
