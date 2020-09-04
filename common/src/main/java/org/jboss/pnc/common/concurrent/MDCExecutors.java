@@ -35,7 +35,7 @@ public class MDCExecutors {
                 nThreads,
                 0L,
                 TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(),
+                new LinkedBlockingQueue<>(),
                 threadFactory);
     }
 

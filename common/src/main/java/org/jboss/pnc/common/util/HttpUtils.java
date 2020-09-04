@@ -25,7 +25,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContextBuilder;
-import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
@@ -40,8 +39,6 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 
 /**
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
@@ -107,12 +104,7 @@ public class HttpUtils {
     public static CloseableHttpClient getPermissiveHttpClient(int retries) {
         SSLContextBuilder builder = new SSLContextBuilder();
         try {
-            builder.loadTrustMaterial(null, new TrustStrategy() {
-                @Override
-                public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    return true;
-                }
-            });
+            builder.loadTrustMaterial(null, (chain, authType) -> true);
         } catch (NoSuchAlgorithmException | KeyStoreException e1) {
             LOG.error("Error creating SSL Context Builder with trusted certificates.", e1);
         }
@@ -126,13 +118,11 @@ public class HttpUtils {
             LOG.error("Error creating SSL Connection Factory.", e1);
         }
 
-        CloseableHttpClient httpclient = HttpClients.custom()
+        return HttpClients.custom()
                 .setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false))
                 .setSSLSocketFactory(sslSF)
                 .setHostnameVerifier(new AllowAllHostnameVerifier())
                 .build();
-
-        return httpclient;
     }
 
     /**
@@ -185,7 +175,7 @@ public class HttpUtils {
     /**
      * @return Closeable "permissive" HttpClient instance, ignoring invalid SSL certificates, using 3 attempts to retry
      *         failed request
-     * @see getPermissiveHttpClient(int retries)
+     * @see #getPermissiveHttpClient(int)
      */
     public static CloseableHttpClient getPermissiveHttpClient() {
         return getPermissiveHttpClient(3);

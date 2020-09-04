@@ -232,13 +232,13 @@ public class StringUtils {
     }
 
     public static String firstCharToLowerCase(String string) {
-        char c[] = string.toCharArray();
+        char[] c = string.toCharArray();
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
     }
 
     public static String firstCharToUpperCase(String string) {
-        char c[] = string.toCharArray();
+        char[] c = string.toCharArray();
         c[0] = Character.toUpperCase(c[0]);
         return new String(c);
     }

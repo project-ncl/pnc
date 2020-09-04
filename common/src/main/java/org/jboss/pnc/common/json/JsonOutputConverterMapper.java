@@ -74,7 +74,7 @@ public class JsonOutputConverterMapper {
         return mapper.readValue(serialized, clazz);
     }
 
-    final class OptionalMixin {
+    static final class OptionalMixin {
         private OptionalMixin() {
         }
 

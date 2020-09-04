@@ -42,7 +42,7 @@ public class ScheduledExecutorServiceWithTimeout {
             TimeUnit timeUnit) {
         Task task = new Task();
 
-        CancellableCompletableFuture<Void> completableFuture = new CancellableCompletableFuture<>(() -> task.cancel());
+        CancellableCompletableFuture<Void> completableFuture = new CancellableCompletableFuture<>(task::cancel);
 
         Runnable run = () -> {
             try {
@@ -72,7 +72,7 @@ public class ScheduledExecutorServiceWithTimeout {
         return completableFuture;
     }
 
-    private class Task implements Runnable {
+    private static class Task implements Runnable {
 
         private Runnable runnable;
 

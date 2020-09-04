@@ -122,7 +122,7 @@ public class StringUtilsTest {
 
         Assert.assertEquals("", StringUtils.stripSuffix("", ".git"));
 
-        Assert.assertEquals(null, StringUtils.stripSuffix(null, ".git"));
+        Assert.assertNull(StringUtils.stripSuffix(null, ".git"));
     }
 
     @Test
@@ -143,7 +143,7 @@ public class StringUtilsTest {
         Assert.assertEquals("", StringUtils.stripProtocol(url));
 
         url = null;
-        Assert.assertEquals(null, StringUtils.stripProtocol(url));
+        Assert.assertNull(StringUtils.stripProtocol(url));
     }
 
     @Test
@@ -152,9 +152,7 @@ public class StringUtilsTest {
         InputStream is = new ByteArrayInputStream(message.getBytes());
         ArrayDeque<String> lines = new ArrayDeque<>();
         List<String> dropped = new ArrayList<>();
-        Consumer<String> droppedLines = (line) -> {
-            dropped.add(line);
-        };
+        Consumer<String> droppedLines = dropped::add;
         StringUtils.readStream(is, Charset.defaultCharset(), lines, 29, droppedLines);
 
         Assert.assertEquals(0, dropped.size());
@@ -166,9 +164,7 @@ public class StringUtilsTest {
         InputStream is = new ByteArrayInputStream(message.getBytes());
         ArrayDeque<String> lines = new ArrayDeque<>();
         List<String> dropped = new ArrayList<>();
-        Consumer<String> droppedLines = (line) -> {
-            dropped.add(line);
-        };
+        Consumer<String> droppedLines = dropped::add;
         StringUtils.readStream(is, Charset.defaultCharset(), lines, 29, droppedLines);
 
         Assert.assertEquals(1, dropped.size());
@@ -181,9 +177,7 @@ public class StringUtilsTest {
         InputStream is = new ByteArrayInputStream(message.getBytes());
         ArrayDeque<String> lines = new ArrayDeque<>();
         List<String> dropped = new ArrayList<>();
-        Consumer<String> droppedLines = (line) -> {
-            dropped.add(line);
-        };
+        Consumer<String> droppedLines = dropped::add;
         StringUtils.readStream(is, Charset.defaultCharset(), lines, 29, droppedLines);
 
         Assert.assertEquals(2, dropped.size());

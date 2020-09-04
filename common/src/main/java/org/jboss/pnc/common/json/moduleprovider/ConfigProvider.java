@@ -36,6 +36,6 @@ public interface ConfigProvider<T extends AbstractModuleConfig> {
 
     void addModuleConfig(ProviderNameType<T> providerNameType);
 
-    public Class<T> getType();
+    Class<T> getType();
 
 }

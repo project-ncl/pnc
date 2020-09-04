@@ -19,6 +19,7 @@ package org.jboss.pnc.common.security;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -37,7 +38,7 @@ public class CheckSum {
             if (read == -1) {
                 break;
             }
-            md.update(String.valueOf(buffer, 0, read).getBytes("UTF-8"));
+            md.update(String.valueOf(buffer, 0, read).getBytes(StandardCharsets.UTF_8));
         }
 
         byte[] digest = md.digest();
@@ -45,9 +46,9 @@ public class CheckSum {
     }
 
     static String format(byte[] digest) {
-        StringBuffer hexString = new StringBuffer();
-        for (int i = 0; i < digest.length; i++) {
-            String hex = Integer.toHexString(0xFF & digest[i]);
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : digest) {
+            String hex = Integer.toHexString(0xFF & b);
             if (hex.length() == 1) {
                 hexString.append('0');
             }
