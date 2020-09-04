@@ -70,22 +70,13 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
             public Long execute(Connection connection) throws SQLException {
                 DialectResolver dialectResolver = new StandardDialectResolver();
                 Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
-                PreparedStatement preparedStatement = null;
-                ResultSet resultSet = null;
-                try {
-                    preparedStatement = connection.prepareStatement(dialect.getSequenceNextValString(sequenceName));
-                    resultSet = preparedStatement.executeQuery();
+                try (PreparedStatement preparedStatement = connection
+                        .prepareStatement(dialect.getSequenceNextValString(sequenceName));
+                        ResultSet resultSet = preparedStatement.executeQuery()) {
                     resultSet.next();
                     return resultSet.getLong(1);
                 } catch (SQLException e) {
                     throw e;
-                } finally {
-                    if (preparedStatement != null) {
-                        preparedStatement.close();
-                    }
-                    if (resultSet != null) {
-                        resultSet.close();
-                    }
                 }
 
             }
@@ -145,11 +136,9 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
             public Boolean execute(Connection connection) throws SQLException {
                 DialectResolver dialectResolver = new StandardDialectResolver();
                 Dialect dialect = dialectResolver.resolveDialect(getResolutionInfo(connection));
-                PreparedStatement preparedStatement = null;
-                ResultSet resultSet = null;
-                try {
-                    preparedStatement = connection.prepareStatement(dialect.getQuerySequencesString());
-                    resultSet = preparedStatement.executeQuery();
+                try (PreparedStatement preparedStatement = connection
+                        .prepareStatement(dialect.getQuerySequencesString());
+                        ResultSet resultSet = preparedStatement.executeQuery()) {
                     while (resultSet.next()) {
                         if (sequenceName.equals(resultSet.getString(1))) {
                             return true;
@@ -157,13 +146,6 @@ public class DefaultSequenceHandlerRepository implements SequenceHandlerReposito
                     }
                 } catch (SQLException e) {
                     throw e;
-                } finally {
-                    if (preparedStatement != null) {
-                        preparedStatement.close();
-                    }
-                    if (resultSet != null) {
-                        resultSet.close();
-                    }
                 }
                 return false;
 

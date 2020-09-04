@@ -46,5 +46,5 @@ public enum BuildPushStatus {
     /**
      * Push was canceled.
      */
-    CANCELED;
+    CANCELED
 }

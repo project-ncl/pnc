@@ -114,7 +114,7 @@ public class BrewPusherImpl implements BrewPusher {
             MDCUtils.addCustomContext(BUILD_ID_KEY, buildRecord.getId().toString());
             try {
                 results.add(doPushBuild(buildRecord.getId(), buildPushParameters, buildPushResultId));
-            } catch (OperationNotAllowedException e) {
+            } catch (OperationNotAllowedException | AlreadyRunningException e) {
                 results.add(
                         BuildPushResult.builder()
                                 .status(BuildPushStatus.REJECTED)
@@ -122,23 +122,7 @@ public class BrewPusherImpl implements BrewPusher {
                                 .buildId(buildRecord.getId().toString())
                                 .message(e.getMessage())
                                 .build());
-            } catch (InconsistentDataException e) {
-                results.add(
-                        BuildPushResult.builder()
-                                .status(BuildPushStatus.SYSTEM_ERROR)
-                                .id(buildPushResultId.toString())
-                                .buildId(buildRecord.getId().toString())
-                                .message(e.getMessage())
-                                .build());
-            } catch (AlreadyRunningException e) {
-                results.add(
-                        BuildPushResult.builder()
-                                .status(BuildPushStatus.REJECTED)
-                                .id(buildPushResultId.toString())
-                                .buildId(buildRecord.getId().toString())
-                                .message(e.getMessage())
-                                .build());
-            } catch (ProcessException e) {
+            } catch (InconsistentDataException | ProcessException e) {
                 results.add(
                         BuildPushResult.builder()
                                 .status(BuildPushStatus.SYSTEM_ERROR)
