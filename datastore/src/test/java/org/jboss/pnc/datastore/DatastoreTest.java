@@ -401,7 +401,7 @@ public class DatastoreTest {
         String scmUrl = "repo";
         repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
         // expect
-        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+        Assert.assertFalse("Repository configuration was not found.", repositoryConfigurations.isEmpty());
 
         // when
         scmUrl = "repoX";
@@ -413,31 +413,31 @@ public class DatastoreTest {
         scmUrl = "ssh://internal.repo.com/repo.git";
         repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
         // expect
-        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+        Assert.assertFalse("Repository configuration was not found.", repositoryConfigurations.isEmpty());
 
         // when
         scmUrl = "http://internal.repo.com/repo.git";
         repositoryConfigurations = searchForRepositoryConfigurations(scmUrl);
         // expect
-        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+        Assert.assertFalse("Repository configuration was not found.", repositoryConfigurations.isEmpty());
 
         // when
         repositoryConfigurations = repositoryConfigurationRepository
                 .queryWithPredicates(RepositoryConfigurationPredicates.withExactInternalScmRepoUrl(internalUrl));
         // expect
-        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+        Assert.assertFalse("Repository configuration was not found.", repositoryConfigurations.isEmpty());
 
         // when
         repositoryConfigurations = repositoryConfigurationRepository.queryWithPredicates(
                 RepositoryConfigurationPredicates.withInternalScmRepoUrl("ssh://internal.repo.com/repo"));
         // expect
-        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+        Assert.assertFalse("Repository configuration was not found.", repositoryConfigurations.isEmpty());
 
         // when
         repositoryConfigurations = repositoryConfigurationRepository.queryWithPredicates(
                 RepositoryConfigurationPredicates.withExternalScmRepoUrl("http://github.com/external/repo.git"));
         // expect
-        Assert.assertTrue("Repository configuration was not found.", !repositoryConfigurations.isEmpty());
+        Assert.assertFalse("Repository configuration was not found.", repositoryConfigurations.isEmpty());
 
         // when
         repositoryConfigurations = repositoryConfigurationRepository.queryWithPredicates(

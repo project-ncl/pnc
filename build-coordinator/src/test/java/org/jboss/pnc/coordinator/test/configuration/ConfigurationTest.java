@@ -65,6 +65,6 @@ public class ConfigurationTest {
         OpenshiftEnvironmentDriverModuleConfig openShiftConfig = configuration
                 .getModuleConfig(new PncConfigProvider<>(OpenshiftEnvironmentDriverModuleConfig.class));
 
-        Assert.assertTrue("Environment driver disabled.", !openShiftConfig.isDisabled());
+        Assert.assertFalse("Environment driver disabled.", openShiftConfig.isDisabled());
     }
 }

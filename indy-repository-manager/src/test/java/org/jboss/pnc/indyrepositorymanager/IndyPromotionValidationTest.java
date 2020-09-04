@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.util.Collections;
 
 import org.jboss.pnc.enums.RepositoryType;
+
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -105,7 +107,7 @@ public class IndyPromotionValidationTest {
 
             RepositoryManagerResult repositoryManagerResult = repositorySession.extractBuildArtifacts(true);
             // Just a dummy check, the point is really to be able to debug this
-            assertTrue(CompletionStatus.FAILED == repositoryManagerResult.getCompletionStatus());
+            assertSame(CompletionStatus.FAILED, repositoryManagerResult.getCompletionStatus());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -27,6 +27,7 @@ import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -110,7 +111,7 @@ public class BuildRecordTest extends AbstractModelTest {
         em.getTransaction().commit();
 
         // then
-        assertTrue(em.find(BuildRecord.class, brId) == null);
+        assertNull(em.find(BuildRecord.class, brId));
     }
 
     private BuildRecord.Builder prepareBuildRecordBuilder() {

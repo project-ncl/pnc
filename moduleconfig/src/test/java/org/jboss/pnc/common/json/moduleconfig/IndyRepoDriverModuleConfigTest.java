@@ -44,7 +44,7 @@ public class IndyRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
 
         assertNotNull(indyDriverConfig);
         assertEquals(100, indyDriverConfig.getDefaultRequestTimeout().intValue());
-        assertEquals(true, indyDriverConfig.getBuildRepositoryAllowSnapshots().booleanValue());
+        assertTrue(indyDriverConfig.getBuildRepositoryAllowSnapshots().booleanValue());
         assertEquals(0, indyDriverConfig.getIgnoredPathPatterns().getData().getMaven().getPatterns().size());
         assertEquals(0, indyDriverConfig.getIgnoredPathPatterns().getData().getNpm().getPatterns().size());
         assertEquals(0, indyDriverConfig.getIgnoredPathPatterns().getPromotion().getNpm().getPatterns().size());
@@ -76,7 +76,7 @@ public class IndyRepoDriverModuleConfigTest extends AbstractModuleConfigTest {
 
         assertNotNull(mavenConfig);
         assertEquals(600, mavenConfig.getDefaultRequestTimeout().intValue());
-        assertEquals(false, mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
+        assertFalse(mavenConfig.getBuildRepositoryAllowSnapshots().booleanValue());
     }
 
 }

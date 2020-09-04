@@ -50,10 +50,10 @@ public class ExtraDependencyRepositoriesTest extends AbstractImportTest {
 
         List<ArtifactRepository> repos = driver.extractExtraRepositoriesFromGenericParameters(genericParams);
         assertEquals(2, repos.size());
-        assertTrue("http://central.maven.org/maven2/".equals(repos.get(0).getUrl()));
-        assertTrue("central-maven-org".equals(repos.get(0).getId()));
-        assertTrue("https://maven.repository.redhat.com/ga/".equals(repos.get(1).getUrl()));
-        assertTrue("maven-repository-redhat-com".equals(repos.get(1).getId()));
+        assertEquals("http://central.maven.org/maven2/", repos.get(0).getUrl());
+        assertEquals("central-maven-org", repos.get(0).getId());
+        assertEquals("https://maven.repository.redhat.com/ga/", repos.get(1).getUrl());
+        assertEquals("maven-repository-redhat-com", repos.get(1).getId());
     }
 
     @Test
