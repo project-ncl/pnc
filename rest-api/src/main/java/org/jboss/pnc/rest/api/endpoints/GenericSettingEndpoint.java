@@ -126,6 +126,32 @@ public interface GenericSettingEndpoint {
     @Path("in-maintenance-mode")
     Boolean isInMaintenanceMode();
 
+    static final String IS_USER_ALLOWED_TO_TRIGGER_BUILDS_DESC = "Provides information whether the current user is allowed to trigger builds (system-users are always allowed, other users only if maintenance mode is off)";
+
+    /**
+     * {@value IS_USER_ALLOWED_TO_TRIGGER_BUILDS_DESC}
+     *
+     * @return
+     */
+    @Operation(
+            summary = IS_USER_ALLOWED_TO_TRIGGER_BUILDS_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Boolean.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("is-user-allowed-to-trigger-builds")
+    Boolean isCurrentUserAllowedToTriggerBuilds();
+
     static final String MAINTENANCE_REASON = "Reason to activate Maintenance Mode";
     static final String ACTIVATE_MAINTENANCE_MODE_DESC = "Activate maintenance mode.";
 
