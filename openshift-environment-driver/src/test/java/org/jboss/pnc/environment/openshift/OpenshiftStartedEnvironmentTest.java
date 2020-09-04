@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,10 +37,10 @@ public class OpenshiftStartedEnvironmentTest {
         ClassLoader classLoader = getClass().getClassLoader();
         String originalJsonMessage = FileUtils.readFileToString(
                 new File(classLoader.getResource("startedEnvironmentOriginalMessage.json").getFile()),
-                Charset.forName("UTF-8"));
+                StandardCharsets.UTF_8);
         String expectedSecuredJson = FileUtils.readFileToString(
                 new File(classLoader.getResource("startedEnvironmentSecuredMessage.json").getFile()),
-                Charset.forName("UTF-8"));
+                StandardCharsets.UTF_8);
 
         // when
         String securedJson = OpenshiftStartedEnvironment.secureLog(originalJsonMessage);
