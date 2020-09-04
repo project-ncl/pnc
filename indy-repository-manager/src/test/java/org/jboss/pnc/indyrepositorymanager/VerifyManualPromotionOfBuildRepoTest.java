@@ -88,12 +88,12 @@ public class VerifyManualPromotionOfBuildRepoTest extends AbstractImportTest {
 
         // manually promote the build to the public group (since it's convenient)
         RunningRepositoryPromotion promotion = driver.promoteBuild(record, pkgType, PUBLIC, accessToken);
-        promotion.monitor(completed -> {
-            assertThat("Manual promotion failed.", completed.isSuccessful(), equalTo(true));
-        }, error -> {
-            error.printStackTrace();
-            fail("Failed to manually promote: " + error.getMessage());
-        });
+        promotion.monitor(
+                completed -> assertThat("Manual promotion failed.", completed.isSuccessful(), equalTo(true)),
+                error -> {
+                    error.printStackTrace();
+                    fail("Failed to manually promote: " + error.getMessage());
+                });
 
         // end result: the chain group should contain the build hosted repo.
         StoreKey publicKey = new StoreKey(pkgType, StoreType.group, PUBLIC);

@@ -248,7 +248,9 @@ public class BuildTasksInitializer {
         // initializeBuildTasksInSet
         log.debug(
                 "Initializing BuildTasks In Set for BuildConfigurationAuditeds: {}.",
-                buildConfigurationAuditeds.stream().map(bc -> bc.toString()).collect(Collectors.joining("; ")));
+                buildConfigurationAuditeds.stream()
+                        .map(BuildConfigurationAudited::toString)
+                        .collect(Collectors.joining("; ")));
         fillBuildTaskSet(
                 buildSetTask,
                 user,

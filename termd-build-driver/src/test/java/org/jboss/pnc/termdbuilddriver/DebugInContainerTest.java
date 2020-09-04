@@ -89,9 +89,7 @@ public class DebugInContainerTest {
                 Assert.fail("Unable to consume build result.");
             }
         };
-        Consumer<Throwable> onError = (throwable) -> {
-            Assert.fail("Build should fail without system error.");
-        };
+        Consumer<Throwable> onError = (throwable) -> Assert.fail("Build should fail without system error.");
 
         // when
         RunningBuild runningBuild = driver.startProjectBuild(buildExecution, runningEnvironment, onComplete, onError);

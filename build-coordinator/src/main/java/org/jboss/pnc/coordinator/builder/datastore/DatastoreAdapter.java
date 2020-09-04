@@ -142,7 +142,7 @@ public class DatastoreAdapter {
             if (buildResult.getBuildDriverResult().isPresent()) {
                 BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
                 buildRecordBuilder.appendLog(buildDriverResult.getBuildLog());
-                buildDriverResult.getOutputChecksum().ifPresent(sum -> buildRecordBuilder.buildOutputChecksum(sum));
+                buildDriverResult.getOutputChecksum().ifPresent(buildRecordBuilder::buildOutputChecksum);
                 buildRecordStatus = buildDriverResult.getBuildStatus(); // TODO buildRecord should use CompletionStatus
             } else if (!buildResult.hasFailed()) {
                 return storeResult(
@@ -360,11 +360,14 @@ public class DatastoreAdapter {
 
         List<Integer> dependencies = buildTask.getDependencies()
                 .stream()
-                .map(t -> t.getId())
+                .map(BuildTask::getId)
                 .collect(Collectors.toList());
         builder.dependencyBuildRecordIds(dependencies.toArray(new Integer[dependencies.size()]));
 
-        List<Integer> dependants = buildTask.getDependants().stream().map(t -> t.getId()).collect(Collectors.toList());
+        List<Integer> dependants = buildTask.getDependants()
+                .stream()
+                .map(BuildTask::getId)
+                .collect(Collectors.toList());
         builder.dependentBuildRecordIds(dependants.toArray(new Integer[dependants.size()]));
 
         return builder;

@@ -72,7 +72,7 @@ public class HibernateLazyInitializer {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public BuildConfigurationSet initializeBuildConfigurationSetBeforeTriggeringIt(BuildConfigurationSet bcs) {
         log.trace("Initializing {} build configurations in set {}.", bcs.getBuildConfigurations().size(), bcs.getId());
-        bcs.getBuildConfigurations().stream().forEach(bc -> initializeBuildConfigurationBeforeTriggeringIt(bc));
+        bcs.getBuildConfigurations().stream().forEach(this::initializeBuildConfigurationBeforeTriggeringIt);
         return bcs;
     }
 }

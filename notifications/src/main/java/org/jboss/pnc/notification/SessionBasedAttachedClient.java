@@ -64,14 +64,11 @@ public class SessionBasedAttachedClient implements AttachedClient {
         } catch (JsonProcessingException e) {
             throw new IllegalArgumentException("Could not convert object to JSON", e);
         }
-        session.getAsyncRemote().sendText(message, new SendHandler() {
-            @Override
-            public void onResult(SendResult sendResult) {
-                if (!sendResult.isOK()) {
-                    callback.failed(SessionBasedAttachedClient.this, sendResult.getException());
-                } else {
-                    callback.successful(SessionBasedAttachedClient.this);
-                }
+        session.getAsyncRemote().sendText(message, sendResult -> {
+            if (!sendResult.isOK()) {
+                callback.failed(SessionBasedAttachedClient.this, sendResult.getException());
+            } else {
+                callback.successful(SessionBasedAttachedClient.this);
             }
         });
     }

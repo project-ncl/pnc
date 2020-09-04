@@ -481,9 +481,9 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
     private org.jboss.util.graph.Graph<BuildWithDependencies> createBuildDependencyGraph(String buildId) {
         org.jboss.util.graph.Graph<BuildWithDependencies> graph = new org.jboss.util.graph.Graph<>();
         GraphBuilder<BuildWithDependencies, String> graphBuilder = new GraphBuilder<>(
-                id -> getRunningOrCompletedBuild(id),
-                bt -> bt.getDependencies(),
-                bt -> bt.getDependants());
+                this::getRunningOrCompletedBuild,
+                BuildWithDependencies::getDependencies,
+                BuildWithDependencies::getDependants);
 
         Vertex<BuildWithDependencies> current = graphBuilder.buildDependencyGraph(graph, buildId);
         if (current != null) {
@@ -856,7 +856,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
                     .and(t -> pageInfo.getBuildConfigName().equals(t.getBuildConfigurationAudited().getName()));
         }
 
-        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(t -> t != null)
+        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(Objects::nonNull)
                 .filter(predicate)
                 .map(buildMapper::fromBuildTask)
                 .filter(streamPredicate)
@@ -865,7 +865,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
     }
 
     private Optional<Build> readLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate) {
-        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(t -> t != null)
+        return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(Objects::nonNull)
                 .filter(predicate)
                 .sorted(Comparator.comparing(BuildTask::getSubmitTime).reversed())
                 .findFirst()

@@ -175,7 +175,7 @@ class BuildExecutionBase {
             List<BuildExecutionStatus> unexpectedStatuses) {
 
         List<BuildExecutionStatus> statusReceived = statusChangedEvents.stream()
-                .map(e -> e.getNewStatus())
+                .map(BuildExecutionStatusChangedEvent::getNewStatus)
                 .collect(Collectors.toList());
 
         for (BuildExecutionStatusChangedEvent statusChangedEvent : statusChangedEvents) {

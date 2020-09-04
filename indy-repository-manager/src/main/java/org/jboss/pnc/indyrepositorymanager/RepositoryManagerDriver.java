@@ -67,6 +67,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
@@ -386,7 +387,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 userLog.warn("Malformed repository URL entered: " + repoString + ". Skipping.");
                 return null;
             }
-        }).filter((x) -> x != null).collect(Collectors.toList());
+        }).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
     /**

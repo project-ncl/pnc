@@ -93,7 +93,7 @@ public class MessageSenderProvider {
             logger.info("Using {} MQ message sender.", messageSenders.get().getClass().getName());
             selectedMessageSender = Optional.of(messageSenders.get());
         }
-        selectedMessageSender.ifPresent(ms -> ms.init());
+        selectedMessageSender.ifPresent(MessageSender::init);
         return selectedMessageSender;
     }
 

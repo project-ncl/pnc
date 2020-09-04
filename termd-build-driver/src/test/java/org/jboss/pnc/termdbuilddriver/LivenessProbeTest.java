@@ -80,9 +80,7 @@ public class LivenessProbeTest {
 
         BlockingQueue<Throwable> result = new ArrayBlockingQueue(1);
 
-        Consumer<CompletedBuild> onComplete = (completedBuild) -> {
-            Assert.fail("Build should complete with error.");
-        };
+        Consumer<CompletedBuild> onComplete = (completedBuild) -> Assert.fail("Build should complete with error.");
         Consumer<Throwable> onError = (throwable) -> {
             try {
                 result.put(throwable);

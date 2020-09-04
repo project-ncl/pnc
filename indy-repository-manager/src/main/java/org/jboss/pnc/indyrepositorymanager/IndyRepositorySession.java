@@ -873,9 +873,13 @@ public class IndyRepositorySession implements RepositorySession {
             if (validations.getValidatorErrors().isEmpty()) {
                 sb.append("(no validation errors received)");
             } else {
-                validations.getValidatorErrors().forEach((rule, error) -> {
-                    sb.append("- ").append(rule).append(":\n").append(error).append("\n\n");
-                });
+                validations.getValidatorErrors()
+                        .forEach(
+                                (rule, error) -> sb.append("- ")
+                                        .append(rule)
+                                        .append(":\n")
+                                        .append(error)
+                                        .append("\n\n"));
             }
         }
         if (sb.length() == 0) {

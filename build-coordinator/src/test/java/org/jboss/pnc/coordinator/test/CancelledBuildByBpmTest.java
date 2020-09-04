@@ -127,15 +127,11 @@ public class CancelledBuildByBpmTest {
         BuildQueue queue = new BuildQueue(systemConfig);
 
         BlockingQueue<BuildStatusChangedEvent> receivedStatuses = new ArrayBlockingQueue<>(5);
-        Consumer<BuildStatusChangedEvent> onStatusUpdate = (event) -> {
-            receivedStatuses.add(event);
-        };
+        Consumer<BuildStatusChangedEvent> onStatusUpdate = receivedStatuses::add;
         EventListener buildStatusChangedEventNotifier = new EventListener(onStatusUpdate);
 
         BlockingQueue<BpmTask> task = new ArrayBlockingQueue<>(5);
-        Consumer<BpmTask> onBpmTaskCreated = (t) -> {
-            task.add(t);
-        };
+        Consumer<BpmTask> onBpmTaskCreated = task::add;
         BuildSchedulerFactory buildSchedulerFactory = new BuildSchedulerFactory(onBpmTaskCreated);
 
         BuildCoordinator coordinator = new DefaultBuildCoordinator(

@@ -119,12 +119,7 @@ public class RepositoryManagerMock implements RepositoryManager {
         @Override
         public void monitor(Consumer<CompletedRepositoryPromotion> onComplete, Consumer<Exception> onError) {
             if (status != null) {
-                onComplete.accept(new CompletedRepositoryPromotion() {
-                    @Override
-                    public boolean isSuccessful() {
-                        return status;
-                    }
-                });
+                onComplete.accept(() -> status);
             } else {
                 onError.accept(error);
             }
@@ -145,12 +140,7 @@ public class RepositoryManagerMock implements RepositoryManager {
         @Override
         public void monitor(Consumer<CompletedRepositoryDeletion> onComplete, Consumer<Exception> onError) {
             if (status != null) {
-                onComplete.accept(new CompletedRepositoryDeletion() {
-                    @Override
-                    public boolean isSuccessful() {
-                        return status;
-                    }
-                });
+                onComplete.accept(() -> status);
             } else {
                 onError.accept(error);
             }

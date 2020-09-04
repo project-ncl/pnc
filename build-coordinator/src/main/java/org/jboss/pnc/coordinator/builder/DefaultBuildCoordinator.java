@@ -68,6 +68,7 @@ import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -445,7 +446,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
         log.debug("Cancelling Build Configuration Set: {}", buildSetTaskId);
         getSubmittedBuildTasks().stream()
-                .filter(t -> t != null)
+                .filter(Objects::nonNull)
                 .filter(t -> t.getBuildSetTask() != null && t.getBuildSetTask().getId().equals(buildSetTaskId))
                 .forEach(buildTask -> {
                     try {

@@ -114,8 +114,8 @@ public abstract class ClientBase<T> implements Closeable {
     }
 
     protected void setSortAndQuery(PageParameters pageParameters, Optional<String> sort, Optional<String> q) {
-        sort.ifPresent(s -> pageParameters.setSort(s));
-        q.ifPresent(query -> pageParameters.setQ(query));
+        sort.ifPresent(pageParameters::setSort);
+        q.ifPresent(pageParameters::setQ);
     }
 
     public <S> S patch(String id, String jsonPatch, Class<S> clazz) throws RemoteResourceException {

@@ -217,12 +217,7 @@ public class RSQLPredicateProducerTest {
     }
 
     private Answer<Path<?>> callBuildRecordPath() {
-        return new Answer<Path<?>>() {
-            @Override
-            public Path<?> answer(InvocationOnMock invocation) throws Throwable {
-                return toPath(invocation.getArgument(1), invocation.getArgument(2));
-            }
-        };
+        return invocation -> toPath(invocation.getArgument(1), invocation.getArgument(2));
     }
 
     private Path<?> toPath(From<?, BuildRecord> from, RSQLSelectorPath selector) {

@@ -63,9 +63,7 @@ public class DefaultMessageSender implements MessageSender {
         try {
             connection = connectionFactory.createConnection();
             logger.info("JMS client ID {}.", connection.getClientID());
-            ExceptionListener internalExceptionListener = e -> {
-                logger.error("JMS exception.", e);
-            };
+            ExceptionListener internalExceptionListener = e -> logger.error("JMS exception.", e);
             connection.setExceptionListener(internalExceptionListener);
         } catch (Exception e) {
             throw new MessagingRuntimeException("Failed to initialize JMS.", e);

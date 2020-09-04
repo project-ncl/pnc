@@ -73,8 +73,8 @@ public class DefaultClientFactory implements ClientFactory {
     @Override
     public FileTranser getFileTransfer(URI baseServerUri, int maxLogSize) {
         DefaultFileTranser defaultFileTranser = new DefaultFileTranser(baseServerUri, maxLogSize);
-        fileTransferConnectTimeout.ifPresent(i -> defaultFileTranser.setConnectTimeout(i));
-        fileTransferReadTimeout.ifPresent(i -> defaultFileTranser.setReadTimeout(i));
+        fileTransferConnectTimeout.ifPresent(defaultFileTranser::setConnectTimeout);
+        fileTransferReadTimeout.ifPresent(defaultFileTranser::setReadTimeout);
         return defaultFileTranser;
     }
 }

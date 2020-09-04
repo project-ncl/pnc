@@ -227,18 +227,14 @@ public class BuildQueue {
         Map<String, String> elementContextMap = element.getContextMap();
         try {
             if (elementContextMap != null) {
-                elementContextMap.forEach((k, v) -> {
-                    MDC.put(k, v);
-                });
+                elementContextMap.forEach(MDC::put);
             } else {
                 MDC.clear();
             }
             consumer.accept(element.get());
         } finally {
             if (elementContextMap != null) {
-                elementContextMap.keySet().forEach((k) -> {
-                    MDC.remove(k);
-                });
+                elementContextMap.keySet().forEach(MDC::remove);
             }
             // restore context
             if (copyOfContextMap != null) {

@@ -54,17 +54,14 @@ public class ClientTest {
         AtomicInteger requestsReceived = new AtomicInteger(0);
         AtomicReference<String> headerReceived = new AtomicReference<>();
 
-        Undertow server = Undertow.builder().addHttpListener(8080, "localhost").setHandler(new HttpHandler() {
-            @Override
-            public void handleRequest(final HttpServerExchange exchange) throws Exception {
-                requestsReceived.incrementAndGet();
-                String headerName = MDCUtils.getMDCToHeaderMappings().get(MDCKeys.REQUEST_CONTEXT_KEY);
-                HeaderValues strings = exchange.getRequestHeaders().get(headerName);
-                if (strings != null) {
-                    headerReceived.set(strings.getFirst());
-                }
-                exchange.getConnection().close();
+        Undertow server = Undertow.builder().addHttpListener(8080, "localhost").setHandler(exchange -> {
+            requestsReceived.incrementAndGet();
+            String headerName = MDCUtils.getMDCToHeaderMappings().get(MDCKeys.REQUEST_CONTEXT_KEY);
+            HeaderValues strings = exchange.getRequestHeaders().get(headerName);
+            if (strings != null) {
+                headerReceived.set(strings.getFirst());
             }
+            exchange.getConnection().close();
         }).build();
         server.start();
 
@@ -90,8 +87,7 @@ public class ClientTest {
         final TokenGenerator tokenGenerator = new TokenGenerator();
 
         // given
-        Configuration configuration = getBasicConfiguration(8081).bearerTokenSupplier(() -> tokenGenerator.getToken())
-                .build();
+        Configuration configuration = getBasicConfiguration(8081).bearerTokenSupplier(tokenGenerator::getToken).build();
 
         // when
         new BuildClient(configuration);
@@ -105,8 +101,7 @@ public class ClientTest {
         final TokenGenerator tokenGenerator = new TokenGenerator();
 
         // given
-        Configuration configuration = getBasicConfiguration(8081).bearerTokenSupplier(() -> tokenGenerator.getToken())
-                .build();
+        Configuration configuration = getBasicConfiguration(8081).bearerTokenSupplier(tokenGenerator::getToken).build();
 
         wireMockServer.stubFor(
                 get(urlMatching(".*")).willReturn(

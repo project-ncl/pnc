@@ -186,7 +186,7 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected void insertNewBuildRecords(BuildConfiguration... configs) {
-        Stream.of(configs).forEach(c -> insertNewBuildRecord(c));
+        Stream.of(configs).forEach(this::insertNewBuildRecord);
     }
 
     private void insertNewBuildRecord(BuildConfiguration config) {
@@ -316,10 +316,8 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected void waitForEmptyBuildQueue() throws InterruptedException, TimeoutException {
-        Supplier<String> errorMessage = () -> {
-            return "Tired waiting for BuildQueue to be empty. There are still tasks in the queue:\n"
-                    + buildQueue.getDebugInfo();
-        };
+        Supplier<String> errorMessage = () -> "Tired waiting for BuildQueue to be empty. There are still tasks in the queue:\n"
+                + buildQueue.getDebugInfo();
         Wait.forCondition(() -> buildQueue.isEmpty(), 10, ChronoUnit.SECONDS, errorMessage);
     }
 
