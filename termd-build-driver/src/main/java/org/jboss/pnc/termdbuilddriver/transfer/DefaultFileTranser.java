@@ -128,7 +128,7 @@ public class DefaultFileTranser implements FileTranser {
             connection.setReadTimeout(readTimeout);
 
             byte[] fileContent = script.getBytes();
-            connection.setRequestProperty("Content-Length", "" + Integer.toString(fileContent.length));
+            connection.setRequestProperty("Content-Length", "" + fileContent.length);
 
             try (OutputStream outputStream = connection.getOutputStream()) {
                 outputStream.write(fileContent);

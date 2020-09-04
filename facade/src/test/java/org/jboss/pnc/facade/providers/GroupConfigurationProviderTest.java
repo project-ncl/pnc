@@ -145,7 +145,7 @@ public class GroupConfigurationProviderTest extends AbstractIntIdProviderTest<Bu
         // With
         org.jboss.pnc.dto.GroupConfiguration groupConfiguration = provider.getSpecific("1"); //
         BuildConfiguration toRemove = bcs.getBuildConfigurations().stream().findFirst().get();
-        when(buildConfigurationRepository.queryById(Integer.valueOf(toRemove.getId()))).thenReturn(toRemove);
+        when(buildConfigurationRepository.queryById(toRemove.getId())).thenReturn(toRemove);
         assertThat(groupConfiguration.getBuildConfigs()).containsKey(toRemove.getId().toString());
 
         // When

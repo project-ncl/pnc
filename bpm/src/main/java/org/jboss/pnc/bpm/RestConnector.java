@@ -153,6 +153,6 @@ public class RestConnector implements Connector {
 
         public String get(String processId) {
             return baseUrl + deploymentId + "/processes/" + processId + "/instances";
-        };
+        }
     }
 }

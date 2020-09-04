@@ -52,7 +52,7 @@ import java.security.Principal;
 public class RequestLoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private Logger logger = LoggerFactory.getLogger(RequestLoggingFilter.class);
-    private static final String REQUEST_EXECUTION_START = "request-execution-start";;
+    private static final String REQUEST_EXECUTION_START = "request-execution-start";
 
     @Inject
     UserService userService;
