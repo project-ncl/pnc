@@ -68,11 +68,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -81,7 +79,6 @@ import static org.assertj.core.api.Assertions.entry;
 import org.jboss.pnc.integration.setup.Credentials;
 import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>

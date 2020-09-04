@@ -18,7 +18,6 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
@@ -37,9 +36,6 @@ import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;

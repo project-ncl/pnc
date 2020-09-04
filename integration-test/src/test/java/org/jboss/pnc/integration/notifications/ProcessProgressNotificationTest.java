@@ -53,7 +53,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Supplier;
-import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_PATH;
+
 import static org.jboss.pnc.integration.setup.RestClientConfiguration.NOTIFICATION_PATH;
 
 import static org.junit.Assert.assertTrue;

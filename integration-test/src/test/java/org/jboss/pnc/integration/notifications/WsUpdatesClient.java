@@ -19,7 +19,6 @@ package org.jboss.pnc.integration.notifications;
 
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.notification.MessageType;
-import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
 import org.jboss.pnc.notification.ProgressUpdatesRequest;
 import org.jboss.pnc.notification.TypedMessage;
 
