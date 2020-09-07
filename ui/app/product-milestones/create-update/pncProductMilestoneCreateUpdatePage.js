@@ -106,10 +106,10 @@
             };
 
             $ctrl.productVersion.$update().finally(() => {
-              reloadPage($ctrl.product.id, $ctrl.productVersion.id);
+              displayProductMilestoneDetail($ctrl.productVersion.id, $ctrl.data.id);
             });
           } else {
-            reloadPage($ctrl.product.id, $ctrl.productVersion.id);
+            displayProductMilestoneDetail($ctrl.productVersion.id, $ctrl.data.id);
           }
         });
       }
@@ -119,6 +119,15 @@
       $state.go('products.detail.product-versions.detail', {
         productId: productId,
         productVersionId: productVersionId
+      }, {
+        reload: true
+      });
+    }
+
+    function displayProductMilestoneDetail(productVersionId, productMilestoneId) {
+      $state.go('products.detail.product-versions.detail.milestone.detail', {
+        productVersionId: productVersionId,
+        productMilestoneId: productMilestoneId
       }, {
         reload: true
       });
