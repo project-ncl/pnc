@@ -48,10 +48,14 @@
         return authService.getPrinciple() === user.username;
       };
 
+      /**
+       * Verifies the minimum lifespan of the refresh token.
+       */
       authService.verifySsoTokenLifespan = function () {
-        if (keycloak.authenticated) {
-          return keycloak.refreshTokenParsed.exp < Date.now() + authConfig.getSsoTokenLifespan();
-        }
+        const MIN_REFRESH_TOKEN_EXPIRY_DATE = Date.now() + authConfig.getSsoTokenLifespan();
+
+        // Keycloak timestamp is in seconds, not milliseconds
+        return keycloak.authenticated && MIN_REFRESH_TOKEN_EXPIRY_DATE < keycloak.refreshTokenParsed.exp * 1000;
       };
 
       authService.getPncUser = function () {
