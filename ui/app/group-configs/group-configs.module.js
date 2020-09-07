@@ -139,7 +139,7 @@
         component: 'pncGroupConfigCreatePage',
         data: {
           requireAuth: true,
-          displayName: false,
+          displayName: 'Create Group Config',
           title: 'Create | Group Configs'
         }
       });
