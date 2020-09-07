@@ -547,8 +547,9 @@ public class BuildConfigurationProviderImpl extends
                         null,
                         errorMessage,
                         taskId);
+                return;
             }
-            return;
+            throw new RepositoryViolationException("Repository Configuration was not found in database.");
         }
 
         org.jboss.pnc.model.BuildConfiguration buildConfiguration = mapper.toEntity(configuration);
@@ -574,8 +575,9 @@ public class BuildConfigurationProviderImpl extends
             logger.error(e.getMessage());
             if (sendMessage) {
                 sendErrorMessage(scmRepository, buildConfig, e.getMessage(), taskId);
+                return;
             }
-            return;
+            throw new RepositoryViolationException("Failed to add BuildConfig to BuildConfigSets.");
         }
 
         if (sendMessage) {
