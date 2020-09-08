@@ -58,7 +58,7 @@ public class BlacklistAsyncInvoker {
             executorService.submit(() -> {
                 try {
                     HttpUtils.performHttpPostRequest(
-                            globalModuleGroupConfiguration.getExternalDaUrl() + BLACKLIST_ENDPOINT,
+                            globalModuleGroupConfiguration.getDaUrl() + BLACKLIST_ENDPOINT,
                             jsonPayload);
                 } catch (JsonProcessingException e) {
                     logger.error("Failed to perform blacklist or deletion notification in DA.", e);
