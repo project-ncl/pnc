@@ -70,6 +70,7 @@ import java.util.Set;
                 columnNames = { "identifier", "sha256", "targetRepository_id" }),
         indexes = { @Index(name = "idx_artifact_targetRepository", columnList = "targetRepository_id"),
                 @Index(name = "idx_artifact_identifier", columnList = "identifier"),
+                @Index(name = "idx_artifact_filename", columnList = "filename"),
                 @Index(name = "idx_artifact_md5", columnList = "md5"),
                 @Index(name = "idx_artifact_sha1", columnList = "sha1"),
                 @Index(name = "idx_artifact_sha256", columnList = "sha256"),
