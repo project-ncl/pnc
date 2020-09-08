@@ -792,6 +792,44 @@ public class BuildConfigurationEndpointTest {
                 .hasFieldOrPropertyWithValue("name", "othernameforbc");
     }
 
+    @Test
+    public void shouldNotCreateWhenEnvironmentDoesNotExist() throws ClientException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+        BuildConfiguration bc = client.getSpecific(configurationId);
+        Environment origEnv = bc.getEnvironment();
+        Environment env = Environment.builder()
+                .attributes(origEnv.getAttributes())
+                .deprecated(origEnv.isDeprecated())
+                .description(origEnv.getDescription())
+                .name(origEnv.getName())
+                .systemImageId(origEnv.getSystemImageId())
+                .systemImageRepositoryUrl(origEnv.getSystemImageRepositoryUrl())
+                .systemImageType(origEnv.getSystemImageType())
+                .id("10000")
+                .build();
+        BuildConfiguration newBC = BuildConfiguration.builder()
+                .name("othernameforbc2")
+                .buildScript(bc.getBuildScript())
+                .project(bc.getProject())
+                .environment(env)
+                .parameters(bc.getParameters())
+                .buildType(bc.getBuildType())
+                .scmRepository(bc.getScmRepository())
+                .scmRevision(bc.getScmRevision())
+                .build();
+        assertThatThrownBy(() -> client.createNew(newBC)).hasCauseInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    public void shouldNotUpdateWhenEnvironmentDoesNotExist() throws ClientException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
+
+        BuildConfiguration origBC = client.getSpecific(configurationId);
+        BuildConfiguration updateBC = origBC.toBuilder().environment(Environment.builder().id("10000").build()).build();
+
+        assertThatThrownBy(() -> client.update(configurationId, updateBC)).hasCauseInstanceOf(NotFoundException.class);
+    }
+
     // TODO Test will fail due to issue: NCL-4473, remove @Ignore when fixed.
     @Ignore
     @Test

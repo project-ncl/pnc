@@ -34,6 +34,7 @@ import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
@@ -52,6 +53,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -60,6 +62,9 @@ public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConf
 
     @Mock
     private BuildConfigurationRepository repository;
+
+    @Mock
+    private BuildEnvironmentRepository buildEnvironmentRepository;
 
     @Mock
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
@@ -90,6 +95,7 @@ public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConf
     public void fill() {
         User currentUser = prepareNewUser();
         when(userService.currentUser()).thenReturn(currentUser);
+        when(buildEnvironmentRepository.queryById(anyInt())).thenAnswer(i -> mockEnvironment(12));
         final BuildConfiguration a = prepareBuildConfig("First!", 1, 1, 1);
         final BuildConfiguration b = prepareBuildConfig("Second!!", 1, 2, 2, a);
         final BuildConfiguration c = prepareBuildConfig("THIRD!!!", 2, 2, 3, a, b);

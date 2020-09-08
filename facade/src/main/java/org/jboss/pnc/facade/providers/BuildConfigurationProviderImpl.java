@@ -39,6 +39,7 @@ import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
@@ -48,11 +49,13 @@ import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
@@ -107,6 +110,9 @@ public class BuildConfigurationProviderImpl extends
 
     @Inject
     private BuildConfigurationSetRepository buildConfigurationSetRepository;
+
+    @Inject
+    private BuildEnvironmentRepository buildEnvironmentRepository;
 
     @Inject
     private SequenceHandlerRepository sequenceHandlerRepository;
@@ -190,6 +196,7 @@ public class BuildConfigurationProviderImpl extends
         super.validateBeforeSaving(buildConfigurationRest);
 
         validateIfItsNotConflicted(buildConfigurationRest);
+        validateEnvironment(buildConfigurationRest);
     }
 
     @Override
@@ -199,6 +206,7 @@ public class BuildConfigurationProviderImpl extends
 
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(id, buildConfigurationRest.getDependencies());
+        validateEnvironment(buildConfigurationRest);
     }
 
     private void validateDependencies(String buildConfigId, Map<String, BuildConfigurationRef> dependencies)
@@ -248,6 +256,14 @@ public class BuildConfigurationProviderImpl extends
             }
             return null;
         });
+    }
+
+    private void validateEnvironment(BuildConfiguration buildConfigurationRest) {
+        String envId = buildConfigurationRest.getEnvironment().getId();
+        BuildEnvironment env = buildEnvironmentRepository.queryById(Integer.valueOf(envId));
+        if (env == null) {
+            throw new EmptyEntityException("Build environment " + envId + " does not exist.");
+        }
     }
 
     @Override
