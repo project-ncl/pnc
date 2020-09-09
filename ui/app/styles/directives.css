@@ -292,15 +292,15 @@
 }
 
 
-/* 
- * pnc-build-metrics 
+/*
+ * pnc-build-metrics
  */
  .pnc-build-metrics {
   margin-top: 40px;
-  margin-bottom: 80px; 
+  margin-bottom: 80px;
 }
 .pnc-build-metrics .pnc-build-metrics-body {
-  position: relative; 
+  position: relative;
   padding: 15px;
   padding-top: 20px;
   border: 2px solid #f3f3f3;
@@ -334,7 +334,7 @@
 }
 .pnc-build-metrics .pnc-build-metric-navigation {
   border: none;
-  padding: 8px; 
+  padding: 8px;
   background-color: #f3f3f3;
   line-height: 2;
 }
@@ -489,4 +489,8 @@ td.status-icon {
   pnc-toolbar div.input-group.form-group {
     margin-left: -20px;
   }
+}
+
+.td-actions.artifacts {
+  background-color: #9c9c9c;
 }
