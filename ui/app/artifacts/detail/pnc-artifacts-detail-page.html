@@ -22,10 +22,13 @@
     <div class="col-md-12">
       <pnc-header>
         <pnc-header-title>{{ $ctrl.artifact.identifier }}</pnc-header-title>
+        <pnc-header-buttons>
+          <button type="button" class="btn btn-lg btn-default" uib-tooltip="Edit the quality level of this Artifact" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="$ctrl.editQuality()" pnc-requires-auth><i class="pficon pficon-edit"></i> Quality</button>
+        </pnc-header-buttons>
       </pnc-header>
     </div> <!-- /col -->
   </div> <!-- /row -->
-  
+
   <div class="row">
     <div class="col-lg-6">
       <h3 class="hidden visible-lg visible-xl">Details</h3>
@@ -45,7 +48,7 @@
         </dd>
       </dl>
     </div>
-  
+
     <div class="col-lg-6">
       <h3>Checksums</h3>
       <dl class="dl-horizontal properties-list artifact-properties">
