@@ -40,7 +40,7 @@ public class PollingMonitor {
     private static final Logger log = LoggerFactory.getLogger(PollingMonitor.class);
 
     /** Time how long to wait until all services are fully up and running (in seconds) */
-    private static final int DEFAULT_TIMEOUT = 300;
+    public static final int DEFAULT_TIMEOUT = 300;
     private static final String PULLING_MONITOR_TIMEOUT_KEY = "pulling_monitor_timeout";
 
     /** Interval between two checks if the services are fully up and running (in second) */
@@ -81,6 +81,19 @@ public class PollingMonitor {
      * @return CancellableCompletableFuture
      */
     public CancellableCompletableFuture<Void> monitor(Supplier<Boolean> condition) {
+        return monitor(condition, checkInterval, timeout, DEFAULT_TIME_UNIT);
+    }
+
+    /**
+     * Periodically checks the condition and calls onMonitorComplete when it returns true. If the specified timeout is
+     * reached onMonitorError is called.
+     *
+     * @param condition
+     * @param timeout specified in seconds
+     * @return CancellableCompletableFuture
+     */
+    public CancellableCompletableFuture<Void> monitor(Supplier<Boolean> condition, int timeout) {
+        log.debug("Monitoring condition with specified timeout of {}", timeout);
         return monitor(condition, checkInterval, timeout, DEFAULT_TIME_UNIT);
     }
 

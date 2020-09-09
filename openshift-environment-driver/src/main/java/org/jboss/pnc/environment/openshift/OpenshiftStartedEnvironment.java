@@ -87,9 +87,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private static final String METRICS_POD_STARTED_RETRY_KEY = METRICS_POD_STARTED_KEY + ".retries";
     private static final String METRICS_POD_STARTED_FAILED_REASON_KEY = METRICS_POD_STARTED_KEY + ".failed_reason";
 
-    private static final int DEFAULT_CREATION_POD_RETRY = 1;
-
     private int creationPodRetry;
+    private int pollingMonitorTimeout;
 
     /**
      * From: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/
@@ -155,18 +154,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             MetricsConfiguration metricsConfiguration,
             Map<String, String> parameters) {
 
-        creationPodRetry = DEFAULT_CREATION_POD_RETRY;
-
-        if (environmentConfiguration.getCreationPodRetry() != null) {
-            try {
-                creationPodRetry = Integer.parseInt(environmentConfiguration.getCreationPodRetry());
-            } catch (NumberFormatException e) {
-                logger.error("Couldn't parse the value of creation pod retry from the configuration. Using default");
-            }
-        }
-
         logger.info("Creating new build environment using image id: " + environmentConfiguration.getImageId());
 
+        this.creationPodRetry = environmentConfiguration.getCreationPodRetry();
+        this.pollingMonitorTimeout = environmentConfiguration.getPollingMonitorTimeout();
         this.executor = executor;
         this.openshiftBuildAgentConfig = openshiftBuildAgentConfig;
         this.environmentConfiguration = environmentConfiguration;
@@ -420,13 +411,15 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         cancelHook = () -> onComplete.accept(null);
 
         CompletableFuture<Void> podFuture = creatingPod.thenComposeAsync(nul -> {
-            CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(this::isPodRunning);
+            CancellableCompletableFuture<Void> monitor = pollingMonitor
+                    .monitor(this::isPodRunning, pollingMonitorTimeout);
             addFuture(monitor);
             return monitor;
         }, executor);
 
         CompletableFuture<Void> serviceFuture = creatingService.thenComposeAsync(nul -> {
-            CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(this::isServiceRunning);
+            CancellableCompletableFuture<Void> monitor = pollingMonitor
+                    .monitor(this::isServiceRunning, pollingMonitorTimeout);
             addFuture(monitor);
             return monitor;
         }, executor);
@@ -434,7 +427,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         CompletableFuture<Void> routeFuture;
         if (creatingRoute.isPresent()) {
             routeFuture = creatingRoute.get().thenComposeAsync(nul -> {
-                CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(this::isRouteRunning);
+                CancellableCompletableFuture<Void> monitor = pollingMonitor
+                        .monitor(this::isRouteRunning, pollingMonitorTimeout);
                 addFuture(monitor);
                 return monitor;
             }, executor);
@@ -449,7 +443,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         });
 
         CancellableCompletableFuture<Void> isBuildAgentUpFuture = pollingMonitor
-                .monitor(() -> isServletAvailable(buildAgentUrl));
+                .monitor(() -> isServletAvailable(buildAgentUrl), pollingMonitorTimeout);
         addFuture(isBuildAgentUpFuture);
 
         CompletableFuture<RunningEnvironment> runningEnvironmentFuture = CompletableFuture

@@ -68,7 +68,9 @@
           "imageId": "${env.PNC_BUILDER_IMAGE_ID}",
           "disabled": "false",
           "keepBuildAgentInstance": true,
-          "exposeBuildAgentOnPublicUrl": false
+          "exposeBuildAgentOnPublicUrl": false,
+          "creationPodRetry": "12",
+          "pollingMonitorTimeout": "600"
         },
         {
           "@module-config": "authentication-config",
