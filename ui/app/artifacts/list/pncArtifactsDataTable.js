@@ -22,13 +22,14 @@
   angular.module('pnc.artifacts').component('pncArtifactsDataTable', {
     bindings: {
       /**
-       * Promise: resolved Artifact Page Promise.
+       * Page: page of Artifacts.
        */
       artifacts: '<',
     },
     templateUrl: 'artifacts/list/pnc-artifacts-data-table.html',
     controller: [
-      'filteringPaginator','SortHelper',
+      'filteringPaginator',
+      'SortHelper',
       Controller
     ]
   });

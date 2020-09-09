@@ -27,21 +27,26 @@
       artifacts: '<',
     },
     templateUrl: 'artifacts/list/pnc-artifacts-list.html',
-    controller: [Controller]
+    controller: ['artifactQualityUpdateModalFactory', Controller]
   });
 
 
-  function Controller() {
+  function Controller(artifactQualityUpdateModalFactory) {
     const $ctrl = this;
 
     // -- Controller API --
 
+    $ctrl.changeQuality = changeQuality;
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
     };
+
+    function changeQuality(artifact) {
+      artifactQualityUpdateModalFactory(artifact);
+    }
 
   }
 
