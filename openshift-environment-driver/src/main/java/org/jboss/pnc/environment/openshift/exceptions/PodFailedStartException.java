@@ -21,8 +21,17 @@ package org.jboss.pnc.environment.openshift.exceptions;
  * Exception to indicate that a pod failed to start
  */
 public class PodFailedStartException extends RuntimeException {
+    private static final long serialVersionUID = -7475054882180173719L;
 
-    public PodFailedStartException(String message) {
+    private final String podStatus;
+
+    public PodFailedStartException(String message, String podStatus) {
         super(message);
+        this.podStatus = podStatus;
     }
+
+    public String getPodStatus() {
+        return podStatus;
+    }
+
 }

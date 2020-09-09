@@ -98,9 +98,17 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      *
      * For pod creation, the failure reason we expect when docker registry is not behaving is 'ErrImagePull' or
      * 'ImagePullBackOff'
+     * 
+     * 'Error' and 'InvalidImageName' statuses were added as per NCL-6032 investigations
      */
     private static final String[] POD_FAILED_STATUSES = { "Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull",
-            "ImagePullBackOff" };
+            "ImagePullBackOff", "Error", "InvalidImageName" };
+
+    /**
+     * List of Pod statuses that can be retried
+     */
+    private static final String[] POD_RETRYABLE_STATUSES = { "Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull",
+            "ImagePullBackOff", "Error" };
 
     /**
      * Parameter specifying override for the builder pod memory size.
@@ -470,8 +478,21 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                         if (retries == 0) {
                             onError.accept(new Exception(throwable));
                         } else {
-                            logger.error("Creating build environment failed! Retrying...", throwable);
-                            retryEnvironment(onComplete, onError, retries);
+                            PodFailedStartException pfsExc = null;
+                            if (throwable instanceof PodFailedStartException) {
+                                pfsExc = (PodFailedStartException) throwable;
+                            } else if (throwable.getCause() instanceof PodFailedStartException) {
+                                pfsExc = (PodFailedStartException) throwable.getCause();
+                            }
+
+                            if (pfsExc != null
+                                    && !Arrays.asList(POD_RETRYABLE_STATUSES).contains(pfsExc.getPodStatus())) {
+                                // the status is not to be retried
+                                onError.accept(new Exception(throwable));
+                            } else {
+                                logger.error("Creating build environment failed! Retrying...", throwable);
+                                retryEnvironment(onComplete, onError, retries);
+                            }
                         }
                     } else {
                         logger.info(
@@ -534,7 +555,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         if (Arrays.asList(POD_FAILED_STATUSES).contains(podStatus)) {
             gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_FAILED_REASON_KEY + "." + podStatus));
-            throw new PodFailedStartException("Pod failed with status: " + podStatus);
+            throw new PodFailedStartException("Pod failed with status: " + podStatus, podStatus);
         }
 
         boolean isRunning = "Running".equals(pod.getStatus());
