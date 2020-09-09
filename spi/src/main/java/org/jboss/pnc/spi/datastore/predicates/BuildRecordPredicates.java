@@ -268,4 +268,19 @@ public class BuildRecordPredicates {
             return cb.equal(join.get(BuildRecord_.id), buildRecordId);
         };
     }
+
+    public static Predicate<BuildRecord> withoutLinkedNRRRecordOlderThanTimestamp(Date date) {
+        return (root, query, cb) -> {
+            // subquery returns amount of records older than date
+            Subquery<Long> newNRRRecordCount = query.subquery(Long.class);
+            Root<BuildRecord> subRoot = newNRRRecordCount.from(BuildRecord.class);
+            newNRRRecordCount.select(cb.count(subRoot.get(BuildRecord_.id)));
+            newNRRRecordCount.where(
+                    cb.and(
+                            cb.equal(subRoot.get(BuildRecord_.noRebuildCause), root.get(BuildRecord_.id)),
+                            cb.greaterThan(subRoot.get(BuildRecord_.endTime), date)));
+
+            return cb.equal(newNRRRecordCount, 0);
+        };
+    }
 }

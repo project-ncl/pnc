@@ -49,6 +49,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withB
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withCausingBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSuccess;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
 
 @Stateless
 public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Integer>
@@ -136,7 +137,11 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, I
 
     @Override
     public List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date) {
-        return queryWithPredicates(temporaryBuild(), buildFinishedBefore(date), withoutImplicitDependants());
+        return queryWithPredicates(
+                temporaryBuild(),
+                buildFinishedBefore(date),
+                withoutImplicitDependants(),
+                withoutLinkedNRRRecordOlderThanTimestamp(date));
     }
 
     @Override

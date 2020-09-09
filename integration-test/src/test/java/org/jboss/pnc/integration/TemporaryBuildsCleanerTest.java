@@ -67,6 +67,8 @@ import javax.transaction.RollbackException;
 import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import java.lang.invoke.MethodHandles;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -410,6 +412,34 @@ public class TemporaryBuildsCleanerTest {
         assertNull(buildConfigSetRecordRepository.queryById(buildConfigSetRecord.getId()));
         assertNull(buildRecordRepository.queryById(tempBr.getId()).getBuildConfigSetRecord());
 
+    }
+
+    @Test
+    public void shouldNotReturnWithNewNoRebuildRecord() throws Exception {
+        // given
+        BuildRecord tempBr = initBuildRecordBuilder().submitTime(Date.from(Instant.now().minus(2, ChronoUnit.DAYS)))
+                .endTime(Date.from(Instant.now().minus(2, ChronoUnit.DAYS)))
+                .temporaryBuild(true)
+                .build();
+        tempBr = buildRecordRepository.save(tempBr);
+
+        BuildRecord tempNRRBr = initBuildRecordBuilder().status(BuildStatus.NO_REBUILD_REQUIRED)
+                .noRebuildCause(tempBr)
+                .temporaryBuild(true)
+                .build();
+        tempNRRBr = buildRecordRepository.save(tempNRRBr);
+
+        // when
+        Page<Build> builds = buildProvider.getAllIndependentTemporaryOlderThanTimestamp(
+                0,
+                50,
+                null,
+                null,
+                Date.from(Instant.now().minus(1, ChronoUnit.DAYS)).getTime());
+
+        // then
+        assertThat(builds.getContent()).extracting("id", String.class)
+                .doesNotContain(tempBr.getId().toString(), tempNRRBr.getId().toString());
     }
 
     private Artifact storeAndGetArtifact() {

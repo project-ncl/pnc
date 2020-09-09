@@ -121,6 +121,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withP
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutAttribute;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
 
 @PermitAll
 @Stateless
@@ -240,7 +241,8 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
                 q,
                 temporaryBuild(),
                 buildFinishedBefore(new Date(timestamp)),
-                withoutImplicitDependants());
+                withoutImplicitDependants(),
+                withoutLinkedNRRRecordOlderThanTimestamp(new Date(timestamp)));
     }
 
     @Override
