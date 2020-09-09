@@ -118,3 +118,7 @@ td.shrink-to-fit {
   width:0.1%;
   white-space: nowrap;
 }
+
+table.v-align-middle td {
+  vertical-align: middle !important;
+}
