@@ -243,9 +243,13 @@ public class BuildRecordPredicates {
 
             query.groupBy(root.get(BuildRecord_.id));
 
-            // All entries in a column have to be NULL which is equivalent to count being 0 (aggregation functions
-            // ignore NULLs)
-            query.having(cb.equal(cb.count(buildRecordImplicitDependants.get(BuildRecord_.id)), 0));
+            query.having(
+                    cb.and(
+                            // avoid overwriting having clauses from previous predicates
+                            query.getGroupRestriction() == null ? cb.and() : query.getGroupRestriction(),
+                            // All entries in a column have to be NULL which is equivalent to count being 0 (aggregation
+                            // functions ignore NULLs)
+                            cb.equal(cb.count(buildRecordImplicitDependants.get(BuildRecord_.id)), 0)));
             return cb.and();
         };
     }
