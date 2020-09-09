@@ -20,6 +20,7 @@ package org.jboss.pnc.common.json.moduleconfig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.jboss.pnc.common.json.moduleconfig.helper.HttpDestinationConfig;
+import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,7 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
 
     public static final String MODULE_NAME = "openshift-environment-driver";
     private static final int DEFAULT_BUILDER_POD_MEMORY = 4;
+    private static final int DEFAULT_CREATION_POD_RETRY = 1;
 
     private String restEndpointUrl;
     private String buildAgentHost;
@@ -51,7 +53,10 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
     private boolean exposeBuildAgentOnPublicUrl;
     private final int builderPodMemory;
 
-    private String creationPodRetry;
+    /** How many retries to attempt to get all services fully up and running */
+    private int creationPodRetry;
+    /** Time how long to wait until all services are fully up and running (in seconds) */
+    private int pollingMonitorTimeout;
 
     public OpenshiftEnvironmentDriverModuleConfig(
             @JsonProperty("restEndpointUrl") String restEndpointUrl,
@@ -72,7 +77,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
             @JsonProperty("keepBuildAgentInstance") Boolean keepBuildAgentInstance,
             @JsonProperty("exposeBuildAgentOnPublicUrl") Boolean exposeBuildAgentOnPublicUrl,
             @JsonProperty("creationPodRetry") String creationPodRetry,
-            @JsonProperty("builderPodMemory") Integer builderPodMemory) {
+            @JsonProperty("builderPodMemory") Integer builderPodMemory,
+            @JsonProperty("pollingMonitorTimeout") String pollingMonitorTimeout) {
         super(
                 imageId,
                 firewallAllowedDestinations,
@@ -92,8 +98,29 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         this.containerPort = containerPort;
         this.keepBuildAgentInstance = keepBuildAgentInstance != null ? keepBuildAgentInstance : false;
         this.exposeBuildAgentOnPublicUrl = exposeBuildAgentOnPublicUrl != null ? exposeBuildAgentOnPublicUrl : false;
-        this.creationPodRetry = creationPodRetry;
         this.builderPodMemory = builderPodMemory == null ? DEFAULT_BUILDER_POD_MEMORY : builderPodMemory;
+
+        this.creationPodRetry = DEFAULT_CREATION_POD_RETRY;
+        if (creationPodRetry != null) {
+            try {
+                this.creationPodRetry = Integer.parseInt(creationPodRetry);
+            } catch (NumberFormatException e) {
+                log.error(
+                        "Couldn't parse the value of creation pod retry from the configuration. Using default ({} retries)",
+                        DEFAULT_CREATION_POD_RETRY);
+            }
+        }
+
+        this.pollingMonitorTimeout = PollingMonitor.DEFAULT_TIMEOUT;
+        if (pollingMonitorTimeout != null) {
+            try {
+                this.pollingMonitorTimeout = Integer.parseInt(pollingMonitorTimeout);
+            } catch (NumberFormatException e) {
+                log.error(
+                        "Couldn't parse the value of polling monitor timeout. Using default ({} seconds)",
+                        PollingMonitor.DEFAULT_TIMEOUT);
+            }
+        }
 
         log.debug("Created new instance {}", toString());
     }
@@ -134,8 +161,12 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         return exposeBuildAgentOnPublicUrl;
     }
 
-    public String getCreationPodRetry() {
+    public int getCreationPodRetry() {
         return creationPodRetry;
+    }
+
+    public int getPollingMonitorTimeout() {
+        return pollingMonitorTimeout;
     }
 
     @Override
@@ -148,8 +179,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                 + ", buildAgentBindPath='" + buildAgentBindPath + '\'' + ", executorThreadPoolSize='"
                 + executorThreadPoolSize + '\'' + ", restAuthToken= HIDDEN " + ", containerPort='" + containerPort
                 + '\'' + ", disabled='" + disabled + '\'' + ", keepBuildAgentInstance='" + keepBuildAgentInstance + '\''
-                + ", exposeBuildAgentOnPublicUrl='" + exposeBuildAgentOnPublicUrl + '\'' + ", creationPodRetry='"
-                + creationPodRetry + '\'' + '}';
+                + ", exposeBuildAgentOnPublicUrl='" + exposeBuildAgentOnPublicUrl + '\'' + ", creationPodRetry="
+                + creationPodRetry + ", pollingMonitorTimeout=" + pollingMonitorTimeout + '}';
     }
 
 }
