@@ -17,7 +17,7 @@
     limitations under the License.
 
 -->
-<table class="table table-bordered table-striped table-hover">
+<table class="table table-bordered table-striped table-hover v-align-middle">
   <thead>
     <th>Identifier</th>
     <th>Quality</th>
@@ -29,9 +29,9 @@
   <tbody>
     <tr ng-repeat="artifact in $ctrl.artifacts">
       <td><pnc-artifact-link artifact="artifact"></pnc-artifact-link></td>
-      <td>{{ artifact.artifactQuality }}</td>
+      <td class="text-center"><pnc-artifact-quality-label artifact="artifact"></pnc-artifact-quality-label></td>
       <td>{{ artifact.filename }}</td>
-      <td>{{ artifact.targetRepository.repositoryType }}</td>
+      <td class="text-center">{{ artifact.targetRepository.repositoryType }}</td>
       <td>
         <div class="checksum checksum-md5">
           {{ artifact.md5 }}

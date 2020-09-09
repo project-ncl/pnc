@@ -38,7 +38,7 @@
         <dt>Size</dt>
         <dd> {{ $ctrl.artifact.size | fileSize }}</dd>
         <dt>Quality</dt>
-        <dd>{{ $ctrl.artifact.artifactQuality }}</dd>
+        <dd><pnc-artifact-quality-label artifact="$ctrl.artifact"></pnc-artifact-quality-label></dd>
         <dt>Import Date</dt>
         <dd>{{ ($ctrl.artifact.importDate | date : 'short') || 'n/a'}}</dd>
         <dt>Build</dt>
