@@ -37,6 +37,16 @@
           url: ENDPOINT,
           method: 'GET',
           isPaged: true
+        },
+        changeQuality: {
+          url: ENDPOINT + '/artifacts/quality',
+          method: 'POST',
+          // Forces the params to be added to the querystring rather than the body.
+          params: {
+            id: '@id',
+            quality: '@quality',
+            reason: '@reason'
+          }
         }
       });
 

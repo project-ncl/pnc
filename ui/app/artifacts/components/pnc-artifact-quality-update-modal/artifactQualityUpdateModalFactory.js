@@ -15,42 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 (function () {
   'use strict';
 
-  angular.module('pnc.artifacts').component('pncArtifactsDetailPage', {
-    bindings: {
-     artifact: '<',
-     build: '<',
-     usages: '<'
-    },
-    templateUrl: 'artifacts/detail/pnc-artifacts-detail-page.html',
-    controller: ['artifactQualityUpdateModalFactory', Controller]
-  });
+  angular.module('pnc.artifacts').factory('artifactQualityUpdateModalFactory', [
+    '$uibModal',
+    function ($uibModal) {
 
+      return (artifact) => {
+        return $uibModal.open({
+          animation: true,
+          size: 'lg',
+          component: 'pncArtifactQualityUpdateModal',
+          resolve: {
+            artifact: artifact
+          }
+        });
+      };
 
-  function Controller(artifactQualityUpdateModalFactory) {
-    const $ctrl = this;
-
-    // -- Controller API --
-
-    $ctrl.buildListDisplayFields = ['statusIcon', 'canonicalName', 'endTime', 'pushStatus'];
-
-    $ctrl.editQuality = editQuality;
-
-    // --------------------
-
-
-    $ctrl.$onInit = function () {
-    };
-
-
-    function editQuality() {
-      console.log('Edit quality!');
-      artifactQualityUpdateModalFactory($ctrl.artifact);
     }
-
-  }
+  ]);
 
 })();
