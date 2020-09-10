@@ -197,11 +197,23 @@
            method: 'GET',
            isPaged: false,
            url: BUILD_CONFIGS_ENDPOINT + '/revisions/:revisionId'
+        },
+
+        changeQuality: {
+          url: ENDPOINT + '/artifacts/built/quality',
+          method: 'POST',
+          // Forces the params to be added to the querystring rather than the body.
+          params: {
+            id: '@id',
+            quality: '@quality',
+            reason: '@reason'
+          },
+          successNotification: 'Artifact quality levels for build bulk changed'
         }
       });
 
 
-      resource.getSshCredentials = params => {  
+      resource.getSshCredentials = params => {
         // check whether user is authenticated to prevent forcing logging
         if (authService.isAuthenticated()) {
           return $q.when(authService.getPncUser()).then(currentUser => {
