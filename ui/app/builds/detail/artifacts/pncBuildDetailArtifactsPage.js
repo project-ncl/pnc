@@ -20,13 +20,14 @@
 
   angular.module('pnc.builds').component('pncBuildDetailArtifactsPage', {
     bindings: {
+      build: '<',
       artifacts: '<'
     },
     templateUrl: 'builds/detail/artifacts/pnc-build-detail-artifacts-page.html',
-    controller: ['filteringPaginator', Controller]
+    controller: ['filteringPaginator', 'ArtifactModals', Controller]
   });
 
-  function Controller(filteringPaginator) {
+  function Controller(filteringPaginator, ArtifactModals) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -80,13 +81,28 @@
       placeholder: 'Filter by sha256 checksum',
       filterType: 'text'
     }];
-  
+
+    $ctrl.actionsConfig = {
+      primaryActions: [
+        {
+          name: 'Bulk Quality Change',
+          title: 'Updates the quality levels of ALL artifacts for this build',
+          actionFn: bulkQualityChange
+        }
+      ]
+    };
 
     // --------------------
 
     $ctrl.$onInit = function () {
       $ctrl.artifactsFilteringPage = filteringPaginator($ctrl.artifacts);
     };
+
+    function bulkQualityChange() {
+      ArtifactModals.newBuildQualityModal($ctrl.build)
+          .result
+          .then(() => $ctrl.artifactsFilteringPage.refresh());
+    }
 
   }
 

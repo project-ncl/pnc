@@ -21,7 +21,8 @@
   angular.module('pnc.artifacts').factory('ArtifactModals', [
     '$uibModal',
     'ArtifactResource',
-    function ($uibModal, ArtifactResource) {
+    'BuildResource',
+    function ($uibModal, ArtifactResource, BuildResource) {
 
       /**
        * Opens a modal window allowing the user to change the quality of an
@@ -45,6 +46,35 @@
             })
             .$promise
             .then(() => ArtifactResource.get({ id: artifact.id }).$promise);
+          }
+
+        };
+
+        return openArtifactQualityModal(params);
+      }
+
+      /**
+       * Opens a modal window for batch updating ALL artifacts of the given build.
+       *
+       * @param {BuildResource} build - The build to update all artifacts of
+       * @returns {$uibModalInstance} The modal object instance from the ui-bootstrap library.
+       */
+      function newBuildQualityModal(build) {
+
+        const params = {
+          title: `Change All Artifact Qualities for Build: ${build.$canonicalName()}`,
+
+          quality: 'NEW',
+
+          onSave: $value => {
+            console.log('Update build quality: ', $value);
+
+            return BuildResource.changeQuality({
+              id: build.id,
+              quality: $value.quality,
+              reason: $value.reason
+            })
+            .$promise;
           }
 
         };
@@ -80,7 +110,8 @@
       }
 
       return Object.freeze({
-        newArtifactQualityModal
+        newArtifactQualityModal,
+        newBuildQualityModal
       });
 
     }
