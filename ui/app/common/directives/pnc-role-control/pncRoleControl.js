@@ -21,7 +21,7 @@
   var module = angular.module('pnc.common.directives');
   module.directive('pncRoleControl', ['authService', function (authService) {
     var hasValidatedRole = function (requiredRole) {
-      let userRoles = authService.getUserRole();
+      let userRoles = authService.getUserRoles();
       return userRoles !== null && userRoles.includes(requiredRole);
     };
 

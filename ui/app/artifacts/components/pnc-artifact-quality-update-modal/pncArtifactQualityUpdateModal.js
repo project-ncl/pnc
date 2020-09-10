@@ -27,12 +27,14 @@
      resolve: '<'
     },
     templateUrl: 'artifacts/components/pnc-artifact-quality-update-modal/pnc-artifact-quality-update-modal.html',
-    controller: ['ArtifactResource', Controller]
+    controller: ['ArtifactResource', 'artifactQualityLevels',  Controller]
   });
 
 
-  function Controller(ArtifactResource) {
+  function Controller(ArtifactResource, artifactQualityLevels) {
     const $ctrl = this;
+
+
 
     // -- Controller API --
 
@@ -45,14 +47,8 @@
     $ctrl.$onInit = () => {
       $ctrl.artifact = angular.copy($ctrl.resolve.artifact);
       $ctrl.quality = $ctrl.artifact.artifactQuality;
-      $ctrl.qualityLevels = [
-        'NEW',
-        'VERIFIED',
-        'TESTED',
-        'DEPRECATED',
-        'BLACKLISTED',
-        'DELETED'
-      ];
+      $ctrl.qualityLevels = artifactQualityLevels.getAuthorizedLevelsForCurrentUser();
+      console.log('qualityLevels = %O',$ctrl.qualityLevels);
     };
 
     function save() {

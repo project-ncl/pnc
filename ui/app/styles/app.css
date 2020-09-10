@@ -346,8 +346,6 @@ label.required::before {
   border-radius: 1px;
 }
 
-
-
 .table-actions-kebab > tbody > tr,
 .table-actions-kebab > tbody > tr > .td-actions-kebab,
 .table-actions-kebab > tbody > tr > .td-actions-kebab > .dropdown-kebab-pf,
