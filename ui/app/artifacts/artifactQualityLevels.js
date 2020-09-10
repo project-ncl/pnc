@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.artifacts').factory('artifactQualityLevels', [
+  angular.module('pnc.artifacts').factory('ArtifactQualityLevels', [
     'authService',
     function (authService) {
 
