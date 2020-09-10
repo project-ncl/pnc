@@ -71,7 +71,8 @@
                     "keepBuildAgentInstance": true,
                     "exposeBuildAgentOnPublicUrl": false,
                     "creationPodRetry": "12",
-                    "pollingMonitorTimeout": "600"
+                    "pollingMonitorTimeout": "600",
+                    "pollingMonitorCheckInterval": "1"
                 },
                 {
                     "@module-config": "authentication-config",
