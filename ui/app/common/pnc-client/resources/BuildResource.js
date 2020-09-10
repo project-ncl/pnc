@@ -208,7 +208,7 @@
             quality: '@quality',
             reason: '@reason'
           },
-          successNotification: 'Artifact quality levels for build bulk changed'
+          successNotification: 'All quality levels changed'
         }
       });
 

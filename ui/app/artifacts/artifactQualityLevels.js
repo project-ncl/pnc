@@ -48,6 +48,14 @@
         'TEMPORARY'
       ];
 
+      /**
+       * Get all quality levels
+       */
+      function getAll() {
+        return Object.freeze(QUALITY_LEVELS_UNPRIVILEGED
+              .concat(QUALITY_LEVELS_PRIVILEGED)
+              .concat(QUALITY_LEVELS_SYSTEM_ONLY));
+      }
 
       function getUnprivileged() {
         return Object.freeze(QUALITY_LEVELS_UNPRIVILEGED);
@@ -75,6 +83,7 @@
 
 
       return Object.freeze({
+        getAll,
         getUnprivileged,
         getPrivileged,
         getSystemOnly,
