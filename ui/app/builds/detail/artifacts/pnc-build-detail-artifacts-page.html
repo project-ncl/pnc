@@ -17,10 +17,4 @@
     limitations under the License.
 
 -->
-<div class="row">
-  <pnc-toolbar filtering-page="$ctrl.artifactsFilteringPage" filtering-fields="$ctrl.artifactsFilteringFields" actions-config="$ctrl.actionsConfig"></pnc-toolbar>
-</div>
-<div>
-  <pnc-artifacts-list artifacts="$ctrl.artifactsFilteringPage.data"></pnc-artifacts-list>
-  <pnc-page-controls pnc-page="$ctrl.artifactsFilteringPage" class="pull-right"></pnc-page-controls>
-</div>
+<pnc-artifacts-data-table artifacts="$ctrl.artifacts" build="$ctrl.build" show-bulk-quality-change-button="true"></pnc-artifacts-data-table>

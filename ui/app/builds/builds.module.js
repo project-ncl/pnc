@@ -147,7 +147,7 @@
             return BuildResource.getLogBuild({ id: build.id }).$promise;
           }],
           sshCredentials: ['BuildResource', 'build', function (BuildResource, build) {
-            return BuildResource.getSshCredentials({ 
+            return BuildResource.getSshCredentials({
               id: build.id,
               buildUser: build.user
             });
@@ -163,9 +163,11 @@
           title: '#{{ build.id }} {{ build.buildConfigRevision.name }} | Build Artifacts'
         },
         resolve: {
-          artifacts: ['build', function (build) {
-            return build.$getBuiltArtifacts({ pageSize: 10 });
-          }]
+          artifacts: [
+            'BuildResource',
+            'build',
+            (BuildResource, build) => BuildResource.getBuiltArtifacts({ id: build.id, pageSize: 10 }).$promise
+          ]
         }
       });
 

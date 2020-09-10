@@ -25,20 +25,26 @@
        * Page: page of Artifacts.
        */
       artifacts: '<',
+      build: '<?',
+      showBulkQualityChangeButton: '@'
     },
     templateUrl: 'artifacts/list/pnc-artifacts-data-table.html',
     controller: [
       'filteringPaginator',
       'SortHelper',
+      'ArtifactModals',
+      'utils',
       Controller
     ]
   });
 
 
-  function Controller(filteringPaginator, SortHelper) {
+  function Controller(filteringPaginator, SortHelper, ArtifactModals, utils) {
     const $ctrl = this;
 
     const PAGE_NAME = 'artifactsList';
+
+    const parseBoolean = utils.parseBoolean;
 
     // -- Controller API --
 
@@ -107,6 +113,11 @@
       title: 'Repo Type',
     }];
 
+    $ctrl.actionsConfig = {
+      primaryActions: [],
+      moreActions: []
+    };
+
 
     // --------------------
 
@@ -114,8 +125,22 @@
       $ctrl.artifactsFilteringPage = filteringPaginator($ctrl.artifacts);
 
       $ctrl.artifactsSortingConfigs = SortHelper.getSortConfig(PAGE_NAME);
+
+      if (parseBoolean($ctrl.showBulkQualityChangeButton)) {
+        $ctrl.actionsConfig.primaryActions.push({
+          name: 'Bulk Quality Change',
+          title: 'Changes the quality levels of ALL artifacts for this build',
+          actionFn: bulkQualityChange
+        });
+      }
+
     };
 
+    function bulkQualityChange() {
+      ArtifactModals.newBuildQualityModal($ctrl.build)
+          .result
+          .then(() => $ctrl.artifactsFilteringPage.refresh());
+    }
   }
 
 })();
