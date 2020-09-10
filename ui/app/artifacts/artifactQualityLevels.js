@@ -19,61 +19,68 @@
   'use strict';
 
   angular.module('pnc.artifacts').factory('artifactQualityLevels', [
-    function () {
+    'authService',
+    function (authService) {
 
-      const qualityLevels = {
+      /**
+       * Any user can change an artifact to these quality levels
+       */
+      const QUALITY_LEVELS_UNPRIVILEGED = [
+        'NEW',
+        'VERIFIED',
+        'TESTED',
+        'DEPRECATED'
+      ];
 
-        'NEW': {
-          description: 'The artifact has not yet been verified or tested.',
-          requireRole: 'pnc-user',
-          labelClass: 'label-default',
-          editable: true
-        },
+      /**
+       * Only super users can change an artifact to these quality levels
+       */
+      const QUALITY_LEVELS_PRIVILEGED = [
+        'BLACKLISTED',
+        'DELETED'
+      ];
 
-        'VERIFIED': {
-          description: 'The artifact has been verified by an automated process, but has not yet been tested against a complete product or other large set of components.',
-          requireRole: 'pnc-user',
-          labelClass: 'label-primary',
-          editable: true
-        },
+      /**
+       * These quality levels are set by the PNC system itself, an artifact
+       * cannot be changed to or from one of these levels.
+       */
+      const QUALITY_LEVELS_SYSTEM_ONLY = [
+        'TEMPORARY'
+      ];
 
-        'TESTED': {
-          description: 'The artifact has passed integration testing.',
-          requireRole: 'pnc-user',
-          labelClass: 'label-success',
-          editable: true
-        },
 
-        'DEPRECATED': {
-          description: 'The artifact should no longer be used due to lack of support and/or a better alternative being available.',
-          requireRole: 'pnc-user',
-          labelClass: 'label-warning',
-          editable: true
-        },
+      function getUnprivileged() {
+        return Object.freeze(QUALITY_LEVELS_UNPRIVILEGED);
+      }
 
-        'BLACKLISTED': {
-          description: 'The artifact contains a severe defect, possibly a functional or security issue.',
-          requireRole: 'pnc-system-user',
-          labelClass: 'label-danger',
-          editable: true
-        },
+      function getPrivileged() {
+        return Object.freeze(QUALITY_LEVELS_PRIVILEGED);
+      }
 
-        'DELETED': {
-          description: 'Artifact with DELETED quality is used to show BuildRecord dependencies although the artifact itself was deleted OR can identify artifacts, which are were removed from repository manager (e.g. due to conflicts), but the metadata were kept for archival purposes.',
-          requireRole: 'pnc-system-user',
-          labelClass: 'label-danger',
-          editable: true
-        },
+      function getSystemOnly() {
+        return Object.freeze(QUALITY_LEVELS_SYSTEM_ONLY);
+      }
 
-        'TEMPORARY': {
-          description: 'The artifact is built as temporary and it is planned to remove it later. The artifact cannot be used for product releases.',
-          labelClass: 'label-info',
-          editable: false
+      function getAuthorizedLevelsForCurrentUser() {
+        if (!authService.isAuthenticated) {
+          return [];
         }
 
-      };
+        if (authService.isSuperUser()) {
+          return Object.freeze(getPrivileged().concat(getUnprivileged()));
+        }
 
-      return qualityLevels;
+        return getUnprivileged();
+      }
+
+
+      return Object.freeze({
+        getUnprivileged,
+        getPrivileged,
+        getSystemOnly,
+        getAuthorizedLevelsForCurrentUser
+      });
+
     }
 
   ]);

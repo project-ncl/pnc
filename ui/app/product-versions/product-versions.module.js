@@ -21,8 +21,6 @@
   angular.module('pnc.product-versions', []).config([
     '$stateProvider',
     ($stateProvider) => {
-      console.log($stateProvider);
-
       $stateProvider.state('products.detail.product-versions', {
         url: '/versions',
         abstract: true,
@@ -79,9 +77,9 @@
             '$stateParams',
             'ProductVersionResource',
             ($stateParams, ProductVersionResource) => {
-              return ProductVersionResource.queryReleases({ 
-                id: $stateParams.productVersionId, 
-                pageSize: 10 
+              return ProductVersionResource.queryReleases({
+                id: $stateParams.productVersionId,
+                pageSize: 10
               }).$promise;
             }
           ],
@@ -89,9 +87,9 @@
             '$stateParams',
             'ProductVersionResource',
             ($stateParams, ProductVersionResource) => {
-              return ProductVersionResource.queryMilestones({ 
-                id: $stateParams.productVersionId, 
-                pageSize: 10 
+              return ProductVersionResource.queryMilestones({
+                id: $stateParams.productVersionId,
+                pageSize: 10
               }).$promise;
             }
           ]

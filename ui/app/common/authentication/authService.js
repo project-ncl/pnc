@@ -48,6 +48,18 @@
         return authService.getPrinciple() === user.username;
       };
 
+      authService.getUserRoles = function () {
+        return keycloak.authenticated ? keycloak.realmAccess.roles : null;
+      };
+
+      authService.userHasRole = function (role) {
+        return authService.getUserRoles().includes(role);
+      };
+
+      authService.isSuperUser = function () {
+        return authService.userHasRole('system-user');
+      };
+
       /**
        * Verifies the minimum lifespan of the refresh token.
        */
@@ -74,7 +86,6 @@
 
       authService.forUserId = function (userId) {
         return authService.getPncUser().then(user => {
-          console.log('authService.forUserId -> userId: %s | user: %O', userId, user);
             if (user.id.toString() !== userId) {
               return $q.reject();
             }
@@ -110,9 +121,11 @@
         });
       };
 
-      authService.getUserRole = function () {
-        return keycloak.authenticated ? keycloak.realmAccess.roles : null;
-      };
+      if (authService.isAuthenticated()) {
+        console.info('User authenticated as: "%s" with roles: "%s"', authService.getPrinciple(), authService.getUserRoles().toString());
+      } else {
+        console.info('User is not authenticated');
+      }
 
       return authService;
     }

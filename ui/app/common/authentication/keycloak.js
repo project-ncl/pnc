@@ -26,12 +26,11 @@
       keycloak = kc;
     };
 
-    provider.$get = ['$log', function ($log) {
-      $log.debug('keycloak=%O', keycloak);
+    provider.$get = [function () {
       return keycloak;
     }];
 
-    return provider;  
+    return provider;
   });
 
 })();
