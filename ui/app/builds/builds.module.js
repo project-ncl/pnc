@@ -173,15 +173,17 @@
 
       $stateProvider.state('projects.detail.build-configs.detail.builds.detail.dependencies', {
           url: '/dependencies',
-          component: 'pncBuildDetailArtifactsPage',
+          component: 'pncBuildDetailDependenciesPage',
           data: {
             displayName: 'Dependencies',
             title: '#{{ build.id }} {{ build.buildConfigRevision.name }} | Dependencies'
           },
           resolve: {
-            artifacts: ['build', function (build) {
-              return build.$getArtifactsDependencies({ pageSize: 10 });
-            }]
+            artifacts: [
+              'BuildResource',
+              'build',
+              (BuildResource, build) => BuildResource.getArtifactsDependencies({ id: build.id, pageSize: 10 }).$promise
+            ]
           }
         });
 
