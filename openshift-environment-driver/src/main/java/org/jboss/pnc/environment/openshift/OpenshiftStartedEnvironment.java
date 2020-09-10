@@ -485,8 +485,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                                 podFailedStartExc = (PodFailedStartException) throwable.getCause();
                             }
 
-                            if (podFailedStartExc != null
-                                    && !Arrays.asList(POD_RETRYABLE_STATUSES).contains(podFailedStartExc.getPodStatus())) {
+                            if (podFailedStartExc != null && !Arrays.asList(POD_RETRYABLE_STATUSES)
+                                    .contains(podFailedStartExc.getPodStatus())) {
                                 // the status is not to be retried
                                 onError.accept(new Exception(throwable));
                             } else {
