@@ -57,6 +57,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
     private int creationPodRetry;
     /** Time how long to wait until all services are fully up and running (in seconds) */
     private int pollingMonitorTimeout;
+    /** Interval to wait betweeen subsequent checks of the condition in the PollingMonitor (in seconds) */
+    private int pollingMonitorCheckInterval;
 
     public OpenshiftEnvironmentDriverModuleConfig(
             @JsonProperty("restEndpointUrl") String restEndpointUrl,
@@ -78,7 +80,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
             @JsonProperty("exposeBuildAgentOnPublicUrl") Boolean exposeBuildAgentOnPublicUrl,
             @JsonProperty("creationPodRetry") String creationPodRetry,
             @JsonProperty("builderPodMemory") Integer builderPodMemory,
-            @JsonProperty("pollingMonitorTimeout") String pollingMonitorTimeout) {
+            @JsonProperty("pollingMonitorTimeout") String pollingMonitorTimeout,
+            @JsonProperty("pollingMonitorCheckInterval") String pollingMonitorCheckInterval) {
         super(
                 imageId,
                 firewallAllowedDestinations,
@@ -119,6 +122,17 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                 log.error(
                         "Couldn't parse the value of polling monitor timeout. Using default ({} seconds)",
                         PollingMonitor.DEFAULT_TIMEOUT);
+            }
+        }
+
+        this.pollingMonitorCheckInterval = PollingMonitor.DEFAULT_CHECK_INTERVAL;
+        if (pollingMonitorCheckInterval != null) {
+            try {
+                this.pollingMonitorCheckInterval = Integer.parseInt(pollingMonitorCheckInterval);
+            } catch (NumberFormatException e) {
+                log.error(
+                        "Couldn't parse the value of polling monitor check interval. Using default ({} seconds)",
+                        PollingMonitor.DEFAULT_CHECK_INTERVAL);
             }
         }
 
@@ -169,6 +183,10 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
         return pollingMonitorTimeout;
     }
 
+    public int getPollingMonitorCheckInterval() {
+        return pollingMonitorCheckInterval;
+    }
+
     @Override
     public String toString() {
         return "OpenshiftEnvironmentDriverModuleConfig{" + "restEndpointUrl='" + restEndpointUrl + '\'' + ", imageId='"
@@ -180,7 +198,8 @@ public class OpenshiftEnvironmentDriverModuleConfig extends EnvironmentDriverMod
                 + executorThreadPoolSize + '\'' + ", restAuthToken= HIDDEN " + ", containerPort='" + containerPort
                 + '\'' + ", disabled='" + disabled + '\'' + ", keepBuildAgentInstance='" + keepBuildAgentInstance + '\''
                 + ", exposeBuildAgentOnPublicUrl='" + exposeBuildAgentOnPublicUrl + '\'' + ", creationPodRetry="
-                + creationPodRetry + ", pollingMonitorTimeout=" + pollingMonitorTimeout + '}';
+                + creationPodRetry + ", pollingMonitorTimeout=" + pollingMonitorTimeout
+                + ", pollingMonitorCheckInterval=" + pollingMonitorCheckInterval + '}';
     }
 
 }

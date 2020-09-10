@@ -41,33 +41,24 @@ public class PollingMonitor {
 
     /** Time how long to wait until all services are fully up and running (in seconds) */
     public static final int DEFAULT_TIMEOUT = 300;
-    private static final String PULLING_MONITOR_TIMEOUT_KEY = "pulling_monitor_timeout";
 
     /** Interval between two checks if the services are fully up and running (in second) */
-    private static final int DEFAULT_CHECK_INTERVAL = 1;
-    private static final String PULLING_MONITOR_CHECK_INTERVAL_KEY = "pulling_monitor_check_interval";
+    public static final int DEFAULT_CHECK_INTERVAL = 1;
 
     /** */
     private static final TimeUnit DEFAULT_TIME_UNIT = TimeUnit.SECONDS;
 
-    private static final String PULLING_MONITOR_THREADPOOL_KEY = "pulling_monitor_threadpool";
+    private static final String POLLING_MONITOR_THREADPOOL_KEY = "polling_monitor_threadpool";
     private static final int DEFAULT_EXECUTOR_THREADPOOL_SIZE = 4;
 
     private ScheduledExecutorService executorService;
     private ScheduledExecutorServiceWithTimeout scheduledExecutor;
 
-    private int timeout;
-    private int checkInterval;
-
     public PollingMonitor() {
         ReadEnvProperty reader = new ReadEnvProperty();
 
-        timeout = reader.getIntValueFromPropertyOrDefault(PULLING_MONITOR_TIMEOUT_KEY, DEFAULT_TIMEOUT);
-        checkInterval = reader
-                .getIntValueFromPropertyOrDefault(PULLING_MONITOR_CHECK_INTERVAL_KEY, DEFAULT_CHECK_INTERVAL);
-
         int threadSize = reader
-                .getIntValueFromPropertyOrDefault(PULLING_MONITOR_THREADPOOL_KEY, DEFAULT_EXECUTOR_THREADPOOL_SIZE);
+                .getIntValueFromPropertyOrDefault(POLLING_MONITOR_THREADPOOL_KEY, DEFAULT_EXECUTOR_THREADPOOL_SIZE);
 
         executorService = MDCExecutors.newScheduledThreadPool(threadSize);
         scheduledExecutor = new ScheduledExecutorServiceWithTimeout(executorService);
@@ -81,27 +72,30 @@ public class PollingMonitor {
      * @return CancellableCompletableFuture
      */
     public CancellableCompletableFuture<Void> monitor(Supplier<Boolean> condition) {
-        return monitor(condition, checkInterval, timeout, DEFAULT_TIME_UNIT);
+        return monitor(condition, DEFAULT_CHECK_INTERVAL, DEFAULT_TIMEOUT, DEFAULT_TIME_UNIT);
     }
 
     /**
      * Periodically checks the condition and calls onMonitorComplete when it returns true. If the specified timeout is
      * reached onMonitorError is called.
      *
-     * @param condition
-     * @param timeout specified in seconds
+     * @param condition the condition to check
+     * @param checkInterval interval between checks
+     * @param timeout
+     * @param timeUnit
+     * 
      * @return CancellableCompletableFuture
      */
-    public CancellableCompletableFuture<Void> monitor(Supplier<Boolean> condition, int timeout) {
-        log.debug("Monitoring condition with specified timeout of {}", timeout);
-        return monitor(condition, checkInterval, timeout, DEFAULT_TIME_UNIT);
-    }
-
     public CancellableCompletableFuture<Void> monitor(
             Supplier<Boolean> condition,
             int checkInterval,
             int timeout,
             TimeUnit timeUnit) {
+        log.debug(
+                "Monitoring condition with specified checkInterval of {}, timeout of {}, timeUnit {}",
+                timeout,
+                checkInterval,
+                timeUnit);
         return scheduledExecutor.scheduleWithFixedDelayAndTimeout(condition, 0L, checkInterval, timeout, timeUnit);
     }
 
