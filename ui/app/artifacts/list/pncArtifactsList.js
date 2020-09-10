@@ -35,19 +35,16 @@
 
       /**
        * Callback Function: invoked with the new and old artifact after any changes.
-       *
-       * Usage:
-       *
-       *
+       * See usage example above.
        */
       onUpdate: '&'
     },
     templateUrl: 'artifacts/list/pnc-artifacts-list.html',
-    controller: ['artifactQualityUpdateModalFactory', Controller]
+    controller: ['ArtifactModals', Controller]
   });
 
 
-  function Controller(artifactQualityUpdateModalFactory) {
+  function Controller(ArtifactModals) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -61,7 +58,7 @@
     };
 
     function changeQuality(artifact) {
-      const modal = artifactQualityUpdateModalFactory(artifact);
+      const modal = ArtifactModals.newArtifactQualityModal(artifact);
 
       modal.result.then(artifact => updateArtifact(artifact));
     }

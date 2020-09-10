@@ -26,11 +26,11 @@
      usages: '<'
     },
     templateUrl: 'artifacts/detail/pnc-artifacts-detail-page.html',
-    controller: ['artifactQualityUpdateModalFactory', Controller]
+    controller: ['ArtifactModals', Controller]
   });
 
 
-  function Controller(artifactQualityUpdateModalFactory) {
+  function Controller(ArtifactModals) {
     const $ctrl = this;
 
     // -- Controller API --
@@ -47,9 +47,7 @@
 
 
     function editQuality() {
-      console.log('Edit quality!');
-      const modal = artifactQualityUpdateModalFactory($ctrl.artifact);
-
+      const modal = ArtifactModals.newArtifactQualityModal($ctrl.artifact);
       modal.result.then(updatedArtifact => $ctrl.artifact = updatedArtifact);
     }
 
