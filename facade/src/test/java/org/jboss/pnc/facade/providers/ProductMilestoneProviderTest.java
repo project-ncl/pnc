@@ -24,6 +24,7 @@ import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
@@ -37,7 +38,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -73,6 +76,8 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         ProductMilestoneFactory.getInstance().setIdSupplier(() -> entityId.getAndIncrement());
 
         List<ProductMilestone> productMilestones = new ArrayList<>();
+
+        mock.setPerformedBuilds(new HashSet<BuildRecord>(Arrays.asList(new BuildRecord())));
 
         productMilestones.add(mock);
         productMilestones.add(mockSecond);
