@@ -17,21 +17,25 @@
     limitations under the License.
 
 -->
-<table class="table table-bordered table-striped table-hover v-align-middle">
+<table class="table table-bordered table-striped table-hover table-actions-kebab v-align-middle">
   <thead>
     <th>Identifier</th>
     <th>Quality</th>
     <th>File Name</th>
-    <th>Repository Type</th>
+    <th>Type</th>
     <th>Checksums</th>
     <th>&nbsp;</th>
   </thead>
   <tbody>
     <tr ng-repeat="artifact in $ctrl.artifacts">
       <td><pnc-artifact-link artifact="artifact"></pnc-artifact-link></td>
-      <td class="text-center"><pnc-artifact-quality-label artifact="artifact"></pnc-artifact-quality-label></td>
-      <td>{{ artifact.filename }}</td>
-      <td class="text-center">{{ artifact.targetRepository.repositoryType }}</td>
+      <td class="text-center shrink-to-fit"><pnc-artifact-quality-label artifact="artifact"></pnc-artifact-quality-label></td>
+      <td>
+        <a ng-href="{{ artifact.publicUrl }}" target="_self" href>{{ artifact.filename }}</a>
+      </td>
+      <td class="text-center shrink-to-fit">
+        <span class="label label-default">{{ artifact.targetRepository.repositoryType }}</span>
+      </td>
       <td>
         <div class="checksum checksum-md5">
           {{ artifact.md5 }}
@@ -43,9 +47,16 @@
           {{ artifact.sha256 }}
         </div>
       </td>
-      <td class="td-actions artifacts"><!-- #9c9c9c #0088ce -->
+      <td class="td-actions-kebab"><!-- #9c9c9c #0088ce -->
         <div class="btn-group dropdown dropdown-kebab-pf">
-          <button style="padding-top: 20px; padding-bottom: 20px;" class="btn btn-link dropdown-toggle" type="button" id="dropdownKebab" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><span class="fa fa-ellipsis-v"></span></button>
+          <button class="btn btn-default dropdown-toggle"
+                  type="button"
+                  id="dropdownKebab"
+                  data-toggle="dropdown"
+                  aria-haspopup="true"
+                  aria-expanded="true">
+            <i class="fa fa-ellipsis-v"></i>
+          </button>
           <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownKebab">
             <li><a ng-href="{{ artifact.publicUrl }}" target="_self" href>Download</a></li>
             <li><a ng-click="$ctrl.changeQuality(artifact)" href>Change Quality</a></li>

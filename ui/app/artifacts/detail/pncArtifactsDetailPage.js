@@ -48,7 +48,9 @@
 
     function editQuality() {
       console.log('Edit quality!');
-      artifactQualityUpdateModalFactory($ctrl.artifact);
+      const modal = artifactQualityUpdateModalFactory($ctrl.artifact);
+
+      modal.result.then(updatedArtifact => $ctrl.artifact = updatedArtifact);
     }
 
   }
