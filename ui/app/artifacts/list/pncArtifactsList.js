@@ -19,12 +19,28 @@
 (function () {
   'use strict';
 
+  /**
+   * Displays a table of Artifacts.
+   *
+   * Example usage:
+   *
+   * <pnc-artifacts-list artifact="$ctrl.artifact" on-update="$ctrl.update($newValue, $oldValue)"></pnc-artifacts-list>"
+   */
   angular.module('pnc.artifacts').component('pncArtifactsList', {
     bindings: {
       /**
        * Array: The list of Artifacts to display.
        */
       artifacts: '<',
+
+      /**
+       * Callback Function: invoked with the new and old artifact after any changes.
+       *
+       * Usage:
+       *
+       *
+       */
+      onUpdate: '&'
     },
     templateUrl: 'artifacts/list/pnc-artifacts-list.html',
     controller: ['artifactQualityUpdateModalFactory', Controller]
@@ -45,7 +61,21 @@
     };
 
     function changeQuality(artifact) {
-      artifactQualityUpdateModalFactory(artifact);
+      const modal = artifactQualityUpdateModalFactory(artifact);
+
+      modal.result.then(artifact => updateArtifact(artifact));
+    }
+
+    function updateArtifact(artifact) {
+      const index = $ctrl.artifacts.findIndex(a => artifact.id === a.id);
+      const old = $ctrl.artifacts[index];
+
+      if (index >= 0) {
+        $ctrl.artifacts.splice(index, 1, artifact);
+        if ($ctrl.onUpdate) {
+          $ctrl.onUpdate({ $newValue: artifact, $oldValue: old });
+        }
+      }
     }
 
   }

@@ -46,7 +46,8 @@
             id: '@id',
             quality: '@quality',
             reason: '@reason'
-          }
+          },
+          successNotification: 'Artifact quality level changed'
         }
       });
 

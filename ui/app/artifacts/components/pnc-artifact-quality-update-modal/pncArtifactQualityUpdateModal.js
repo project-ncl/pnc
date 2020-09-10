@@ -60,8 +60,10 @@
         id: $ctrl.artifact.id,
         quality: $ctrl.quality,
         reason: $ctrl.reason
-      });
-      console.log('Save');
+      })
+      .$promise
+      .then(() => ArtifactResource.get({ id: $ctrl.artifact.id }).$promise)
+      .then(artifact => $ctrl.close({ $value: artifact }));
     }
 
     function cancel() {

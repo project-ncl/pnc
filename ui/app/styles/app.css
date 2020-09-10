@@ -345,3 +345,24 @@ label.required::before {
   background-color: #ffebd7;
   border-radius: 1px;
 }
+
+
+
+.table-actions-kebab > tbody > tr,
+.table-actions-kebab > tbody > tr > .td-actions-kebab,
+.table-actions-kebab > tbody > tr > .td-actions-kebab > .dropdown-kebab-pf,
+.table-actions-kebab > tbody > tr > .td-actions-kebab > .dropdown-kebab-pf > .btn {
+  height: 100%;
+}
+
+.table-actions-kebab > tbody > tr > .td-actions-kebab {
+  padding: 0;
+  width: 1px;
+}
+
+.table-actions-kebab > tbody > tr > .td-actions-kebab > .dropdown-kebab-pf,
+.table-actions-kebab > tbody > tr > .td-actions-kebab > .dropdown-kebab-pf > .btn {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
