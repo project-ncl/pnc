@@ -193,6 +193,9 @@ public class ProductMilestoneProviderImpl
         if (milestoneInDb.getEndDate() != null) {
             userLog.info("Milestone is already closed: no more modifications allowed");
             throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
+        }
+        if (milestoneInDb.getPerformedBuilds().size() == 0) {
+            throw new InvalidEntityException("No builds were performed in milestone!");
         } else {
             Optional<ProductMilestoneRelease> inProgress = releaseManager.getInProgress(milestoneInDb);
             if (inProgress.isPresent()) {

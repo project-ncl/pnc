@@ -50,6 +50,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.BadRequestException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Iterator;
@@ -279,6 +280,24 @@ public class ProductMilestoneEndpointTest {
         assertThat(response.getIsValid()).isTrue();
         assertThat(response.getErrorType()).isNull();
         assertThat(response.getHints()).isNullOrEmpty();
+    }
+
+    @Test
+    public void testShouldFailToCloseWithNoBuilds() throws ClientException {
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
+        ProductMilestone newMilestone = ProductMilestone.builder()
+                .productVersion(productVersion)
+                .version("9.9.9.ER9")
+                .startingDate(Instant.ofEpochMilli(100_000))
+                .plannedEndDate(Instant.ofEpochMilli(200_000))
+                .build();
+
+        ProductMilestone created = client.createNew(newMilestone);
+        assertThat(created.getId()).isNotEmpty();
+        ProductMilestone retrieved = client.getSpecific(created.getId());
+
+        assertThatThrownBy(() -> client.closeMilestone(retrieved.getId()))
+                .hasCauseInstanceOf(BadRequestException.class);
     }
 
     @Test
