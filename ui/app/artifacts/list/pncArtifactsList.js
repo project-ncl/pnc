@@ -50,6 +50,7 @@
     // -- Controller API --
 
     $ctrl.changeQuality = changeQuality;
+    $ctrl.showQualityRevisions = showQualityRevisions;
 
     // --------------------
 
@@ -58,9 +59,13 @@
     };
 
     function changeQuality(artifact) {
-      const modal = ArtifactModals.newArtifactQualityModal(artifact);
+      ArtifactModals.newArtifactQualityModal(artifact)
+          .result
+          .then(artifact => updateArtifact(artifact));
+    }
 
-      modal.result.then(artifact => updateArtifact(artifact));
+    function showQualityRevisions(artifact) {
+      ArtifactModals.newArtifactRevisionsModal(artifact);
     }
 
     function updateArtifact(artifact) {
