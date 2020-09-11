@@ -38,6 +38,11 @@
           method: 'GET',
           isPaged: true
         },
+        queryRevisions: {
+          url: ENDPOINT + '/revisions',
+          method: 'GET',
+          isPaged: true
+        },
         changeQuality: {
           url: ENDPOINT + '/artifacts/quality',
           method: 'POST',
