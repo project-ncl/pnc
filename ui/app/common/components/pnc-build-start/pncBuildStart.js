@@ -62,6 +62,10 @@
     }];
 
     $ctrl.$onInit = function () {
+      if (!$ctrl.size) {
+        $ctrl.size = 'lg';
+      }
+
       // default build values
       $ctrl.params = {
         temporaryBuild: false,

@@ -18,13 +18,14 @@
 
 -->
 <div class="btn-group pnc-build-start">
-  <button type="button" class="btn btn-{{ $ctrl.size ? $ctrl.size : 'lg'}} btn-primary" uib-tooltip="Start a build of this configuration" tooltip-popup-delay="2000" tooltip-placement="top" tooltip-append-to-body="true" ng-click="$ctrl.build()" pnc-requires-auth>
+  <button type="button" class="btn btn-{{ ::$ctrl.size ? $ctrl.size : 'lg'}} btn-primary" uib-tooltip="Start a build of this configuration" tooltip-popup-delay="2000" tooltip-placement="top" tooltip-append-to-body="true" ng-click="$ctrl.build()" pnc-requires-auth>
     <i class="pficon pficon-build"></i> Build
   </button>
 
   <!-- button with dropdown -->
-  <button class="btn btn-{{ $ctrl.size ? $ctrl.size : 'lg'}} btn-default dropdown-btn" ng-click="$ctrl.dropdownMenu = !$ctrl.dropdownMenu" uib-tooltip="Configure a build" tooltip-popup-delay="1500" tooltip-placement="top" tooltip-append-to-body="true" pnc-requires-auth>
-    {{ $ctrl.params.temporaryBuild ? 'Temporary' : 'Persistent' }}
+  <button class="btn btn-{{ ::$ctrl.size ? $ctrl.size : 'lg'}} btn-default dropdown-btn" ng-click="$ctrl.dropdownMenu = !$ctrl.dropdownMenu" uib-tooltip="Configure a build" tooltip-popup-delay="1500" tooltip-placement="top" tooltip-append-to-body="true" pnc-requires-auth>
+    <span ng-if="::$ctrl.size === 'lg'">{{ $ctrl.params.temporaryBuild ? 'Temporary' : 'Persistent' }}</span>
+    <span ng-if="::$ctrl.size !== 'lg'"><i ng-show="$ctrl.params.temporaryBuild" class="fa fa-clock-o fa-lg"></i></span>
     <span class="fa fa-angle-up" ng-if="$ctrl.dropdownMenu"></span>
     <span class="fa fa-angle-down" ng-if="!$ctrl.dropdownMenu"></span>
   </button>
@@ -123,8 +124,8 @@
 
     <div class="text-center">
       <small>
-        Press <em>Build</em> button to start 
-        {{ $ctrl.params.temporaryBuild ? 'Temporary' : 'Persistent' }} 
+        Press <em>Build</em> button to start
+        {{ $ctrl.params.temporaryBuild ? 'Temporary' : 'Persistent' }}
         {{ $ctrl.currentRebuildModeTitle }}
         build
         <span ng-show="$ctrl.params.buildDependencies">
