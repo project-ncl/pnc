@@ -191,15 +191,15 @@ public class SCMRepositoryProviderImpl
     }
 
     @Override
-    public SCMRepository update(String id, SCMRepository restEntity) {
-        validateBeforeUpdating(id, restEntity);
+    public void validateBeforeUpdating(String id, SCMRepository restEntity) {
+        super.validateBeforeUpdating(id, restEntity);
         SCMRepository before = getSpecific(id);
         if (!before.getInternalUrl().equals(restEntity.getInternalUrl())) {
             throw new InvalidEntityException("Updating internal URL is prohibited. SCMRepo: " + id);
         }
-        log.debug("Updating entity: " + restEntity.toString());
-        RepositoryConfiguration saved = repository.save(mapper.toEntity(restEntity));
-        return mapper.toDTO(saved);
+        if (before.getExternalUrl() == null || !before.getExternalUrl().equals(restEntity.getExternalUrl())) {
+            validateRepositoryWithExternalURLDoesNotExist(restEntity.getExternalUrl());
+        }
     }
 
     private SCMRepository createSCMRepositoryFromValues(
