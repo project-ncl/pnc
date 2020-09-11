@@ -42,10 +42,10 @@
       </td>
       <td ng-if="::$ctrl.showColumn('creationTime')">{{ buildConfig.creationTime | date:'medium' }}</td>
       <td ng-if="::$ctrl.showColumn('modificationTime')">{{ buildConfig.modificationTime | date:'medium' }}</td>
-      <td ng-if="::$ctrl.showColumn('buildStatus')">
+      <td class="no-pad" ng-if="::$ctrl.showColumn('buildStatus')">
         <pnc-build-config-status-icon build-config="buildConfig"></pnc-build-config-status-icon>
       </td>
-      <td ng-if="::$ctrl.actionsTemplateUrl" ng-include="::$ctrl.actionsTemplateUrl"></td>
+      <td class="td-actions" ng-if="::$ctrl.actionsTemplateUrl" ng-include="::$ctrl.actionsTemplateUrl"></td>
     </tr>
   </tbody>
 </table>

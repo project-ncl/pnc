@@ -114,11 +114,7 @@
 .border-t-w-1 { border-top-width: 1px !important;}
 .opacity-50 { opacity: 50%;}
 
-td.shrink-to-fit {
-  width:0.1%;
-  white-space: nowrap;
-}
-
-table.v-align-middle td {
-  vertical-align: middle !important;
+.no-pad {
+  padding: 0 !important;
+  margin: 0 !important;
 }

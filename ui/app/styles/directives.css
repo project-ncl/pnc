@@ -291,6 +291,12 @@
   opacity: 0.5;
 }
 
+.td-actions .btn-group.pnc-build-start {
+  margin: 0;
+  padding: 0;
+  float: none;
+}
+
 
 /*
  * pnc-build-metrics
