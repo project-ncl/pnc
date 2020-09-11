@@ -23,10 +23,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public class ScheduledExecutorServiceWithTimeout {
+
+    private static final Logger logger = LoggerFactory.getLogger(ScheduledExecutorServiceWithTimeout.class);
 
     private ScheduledExecutorService executorService;
 
@@ -51,6 +56,7 @@ public class ScheduledExecutorServiceWithTimeout {
                     completableFuture.complete(null);
                 }
             } catch (Throwable t) {
+                logger.error("Error while calling supplier.get()", t);
                 completableFuture.completeExceptionally(t);
             }
         };

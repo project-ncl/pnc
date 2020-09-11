@@ -506,7 +506,10 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                                 // the status is not to be retried
                                 onError.accept(new Exception(throwable));
                             } else {
-                                logger.error("Creating build environment failed! Retrying...", throwable);
+                                logger.error(
+                                        "Creating build environment failed! Retrying ({} retries left)...",
+                                        throwable,
+                                        retries);
                                 retryEnvironment(onComplete, onError, retries);
                             }
                         }
@@ -570,6 +573,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         logger.debug("Pod {} status: {}", pod.getName(), podStatus);
 
         if (Arrays.asList(POD_FAILED_STATUSES).contains(podStatus)) {
+            logger.debug("Pod failed with status: {}", podStatus);
             gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_FAILED_REASON_KEY + "." + podStatus));
             throw new PodFailedStartException("Pod failed with status: " + podStatus, podStatus);
         }
