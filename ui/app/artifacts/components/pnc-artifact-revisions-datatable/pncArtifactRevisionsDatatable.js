@@ -19,38 +19,26 @@
 (function () {
   'use strict';
 
-  angular.module('pnc.artifacts').component('pncArtifactsDetailPage', {
+  angular.module('pnc.artifacts').component('pncArtifactRevisionsDatatable', {
     bindings: {
-     artifact: '<',
-     build: '<',
-     usages: '<',
      revisions: '<'
     },
-    templateUrl: 'artifacts/detail/pnc-artifacts-detail-page.html',
-    controller: ['ArtifactModals', Controller]
+    templateUrl: 'artifacts/components/pnc-artifact-revisions-datatable/pnc-artifact-revisions-datatable.html',
+    controller: ['paginator', Controller]
   });
 
 
-  function Controller(ArtifactModals) {
+  function Controller(paginator) {
     const $ctrl = this;
 
     // -- Controller API --
-
-    $ctrl.editQuality = editQuality;
 
     // --------------------
 
 
     $ctrl.$onInit = () => {
-      $ctrl.buildListDisplayFields = ['statusIcon', 'canonicalName', 'endTime', 'pushStatus'];
+      $ctrl.paginator = paginator($ctrl.revisions);
     };
-
-
-    function editQuality() {
-      return ArtifactModals.newArtifactQualityModal($ctrl.artifact)
-          .result
-          .then(updatedArtifact => $ctrl.artifact = updatedArtifact);
-    }
 
   }
 

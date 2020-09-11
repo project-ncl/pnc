@@ -26,7 +26,7 @@
           <button type="button" class="btn btn-lg btn-default" uib-tooltip="Edit the quality level of this Artifact" tooltip-placement="top" tooltip-append-to-body="true" tooltip-popup-delay="2500" ng-click="$ctrl.editQuality()" pnc-requires-auth><i class="pficon pficon-edit"></i> Quality</button>
         </pnc-header-buttons>
       </pnc-header>
-    </div> <!-- /col -->
+    </div>
   </div> <!-- /row -->
 
   <div class="row">
@@ -90,5 +90,12 @@
       <h3>Usages</h3>
       <pnc-builds-data-table page="$ctrl.usages" display-fields="$ctrl.buildListDisplayFields"></pnc-builds-data-table>
     </div>
-  </div>
+  </div> <!-- /row -->
+
+  <div class="row">
+    <div class="col-md-12">
+      <h3>Quality Revisions</h3>
+      <pnc-artifact-revisions-datatable revisions="$ctrl.revisions"></pnc-artifact-revisions-datatable>
+    </div>
+  </div> <!-- /row -->
 </div>

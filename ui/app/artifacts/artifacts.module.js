@@ -90,7 +90,12 @@
                   id: $stateParams.id,
                   pageSize: 10
                 }).$promise;
-              }
+              },
+            ],
+            revisions: [
+              'artifact',
+              'ArtifactResource',
+              (artifact, ArtifactResource) => ArtifactResource.queryRevisions({ id: artifact.id, pageSize: 10 }).$promise
             ]
           }
         });
