@@ -48,6 +48,9 @@
         <dt ng-show="$ctrl.build.endTime">Finished:</dt>
         <dd ng-show="$ctrl.build.endTime">{{ ($ctrl.build.endTime | date : 'medium') }}</dd>
 
+        <dt>Build Type:</dt>
+        <dd><span class="label label-default">{{ $ctrl.build.buildConfigRevision.buildType }}</span></dd>
+
         <dt>SCM URL:</dt>
         <dd>
           <span ng-show="$ctrl.build.scmUrl">{{ $ctrl.build.scmUrl }}</span>
