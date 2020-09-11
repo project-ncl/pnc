@@ -82,10 +82,8 @@
         return openArtifactQualityModal(params);
       }
 
-
-
       /**
-       * Opens a new modal window for selecting a new artifact quality.
+       * Opens a dumb modal window for selecting a new artifact quality.
        *
        * @param {object} params - Config params object for the modal
        * @param {string} params.title - The title to display in the modal window
@@ -97,6 +95,8 @@
        *
        * Whatever is returned from this callback will be used as the final value for modal object (see $uibModal for
        * details). The return value can be a promise.
+       *
+       * @returns {$uibModalInstance} The modal object instance from the ui-bootstrap library.
        */
       function openArtifactQualityModal(params) {
         return $uibModal.open({
@@ -109,9 +109,44 @@
         });
       }
 
+      /**
+       * Opens a modal window showing the quality revisions of the artifact.
+       *
+       * @param {ArtifactResource} artifact - The artifact to show revisions of
+       * @returns {$uibModalInstance} The modal object instance from the ui-bootstrap library.
+       */
+      function newArtifactRevisionsModal(artifact) {
+        return openArtifactRevisionsModal({
+          title: `Quality Revisions: ${artifact.identifier}`,
+          revisions: ArtifactResource.queryRevisions({ id: artifact.id, pageSize: 10 }).$promise
+        });
+      }
+
+      /**
+       * Opens a dumb modal window showing artifact quality revisions.
+       *
+       * @param {object} params - Config params object for the modal
+       * @param {string} params.title - The title to display in the modal window
+       * @param {ArtifactResourcePage | Promise<ArtifactResourcePage>} params.revisions - the page of revisions to display
+       *
+       * @returns {$uibModalInstance} The modal object instance from the ui-bootstrap library.
+       */
+      function openArtifactRevisionsModal(params) {
+        return $uibModal.open({
+          animation: true,
+          size: 'xl',
+          component: 'pncArtifactRevisionsModal',
+          resolve: {
+            title: () => params.title,
+            revisions: params.revisions
+          }
+        });
+      }
+
       return Object.freeze({
         newArtifactQualityModal,
-        newBuildQualityModal
+        newBuildQualityModal,
+        newArtifactRevisionsModal
       });
 
     }
