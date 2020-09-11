@@ -32,8 +32,8 @@
         <div class="form-group" ng-class="{ 'has-error': scmRepositoryForm.scmUrl.$invalid && scmRepositoryForm.scmUrl.$touched, 'has-success': scmRepositoryForm.scmUrl.$valid && scmRepositoryForm.scmUrl.$touched }">
           <label for="scmUrl" class="col-sm-3 col-lg-2 control-label">SCM Repository URL</label>
           <div class="col-sm-9 col-lg-7">
-            <input type="url" id="scmUrl" class="form-control" name="scmUrl" maxlength="255" ng-model="$ctrl.scmRepository.scmUrl">
-            <span class="help-block" ng-show="scmRepositoryForm.scmUrl.$invalid && scmRepositoryForm.scmUrl.$touched">Malformed URL.</span>
+            <input type="text" pnc-scm-validator="git|ssh|http|https|git+ssh|git@" id="scmUrl" class="form-control" name="scmUrl" maxlength="255" ng-model="$ctrl.scmRepository.scmUrl">
+            <span class="help-block" ng-show="scmRepositoryForm.scmUrl.$invalid && scmRepositoryForm.scmUrl.$touched">Invalid Repository URL</span>
           </div>
         </div>
 
