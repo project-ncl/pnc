@@ -179,6 +179,22 @@ public class SCMRepositoryEndpointTest {
     }
 
     @Test
+    public void shouldGetConflictWhenUpdatingExternalUrlToExistingOne() throws ClientException {
+        Iterator<SCMRepository> iterator = repositoryClient.getAll(null, null).iterator();
+        String existingExternalUrl = iterator.next().getExternalUrl();
+        SCMRepository randomScmRepository = iterator.next();
+
+        SCMRepository toUpdate = randomScmRepository.toBuilder().externalUrl(existingExternalUrl).build();
+
+        assertThatThrownBy(() -> repositoryClient.update(toUpdate.getId(), toUpdate))
+                .hasCauseInstanceOf(ClientErrorException.class)
+                .has(
+                        new Condition<Throwable>(
+                                (e -> ((ClientErrorException) e.getCause()).getResponse().getStatus() == 409),
+                                "HTTP 409 Conflict"));
+    }
+
+    @Test
     public void shouldMatchFullExternalRepositoryUrl() throws ClientException {
         SCMRepository repository = repositoryClient.getSpecific("100");
         final String requestUrl1 = "ssh://github.com:22/project-ncl/pnc";
