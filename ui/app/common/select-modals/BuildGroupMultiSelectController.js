@@ -20,14 +20,13 @@
   'use strict';
 
   angular.module('pnc.common.select-modals').controller('BuildGroupMultiSelectController', [
-    '$log',
+    '$scope',
     'modalConfig',
     'GroupConfigResource',
     'rsqlQuery',
-    function ($log, modalConfig, GroupConfigResource, rsqlQuery) {
+    function ($scope, modalConfig, GroupConfigResource, rsqlQuery) {
       var ctrl = this;
 
-      console.log('modalConfig == %O', modalConfig);
       ctrl.title = modalConfig.title;
       ctrl.selected = angular.copy(modalConfig.selected);
       ctrl.removed = [];
@@ -76,6 +75,7 @@
       ctrl.onSelect = function ($item) {
         ctrl.addGroup($item);
         ctrl.input = undefined;
+        redrawList();
       };
 
       ctrl.fetchGroups = function ($viewValue) {
@@ -92,7 +92,7 @@
                 rsqlQuery().where('productVersion').isNull().or().where('id').in(inIds).end()
             ).end();
 
-        
+
         return GroupConfigResource.query({ q: q }).$promise.then(page => page.data);
       };
 
@@ -115,6 +115,12 @@
           }
         }
       ];
+
+      // hack: forces a digest in the pf-list scope.
+      function redrawList() {
+        const copy = angular.copy(ctrl.selected);
+        ctrl.selected = copy;
+      }
     }
   ]);
 
