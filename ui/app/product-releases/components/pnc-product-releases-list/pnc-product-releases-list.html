@@ -33,7 +33,7 @@
       <td>{{ productRelease.releaseDate | date:'yyyy/MM/dd'}}</td>
       <td>Released from milestone <pnc-milestone-label-link product-version="productRelease.productVersion" milestone="productRelease.productMilestone"></pnc-milestone-label-link></td>
       <td>{{ productRelease.supportLevel }}</td>
-      <td>
+      <td class="td-actions">
         <button type="button" class="btn btn-sm btn-default" data-toggle="tooltip" title="Edit Release" ui-sref="products.detail.product-versions.detail.release.update({ releaseId: productRelease.id })">
           <i class="pficon pficon-edit"></i>
         </button>

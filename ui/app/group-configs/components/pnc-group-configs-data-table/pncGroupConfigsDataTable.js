@@ -74,21 +74,6 @@
           selected: selected
         }).result.then(res => console.log('Modal Result: %O', res));
       });
-      // $q.when()
-      //   .then(() => {
-      //     if ($ctrl.fetchSelected) {
-      //       return $ctrl.fetchSelected()
-      //     }
-      //   })
-
-      // if ($ctrl.fetchSelected) {
-
-      // }
-      // modalSelectService.openForBuildGroups({
-      //   title: 'Add or Remove Group Configs from Product Version',
-      //   selected: $ctrl.groupConfigRefs
-      // }).result.then(res => console.log('Modal Result: %O', res));
-      //console.log('Edit Group Configs: %O', updates);
     }
 
     function generateToolbarActions() {

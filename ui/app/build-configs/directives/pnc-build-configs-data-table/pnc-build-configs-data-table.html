@@ -17,33 +17,8 @@
     limitations under the License.
 
 -->
-<!-- <script type="text/ng-template" id="pnc-build-configs-data-table-actions.html">
-  <div class="btn-group" role="group" aria-label="Item Actions">
-    <button class="btn btn-block btn-default" uib-tooltip="Remove Build Configuration" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="actions.remove(buildConfig)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + buildConfig.name +  ' ?'}}">Remove</button>
-  </div>
-</script>
-
-<div>
-  <div class="btn-group pull-right m-b-20">
-    <button type="button"
-            class="btn btn-default"
-            uib-tooltip="Add an existing Build Config"
-            tooltip-popup-delay="2500"
-            tooltip-placement="top"
-            tooltip-append-to-body="true"
-            ng-click="$ctrl.edit()"
-            ng-if="::$ctrl.onEdit()">
-      <i class="pficon pficon-edit"></i> Edit
-    </button>
-  </div>
-  <pnc-build-configs-list build-configs="$ctrl.page.data" display-fields="$ctrl.displayFields" ng-attr-actions-template-url="{{ !$ctrl.hideActions && 'pnc-build-configs-data-table-actions.html' || undefined }}" actions-data="$ctrl.actions"></pnc-build-configs-list>
-  <pnc-page-controls class="pull-right m-t-10" pnc-page="$ctrl.page" ng-if="$ctrl.page"></pnc-page-controls>
-</div> -->
-
-
-
 <script type="text/ng-template" id="pnc-build-configs-data-table-actions.html">
-  <div class="btn-group p-l-10 p-r-10" role="group" aria-label="Item Actions">
+  <div class="btn-group" role="group" aria-label="Item Actions">
     <pnc-build-start build-config="buildConfig" size="md"></pnc-build-start>
     <button class="btn btn-md btn-default" uib-tooltip="Remove Build Configuration" tooltip-popup-delay="2500" tooltip-placement="top" tooltip-append-to-body="true" pnc-confirm-click="actions.remove(buildConfig)" pnc-confirm-message="{{ 'Confirm the removal of Build Configuration: ' + buildConfig.name +  ' ?'}}">Remove</button>
   </div>
@@ -54,7 +29,6 @@
 </div>
 <div>
   <pnc-build-configs-list build-configs="$ctrl.filterPage.data" display-fields="$ctrl.displayFields" ng-attr-actions-template-url="{{ !$ctrl.hideActions && 'pnc-build-configs-data-table-actions.html' || undefined }}" actions-data="$ctrl.actions"></pnc-build-configs-list>
-  <!-- <pnc-build-configs-list build-configs="$ctrl.filterPage.data" display-fields="$ctrl.displayFields"></pnc-build-configs-list> -->
   <pnc-page-controls class="pull-right m-t-10 m-b-10" pnc-page="$ctrl.filterPage" ng-if="$ctrl.filterPage"></pnc-page-controls>
 </div>
 

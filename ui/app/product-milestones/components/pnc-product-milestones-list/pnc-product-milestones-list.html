@@ -27,13 +27,13 @@
   </thead>
   <tbody>
     <tr ng-repeat="productMilestone in $ctrl.productMilestones | orderBy:'version'">
-      <td>
+      <td class="no-pad text-center">
         <pnc-product-milestone-link product-version="$ctrl.productVersion" product-milestone="productMilestone"></pnc-product-milestone-link>
       </td>
       <td>{{ productMilestone.startingDate | date:'yyyy/MM/dd'}}</td>
       <td>{{ productMilestone.plannedEndDate | date:'yyyy/MM/dd'}}</td>
       <td>{{ productMilestone.endDate | date:'yyyy/MM/dd'}}</td>
-      <td ng-if="!productMilestone.endDate" class="text-center">
+      <td ng-if="!productMilestone.endDate" class="td-actions">
         <pnc-product-milestone-actions product-milestone="productMilestone" product="$ctrl.product" product-version="$ctrl.productVersion" size="md"></pnc-product-milestone-actions>
       </td>
       <td ng-if="productMilestone.endDate" class="text-center" title="Milestone is already closed. No more modifications allowed.">
