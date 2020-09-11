@@ -55,6 +55,7 @@ public class BlacklistAsyncInvoker {
 
     public void notifyBlacklistToDA(String jsonPayload) {
         if (jsonPayload != null && !jsonPayload.isEmpty()) {
+            logger.debug("Sending blacklisting payload to DA: {}", jsonPayload);
             executorService.submit(() -> {
                 try {
                     HttpUtils.performHttpPostRequest(

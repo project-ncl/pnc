@@ -93,8 +93,8 @@ public class PollingMonitor {
             TimeUnit timeUnit) {
         log.debug(
                 "Monitoring condition with specified checkInterval of {}, timeout of {}, timeUnit {}",
-                timeout,
                 checkInterval,
+                timeout,
                 timeUnit);
         return scheduledExecutor.scheduleWithFixedDelayAndTimeout(condition, 0L, checkInterval, timeout, timeUnit);
     }
