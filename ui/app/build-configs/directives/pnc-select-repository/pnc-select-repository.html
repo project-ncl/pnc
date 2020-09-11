@@ -21,7 +21,7 @@
 
   <div class="form-group" ng-class="{ 'has-error' : form.repositoryUrl.$invalid && form.repositoryUrl.$touched, 'has-success': form.repositoryUrl.$valid && form.repositoryUrl.$touched }">
     <label class="required control-label">Repository URL</label>
-    <input type="text" name="repositoryUrl" class="form-control" ng-model="$ctrl.userData.scmUrl" ng-model-options="{ debounce: 500 }" pnc-scm-validator="git|ssh|http|https|git+ssh" ng-change="$ctrl.checkForRepo($ctrl.userData.scmUrl)" required>
+    <input type="text" name="repositoryUrl" class="form-control" ng-model="$ctrl.userData.scmUrl" ng-model-options="{ debounce: 500 }" pnc-scm-validator="git|ssh|http|https|git+ssh|git@" ng-change="$ctrl.checkForRepo($ctrl.userData.scmUrl)" required>
     <p class="help-block" ng-show="form.repositoryUrl.$invalid && form.repositoryUrl.$touched">Repository URL is a required field.</p>
     <p class="help-block" ng-show="form.repositoryUrl.$error.invalidScmUrl && form.repositoryUrl.$touched">Invalid Repository URL</p>
   </div>
