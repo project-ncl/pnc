@@ -507,7 +507,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                                 onError.accept(new Exception(throwable));
                             } else {
                                 logger.error(
-                                        "Creating build environment failed! Retrying ({} retries left)...",
+                                        "Creating build environment failed with error {}! Retrying ({} retries left)...",
                                         throwable,
                                         retries);
                                 retryEnvironment(onComplete, onError, retries);
