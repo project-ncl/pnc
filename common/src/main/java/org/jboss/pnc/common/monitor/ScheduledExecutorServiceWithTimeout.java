@@ -51,7 +51,6 @@ public class ScheduledExecutorServiceWithTimeout {
                     completableFuture.complete(null);
                 }
             } catch (Throwable t) {
-                task.cancel();
                 completableFuture.completeExceptionally(t);
             }
         };

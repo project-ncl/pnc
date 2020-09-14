@@ -58,7 +58,9 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -466,25 +468,30 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 TimeUnit.SECONDS);
         addFuture(isBuildAgentUpFuture);
 
-        CompletableFuture<RunningEnvironment> runningEnvironmentFuture = CompletableFuture
-                .allOf(podFuture, serviceFuture, routeFuture)
-                .thenApplyAsync(nul -> isBuildAgentUpFuture)
-                .thenApplyAsync(
-                        nul -> RunningEnvironment.createInstance(
-                                pod.getName(),
-                                Integer.parseInt(environmentConfiguration.getContainerPort()),
-                                route.getHost(),
-                                getPublicEndpointUrl(),
-                                getInternalEndpointUrl(),
-                                repositorySession,
-                                Paths.get(environmentConfiguration.getWorkingDirectory()),
-                                this::destroyEnvironment,
-                                debugData),
-                        executor);
+        // In the presence of exceptions, the original CompletableFuture#allOf waits for all remaining operations to
+        // complete. Instead, if we wanted to signal completion as soon as one of the operations complete exceptionally,
+        // we would need to change the implementation, provided in the allOfOrException methos below.
+        CompletableFuture<RunningEnvironment> runningEnvironmentFuture = allOfOrException(
+                podFuture,
+                serviceFuture,
+                routeFuture).thenApplyAsync(nul -> isBuildAgentUpFuture)
+                        .thenApplyAsync(
+                                nul -> RunningEnvironment.createInstance(
+                                        pod.getName(),
+                                        Integer.parseInt(environmentConfiguration.getContainerPort()),
+                                        route.getHost(),
+                                        getPublicEndpointUrl(),
+                                        getInternalEndpointUrl(),
+                                        repositorySession,
+                                        Paths.get(environmentConfiguration.getWorkingDirectory()),
+                                        this::destroyEnvironment,
+                                        debugData),
+                                executor);
 
         CompletableFuture.anyOf(runningEnvironmentFuture, openshiftDefinitionsError)
                 .handle((runningEnvironment, throwable) -> {
                     if (throwable != null) {
+                        logger.info("Error while trying to create an OpenShift environment... ", throwable);
                         cancelAndClearMonitors();
                         // no more retries, execute the onError consumer
                         if (retries == 0) {
@@ -526,6 +533,17 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 });
 
         logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
+    }
+
+    public static <T> CompletableFuture<T> allOfOrException(CompletableFuture<T>... futures) {
+        CompletableFuture<T> failure = new CompletableFuture<T>();
+        for (CompletableFuture<T> f : futures) {
+            f.exceptionally(ex -> {
+                failure.completeExceptionally(ex);
+                return null;
+            });
+        }
+        return (CompletableFuture<T>) CompletableFuture.anyOf(failure, CompletableFuture.allOf(futures));
     }
 
     private void addFuture(CancellableCompletableFuture<Void> future) {
