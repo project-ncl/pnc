@@ -280,45 +280,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             BuildOptions buildOptions,
             BuildSetTask buildSetTask) {
         checkForEmptyBuildSetTask(buildSetTask);
-        if (!buildOptions.isForceRebuild()) {
-            checkIfAnyBuildConfigurationNeedsARebuild(
-                    buildSetTask,
-                    buildConfigurationSet,
-                    buildOptions.isImplicitDependenciesCheck(),
-                    buildOptions.isTemporaryBuild());
-        }
-
         checkForCyclicDependencies(buildSetTask);
         build(buildSetTask);
-    }
-
-    private void checkIfAnyBuildConfigurationNeedsARebuild(
-            BuildSetTask buildSetTask,
-            BuildConfigurationSet buildConfigurationSet,
-            boolean checkImplicitDependencies,
-            boolean temporaryBuild) {
-        Set<BuildConfiguration> buildConfigurations = buildConfigurationSet.getBuildConfigurations();
-        int requiresRebuild = buildConfigurations.size();
-        log.debug("There are {} configurations in a set {}.", requiresRebuild, buildConfigurationSet.getId());
-
-        Set<Integer> processedDependenciesCache = new HashSet<>();
-        for (BuildConfiguration buildConfiguration : buildConfigurations) {
-            BuildConfigurationAudited buildConfigurationAudited = datastoreAdapter
-                    .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
-            if (!datastoreAdapter.requiresRebuild(
-                    buildConfigurationAudited,
-                    checkImplicitDependencies,
-                    temporaryBuild,
-                    processedDependenciesCache)) {
-                requiresRebuild--;
-            }
-        }
-        if (requiresRebuild == 0) {
-            updateBuildSetTaskStatus(
-                    buildSetTask,
-                    BuildSetStatus.NO_REBUILD_REQUIRED,
-                    "All build configs were previously built");
-        }
     }
 
     private void build(BuildSetTask buildSetTask) {
@@ -859,7 +822,16 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         log.debug("Completing buildSetTask {} ...", buildSetTask);
         buildQueue.removeSet(buildSetTask);
         buildSetTask.taskStatusUpdatedToFinalState();
-        updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.DONE);
+
+        Optional<BuildConfigSetRecord> bcsr = buildSetTask.getBuildConfigSetRecord();
+        if (bcsr.isPresent() && bcsr.get().getStatus().equals(BuildStatus.NO_REBUILD_REQUIRED)) {
+            updateBuildSetTaskStatus(
+                    buildSetTask,
+                    BuildSetStatus.NO_REBUILD_REQUIRED,
+                    "All build configs were previously built");
+        } else {
+            updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.DONE);
+        }
 
         buildSetTask.getBuildConfigSetRecord().ifPresent(r -> {
             try {

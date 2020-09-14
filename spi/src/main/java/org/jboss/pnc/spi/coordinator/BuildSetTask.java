@@ -92,16 +92,22 @@ public class BuildSetTask {
             }
             buildConfigSetRecord.ifPresent(r -> r.setStatus(BuildStatus.FAILED));
             finishBuildSetTask();
+        } else if (buildTasks.stream()
+                .allMatch(bt -> bt.getStatus().equals(BuildCoordinationStatus.REJECTED_ALREADY_BUILT))) {
+
+            log.debug(
+                    "Marking build set as NO_REBUILD_REQUIRED as all tasks are rejected already built. BuildSetTask: {}",
+                    this);
+            buildConfigSetRecord.ifPresent(r -> r.setStatus(BuildStatus.NO_REBUILD_REQUIRED));
+
         } else if (buildTasks.stream().allMatch(bt -> bt.getStatus().isCompleted())) {
+
             log.debug("All builds in set completed. BuildSetTask: {}", this);
             buildConfigSetRecord.ifPresent(r -> {
-                if (BuildStatus.NO_REBUILD_REQUIRED.equals(r.getStatus())) {
-                    log.debug("Build set already marked as NO_REBUILD_REQUIRED. BuildSetTask: {}", this);
-                } else {
-                    log.debug("Marking build set as SUCCESS. BuildSetTask: {}", this);
-                    r.setStatus(BuildStatus.SUCCESS);
-                }
+                log.debug("Marking build set as SUCCESS. BuildSetTask: {}", this);
+                r.setStatus(BuildStatus.SUCCESS);
             });
+
             finishBuildSetTask();
         } else {
             if (log.isTraceEnabled()) {
