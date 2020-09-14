@@ -22,11 +22,15 @@ import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.buildagent.client.BuildAgentSocketClient;
+import org.jboss.pnc.buildagent.client.SocketClientConfiguration;
+import org.jboss.pnc.buildagent.common.http.HttpClient;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.termdbuilddriver.transfer.DefaultFileTranser;
 import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
 
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
@@ -48,26 +52,31 @@ public class DefaultClientFactory implements ClientFactory {
      */
     private final Optional<Integer> fileTransferReadTimeout;
 
-    public DefaultClientFactory() {
+    private final HttpClient httpClient;
+
+    public DefaultClientFactory() throws IOException {
         fileTransferConnectTimeout = Optional.empty();
         fileTransferReadTimeout = Optional.empty();
+        httpClient = new HttpClient();
     }
 
-    public DefaultClientFactory(TermdBuildDriverModuleConfig config) {
+    public DefaultClientFactory(TermdBuildDriverModuleConfig config) throws IOException {
         fileTransferConnectTimeout = Optional.ofNullable(config.getFileTransferConnectTimeout());
         fileTransferReadTimeout = Optional.ofNullable(config.getFileTransferReadTimeout());
+        httpClient = new HttpClient();
     }
 
     @Override
     public BuildAgentClient createBuildAgentClient(String terminalUrl, Consumer<TaskStatusUpdateEvent> onStatusUpdate)
             throws TimeoutException, InterruptedException, BuildAgentClientException {
-        return new BuildAgentSocketClient(
-                terminalUrl,
-                Optional.empty(),
-                onStatusUpdate,
-                "",
-                ResponseMode.SILENT,
-                false);
+
+        SocketClientConfiguration configuration = SocketClientConfiguration.newBuilder()
+                .termBaseUrl(terminalUrl)
+                .responseMode(ResponseMode.SILENT)
+                .readOnly(false)
+                .build();
+
+        return new BuildAgentSocketClient(httpClient, Optional.empty(), onStatusUpdate, configuration);
     }
 
     @Override
@@ -76,5 +85,10 @@ public class DefaultClientFactory implements ClientFactory {
         fileTransferConnectTimeout.ifPresent(defaultFileTranser::setConnectTimeout);
         fileTransferReadTimeout.ifPresent(defaultFileTranser::setReadTimeout);
         return defaultFileTranser;
+    }
+
+    @PreDestroy
+    public void destroy() throws IOException {
+        httpClient.close();
     }
 }

@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -102,7 +103,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
 
     @Test(timeout = 5_000)
     public void shouldStartAndCancelTheExecutionImmediately()
-            throws ConfigurationParseException, BuildDriverException, InterruptedException {
+            throws ConfigurationParseException, BuildDriverException, InterruptedException, IOException {
         // given
         String dirName = "test-workdir";
         String logStart = "Running the command...";
