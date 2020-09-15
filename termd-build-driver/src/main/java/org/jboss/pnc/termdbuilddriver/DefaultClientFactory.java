@@ -27,6 +27,8 @@ import org.jboss.pnc.buildagent.common.http.HttpClient;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.termdbuilddriver.transfer.DefaultFileTranser;
 import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -41,6 +43,8 @@ import java.util.function.Consumer;
  */
 @ApplicationScoped
 public class DefaultClientFactory implements ClientFactory {
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultClientFactory.class);
 
     /**
      * Connect timeout in millis. See {@link java.net.URLConnection#setConnectTimeout(int)}
@@ -58,12 +62,14 @@ public class DefaultClientFactory implements ClientFactory {
         fileTransferConnectTimeout = Optional.empty();
         fileTransferReadTimeout = Optional.empty();
         httpClient = new HttpClient();
+        logger.info("DefaultClientFactory initialized.");
     }
 
     public DefaultClientFactory(TermdBuildDriverModuleConfig config) throws IOException {
         fileTransferConnectTimeout = Optional.ofNullable(config.getFileTransferConnectTimeout());
         fileTransferReadTimeout = Optional.ofNullable(config.getFileTransferReadTimeout());
         httpClient = new HttpClient();
+        logger.info("DefaultClientFactory initialized with TermdBuildDriverModuleConfig.");
     }
 
     @Override
