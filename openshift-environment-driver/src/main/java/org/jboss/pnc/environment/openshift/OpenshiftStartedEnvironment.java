@@ -58,9 +58,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -491,10 +489,13 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         CompletableFuture.anyOf(runningEnvironmentFuture, openshiftDefinitionsError)
                 .handle((runningEnvironment, throwable) -> {
                     if (throwable != null) {
+
                         logger.info("Error while trying to create an OpenShift environment... ", throwable);
                         cancelAndClearMonitors();
+
                         // no more retries, execute the onError consumer
                         if (retries == 0) {
+                            logger.debug("No more retries left, giving up!");
                             onError.accept(new Exception(throwable));
                         } else {
                             PodFailedStartException podFailedStartExc = null;
@@ -513,11 +514,15 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                                 // the status is not to be retried
                                 onError.accept(new Exception(throwable));
                             } else {
-                                logger.error(
-                                        "Creating build environment failed with error {}! Retrying ({} retries left)...",
-                                        throwable,
-                                        retries);
-                                retryEnvironment(onComplete, onError, retries);
+                                if (!cancelRequested) {
+                                    logger.error(
+                                            "Creating build environment failed with error '{}'! Retrying ({} retries left)...",
+                                            throwable,
+                                            retries);
+                                    retryEnvironment(onComplete, onError, retries);
+                                } else {
+                                    logger.debug("Build was cancelled, not retrying environment!");
+                                }
                             }
                         }
                     } else {
@@ -591,7 +596,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         logger.debug("Pod {} status: {}", pod.getName(), podStatus);
 
         if (Arrays.asList(POD_FAILED_STATUSES).contains(podStatus)) {
-            logger.debug("Pod failed with status: {}", podStatus);
             gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_FAILED_REASON_KEY + "." + podStatus));
             throw new PodFailedStartException("Pod failed with status: " + podStatus, podStatus);
         }
