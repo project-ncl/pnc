@@ -128,6 +128,11 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
                 future.complete(null);
             } else {
                 log.error("Connection to WebSocket server: " + webSocketServerUrl + " unsuccessful.", result.cause());
+                // if there was a request to reconnect through retries, try to reconnect for possible network issues
+                if (numberOfRetries > 0) {
+                    log.warn("WebSocket connection lost. Possible VPN/Network issues, will retry.");
+                    retryConnection(webSocketServerUrl);
+                }
                 future.completeExceptionally(result.cause());
             }
         });
