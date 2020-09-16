@@ -57,10 +57,11 @@ public class AdvancedBuildClient extends BuildClient implements AutoCloseable {
                 .whenComplete((x, y) -> webSocketClient.disconnect());
     }
 
-    public CompletableFuture<BuildPushResult> executeBrewPush(String buildConfigId, BuildPushParameters parameters)
+    public CompletableFuture<BuildPushResult> executeBrewPush(String buildId, BuildPushParameters parameters)
             throws RemoteResourceException {
-        BuildPushResult push = super.push(buildConfigId, parameters);
-        return waitForBrewPush(push.getBuildId());
+        CompletableFuture<BuildPushResult> future = waitForBrewPush(buildId);
+        super.push(buildId, parameters);
+        return future;
     }
 
     public BuildPushResult executeBrewPush(
