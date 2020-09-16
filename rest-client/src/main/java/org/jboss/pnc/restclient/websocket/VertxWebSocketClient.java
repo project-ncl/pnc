@@ -125,15 +125,14 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
                 resetDefaults();
                 webSocketConnection = result.result();
                 webSocketConnection.textMessageHandler(this::dispatch);
-                webSocketConnection.closeHandler((ignore) -> retryConnection(webSocketServerUrl));
+                webSocketConnection.closeHandler((ignore) -> connectionClosed(webSocketServerUrl));
                 // Async operation complete
                 future.complete(null);
             } else {
                 log.error("Connection to WebSocket server: " + webSocketServerUrl + " unsuccessful.", result.cause());
                 // if there was a request to reconnect through retries, try to reconnect for possible network issues
                 if (numberOfRetries > 0) {
-                    log.warn("WebSocket connection lost. Possible VPN/Network issues, will retry.");
-                    retryConnection(webSocketServerUrl);
+                    connectionLost(webSocketServerUrl);
                 }
                 future.completeExceptionally(result.cause());
             }
@@ -145,12 +144,21 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
         dispatchers.forEach((dispatcher) -> dispatcher.accept(message));
     }
 
+    private void connectionClosed(String webSocketServerUrl) {
+        log.warn("WebSocket connection was remotely closed, will retry in: " + reconnectDelay + " milliseconds.");
+        retryConnection(webSocketServerUrl);
+    }
+
+    private void connectionLost(String webSocketServerUrl) {
+        log.warn(
+                "WebSocket connection lost. Possible VPN/Network issues, will retry in: " + reconnectDelay
+                        + " milliseconds.");
+        retryConnection(webSocketServerUrl);
+    }
+
     private void retryConnection(String webSocketServerUrl) {
         numberOfRetries++;
-        log.warn(
-                "WebSocket connection was remotely closed. Trying to reconnect. Number of retries: " + numberOfRetries);
         vertx.setTimer(reconnectDelay, (timerId) -> connectAndReset(webSocketServerUrl));
-
         // don't exceed upper limit for retry
         if (reconnectDelay * delayMultiplier > upperLimitForRetry)
             reconnectDelay = upperLimitForRetry;
@@ -159,6 +167,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     }
 
     private CompletableFuture<Void> connectAndReset(String webSocketServerUrl) {
+        log.warn("Trying to reconnect. Number of retries: " + numberOfRetries);
         return connect(webSocketServerUrl).thenRun(this::resetDefaults);
     }
 
