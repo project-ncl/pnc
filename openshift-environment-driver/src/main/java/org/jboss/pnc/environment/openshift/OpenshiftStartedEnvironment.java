@@ -495,7 +495,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
                         // no more retries, execute the onError consumer
                         if (retries == 0) {
-                            logger.debug("No more retries left, giving up!");
+                            logger.info("No more retries left, giving up!");
                             onError.accept(new Exception(throwable));
                         } else {
                             PodFailedStartException podFailedStartExc = null;
@@ -508,7 +508,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                             if (podFailedStartExc != null && !Arrays.asList(POD_RETRYABLE_STATUSES)
                                     .contains(podFailedStartExc.getPodStatus())) {
 
-                                logger.debug(
+                                logger.info(
                                         "Pod status '{}' is not among the ones to be retried, giving up!",
                                         podFailedStartExc.getPodStatus());
                                 // the status is not to be retried
@@ -521,7 +521,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                                             retries);
                                     retryEnvironment(onComplete, onError, retries);
                                 } else {
-                                    logger.debug("Build was cancelled, not retrying environment!");
+                                    logger.info("Build was cancelled, not retrying environment!");
                                 }
                             }
                         }
