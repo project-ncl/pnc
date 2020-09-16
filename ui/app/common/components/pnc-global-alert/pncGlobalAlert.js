@@ -33,6 +33,7 @@
 
     $ctrl.isInMaintenanceMode = false;
     $ctrl.message = null;
+    $ctrl.announcement = null;
 
     // -- Controller API --
 
@@ -41,37 +42,54 @@
 
     $ctrl.$onInit = function () {
 
-      var announcementPromise = GenericSetting.getAnnouncementBanner().then(function (res) {
+      var announcementPromise = GenericSetting.getAnnouncementBanner().then(res => {
         return res.data;
       });
 
-      var maintenanceStatusPromise = GenericSetting.inMaintenanceMode().then(function (res) {
+      var maintenanceStatusPromise = GenericSetting.inMaintenanceMode().then(res =>  {
         return res.data;
       });
 
-      $q.all([maintenanceStatusPromise, announcementPromise]).then(function (result) {
+      $q.all([maintenanceStatusPromise, announcementPromise]).then(result => {
         let inMaintenanceMode = result[0];
-        let bannerMessage = result[1];
+        let bannerMessage = result[1].banner;
 
         if (inMaintenanceMode) {
           $ctrl.isInMaintenanceMode = true;
-          $ctrl.message = bannerMessage && bannerMessage.banner && bannerMessage.banner !== '' ? ' Reason: ' + result[1].banner : null;
+          $ctrl.message = bannerMessage !== '' ? bannerMessage : null;
+        } else if(bannerMessage !== ''){
+          $ctrl.announcement = bannerMessage;
         } else {
           $ctrl.isInMaintenanceMode = false;
           $ctrl.message = null;
+          $ctrl.announcement = null;
         }
       });
 
       $scope.$on(events.MAINTENANCE_MODE_ON, () => {
         $ctrl.isInMaintenanceMode = true;
-        GenericSetting.getAnnouncementBanner().then(function (bannerMessage) {
+        GenericSetting.getAnnouncementBanner().then(bannerMessage => {
           $ctrl.message = bannerMessage && bannerMessage.data.banner && bannerMessage.data.banner !== '' ? ' Reason: ' + bannerMessage.data.banner : null;
+          $ctrl.announcement = null;
+          $scope.$apply();
         });
       });
 
       $scope.$on(events.MAINTENANCE_MODE_OFF, () => {
         $ctrl.isInMaintenanceMode = false;
         $ctrl.message = null;
+        $ctrl.announcement = null;
+        $scope.$apply();
+      });
+
+
+      $scope.$on(events.NEW_ANNOUNCEMENT, (event, msg) => {
+        if(!$ctrl.isInMaintenanceMode){
+          $ctrl.announcement = msg.banner === '' ? null : msg.banner;
+        }else{
+          $ctrl.message = msg.banner === '' ? null : msg.banner;
+        }
+        $scope.$apply();
       });
 
     };

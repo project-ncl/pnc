@@ -30,6 +30,8 @@
 
   function Controller(GenericSetting, $scope, events) {
     var $ctrl = this;
+    $ctrl.isInMaintenanceMode = false;
+    $ctrl.message = null;
 
     $ctrl.data = {
       /* Reason for activating Maintenance Mode */
@@ -78,6 +80,13 @@
     };
 
     /**
+     * Update the Announcement banner
+     */
+    $ctrl.updateAnnouncement = function () {
+        GenericSetting.setAnnouncementBanner($ctrl.message).then();
+    };
+
+    /**
      * Deactivate maintenance mode, if returns 200 set the switch to off
      */
     var deactivateMaintenanceMode = function () {
@@ -92,6 +101,7 @@
      * Change the status of the maintenance switch button according to the state passed in
      */
     var changeMaintenanceSwitch = function (state) {
+      $ctrl.isInMaintenanceMode = state;
       $('#maintenance-switch').bootstrapSwitch('state', state, true);
     };
 
@@ -127,8 +137,15 @@
 
 
     $ctrl.$onInit = function () {
-      GenericSetting.inMaintenanceMode().then(function (res) {
+      GenericSetting.inMaintenanceMode().then(res => {
         changeMaintenanceSwitch(res.data);
+      });
+
+      GenericSetting.getAnnouncementBanner().then(res => {
+        var message = res.data.banner;
+        if(message !== ''){
+          $ctrl.message = message;
+        }
       });
 
       $scope.$on(events.MAINTENANCE_MODE_ON, () => {
@@ -137,6 +154,15 @@
 
       $scope.$on(events.MAINTENANCE_MODE_OFF, () => {
         changeMaintenanceSwitch(false);
+      });
+
+      $scope.$on(events.NEW_ANNOUNCEMENT, (event, msg) => {
+        if(msg.banner !== ''){
+          $ctrl.message = msg.banner;
+        }else{
+          $ctrl.message = null;
+        }
+        $scope.$apply();
       });
 
     };
