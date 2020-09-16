@@ -64,7 +64,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     /**
      * maximum amount of time in milliseconds taken between retries
-     * 
+     * <p>
      * default: 10 min
      */
     private int upperLimitForRetry = 600000;
@@ -342,5 +342,29 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
         disconnect().join();
         if (vertx != null)
             vertx.close();
+    }
+
+    /**
+     * TODO: Use Java 11 Cleaner class instead after Orchestrator migration to Java 11
+     *
+     * @throws Throwable throwable
+     * @see <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/ref/Cleaner.html">Java 11
+     *      Cleaner</a>
+     */
+    @Override
+    @Deprecated
+    protected void finalize() throws Throwable {
+        try {
+            try {
+                // attempt to properly disconnect
+                disconnect().get();
+            } finally {
+                // always close vertx
+                vertx.close();
+            }
+        } finally {
+            // always finalize
+            super.finalize();
+        }
     }
 }
