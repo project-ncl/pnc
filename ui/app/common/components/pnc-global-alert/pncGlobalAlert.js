@@ -71,7 +71,6 @@
         GenericSetting.getAnnouncementBanner().then(bannerMessage => {
           $ctrl.message = bannerMessage && bannerMessage.data.banner && bannerMessage.data.banner !== '' ? ' Reason: ' + bannerMessage.data.banner : null;
           $ctrl.announcement = null;
-          $scope.$apply();
         });
       });
 
@@ -79,7 +78,6 @@
         $ctrl.isInMaintenanceMode = false;
         $ctrl.message = null;
         $ctrl.announcement = null;
-        $scope.$apply();
       });
 
 
@@ -89,7 +87,6 @@
         }else{
           $ctrl.message = msg.banner === '' ? null : msg.banner;
         }
-        $scope.$apply();
       });
 
     };
