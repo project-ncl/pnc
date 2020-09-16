@@ -50,11 +50,19 @@ public class AbstractLocalBuildAgentTest {
     private org.jboss.pnc.spi.builddriver.DebugData debugData = new DebugData(false);
 
     TermdBuildDriverModuleConfig buildDriverModuleConfig;
+    DefaultClientFactory clientFactory;
 
     public AbstractLocalBuildAgentTest() {
         buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
         doReturn(100L).when(buildDriverModuleConfig).getLivenessProbeFrequencyMillis();
         doReturn(5000L).when(buildDriverModuleConfig).getLivenessFailTimeoutMillis();
+
+        clientFactory = new DefaultClientFactory(buildDriverModuleConfig);
+        try {
+            clientFactory.init();
+        } catch (IOException e) {
+            log.error("Cannot initialize DefaultClientFactory.", e);
+        }
     }
 
     @BeforeClass
