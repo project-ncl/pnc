@@ -30,9 +30,23 @@
       <div class="modal-body">
         <form class="form-horizontal">
           <div class="form-group">
-            <label class="col-sm-3 control-label" for="maintenance-switch">Maintenance Mode</label>
+            <label class="col-sm-4 control-label" for="maintenance-switch">Maintenance Mode</label>
             <div class="col-sm-3">
               <input class="bootstrap-switch" id="maintenance-switch" type="checkbox">
+            </div>
+          </div>
+          <div class="form-group">
+            <label ng-if="!$ctrl.isInMaintenanceMode" class="col-sm-4 control-label" for="announcement-text">Announcement</label>
+            <label ng-if="$ctrl.isInMaintenanceMode" class="col-sm-4 control-label" for="announcement-text">Maintenance
+              Reason</label>
+            <div class="col-sm-6">
+              <input type="text" id="announcement-text" class="form-control" ng-model="$ctrl.message"
+                     placeholder="Input the content of the global announcement" ng-if="!$ctrl.isInMaintenanceMode">
+              <input type="text" id="maintenance-text" class="form-control" ng-model="$ctrl.message"
+                     placeholder="Edit the maintenance reason" ng-if="$ctrl.isInMaintenanceMode">
+            </div>
+            <div class="col-sm-2">
+              <button id="postBtn" class="btn btn-default" ng-click="$ctrl.updateAnnouncement()">Update</button>
             </div>
           </div>
         </form>

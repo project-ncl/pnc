@@ -61,6 +61,14 @@
         }
       });
 
+      messageBus.onGenericSettingNewAnnouncement(notification => {
+        if (notification.message) {
+          let message = JSON.parse(notification.message);
+            $rootScope.$broadcast(events.NEW_ANNOUNCEMENT, message);
+        }
+      });
+
+
       messageBus.onScmRepositoryCreationSuccess(notification => {
         if (notification.scmRepository) {
             $rootScope.$broadcast(events.SCM_REPOSITORY_CREATION_SUCCESS, notification.scmRepository);

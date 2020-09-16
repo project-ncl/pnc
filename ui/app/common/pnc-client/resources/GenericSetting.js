@@ -39,9 +39,12 @@
       function getAnnouncementBanner() {
         return $http.get(ENDPOINT + '/announcement-banner');
       }
+      function setAnnouncementBanner(message) {
+        return $http.post(ENDPOINT + '/announcement-banner', message);
+      }
 
       return {
-        inMaintenanceMode, activateMaintenanceMode, deactivateMaintenanceMode, getAnnouncementBanner
+        inMaintenanceMode, activateMaintenanceMode, deactivateMaintenanceMode, getAnnouncementBanner, setAnnouncementBanner
       };
 
     }
