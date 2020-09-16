@@ -41,9 +41,9 @@
               Reason</label>
             <div class="col-sm-6">
               <input type="text" id="announcement-text" class="form-control" ng-model="$ctrl.message"
-                     placeholder="Input the content of the global announcement" ng-if="!$ctrl.isInMaintenanceMode">
+                     placeholder="Input the content of the global announcement" ng-if="!$ctrl.isInMaintenanceMode"/>
               <input type="text" id="maintenance-text" class="form-control" ng-model="$ctrl.message"
-                     placeholder="Edit the maintenance reason" ng-if="$ctrl.isInMaintenanceMode">
+                     placeholder="Edit the maintenance reason" ng-if="$ctrl.isInMaintenanceMode"/>
             </div>
             <div class="col-sm-2">
               <button id="postBtn" class="btn btn-default" ng-click="$ctrl.updateAnnouncement()">Update</button>
