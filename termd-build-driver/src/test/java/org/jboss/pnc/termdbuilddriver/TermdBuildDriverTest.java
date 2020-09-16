@@ -59,10 +59,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         ZipUtils.unzipToDir(tmpRepo, "/repo.zip");
         String dirName = "test-repo-cloned";
 
-        TermdBuildDriver driver = new TermdBuildDriver(
-                systemConfig,
-                buildDriverModuleConfig,
-                new DefaultClientFactory());
+        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, clientFactory);
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn(repoPath).when(buildExecutionConfiguration).getScmRepoURL();
@@ -109,10 +106,7 @@ public class TermdBuildDriverTest extends AbstractLocalBuildAgentTest {
         String logStart = "Running the command...";
         String logEnd = "Command completed.";
 
-        TermdBuildDriver driver = new TermdBuildDriver(
-                systemConfig,
-                buildDriverModuleConfig,
-                new DefaultClientFactory());
+        TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, clientFactory);
         BuildExecutionSession buildExecution = mock(BuildExecutionSession.class);
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
         doReturn("echo \"" + logStart + "\"; mvn validate; echo \"" + logEnd + "\";").when(buildExecutionConfiguration)

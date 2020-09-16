@@ -30,8 +30,10 @@ import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Optional;
@@ -56,20 +58,18 @@ public class DefaultClientFactory implements ClientFactory {
      */
     private final Optional<Integer> fileTransferReadTimeout;
 
-    private final HttpClient httpClient;
+    private HttpClient httpClient;
 
-    public DefaultClientFactory() throws IOException {
-        fileTransferConnectTimeout = Optional.empty();
-        fileTransferReadTimeout = Optional.empty();
-        httpClient = new HttpClient();
-        logger.info("DefaultClientFactory initialized.");
-    }
-
-    public DefaultClientFactory(TermdBuildDriverModuleConfig config) throws IOException {
+    @Inject
+    public DefaultClientFactory(TermdBuildDriverModuleConfig config) {
         fileTransferConnectTimeout = Optional.ofNullable(config.getFileTransferConnectTimeout());
         fileTransferReadTimeout = Optional.ofNullable(config.getFileTransferReadTimeout());
+    }
+
+    @PostConstruct
+    public void init() throws IOException {
         httpClient = new HttpClient();
-        logger.info("DefaultClientFactory initialized with TermdBuildDriverModuleConfig.");
+        logger.info("DefaultClientFactory initialized.");
     }
 
     @Override
