@@ -69,7 +69,7 @@
       $scope.$on(events.MAINTENANCE_MODE_ON, () => {
         $ctrl.isInMaintenanceMode = true;
         GenericSetting.getAnnouncementBanner().then(bannerMessage => {
-          $ctrl.message = bannerMessage && bannerMessage.data.banner && bannerMessage.data.banner !== '' ? ' Reason: ' + bannerMessage.data.banner : null;
+          $ctrl.message = bannerMessage && bannerMessage.data.banner && bannerMessage.data.banner !== '' ? bannerMessage.data.banner : null;
           $ctrl.announcement = null;
         });
       });
