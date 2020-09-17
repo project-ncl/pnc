@@ -59,6 +59,37 @@
         }
       });
 
+      /**
+       * Shortcut state to allow short links of the form /build-configs/:id as requested in: NCL-6046
+       *
+       * Don't navigate here programatically as it can potentially break the back button and causes a double fetch of
+       * the build config.
+       *
+       * This only exists for users to type in a shorter URL!
+       */
+      $stateProvider.state('build-configs.detail', {
+        url: '/{buildConfigId}',
+        resolve: {
+          buildConfig: [
+            '$stateParams',
+            'BuildConfigResource',
+            ($stateParams, BuildConfigResource) => BuildConfigResource.get({ id: $stateParams.buildConfigId }).$promise
+          ]
+        },
+        redirectTo: trans => {
+          let buildConfigPromise = trans.injector().getAsync('buildConfig');
+          return buildConfigPromise.then(buildConfig => {
+            return {
+              state: 'projects.detail.build-configs.detail.default',
+              params: {
+                projectId: buildConfig.project.id,
+                configurationId: buildConfig.id
+              }
+            };
+          });
+        }
+      });
+
 
       $stateProvider.state('projects.detail.build-configs', {
         abstract: true,
