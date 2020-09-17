@@ -188,7 +188,7 @@ public class IndyRepositorySession implements RepositorySession {
         } catch (PromotionValidationException ex) {
             status = CompletionStatus.FAILED;
             log = ex.getMessage();
-            logger.error("Dependencies promotion failed. Error(s): {}", log);
+            logger.warn("Dependencies promotion failed. Error(s): {}", log);
             userLog.error("Built artifact promotion failed. Error(s): {}", log);
         }
 
