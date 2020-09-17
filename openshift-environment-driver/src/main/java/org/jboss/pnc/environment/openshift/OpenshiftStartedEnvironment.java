@@ -29,6 +29,7 @@ import com.openshift.restclient.IClient;
 import com.openshift.restclient.NotFoundException;
 import com.openshift.restclient.OpenShiftException;
 import com.openshift.restclient.ResourceKind;
+import com.openshift.restclient.authorization.ResourceForbiddenException;
 import com.openshift.restclient.model.IResource;
 import org.apache.commons.lang.RandomStringUtils;
 import org.jboss.dmr.ModelNode;
@@ -65,6 +66,7 @@ import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -496,7 +498,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                         // no more retries, execute the onError consumer
                         if (retries == 0) {
                             logger.info("No more retries left, giving up!");
-                            onError.accept(new Exception(throwable));
+                            onError.accept(
+                                    new Exception(getPrettierErrorMessageFromThrowable(throwable, true), throwable));
                         } else {
                             PodFailedStartException podFailedStartExc = null;
                             if (throwable instanceof PodFailedStartException) {
@@ -509,10 +512,13 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                                     .contains(podFailedStartExc.getPodStatus())) {
 
                                 logger.info(
-                                        "Pod status '{}' is not among the ones to be retried, giving up!",
+                                        "The detected pod error status '{}' is not considered among the ones to be retried, giving up!",
                                         podFailedStartExc.getPodStatus());
                                 // the status is not to be retried
-                                onError.accept(new Exception(throwable));
+                                onError.accept(
+                                        new Exception(
+                                                getPrettierErrorMessageFromThrowable(throwable, false),
+                                                throwable));
                             } else {
                                 if (!cancelRequested) {
                                     logger.warn(
@@ -538,6 +544,45 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 });
 
         logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
+    }
+
+    private String getPrettierErrorMessageFromThrowable(Throwable throwable, boolean finishedRetries) {
+
+        String errMsg = "Some errors occurred while trying to create a build environment where to run the build.";
+
+        if (throwable instanceof TimeoutException || throwable.getCause() instanceof TimeoutException) {
+
+            errMsg += " As the maximum timeout has been reached, this could be due to an exhausted capacity of the underlying infrastructure "
+                    + "(there is no space available to create the new build environment).";
+
+        } else if (throwable instanceof ResourceForbiddenException
+                || throwable.getCause() instanceof ResourceForbiddenException) {
+
+            errMsg += " It looks like the maximum quota available for the build environments has been exceeded.";
+
+        } else if (throwable instanceof PodFailedStartException
+                || throwable.getCause() instanceof PodFailedStartException) {
+
+            PodFailedStartException podFailedStartExc = (throwable instanceof PodFailedStartException)
+                    ? (podFailedStartExc = (PodFailedStartException) throwable)
+                    : (podFailedStartExc = (PodFailedStartException) throwable.getCause());
+
+            if (podFailedStartExc != null && Arrays.asList("ErrImagePull", "ImagePullBackOff", "InvalidImageName")
+                    .contains(podFailedStartExc.getPodStatus())) {
+
+                errMsg += " The builder pod failed to start because not able to download the builder image "
+                        + "(this could be due to issues with the builder images registry, or a misconfiguration of the builder image name).";
+            } else {
+                errMsg += " The builder pod failed to start "
+                        + "(this could be due to misconfigured or bogus scripts, or other unknown reasons).";
+            }
+        }
+
+        if (finishedRetries) {
+            errMsg += "\nThere are no more retries left (" + (this.creationPodRetry + 1)
+                    + " attempts were made), so we are giving up for now!";
+        }
+        return errMsg;
     }
 
     public static <T> CompletableFuture<T> allOfOrException(CompletableFuture<T>... futures) {
