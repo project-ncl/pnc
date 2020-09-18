@@ -579,7 +579,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         }
 
         if (finishedRetries) {
-            errMsg += "\nThere are no more retries left (" + (this.creationPodRetry + 1)
+            errMsg += " There are no more retries left (" + (this.creationPodRetry + 1)
                     + " attempts were made), so we are giving up for now!";
         }
         return errMsg;
