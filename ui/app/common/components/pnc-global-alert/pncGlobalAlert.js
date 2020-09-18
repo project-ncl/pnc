@@ -78,6 +78,7 @@
         $ctrl.isInMaintenanceMode = false;
         $ctrl.message = null;
         $ctrl.announcement = null;
+        $scope.$apply();
       });
 
 
