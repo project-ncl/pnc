@@ -26,13 +26,16 @@ import java.util.Map;
  */
 public class ConnectorSelector {
 
+    public static final String GENERIC_PARAMETER_KEY = "BPM_SERVER";
+    public static final String RHPAM = "RH-PAM";
+
     public static boolean useNewProcess(BpmTask task) {
         if (task instanceof BpmBuildTask) {
             BpmBuildTask buildTask = (BpmBuildTask) task;
             Map<String, String> genericParameters = buildTask.getBuildTask()
                     .getBuildConfigurationAudited()
                     .getGenericParameters();
-            if (genericParameters.getOrDefault("BPM_SERVER", "").equals("RH-PAM")) {
+            if (genericParameters.getOrDefault(GENERIC_PARAMETER_KEY, "").equals(RHPAM)) {
                 return true;
             }
         }
