@@ -20,10 +20,12 @@ package org.jboss.pnc.bpm.notification;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
@@ -40,12 +42,16 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.jboss.pnc.bpm.ConnectorSelector.GENERIC_PARAMETER_KEY;
+import static org.jboss.pnc.bpm.ConnectorSelector.RHPAM;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -68,7 +74,7 @@ public class BpmNotifier {
         this.mapper = mapper;
     }
 
-    public void sendBuildExecutionCompleted(String uri, BuildResult buildResult) {
+    public void sendBuildExecutionCompleted(String uri, BuildResult buildResult, String accessToken) {
         log.debug("Preparing to send build result to BPM {}.", buildResult);
         BuildResultRest buildResultRest = null;
         String errMessage = "";
@@ -101,7 +107,19 @@ public class BpmNotifier {
             log.error("Missing response entity to post to: " + uri);
         }
 
-        request.addHeader("Authorization", getAuthHeader());
+        if (buildResult.getBuildExecutionConfiguration().isPresent()) {
+            BuildExecutionConfiguration buildExecutionConfiguration = buildResult.getBuildExecutionConfiguration()
+                    .get();
+            if (buildExecutionConfiguration.getGenericParameters()
+                    .getOrDefault(GENERIC_PARAMETER_KEY, "")
+                    .equals(RHPAM)) {
+                configureRequestNewBPM(accessToken, request);
+            } else {
+                request.addHeader("Authorization", getAuthHeader());
+            }
+        } else {
+            request.addHeader("Authorization", getAuthHeader());
+        }
 
         // get id for logging
         String buildExecutionConfigurationId;
@@ -134,6 +152,12 @@ public class BpmNotifier {
         } catch (IOException e) {
             log.error("Error occurred executing the callback.", e);
         }
+    }
+
+    private void configureRequestNewBPM(String accessToken, HttpPost request) {
+        request.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
+        request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
     }
 
     private String getAuthHeader() {

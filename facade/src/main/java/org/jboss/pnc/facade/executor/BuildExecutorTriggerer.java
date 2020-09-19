@@ -66,7 +66,9 @@ public class BuildExecutorTriggerer {
             log.debug("Received BuildExecutionStatusChangedEvent: " + statusChangedEvent);
             if (statusChangedEvent.isFinal() && callbackUrl != null && !callbackUrl.isEmpty()) {
                 statusChangedEvent.getBuildResult()
-                        .ifPresent((buildResult) -> bpmNotifier.sendBuildExecutionCompleted(callbackUrl, buildResult));
+                        .ifPresent(
+                                (buildResult) -> bpmNotifier
+                                        .sendBuildExecutionCompleted(callbackUrl, buildResult, accessToken));
             }
         };
         BuildExecutionSession buildExecutionSession = buildExecutor
