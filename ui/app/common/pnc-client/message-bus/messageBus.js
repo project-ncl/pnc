@@ -52,7 +52,7 @@
 
       messageBus.onGenericSettingMaintenanceChanged(notification => {
         if (notification.message) {
-          let message = JSON.parse(notification.message);
+          const message = JSON.parse(notification.message);
           if (message.maintenanceModeEnabled) {
             $rootScope.$broadcast(events.MAINTENANCE_MODE_ON);
           } else {
@@ -63,15 +63,15 @@
 
       messageBus.onGenericSettingNewAnnouncement(notification => {
         if (notification.message) {
-          let message = JSON.parse(notification.message);
-            $rootScope.$broadcast(events.NEW_ANNOUNCEMENT, message);
+          const message = JSON.parse(notification.message);
+          $rootScope.$broadcast(events.NEW_ANNOUNCEMENT, message);
         }
       });
 
 
       messageBus.onScmRepositoryCreationSuccess(notification => {
         if (notification.scmRepository) {
-            $rootScope.$broadcast(events.SCM_REPOSITORY_CREATION_SUCCESS, notification.scmRepository);
+          $rootScope.$broadcast(events.SCM_REPOSITORY_CREATION_SUCCESS, notification.scmRepository);
         }
       });
 
