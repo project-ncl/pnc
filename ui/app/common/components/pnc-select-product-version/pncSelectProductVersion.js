@@ -29,7 +29,10 @@
     },
     bindings: {
       /**
-       * Object: The layout type of the product version component, e.g., create-group-config, edit-group-config.
+       * Object: The layout type of the product version component.
+       'group-config-create' : Layout for the create group config page;
+       'group-config-detail'  : Layout for the edit group config page;
+       default : No extra layout added to the component.
        */
       layout: '<',
     },
