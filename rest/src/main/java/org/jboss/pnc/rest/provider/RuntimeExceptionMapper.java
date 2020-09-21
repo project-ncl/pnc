@@ -17,27 +17,34 @@
  */
 package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
-import java.lang.invoke.MethodHandles;
-import org.jboss.pnc.dto.response.ErrorResponse;
+import javax.ws.rs.ext.Providers;
 
 @Provider
-public class BuildConflictExceptionMapper implements ExceptionMapper<BuildConflictException> {
+public class RuntimeExceptionMapper implements ExceptionMapper<RuntimeException> {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger log = LoggerFactory.getLogger(RuntimeExceptionMapper.class);
+
+    @Context
+    private Providers providers;
 
     @Override
-    public Response toResponse(BuildConflictException e) {
-        Response.Status status = Response.Status.CONFLICT;
-        logger.warn("A BuildConflict error occurred when processing REST call", e);
-        return Response.status(status)
-                .entity(new ErrorResponse("BuildConflictException", e.getMessage() + ": " + e.getBuildTaskId()))
-                .build();
+    public Response toResponse(RuntimeException e) {
+        Throwable t = e.getCause();
+        ExceptionMapper mapper = providers.getExceptionMapper(t.getClass());
+        log.debug(
+                "Unwrapping " + t.getClass().getSimpleName()
+                        + " from RuntimeException and passing in it to its appropriate ExceptionMapper");
+
+        if (mapper != null) {
+            return mapper.toResponse(t);
+        }
+        return providers.getExceptionMapper(Exception.class).toResponse(e);
     }
 }
