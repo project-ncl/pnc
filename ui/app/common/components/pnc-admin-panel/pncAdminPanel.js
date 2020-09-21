@@ -83,7 +83,7 @@
      * Update the Announcement banner
      */
     $ctrl.updateAnnouncement = function () {
-        GenericSetting.setAnnouncementBanner($ctrl.message).then();
+        GenericSetting.setAnnouncementBanner($ctrl.message);
     };
 
     /**
@@ -142,7 +142,7 @@
       });
 
       GenericSetting.getAnnouncementBanner().then(res => {
-        var message = res.data.banner;
+        const message = res.data.banner;
         if(message !== ''){
           $ctrl.message = message;
         }
