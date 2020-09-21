@@ -936,19 +936,6 @@ public class BuildRecord implements GenericEntity<Integer> {
             buildRecord.setBuildConfigurationId(buildConfigurationAuditedId);
             buildRecord.setBuildConfigurationRev(buildConfigurationAuditedRev);
             setLogs(buildRecord, sanitizeLogs);
-
-            try {
-                buildRecord.setBuildLogMd5(Md5.digest(buildRecord.buildLog));
-                buildRecord.setBuildLogSha256(Sha256.digest(buildRecord.buildLog));
-
-                buildRecord.setRepourLogMd5(Md5.digest(buildRecord.repourLog));
-                buildRecord.setRepourLogSha256(Sha256.digest(buildRecord.repourLog));
-
-            } catch (NoSuchAlgorithmException | IOException e) {
-                logger.error("Cannot compute log checksum.", e);
-                throw new RuntimeException("Cannot compute log checksum.", e);
-            }
-
             buildRecord.setbuildOutputChecksum(buildOutputChecksum);
 
             if (temporaryBuild == null) {
@@ -988,21 +975,30 @@ public class BuildRecord implements GenericEntity<Integer> {
         }
 
         private void setLogs(BuildRecord buildRecord, boolean sanitizeLogs) {
-            if (repourLog != null) {
-                if (sanitizeLogs) {
-                    buildRecord.setRepourLog(repourLog.replaceAll("\u0000", ""));
-                } else {
-                    buildRecord.setRepourLog(repourLog);
+            try {
+                if (repourLog != null) {
+                    if (sanitizeLogs) {
+                        buildRecord.setRepourLog(repourLog.replaceAll("\u0000", ""));
+                    } else {
+                        buildRecord.setRepourLog(repourLog);
+                    }
+                    buildRecord.setRepourLogSize(buildRecord.repourLog.getBytes(UTF_8).length);
+                    buildRecord.setRepourLogMd5(Md5.digest(buildRecord.repourLog));
+                    buildRecord.setRepourLogSha256(Sha256.digest(buildRecord.repourLog));
                 }
-                buildRecord.setRepourLogSize(buildRecord.repourLog.getBytes(UTF_8).length);
-            }
-            if (buildLog != null) {
-                if (sanitizeLogs) {
-                    buildRecord.setBuildLog(buildLog.replaceAll("\u0000", ""));
-                } else {
-                    buildRecord.setBuildLog(buildLog);
+                if (buildLog != null) {
+                    if (sanitizeLogs) {
+                        buildRecord.setBuildLog(buildLog.replaceAll("\u0000", ""));
+                    } else {
+                        buildRecord.setBuildLog(buildLog);
+                    }
+                    buildRecord.setBuildLogSize(buildRecord.buildLog.getBytes(UTF_8).length);
+                    buildRecord.setBuildLogMd5(Md5.digest(buildRecord.buildLog));
+                    buildRecord.setBuildLogSha256(Sha256.digest(buildRecord.buildLog));
                 }
-                buildRecord.setBuildLogSize(buildRecord.buildLog.getBytes(UTF_8).length);
+            } catch (NoSuchAlgorithmException | IOException e) {
+                logger.error("Cannot compute log checksum.", e);
+                throw new RuntimeException("Cannot compute log checksum.", e);
             }
         }
 
