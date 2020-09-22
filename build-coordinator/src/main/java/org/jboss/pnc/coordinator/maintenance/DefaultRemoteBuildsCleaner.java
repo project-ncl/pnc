@@ -147,18 +147,12 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         try {
             IndyStoresClientModule indyStores = indy.stores();
             if (pkgKey != null) {
-                StoreKey tempGroupKey = new StoreKey(pkgKey, StoreType.group, tempBuildPromotionGroup);
                 StoreKey tempHostedKey = new StoreKey(pkgKey, StoreType.hosted, tempBuildPromotionGroup);
-                Group tempGroup = indy.stores().load(tempGroupKey, Group.class);
-                // check if the build repo is in the temp group or not
-                // TODO remove the check once all builds are cleared from the temp builds group
-                if (!tempGroup.getConstituents().contains(tempHostedKey)) {
-                    // delete artifacts from consolidated repository
-                    BatchDeleteRequest request = new BatchDeleteRequest();
-                    request.setTrackingID(buildContentId);
-                    request.setStoreKey(tempHostedKey);
-                    indy.module(IndyFoloAdminClientModule.class).deleteFilesFromStoreByTrackingID(request);
-                }
+                // delete artifacts from consolidated repository
+                BatchDeleteRequest request = new BatchDeleteRequest();
+                request.setTrackingID(buildContentId);
+                request.setStoreKey(tempHostedKey);
+                indy.module(IndyFoloAdminClientModule.class).deleteFilesFromStoreByTrackingID(request);
 
                 // delete the content
                 StoreKey storeKey = new StoreKey(pkgKey, StoreType.hosted, buildContentId);
