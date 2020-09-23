@@ -22,6 +22,8 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
@@ -30,14 +32,20 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.pnc.bpm.model.BuildDriverResultRest;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
+import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.util.HttpUtils;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.termdbuilddriver.DefaultBuildDriverResult;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
@@ -47,6 +55,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -54,6 +63,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 
 /**
@@ -124,6 +134,42 @@ public class BuildTaskEndpointTest {
                 Assert.assertEquals(
                         "Received error response code. Response: " + printEntity(response),
                         200,
+                        statusCode);
+            }
+        } catch (IOException e) {
+            Assertions.fail("Cannot invoke remote endpoint.", e);
+        }
+    }
+
+    @Test
+    public void shouldAcceptCompletionResultAsSingleJson() throws RemoteResourceException {
+        // given
+        BuildDriverResult buildDriverResult = new DefaultBuildDriverResult(
+                "The log!",
+                BuildStatus.SYSTEM_ERROR,
+                java.util.Optional.of("12345"));
+
+        BuildDriverResultRest buildDriverResultRest = new BuildDriverResultRest(buildDriverResult);
+        BuildResultRest buildResultRest = new BuildResultRest();
+        buildResultRest.setBuildDriverResult(buildDriverResultRest);
+
+        // when
+        HttpPost request = new HttpPost(url + BASE_REST_PATH + "/build-tasks/42/completed");
+        request.addHeader(Credentials.USER.createAuthHeader(BasicHeader::new));
+        request.addHeader("Content-type", MediaType.APPLICATION_JSON);
+
+        String jsonBody = JsonOutputConverterMapper.apply(buildResultRest);
+        log.debug("Json body: {}.", jsonBody);
+        request.setEntity(new StringEntity(jsonBody, ContentType.APPLICATION_JSON));
+
+        // then
+        int statusCode = -1;
+        try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                statusCode = response.getStatusLine().getStatusCode();
+                Assert.assertEquals(
+                        "Received error response code. Response: " + printEntity(response),
+                        400, // validation failure is expected; 500 when deserialization fails
                         statusCode);
             }
         } catch (IOException e) {
