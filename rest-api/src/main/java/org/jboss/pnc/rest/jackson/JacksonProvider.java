@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import javax.ws.rs.Consumes;
@@ -36,6 +37,7 @@ public class JacksonProvider implements ContextResolver<ObjectMapper> {
     public JacksonProvider() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new Jdk8Module());
 
         // write dates in ISO8601 format
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
