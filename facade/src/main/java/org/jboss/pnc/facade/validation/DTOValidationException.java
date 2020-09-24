@@ -19,12 +19,14 @@
 package org.jboss.pnc.facade.validation;
 
 import java.util.Optional;
+import javax.ejb.ApplicationException;
 
 /**
  * TopMost Validation Exception
  *
  * @author Sebastian Laskawiec
  */
+@ApplicationException(rollback = true)
 public abstract class DTOValidationException extends RuntimeException {
 
     public DTOValidationException() {
