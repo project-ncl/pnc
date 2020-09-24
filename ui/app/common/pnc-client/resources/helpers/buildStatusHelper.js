@@ -23,11 +23,11 @@
       .factory('buildStatusHelper', [
         function () {
 
-          var PENDING = 'PENDING';
-          var IN_PROGRESS = 'IN_PROGRESS';
-          var FINISHED = 'FINISHED';
+          const PENDING = 'PENDING';
+          const IN_PROGRESS = 'IN_PROGRESS';
+          const FINISHED = 'FINISHED';
 
-          var buildStatus = Object.freeze({
+          const buildStatus = Object.freeze({
             'NEW': {
               progress: PENDING,
               failed: false
@@ -52,7 +52,7 @@
               progress: FINISHED,
               failed: false
             },
-            'REJECTED':{
+            'REJECTED': {
               progress: FINISHED,
               failed: true
             },
@@ -101,34 +101,30 @@
           }
 
           function isPending(build) {
-            var status = getStatus(build);
-
+            const status = getStatus(build);
             return buildStatus[status].progress === PENDING;
           }
 
           function isInProgress(build) {
-            var status = getStatus(build);
-
+            const status = getStatus(build);
             return buildStatus[status].progress === IN_PROGRESS;
           }
 
           function isFinished(build) {
-            var status = getStatus(build);
-
+            const status = getStatus(build);
             return buildStatus[status].progress === FINISHED;
           }
 
           function isFailed(build) {
-            var status = getStatus(build);
-
+            const status = getStatus(build);
             return buildStatus[status].failed;
           }
 
           function isSuccess(build) {
-            return !isFailed(build);
+            const status = getStatus(build);
+            return status === 'SUCCESS';
           }
 
-          
 
           return Object.freeze({
             isPending: isPending,
