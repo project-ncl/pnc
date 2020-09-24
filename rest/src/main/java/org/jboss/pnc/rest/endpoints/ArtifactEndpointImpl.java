@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.util.Optional;
@@ -38,7 +38,7 @@ import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.parameters.PaginationParameters;
 
-@Stateless
+@ApplicationScoped
 public class ArtifactEndpointImpl implements ArtifactEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactEndpointImpl.class);

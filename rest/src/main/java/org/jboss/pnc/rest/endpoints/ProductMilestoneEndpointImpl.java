@@ -35,13 +35,13 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import java.util.Collections;
 
-@Stateless
+@ApplicationScoped
 public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
@@ -94,8 +94,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Override
     public ProductMilestoneCloseResult closeMilestone(String id) {
-        ProductMilestoneCloseResult milestoneRelease = productMilestoneProvider.closeMilestone(id);
-        return milestoneRelease;
+        return productMilestoneProvider.closeMilestone(id);
     }
 
     @Override
