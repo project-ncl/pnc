@@ -52,6 +52,9 @@ import java.util.stream.Collectors;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.fail;
+import org.jboss.pnc.enums.BuildType;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  *
@@ -214,6 +217,178 @@ public class RSQLPredicateProducerTest {
         } catch (RuntimeException ex) {
             // ok
         }
+    }
+
+    @Test
+    public void testPredicateWithTwoField() {
+        Predicate<BuildConfiguration> streamPredicate = producer
+                .getStreamPredicate("name==\"FooBar\";buildType==GRADLE");
+
+        BuildConfiguration fooBarG = BuildConfiguration.builder().name("FooBar").buildType(BuildType.GRADLE).build();
+        BuildConfiguration fooBarM = BuildConfiguration.builder().name("FooBar").buildType(BuildType.MVN).build();
+        BuildConfiguration fooBazG = BuildConfiguration.builder().name("FooBaz").buildType(BuildType.GRADLE).build();
+
+        List<BuildConfiguration> filtered = Arrays.asList(fooBarG, fooBarM, fooBazG)
+                .stream()
+                .filter(streamPredicate)
+                .collect(Collectors.toList());
+
+        assertEquals(1, filtered.size());
+        assertEquals("FooBar", filtered.get(0).getName());
+        assertEquals(BuildType.GRADLE, filtered.get(0).getBuildType());
+    }
+
+    @Test
+    public void testPredicateLike() {
+        Predicate<BuildConfiguration> streamPredicate = producer.getStreamPredicate("name=LIKE=\"%Bar\"");
+
+        BuildConfiguration fooBarG = BuildConfiguration.builder().name("FooBar").buildType(BuildType.GRADLE).build();
+        BuildConfiguration fooBarM = BuildConfiguration.builder().name("FooBar").buildType(BuildType.MVN).build();
+        BuildConfiguration fooBazG = BuildConfiguration.builder().name("FooBaz").buildType(BuildType.GRADLE).build();
+
+        List<BuildConfiguration> filtered = Arrays.asList(fooBarG, fooBarM, fooBazG)
+                .stream()
+                .filter(streamPredicate)
+                .collect(Collectors.toList());
+
+        assertEquals(2, filtered.size());
+        assertEquals("FooBar", filtered.get(0).getName());
+        assertEquals(BuildType.GRADLE, filtered.get(0).getBuildType());
+        assertEquals("FooBar", filtered.get(1).getName());
+        assertEquals(BuildType.MVN, filtered.get(1).getBuildType());
+    }
+
+    @Test
+    public void testPredicateIsNull() {
+        Predicate<BuildConfiguration> streamPredicate = producer.getStreamPredicate("name=ISNULL=true");
+
+        BuildConfiguration fooBarG = BuildConfiguration.builder().name("FooBar").buildType(BuildType.GRADLE).build();
+        BuildConfiguration nullName = BuildConfiguration.builder().name(null).buildType(BuildType.MVN).build();
+
+        List<BuildConfiguration> filtered = Arrays.asList(fooBarG, nullName)
+                .stream()
+                .filter(streamPredicate)
+                .collect(Collectors.toList());
+
+        assertEquals(1, filtered.size());
+        assertNull(filtered.get(0).getName());
+        assertEquals(BuildType.MVN, filtered.get(0).getBuildType());
+    }
+
+    @Test
+    public void testPredicateIsNotNull() {
+        Predicate<BuildConfiguration> streamPredicate = producer.getStreamPredicate("name=ISNULL=false");
+
+        BuildConfiguration fooBarG = BuildConfiguration.builder().name("FooBar").buildType(BuildType.GRADLE).build();
+        BuildConfiguration nullName = BuildConfiguration.builder().name(null).buildType(BuildType.MVN).build();
+
+        List<BuildConfiguration> filtered = Arrays.asList(fooBarG, nullName)
+                .stream()
+                .filter(streamPredicate)
+                .collect(Collectors.toList());
+
+        assertEquals(1, filtered.size());
+        assertNotNull(filtered.get(0).getName());
+        assertEquals(BuildType.GRADLE, filtered.get(0).getBuildType());
+    }
+
+    @Test
+    public void testPredicateIn() {
+        Predicate<BuildConfiguration> streamPredicate = producer.getStreamPredicate("id=in=(2,3)");
+
+        BuildConfiguration fooBarG = BuildConfiguration.builder()
+                .id("1")
+                .name("FooBar")
+                .buildType(BuildType.GRADLE)
+                .build();
+        BuildConfiguration fooBarM = BuildConfiguration.builder()
+                .id("2")
+                .name("FooBar")
+                .buildType(BuildType.MVN)
+                .build();
+        BuildConfiguration fooBazG = BuildConfiguration.builder()
+                .id("3")
+                .name("FooBaz")
+                .buildType(BuildType.GRADLE)
+                .build();
+
+        List<BuildConfiguration> filtered = Arrays.asList(fooBarG, fooBarM, fooBazG)
+                .stream()
+                .filter(streamPredicate)
+                .collect(Collectors.toList());
+
+        assertEquals(2, filtered.size());
+        assertEquals("2", filtered.get(0).getId());
+        assertEquals("FooBar", filtered.get(0).getName());
+        assertEquals(BuildType.MVN, filtered.get(0).getBuildType());
+        assertEquals("3", filtered.get(1).getId());
+        assertEquals("FooBaz", filtered.get(1).getName());
+        assertEquals(BuildType.GRADLE, filtered.get(1).getBuildType());
+    }
+
+    @Test
+    public void testPredicateOut() {
+        Predicate<BuildConfiguration> streamPredicate = producer.getStreamPredicate("id=out=(2,3)");
+
+        BuildConfiguration fooBarG = BuildConfiguration.builder()
+                .id("1")
+                .name("FooBar")
+                .buildType(BuildType.GRADLE)
+                .build();
+        BuildConfiguration fooBarM = BuildConfiguration.builder()
+                .id("2")
+                .name("FooBar")
+                .buildType(BuildType.MVN)
+                .build();
+        BuildConfiguration fooBazG = BuildConfiguration.builder()
+                .id("3")
+                .name("FooBaz")
+                .buildType(BuildType.GRADLE)
+                .build();
+
+        List<BuildConfiguration> filtered = Arrays.asList(fooBarG, fooBarM, fooBazG)
+                .stream()
+                .filter(streamPredicate)
+                .collect(Collectors.toList());
+
+        assertEquals(1, filtered.size());
+        assertEquals("1", filtered.get(0).getId());
+        assertEquals("FooBar", filtered.get(0).getName());
+        assertEquals(BuildType.GRADLE, filtered.get(0).getBuildType());
+    }
+
+    @Test
+    public void testPredicateCompareValue() {
+        Predicate<BuildConfiguration> streamPredicate = producer.getStreamPredicate("id>1");
+
+        BuildConfiguration fooBarG = BuildConfiguration.builder()
+                .id("1")
+                .name("FooBar")
+                .buildType(BuildType.GRADLE)
+                .build();
+        BuildConfiguration fooBarM = BuildConfiguration.builder()
+                .id("2")
+                .name("FooBar")
+                .buildType(BuildType.MVN)
+                .build();
+        BuildConfiguration fooBazG = BuildConfiguration.builder()
+                .id("3")
+                .name("FooBaz")
+                .buildType(BuildType.GRADLE)
+                .build();
+
+        List<BuildConfiguration> filtered = Arrays.asList(fooBarG, fooBarM, fooBazG)
+                .stream()
+                .filter(streamPredicate)
+                .collect(Collectors.toList());
+
+        assertEquals(2, filtered.size());
+        assertEquals("2", filtered.get(0).getId());
+        assertEquals("FooBar", filtered.get(0).getName());
+        assertEquals(BuildType.MVN, filtered.get(0).getBuildType());
+        assertEquals("3", filtered.get(1).getId());
+        assertEquals("FooBaz", filtered.get(1).getName());
+        assertEquals(BuildType.GRADLE, filtered.get(1).getBuildType());
     }
 
     private Answer<Path<?>> callBuildRecordPath() {

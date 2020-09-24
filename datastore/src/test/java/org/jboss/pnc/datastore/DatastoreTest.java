@@ -21,7 +21,6 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
-import org.jboss.pnc.datastore.predicates.SpringDataRSQLPredicateProducer;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.enums.SystemImageType;
@@ -463,33 +462,4 @@ public class DatastoreTest {
         return repositoryConfigurationRepository.queryWithPredicates(predicate);
     }
 
-    @Test
-    @InSequence(5)
-    public void testBooleanQuery() {
-        // given
-        String findNotDeprecated = "deprecated==false";
-        String findDeprecated = "deprecated==true";
-
-        SpringDataRSQLPredicateProducer rsqlPredicateProducer = new SpringDataRSQLPredicateProducer();
-        Predicate<BuildEnvironment> notDeprecatedPredicate = rsqlPredicateProducer
-                .getPredicate(BuildEnvironment.class, findNotDeprecated);
-        Predicate<BuildEnvironment> deprecatedPredicate = rsqlPredicateProducer
-                .getPredicate(BuildEnvironment.class, findDeprecated);
-
-        // when
-        List<BuildEnvironment> notDeprecatedEnvironments = buildEnvironmentRepository
-                .queryWithPredicates(notDeprecatedPredicate);
-
-        // expect
-        assertThat(notDeprecatedEnvironments.size()).isEqualTo(1);
-        assertThat(notDeprecatedEnvironments.get(0).isDeprecated()).isFalse();
-
-        // when
-        List<BuildEnvironment> deprecatedEnvironments = buildEnvironmentRepository
-                .queryWithPredicates(deprecatedPredicate);
-
-        // expect
-        assertThat(deprecatedEnvironments.size()).isEqualTo(1);
-        assertThat(deprecatedEnvironments.get(0).isDeprecated()).isTrue();
-    }
 }
