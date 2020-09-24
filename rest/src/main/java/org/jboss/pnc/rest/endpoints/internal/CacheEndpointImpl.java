@@ -18,13 +18,14 @@
 package org.jboss.pnc.rest.endpoints.internal;
 
 import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
 import org.jboss.pnc.facade.providers.api.CacheProvider;
 import org.jboss.pnc.rest.api.endpoints.CacheEndpoint;
 
-@Stateless
+@ApplicationScoped
 public class CacheEndpointImpl implements CacheEndpoint {
 
     @Inject

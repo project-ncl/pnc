@@ -27,10 +27,10 @@ import org.jboss.pnc.rest.api.endpoints.ProductEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@Stateless
+@ApplicationScoped
 public class ProductEndpointImpl implements ProductEndpoint {
 
     @Inject

@@ -24,10 +24,10 @@ import org.jboss.pnc.rest.api.endpoints.EnvironmentEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@Stateless
+@ApplicationScoped
 public class EnvironmentEndpointImpl implements EnvironmentEndpoint {
 
     @Inject

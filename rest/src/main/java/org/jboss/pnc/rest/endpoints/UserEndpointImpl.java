@@ -27,10 +27,10 @@ import org.jboss.pnc.rest.api.endpoints.UserEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@Stateless
+@ApplicationScoped
 public class UserEndpointImpl implements UserEndpoint {
 
     @Inject

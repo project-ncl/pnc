@@ -31,10 +31,10 @@ import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-@Stateless
+@ApplicationScoped
 public class ProjectEndpointImpl implements ProjectEndpoint {
 
     @Inject
