@@ -93,7 +93,14 @@
         calculateDependencies(dependencyGraph);
         $ctrl.buildTree = convertGraphToTree(dependencyGraph, { expandLevel: 2 });
       }).catch((error) => {
-        $ctrl.loadingErrorMessage = error.data.errorMessage;
+        // error message coming from server
+        if (error.data) { 
+          $ctrl.loadingErrorMessage = error.data.errorMessage;
+          
+        // runtime errors when creating Build Tree
+        } else { 
+          throw error;
+        }
       }).finally(function () {
         $ctrl.isLoaded = true;
       });
@@ -228,7 +235,9 @@
         }
 
         dependencyStructure.push(customBuild);
-        build._dependencyBuildIds = dependencyGraph.vertices[build.id]._dependencyBuildIds || [];
+
+        build._dependencyBuildIds = dependencyGraph.vertices[build.id] && (dependencyGraph.vertices[build.id]._dependencyBuildIds || []);
+
         (isBuild ? build._dependencyBuildIds : build._buildIds).forEach(function (buildId) {
           if (dependencyGraph.vertices[buildId]) {
             createDependencyStructure(dependencyGraph.vertices[buildId].data, customBuild, level + 1);
