@@ -17,10 +17,13 @@
  */
 package org.jboss.pnc.facade.rsql;
 
+import javax.ejb.ApplicationException;
+
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
+@ApplicationException(rollback = true)
 public class RSQLException extends RuntimeException {
 
     public RSQLException() {

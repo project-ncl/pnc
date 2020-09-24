@@ -17,6 +17,9 @@
  */
 package org.jboss.pnc.facade.validation;
 
+import javax.ejb.ApplicationException;
+
+@ApplicationException(rollback = true)
 public class AlreadyRunningException extends RuntimeException {
 
     private Object responseObject;
