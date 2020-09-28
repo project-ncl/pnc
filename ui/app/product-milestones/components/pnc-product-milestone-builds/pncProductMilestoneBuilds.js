@@ -40,7 +40,7 @@
       placeholder: 'Filter by Username',
       filterType: 'text'
     }, {
-      id: 'buildConfig.name',
+      id: 'buildConfigRevision.name',
       title: 'Build Config name',
       placeholder: 'Filter by Build Config name',
       filterType: 'text'
