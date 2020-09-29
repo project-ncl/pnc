@@ -20,6 +20,7 @@ package org.jboss.pnc.common.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Optional;
 
 /**
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
@@ -134,7 +136,21 @@ public class HttpUtils {
     public static void performHttpPostRequest(String uri, Object object) throws JsonProcessingException {
         StringEntity entity = new StringEntity(objectMapper.writeValueAsString(object), "UTF-8");
         entity.setContentType(MediaType.APPLICATION_JSON);
-        HttpUtils.performHttpPostRequest(uri, entity);
+        performHttpPostRequest(uri, entity, Optional.empty());
+    }
+
+    /**
+     * Performs HTTP post request to a uri with a json payload
+     *
+     * @param uri URI of a remote endpoint
+     * @param jsonPayload Request content, already formatted as json string
+     * @param authToken The authorization token
+     */
+    public static void performHttpPostRequest(String uri, String jsonPayload, String authToken)
+            throws JsonProcessingException {
+        StringEntity entity = new StringEntity(jsonPayload, "UTF-8");
+        entity.setContentType(MediaType.APPLICATION_JSON);
+        performHttpPostRequest(uri, entity, Optional.ofNullable(authToken));
     }
 
     /**
@@ -142,12 +158,16 @@ public class HttpUtils {
      *
      * @param uri URI of a remote endpoint
      * @param payload Request content
+     * @param authToken The authorization token
      */
-    public static void performHttpPostRequest(String uri, HttpEntity payload) {
+    public static void performHttpPostRequest(String uri, HttpEntity payload, Optional<String> authToken) {
         LOG.debug("Sending HTTP POST request to {} with payload {}", uri, payload);
 
         HttpPost request = new HttpPost(uri);
         request.setEntity(payload);
+        if (authToken.isPresent()) {
+            request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authToken.get());
+        }
 
         try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
             try (CloseableHttpResponse response = httpClient.execute(request)) {

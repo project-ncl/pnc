@@ -23,6 +23,7 @@ import java.util.concurrent.Executors;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.HttpUtils;
@@ -39,6 +40,8 @@ public class BlacklistAsyncInvoker {
 
     private GlobalModuleGroup globalModuleGroupConfiguration;
 
+    private KeycloakServiceClient keycloakServiceClient;
+
     private ExecutorService executorService;
 
     @Deprecated // CDI workaround
@@ -46,8 +49,11 @@ public class BlacklistAsyncInvoker {
     }
 
     @Inject
-    public BlacklistAsyncInvoker(GlobalModuleGroup globalModuleGroupConfiguration) {
+    public BlacklistAsyncInvoker(
+            GlobalModuleGroup globalModuleGroupConfiguration,
+            KeycloakServiceClient keycloakServiceClient) {
         this.globalModuleGroupConfiguration = globalModuleGroupConfiguration;
+        this.keycloakServiceClient = keycloakServiceClient;
 
         executorService = Executors
                 .newSingleThreadExecutor(new NamedThreadFactory("build-coordinator.BlacklistAsyncInvoker"));
@@ -58,9 +64,11 @@ public class BlacklistAsyncInvoker {
             logger.debug("Sending blacklisting payload to DA: {}", jsonPayload);
             executorService.submit(() -> {
                 try {
+                    String authToken = keycloakServiceClient.getAuthToken();
                     HttpUtils.performHttpPostRequest(
                             globalModuleGroupConfiguration.getDaUrl() + BLACKLIST_ENDPOINT,
-                            jsonPayload);
+                            jsonPayload,
+                            authToken);
                 } catch (JsonProcessingException e) {
                     logger.error("Failed to perform blacklist or deletion notification in DA.", e);
                 }
