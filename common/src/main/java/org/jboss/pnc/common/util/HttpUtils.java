@@ -23,13 +23,13 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ssl.AllowAllHostnameVerifier;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
@@ -113,9 +113,7 @@ public class HttpUtils {
 
         SSLConnectionSocketFactory sslSF = null;
         try {
-            sslSF = new SSLConnectionSocketFactory(
-                    builder.build(),
-                    SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            sslSF = new SSLConnectionSocketFactory(builder.build(), NoopHostnameVerifier.INSTANCE);
         } catch (KeyManagementException | NoSuchAlgorithmException e1) {
             LOG.error("Error creating SSL Connection Factory.", e1);
         }
@@ -123,7 +121,7 @@ public class HttpUtils {
         return HttpClients.custom()
                 .setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false))
                 .setSSLSocketFactory(sslSF)
-                .setHostnameVerifier(new AllowAllHostnameVerifier())
+                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
                 .build();
     }
 
