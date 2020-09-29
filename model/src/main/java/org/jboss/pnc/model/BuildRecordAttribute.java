@@ -111,7 +111,7 @@ public class BuildRecordAttribute implements Serializable {
         if (o == null || getClass() != o.getClass())
             return false;
         BuildRecordAttribute that = (BuildRecordAttribute) o;
-        return buildRecord.getId().equals(that.buildRecord.getId()) && key.equals(that.key);
+        return buildRecord.getId().equals(that.getBuildRecord().getId()) && key.equals(that.getKey());
     }
 
     @Override
