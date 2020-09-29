@@ -84,33 +84,23 @@
         },
       })
 
-      .state('products.detail.product-versions.detail.milestone.update', {
-        url: '/{productMilestoneId}/update',
+      .state('products.detail.product-versions.detail.milestone.detail.update', {
+        url: '/update',
         component: 'pncProductMilestoneCreateUpdatePage',
         data: {
           displayName: 'Update Milestone',
           title: '{{ productMilestone.version }} | {{ product.name }} | Update Milestone',
           requireAuth: true
-        },
-        resolve: {
-          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
-            ProductMilestoneResource.get({id: $stateParams.productMilestoneId}).$promise
-          ]
         }
       })
 
-      .state('products.detail.product-versions.detail.milestone.close', {
-        url: '/{productMilestoneId}/close',
+      .state('products.detail.product-versions.detail.milestone.detail.close', {
+        url: '/close',
         component: 'pncProductMilestoneClosePage',
         data: {
           displayName: 'Close Milestone',
           title: '{{ productMilestone.version }} | {{ product.name }} | Close Milestone',
           requireAuth: true
-        },
-        resolve: {
-          productMilestone: ['ProductMilestoneResource', '$stateParams', (ProductMilestoneResource, $stateParams) =>
-            ProductMilestoneResource.get({id: $stateParams.productMilestoneId}).$promise
-          ]
         }
       })
 
