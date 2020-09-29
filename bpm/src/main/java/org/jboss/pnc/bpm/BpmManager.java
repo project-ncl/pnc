@@ -139,7 +139,7 @@ public class BpmManager {
     }
 
     public boolean cancelTask(BpmTask bpmTask) {
-        return bpmTask.getConnector().get().cancel(bpmTask.getProcessInstanceId());
+        return bpmTask.getConnector().get().cancel(bpmTask.getProcessInstanceId(), bpmTask.getAccessToken());
     }
 
     public void notify(int taskId, BpmEvent notification) { // TODO do not use RestModel down here.

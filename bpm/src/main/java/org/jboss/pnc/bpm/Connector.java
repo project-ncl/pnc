@@ -36,7 +36,7 @@ public interface Connector extends Closeable {
     @Deprecated
     boolean isProcessInstanceCompleted(Long processInstanceId);
 
-    boolean cancel(Long processInstanceId);
+    boolean cancel(Long processInstanceId, String accessToken);
 
     @Override
     void close();

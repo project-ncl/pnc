@@ -112,7 +112,7 @@ public class KieClientConnector implements Connector {
     }
 
     @Override
-    public boolean cancel(Long processInstanceId) {
+    public boolean cancel(Long processInstanceId, String accessToken) {
 
         URI uri;
         try {

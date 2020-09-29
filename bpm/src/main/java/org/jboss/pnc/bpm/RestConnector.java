@@ -77,7 +77,7 @@ public class RestConnector implements Connector {
     @Override
     public Long startProcess(String processId, Map<String, Object> processParameters, String accessToken)
             throws ProcessManagerException {
-        String url = endpointUrl.get(processId);
+        String url = endpointUrl.processInstances(processId);
         log.debug("Staring new process using http endpoint: {}", url);
 
         Map<String, Map<String, Object>> body = new HashMap<>();
@@ -128,8 +128,25 @@ public class RestConnector implements Connector {
     }
 
     @Override
-    public boolean cancel(Long processInstanceId) {
-        return false; // TODO
+    public boolean cancel(Long processInstanceId, String accessToken) {
+        String url = endpointUrl.processInstanceSignal(Long.toString(processInstanceId), "CancelAll");
+        log.debug("Cancelling process instance using http endpoint: {}", url);
+
+        HttpPost request = new HttpPost(url);
+        configureRequest(accessToken, request);
+        try (CloseableHttpResponse response = httpClient.execute(request)) {
+            int statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode == 200) {
+                log.info("Cancelled process instance id: {}", processInstanceId);
+                return true;
+            } else {
+                log.warn("Cannot cancel process instance, response status: " + statusCode);
+                return false;
+            }
+        } catch (IOException e) {
+            log.error("Cannot cancel process instance.", e);
+            return false;
+        }
     }
 
     @Override
@@ -151,8 +168,12 @@ public class RestConnector implements Connector {
             this.deploymentId = deploymentId;
         }
 
-        public String get(String processId) {
+        public String processInstances(String processId) {
             return baseUrl + deploymentId + "/processes/" + processId + "/instances";
+        }
+
+        public String processInstanceSignal(String processInstanceId, String signal) {
+            return baseUrl + deploymentId + "/processes/instances/" + processInstanceId + "/signal/" + signal;
         }
     }
 }
