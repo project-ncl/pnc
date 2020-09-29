@@ -313,6 +313,11 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
             org.jboss.pnc.dto.Artifact artifact,
             ArtifactQuality newQuality) {
 
+        // If the quality level is not changing (e.g. in a bulk update after a single update), ignore the checks below
+        if (artifact.getArtifactQuality().equals(newQuality)) {
+            return;
+        }
+
         // Artifacts with DELETED, BLACKLISTED quality levels cannot be changed
         if (NOT_MODIFIABLE_ARTIFACT_QUALITIES.contains(artifact.getArtifactQuality())) {
             throw new ConflictedEntryException(
