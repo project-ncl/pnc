@@ -229,7 +229,7 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
 
         BuildConfigurationAudited that = (BuildConfigurationAudited) o;
 
-        return (idRev != null ? idRev.equals(that.idRev) : false);
+        return (idRev != null ? idRev.equals(that.getIdRev()) : false);
     }
 
     @Override

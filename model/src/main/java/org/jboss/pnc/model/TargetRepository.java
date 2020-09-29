@@ -189,7 +189,7 @@ public class TargetRepository implements GenericEntity<Integer> {
      * @return true if the artifact url came from a trusted repo, false otherwise
      */
     static boolean isTrusted(String artifactOriginUrl, TargetRepository targetRepository) {
-        if (targetRepository.temporaryRepo) {
+        if (targetRepository.getTemporaryRepo()) {
             return false;
         }
         if (artifactOriginUrl == null || artifactOriginUrl.isEmpty()) {

@@ -217,7 +217,7 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
 
         BuildConfigurationSet that = (BuildConfigurationSet) o;
 
-        return id != null ? id.equals(that.id) : that.id == null;
+        return id != null ? id.equals(that.getId()) : that.getId() == null;
 
     }
 

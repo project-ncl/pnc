@@ -248,10 +248,10 @@ public class User implements GenericEntity<Integer> {
         }
         User other = (User) obj;
         if (username == null) {
-            if (other.username != null) {
+            if (other.getUsername() != null) {
                 return false;
             }
-        } else if (!username.equals(other.username)) {
+        } else if (!username.equals(other.getUsername())) {
             return false;
         }
         return true;

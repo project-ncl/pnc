@@ -89,14 +89,14 @@ public class IdRev implements Serializable {
             return false;
         IdRev other = (IdRev) obj;
         if (id == null) {
-            if (other.id != null)
+            if (other.getId() != null)
                 return false;
-        } else if (!id.equals(other.id))
+        } else if (!id.equals(other.getId()))
             return false;
         if (rev == null) {
-            if (other.rev != null)
+            if (other.getRev() != null)
                 return false;
-        } else if (!rev.equals(other.rev))
+        } else if (!rev.equals(other.getRev()))
             return false;
         return true;
     }
