@@ -212,18 +212,16 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof BuildConfigurationSet))
             return false;
-
-        BuildConfigurationSet that = (BuildConfigurationSet) o;
-
-        return id != null ? id.equals(that.getId()) : that.getId() == null;
-
+        return id != null && id.equals(((BuildConfigurationSet) o).getId());
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        // Because the id is generated when the entity is stored to DB, we need to have constant hash code to achieve
+        // equals+hashCode consistency across all JPA object states
+        return 31;
     }
 
     @Override

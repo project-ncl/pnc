@@ -19,6 +19,7 @@ package org.jboss.pnc.model;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
@@ -193,6 +194,22 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     // Needed for mapstruct to be able to use builders for immutable types (systemImageId)
     public static BuildEnvironment.Builder builder() {
         return Builder.newBuilder();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof BuildEnvironment))
+            return false;
+        BuildEnvironment that = (BuildEnvironment) o;
+        return systemImageId.equals(that.getSystemImageId())
+                && systemImageRepositoryUrl.equals(that.getSystemImageRepositoryUrl());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(systemImageId, systemImageRepositoryUrl);
     }
 
     public static class Builder {

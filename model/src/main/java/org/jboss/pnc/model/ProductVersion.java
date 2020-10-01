@@ -240,6 +240,22 @@ public class ProductVersion implements GenericEntity<Integer> {
         return "ProductVersion [id=" + id + ", version=" + version + "]";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof ProductVersion))
+            return false;
+        return id != null && id.equals(((ProductVersion) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        // Because the id is generated when the entity is stored to DB, we need to have constant hash code to achieve
+        // equals+hashCode consistency across all JPA object states
+        return 31;
+    }
+
     public static class Builder {
 
         private Integer id;
@@ -359,7 +375,7 @@ public class ProductVersion implements GenericEntity<Integer> {
 
         /**
          * Will generate read-only value for Brew tag prefix for import of binaries
-         * 
+         *
          * @param productAbbreviation Abbreviation, which corresponds to product.getAbbreviation()
          * @param version Version of this product version in format \d+\.\d+
          * @return

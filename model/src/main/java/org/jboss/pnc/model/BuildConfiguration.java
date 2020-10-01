@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -640,20 +641,14 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof BuildConfiguration))
             return false;
-
-        BuildConfiguration that = (BuildConfiguration) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null)
-            return false;
-
-        return true;
+        return id != null && id.equals(((BuildConfiguration) o).getId());
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return Objects.hashCode(id);
     }
 
     public static final String CLONE_PREFIX_DATE_FORMAT = "yyyyMMddHHmmss";

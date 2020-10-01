@@ -65,6 +65,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.util.Objects;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
@@ -591,7 +592,7 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     /**
      * The product milestone for which this build was performed
-     * 
+     *
      * @return The product milestone
      */
     public ProductMilestone getProductMilestone() {
@@ -836,6 +837,20 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     public void setNoRebuildCause(BuildRecord noRebuildCause) {
         this.noRebuildCause = noRebuildCause;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof BuildRecord))
+            return false;
+        return id != null && id.equals(((BuildRecord) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     public static class Builder {

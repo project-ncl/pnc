@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import java.util.Date;
+import java.util.Objects;
 
 import org.jboss.pnc.enums.ArtifactQuality;
 
@@ -130,17 +131,14 @@ public class ArtifactAudited implements GenericEntity<Integer> {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof ArtifactAudited))
             return false;
-
-        ArtifactAudited that = (ArtifactAudited) o;
-
-        return (idRev != null ? idRev.equals(that.getIdRev()) : false);
+        return idRev != null && idRev.equals(((ArtifactAudited) o).getIdRev());
     }
 
     @Override
     public int hashCode() {
-        return idRev != null ? idRev.hashCode() : 0;
+        return Objects.hashCode(idRev);
     }
 
     public static class Builder {

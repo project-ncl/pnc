@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import java.util.Objects;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
@@ -42,7 +43,7 @@ public class GenericSetting implements GenericEntity<Integer> {
     private Integer id;
 
     @NotNull
-    @Column(unique = true)
+    @Column(unique = true, updatable = false)
     private String key;
 
     @NotNull
@@ -74,5 +75,20 @@ public class GenericSetting implements GenericEntity<Integer> {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof GenericSetting))
+            return false;
+        GenericSetting that = (GenericSetting) o;
+        return key.equals(that.getKey());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(key);
     }
 }

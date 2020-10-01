@@ -108,10 +108,10 @@ public class BuildRecordAttribute implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof BuildRecordAttribute))
             return false;
         BuildRecordAttribute that = (BuildRecordAttribute) o;
-        return buildRecord.getId().equals(that.getBuildRecord().getId()) && key.equals(that.getKey());
+        return key.equals(that.getKey()) && buildRecord.getId().equals(that.getBuildRecord().getId());
     }
 
     @Override

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import java.util.Objects;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Type;
@@ -158,6 +159,20 @@ public class BuildRecordPushResult implements GenericEntity<Long> {
         return "BuildRecordPushResult{" + "id=" + id + ", buildRecord=" + buildRecord + ", status=" + status + ", log='"
                 + log + '\'' + ", brewBuildId=" + brewBuildId + ", brewBuildUrl='" + brewBuildUrl + '\''
                 + ", tagPrefix='" + tagPrefix + '\'' + '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof BuildRecordPushResult))
+            return false;
+        return id != null && id.equals(((BuildRecordPushResult) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 
     public static final class Builder {
