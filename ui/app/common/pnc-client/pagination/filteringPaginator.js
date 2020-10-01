@@ -123,7 +123,7 @@
          *
          * e.g.
          * fp.addFilter({ field: 'buildConfiguration.name', value: 'jboss*'}).apply();
-         * fp.addFilter({ field: 'buildConfiguration.status', value: 'DONE', comparator: 'eq' }).apply();
+         * fp.addFilter({ field: 'buildConfiguration.status', value: 'SUCCESS', comparator: 'eq' }).apply();
          *
          * @param {object|array} filter - One or more filter objects, or an array
          * of filter objects.

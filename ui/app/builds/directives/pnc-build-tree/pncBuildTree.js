@@ -94,11 +94,11 @@
         $ctrl.buildTree = convertGraphToTree(dependencyGraph, { expandLevel: 2 });
       }).catch((error) => {
         // error message coming from server
-        if (error.data) { 
+        if (error.data) {
           $ctrl.loadingErrorMessage = error.data.errorMessage;
-          
+
         // runtime errors when creating Build Tree
-        } else { 
+        } else {
           throw error;
         }
       }).finally(function () {
@@ -207,7 +207,7 @@
         var attrClass = '';
         if (expandOptions) {
           if ((expandOptions.expandLevel && level > expandOptions.expandLevel) ||
-              (expandOptions.expandFailed && (build.status === 'DONE' || build.status === 'REJECTED_ALREADY_BUILT') && !isCurrentPageBuild)) {
+              (expandOptions.expandFailed && (build.status === 'SUCCESS' || build.status === 'NO_REBUILD_REQUIRED') && !isCurrentPageBuild)) {
             attrClass += 'collapsed';
           }
         }
