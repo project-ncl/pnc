@@ -44,14 +44,6 @@
               progress: IN_PROGRESS,
               failed: false
             },
-            'BUILD_COMPLETED': {
-              progress: IN_PROGRESS,
-              failed: false
-            },
-            'DONE': {
-              progress: FINISHED,
-              failed: false
-            },
             'REJECTED': {
               progress: FINISHED,
               failed: true
@@ -59,10 +51,6 @@
             'REJECTED_FAILED_DEPENDENCIES': {
               progress: FINISHED,
               failed: true
-            },
-            'REJECTED_ALREADY_BUILT': {
-              progress: FINISHED,
-              failed: false
             },
             'SYSTEM_ERROR': {
               progress: FINISHED,
@@ -75,10 +63,6 @@
             'NO_REBUILD_REQUIRED': {
               progress: FINISHED,
               failed: false
-            },
-            'DONE_WITH_ERRORS': {
-              progress: FINISHED,
-              failed: true
             },
             'CANCELLED': {
               progress: FINISHED,
