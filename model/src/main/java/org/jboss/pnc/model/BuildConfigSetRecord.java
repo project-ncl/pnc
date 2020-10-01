@@ -111,7 +111,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     /**
      * The detailed records of the builds that were executed as part of the execution of this set
-     * 
+     *
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildConfigSetRecord")
@@ -300,6 +300,22 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     public String toString() {
         return "BuildConfigSetRecord [id=" + id + ", buildConfigurationSet=" + buildConfigurationSet.getName()
                 + ", status=" + status + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof BuildConfigSetRecord))
+            return false;
+        return id != null && id.equals(((BuildConfigSetRecord) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        // Because the id is generated when the entity is stored to DB, we need to have constant hash code to achieve
+        // equals+hashCode consistency across all JPA object states
+        return 31;
     }
 
     public static class Builder {

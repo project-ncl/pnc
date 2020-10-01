@@ -22,6 +22,7 @@ import org.jboss.pnc.enums.BuildType;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * The audited record of a build configuration. Each change to the build configuration table is recorded in the audit
@@ -224,17 +225,14 @@ public class BuildConfigurationAudited implements GenericEntity<Integer> {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o == null || getClass() != o.getClass())
+        if (!(o instanceof BuildConfigurationAudited))
             return false;
-
-        BuildConfigurationAudited that = (BuildConfigurationAudited) o;
-
-        return (idRev != null ? idRev.equals(that.getIdRev()) : false);
+        return idRev != null && idRev.equals(((BuildConfigurationAudited) o).getIdRev());
     }
 
     @Override
     public int hashCode() {
-        return idRev != null ? idRev.hashCode() : 0;
+        return Objects.hashCode(idRev);
     }
 
     public static class Builder {

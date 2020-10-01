@@ -531,25 +531,23 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Artifact)) {
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Artifact))
             return false;
-        }
-        if (identifier == null || md5 == null || sha1 == null || sha256 == null) {
-            return this == obj;
-        }
-        Artifact compare = (Artifact) obj;
-        return identifier.equals(compare.getIdentifier()) && md5.equals(compare.getMd5())
-                && sha1.equals(compare.getSha1()) && sha256.equals(compare.getSha256());
-    }
-
-    public static Builder builder() {
-        return Builder.newBuilder();
+        return id != null && id.equals(((Artifact) o).getId());
     }
 
     @Override
     public int hashCode() {
-        return (identifier + md5 + sha1 + sha256).hashCode();
+        // Because the id is generated when the entity is stored to DB, we need to have constant hash code to achieve
+        // equals+hashCode consistency across all JPA object states
+        return 31;
+    }
+
+    public static Builder builder() {
+        return Builder.newBuilder();
     }
 
     public static class Builder {

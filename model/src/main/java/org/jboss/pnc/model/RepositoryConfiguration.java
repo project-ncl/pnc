@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.Cacheable;
@@ -189,14 +190,12 @@ public class RepositoryConfiguration implements GenericEntity<Integer> {
         if (!(o instanceof RepositoryConfiguration))
             return false;
 
-        RepositoryConfiguration that = (RepositoryConfiguration) o;
-
-        return getId() != null ? getId().equals(that.getId()) : that.getId() == null;
+        return internalUrl != null && internalUrl.equals(((RepositoryConfiguration) o).getInternalUrl());
     }
 
     @Override
     public int hashCode() {
-        return getId() != null ? getId().hashCode() : 0;
+        return Objects.hashCode(internalUrl);
     }
 
     @Override

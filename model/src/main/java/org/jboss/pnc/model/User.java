@@ -18,6 +18,7 @@
 package org.jboss.pnc.model;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.Cacheable;
@@ -232,29 +233,17 @@ public class User implements GenericEntity<Integer> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((username == null) ? 0 : username.hashCode());
-        return result;
+        return Objects.hashCode(username);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
+    public boolean equals(Object o) {
+        if (this == o)
             return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (!(o instanceof User))
             return false;
-        }
-        User other = (User) obj;
-        if (username == null) {
-            if (other.getUsername() != null) {
-                return false;
-            }
-        } else if (!username.equals(other.getUsername())) {
-            return false;
-        }
-        return true;
+        User that = (User) o;
+        return username.equals(that.getUsername());
     }
 
     public String getLoginToken() {

@@ -122,7 +122,7 @@ public class ProductRelease implements GenericEntity<Integer> {
 
     /**
      * The product version entity associated with this release. The association is via the product milestone.
-     * 
+     *
      * @return the product version entity associated with the linked product milestone.
      */
     public ProductVersion getProductVersion() {
@@ -197,6 +197,22 @@ public class ProductRelease implements GenericEntity<Integer> {
     @Override
     public String toString() {
         return "ProductRelease [id=" + id + ", version=" + version + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof ProductRelease))
+            return false;
+        return id != null && id.equals(((ProductRelease) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        // Because the id is generated when the entity is stored to DB, we need to have constant hash code to achieve
+        // equals+hashCode consistency across all JPA object states
+        return 31;
     }
 
     public static class Builder {

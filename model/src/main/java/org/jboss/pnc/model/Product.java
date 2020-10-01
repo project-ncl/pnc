@@ -208,6 +208,22 @@ public class Product implements GenericEntity<Integer> {
         return productVersions.add(version);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Product))
+            return false;
+        return id != null && id.equals(((Product) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        // Because the id is generated when the entity is stored to DB, we need to have constant hash code to achieve
+        // equals+hashCode consistency across all JPA object states
+        return 31;
+    }
+
     public static class Builder {
 
         private Integer id;

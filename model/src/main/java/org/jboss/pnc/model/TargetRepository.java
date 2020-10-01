@@ -203,6 +203,21 @@ public class TargetRepository implements GenericEntity<Integer> {
         return false;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof TargetRepository))
+            return false;
+        TargetRepository that = (TargetRepository) o;
+        return identifier.equals(that.getIdentifier()) && repositoryPath.equals(that.getRepositoryPath());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(identifier, repositoryPath);
+    }
+
     public static final class Builder {
 
         private Integer id;

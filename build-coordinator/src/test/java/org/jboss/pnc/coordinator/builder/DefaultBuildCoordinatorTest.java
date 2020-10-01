@@ -34,6 +34,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
@@ -73,6 +74,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -164,6 +166,7 @@ public class DefaultBuildCoordinatorTest {
                         any(Boolean.class),
                         anySet())).thenReturn(true);
         when(datastore.saveBuildConfigSetRecord(any())).thenAnswer(new SaveBuildConfigSetRecordAnswer());
+        when(datastore.getNextBuildRecordId()).thenAnswer(new BuildRecordIDAnswer());
 
         USER.setId(1);
 
@@ -226,11 +229,17 @@ public class DefaultBuildCoordinatorTest {
                         anySet())).thenReturn(false);
 
         BuildConfigurationAudited bca1 = new BuildConfigurationAudited();
-        bca1.setId(BC_1.getId());
+        IdRev idRev1 = new IdRev(BC_1.getId(), BC_1.getId() * 1000 + 1);
+        bca1.setIdRev(idRev1);
+        bca1.setId(idRev1.getId());
+        bca1.setRev(idRev1.getRev());
         bca1.setProject(PROJECT);
         when(datastore.getLatestBuildConfigurationAuditedLoadBCDependencies(BC_1.getId())).thenReturn(bca1);
         BuildConfigurationAudited bca3 = new BuildConfigurationAudited();
-        bca3.setId(BC_3.getId());
+        IdRev idRev3 = new IdRev(BC_3.getId(), BC_3.getId() * 1000 + 1);
+        bca3.setIdRev(idRev3);
+        bca3.setId(idRev3.getId());
+        bca3.setRev(idRev3.getRev());
         bca3.setProject(PROJECT);
         when(datastore.getLatestBuildConfigurationAuditedLoadBCDependencies(BC_3.getId())).thenReturn(bca3);
 
@@ -406,8 +415,16 @@ public class DefaultBuildCoordinatorTest {
         }
     }
 
+    private static class BuildRecordIDAnswer implements Answer<Integer> {
+        private static AtomicInteger id = new AtomicInteger(1);
+
+        @Override
+        public Integer answer(InvocationOnMock invocation) throws Throwable {
+            return id.getAndIncrement();
+        }
+    }
+
     private static class SaveRecordForNoRebuildAnswer implements Answer<BuildRecord> {
-        private static int id = 1;
         private Set<BuildRecord> storedRecords;
 
         public SaveRecordForNoRebuildAnswer(Set<BuildRecord> storedRecords) {
@@ -418,7 +435,7 @@ public class DefaultBuildCoordinatorTest {
         public BuildRecord answer(InvocationOnMock invocation) throws Throwable {
             BuildRecord arg = invocation.getArgument(0);
             if (arg.getId() == null) {
-                arg.setId(id++);
+                throw new IllegalArgumentException("Build Record must have ID set");
             }
             storedRecords.add(arg);
             return arg;
