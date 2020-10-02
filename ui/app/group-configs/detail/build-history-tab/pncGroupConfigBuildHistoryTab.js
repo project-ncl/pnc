@@ -37,6 +37,7 @@
     // --------------------
 
     $ctrl.$onInit = () => {
+      $ctrl.displayFields = ['status', 'id', 'configurationName', 'startTime', 'endTime', 'username'];
       $ctrl.paginator = paginator($ctrl.groupBuilds);
       $log.debug('pncGroupConfigBuildHistoryTab::$onInit [groupConfig: %O | groupBuilds: %O]', $ctrl.groupConfig, $ctrl.groupBuilds);
     };
