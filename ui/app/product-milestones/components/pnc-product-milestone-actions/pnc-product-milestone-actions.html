@@ -34,7 +34,8 @@
      pnc-confirm-message="{{ 'Mark Milestone ' + $ctrl.productMilestone.version + ' as current ?'}}"
      title="Mark Milestone as current"
      class="btn btn-default btn-{{ $ctrl.size ? $ctrl.size : 'lg'}}"
-     pnc-requires-auth>
+     pnc-requires-auth
+     ng-disabled="$ctrl.isCurrent">
     <i class="fa fa-clock-o"></i>
     <span ng-if="!$ctrl.size">Mark as current</span>
   </button>

@@ -36,6 +36,10 @@
        */
       productVersion: '<',
       /**
+       * Boolean: Value telling if this milestone is the current for the product version
+       */
+      isCurrent: '<',
+      /**
        * String: Value representing bootstrap button size: lg (default if empty), md, sm, xs
        */
       size: '@?'
