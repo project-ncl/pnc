@@ -55,6 +55,9 @@
 
         var sortChangeCallbacks = [];
 
+        // List of filters for search by direct query param
+        var directQueryParams = new Map();
+
 
         /*
          * Generates an RSQL query string based on the current internal state.
@@ -110,7 +113,17 @@
           // Add filters for search by direct query param
           activeFilters
               .filter(f => f.method === 'QUERY_PARAM')
-              .forEach(f => params[f.field] = f.value);
+              .forEach(f => {
+                params[f.field] = f.value;
+                directQueryParams.set(f.field, f.value);
+              });
+
+            directQueryParams.forEach((value, key) => {
+              if(activeFilters.filter(f => f.method === 'QUERY_PARAM' && f.field === key).length < 1){
+                delete params[key];
+                directQueryParams.delete(key);
+              }
+            });
 
           return prototype.fetch.call(this, params);
         };

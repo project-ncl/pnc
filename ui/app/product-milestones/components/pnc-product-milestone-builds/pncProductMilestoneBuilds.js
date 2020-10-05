@@ -40,10 +40,11 @@
       placeholder: 'Filter by Username',
       filterType: 'text'
     }, {
-      id: 'buildConfigRevision.name',
+      id: 'buildConfigName',
       title: 'Build Config name',
       placeholder: 'Filter by Build Config name',
-      filterType: 'text'
+      filterType: 'text',
+      filterMethod: 'QUERY_PARAM'
     }, {
       id: 'status',
       title: 'Status',
