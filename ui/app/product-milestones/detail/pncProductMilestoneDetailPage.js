@@ -27,14 +27,15 @@
       productVersion: '<'
     },
     templateUrl: 'product-milestones/detail/pnc-product-milestone-detail-page.html',
-    controller: [Controller]
+    controller: ['ProductMilestoneHelper', Controller]
   });
 
-  function Controller() {
+  function Controller(ProductMilestoneHelper) {
     const $ctrl = this;
 
     // -- Controller API --
 
+    $ctrl.isCurrent = isCurrent;
 
     // --------------------
 
@@ -42,6 +43,10 @@
       $ctrl.closeStatus = $ctrl.productMilestone.endDate ? 'CLOSED' : 'OPEN';
       $ctrl.latestCloseResult = $ctrl.closeResults.data[0];
     };
+
+    function isCurrent() {
+      return ProductMilestoneHelper.isCurrentProductMilestone($ctrl.productVersion, $ctrl.productMilestone.id);
+    }
 
   }
 

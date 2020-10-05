@@ -25,17 +25,23 @@
       productMilestones: '<'
     },
     templateUrl: 'product-milestones/components/pnc-product-milestones-list/pnc-product-milestones-list.html',
-    controller: [Controller]
+    controller: ['ProductMilestoneHelper', Controller]
   });
 
-  function Controller() {
+  function Controller(ProductMilestoneHelper) {
     const $ctrl = this;
 
     // -- Controller API --
 
+    $ctrl.isCurrent = isCurrent;
+
     // --------------------
 
     $ctrl.$onInit = () => { };
+
+    function isCurrent(productMilestoneId) {
+      return ProductMilestoneHelper.isCurrentProductMilestone($ctrl.productVersion, productMilestoneId);
+    }
   }
 
 })();
