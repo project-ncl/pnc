@@ -235,10 +235,14 @@
       * representing the requested resource.
       */
       proto.getWithNewSize = function (size) {
-        var params = this._config.params || {};
-        params.pageSize = size;
-        params.pageIndex = 0; // Reset index as it will be meaningless with new size.
-        return this.fetch(params);
+        if (size <= 200) { // Maximum page size as set in the backend side
+          var params = this._config.params || {};
+          params.pageSize = size;
+          params.pageIndex = 0; // Reset index as it will be meaningless with new size.
+          return this.fetch(params);
+        } else {
+          console.error('Trying to load page with size ' + size + ' which is above maximum allowed');
+        }
       };
 
       return page;
