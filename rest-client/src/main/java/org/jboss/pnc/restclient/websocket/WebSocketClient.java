@@ -26,6 +26,7 @@ import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.Notification;
+import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 
@@ -197,6 +198,20 @@ public interface WebSocketClient extends AutoCloseable {
             Predicate<SCMRepositoryCreationSuccess>... filters) throws ConnectionClosedException;
 
     /**
+     * Specific version of {@link #onMessage} method for {@link ProductMilestoneCloseResultNotification}.
+     *
+     * @param onNotification listener invoked on notification
+     * @param filters the filters
+     * @return the listener unsubscriber
+     * @throws ConnectionClosedException The exception is thrown, when attempting to register a listener on closed
+     *         connection.
+     * @see #onMessage
+     */
+    ListenerUnsubscriber onProductMilestoneCloseResult(
+            Consumer<ProductMilestoneCloseResultNotification> onNotification,
+            Predicate<ProductMilestoneCloseResultNotification>... filters) throws ConnectionClosedException;
+
+    /**
      * Specific version of {@link #catchSingleNotification} method for {@link BuildChangedNotification}.
      *
      * @param filters the filters
@@ -255,6 +270,16 @@ public interface WebSocketClient extends AutoCloseable {
      */
     CompletableFuture<SCMRepositoryCreationSuccess> catchSCMRepositoryCreationSuccess(
             Predicate<SCMRepositoryCreationSuccess>... filters);
+
+    /**
+     * Specific version of {@link #catchSingleNotification} method for {@link ProductMilestoneCloseResultNotification}.
+     *
+     * @param filters the filters
+     * @return the completable future
+     * @see #catchSingleNotification
+     */
+    CompletableFuture<ProductMilestoneCloseResultNotification> catchProductMilestoneCloseResult(
+            Predicate<ProductMilestoneCloseResultNotification>... filters);
 
     /**
      * Safely disconnects and closes the WebSocket client.
