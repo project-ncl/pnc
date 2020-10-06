@@ -47,4 +47,8 @@ public enum JobNotificationType {
      * Job type representing a change in the generic setting.
      */
     GENERIC_SETTING,
+    /**
+     * Job type representing closing of milestone
+     */
+    PRODUCT_MILESTONE_CLOSE,
 }
