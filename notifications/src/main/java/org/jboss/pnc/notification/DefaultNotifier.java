@@ -27,10 +27,12 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
 import org.jboss.pnc.bpm.model.BpmEvent;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
+import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
@@ -202,6 +204,12 @@ public class DefaultNotifier implements Notifier {
         logger.trace("Observed new set status changed event {}.", buildSetStatusChangedEvent);
         sendMessage(new GroupBuildChangedNotification(buildSetStatusChangedEvent.getGroupBuild()));
         logger.trace("Set status changed event processed {}.", buildSetStatusChangedEvent);
+    }
+
+    public void collectProductMilestoneCloseResultEvent(@Observes ProductMilestoneCloseResult milestoneCloseResult) {
+        logger.trace("Observed new MilestoneCloseResult event {}.", milestoneCloseResult);
+        sendMessage(new ProductMilestoneCloseResultNotification(milestoneCloseResult));
+        logger.trace("ProductMilestoneCloseResult event processed {}.", milestoneCloseResult);
     }
 
 }

@@ -28,6 +28,7 @@ import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.Notification;
+import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 import org.slf4j.Logger;
@@ -277,6 +278,13 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     }
 
     @Override
+    public ListenerUnsubscriber onProductMilestoneCloseResult(
+            Consumer<ProductMilestoneCloseResultNotification> onNotification,
+            Predicate<ProductMilestoneCloseResultNotification>... filters) throws ConnectionClosedException {
+        return onMessage(ProductMilestoneCloseResultNotification.class, onNotification, filters);
+    }
+
+    @Override
     public CompletableFuture<BuildChangedNotification> catchBuildChangedNotification(
             Predicate<BuildChangedNotification>... filters) {
         return catchSingleNotification(BuildChangedNotification.class, filters);
@@ -310,6 +318,12 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     public CompletableFuture<SCMRepositoryCreationSuccess> catchSCMRepositoryCreationSuccess(
             Predicate<SCMRepositoryCreationSuccess>... filters) {
         return catchSingleNotification(SCMRepositoryCreationSuccess.class, filters);
+    }
+
+    @Override
+    public CompletableFuture<ProductMilestoneCloseResultNotification> catchProductMilestoneCloseResult(
+            Predicate<ProductMilestoneCloseResultNotification>... filters) {
+        return catchSingleNotification(ProductMilestoneCloseResultNotification.class, filters);
     }
 
     @Override
