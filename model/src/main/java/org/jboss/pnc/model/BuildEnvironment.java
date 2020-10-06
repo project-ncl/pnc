@@ -57,7 +57,10 @@ import org.jboss.pnc.enums.SystemImageType;
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
-        uniqueConstraints = @UniqueConstraint(name = "uk_buildenvironment_name", columnNames = "name"),
+        uniqueConstraints = { @UniqueConstraint(name = "uk_buildenvironment_name", columnNames = "name"),
+                @UniqueConstraint(
+                        name = "uk_buildenvironment_imageid_imagerepositoryurl",
+                        columnNames = { "systemImageId", "systemImageRepositoryUrl" }) },
         indexes = { @Index(name = "idx_buildenvironment_systemimageid", columnList = "systemimageid") })
 public class BuildEnvironment implements GenericEntity<Integer> {
 
@@ -82,7 +85,9 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     /**
      * The URL of the repository which contains the build system image.
      */
+    @NotNull
     @Size(max = 255)
+    @Column(updatable = false)
     private String systemImageRepositoryUrl;
 
     /**
@@ -90,7 +95,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
      * image. This must never be modified to ensure build reproducibility.
      */
     @NotNull
-    @Column(unique = true, updatable = false)
+    @Column(updatable = false)
     @Size(max = 255)
     private String systemImageId;
 

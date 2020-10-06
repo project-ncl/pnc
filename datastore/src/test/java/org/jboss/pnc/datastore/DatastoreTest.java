@@ -150,12 +150,14 @@ public class DatastoreTest {
         BuildEnvironment buildEnv = BuildEnvironment.Builder.newBuilder()
                 .name("test build env")
                 .systemImageId("12345")
+                .systemImageRepositoryUrl("https://example.com/12345")
                 .systemImageType(SystemImageType.DOCKER_IMAGE)
                 .deprecated(false)
                 .build();
         BuildEnvironment buildEnvDeprecated = BuildEnvironment.Builder.newBuilder()
                 .name("deprecated build env")
                 .systemImageId("12346")
+                .systemImageRepositoryUrl("https://example.com/12346")
                 .systemImageType(SystemImageType.DOCKER_IMAGE)
                 .deprecated(true)
                 .build();
