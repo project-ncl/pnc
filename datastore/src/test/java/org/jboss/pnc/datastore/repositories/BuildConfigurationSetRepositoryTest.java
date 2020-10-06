@@ -121,6 +121,7 @@ public class BuildConfigurationSetRepositoryTest {
             repositoryConfigurationRepository.save(repositoryConfiguration);
             buildEnvironment = BuildEnvironment.Builder.newBuilder()
                     .name("friendly environment")
+                    .systemImageRepositoryUrl("https://example.com/friendlyEnvironment")
                     .systemImageId("fe-10")
                     .systemImageType(SystemImageType.DOCKER_IMAGE)
                     .build();

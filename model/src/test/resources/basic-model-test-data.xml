@@ -30,7 +30,7 @@
 
   <productversion id="1" product_id="1" version="1.0"/>
   <productversion id="2" product_id="2" version="1.0"/>
-  
+
   <productmilestone id="1" productversion_id="1"
     version="1.0.0.ER1" />
   <productmilestone id="2" productversion_id="1"
@@ -39,7 +39,8 @@
   <productrelease id="1" productmilestone_id="1"
     version="1.0.0.Beta1" />
 
-  <buildenvironment id="1" name="Mock Test Build System"
+    <buildenvironment id="1" name="Mock Test Build System"
+                      systemImageRepositoryUrl="http://example.com/image-123456"
     description="Mock build system record for testing" systemImageId="123456"
     systemImageType="DOCKER_IMAGE" deprecated="false" />
 

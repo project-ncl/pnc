@@ -64,8 +64,10 @@ public class Producers {
     }
 
     BuildEnvironment buildEnv() {
+        final String name = randomAlphabetic(10);
         BuildEnvironment environment = BuildEnvironment.Builder.newBuilder()
-                .name(randomAlphabetic(10))
+                .name(name)
+                .systemImageRepositoryUrl("https://example.com/" + name)
                 .systemImageType(SystemImageType.DOCKER_IMAGE)
                 .systemImageId(randomNumeric(10))
                 .build();
