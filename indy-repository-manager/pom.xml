@@ -40,16 +40,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.hibernate.validator</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>model</artifactId>
     </dependency>
@@ -70,11 +60,6 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>moduleconfig</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.enterprise</groupId>
-      <artifactId>jakarta.enterprise.cdi-api</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.jboss.weld.se</groupId>
@@ -112,6 +97,41 @@
           <artifactId>logback-core</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.atlas</groupId>
+      <artifactId>atlas-identities</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.atlas</groupId>
+      <artifactId>atlas-npm-identities</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-common-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging-spi</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.enterprise</groupId>
+      <artifactId>jakarta.enterprise.cdi-api</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.commonjava.indy.embed</groupId>
@@ -155,14 +175,6 @@
       <groupId>org.apache.derby</groupId>
       <artifactId>derby</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.commonjava.atlas</groupId>
-      <artifactId>atlas-identities</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.commonjava.atlas</groupId>
-      <artifactId>atlas-npm-identities</artifactId>
-    </dependency>
 
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -172,17 +184,6 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-mock</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jboss-common-core</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss.logging</groupId>
-          <artifactId>jboss-logging-spi</artifactId>
-        </exclusion>
-      </exclusions>
       <scope>test</scope>
     </dependency>
     <dependency>
