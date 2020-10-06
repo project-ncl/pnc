@@ -29,7 +29,8 @@
 
   module.config([
     '$stateProvider',
-    function ($stateProvider) {
+    '$urlRouterProvider',
+    function ($stateProvider, $urlRouterProvider) {
 
       $stateProvider.state('builds', {
         abstract: true,
@@ -59,33 +60,41 @@
         }
       });
 
+       /*
+       * Shortcut state to allow short links of the form /builds/:id
+       *
+       * Don't navigate here programatically as it can potentially break the back button and causes a double fetch of
+       * the build.
+       *
+       * This only exists for users to type in a shorter URL!
+       */
       $stateProvider.state('builds.detail', {
-        abstract: true,
         url: '/{buildId}',
         resolve: {
-          build: ['BuildResource', '$stateParams', function (BuildResource, $stateParams) {
-            return BuildResource.get({ id: $stateParams.buildId }).$promise;
-          }]
-        }
-      });
-
-      $stateProvider.state('builds.detail.default', {
-        url: '',
-        onEnter: [
-          '$state',
-          '$timeout',
-          'build',
-          function ($state, $timeout, build) {
-            $timeout(function () { // Works around bug in ui.router https://github.com/angular-ui/ui-router/issues/1434
-              $state.go('projects.detail.build-configs.detail.builds.detail.default', {
+          build: [
+            'BuildResource', '$stateParams',
+            (BuildResource, $stateParams) => BuildResource.get({ id: $stateParams.buildId }).$promise
+          ]
+        },
+        redirectTo: trans => {
+          let buildPromise = trans.injector().getAsync('build');
+          return buildPromise.then(build => {
+            return {
+              state: 'projects.detail.build-configs.detail.builds.detail.default',
+              params: {
                 projectId: build.project.id,
                 configurationId: build.buildConfigRevision.id,
                 buildId: build.id
-              });
-            });
-          }
-        ]
+              }
+            };
+          });
+        }
       });
+
+      /*
+       * NCLSUP-155 Maintain old style build URLs so links in JIRAs are not broken.
+       */
+      $urlRouterProvider.when('/build-records/:id', '/builds/:id');
 
       $stateProvider.state('projects.detail.build-configs.detail.builds', {
         abstract: true,
