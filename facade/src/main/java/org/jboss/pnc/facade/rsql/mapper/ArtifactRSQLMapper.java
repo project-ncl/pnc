@@ -71,8 +71,6 @@ public class ArtifactRSQLMapper extends AbstractRSQLMapper<Integer, Artifact> {
                 return Artifact_.importDate;
             case "artifactQuality":
                 return Artifact_.artifactQuality;
-            case "targetRepository":
-                return Artifact_.targetRepository;
             default:
                 return null;
         }
