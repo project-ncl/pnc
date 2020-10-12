@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mapper;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -65,8 +66,11 @@ public class MapSetMapper {
     @Inject
     private ProductVersionMapper productVersionMapper;
 
+    @Inject
+    private RefToReferenceMapper referenceMapper;
+
     public Set<BuildConfigurationSet> mapGC(Map<String, GroupConfigurationRef> value) {
-        return map(value, groupConfigurationMapper);
+        return map(value, groupConfigurationMapper, BuildConfigurationSet.class);
     }
 
     public Map<String, GroupConfigurationRef> mapGC(Collection<BuildConfigurationSet> value) {
@@ -74,7 +78,7 @@ public class MapSetMapper {
     }
 
     public Set<BuildConfiguration> mapBC(Map<String, BuildConfigurationRef> value) {
-        return map(value, buildConfigurationMapper);
+        return map(value, buildConfigurationMapper, BuildConfiguration.class);
     }
 
     public Map<String, BuildConfigurationRef> mapBC(Collection<BuildConfiguration> value) {
@@ -82,7 +86,7 @@ public class MapSetMapper {
     }
 
     public Set<ProductVersion> mapPV(Map<String, ProductVersionRef> value) {
-        return map(value, productVersionMapper);
+        return map(value, productVersionMapper, ProductVersion.class);
     }
 
     public Map<String, ProductVersionRef> mapPV(Collection<ProductVersion> value) {
@@ -90,7 +94,7 @@ public class MapSetMapper {
     }
 
     public Set<ProductMilestone> mapPM(Map<String, ProductMilestoneRef> value) {
-        return map(value, productMilestoneMapper);
+        return map(value, productMilestoneMapper, ProductMilestone.class);
     }
 
     public Map<String, ProductMilestoneRef> mapPM(Collection<ProductMilestone> value) {
@@ -98,20 +102,24 @@ public class MapSetMapper {
     }
 
     public Set<ProductRelease> mapPR(Map<String, ProductReleaseRef> value) {
-        return map(value, productReleaseMapper);
+        return map(value, productReleaseMapper, ProductRelease.class);
     }
 
     public Map<String, ProductReleaseRef> mapPR(Collection<ProductRelease> value) {
         return map(value, productReleaseMapper);
     }
 
-    private <DTO extends DTOEntity, DB extends GenericEntity<?>> Set<DB> map(
+    private <ID extends Serializable, DTO extends DTOEntity, DB extends GenericEntity<ID>> Set<DB> map(
             Map<String, DTO> value,
-            EntityMapper<?, DB, ?, DTO> mapper) {
+            EntityMapper<ID, DB, ?, DTO> mapper,
+            Class<DB> targetClass) {
         if (value == null) {
             return null;
         }
-        return value.values().stream().map(mapper::toIDEntity).collect(Collectors.toSet());
+        return value.values()
+                .stream()
+                .map(ref -> referenceMapper.map(ref, mapper.getIdMapper(), targetClass))
+                .collect(Collectors.toSet());
     }
 
     private <DTO extends DTOEntity, DB extends GenericEntity<?>> Map<String, DTO> map(

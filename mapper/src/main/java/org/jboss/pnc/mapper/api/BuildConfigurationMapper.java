@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.MapSetMapper;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper.IDMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.mapstruct.BeanMapping;
@@ -34,8 +35,8 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { ProjectMapper.class, ProductVersionMapper.class, EnvironmentMapper.class, IDMapper.class,
-                SCMRepositoryMapper.class, MapSetMapper.class, UserMapper.class })
+        uses = { RefToReferenceMapper.class, ProjectMapper.class, ProductVersionMapper.class, EnvironmentMapper.class,
+                IDMapper.class, SCMRepositoryMapper.class, MapSetMapper.class, UserMapper.class })
 public interface BuildConfigurationMapper
         extends EntityMapper<Integer, BuildConfiguration, org.jboss.pnc.dto.BuildConfiguration, BuildConfigurationRef> {
 
@@ -55,16 +56,6 @@ public interface BuildConfigurationMapper
     @Mapping(target = "lastModificationUser", source = "modificationUser", qualifiedBy = IdEntity.class)
     @Mapping(target = "brewPullActive", source = "brewPullActive", defaultValue = "false")
     BuildConfiguration toEntity(org.jboss.pnc.dto.BuildConfiguration dtoEntity);
-
-    @Override
-    default BuildConfiguration toIDEntity(BuildConfigurationRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        BuildConfiguration entity = new BuildConfiguration();
-        entity.setId(Integer.valueOf(dtoEntity.getId()));
-        return entity;
-    }
 
     @Override
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")

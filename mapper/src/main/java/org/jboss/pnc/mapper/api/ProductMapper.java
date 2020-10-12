@@ -33,16 +33,6 @@ public interface ProductMapper extends EntityMapper<Integer, Product, org.jboss.
     Product toEntity(org.jboss.pnc.dto.Product dtoEntity);
 
     @Override
-    default Product toIDEntity(ProductRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        Product product = new Product();
-        product.setId(Integer.valueOf(dtoEntity.getId()));
-        return product;
-    }
-
-    @Override
     org.jboss.pnc.dto.Product toDTO(Product dbEntity);
 
     @Override

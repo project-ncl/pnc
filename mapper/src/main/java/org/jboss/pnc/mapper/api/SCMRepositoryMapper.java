@@ -39,17 +39,6 @@ public interface SCMRepositoryMapper
     RepositoryConfiguration toEntity(SCMRepository dtoEntity);
 
     @Override
-    @IdEntity
-    default RepositoryConfiguration toIDEntity(SCMRepository dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        RepositoryConfiguration entity = new RepositoryConfiguration();
-        entity.setId(Integer.valueOf(dtoEntity.getId()));
-        return entity;
-    }
-
-    @Override
     @Reference
     default SCMRepository toRef(RepositoryConfiguration dbEntity) {
         return toDTO(dbEntity);

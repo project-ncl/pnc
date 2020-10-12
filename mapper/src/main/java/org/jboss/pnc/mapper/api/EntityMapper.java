@@ -41,14 +41,6 @@ public interface EntityMapper<ID extends Serializable, DB extends GenericEntity<
     DB toEntity(DTO dtoEntity);
 
     /**
-     * Converts DTO entity to database entity with only ID set.
-     *
-     * @param dtoEntity DTO entity to be converted.
-     * @return Converted database entity.
-     */
-    DB toIDEntity(REF dtoEntity);
-
-    /**
      * Converts database entity to DTO entity.
      * 
      * @param dbEntity database entity to be converted.

@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.IntIdMapper;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.ProductRelease;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -29,22 +30,14 @@ import org.mapstruct.Mapping;
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = { ProductMilestoneMapper.class, ProductVersionMapper.class })
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { RefToReferenceMapper.class, ProductMilestoneMapper.class, ProductVersionMapper.class })
 public interface ProductReleaseMapper
         extends EntityMapper<Integer, ProductRelease, org.jboss.pnc.dto.ProductRelease, ProductReleaseRef> {
     @Override
     @BeanMapping(ignoreUnmappedSourceProperties = { "productVersion" })
     ProductRelease toEntity(org.jboss.pnc.dto.ProductRelease dtoEntity);
-
-    @Override
-    default ProductRelease toIDEntity(ProductReleaseRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        ProductRelease release = new ProductRelease();
-        release.setId(Integer.valueOf(dtoEntity.getId()));
-        return release;
-    }
 
     @Override
     @Mapping(

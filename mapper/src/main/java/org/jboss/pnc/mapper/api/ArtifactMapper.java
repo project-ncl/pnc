@@ -31,12 +31,6 @@ public interface ArtifactMapper extends EntityMapper<Integer, Artifact, org.jbos
     org.jboss.pnc.dto.Artifact toDTO(Artifact dbEntity);
 
     @Override
-    default Artifact toIDEntity(ArtifactRef dtoEntity) {
-        return dtoEntity == null ? null
-                : Artifact.Builder.newBuilder().id(getIdMapper().toEntity(dtoEntity.getId())).build();
-    }
-
-    @Override
     ArtifactRef toRef(Artifact dbEntity);
 
     @Override

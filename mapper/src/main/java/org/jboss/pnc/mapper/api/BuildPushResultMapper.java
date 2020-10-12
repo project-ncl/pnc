@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.BuildPushResultRef;
 import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.mapper.LongIdMapper;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.mapstruct.BeanMapping;
@@ -32,21 +33,11 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { BuildMapper.IDMapper.class, ProductMilestoneCloseResultMapper.class })
+        uses = { RefToReferenceMapper.class, BuildMapper.IDMapper.class, ProductMilestoneCloseResultMapper.class })
 public interface BuildPushResultMapper
         extends EntityMapper<Long, BuildRecordPushResult, BuildPushResult, BuildPushResultRef> {
 
     IdMapper<Long, String> idMapper = new LongIdMapper();
-
-    @Override
-    default BuildRecordPushResult toIDEntity(BuildPushResultRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        BuildRecordPushResult buildRecordPushResult = new BuildRecordPushResult();
-        buildRecordPushResult.setId(Long.parseLong(dtoEntity.getId()));
-        return buildRecordPushResult;
-    }
 
     @Mapping(target = "buildId", source = "buildRecord")
     @Mapping(
@@ -68,7 +59,7 @@ public interface BuildPushResultMapper
     @Mapping(target = "buildRecord", source = "buildId")
     @Mapping(target = "tagPrefix", ignore = true)
     @Mapping(target = "log", ignore = true)
-    @Mapping(target = "productMilestoneRelease", source = "dto.productMilestoneCloseResult")
+    @Mapping(target = "productMilestoneRelease", source = "productMilestoneCloseResult")
     @BeanMapping(ignoreUnmappedSourceProperties = { "logContext", "message" })
     BuildRecordPushResult toEntity(BuildPushResult dto);
 

@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.model.TargetRepository;
 import org.mapstruct.BeanMapping;
@@ -27,24 +26,13 @@ import org.mapstruct.Mapping;
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = { ArtifactMapper.class, AbstractArtifactMapper.IDMapper.class })
+@Mapper(config = MapperCentralConfig.class)
 public interface TargetRepositoryMapper extends
         EntityMapper<Integer, TargetRepository, org.jboss.pnc.dto.TargetRepository, org.jboss.pnc.dto.TargetRepository> {
 
     @Override
     @Mapping(target = "artifacts", ignore = true)
     TargetRepository toEntity(org.jboss.pnc.dto.TargetRepository dtoEntity);
-
-    @Override
-    @IdEntity
-    default TargetRepository toIDEntity(org.jboss.pnc.dto.TargetRepository dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        TargetRepository entity = new TargetRepository();
-        entity.setId(Integer.valueOf(dtoEntity.getId()));
-        return entity;
-    }
 
     @Override
     @BeanMapping(ignoreUnmappedSourceProperties = { "identifierPath", "artifacts" })
