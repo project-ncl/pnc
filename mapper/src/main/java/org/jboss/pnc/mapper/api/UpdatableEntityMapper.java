@@ -17,10 +17,9 @@
  */
 package org.jboss.pnc.mapper.api;
 
+import java.io.Serializable;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.model.GenericEntity;
-
-import java.io.Serializable;
 
 /**
  * Mappers that converts database entity to DTO entities and vice versa.
@@ -31,31 +30,14 @@ import java.io.Serializable;
  * @param <DTO> The full DTO entity type
  * @param <REF> The reference DTO entity type
  */
-public interface EntityMapper<ID extends Serializable, DB extends GenericEntity<ID>, DTO extends REF, REF extends DTOEntity> {
+public interface UpdatableEntityMapper<ID extends Serializable, DB extends GenericEntity<ID>, DTO extends REF, REF extends DTOEntity>
+        extends EntityMapper<ID, DB, DTO, REF> {
 
     /**
-     * Converts DTO entity to database entity. This should be used only when creating new entity.
+     * Merges DTO state into database entity. This should be used when updating existing entity.
      *
      * @param dtoEntity DTO entity to be converted.
-     * @return Converted database entity.
+     * @param target The managed DB entity.
      */
-    DB toEntity(DTO dtoEntity);
-
-    /**
-     * Converts database entity to DTO entity.
-     *
-     * @param dbEntity database entity to be converted.
-     * @return Converted DTO entity.
-     */
-    DTO toDTO(DB dbEntity);
-
-    /**
-     * Converts database entity to DTO reference entity.
-     *
-     * @param dbEntity database entity to be converted.
-     * @return Converted DTO reference entity.
-     */
-    REF toRef(DB dbEntity);
-
-    IdMapper<ID, String> getIdMapper();
+    void updateEntity(DTO dtoEntity, DB target);
 }

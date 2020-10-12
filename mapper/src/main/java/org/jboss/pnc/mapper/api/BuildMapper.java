@@ -40,6 +40,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
+import org.mapstruct.MappingTarget;
 
 /**
  *
@@ -52,7 +53,7 @@ import org.jboss.pnc.mapper.RefToReferenceMapper;
                 BrewNameWorkaround.class, GroupBuildMapper.class, BuildBCRevisionFetcher.class,
                 ProductMilestoneMapper.class })
 
-public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, BuildRef> {
+public interface BuildMapper extends UpdatableEntityMapper<Integer, BuildRecord, Build, BuildRef> {
 
     IdMapper<Integer, String> idMapper = new IntIdMapper();
 
@@ -125,6 +126,49 @@ public interface BuildMapper extends EntityMapper<Integer, BuildRecord, Build, B
     @Mapping(target = "noRebuildCause", qualifiedBy = IdEntity.class)
     @BeanMapping(ignoreUnmappedSourceProperties = { "project", "scmRepository", "progress" })
     BuildRecord toEntity(Build dtoEntity);
+
+    @Override
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "attributes", ignore = true) // Specific endpoint exists for updating attributes
+    @Mapping(target = "attributesMap", ignore = true)
+    @Mapping(target = "buildConfigurationAudited", ignore = true) // Transient
+    @Mapping(target = "buildRecordPushResults", ignore = true) // Only added to when new push result is created
+    // fields with updatable=false
+    @Mapping(target = "buildConfigurationId", ignore = true)
+    @Mapping(target = "buildConfigurationRev", ignore = true)
+    @Mapping(target = "buildContentId", ignore = true)
+    @Mapping(target = "temporaryBuild", ignore = true)
+    @Mapping(target = "submitTime", ignore = true)
+    @Mapping(target = "startTime", ignore = true)
+    @Mapping(target = "endTime", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "scmRepoURL", ignore = true)
+    @Mapping(target = "scmRevision", ignore = true)
+    @Mapping(target = "scmTag", ignore = true)
+    @Mapping(target = "buildOutputChecksum", ignore = true)
+    @Mapping(target = "sshCommand", ignore = true)
+    @Mapping(target = "sshPassword", ignore = true)
+    @Mapping(target = "builtArtifacts", ignore = true)
+    @Mapping(target = "dependencies", ignore = true)
+    @Mapping(target = "buildEnvironment", ignore = true)
+    @Mapping(target = "productMilestone", ignore = true)
+    @Mapping(target = "buildConfigSetRecord", ignore = true)
+    @Mapping(target = "noRebuildCause", ignore = true)
+    // logs
+    @Mapping(target = "buildLog", ignore = true)
+    @Mapping(target = "buildLogMd5", ignore = true)
+    @Mapping(target = "buildLogSha256", ignore = true)
+    @Mapping(target = "buildLogSize", ignore = true)
+    @Mapping(target = "repourLog", ignore = true)
+    @Mapping(target = "repourLogMd5", ignore = true)
+    @Mapping(target = "repourLogSha256", ignore = true)
+    @Mapping(target = "repourLogSize", ignore = true)
+    // not in DTO
+    @Mapping(target = "dependentBuildRecordIds", ignore = true)
+    @Mapping(target = "dependencyBuildRecordIds", ignore = true)
+    @Mapping(target = "executionRootName", ignore = true)
+    @Mapping(target = "executionRootVersion", ignore = true)
+    public abstract void updateEntity(Build dtoEntity, @MappingTarget BuildRecord target);
 
     @Mapping(target = "id", expression = "java( getIdMapper().toDto(buildTask.getId()) )")
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)

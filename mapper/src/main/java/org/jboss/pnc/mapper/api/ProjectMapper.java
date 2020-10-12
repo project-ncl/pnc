@@ -24,13 +24,14 @@ import org.jboss.pnc.model.Project;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Mapper(config = MapperCentralConfig.class, uses = { MapSetMapper.class })
-public interface ProjectMapper extends EntityMapper<Integer, Project, org.jboss.pnc.dto.Project, ProjectRef> {
+public interface ProjectMapper extends UpdatableEntityMapper<Integer, Project, org.jboss.pnc.dto.Project, ProjectRef> {
 
     @Override
     @Mapping(target = "buildConfigs", source = "buildConfigurations")
@@ -43,6 +44,11 @@ public interface ProjectMapper extends EntityMapper<Integer, Project, org.jboss.
     @Override
     @Mapping(target = "buildConfigurations", source = "buildConfigs")
     Project toEntity(org.jboss.pnc.dto.Project dtoEntity);
+
+    @Override
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "buildConfigurations", ignore = true)
+    void updateEntity(org.jboss.pnc.dto.Project dtoEntity, @MappingTarget Project target);
 
     @Override
     default IdMapper<Integer, String> getIdMapper() {

@@ -77,7 +77,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.persistence.EntityManager;
+import org.jboss.pnc.mapper.CollectionMerger;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
+import org.jboss.pnc.mapper.abstracts.AbstractProductVersionMapper;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -160,6 +162,10 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     @Spy
     protected ResultMapper resultMapper = new ResultMapperImpl();
+
+    @Spy
+    @InjectMocks
+    protected CollectionMerger collectionMerger = new CollectionMerger();
 
     @Mock
     protected EntityManager em;
@@ -248,6 +254,7 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
         injectMethod("productMapper", productVersionMapper, productMapper, ProductVersionMapperImpl.class);
         injectMethod("refToReferenceMapper", productVersionMapper, refMapper, ProductVersionMapperImpl.class);
         injectMethod("productVersionMapper", refMapper, productVersionMapper, RefToReferenceMapper.class);
+        injectMethod("cm", productVersionMapper, collectionMerger, AbstractProductVersionMapper.class);
 
         injectMethod(
                 "productMilestoneMapper",

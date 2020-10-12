@@ -23,6 +23,7 @@ import org.jboss.pnc.model.RepositoryConfiguration;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  *
@@ -30,13 +31,22 @@ import org.mapstruct.Mapping;
  */
 @Mapper(config = MapperCentralConfig.class)
 public interface SCMRepositoryMapper
-        extends EntityMapper<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {
+        extends UpdatableEntityMapper<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {
 
     @Override
     @Mapping(target = "internalUrlNormalized", ignore = true)
     @Mapping(target = "externalUrlNormalized", ignore = true)
     @Mapping(target = "buildConfigurations", ignore = true)
+    @Mapping(target = "preBuildSyncEnabled", defaultValue = "true")
     RepositoryConfiguration toEntity(SCMRepository dtoEntity);
+
+    @Override
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "internalUrl", ignore = true)
+    @Mapping(target = "internalUrlNormalized", ignore = true)
+    @Mapping(target = "externalUrlNormalized", ignore = true)
+    @Mapping(target = "buildConfigurations", ignore = true)
+    void updateEntity(SCMRepository dtoEntity, @MappingTarget RepositoryConfiguration target);
 
     @Override
     @Reference
