@@ -125,7 +125,8 @@ public class BuildConfiguration extends BuildConfigurationRef {
             BuildType buildType,
             User creationUser,
             User modificationUser,
-            String defaultAlignmentParams) {
+            String defaultAlignmentParams,
+            boolean brewPullActive) {
         super(
                 id,
                 name,
@@ -135,7 +136,8 @@ public class BuildConfiguration extends BuildConfigurationRef {
                 creationTime,
                 modificationTime,
                 buildType,
-                defaultAlignmentParams);
+                defaultAlignmentParams,
+                brewPullActive);
         this.scmRepository = scmRepository;
         this.project = project;
         this.environment = environment;
