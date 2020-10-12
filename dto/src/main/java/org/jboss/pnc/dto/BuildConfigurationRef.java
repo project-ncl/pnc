@@ -104,6 +104,11 @@ public class BuildConfigurationRef implements DTOEntity {
      */
     protected final String defaultAlignmentParams;
 
+    /**
+     * Indicates whether the Brew Bridge Pull feature is active or not. It defaults to false.
+     */
+    protected Boolean brewPullActive;
+
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {
