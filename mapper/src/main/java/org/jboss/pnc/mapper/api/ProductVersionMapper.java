@@ -21,29 +21,33 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.IntIdMapper;
-import org.jboss.pnc.mapper.MapSetMapper;
-import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.ProductVersion;
 import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(
-        config = MapperCentralConfig.class,
-        uses = { RefToReferenceMapper.class, ProductMilestoneMapper.class, ProductMapper.class, MapSetMapper.class })
 public interface ProductVersionMapper
-        extends EntityMapper<Integer, ProductVersion, org.jboss.pnc.dto.ProductVersion, ProductVersionRef> {
+        extends UpdatableEntityMapper<Integer, ProductVersion, org.jboss.pnc.dto.ProductVersion, ProductVersionRef> {
 
     @Override
     @Mapping(target = "buildConfigurationSets", source = "groupConfigs")
     @Mapping(target = "buildConfigurations", source = "buildConfigs")
     @Mapping(target = "productReleases", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "productReleases" })
     ProductVersion toEntity(org.jboss.pnc.dto.ProductVersion dtoEntity);
+
+    @Override
+    @InheritConfiguration
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "product", ignore = true)
+    @Mapping(target = "productMilestones", ignore = true)
+    @Mapping(target = "buildConfigurationSets", expression = "java( cm.updateGroupConfigs(dtoEntity, target) )")
+    @Mapping(target = "buildConfigurations", expression = "java( cm.updateBuildConfigs(dtoEntity, target) )")
+    void updateEntity(org.jboss.pnc.dto.ProductVersion dtoEntity, @MappingTarget ProductVersion target);
 
     @Override
     @BeanMapping(

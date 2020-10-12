@@ -21,13 +21,16 @@ import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.model.Artifact;
 import org.mapstruct.BeanMapping;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-public interface ArtifactMapper extends EntityMapper<Integer, Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
+public interface ArtifactMapper
+        extends UpdatableEntityMapper<Integer, Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
 
     @Override
     @Mapping(target = "deployUrl", ignore = true)
@@ -63,6 +66,17 @@ public interface ArtifactMapper extends EntityMapper<Integer, Artifact, org.jbos
     @Mapping(target = "distributedInProductMilestones", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
     Artifact toEntity(org.jboss.pnc.dto.Artifact dtoEntity);
+
+    @Override
+    @InheritConfiguration
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "creationUser", ignore = true)
+    @Mapping(target = "modificationUser", ignore = true) // will be set when updating
+    @Mapping(target = "creationTime", ignore = true)
+    @Mapping(target = "modificationTime", ignore = true) // will be set when updating
+    @Mapping(target = "buildRecord", source = "build")
+    @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
+    void updateEntity(org.jboss.pnc.dto.Artifact dtoEntity, @MappingTarget org.jboss.pnc.model.Artifact target);
 
     @Override
     default IdMapper<Integer, String> getIdMapper() {

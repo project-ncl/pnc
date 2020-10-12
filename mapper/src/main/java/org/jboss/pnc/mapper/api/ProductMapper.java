@@ -23,14 +23,21 @@ import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.model.Product;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @Mapper(config = MapperCentralConfig.class, uses = { MapSetMapper.class })
-public interface ProductMapper extends EntityMapper<Integer, Product, org.jboss.pnc.dto.Product, ProductRef> {
+public interface ProductMapper extends UpdatableEntityMapper<Integer, Product, org.jboss.pnc.dto.Product, ProductRef> {
     @Override
     Product toEntity(org.jboss.pnc.dto.Product dtoEntity);
+
+    @Override
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "productVersions", ignore = true)
+    public abstract void updateEntity(org.jboss.pnc.dto.Product dtoEntity, @MappingTarget Product target);
 
     @Override
     org.jboss.pnc.dto.Product toDTO(Product dbEntity);

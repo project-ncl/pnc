@@ -27,6 +27,7 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
@@ -34,13 +35,22 @@ import org.mapstruct.Mapping;
 @Mapper(
         config = MapperCentralConfig.class,
         uses = { RefToReferenceMapper.class, ProductVersionMapper.class, ProductReleaseMapper.class })
-public interface ProductMilestoneMapper
-        extends EntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
+public interface ProductMilestoneMapper extends
+        UpdatableEntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
 
     @Override
     @Mapping(target = "distributedArtifacts", ignore = true)
     @Mapping(target = "performedBuilds", ignore = true)
     ProductMilestone toEntity(org.jboss.pnc.dto.ProductMilestone dtoEntity);
+
+    @Override
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "endDate", ignore = true) // set only when closing milestone by specific endpoint
+    @Mapping(target = "productVersion", ignore = true)
+    @Mapping(target = "productRelease", ignore = true) // set only on release creation
+    @Mapping(target = "distributedArtifacts", ignore = true)
+    @Mapping(target = "performedBuilds", ignore = true)
+    void updateEntity(org.jboss.pnc.dto.ProductMilestone dtoEntity, @MappingTarget ProductMilestone target);
 
     @Override
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)

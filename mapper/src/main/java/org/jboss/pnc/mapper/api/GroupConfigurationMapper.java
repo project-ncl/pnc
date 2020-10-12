@@ -21,22 +21,18 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.IntIdMapper;
-import org.jboss.pnc.mapper.MapSetMapper;
-import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(
-        config = MapperCentralConfig.class,
-        uses = { RefToReferenceMapper.class, ProductVersionMapper.class, MapSetMapper.class })
 public interface GroupConfigurationMapper
-        extends EntityMapper<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
+        extends UpdatableEntityMapper<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
 
     @Override
     @Mapping(target = "active", constant = "true")
@@ -44,6 +40,13 @@ public interface GroupConfigurationMapper
     @Mapping(target = "archived", ignore = true)
     @Mapping(target = "buildConfigurations", source = "buildConfigs")
     BuildConfigurationSet toEntity(GroupConfiguration dtoEntity);
+
+    @Override
+    @InheritConfiguration
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "active", ignore = true) // archival done by special endpoint
+    @Mapping(target = "buildConfigurations", expression = "java( cm.updateBuildConfigs(dtoEntity, target) )")
+    public abstract void updateEntity(GroupConfiguration dtoEntity, @MappingTarget BuildConfigurationSet target);
 
     @Override
     @BeanMapping(

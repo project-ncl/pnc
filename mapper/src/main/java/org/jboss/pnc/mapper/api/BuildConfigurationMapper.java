@@ -21,24 +21,18 @@ import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.ProjectRef;
 import org.jboss.pnc.mapper.IntIdMapper;
-import org.jboss.pnc.mapper.MapSetMapper;
-import org.jboss.pnc.mapper.RefToReferenceMapper;
-import org.jboss.pnc.mapper.api.BuildConfigurationMapper.IDMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
+import org.mapstruct.InheritConfiguration;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(
-        config = MapperCentralConfig.class,
-        uses = { RefToReferenceMapper.class, ProjectMapper.class, ProductVersionMapper.class, EnvironmentMapper.class,
-                IDMapper.class, SCMRepositoryMapper.class, MapSetMapper.class, UserMapper.class })
-public interface BuildConfigurationMapper
-        extends EntityMapper<Integer, BuildConfiguration, org.jboss.pnc.dto.BuildConfiguration, BuildConfigurationRef> {
+public interface BuildConfigurationMapper extends
+        UpdatableEntityMapper<Integer, BuildConfiguration, org.jboss.pnc.dto.BuildConfiguration, BuildConfigurationRef> {
 
     @Override
     @Mapping(target = "id", expression = "java( java.lang.Integer.valueOf(dtoEntity.getId()) )")
@@ -56,6 +50,19 @@ public interface BuildConfigurationMapper
     @Mapping(target = "lastModificationUser", source = "modificationUser", qualifiedBy = IdEntity.class)
     @Mapping(target = "brewPullActive", source = "brewPullActive", defaultValue = "false")
     BuildConfiguration toEntity(org.jboss.pnc.dto.BuildConfiguration dtoEntity);
+
+    @Override
+    @InheritConfiguration
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "creationTime", ignore = true)
+    @Mapping(target = "lastModificationTime", ignore = true) // will be set when updating
+    @Mapping(target = "creationUser", ignore = true)
+    @Mapping(target = "lastModificationUser", ignore = true) // will be set when updating
+    @Mapping(target = "defaultAlignmentParams", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "dependencies", expression = "java( cm.updateDependencies(dtoEntity, target) )")
+    @Mapping(target = "buildConfigurationSets", expression = "java( cm.updateGroupConfigs(dtoEntity, target) )")
+    public void updateEntity(org.jboss.pnc.dto.BuildConfiguration dtoEntity, @MappingTarget BuildConfiguration target);
 
     @Override
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
