@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.MapSetMapper;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -31,19 +32,11 @@ import org.mapstruct.Mapping;
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class, uses = { ProductVersionMapper.class, MapSetMapper.class })
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { RefToReferenceMapper.class, ProductVersionMapper.class, MapSetMapper.class })
 public interface GroupConfigurationMapper
         extends EntityMapper<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef> {
-
-    @Override
-    default BuildConfigurationSet toIDEntity(GroupConfigurationRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        BuildConfigurationSet entity = new BuildConfigurationSet();
-        entity.setId(Integer.valueOf(dtoEntity.getId()));
-        return entity;
-    }
 
     @Override
     @Mapping(target = "active", constant = "true")

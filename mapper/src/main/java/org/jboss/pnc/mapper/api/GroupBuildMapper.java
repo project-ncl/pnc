@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.IntIdMapper;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -32,7 +33,7 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { ProductVersionMapper.class, GroupConfigurationMapper.class, BuildMapper.IDMapper.class,
+        uses = { RefToReferenceMapper.class, ProductVersionMapper.class, GroupConfigurationMapper.class,
                 UserMapper.class })
 public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
 
@@ -42,16 +43,6 @@ public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRe
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "user", qualifiedBy = IdEntity.class)
     BuildConfigSetRecord toEntity(GroupBuild dtoEntity);
-
-    @Override
-    default BuildConfigSetRecord toIDEntity(GroupBuildRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        BuildConfigSetRecord bcsr = new BuildConfigSetRecord();
-        bcsr.setId(Integer.valueOf(dtoEntity.getId()));
-        return bcsr;
-    }
 
     @Override
     @Mapping(target = "groupConfig", source = "buildConfigurationSet", resultType = GroupConfigurationRef.class)

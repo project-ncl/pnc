@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.IntIdMapper;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.ProductMilestone;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -32,8 +33,7 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { ProductVersionMapper.class, ProductReleaseMapper.class, BuildMapper.IDMapper.class,
-                AbstractArtifactMapper.IDMapper.class })
+        uses = { RefToReferenceMapper.class, ProductVersionMapper.class, ProductReleaseMapper.class })
 public interface ProductMilestoneMapper
         extends EntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
 
@@ -41,16 +41,6 @@ public interface ProductMilestoneMapper
     @Mapping(target = "distributedArtifacts", ignore = true)
     @Mapping(target = "performedBuilds", ignore = true)
     ProductMilestone toEntity(org.jboss.pnc.dto.ProductMilestone dtoEntity);
-
-    @Override
-    default ProductMilestone toIDEntity(ProductMilestoneRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        ProductMilestone milestone = new ProductMilestone();
-        milestone.setId(Integer.valueOf(dtoEntity.getId()));
-        return milestone;
-    }
 
     @Override
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)

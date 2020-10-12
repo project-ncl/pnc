@@ -44,16 +44,6 @@ public interface ArtifactRevisionMapper {
     @Mapping(target = "modificationUser", qualifiedBy = IdEntity.class)
     ArtifactAudited toEntity(ArtifactRevision dtoEntity);
 
-    default ArtifactAudited toIDEntity(ArtifactRevisionRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        ArtifactAudited entity = new ArtifactAudited();
-        entity.setId(Integer.valueOf(dtoEntity.getId()));
-        entity.setRev(dtoEntity.getRev());
-        return entity;
-    }
-
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "artifact", "creationUser", "modificationUser" })
     ArtifactRevisionRef toRef(ArtifactAudited dbEntity);

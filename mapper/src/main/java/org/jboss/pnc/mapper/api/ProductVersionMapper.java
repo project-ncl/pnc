@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.MapSetMapper;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.ProductVersion;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -33,19 +34,9 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { ProductMilestoneMapper.class, ProductMapper.class, MapSetMapper.class })
+        uses = { RefToReferenceMapper.class, ProductMilestoneMapper.class, ProductMapper.class, MapSetMapper.class })
 public interface ProductVersionMapper
         extends EntityMapper<Integer, ProductVersion, org.jboss.pnc.dto.ProductVersion, ProductVersionRef> {
-
-    @Override
-    default ProductVersion toIDEntity(ProductVersionRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        ProductVersion entity = new ProductVersion();
-        entity.setId(Integer.valueOf(dtoEntity.getId()));
-        return entity;
-    }
 
     @Override
     @Mapping(target = "buildConfigurationSets", source = "groupConfigs")

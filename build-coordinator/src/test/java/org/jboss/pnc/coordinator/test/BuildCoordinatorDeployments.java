@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.coordinator.test;
 
+import org.jboss.pnc.coordinator.test.mock.EntityManagerMock;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
@@ -58,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.Supplier;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 
 /**
@@ -113,6 +115,7 @@ public class BuildCoordinatorDeployments {
                 .addClass(TestEntitiesFactory.class)
                 .addClass(BuildCoordinatorFactory.class)
                 .addClass(BuildConfigurationAuditedRepositoryMock.class)
+                .addClass(EntityManagerMock.class)
                 .addPackages(false, filter, BuildResultMapper.class.getPackage())
                 .addPackages(
                         true,
@@ -133,7 +136,7 @@ public class BuildCoordinatorDeployments {
                         MessageSender.class.getPackage(),
                         SystemConfig.class.getPackage(),
                         ModuleConfigFactory.class.getPackage(),
-                        AbstractArtifactMapper.class.getPackage())
+                        RefToReferenceMapper.class.getPackage())
                 // TODO remove, no need to use default beans.xml
                 .addAsManifestResource(
                         new StringAsset(Descriptors.create(BeansDescriptor.class).exportAsString()),

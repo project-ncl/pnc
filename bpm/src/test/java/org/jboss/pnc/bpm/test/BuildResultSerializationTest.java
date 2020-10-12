@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 
 import static org.mockito.Mockito.when;
@@ -76,6 +77,9 @@ public class BuildResultSerializationTest {
     private RepositoryManagerResultMapper repositoryManagerResultMapper;
 
     @Spy
+    private RefToReferenceMapper refMapper;
+
+    @Spy
     @InjectMocks
     private BuildResultMapper buildResultMapper;
 
@@ -97,6 +101,9 @@ public class BuildResultSerializationTest {
                 AbstractArtifactMapperImpl.class);
         injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
         injectMethod("userMapper", artifactMapper, userMapper, AbstractArtifactMapperImpl.class);
+        injectMethod("refToReferenceMapper", artifactMapper, refMapper, AbstractArtifactMapperImpl.class);
+        injectMethod("userMapper", refMapper, userMapper, RefToReferenceMapper.class);
+        injectMethod("buildMapper", refMapper, buildMapper, RefToReferenceMapper.class);
         when(configuration.getGlobalConfig()).thenReturn(globalConfig);
     }
 

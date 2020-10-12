@@ -50,8 +50,7 @@ import java.util.function.Consumer;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { TargetRepositoryMapper.class, BuildMapper.IDMapper.class, Configuration.class, BuildMapper.class,
-                UserMapper.class })
+        uses = { RefToReferenceMapper.class, TargetRepositoryMapper.class, BuildMapper.class, UserMapper.class })
 public abstract class AbstractArtifactMapper implements ArtifactMapper {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractArtifactMapper.class);

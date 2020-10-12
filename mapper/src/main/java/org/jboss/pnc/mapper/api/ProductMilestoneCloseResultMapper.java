@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneCloseResultRef;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.mapper.LongIdMapper;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
@@ -30,7 +31,9 @@ import org.mapstruct.Mapping;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@Mapper(config = MapperCentralConfig.class, uses = { ProductMilestoneMapper.class, BuildPushResultMapper.class })
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { RefToReferenceMapper.class, ProductMilestoneMapper.class, BuildPushResultMapper.class })
 public interface ProductMilestoneCloseResultMapper extends
         EntityMapper<Long, ProductMilestoneRelease, ProductMilestoneCloseResult, ProductMilestoneCloseResultRef> {
 
@@ -38,16 +41,6 @@ public interface ProductMilestoneCloseResultMapper extends
     @Mapping(target = "log", ignore = true)
     @Mapping(target = "buildRecordPushResults", source = "buildPushResults")
     ProductMilestoneRelease toEntity(ProductMilestoneCloseResult dtoEntity);
-
-    @Override
-    default ProductMilestoneRelease toIDEntity(ProductMilestoneCloseResultRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        ProductMilestoneRelease milestoneRelease = new ProductMilestoneRelease();
-        milestoneRelease.setId(Long.parseLong(dtoEntity.getId()));
-        return milestoneRelease;
-    }
 
     @Override
     @Mapping(target = "milestone", resultType = ProductMilestoneRef.class)

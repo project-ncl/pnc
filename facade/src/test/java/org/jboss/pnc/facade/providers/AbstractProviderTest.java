@@ -76,10 +76,14 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.persistence.EntityManager;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import org.mockito.InjectMocks;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
@@ -157,6 +161,13 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
     @Spy
     protected ResultMapper resultMapper = new ResultMapperImpl();
 
+    @Mock
+    protected EntityManager em;
+
+    @Spy
+    @InjectMocks
+    protected RefToReferenceMapper refMapper = new RefToReferenceMapper();
+
     protected final List<T> repositoryList = new ArrayList<>();
 
     @Before
@@ -169,6 +180,8 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
         injectMethod("buildMapper", artifactMapper, buildMapper, AbstractArtifactMapperImpl.class);
         injectMethod("userMapper", artifactMapper, userMapper, AbstractArtifactMapperImpl.class);
         injectMethod("config", artifactMapper, configuration, AbstractArtifactMapper.class);
+        injectMethod("refToReferenceMapper", artifactMapper, refMapper, AbstractArtifactMapperImpl.class);
+        injectMethod("artifactMapper", refMapper, artifactMapper, RefToReferenceMapper.class);
 
         injectMethod(
                 "buildConfigurationRevisionMapper",
@@ -201,6 +214,8 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
                 sCMRepositoryMapper,
                 BuildConfigurationMapperImpl.class);
         injectMethod("userMapper", buildConfigurationMapper, userMapper, BuildConfigurationMapperImpl.class);
+        injectMethod("refToReferenceMapper", buildConfigurationMapper, refMapper, BuildConfigurationMapperImpl.class);
+        injectMethod("buildConfigurationMapper", refMapper, buildConfigurationMapper, RefToReferenceMapper.class);
 
         injectMethod(
                 "environmentMapper",
@@ -231,6 +246,8 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
                 ProductVersionMapperImpl.class);
         injectMethod("mapSetMapper", productVersionMapper, mapSetMapper, ProductVersionMapperImpl.class);
         injectMethod("productMapper", productVersionMapper, productMapper, ProductVersionMapperImpl.class);
+        injectMethod("refToReferenceMapper", productVersionMapper, refMapper, ProductVersionMapperImpl.class);
+        injectMethod("productVersionMapper", refMapper, productVersionMapper, RefToReferenceMapper.class);
 
         injectMethod(
                 "productMilestoneMapper",
@@ -242,6 +259,8 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
                 productReleaseMapper,
                 productVersionMapper,
                 ProductReleaseMapperImpl.class);
+        injectMethod("refToReferenceMapper", productReleaseMapper, refMapper, ProductReleaseMapperImpl.class);
+        injectMethod("productReleaseMapper", refMapper, productReleaseMapper, RefToReferenceMapper.class);
 
         injectMethod("mapSetMapper", productMapper, mapSetMapper, ProductMapperImpl.class);
 
@@ -257,8 +276,13 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
                 productMilestoneMapper,
                 productReleaseMapper,
                 ProductMilestoneMapperImpl.class);
+        injectMethod("refToReferenceMapper", productMilestoneMapper, refMapper, ProductMilestoneMapperImpl.class);
+        injectMethod("productMilestoneMapper", refMapper, productMilestoneMapper, RefToReferenceMapper.class);
 
         injectMethod("mapSetMapper", groupConfigurationMapper, mapSetMapper, GroupConfigurationMapperImpl.class);
+        injectMethod("refToReferenceMapper", groupConfigurationMapper, refMapper, GroupConfigurationMapperImpl.class);
+        injectMethod("groupConfigurationMapper", refMapper, groupConfigurationMapper, RefToReferenceMapper.class);
+
         injectMethod(
                 "productVersionMapper",
                 groupConfigurationMapper,
@@ -298,6 +322,13 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     @Before
     public void prepareRepositoryMock() {
+        when(em.getReference(any(), any())).thenAnswer(inv -> {
+            Class<GenericEntity> type = inv.getArgument(0, Class.class);
+            Serializable id = inv.getArgument(1, Serializable.class);
+            GenericEntity mock = mock(type);
+            when(mock.getId()).thenReturn(id);
+            return mock;
+        });
         when(repository().queryWithPredicates(any(), any(), any())).thenAnswer(new ListAnswer(repositoryList));
         when(repository().count(any())).thenAnswer(inv -> repositoryList.size());
         when(repository().save(any())).thenAnswer(inv -> {

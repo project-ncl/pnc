@@ -20,6 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
 import org.mapstruct.BeanMapping;
@@ -31,7 +32,8 @@ import org.mapstruct.Mapping;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class, UserMapper.class },
+        uses = { RefToReferenceMapper.class, ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class,
+                UserMapper.class },
         imports = IdRev.class)
 public interface BuildConfigurationRevisionMapper {
 
@@ -45,16 +47,6 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
     @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "buildRecords", "buildConfiguration" })
     BuildConfigurationRevision toDTO(BuildConfigurationAudited dbEntity);
-
-    default BuildConfigurationAudited toIDEntity(BuildConfigurationRevisionRef dtoEntity) {
-        if (dtoEntity == null) {
-            return null;
-        }
-        BuildConfigurationAudited entity = new BuildConfigurationAudited();
-        entity.setId(Integer.valueOf(dtoEntity.getId()));
-        entity.setRev(dtoEntity.getRev());
-        return entity;
-    }
 
     @Mapping(target = "repositoryConfiguration", source = "scmRepository", qualifiedBy = IdEntity.class)
     @Mapping(target = "buildEnvironment", source = "environment", qualifiedBy = IdEntity.class)
