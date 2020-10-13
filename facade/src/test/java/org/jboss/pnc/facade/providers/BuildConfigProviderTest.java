@@ -134,7 +134,7 @@ public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConf
                 .project(org.jboss.pnc.dto.ProjectRef.refBuilder().id(projId).build())
                 .environment(Environment.builder().id(envId).build())
                 .scmRepository(SCMRepository.builder().id(repoId).build())
-                .brewPullActive(true)
+                .brewPullActive(Boolean.TRUE)
                 .build();
 
         org.jboss.pnc.dto.BuildConfiguration stored = provider.store(buildConfiguration);
@@ -146,7 +146,7 @@ public class BuildConfigProviderTest extends AbstractIntIdProviderTest<BuildConf
         assertThat(stored.getBuildType()).isEqualTo(BuildType.MVN);
         assertThat(stored.getEnvironment().getId()).isEqualTo(envId);
         assertThat(stored.getScmRepository().getId()).isEqualTo(repoId);
-        assertThat(stored.isBrewPullActive()).isEqualTo(true);
+        assertThat(stored.getBrewPullActive()).isEqualTo(Boolean.TRUE);
 
     }
 

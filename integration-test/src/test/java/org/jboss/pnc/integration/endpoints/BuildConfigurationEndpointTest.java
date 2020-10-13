@@ -288,7 +288,7 @@ public class BuildConfigurationEndpointTest {
         assertThat(updatedBC.getParameters().get(PARAMETER_KEY)).isEqualTo(updatedGenParamValue);
         assertThat(updatedBC.getEnvironment().getId()).isEqualTo(environmentId);
         assertThat(modificationTime).isNotEqualTo(updatedBC.getModificationTime());
-        assertThat(updatedBC.isBrewPullActive()).isTrue();
+        assertThat(updatedBC.getBrewPullActive()).isTrue();
     }
 
     @Test
