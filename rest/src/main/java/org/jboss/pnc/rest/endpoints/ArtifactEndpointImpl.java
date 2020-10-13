@@ -20,10 +20,17 @@ package org.jboss.pnc.rest.endpoints;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
+import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.endpoints.ArtifactEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.parameters.PaginationParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +39,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.util.Optional;
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.response.MilestoneInfo;
-import org.jboss.pnc.facade.providers.api.BuildProvider;
-import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
-import org.jboss.pnc.rest.api.parameters.PaginationParameters;
+import java.util.Set;
 
 @ApplicationScoped
 public class ArtifactEndpointImpl implements ArtifactEndpoint {
@@ -73,6 +76,22 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
                 Optional.ofNullable(sha256),
                 Optional.ofNullable(md5),
                 Optional.ofNullable(sha1));
+    }
+
+    @Override
+    public Page<Artifact> getAllFiltered(
+            PageParameters pageParams,
+            String identifier,
+            Set<ArtifactQuality> qualities,
+            RepositoryType repoType) {
+        return artifactProvider.getAllFiltered(
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ(),
+                Optional.ofNullable(identifier),
+                Optional.ofNullable(qualities),
+                Optional.ofNullable(repoType));
     }
 
     @Override
