@@ -32,6 +32,7 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -45,6 +46,8 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -105,7 +108,50 @@ public class ArtifactEndpointTest {
     }
 
     @Test
-    public void testGetAllArfifactsWithMd5() throws RemoteResourceException {
+    public void testGetAllArtifactsFilteredByIdentifier() throws RemoteResourceException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        RemoteCollection<Artifact> result;
+
+        result = client.getAllFiltered("demo:*:jar:", null, null);
+        assertThat(result).allSatisfy(
+                a -> assertThat(a.getIdentifier().contains("demo:") && a.getIdentifier().contains(":jar:")));
+
+        result = client.getAllFiltered(":pom:*", null, null);
+        assertThat(result).hasSize(1); // from DatabaseDataInitializer
+
+        result = client.getAllFiltered("demo:built-artifact22:", null, null);
+        assertThat(result).hasSize(1); // from DatabaseDataInitializer
+    }
+
+    @Test
+    public void testGetAllArtifactsFilteredByQualitiesList() throws RemoteResourceException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        RemoteCollection<Artifact> result;
+
+        result = client.getAllFiltered(null, new HashSet<>(Arrays.asList(ArtifactQuality.NEW)), null);
+        assertThat(result).allSatisfy(a -> assertThat(a.getArtifactQuality().equals(ArtifactQuality.NEW)));
+
+        result = client.getAllFiltered(
+                null,
+                new HashSet<>(Arrays.asList(ArtifactQuality.VERIFIED, ArtifactQuality.DELETED)),
+                null);
+        assertThat(result).hasSize(2); // from DatabaseDataInitializer
+    }
+
+    @Test
+    public void testGetAllArtifactsFilteredByRepoType() throws RemoteResourceException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        RemoteCollection<Artifact> result;
+
+        RepositoryType type = RepositoryType.NPM;
+
+        result = client.getAllFiltered(null, null, type);
+        assertThat(result).hasSize(2) // from DatabaseDataInitializer
+                .allSatisfy(a -> assertThat(a.getTargetRepository().getRepositoryType().equals(type)));
+    }
+
+    @Test
+    public void testGetAllArtifactsWithMd5() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
         RemoteCollection<Artifact> artifacts = client.getAll(null, artifactRest1.getMd5(), null);
@@ -116,7 +162,7 @@ public class ArtifactEndpointTest {
     }
 
     @Test
-    public void testGetAllArfifactsWithSha1() throws RemoteResourceException {
+    public void testGetAllArtifactsWithSha1() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
         RemoteCollection<Artifact> artifacts = client.getAll(null, null, artifactRest2.getSha1());
@@ -127,7 +173,7 @@ public class ArtifactEndpointTest {
     }
 
     @Test
-    public void testGetAllArfifactsWithSha256() throws RemoteResourceException {
+    public void testGetAllArtifactsWithSha256() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
         RemoteCollection<Artifact> artifacts = client.getAll(artifactRest1.getSha256(), null, null);
@@ -138,7 +184,7 @@ public class ArtifactEndpointTest {
     }
 
     @Test
-    public void testGetAllArfifactsWithMd5AndSha1() throws RemoteResourceException {
+    public void testGetAllArtifactsWithMd5AndSha1() throws RemoteResourceException {
 
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
@@ -148,7 +194,7 @@ public class ArtifactEndpointTest {
     }
 
     @Test
-    public void testGetAllArfifactsWithMd5AndSha256() throws RemoteResourceException {
+    public void testGetAllArtifactsWithMd5AndSha256() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
         RemoteCollection<Artifact> artifacts = client.getAll(artifactRest1.getSha256(), artifactRest1.getMd5(), null);
@@ -157,7 +203,7 @@ public class ArtifactEndpointTest {
     }
 
     @Test
-    public void testGetAllArfifactsWithSha1AndSha256() throws RemoteResourceException {
+    public void testGetAllArtifactsWithSha1AndSha256() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
 
         RemoteCollection<Artifact> artifacts = client.getAll(artifactRest4.getSha256(), null, artifactRest4.getSha1());
@@ -369,7 +415,7 @@ public class ArtifactEndpointTest {
 
     @Test
     public void shouldNotModifyCreationModificationFields() throws ClientException {
-        String id = artifactRest1.getId();
+        String id = artifactRest3.getId();
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asSystem());
 
         // Updating a not audited property should not create a new revision and should not alter modificationUser and

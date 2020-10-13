@@ -23,17 +23,22 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRevision;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.parameters.PaginationParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactRevisionPage;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -48,11 +53,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.rest.api.parameters.PaginationParameters;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
+import java.util.Set;
 
-import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
@@ -112,6 +114,43 @@ public interface ArtifactEndpoint {
             @Parameter(description = FILTER_SHA256_DESC) @QueryParam("sha256") String sha256,
             @Parameter(description = FILTER_MD5_DESC) @QueryParam("md5") String md5,
             @Parameter(description = FILTER_SHA1_DESC) @QueryParam("sha1") String sha1);
+
+    static final String GET_ALL_FILTERED_DESC = "Gets all artifacts according to specified filters.";
+    static final String FILTER_IDENTIFIER_DESC = "Filter by artifact identifier or its part.";
+    static final String FILTER_QUALITY_DESC = "List of artifact qualities to include in result.";
+    static final String FILTER_REPOSITORY_TYPE_DESC = "Type of target repository.";
+
+    /**
+     * {@value GET_ALL_FILTERED_DESC}
+     *
+     * @param pageParameters
+     * @param identifier {@value FILTER_IDENTIFIER_DESC}
+     * @param qualities {@value FILTER_QUALITY_DESC}
+     * @param repoType {@value FILTER_REPOSITORY_TYPE_DESC}
+     * @return
+     */
+    @Operation(
+            summary = GET_ALL_FILTERED_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/filter")
+    Page<Artifact> getAllFiltered(
+            @Valid @BeanParam PageParameters pageParameters,
+            @Parameter(description = FILTER_IDENTIFIER_DESC) @QueryParam("identifier") String identifier,
+            @Parameter(description = FILTER_QUALITY_DESC) @QueryParam("qualities") Set<ArtifactQuality> qualities,
+            @Parameter(description = FILTER_REPOSITORY_TYPE_DESC) @QueryParam("repoType") RepositoryType repoType);
 
     static final String GET_SPECIFIC_DESC = "Gets a specific build config.";
 

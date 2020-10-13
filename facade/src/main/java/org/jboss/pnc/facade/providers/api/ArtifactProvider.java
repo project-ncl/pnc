@@ -21,9 +21,12 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 
 import java.util.Optional;
+import java.util.Set;
 
 public interface ArtifactProvider
         extends Provider<Integer, org.jboss.pnc.model.Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
@@ -35,6 +38,15 @@ public interface ArtifactProvider
             Optional<String> sha256,
             Optional<String> md5,
             Optional<String> sha1);
+
+    Page<Artifact> getAllFiltered(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Optional<String> identifierPattern,
+            Optional<Set<ArtifactQuality>> qualities,
+            Optional<RepositoryType> repoType);
 
     Page<Artifact> getBuiltArtifactsForBuild(
             int pageIndex,

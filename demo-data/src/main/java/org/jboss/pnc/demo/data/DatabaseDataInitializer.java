@@ -538,7 +538,15 @@ public class DatabaseDataInitializer {
                 .temporaryRepo(false)
                 .build();
 
+        TargetRepository targetRepository2 = TargetRepository.newBuilder()
+                .repositoryType(RepositoryType.NPM)
+                .repositoryPath("builds-tested")
+                .identifier("indy-npm")
+                .temporaryRepo(true)
+                .build();
+
         targetRepositoryRepository.save(targetRepository);
+        targetRepositoryRepository.save(targetRepository2);
 
         Artifact builtArtifact1 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact1:jar:1.0")
@@ -558,21 +566,21 @@ public class DatabaseDataInitializer {
                 .sha1("61dad16e14438d2d8c8cbd18b267d62944f37898")
                 .sha256("2fafc2ed0f752ac2540283d48c5cd663254a853c5cb13dec02dce023fc7471a9")
                 .size(11L)
-                .artifactQuality(ArtifactQuality.NEW)
+                .artifactQuality(ArtifactQuality.VERIFIED)
                 .build();
         Artifact builtArtifact3 = Artifact.Builder.newBuilder()
-                .identifier("demo:built-artifact11:jar:1.0")
-                .targetRepository(targetRepository)
+                .identifier("demo:built-artifact11:pom:1.0")
+                .targetRepository(targetRepository2)
                 .filename("demo built artifact 11")
                 .md5("5c8e1503e77dc8e370610098e01f0a8e")
                 .sha1("550748f6f58ed8d4f6b63850a867ac207da30013")
                 .sha256("b39f88c9937f201981767e539025121971e72bc590ea20ed7fdfffafc05f55a9")
                 .size(10L)
-                .artifactQuality(ArtifactQuality.NEW)
+                .artifactQuality(ArtifactQuality.DELETED)
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact22:jar:1.0")
-                .targetRepository(targetRepository)
+                .targetRepository(targetRepository2)
                 .filename("demo built artifact 21")
                 .md5("48312fb24c7b2a116c2139d5b39bad66")
                 .sha1("6ce2fd75c35e7eed2c45338b943be34d0b974f16")

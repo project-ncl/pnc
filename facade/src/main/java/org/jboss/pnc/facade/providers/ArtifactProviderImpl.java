@@ -21,7 +21,10 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierLike;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withQualityIn;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withRepositoryType;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
 
@@ -29,6 +32,7 @@ import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.DenyAll;
@@ -148,6 +152,25 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
                 withSha256(sha256),
                 withMd5(md5),
                 withSha1(sha1));
+    }
+
+    @Override
+    public Page<org.jboss.pnc.dto.Artifact> getAllFiltered(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Optional<String> identifierPattern,
+            Optional<Set<ArtifactQuality>> qualities,
+            Optional<RepositoryType> repoType) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withIdentifierLike(identifierPattern),
+                withQualityIn(qualities),
+                withRepositoryType(repoType));
     }
 
     @Override
