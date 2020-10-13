@@ -107,7 +107,7 @@ public class BuildConfigurationRef implements DTOEntity {
     /**
      * Indicates whether the Brew Bridge Pull feature is active or not. It defaults to false.
      */
-    protected Boolean brewPullActive;
+    protected final Boolean brewPullActive;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -88,7 +88,6 @@ public interface BuildConfigurationMapper
     @Mapping(target = "parameters", source = "genericParameters")
     @Mapping(target = "creationUser", qualifiedBy = Reference.class)
     @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
-    @Mapping(target = "brewPullActive", source = "brewPullActive")
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "dependants", "active", "indirectDependencies", "allDependencies",
                     "currentProductMilestone" })
