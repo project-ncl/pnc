@@ -126,7 +126,7 @@ public class BuildConfiguration extends BuildConfigurationRef {
             User creationUser,
             User modificationUser,
             String defaultAlignmentParams,
-            boolean brewPullActive) {
+            Boolean brewPullActive) {
         super(
                 id,
                 name,
