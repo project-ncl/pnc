@@ -49,8 +49,20 @@ public interface BuildConfigurationAuditedRepository {
 
     Map<IdRev, BuildConfigurationAudited> queryById(Set<IdRev> idRev);
 
+    /**
+     * Searches for audited BuildConfigurations by BuildConfig name with support for like operation with syntax *name*
+     * 
+     * @param buildConfigurationName Search pattern
+     * @return Found BCAs
+     */
     List<BuildConfigurationAudited> searchForBuildConfigurationName(String buildConfigurationName);
 
+    /**
+     * Searches for IdRevs by BuildConfig name with support for like operation with syntax *name*
+     * 
+     * @param buildConfigurationName Search pattern
+     * @return Found IdRevs
+     */
     List<IdRev> searchIdRevForBuildConfigurationName(String buildConfigurationName);
 
     List<IdRev> searchIdRevForBuildConfigurationNameOrProjectName(List<Project> projectsMatchingName, String name);
