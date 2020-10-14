@@ -858,8 +858,15 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
         }
 
         if (!StringUtils.isEmpty(pageInfo.getBuildConfigName())) {
-            predicate = predicate
-                    .and(t -> pageInfo.getBuildConfigName().equals(t.getBuildConfigurationAudited().getName()));
+            if (pageInfo.getBuildConfigName().contains("*")) {
+                predicate = predicate.and(
+                        t -> t.getBuildConfigurationAudited()
+                                .getName()
+                                .matches(pageInfo.getBuildConfigName().replaceAll("\\*", ".*")));
+            } else {
+                predicate = predicate
+                        .and(t -> pageInfo.getBuildConfigName().equals(t.getBuildConfigurationAudited().getName()));
+            }
         }
 
         return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(Objects::nonNull)

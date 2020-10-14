@@ -94,8 +94,9 @@ import static org.mockito.Mockito.when;
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord> {
 
     private static final int CURRENT_USER = randInt(1000, 100000);
@@ -297,6 +298,44 @@ public class BuildProviderImplTest extends AbstractIntIdProviderTest<BuildRecord
         assertEquals(1, builds.getTotalHits());
         Iterator<Build> it = builds.getContent().iterator();
         assertEquals(BuildMapper.idMapper.toDto(givenBT.getId()), it.next().getId());
+    }
+
+    @Test
+    public void testFilterLikeRunningBuildsByBuildConfigName() {
+        // Given
+        mockBuildRecord();
+        mockBuildTask();
+
+        String givenBcName = "VeryLongAndComplicatedBcName";
+        String givenBcNamePattern = "*LongAndComplicated*";
+        BuildTask givenBT = mockBuildTask(givenBcName);
+
+        // When
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 2, "", "", false, true, givenBcNamePattern);
+        Page<Build> builds = provider.getBuilds(pageInfo);
+
+        // Then
+        assertEquals(1, builds.getTotalHits());
+        Iterator<Build> it = builds.getContent().iterator();
+        assertEquals(BuildMapper.idMapper.toDto(givenBT.getId()), it.next().getId());
+    }
+
+    @Test
+    public void testFailFilterLikeRunningBuildsByBuildConfigName() {
+        // Given
+        mockBuildRecord();
+        mockBuildTask();
+
+        String givenBcName = "VeryLongAndComplicatedBcName";
+        String givenBcNamePattern = "LongAndComplicated*";
+        BuildTask givenBT = mockBuildTask(givenBcName);
+
+        // When
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 2, "", "", false, true, givenBcNamePattern);
+        Page<Build> builds = provider.getBuilds(pageInfo);
+
+        // Then
+        assertEquals(0, builds.getTotalHits());
     }
 
     @Test

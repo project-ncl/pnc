@@ -192,6 +192,8 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
 
     @Override
     public List<BuildConfigurationAudited> searchForBuildConfigurationName(String buildConfigurationName) {
+        buildConfigurationName = buildConfigurationName.replaceAll("\\*", "%");
+
         List<Object[]> result = AuditReaderFactory.get(entityManager)
                 .createQuery()
                 .forRevisionsOfEntity(BuildConfiguration.class, false, false)
@@ -203,6 +205,8 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
 
     @Override
     public List<IdRev> searchIdRevForBuildConfigurationName(String buildConfigurationName) {
+        buildConfigurationName = buildConfigurationName.replaceAll("\\*", "%");
+
         List<Object[]> result = AuditReaderFactory.get(entityManager)
                 .createQuery()
                 .forRevisionsOfEntity(BuildConfiguration.class, false, false)
