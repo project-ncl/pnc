@@ -57,8 +57,6 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     SystemImageType getSystemImageType();
 
-    BuildType getBuildType();
-
     boolean isPodKeptOnFailure();
 
     Map<String, String> getGenericParameters();

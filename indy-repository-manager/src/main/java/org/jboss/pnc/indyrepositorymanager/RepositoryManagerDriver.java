@@ -89,6 +89,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     static final String EXTRA_PUBLIC_REPOSITORIES_KEY = "EXTRA_REPOSITORIES";
 
+    /** Store key of gradle-plugins remote repository. */
+    static final String GRADLE_PLUGINS_REPO = "maven:remote:gradle-plugins";
+
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-executor");
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -323,13 +326,14 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         String buildContentId = execution.getBuildContentId();
         int id = execution.getId();
+        BuildType buildType = execution.getBuildType();
 
         // if the build-level group doesn't exist, create it.
         StoreKey groupKey = new StoreKey(packageType, StoreType.group, buildContentId);
+        StoreKey hostedKey = new StoreKey(packageType, StoreType.hosted, buildContentId);
 
         if (!indy.stores().exists(groupKey)) {
             // if the product-level storage repo (for in-progress product builds) doesn't exist, create it.
-            StoreKey hostedKey = new StoreKey(packageType, StoreType.hosted, buildContentId);
             boolean tempBuild = execution.isTempBuild();
             if (!indy.stores().exists(hostedKey)) {
                 HostedRepository buildArtifacts = new HostedRepository(packageType, buildContentId);
@@ -354,7 +358,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             buildGroup.addConstituent(hostedKey);
 
             // Global-level repos, for captured/shared artifacts and access to the outside world
-            addGlobalConstituents(packageType, buildGroup, tempBuild);
+            addGlobalConstituents(buildType, packageType, buildGroup, tempBuild);
 
             // add extra repositories removed from poms by the adjust process and set in BC by user
             List<ArtifactRepository> extraDependencyRepositories = extractExtraRepositoriesFromGenericParameters(
@@ -364,12 +368,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
             }
             addExtraConstituents(packageType, extraDependencyRepositories, id, buildContentId, indy, buildGroup);
 
-            indy.stores()
-                    .create(
-                            buildGroup,
-                            "Creating repository group for resolving artifacts in build: " + id + " (repo: "
-                                    + buildContentId + ")",
-                            Group.class);
+            String changelog = "Creating repository group for resolving artifacts in build: " + id + " (repo: "
+                    + buildContentId + ")";
+            indy.stores().create(buildGroup, changelog, Group.class);
         }
     }
 
@@ -483,16 +484,30 @@ public class RepositoryManagerDriver implements RepositoryManager {
      * <li>for temporary builds add also temporary-builds (Group)</li>
      * <li>shared-imports (Hosted Repo)</li>
      * <li>public (Group)</li>
+     * <li>any build-type-specific repos</li>
      * </ol>
      *
-     * @param pakageType package type key used by Indy
+     * @param buildType the build type
+     * @param pakageType package type key used by Indy (is defined by the build type, passed in just to avoid computing
+     *        it again)
      */
-    private void addGlobalConstituents(String pakageType, Group group, boolean tempBuild) {
+    private void addGlobalConstituents(BuildType buildType, String pakageType, Group group, boolean tempBuild) {
         // 1. global builds artifacts
         if (tempBuild) {
             group.addConstituent(new StoreKey(pakageType, StoreType.hosted, TEMPORARY_BUILDS_GROUP));
         }
         group.addConstituent(new StoreKey(pakageType, StoreType.group, COMMON_BUILD_GROUP_CONSTITUENTS_GROUP));
+
+        // add build-type-specific constituents
+        switch (buildType) {
+            case GRADLE:
+                group.addConstituent(StoreKey.fromString(GRADLE_PLUGINS_REPO));
+                break;
+
+            default:
+                // no build-type-specific constituents for others
+                break;
+        }
     }
 
     /**
