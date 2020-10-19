@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
@@ -37,6 +38,7 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.parameters.PaginationParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactInfoPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactRevisionPage;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
@@ -123,7 +125,7 @@ public interface ArtifactEndpoint {
     /**
      * {@value GET_ALL_FILTERED_DESC}
      *
-     * @param pageParameters
+     * @param paginationParameters
      * @param identifier {@value FILTER_IDENTIFIER_DESC}
      * @param qualities {@value FILTER_QUALITY_DESC}
      * @param repoType {@value FILTER_REPOSITORY_TYPE_DESC}
@@ -135,7 +137,7 @@ public interface ArtifactEndpoint {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
                             description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = ArtifactPage.class))),
+                            content = @Content(schema = @Schema(implementation = ArtifactInfoPage.class))),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
@@ -146,8 +148,8 @@ public interface ArtifactEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     @Path("/filter")
-    Page<Artifact> getAllFiltered(
-            @Valid @BeanParam PageParameters pageParameters,
+    Page<ArtifactInfo> getAllFiltered(
+            @Valid @BeanParam PaginationParameters paginationParameters,
             @Parameter(description = FILTER_IDENTIFIER_DESC) @QueryParam("identifier") String identifier,
             @Parameter(description = FILTER_QUALITY_DESC) @QueryParam("qualities") Set<ArtifactQuality> qualities,
             @Parameter(description = FILTER_REPOSITORY_TYPE_DESC) @QueryParam("repoType") RepositoryType repoType);
