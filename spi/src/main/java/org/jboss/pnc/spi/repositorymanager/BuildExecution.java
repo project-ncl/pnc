@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
+import org.jboss.pnc.enums.BuildType;
+
 import java.util.List;
 
 public interface BuildExecution {
@@ -26,6 +28,8 @@ public interface BuildExecution {
     String getBuildContentId();
 
     boolean isTempBuild();
+
+    BuildType getBuildType();
 
     String getTempBuildTimestamp();
 

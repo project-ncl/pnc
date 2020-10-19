@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.indyrepositorymanager.fixture;
 
+import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 
@@ -30,8 +31,15 @@ public class TestBuildExecution implements BuildExecution {
 
     private List<ArtifactRepository> artifactRepositories;
 
+    private BuildType buildType;
+
     public TestBuildExecution(String buildId) {
+        this(buildId, BuildType.MVN);
+    }
+
+    public TestBuildExecution(String buildId, BuildType buildType) {
         this.buildContentId = buildId;
+        this.buildType = buildType;
     }
 
     public TestBuildExecution() {
@@ -65,6 +73,11 @@ public class TestBuildExecution implements BuildExecution {
     @Override
     public String getTempBuildTimestamp() {
         return null;
+    }
+
+    @Override
+    public BuildType getBuildType() {
+        return buildType;
     }
 
 }
