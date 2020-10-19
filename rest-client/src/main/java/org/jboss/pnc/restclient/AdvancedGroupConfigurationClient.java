@@ -86,6 +86,7 @@ public class AdvancedGroupConfigurationClient extends GroupConfigurationClient i
     public void close() {
         if (webSocketClient != null) {
             try {
+                super.close();
                 webSocketClient.close();
             } catch (Exception e) {
                 throw new RuntimeException("Couldn't close websocket", e);
