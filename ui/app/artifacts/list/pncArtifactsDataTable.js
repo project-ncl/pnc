@@ -80,7 +80,8 @@
         'TESTED',
         'DEPRECATED',
         'BLACKLISTED',
-        'TEMPORARY'
+        'TEMPORARY',
+        'DELETED'
       ]
     }, {
       id: 'md5',
