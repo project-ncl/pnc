@@ -85,6 +85,7 @@ public class AdvancedBuildClient extends BuildClient implements AutoCloseable {
     public void close() {
         if (webSocketClient != null) {
             try {
+                super.close();
                 webSocketClient.close();
             } catch (Exception e) {
                 throw new RuntimeException("Couldn't close websocket", e);
