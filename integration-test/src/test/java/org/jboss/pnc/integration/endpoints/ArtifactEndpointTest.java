@@ -29,6 +29,7 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -110,23 +111,23 @@ public class ArtifactEndpointTest {
     @Test
     public void testGetAllArtifactsFilteredByIdentifier() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
-        RemoteCollection<Artifact> result;
+        RemoteCollection<ArtifactInfo> result;
 
-        result = client.getAllFiltered("demo:*:jar:", null, null);
+        result = client.getAllFiltered("*demo:*:jar:*", null, null);
         assertThat(result).allSatisfy(
                 a -> assertThat(a.getIdentifier().contains("demo:") && a.getIdentifier().contains(":jar:")));
 
-        result = client.getAllFiltered(":pom:*", null, null);
+        result = client.getAllFiltered("demo:built-artifact11:pom:*", null, null);
         assertThat(result).hasSize(1); // from DatabaseDataInitializer
 
-        result = client.getAllFiltered("demo:built-artifact22:", null, null);
+        result = client.getAllFiltered("demo:built-artifact22:jar:1.0", null, null);
         assertThat(result).hasSize(1); // from DatabaseDataInitializer
     }
 
     @Test
     public void testGetAllArtifactsFilteredByQualitiesList() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
-        RemoteCollection<Artifact> result;
+        RemoteCollection<ArtifactInfo> result;
 
         result = client.getAllFiltered(null, new HashSet<>(Arrays.asList(ArtifactQuality.NEW)), null);
         assertThat(result).allSatisfy(a -> assertThat(a.getArtifactQuality().equals(ArtifactQuality.NEW)));
@@ -141,13 +142,13 @@ public class ArtifactEndpointTest {
     @Test
     public void testGetAllArtifactsFilteredByRepoType() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
-        RemoteCollection<Artifact> result;
+        RemoteCollection<ArtifactInfo> result;
 
         RepositoryType type = RepositoryType.NPM;
 
         result = client.getAllFiltered(null, null, type);
         assertThat(result).hasSize(2) // from DatabaseDataInitializer
-                .allSatisfy(a -> assertThat(a.getTargetRepository().getRepositoryType().equals(type)));
+                .allSatisfy(a -> assertThat(a.getRepositoryType().equals(type)));
     }
 
     @Test

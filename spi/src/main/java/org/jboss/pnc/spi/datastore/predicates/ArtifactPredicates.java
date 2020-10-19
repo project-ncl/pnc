@@ -18,20 +18,15 @@
 package org.jboss.pnc.spi.datastore.predicates;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
-import org.jboss.pnc.model.TargetRepository;
-import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
-
 import java.util.Optional;
 import java.util.Set;
 
@@ -64,24 +59,6 @@ public class ArtifactPredicates {
     @Deprecated
     public static Predicate<Artifact> withIdentifierAndChecksum(String identifier, String checksum) {
         return withIdentifierAndMd5(identifier, checksum);
-    }
-
-    public static Predicate<Artifact> withIdentifierLike(Optional<String> identifierPattern) {
-        return (root, query, cb) -> identifierPattern.isPresent()
-                ? cb.like(root.get(Artifact_.identifier), "%" + identifierPattern.get().replace("*", "%") + "%")
-                : cb.and(); // always true
-    }
-
-    public static Predicate<Artifact> withQualityIn(Optional<Set<ArtifactQuality>> qualities) {
-        return (root, query, cb) -> qualities.isPresent() && !qualities.get().isEmpty()
-                ? root.get(Artifact_.ARTIFACT_QUALITY).in(qualities.get())
-                : cb.and();
-    }
-
-    public static Predicate<Artifact> withRepositoryType(Optional<RepositoryType> repoType) {
-        return (root, query, cb) -> repoType.isPresent()
-                ? cb.equal(root.join(Artifact_.targetRepository).get(TargetRepository_.REPOSITORY_TYPE), repoType.get())
-                : cb.and();
     }
 
     public static Predicate<Artifact> withIdentifierAndMd5(String identifier, String md5) {

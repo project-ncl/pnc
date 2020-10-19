@@ -17,37 +17,12 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierLike;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withQualityIn;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withRepositoryType;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
-
-import java.time.Instant;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.security.DenyAll;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
-import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
-import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.coordinator.maintenance.BlacklistAsyncInvoker;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.User;
+import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
@@ -57,19 +32,49 @@ import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactAudited;
+import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.security.DenyAll;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import java.time.Instant;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
@@ -115,6 +120,9 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
     private UserMapper userMapper;
 
     @Inject
+    private EntityManager em;
+
+    @Inject
     public ArtifactProviderImpl(
             ArtifactRepository repository,
             ArtifactMapper mapper,
@@ -155,22 +163,26 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
     }
 
     @Override
-    public Page<org.jboss.pnc.dto.Artifact> getAllFiltered(
+    public Page<ArtifactInfo> getAllFiltered(
             int pageIndex,
             int pageSize,
-            String sortingRsql,
-            String query,
             Optional<String> identifierPattern,
-            Optional<Set<ArtifactQuality>> qualities,
+            Set<ArtifactQuality> qualities,
             Optional<RepositoryType> repoType) {
-        return queryForCollection(
-                pageIndex,
-                pageSize,
-                sortingRsql,
-                query,
-                withIdentifierLike(identifierPattern),
-                withQualityIn(qualities),
-                withRepositoryType(repoType));
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+
+        CriteriaQuery<Tuple> query = artifactInfoQuery(cb, identifierPattern, qualities, repoType);
+        int offset = pageIndex * pageSize;
+        List<ArtifactInfo> artifacts = em.createQuery(query)
+                .setMaxResults(pageSize)
+                .setFirstResult(offset)
+                .getResultList()
+                .stream()
+                .map(this::mapTupleToArtifactInfo)
+                .collect(Collectors.toList());
+
+        return new Page<>(pageIndex, pageSize, artifacts.size(), artifacts);
     }
 
     @Override
@@ -309,6 +321,42 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
         ArtifactAudited auditedArtifact = artifactAuditedRepository.queryById(idRev);
 
         return artifactRevisionMapper.toDTO(auditedArtifact);
+    }
+
+    private CriteriaQuery<Tuple> artifactInfoQuery(
+            CriteriaBuilder cb,
+            Optional<String> identifierPattern,
+            Set<ArtifactQuality> qualities,
+            Optional<RepositoryType> repoType) {
+
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+
+        Root<Artifact> artifact = query.from(org.jboss.pnc.model.Artifact.class);
+        Path<TargetRepository> repository = artifact.get(Artifact_.targetRepository);
+        query.multiselect(
+                artifact.get(Artifact_.id),
+                artifact.get(Artifact_.identifier),
+                artifact.get(Artifact_.artifactQuality),
+                repository.get(TargetRepository_.REPOSITORY_TYPE));
+        Predicate withIdentifierLike = identifierPattern.isPresent()
+                ? cb.like(artifact.get(Artifact_.identifier), identifierPattern.get().replace("*", "%"))
+                : cb.and();
+        Predicate withQualityIn = !qualities.isEmpty() ? artifact.get(Artifact_.ARTIFACT_QUALITY).in(qualities)
+                : cb.and();
+        Predicate withRepoType = repoType.isPresent() ? cb
+                .equal(artifact.join(Artifact_.targetRepository).get(TargetRepository_.REPOSITORY_TYPE), repoType.get())
+                : cb.and();
+        query.where(cb.and(withIdentifierLike, withQualityIn, withRepoType));
+        return query;
+    }
+
+    private ArtifactInfo mapTupleToArtifactInfo(Tuple tuple) {
+        return ArtifactInfo.builder()
+                .id(tuple.get(0).toString())
+                .identifier(tuple.get(1).toString())
+                .artifactQuality((ArtifactQuality) tuple.get(2))
+                .repositoryType((RepositoryType) tuple.get(3))
+                .build();
     }
 
     private ArtifactQuality validateProvidedArtifactQuality(String quality, boolean isLoggedInUserSystemUser) {

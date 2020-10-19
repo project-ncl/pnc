@@ -36,6 +36,7 @@ import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.User;
+import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 
@@ -102,5 +103,8 @@ public class SwaggerPages {
     }
 
     public static class MilestoneInfoPage extends Page<MilestoneInfo> {
+    }
+
+    public static class ArtifactInfoPage extends Page<ArtifactInfo> {
     }
 }

@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -79,18 +80,16 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
-    public Page<Artifact> getAllFiltered(
-            PageParameters pageParams,
+    public Page<ArtifactInfo> getAllFiltered(
+            PaginationParameters paginationParameters,
             String identifier,
             Set<ArtifactQuality> qualities,
             RepositoryType repoType) {
         return artifactProvider.getAllFiltered(
-                pageParams.getPageIndex(),
-                pageParams.getPageSize(),
-                pageParams.getSort(),
-                pageParams.getQ(),
+                paginationParameters.getPageIndex(),
+                paginationParameters.getPageSize(),
                 Optional.ofNullable(identifier),
-                Optional.ofNullable(qualities),
+                qualities,
                 Optional.ofNullable(repoType));
     }
 

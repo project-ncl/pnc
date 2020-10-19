@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
+import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
@@ -39,13 +40,11 @@ public interface ArtifactProvider
             Optional<String> md5,
             Optional<String> sha1);
 
-    Page<Artifact> getAllFiltered(
+    Page<ArtifactInfo> getAllFiltered(
             int pageIndex,
             int pageSize,
-            String sortingRsql,
-            String query,
             Optional<String> identifierPattern,
-            Optional<Set<ArtifactQuality>> qualities,
+            Set<ArtifactQuality> qualities, // default value is empty Set
             Optional<RepositoryType> repoType);
 
     Page<Artifact> getBuiltArtifactsForBuild(
