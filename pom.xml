@@ -30,7 +30,7 @@
 
   <groupId>org.jboss.pnc</groupId>
   <artifactId>parent</artifactId>
-  <version>2.0.1-SNAPSHOT</version>
+  <version>2.0.1</version>
   <packaging>pom</packaging>
 
   <name>pnc</name>
@@ -50,7 +50,7 @@
     <connection>scm:git:https://github.com/project-ncl/pnc.git</connection>
     <developerConnection>scm:git:git@github.com:project-ncl/pnc.git</developerConnection>
     <url>https://github.com/project-ncl/pnc/</url>
-    <tag>HEAD</tag>
+    <tag>2.0.1.RC1</tag>
   </scm>
 
   <developers>
@@ -152,7 +152,7 @@
     <jboss.management.port>${default.management.port}</jboss.management.port>
     <surefire.test.remote.skip>true</surefire.test.remote.skip>
     <auth>false</auth>
-    <tagSuffix/>
+    <tagSuffix />
   </properties>
 
   <dependencies>
@@ -1645,11 +1645,11 @@
               <target>
                 <condition property="eapZipUrlSatisfied" value="true">
                   <or>
-                    <isset property="eap.zip.url"/>
+                    <isset property="eap.zip.url" />
                     <!-- are tests disabled ? -->
-                    <isset property="skipITs"/>
-                    <isset property="skipTests"/>
-                    <equals arg1="${maven.test.skip}" arg2="true"/>
+                    <isset property="skipITs" />
+                    <isset property="skipTests" />
+                    <equals arg1="${maven.test.skip}" arg2="true" />
                   </or>
                 </condition>
                 <fail message="You must set the location of the eap zip file 'eap.zip.url'." unless="eapZipUrlSatisfied" />
