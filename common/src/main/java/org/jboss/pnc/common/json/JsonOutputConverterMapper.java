@@ -46,6 +46,7 @@ public class JsonOutputConverterMapper {
         mapper.registerModule(new Jdk8Module());
         mapper.registerModule(new JavaTimeModule());
 
+        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         mapper.disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS);
     }
