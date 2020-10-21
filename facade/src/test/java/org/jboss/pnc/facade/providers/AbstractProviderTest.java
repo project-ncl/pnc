@@ -22,7 +22,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
-import org.jboss.pnc.mapper.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.abstracts.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
 import org.jboss.pnc.mapper.ArtifactRevisionMapperImpl;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;

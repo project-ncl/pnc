@@ -20,7 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
-import org.jboss.pnc.mapper.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.abstracts.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.ProductMilestone;
