@@ -20,6 +20,8 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.model.Artifact;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapping;
 
 /**
  *
@@ -28,12 +30,38 @@ import org.jboss.pnc.model.Artifact;
 public interface ArtifactMapper extends EntityMapper<Integer, Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
 
     @Override
+    @Mapping(target = "deployUrl", ignore = true)
+    @Mapping(target = "publicUrl", ignore = true)
+    @Mapping(target = "build", source = "buildRecord")
+    @Mapping(target = "targetRepository", qualifiedBy = Reference.class)
+    @Mapping(target = "creationUser", qualifiedBy = Reference.class)
+    @Mapping(target = "modificationUser", qualifiedBy = Reference.class)
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "distributedInProductMilestones", "identifierSha256", "built",
+                    "imported", "trusted", "descriptiveString", "dependantBuildRecords" })
     org.jboss.pnc.dto.Artifact toDTO(Artifact dbEntity);
 
     @Override
+    @Mapping(target = "deployUrl", ignore = true)
+    @Mapping(target = "publicUrl", ignore = true)
+    @BeanMapping(
+            ignoreUnmappedSourceProperties = { "targetRepository", "buildRecords", "dependantBuildRecords",
+                    "importDate", "distributedInProductMilestones", "identifierSha256", "built", "imported", "trusted",
+                    "descriptiveString", "creationUser", "modificationUser" })
     ArtifactRef toRef(Artifact dbEntity);
 
     @Override
+    @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
+    @Mapping(target = "modificationUser", qualifiedBy = IdEntity.class)
+    @Mapping(target = "buildRecord", source = "build")
+    @Mapping(target = "dependantBuildRecords", ignore = true)
+    /*
+     * Builder that MapStruct uses when generating mapper has method dependantBuildRecord() which confuses MapStruct as
+     * he thinks it is a new property
+     */
+    @Mapping(target = "dependantBuildRecord", ignore = true)
+    @Mapping(target = "distributedInProductMilestones", ignore = true)
+    @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
     Artifact toEntity(org.jboss.pnc.dto.Artifact dtoEntity);
 
     @Override

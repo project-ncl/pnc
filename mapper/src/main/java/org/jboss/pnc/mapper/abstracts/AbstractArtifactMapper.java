@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mapper;
+package org.jboss.pnc.mapper.abstracts;
 
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
@@ -26,16 +26,13 @@ import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
-import org.jboss.pnc.mapper.api.IdEntity;
 import org.jboss.pnc.mapper.api.MapperCentralConfig;
-import org.jboss.pnc.mapper.api.Reference;
 import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.TargetRepository;
-import org.mapstruct.BeanMapping;
 import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,41 +55,6 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
     @Inject
     private Configuration config;
 
-    @Override
-    @Mapping(target = "deployUrl", ignore = true)
-    @Mapping(target = "publicUrl", ignore = true)
-    @Mapping(target = "build", source = "buildRecord")
-    @Mapping(target = "targetRepository", qualifiedBy = Reference.class)
-    @Mapping(target = "creationUser", qualifiedBy = Reference.class)
-    @Mapping(target = "modificationUser", qualifiedBy = Reference.class)
-    @BeanMapping(
-            ignoreUnmappedSourceProperties = { "distributedInProductMilestones", "identifierSha256", "built",
-                    "imported", "trusted", "descriptiveString", "dependantBuildRecords" })
-    public abstract Artifact toDTO(org.jboss.pnc.model.Artifact dbEntity);
-
-    @Override
-    @Mapping(target = "deployUrl", ignore = true)
-    @Mapping(target = "publicUrl", ignore = true)
-    @BeanMapping(
-            ignoreUnmappedSourceProperties = { "targetRepository", "buildRecords", "dependantBuildRecords",
-                    "importDate", "distributedInProductMilestones", "identifierSha256", "built", "imported", "trusted",
-                    "descriptiveString", "creationUser", "modificationUser" })
-    public abstract ArtifactRef toRef(org.jboss.pnc.model.Artifact dbEntity);
-
-    @Override
-    @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
-    @Mapping(target = "modificationUser", qualifiedBy = IdEntity.class)
-    @Mapping(target = "buildRecord", source = "build", qualifiedBy = IdEntity.class)
-    @Mapping(target = "dependantBuildRecords", ignore = true)
-    /*
-     * Builder that MapStruct uses when generating mapper has method dependantBuildRecord() which confuses MapStruct as
-     * he thinks it is a new property
-     */
-    @Mapping(target = "dependantBuildRecord", ignore = true)
-    @Mapping(target = "distributedInProductMilestones", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
-    public abstract org.jboss.pnc.model.Artifact toEntity(Artifact dtoEntity);
-
     @BeforeMapping
     protected void fillDeployAndPublicUrl(
             org.jboss.pnc.model.Artifact artifactDB,
@@ -101,7 +63,7 @@ public abstract class AbstractArtifactMapper implements ArtifactMapper {
     }
 
     @BeforeMapping
-    void fillDeployAndPublicUrl(
+    protected void fillDeployAndPublicUrl(
             org.jboss.pnc.model.Artifact artifactDB,
             @MappingTarget ArtifactRef.Builder artifactREF) {
         fillDeployAndPublicUrl(artifactDB, artifactREF::deployUrl, artifactREF::publicUrl);
