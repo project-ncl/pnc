@@ -244,6 +244,13 @@ public class ProductMilestone implements GenericEntity<Integer> {
     }
 
     public void setProductRelease(ProductRelease productRelease) {
+        if (productRelease == null) {
+            if (this.productRelease != null) {
+                this.productRelease.setProductMilestone(null);
+            }
+        } else {
+            productRelease.setProductMilestone(this);
+        }
         this.productRelease = productRelease;
     }
 
