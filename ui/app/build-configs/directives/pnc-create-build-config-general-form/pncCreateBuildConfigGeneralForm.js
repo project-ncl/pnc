@@ -27,11 +27,13 @@
   });
 
   function Controller(buildTypes) {
-    var $ctrl = this;
+    let $ctrl = this;
 
     // -- Controller API --
 
     $ctrl.buildTypes = buildTypes;
+    $ctrl.showBrewPullCheckbox = showBrewPullCheckbox;
+    $ctrl.onSelectChange = onSelectChange;
 
     // --------------------
 
@@ -46,5 +48,15 @@
         $ctrl.ngModel.$setViewValue($ctrl.data);
       }
     };
+
+    function showBrewPullCheckbox() {
+      return $ctrl.data.buildType !== 'NPM';
+    }
+
+    function onSelectChange() {
+      if ($ctrl.data.buildType === 'NPM'){
+        $ctrl.data.brewPullActive = false;
+      }
+    }
   }
 })();

@@ -41,7 +41,7 @@
 
 
   function Controller(BuildConfigResource) {
-    var $ctrl = this;
+    let $ctrl = this;
 
     // -- Controller API --
 
@@ -62,7 +62,7 @@
 
     function submit() {
       $ctrl.working = true;
-      var buildConfig = toBuildConfig($ctrl.formData, $ctrl.buildConfig);
+      let buildConfig = toBuildConfig($ctrl.formData, $ctrl.buildConfig);
 
       BuildConfigResource.safePatchRemovingParameters($ctrl.buildConfig, buildConfig).$promise
           .then(resp => {
@@ -81,7 +81,7 @@
     }
 
     function fromBuildConfig(buildConfig) {
-      var formData = {
+      let formData = {
         general: {},
         parameters: {},
         scmRepository: {}
@@ -93,6 +93,7 @@
       formData.general.buildType = buildConfig.buildType;
       formData.general.buildScript = buildConfig.buildScript;
       formData.general.scmRevision = buildConfig.scmRevision;
+      formData.general.brewPullActive = buildConfig.brewPullActive;
 
       formData.scmRepository = buildConfig.scmRepository;
       formData.productVersion = buildConfig.productVersion;
@@ -103,7 +104,7 @@
     }
 
     function toBuildConfig(formData) {
-      var newBc = angular.extend({}, formData.general);
+      let newBc = angular.extend({}, formData.general);
 
       newBc.scmRepository = formData.scmRepository;
       newBc.parameters = formData.parameters;
