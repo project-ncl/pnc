@@ -353,9 +353,8 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      * @param buildConfigurationSet add to the list of buildConfigurationSets
      */
     public void addBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
-        if (!this.buildConfigurationSets.contains(buildConfigurationSet)) {
-            this.buildConfigurationSets.add(buildConfigurationSet);
-        }
+        buildConfigurationSets.add(buildConfigurationSet);
+        buildConfigurationSet.getBuildConfigurations().add(this);
     }
 
     /**
@@ -363,6 +362,7 @@ public class BuildConfiguration implements GenericEntity<Integer>, Cloneable {
      */
     public void removeBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
         this.buildConfigurationSets.remove(buildConfigurationSet);
+        buildConfigurationSet.getBuildConfigurations().remove(this);
     }
 
     /**
