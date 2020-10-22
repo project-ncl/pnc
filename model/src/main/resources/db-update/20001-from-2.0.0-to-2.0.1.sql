@@ -21,4 +21,7 @@ BEGIN transaction;
 
     ALTER TABLE BuildEnvironment
         ADD CONSTRAINT uk_buildenvironment_imageid_imagerepositoryurl unique (systemImageId, systemImageRepositoryUrl);
+
+    ALTER TABLE BuildEnvironment
+        DROP CONSTRAINT uk_buildenvironment_name;
 COMMIT;
