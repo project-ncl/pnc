@@ -34,6 +34,7 @@
     // -- Controller API --
 
     $ctrl.hideField = hideField;
+    $ctrl.hideBrewPullActive = hideBrewPullActive;
 
     // --------------------
 
@@ -43,7 +44,11 @@
 
     function hideField(field) {
         return $ctrl.hideFields && $ctrl.hideFields.includes(field);
-      }
+    }
+
+    function hideBrewPullActive(){
+      return $ctrl.buildConfig.buildType === 'NPM' || hideField('brewPullActive');
+    }
   }
 
 })();

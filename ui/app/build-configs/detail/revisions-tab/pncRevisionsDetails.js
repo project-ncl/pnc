@@ -38,7 +38,7 @@
 
 
     $ctrl.$onInit = function () {
-      $ctrl.hideFields = ['description', 'productVersion'];
+      $ctrl.hideFields = ['description', 'productVersion' , 'brewPullActive'];
     };
 
 

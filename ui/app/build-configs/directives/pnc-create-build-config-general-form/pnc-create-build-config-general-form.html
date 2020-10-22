@@ -40,7 +40,7 @@
   <div class="form-group" ng-class="{ 'has-error' : form.buildType.$invalid && form.buildType.$touched, 'has-success': form.buildType.$valid && form.buildType.$touched }">
     <label class="control-label required" for="build-config-build-type">Build Type</label>
     <br>
-    <select name="buildType" pf-bootstrap-select="{ noneSelectedText: 'Select Build Type' }" ng-model="$ctrl.data.buildType" id="build-config-build-type" ng-options="buildType.id as buildType.name for buildType in $ctrl.buildTypes" required></select>
+    <select name="buildType" pf-bootstrap-select="{ noneSelectedText: 'Select Build Type' }" ng-model="$ctrl.data.buildType" id="build-config-build-type" ng-options="buildType.id as buildType.name for buildType in $ctrl.buildTypes" ng-change="$ctrl.onSelectChange()" required></select>
     <p ng-show="form.buildType.$invalid && form.buildType.$touched" class="help-block">Build Type is a required field.</p>
   </div>
 
@@ -49,5 +49,13 @@
     <textarea id="build-config-build-script" name="buildScript" class="form-control" spellcheck=false ng-model="$ctrl.data.buildScript" spellcheck="false" pnc-build-script-validator required></textarea>
     <p ng-show="form.buildScript.$invalid && form.buildScript.$touched" class="help-block">Build Script is a required field.</p>
     <p class="help-block" ng-show="form.buildScript.$error.invalidBuildScript && form.buildScript.$touched">The 'deploy' goal is required for maven builds in order to prevent artifact promotion issues.</p>
+  </div>
+
+  <div class="form-group" ng-if="$ctrl.showBrewPullCheckbox()">
+    <div class="checkbox">
+      <label class="control-label" for="build-config-brew-pull-active">
+        <input id="build-config-brew-pull-active" type="checkbox" ng-model="$ctrl.data.brewPullActive">Brew pull active
+      </label>
+    </div>
   </div>
 </ng-form>
