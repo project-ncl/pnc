@@ -188,6 +188,12 @@ public class ProductVersion implements GenericEntity<Integer> {
 
     public void addProductMilestone(ProductMilestone productMilestone) {
         this.productMilestones.add(productMilestone);
+        productMilestone.setProductVersion(this);
+    }
+
+    public void removeProductMilestone(ProductMilestone productMilestone) {
+        this.productMilestones.remove(productMilestone);
+        productMilestone.setProductVersion(null);
     }
 
     public ProductMilestone getCurrentProductMilestone() {
@@ -206,6 +212,16 @@ public class ProductVersion implements GenericEntity<Integer> {
         this.buildConfigurationSets = buildConfigurationSets;
     }
 
+    public void addBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
+        buildConfigurationSets.add(buildConfigurationSet);
+        buildConfigurationSet.setProductVersion(this);
+    }
+
+    public void removeBuildConfigurationSet(BuildConfigurationSet buildConfigurationSet) {
+        buildConfigurationSets.remove(buildConfigurationSet);
+        buildConfigurationSet.setProductVersion(null);
+    }
+
     public Set<BuildConfiguration> getBuildConfigurations() {
         return buildConfigurations;
     }
@@ -216,6 +232,16 @@ public class ProductVersion implements GenericEntity<Integer> {
         } else {
             this.buildConfigurations = buildConfigurations;
         }
+    }
+
+    public void addBuildConfiguration(BuildConfiguration buildConfiguration) {
+        buildConfigurations.add(buildConfiguration);
+        buildConfiguration.setProductVersion(this);
+    }
+
+    public void removeBuildConfiguration(BuildConfiguration buildConfiguration) {
+        buildConfigurations.remove(buildConfiguration);
+        buildConfiguration.setProductVersion(null);
     }
 
     public Map<String, String> getAttributes() {

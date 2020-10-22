@@ -177,10 +177,12 @@ public class BuildConfigurationSet implements GenericEntity<Integer> {
     }
 
     public boolean addBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
+        buildConfigSetRecord.setBuildConfigurationSet(this);
         return this.buildConfigSetRecords.add(buildConfigSetRecord);
     }
 
     public boolean removeBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) {
+        buildConfigSetRecord.setBuildConfigurationSet(null);
         return this.buildConfigSetRecords.remove(buildConfigSetRecord);
     }
 

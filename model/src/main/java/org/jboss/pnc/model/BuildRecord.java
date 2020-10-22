@@ -221,7 +221,6 @@ public class BuildRecord implements GenericEntity<Integer> {
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildRecord")
-    @Column(updatable = false)
     private Set<Artifact> builtArtifacts;
 
     /**
@@ -511,6 +510,16 @@ public class BuildRecord implements GenericEntity<Integer> {
         return builtArtifacts;
     }
 
+    public void addArtifact(Artifact artifact) {
+        builtArtifacts.add(artifact);
+        artifact.setBuildRecord(this);
+    }
+
+    public void removeArtifact(Artifact artifact) {
+        builtArtifacts.remove(artifact);
+        artifact.setBuildRecord(null);
+    }
+
     /**
      * Gets the dependencies.
      *
@@ -661,16 +670,13 @@ public class BuildRecord implements GenericEntity<Integer> {
         BuildRecordAttribute attribute = new BuildRecordAttribute(this, key, value);
         old.ifPresent(attributes::remove);
         attributes.add(attribute);
-        if (old.isPresent()) {
-            return old.get().getValue();
-        } else {
-            return null;
-        }
+        return old.map(BuildRecordAttribute::getValue).orElse(null);
     }
 
     public void removeAttribute(String key) {
         Optional<BuildRecordAttribute> attribute = getAttributeEntity(key);
         attribute.ifPresent(attributes::remove);
+        attribute.ifPresent(a -> a.setBuildRecord(null));
     }
 
     public Integer getBuildConfigurationId() {
@@ -783,6 +789,16 @@ public class BuildRecord implements GenericEntity<Integer> {
 
     public void setBuildRecordPushResults(Set<BuildRecordPushResult> buildRecordPushResults) {
         this.buildRecordPushResults = buildRecordPushResults;
+    }
+
+    public void addBuildRecordPushResult(BuildRecordPushResult buildRecordPushResult) {
+        buildRecordPushResults.add(buildRecordPushResult);
+        buildRecordPushResult.setBuildRecord(this);
+    }
+
+    public void removeBuildRecordPushResult(BuildRecordPushResult buildRecordPushResult) {
+        buildRecordPushResults.remove(buildRecordPushResult);
+        buildRecordPushResult.setBuildRecord(null);
     }
 
     public void setDependentBuildRecordIds(Integer[] dependentBuildRecordIds) {

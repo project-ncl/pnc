@@ -212,10 +212,8 @@ public class User implements GenericEntity<Integer> {
      * @return the project build record
      */
     public BuildRecord addBuildRecord(BuildRecord buildRecord) {
-
         getBuildRecords().add(buildRecord);
         buildRecord.setUser(this);
-
         return buildRecord;
     }
 

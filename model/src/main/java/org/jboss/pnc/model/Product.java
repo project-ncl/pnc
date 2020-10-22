@@ -205,7 +205,19 @@ public class Product implements GenericEntity<Integer> {
      * @return True if the product did not already contain this version
      */
     public boolean addVersion(ProductVersion version) {
+        version.setProduct(this);
         return productVersions.add(version);
+    }
+
+    /**
+     * Remove a version from the Product
+     *
+     * @param version Remove version from this product
+     * @return True if the product did contain that version
+     */
+    public boolean removeVersion(ProductVersion version) {
+        version.setProduct(null);
+        return productVersions.remove(version);
     }
 
     @Override

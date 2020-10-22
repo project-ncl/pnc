@@ -217,6 +217,16 @@ public class ProductMilestone implements GenericEntity<Integer> {
         this.performedBuilds = performedBuilds;
     }
 
+    public void addPerformedBuild(BuildRecord performedBuild) {
+        performedBuilds.add(performedBuild);
+        performedBuild.setProductMilestone(this);
+    }
+
+    public void removePerformedBuild(BuildRecord performedBuild) {
+        performedBuilds.remove(performedBuild);
+        performedBuild.setProductMilestone(null);
+    }
+
     public Set<Artifact> getDistributedArtifacts() {
         return distributedArtifacts;
     }

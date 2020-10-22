@@ -260,10 +260,12 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
     }
 
     public boolean addBuildRecord(BuildRecord buildRecord) {
+        buildRecord.setBuildConfigSetRecord(this);
         return buildRecords.add(buildRecord);
     }
 
     public boolean removeBuildRecord(BuildRecord buildRecord) {
+        buildRecord.setBuildConfigSetRecord(null);
         return buildRecords.remove(buildRecord);
     }
 

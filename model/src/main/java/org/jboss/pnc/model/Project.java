@@ -186,24 +186,20 @@ public class Project implements GenericEntity<Integer> {
      * Add a buildConfiguration to the set of buildConfigurations
      *
      * @param configuration The configuration to add to this project
-     * @return the resulting BuildConfigurations
      */
-    public Set<BuildConfiguration> addBuildConfiguration(BuildConfiguration configuration) {
+    public void addBuildConfiguration(BuildConfiguration configuration) {
         buildConfigurations.add(configuration);
-
-        return buildConfigurations;
+        configuration.setProject(this);
     }
 
     /**
      * Remove a buildConfiguration from the set of buildConfigurations
      *
      * @param configuration The configuration to remove from this project
-     * @return the resulting BuildConfigurations
      */
-    public Set<BuildConfiguration> removeBuildConfiguration(BuildConfiguration configuration) {
+    public void removeBuildConfiguration(BuildConfiguration configuration) {
         buildConfigurations.remove(configuration);
-
-        return buildConfigurations;
+        configuration.setProject(null);
     }
 
     /**
