@@ -391,9 +391,13 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     public void addDependantBuildRecord(BuildRecord buildRecord) {
-        if (!dependantBuildRecords.contains(buildRecord)) {
-            this.dependantBuildRecords.add(buildRecord);
-        }
+        dependantBuildRecords.add(buildRecord);
+        buildRecord.getDependencies().add(this);
+    }
+
+    public void removeDependantBuildRecord(BuildRecord buildRecord) {
+        dependantBuildRecords.remove(buildRecord);
+        buildRecord.getDependencies().remove(this);
     }
 
     public String getOriginUrl() {
@@ -421,7 +425,13 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     public boolean addDistributedInProductMilestone(ProductMilestone productMilestone) {
-        return this.distributedInProductMilestones.add(productMilestone);
+        productMilestone.getDistributedArtifacts().add(this);
+        return distributedInProductMilestones.add(productMilestone);
+    }
+
+    public boolean removeDistributedInProductMilestone(ProductMilestone productMilestone) {
+        productMilestone.getDistributedArtifacts().remove(this);
+        return distributedInProductMilestones.remove(productMilestone);
     }
 
     public Long getSize() {
