@@ -20,7 +20,7 @@
 
   angular.module('pnc.build-configs').component('pncCreateBuildConfigWizard', {
     templateUrl: 'build-configs/directives/pnc-create-build-config-wizard/pnc-create-build-config-wizard.html',
-    controller: ['$state', '$timeout','BuildConfigResource', 'buildConfigCreator', 'utils', Controller],
+    controller: ['$timeout', '$rootScope', 'events', 'BuildConfigResource', 'buildConfigCreator', 'utils', Controller],
     bindings: {
       modalInstance: '<',
       project: '<',
@@ -29,7 +29,7 @@
     }
   });
 
-  function Controller($state, $timeout, BuildConfigResource, buildConfigCreator, utils) {
+  function Controller($timeout, $rootScope, events, BuildConfigResource, buildConfigCreator, utils) {
     var $ctrl = this,
         emptyWizardData = {
           general: {},
@@ -154,6 +154,7 @@
     function onSuccess(buildConfig) {
       $ctrl.createdBuildConfigId = buildConfig.id;
       $ctrl.wizardDone = true;
+      $rootScope.$broadcast(events.BUILD_CONFIG_UPDATED, buildConfig);
     }
 
     function onError(message) {
@@ -189,11 +190,6 @@
     }
 
     $ctrl.onFinish = function (){
-      $state.go('projects.detail', {
-        projectId: $ctrl.wizardData.project.id
-      }, {
-        reload: true
-      });
       $ctrl.onClose();
     };
   }

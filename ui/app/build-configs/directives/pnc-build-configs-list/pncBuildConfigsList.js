@@ -42,11 +42,11 @@
       actionsData: '<'
     },
     templateUrl: 'build-configs/directives/pnc-build-configs-list/pnc-build-configs-list.html',
-    controller: ['$scope', Controller]
+    controller: ['$scope', '$state', 'events', Controller]
   });
 
 
-  function Controller($scope) {
+  function Controller($scope, $state, events) {
     var $ctrl = this;
 
     // -- Controller API --
@@ -59,6 +59,10 @@
 
     $ctrl.$onInit = function () {
       $scope.actions = $ctrl.actionsData;
+
+      $scope.$on(events.BUILD_CONFIG_UPDATED, (event, buildConfig) => {
+        $ctrl.buildConfigs.push(buildConfig);
+      });
     };
 
     function showTable() {
