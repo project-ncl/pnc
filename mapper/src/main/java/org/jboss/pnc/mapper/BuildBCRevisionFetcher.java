@@ -61,7 +61,7 @@ public class BuildBCRevisionFetcher {
     private BuildConfigurationAuditedRepository bcAuditedRepository;
 
     @BeforeMapping
-    public void mockBrewAttributes(BuildRecord build, @MappingTarget Build.Builder dtoBuilder) {
+    public void mapFromAuditedBuildConfig(BuildRecord build, @MappingTarget Build.Builder dtoBuilder) {
         Integer id = build.getBuildConfigurationId();
         Integer revision = build.getBuildConfigurationRev();
 
