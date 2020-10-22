@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.common.json;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -49,6 +50,16 @@ public class JsonOutputConverterMapper {
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         mapper.disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS);
+
+        try {
+            mapper.addMixIn(
+                    Class.forName("com.openshift.restclient.model.IStatus"),
+                    PNCMixinToIgnoreKubernetesProjectNPE.class);
+        } catch (ClassNotFoundException e) {
+            log.error(
+                    "Could not ignore com.openshift.restclient.model.IStatus on com.openshift.restclient.authorization.ResourceForbiddenException",
+                    e);
+        }
     }
 
     /**
@@ -81,6 +92,10 @@ public class JsonOutputConverterMapper {
 
         @JsonProperty
         private Object value;
+    }
+
+    @JsonIgnoreType
+    static final class PNCMixinToIgnoreKubernetesProjectNPE {
     }
 
     public static ObjectMapper getMapper() {
