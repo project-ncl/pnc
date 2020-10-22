@@ -163,6 +163,16 @@ public class TargetRepository implements GenericEntity<Integer> {
         this.artifacts = artifacts;
     }
 
+    public void addArtifact(Artifact artifact) {
+        artifacts.add(artifact);
+        artifact.setTargetRepository(this);
+    }
+
+    public void removeArtifact(Artifact artifact) {
+        artifacts.remove(artifact);
+        artifact.setTargetRepository(null);
+    }
+
     @Transient
     public IdentifierPath getIdentifierPath() {
         return new IdentifierPath(identifier, repositoryPath);

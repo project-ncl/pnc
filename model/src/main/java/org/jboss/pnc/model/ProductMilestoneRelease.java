@@ -101,6 +101,16 @@ public class ProductMilestoneRelease implements GenericEntity<Long> {
         this.buildRecordPushResults = buildRecordPushResults;
     }
 
+    public void addBuildRecordPushResult(BuildRecordPushResult buildRecordPushResult) {
+        buildRecordPushResults.add(buildRecordPushResult);
+        buildRecordPushResult.setProductMilestoneRelease(this);
+    }
+
+    public void removeBuildRecordPushResult(BuildRecordPushResult buildRecordPushResult) {
+        buildRecordPushResults.remove(buildRecordPushResult);
+        buildRecordPushResult.setProductMilestoneRelease(null);
+    }
+
     public MilestoneCloseStatus getStatus() {
         return status;
     }
