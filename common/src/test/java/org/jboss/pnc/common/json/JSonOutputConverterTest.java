@@ -51,7 +51,7 @@ public class JSonOutputConverterTest {
     }
 
     @Test
-    public void shouldFailWhenThereAreNoProperties() throws Exception {
+    public void shouldNotFailWhenThereAreNoProperties() throws Exception {
         // given
         class SampleObject {
             String sampleField;
@@ -63,8 +63,8 @@ public class JSonOutputConverterTest {
         // when//then
         try {
             JsonOutputConverterMapper.apply(objectToConvert);
-            fail();
         } catch (IllegalArgumentException expected) {
+            fail();
         }
     }
 
