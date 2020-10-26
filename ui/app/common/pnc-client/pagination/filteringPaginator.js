@@ -160,6 +160,10 @@
             if (!f.method) {
               f.method = 'RSQL';
             }
+            if(f.comparator === 'like' && f.value.substr(0,1) === '!'){
+              f.value = f.value.slice(1);
+              f.comparator = 'notlike';
+            }
             activeFilters.push(f);
           });
           return this;
