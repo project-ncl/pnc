@@ -75,6 +75,8 @@ public class BuildExecutionConfigurationRest {
 
     protected String tempBuildTimestamp;
 
+    protected boolean brewPullActive;
+
     protected String defaultAlignmentParams;
 
     public static BuildExecutionConfigurationRest valueOf(String serialized) throws IOException {
@@ -136,6 +138,7 @@ public class BuildExecutionConfigurationRest {
                 genericParameters,
                 tempBuild,
                 tempBuildTimestamp,
+                brewPullActive,
                 defaultAlignmentParams);
     }
 

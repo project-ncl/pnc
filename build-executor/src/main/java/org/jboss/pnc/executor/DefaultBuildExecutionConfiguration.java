@@ -50,6 +50,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final Map<String, String> genericParameters;
     private final boolean tempBuild;
     private final String tempBuildTimestamp;
+    private final boolean brewPullActive;
     private final String defaultAlignmentParams;
 
     public DefaultBuildExecutionConfiguration(
@@ -72,6 +73,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             Map<String, String> genericParameters,
             boolean tempBuild,
             String tempBuildTimestamp,
+            boolean brewPullActive,
             String defaultAlignmentParams) {
 
         this.id = id;
@@ -93,6 +95,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.genericParameters = genericParameters;
         this.tempBuild = tempBuild;
         this.tempBuildTimestamp = tempBuildTimestamp;
+        this.brewPullActive = brewPullActive;
         this.defaultAlignmentParams = defaultAlignmentParams;
     }
 
@@ -189,6 +192,11 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     @Override
     public String getTempBuildTimestamp() {
         return tempBuildTimestamp;
+    }
+
+    @Override
+    public boolean isBrewPullActive() {
+        return brewPullActive;
     }
 
     @Override

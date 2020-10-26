@@ -82,6 +82,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             Map<String, String> genericParameters,
             boolean tempBuild,
             String tempBuildTimestamp,
+            boolean brewPullActive,
             String defaultAlignmentParams) {
         return build(
                 id,
@@ -103,6 +104,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
                 genericParameters,
                 tempBuild,
                 tempBuildTimestamp,
+                brewPullActive,
                 defaultAlignmentParams);
     }
 
@@ -126,6 +128,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             Map<String, String> genericParameters,
             boolean tempBuild,
             String tempBuildTimestamp,
+            boolean brewPullActive,
             String defaultAlignmentParams) {
 
         List<ArtifactRepository> builtRepositories;
@@ -234,6 +237,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public boolean isTempBuild() {
                 return tempBuild;
+            }
+
+            @Override
+            public boolean isBrewPullActive() {
+                return brewPullActive;
             }
 
             @Override

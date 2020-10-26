@@ -95,6 +95,7 @@ public class BpmBuildTask extends BpmTask {
                 TimeUtils.generateTimestamp(
                         buildTask.getBuildOptions().isTimestampAlignment(),
                         buildTask.getBuildSetTask().getStartTime()),
+                buildConfigurationAudited.isBrewPullActive(),
                 buildConfigurationAudited.getDefaultAlignmentParams());
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);

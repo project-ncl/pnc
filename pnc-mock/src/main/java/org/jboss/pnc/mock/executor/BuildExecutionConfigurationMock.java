@@ -49,6 +49,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private List<ArtifactRepository> artifactRepositories;
     private Map<String, String> genericParameters;
     private boolean tempBuild;
+    private boolean brewPullActive;
     private String tempBuildTimestamp;
     private String defaultAlignmentParams;
 
@@ -230,6 +231,15 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public void setTempBuild(boolean tempBuild) {
         this.tempBuild = tempBuild;
+    }
+
+    @Override
+    public boolean isBrewPullActive() {
+        return brewPullActive;
+    }
+
+    public void setBrewPullActive(boolean brewPullActive) {
+        this.brewPullActive = brewPullActive;
     }
 
     @Override

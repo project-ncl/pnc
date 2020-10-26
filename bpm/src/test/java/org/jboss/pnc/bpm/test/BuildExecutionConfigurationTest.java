@@ -61,6 +61,7 @@ public class BuildExecutionConfigurationTest {
                 new HashMap<>(),
                 false,
                 null,
+                false,
                 "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true");
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(
                 buildExecutionConfiguration);

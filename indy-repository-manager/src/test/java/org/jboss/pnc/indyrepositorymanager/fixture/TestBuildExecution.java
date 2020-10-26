@@ -71,6 +71,11 @@ public class TestBuildExecution implements BuildExecution {
     }
 
     @Override
+    public boolean isBrewPullActive() {
+        return false;
+    }
+
+    @Override
     public String getTempBuildTimestamp() {
         return null;
     }
@@ -79,5 +84,4 @@ public class TestBuildExecution implements BuildExecution {
     public BuildType getBuildType() {
         return buildType;
     }
-
 }
