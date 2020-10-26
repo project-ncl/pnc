@@ -97,6 +97,7 @@ public class LocalBuildScheduler implements BuildScheduler {
                 TimeUtils.generateTimestamp(
                         buildTask.getBuildOptions().isTimestampAlignment(),
                         buildTask.getBuildSetTask().getStartTime()),
+                configuration.isBrewPullActive(),
                 configuration.getDefaultAlignmentParams());
 
         try {

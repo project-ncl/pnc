@@ -29,6 +29,8 @@ public interface BuildExecution {
 
     boolean isTempBuild();
 
+    boolean isBrewPullActive();
+
     BuildType getBuildType();
 
     String getTempBuildTimestamp();

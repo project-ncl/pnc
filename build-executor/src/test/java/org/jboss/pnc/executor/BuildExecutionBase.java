@@ -161,6 +161,7 @@ class BuildExecutionBase {
                 buildConfiguration.getGenericParameters(),
                 false,
                 null,
+                buildConfiguration.isBrewPullActive(),
                 buildConfiguration.getDefaultAlignmentParams());
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");

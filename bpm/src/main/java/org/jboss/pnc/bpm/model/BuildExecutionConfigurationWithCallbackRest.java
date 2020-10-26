@@ -71,6 +71,7 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
             Map<String, String> genericParameters,
             boolean tempBuild,
             String tempBuildTimestamp,
+            boolean brewPullActive,
             String completionCallbackUrl,
             String defaultAlignmentParams) {
         super(
@@ -93,6 +94,7 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
                 genericParameters,
                 tempBuild,
                 tempBuildTimestamp,
+                brewPullActive,
                 defaultAlignmentParams);
         this.completionCallbackUrl = completionCallbackUrl;
     }

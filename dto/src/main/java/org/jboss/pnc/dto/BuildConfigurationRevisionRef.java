@@ -91,6 +91,11 @@ public class BuildConfigurationRevisionRef implements DTOEntity {
      */
     protected final String defaultAlignmentParams;
 
+    /**
+     * Whether brew pull active is on or off
+     */
+    protected final boolean brewPullActive;
+
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {

@@ -109,6 +109,7 @@ public class BuildTaskEndpointTest {
                 new HashMap<>(),
                 false,
                 null,
+                false,
                 "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true");
 
         BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(

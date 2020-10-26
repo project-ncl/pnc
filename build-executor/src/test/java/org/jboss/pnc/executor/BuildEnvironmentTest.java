@@ -176,6 +176,7 @@ public class BuildEnvironmentTest {
                 buildConfiguration.getGenericParameters(),
                 false,
                 null,
+                buildConfiguration.isBrewPullActive(),
                 buildConfiguration.getDefaultAlignmentParams());
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");
