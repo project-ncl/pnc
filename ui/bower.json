@@ -20,7 +20,7 @@
     "angular-ui-router": "~1.0.22",
     "angular-drag-and-drop-lists": "~2.1.0",
     "fast-json-patch": "^2.1.0",
-    "bifrost-js": "^0.1.1",
+    "bifrost-js": "^0.1.2",
     "pnc-js-libs": "^0.0.0-snapshot.7",
     "pnc-chart-js": "project-ncl/pnc-chart-js#^3.0.0-dev-pnc.1"
   },
