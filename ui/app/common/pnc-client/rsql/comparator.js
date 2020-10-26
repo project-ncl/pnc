@@ -71,6 +71,13 @@
           return ctx.next();
         };
 
+        that.notlike = function (value) {
+          value = value.replace(/\*/g, '%');
+          value = value.replace(/\?/g, '_');
+          ctx.addToQuery('=notlike="' + value + '"');
+          return ctx.next();
+        };
+
         that.isNull = function () {
           ctx.addToQuery('=isnull=true');
           return ctx.next();
