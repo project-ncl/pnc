@@ -21,3 +21,6 @@ ALTER TABLE buildconfiguration ADD COLUMN brewpullactive boolean;
 ALTER TABLE buildconfiguration ALTER COLUMN brewpullactive SET NOT NULL;
 UPDATE buildconfiguration SET brewPullActive=false;
 
+ALTER TABLE buildconfiguration_aud ADD COLUMN brewpullactive boolean;
+UPDATE buildconfiguration SET brewPullActive=false;
+
