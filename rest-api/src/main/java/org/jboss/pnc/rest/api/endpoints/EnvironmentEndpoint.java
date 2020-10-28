@@ -28,18 +28,26 @@ import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildEnvironmentPage;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
@@ -58,6 +66,7 @@ public interface EnvironmentEndpoint {
     static final String E_ID = "ID of the environment";
 
     static final String GET_ALL_DESC = "Gets all environments.";
+    static final String CREATE_NEW_DESC = "Creates a new environment.";
 
     /**
      * {@value GET_ALL_DESC}
@@ -106,5 +115,34 @@ public interface EnvironmentEndpoint {
     @GET
     @Path("/{id}")
     Environment getSpecific(@Parameter(description = E_ID) @PathParam("id") String id);
+
+    /**
+     * {@value CREATE_NEW_DESC}
+     *
+     * @param product
+     * @return
+     */
+    @Operation(
+            summary = "[role:admin] " + CREATE_NEW_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = ENTITY_CREATED_CODE,
+                            description = ENTITY_CREATED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Environment.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = CONFLICTED_CODE,
+                            description = CONFLICTED_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @POST
+    @RespondWithStatus(Response.Status.CREATED)
+    Environment createNew(@NotNull Environment environment);
 
 }

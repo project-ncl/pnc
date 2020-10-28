@@ -17,16 +17,23 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.dto.Environment;
-import org.jboss.pnc.facade.validation.DTOValidationException;
-import org.jboss.pnc.mapper.api.EnvironmentMapper;
-import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
-import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.spi.datastore.predicates.EnvironmentPredicates.withEnvironmentNameAndActive;
+
+import java.util.List;
 
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
+import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
+import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.mapper.api.EnvironmentMapper;
+import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 
 @PermitAll
 @Stateless
@@ -39,8 +46,9 @@ public class EnvironmentProviderImpl extends AbstractProvider<Integer, BuildEnvi
     }
 
     @Override
+    @RolesAllowed(SYSTEM_USER)
     public Environment store(Environment restEntity) throws DTOValidationException {
-        throw new UnsupportedOperationException("Creating Environments is prohibited");
+        return super.store(restEntity);
     }
 
     @Override
@@ -52,4 +60,24 @@ public class EnvironmentProviderImpl extends AbstractProvider<Integer, BuildEnvi
     public void delete(String id) {
         throw new UnsupportedOperationException("Deleting Environments is prohibited");
     }
+
+    @Override
+    protected void validateBeforeSaving(Environment restEntity) {
+
+        super.validateBeforeSaving(restEntity);
+        deprecateActiveEnvironmentsWithSameName(restEntity);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void deprecateActiveEnvironmentsWithSameName(Environment restEntity) throws ConflictedEntryException {
+
+        List<BuildEnvironment> buildEnvironments = repository
+                .queryWithPredicates(withEnvironmentNameAndActive(restEntity.getName()));
+
+        for (BuildEnvironment env : buildEnvironments) {
+            env.setDeprecated(true);
+            repository.save(env);
+        }
+    }
+
 }
