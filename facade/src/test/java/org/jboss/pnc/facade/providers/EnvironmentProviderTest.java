@@ -82,14 +82,24 @@ public class EnvironmentProviderTest extends AbstractIntIdProviderTest<BuildEnvi
     public void testStore() {
         final String name = "Hello";
         final String sysImageId = "NewID";
+        final String sysRepoUrl = "quay.io/rh-newcastle";
 
+        // when
         Environment environment = Environment.builder()
                 .name(name)
                 .systemImageId(sysImageId)
+                .systemImageRepositoryUrl(sysRepoUrl)
                 .systemImageType(SystemImageType.DOCKER_IMAGE)
                 .build();
 
-        assertThatThrownBy(() -> provider.store(environment)).isInstanceOf(UnsupportedOperationException.class);
+        org.jboss.pnc.dto.Environment envDTOSaved = provider.store(environment);
+
+        // then
+        assertThat(envDTOSaved.getId()).isNotNull().isNotBlank();
+        // check if DTO pre-save is the same as DTO post-save
+        assertThat(envDTOSaved.getName()).isEqualTo(environment.getName());
+        assertThat(envDTOSaved.getSystemImageId()).isEqualTo(environment.getSystemImageId());
+        assertThat(envDTOSaved.getSystemImageRepositoryUrl()).isEqualTo(environment.getSystemImageRepositoryUrl());
     }
 
     @Test
