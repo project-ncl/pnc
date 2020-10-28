@@ -1,0 +1,13 @@
+{
+    "name": "OpenJDK 14.0; Mvn 3.6.5",
+    "description": "OpenJDK 14.0; Mvn 3.6.5",
+    "systemImageRepositoryUrl": "quay.io/rh-newcastle",
+    "systemImageId": "builder-rhel-7-j14-mvn3.6.5:2.0",
+    "systemImageType": "DOCKER_IMAGE",
+    "deprecated": false,
+    "attributes": {
+        "JDK": "8",
+        "OS": "Linux",
+        "MAVEN": "3.6.5"  
+    }
+}

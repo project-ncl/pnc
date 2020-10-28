@@ -61,6 +61,7 @@ public class RestTest {
 
     private static final String USER_REST_ENDPOINT = BASE_REST_PATH + "/users/";
     private static final String PRODUCT_REST_ENDPOINT = BASE_REST_PATH + "/products/";
+    private static final String ENVIRONMENT_REST_ENDPOINT = BASE_REST_PATH + "/environments/";
     private static final String PRODUCT_VERSION_REST_ENDPOINT = BASE_REST_PATH + "/product-versions/";
     private static final String PROJECT_REST_ENDPOINT = BASE_REST_PATH + "/projects/";
     private static final String JSON_PATCH = "application/json-patch+json";
@@ -71,6 +72,7 @@ public class RestTest {
     private static String projectId;
     private static String newProductId;
     private static String newProjectId;
+    private static String newEnvironmentId;
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -80,6 +82,11 @@ public class RestTest {
     private RequestSpecification givenCommonSettingAnd() {
         RequestSpecification request = given().accept(ContentType.JSON).port(getHttpPort());
         return Credentials.ADMIN.passCredentials(request.auth().preemptive()::basic);
+    }
+
+    private RequestSpecification givenSystemUserSettingAnd() {
+        RequestSpecification request = given().accept(ContentType.JSON).port(getHttpPort());
+        return Credentials.SYSTEM_USER.passCredentials(request.auth().preemptive()::basic);
     }
 
     @Test
@@ -244,6 +251,20 @@ public class RestTest {
                 .statusCode(200)
                 .body("id", equalTo(newProjectId))
                 .body("name", equalTo(newName));
+    }
+
+    @Test
+    @InSequence(11)
+    public void shouldCreateNewEnvironment() throws IOException {
+        String rawJson = IoUtils.readFileOrResource("environment", "environment.json", getClass().getClassLoader());
+
+        givenSystemUserSettingAnd().body(rawJson)
+                .contentType(ContentType.JSON)
+                .when()
+                .post(ENVIRONMENT_REST_ENDPOINT)
+                .then()
+                .statusCode(201)
+                .body(JsonMatcher.containsJsonAttribute("id", value -> newEnvironmentId = value));
     }
 
 }
