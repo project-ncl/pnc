@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import java.util.Date;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.coordinator.maintenance.BlacklistAsyncInvoker;
 import org.jboss.pnc.dto.ArtifactRef;
@@ -64,9 +65,12 @@ import javax.persistence.criteria.Root;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
@@ -81,7 +85,8 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha2
  */
 @PermitAll
 @Stateless
-public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
+public class ArtifactProviderImpl
+        extends AbstractUpdatableProvider<Integer, Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
         implements ArtifactProvider {
 
     private static Logger logger = LoggerFactory.getLogger(ArtifactProviderImpl.class);
@@ -204,10 +209,38 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
     @RolesAllowed(SYSTEM_USER)
     public org.jboss.pnc.dto.Artifact update(String id, org.jboss.pnc.dto.Artifact restEntity)
             throws DTOValidationException {
-        org.jboss.pnc.model.User currentUser = userService.currentUser();
-        User user = userMapper.toDTO(currentUser);
-        Instant now = Instant.now();
-        return super.update(id, restEntity.toBuilder().modificationUser(user).modificationTime(now).build());
+        return updateArtifact(id, restEntity);
+    }
+
+    @Override
+    protected void onUpdate(Artifact dbEntity) {
+        // To update modification user/time only when audited fields are updated the artifact update must be done using
+        // the updateArtifact method. The AbstractUpdatableProvider.update must not be called. This class extends
+        // AbstractUpdatableProvider and not just AbstractProvider to make this note explicit.
+        throw new UnsupportedOperationException("You must call updateArtifact not super.update to update artifact.");
+    }
+
+    public org.jboss.pnc.dto.Artifact updateArtifact(String id, org.jboss.pnc.dto.Artifact restEntity) {
+        validateBeforeUpdating(id, restEntity);
+        logger.debug("Updating entity: " + restEntity.toString());
+        Artifact dbEntity = repository.queryById(mapper().getIdMapper().toEntity(id));
+        logger.debug("Updating existing entity: " + dbEntity);
+
+        boolean equalAuditedValues = equalAuditedValues(dbEntity, restEntity);
+        mapper().updateEntity(restEntity, dbEntity);
+        if (!equalAuditedValues) {
+            // Changes to audit, set the modificationUser and modificationTime to new values
+            org.jboss.pnc.model.User currentUser = userService.currentUser();
+            dbEntity.setModificationUser(currentUser);
+            dbEntity.setModificationTime(new Date());
+        }
+        logger.debug("Updated entity: " + dbEntity);
+        return mapper().toDTO(dbEntity);
+    }
+
+    private boolean equalAuditedValues(Artifact persisted, org.jboss.pnc.dto.Artifact toUpdate) {
+        return Objects.equals(persisted.getArtifactQuality(), toUpdate.getArtifactQuality())
+                && Objects.equals(persisted.getQualityLevelReason(), toUpdate.getQualityLevelReason());
     }
 
     @Override
@@ -225,17 +258,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
 
         validateIfArtifactQualityIsModifiable(artifact, newQuality);
 
-        org.jboss.pnc.model.User currentUser = userService.currentUser();
-        User user = userMapper.toDTO(currentUser);
-        Instant now = Instant.now();
-        super.update(
-                id,
-                artifact.toBuilder()
-                        .modificationUser(user)
-                        .modificationTime(now)
-                        .artifactQuality(newQuality)
-                        .qualityLevelReason(reason)
-                        .build());
+        updateArtifact(id, artifact.toBuilder().artifactQuality(newQuality).qualityLevelReason(reason).build());
 
         ArtifactAudited latestRevision = artifactAuditedRepository.findLatestById(Integer.parseInt(id));
         if (latestRevision == null) {

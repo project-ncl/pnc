@@ -25,7 +25,6 @@ import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
-import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -37,13 +36,16 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.model.BuildConfiguration;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
 
 @PermitAll
 @Stateless
-public class ProductVersionProviderImpl
-        extends AbstractProvider<Integer, org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef>
+@Slf4j
+public class ProductVersionProviderImpl extends
+        AbstractUpdatableProvider<Integer, org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef>
         implements ProductVersionProvider {
 
     private ProductRepository productRepository;
@@ -81,43 +83,11 @@ public class ProductVersionProviderImpl
                 systemConfig.getBrewTagPattern());
 
         org.jboss.pnc.model.ProductVersion productVersion = repository.save(productVersionRestDb);
+        for (BuildConfiguration bc : productVersionRestDb.getBuildConfigurations()) {
+            bc.setProductVersion(productVersion);
+        }
         repository.flushAndRefresh(productVersion);
         return mapper.toDTO(productVersion);
-    }
-
-    @Override
-    public ProductVersion update(String id, ProductVersion restEntity) {
-        validateBeforeUpdating(id, restEntity);
-        ProductVersion current = super.getSpecific(id);
-
-        boolean hasClosedMilestone = current.getProductMilestones()
-                .values()
-                .stream()
-                .anyMatch(milestone -> milestone.getEndDate() != null);
-        boolean changingVersion = !current.getVersion().equals(restEntity.getVersion());
-
-        if (changingVersion && hasClosedMilestone) {
-            throw new InvalidEntityException(
-                    "Cannot change version id due to having closed milestone. Product version id: " + id);
-        }
-
-        // get Hibernate-managed entity
-        org.jboss.pnc.model.ProductVersion managedModel = repository.queryById(Integer.parseInt(id));
-        org.jboss.pnc.model.ProductVersion updatedModel = mapper.toEntity(restEntity);
-
-        groupConfigRepository.cascadeUpdates(
-                managedModel,
-                updatedModel,
-                org.jboss.pnc.model.ProductVersion::getBuildConfigurationSets,
-                BuildConfigurationSet::setProductVersion);
-
-        buildConfigurationRepository.cascadeUpdates(
-                managedModel,
-                updatedModel,
-                org.jboss.pnc.model.ProductVersion::getBuildConfigurations,
-                BuildConfiguration::setProductVersion);
-
-        return super.update(id, restEntity);
     }
 
     @Override
@@ -152,6 +122,26 @@ public class ProductVersionProviderImpl
     protected void validateBeforeUpdating(String id, ProductVersion restEntity) {
         super.validateBeforeUpdating(id, restEntity);
 
+        validateVersionChange(id, restEntity);
+        validateGroupConfigsBeforeUpdating(id, restEntity);
+    }
+
+    private void validateVersionChange(String id, ProductVersion restEntity) throws InvalidEntityException {
+        org.jboss.pnc.model.ProductVersion entityInDb = findInDB(id);
+        boolean changingVersion = !entityInDb.getVersion().equals(restEntity.getVersion());
+        if (changingVersion) {
+            boolean hasClosedMilestone = entityInDb.getProductMilestones()
+                    .stream()
+                    .anyMatch(milestone -> milestone.getEndDate() != null);
+            if (hasClosedMilestone) {
+                throw new InvalidEntityException(
+                        "Cannot change version due to having closed milestone. Product version id: " + id);
+            }
+        }
+    }
+
+    private void validateGroupConfigsBeforeUpdating(String id, ProductVersion restEntity)
+            throws InvalidEntityException, NumberFormatException, ConflictedEntryException {
         if (restEntity.getGroupConfigs() != null) {
             for (String groupConfigId : restEntity.getGroupConfigs().keySet()) {
                 BuildConfigurationSet set = groupConfigRepository.queryById(Integer.valueOf(groupConfigId));

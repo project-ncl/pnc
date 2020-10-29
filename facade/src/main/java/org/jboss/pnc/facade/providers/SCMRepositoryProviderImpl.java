@@ -75,7 +75,7 @@ import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPred
 @PermitAll
 @Stateless
 public class SCMRepositoryProviderImpl
-        extends AbstractProvider<Integer, RepositoryConfiguration, SCMRepository, SCMRepository>
+        extends AbstractUpdatableProvider<Integer, RepositoryConfiguration, SCMRepository, SCMRepository>
         implements SCMRepositoryProvider {
 
     private static final Logger log = LoggerFactory.getLogger(SCMRepositoryProviderImpl.class);
@@ -204,11 +204,11 @@ public class SCMRepositoryProviderImpl
     @Override
     public void validateBeforeUpdating(String id, SCMRepository restEntity) {
         super.validateBeforeUpdating(id, restEntity);
-        SCMRepository before = getSpecific(id);
-        if (!before.getInternalUrl().equals(restEntity.getInternalUrl())) {
+        RepositoryConfiguration entityInDb = findInDB(id);
+        if (!entityInDb.getInternalUrl().equals(restEntity.getInternalUrl())) {
             throw new InvalidEntityException("Updating internal URL is prohibited. SCMRepo: " + id);
         }
-        if (before.getExternalUrl() == null || !before.getExternalUrl().equals(restEntity.getExternalUrl())) {
+        if (restEntity.getExternalUrl() != null && !restEntity.getExternalUrl().equals(entityInDb.getExternalUrl())) {
             validateRepositoryWithExternalURLDoesNotExist(restEntity.getExternalUrl());
         }
     }

@@ -81,8 +81,8 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.
 
 @PermitAll
 @Stateless
-public class ProductMilestoneProviderImpl
-        extends AbstractProvider<Integer, org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef>
+public class ProductMilestoneProviderImpl extends
+        AbstractUpdatableProvider<Integer, org.jboss.pnc.model.ProductMilestone, ProductMilestone, ProductMilestoneRef>
         implements ProductMilestoneProvider {
 
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneProviderImpl.class);
@@ -111,33 +111,6 @@ public class ProductMilestoneProviderImpl
     }
 
     @Override
-    public ProductMilestone update(String id, ProductMilestone restEntity) {
-        validateBeforeUpdating(id, restEntity);
-
-        org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
-        org.jboss.pnc.model.ProductMilestone milestoneRestDb = mapper.toEntity(restEntity);
-
-        // we can't modify milestone if it's already released
-        if (milestoneInDb.getEndDate() != null) {
-            log.info("Milestone is already closed: no more modifications allowed");
-            throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
-        }
-
-        log.debug("Updating milestone for id: {}", id);
-        milestoneRestDb.setId(Integer.valueOf(id));
-
-        // make sure that user cannot set the 'endDate' via the REST API
-        // this should only be set after the release process is successful
-        milestoneRestDb.setEndDate(milestoneInDb.getEndDate());
-        // Make sure that user cannot change the product release of the milestone. This is set on release creation.
-        milestoneRestDb.setProductRelease(milestoneInDb.getProductRelease());
-
-        validateBeforeUpdating(id, mapper.toDTO(milestoneRestDb));
-
-        return mapper.toDTO(repository.save(milestoneRestDb));
-    }
-
-    @Override
     protected void validateBeforeSaving(ProductMilestone restEntity) {
         super.validateBeforeSaving(restEntity);
         validateDoesNotConflict(restEntity);
@@ -146,6 +119,12 @@ public class ProductMilestoneProviderImpl
     @Override
     protected void validateBeforeUpdating(String id, ProductMilestone restEntity) {
         super.validateBeforeUpdating(restEntity.getId(), restEntity);
+        org.jboss.pnc.model.ProductMilestone milestoneInDb = findInDB(id);
+        // we can't modify milestone if it's already released
+        if (milestoneInDb.getEndDate() != null) {
+            log.info("Milestone is already closed: no more modifications allowed");
+            throw new RepositoryViolationException("Milestone is already closed! No more modifications allowed");
+        }
         validateDoesNotConflict(restEntity);
     }
 

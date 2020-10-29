@@ -125,7 +125,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.witho
 
 @PermitAll
 @Stateless
-public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Build, BuildRef>
+public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildRecord, Build, BuildRef>
         implements BuildProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildProviderImpl.class);

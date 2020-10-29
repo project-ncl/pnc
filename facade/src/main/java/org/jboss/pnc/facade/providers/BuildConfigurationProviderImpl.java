@@ -68,6 +68,7 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import org.jboss.pnc.dto.GroupConfiguration;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;
@@ -88,7 +90,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicate
 @PermitAll
 @Stateless
 public class BuildConfigurationProviderImpl extends
-        AbstractProvider<Integer, org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef>
+        AbstractUpdatableProvider<Integer, org.jboss.pnc.model.BuildConfiguration, BuildConfiguration, BuildConfigurationRef>
         implements BuildConfigurationProvider {
 
     private final Logger logger = LoggerFactory.getLogger(BuildConfigurationProviderImpl.class);
@@ -169,10 +171,7 @@ public class BuildConfigurationProviderImpl extends
 
     @Override
     public BuildConfiguration update(String id, BuildConfiguration restEntity) {
-        org.jboss.pnc.model.User currentUser = userService.currentUser();
-        User user = userMapper.toDTO(currentUser);
         // Do not use super.update to allow the lazy initialization fix
-        restEntity = restEntity.toBuilder().id(id).modificationUser(user).build();
         validateBeforeUpdating(id, restEntity);
         logger.debug("Updating entity: " + restEntity.toString());
 
@@ -191,6 +190,13 @@ public class BuildConfigurationProviderImpl extends
     }
 
     @Override
+    protected void onUpdate(org.jboss.pnc.model.BuildConfiguration entityInDb) {
+        org.jboss.pnc.model.User currentUser = userService.currentUser();
+        entityInDb.setLastModificationUser(currentUser);
+        entityInDb.setLastModificationTime(new Date());
+    }
+
+    @Override
     protected void validateBeforeSaving(BuildConfiguration buildConfigurationRest) {
 
         super.validateBeforeSaving(buildConfigurationRest);
@@ -204,6 +210,10 @@ public class BuildConfigurationProviderImpl extends
 
         super.validateBeforeUpdating(id, buildConfigurationRest);
 
+        org.jboss.pnc.model.BuildConfiguration dbEntity = findInDB(id);
+        if (dbEntity.isArchived()) {
+            throw new RepositoryViolationException("The Build Config " + id + " is already deleted.");
+        }
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(id, buildConfigurationRest.getDependencies());
         validateEnvironment(buildConfigurationRest);

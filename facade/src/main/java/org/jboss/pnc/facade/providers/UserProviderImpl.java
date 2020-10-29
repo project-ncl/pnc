@@ -51,22 +51,7 @@ public class UserProviderImpl extends AbstractProvider<Integer, org.jboss.pnc.mo
 
     /**
      * Not allowed
-     * 
-     * @param id
-     * @param user
      *
-     * @return
-     *
-     * @throws UnsupportedOperationException
-     */
-    @Override
-    public User update(String id, User user) {
-        throw new UnsupportedOperationException("Updating users is prohibited");
-    }
-
-    /**
-     * Not allowed
-     * 
      * @param id
      *
      * @throws UnsupportedOperationException

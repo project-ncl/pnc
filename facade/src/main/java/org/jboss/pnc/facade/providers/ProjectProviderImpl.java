@@ -32,7 +32,8 @@ import static org.jboss.pnc.spi.datastore.predicates.ProjectPredicates.withProje
 
 @PermitAll
 @Stateless
-public class ProjectProviderImpl extends AbstractProvider<Integer, org.jboss.pnc.model.Project, Project, ProjectRef>
+public class ProjectProviderImpl
+        extends AbstractUpdatableProvider<Integer, org.jboss.pnc.model.Project, Project, ProjectRef>
         implements ProjectProvider {
 
     @Inject
@@ -55,7 +56,7 @@ public class ProjectProviderImpl extends AbstractProvider<Integer, org.jboss.pnc
 
     /**
      * Not allowed to delete a project
-     * 
+     *
      * @param id
      *
      * @throws UnsupportedOperationException

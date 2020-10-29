@@ -49,7 +49,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredic
 @Slf4j
 @Stateless
 public class GroupConfigurationProviderImpl
-        extends AbstractProvider<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef>
+        extends AbstractUpdatableProvider<Integer, BuildConfigurationSet, GroupConfiguration, GroupConfigurationRef>
         implements GroupConfigurationProvider {
 
     @Inject
@@ -78,19 +78,13 @@ public class GroupConfigurationProviderImpl
     }
 
     @Override
-    public GroupConfiguration update(String id, GroupConfiguration restEntity) {
-        validateBeforeUpdating(id, restEntity);
-        log.debug("Updating entity: " + restEntity);
-        BuildConfigurationSet dbEntity = repository.queryById(Integer.valueOf(id));
+    protected void validateBeforeUpdating(String id, GroupConfiguration restEntity) {
+        super.validateBeforeUpdating(id, restEntity);
+
+        BuildConfigurationSet dbEntity = findInDB(id);
         if (dbEntity.isArchived()) {
             throw new RepositoryViolationException("The Group Config " + id + " is already deleted.");
         }
-        // DO NOT REMOVE - Triggers the inizialization of LAZY collections (fixes NCL-5804)
-        if (dbEntity.getBuildConfigurations() != null) {
-            dbEntity.getBuildConfigSetRecords().isEmpty();
-        }
-        BuildConfigurationSet saved = repository.save(mapper.toEntity(restEntity));
-        return mapper.toDTO(saved);
     }
 
     @Override
