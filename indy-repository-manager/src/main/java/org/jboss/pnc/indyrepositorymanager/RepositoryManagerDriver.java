@@ -416,7 +416,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             for (ArtifactRepository repository : repositories) {
                 StoreKey remoteKey = null;
                 for (RemoteRepository existingRepo : existingRepos) {
-                    if (existingRepo.getUrl().equals(repository.getUrl())) {
+                    if (StringUtils.equals(existingRepo.getUrl(), repository.getUrl())) {
                         remoteKey = existingRepo.getKey();
                         break;
                     }
