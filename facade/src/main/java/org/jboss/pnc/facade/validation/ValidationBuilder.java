@@ -49,19 +49,19 @@ public class ValidationBuilder<T> {
         this.objectToBeValidated = objectToBeValidated;
     }
 
-    public static ValidationBuilder validateObject(Object object, Class<? extends ValidationGroup> validationGroup) {
+    public static <T> ValidationBuilder<T> validateObject(T object, Class<? extends ValidationGroup> validationGroup) {
         if (validationGroup == ValidationGroup.class) {
             throw new IllegalArgumentException("Use validation subclasses");
         }
 
-        return new ValidationBuilder(validationGroup, object);
+        return new ValidationBuilder<>(validationGroup, object);
     }
 
     public static ValidationBuilder validateObject(Class<? extends ValidationGroup> validationGroup) {
         return validateObject(null, validationGroup);
     }
 
-    public ValidationBuilder validateAnnotations() throws InvalidEntityException {
+    public ValidationBuilder<T> validateAnnotations() throws InvalidEntityException {
         if (objectToBeValidated != null) {
             Set<ConstraintViolation<T>> constraintViolations = validator.validate(objectToBeValidated, validationGroup);
             if (!constraintViolations.isEmpty()) {
@@ -71,7 +71,7 @@ public class ValidationBuilder<T> {
         return this;
     }
 
-    public ValidationBuilder validateField(String property, Object value) throws InvalidEntityException {
+    public ValidationBuilder<T> validateField(String property, Object value) throws InvalidEntityException {
         if (objectToBeValidated != null) {
             try {
                 Field field = objectToBeValidated.getClass().getDeclaredField(property);
@@ -89,7 +89,7 @@ public class ValidationBuilder<T> {
         return this;
     }
 
-    public ValidationBuilder validateConflict(ConflictedEntryValidator validate) throws ConflictedEntryException {
+    public ValidationBuilder<T> validateConflict(ConflictedEntryValidator validate) throws ConflictedEntryException {
         ConflictedEntryValidator.ConflictedEntryValidationError validationError = validate.validate();
         if (validationError != null) {
             throw new ConflictedEntryException(
@@ -100,14 +100,14 @@ public class ValidationBuilder<T> {
         return this;
     }
 
-    public ValidationBuilder validateNotEmptyArgument() throws EmptyEntityException {
+    public ValidationBuilder<T> validateNotEmptyArgument() throws EmptyEntityException {
         if (objectToBeValidated == null) {
             throw new EmptyEntityException("Input object is null");
         }
         return this;
     }
 
-    public <DBEntity extends GenericEntity<ID>, ID extends Serializable> ValidationBuilder validateAgainstRepository(
+    public <DBEntity extends GenericEntity<ID>, ID extends Serializable> ValidationBuilder<T> validateAgainstRepository(
             Repository<DBEntity, ID> repository,
             ID id,
             boolean shouldExist) throws RepositoryViolationException, EmptyEntityException {
@@ -128,7 +128,7 @@ public class ValidationBuilder<T> {
         return this;
     }
 
-    public ValidationBuilder validateCondition(boolean condition, String message) throws InvalidEntityException {
+    public ValidationBuilder<T> validateCondition(boolean condition, String message) throws InvalidEntityException {
         if (!condition) {
             throw new InvalidEntityException(message);
         }
