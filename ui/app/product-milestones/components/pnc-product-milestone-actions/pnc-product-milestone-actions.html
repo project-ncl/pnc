@@ -39,7 +39,7 @@
     <span ng-if="!$ctrl.size">Mark as current</span>
   </button>
 
-  <button ui-sref="products.detail.product-versions.detail.milestone.detail.update"
+  <button ui-sref="products.detail.product-versions.detail.milestone.detail.update({productMilestoneId: $ctrl.productMilestone.id})"
      title="{{ !$ctrl.productMilestone.endDate ? 'Update Milestone' : 'Milestone is already closed. No more modifications allowed.'}}"
      class="btn btn-default btn-{{ $ctrl.size ? $ctrl.size : 'lg'}}"
      ng-show="!$ctrl.productMilestone.endDate"
@@ -48,7 +48,7 @@
     <span ng-if="!$ctrl.size">Update</span>
   </button>
 
-  <button ui-sref="products.detail.product-versions.detail.milestone.detail.close"
+  <button ui-sref="products.detail.product-versions.detail.milestone.detail.close({productMilestoneId: $ctrl.productMilestone.id})"
      title="{{ !$ctrl.productMilestone.endDate ? 'Close Milestone' : 'Milestone is already closed. No more modifications allowed.'}}"
      class="btn btn-default btn-{{ $ctrl.size ? $ctrl.size : 'lg'}}"
      ng-show="!$ctrl.productMilestone.endDate"
