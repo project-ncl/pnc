@@ -25,9 +25,11 @@ import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
 import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.enums.ReleaseStatus;
+import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
 import org.jboss.pnc.mock.repository.*;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
@@ -40,6 +42,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import javax.enterprise.event.Event;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +59,12 @@ public class ProductMilestoneReleaseManagerTest {
 
     @Mock
     private BpmManager bpmManager;
+
+    @Mock
+    private Event<ProductMilestoneCloseResult> productMilestoneCloseResultEvent;
+
+    @Mock
+    private ProductMilestoneCloseResultMapper mapper;
 
     private ProductMilestoneRepository milestoneRepository;
     private ProductMilestoneReleaseRepository productMilestoneReleaseRepository;
@@ -83,7 +92,9 @@ public class ProductMilestoneReleaseManagerTest {
                 new ProductVersionRepositoryMock(),
                 buildRecordRepository,
                 milestoneRepository,
-                buildRecordPushResultRepository);
+                buildRecordPushResultRepository,
+                mapper,
+                productMilestoneCloseResultEvent);
     }
 
     @Test
