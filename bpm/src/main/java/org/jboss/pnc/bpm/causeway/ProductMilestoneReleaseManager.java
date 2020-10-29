@@ -25,8 +25,10 @@ import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
+import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.ProductMilestone;
@@ -43,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.Date;
@@ -69,6 +72,9 @@ public class ProductMilestoneReleaseManager {
     private ProductMilestoneRepository milestoneRepository;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
 
+    private Event<ProductMilestoneCloseResult> productMilestoneCloseResultEvent;
+    private ProductMilestoneCloseResultMapper mapper;
+
     @Deprecated // for ejb
     public ProductMilestoneReleaseManager() {
     }
@@ -80,13 +86,18 @@ public class ProductMilestoneReleaseManager {
             ProductVersionRepository productVersionRepository,
             BuildRecordRepository buildRecordRepository,
             ProductMilestoneRepository milestoneRepository,
-            BuildRecordPushResultRepository buildRecordPushResultRepository) {
+            BuildRecordPushResultRepository buildRecordPushResultRepository,
+            ProductMilestoneCloseResultMapper mapper,
+            Event<ProductMilestoneCloseResult> productMilestoneCloseResultEvent) {
         this.productMilestoneReleaseRepository = productMilestoneReleaseRepository;
         this.bpmManager = bpmManager;
         this.productVersionRepository = productVersionRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.milestoneRepository = milestoneRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
+        this.mapper = mapper;
+        this.productMilestoneCloseResultEvent = productMilestoneCloseResultEvent;
+
     }
 
     /**
@@ -150,12 +161,14 @@ public class ProductMilestoneReleaseManager {
             release.setStatus(MilestoneCloseStatus.IN_PROGRESS);
             bpmManager.startTask(releaseTask);
             userLog.info("Release process started.");
+            productMilestoneCloseResultEvent.fire(mapper.toDTO(release));
             return release;
         } catch (CoreException e) {
             log.error("Error trying to start brew push task for milestone: {}", milestone.getId(), e);
             userLog.error("Release process creation failed.", e);
             release.setStatus(MilestoneCloseStatus.SYSTEM_ERROR);
             release.setEndDate(new Date());
+            productMilestoneCloseResultEvent.fire(mapper.toDTO(release));
             return release;
         }
     }
@@ -188,6 +201,7 @@ public class ProductMilestoneReleaseManager {
 
             removeCurrentFlagFromMilestone(milestone);
         }
+        productMilestoneCloseResultEvent.fire(mapper.toDTO(productMilestoneRelease));
     }
 
     private void storeBuildRecordPush(
