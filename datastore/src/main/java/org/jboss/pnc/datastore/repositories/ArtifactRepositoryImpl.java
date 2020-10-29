@@ -58,27 +58,4 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
         return artifactsMatchingIdentifier;
     }
 
-    @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
-    public Artifact save(Artifact artifact) {
-
-        // If doing an update of the artifact
-        if (artifact.getId() != null) {
-            Artifact persisted = queryById(artifact.getId());
-            if (persisted != null) {
-                if (equalAuditedValues(persisted, artifact)) {
-                    // No changes to audit, reset the modificationUser and modificationTime to previous existing
-                    artifact.setModificationUser(persisted.getModificationUser());
-                    artifact.setModificationTime(persisted.getModificationTime());
-                }
-                artifact.setCreationTime(persisted.getCreationTime());
-            }
-        }
-        return springRepository.save(artifact);
-    }
-
-    private boolean equalAuditedValues(Artifact persisted, Artifact toUpdate) {
-        return Objects.equals(persisted.getArtifactQuality(), toUpdate.getArtifactQuality())
-                && Objects.equals(persisted.getQualityLevelReason(), toUpdate.getQualityLevelReason());
-    }
 }

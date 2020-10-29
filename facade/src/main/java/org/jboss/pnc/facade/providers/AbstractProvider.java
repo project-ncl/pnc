@@ -22,7 +22,6 @@ import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenDeleting;
-import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.facade.validation.DTOValidationException;
@@ -47,9 +46,10 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 /**
  * Abstract provider with common functionality.
- * 
+ *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  * @author Sebastian Laskawiec
+ * @param <ID> The type of the entity identifier
  * @param <DB> The database entity type
  * @param <DTO> The full DTO entity type
  * @param <REF> The reference DTO entity type
@@ -76,6 +76,10 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
         this.repository = repository;
         this.mapper = mapper;
         this.type = type;
+    }
+
+    public EntityMapper<ID, DB, DTO, REF> mapper() {
+        return mapper;
     }
 
     @Override
@@ -106,10 +110,7 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
 
     @Override
     public DTO update(String id, DTO restEntity) {
-        validateBeforeUpdating(id, restEntity);
-        log.debug("Updating entity: " + restEntity.toString());
-        DB saved = repository.save(mapper.toEntity(restEntity));
-        return mapper.toDTO(saved);
+        throw new UnsupportedOperationException("Update operation not supported.");
     }
 
     @Override
@@ -134,13 +135,6 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
         int totalPages = (totalHits + pageSize - 1) / pageSize;
         List<DTO> content = nullableStreamOf(collection).map(mapper::toDTO).collect(Collectors.toList());
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, content);
-    }
-
-    protected void validateBeforeUpdating(String id, DTO restEntity) {
-        ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
-                .validateNotEmptyArgument()
-                .validateAnnotations()
-                .validateAgainstRepository(repository, mapper.getIdMapper().toEntity(id), true);
     }
 
     protected void validateBeforeSaving(DTO restEntity) {

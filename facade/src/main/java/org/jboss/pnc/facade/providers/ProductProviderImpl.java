@@ -38,7 +38,8 @@ import static org.jboss.pnc.spi.datastore.predicates.ProductPredicates.withName;
 
 @PermitAll
 @Stateless
-public class ProductProviderImpl extends AbstractProvider<Integer, org.jboss.pnc.model.Product, Product, ProductRef>
+public class ProductProviderImpl
+        extends AbstractUpdatableProvider<Integer, org.jboss.pnc.model.Product, Product, ProductRef>
         implements ProductProvider {
 
     @Inject
@@ -60,7 +61,7 @@ public class ProductProviderImpl extends AbstractProvider<Integer, org.jboss.pnc
 
     /**
      * Not allowed to delete a product
-     * 
+     *
      * @param id
      *
      * @throws UnsupportedOperationException
