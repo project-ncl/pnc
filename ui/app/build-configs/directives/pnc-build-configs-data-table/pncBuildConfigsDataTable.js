@@ -88,10 +88,12 @@
     };
 
     function remove(buildConfig) {
-      $q.when($ctrl.onRemove()(buildConfig)).then(() => {
-        $ctrl.refreshBuildConfigs()($ctrl.page.data.filter(bc => bc.id !== buildConfig.id));
-        $ctrl.filterPage.refresh();
-      });
+      if ($ctrl.onRemove){
+        $q.when($ctrl.onRemove()(buildConfig)).then(() => {
+          $ctrl.refreshBuildConfigs()($ctrl.page.data.filter(bc => bc.id !== buildConfig.id));
+          $ctrl.filterPage.refresh();
+        });
+      }
     }
 
     function edit() {

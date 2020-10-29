@@ -96,9 +96,7 @@
 </pnc-header>
 
 <div class="row">
-  <pnc-toolbar filtering-page="$ctrl.buildConfigsFilteringPage" filtering-fields="$ctrl.buildConfigsFilteringFields"></pnc-toolbar>
-</div>
-<div>
-  <pnc-build-configs-list build-configs="$ctrl.buildConfigsFilteringPage.data" display-fields="$ctrl.buildConfigsDisplayFields"></pnc-build-configs-list>
-  <pnc-page-controls class="pull-right m-t-10 m-b-10" pnc-page="$ctrl.buildConfigsFilteringPage" ng-if="$ctrl.buildConfigsFilteringPage"></pnc-page-controls>
+  <div class="col-md-12">
+    <pnc-build-configs-data-table page="$ctrl.buildConfigs" on-remove="null" ></pnc-build-configs-data-table>
+  </div>
 </div>

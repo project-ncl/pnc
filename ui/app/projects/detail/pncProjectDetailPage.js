@@ -57,10 +57,6 @@
 
     // --------------------
 
-    $ctrl.$onInit = () => {
-      $ctrl.buildConfigsFilteringPage = filteringPaginator($ctrl.buildConfigs);
-    };
-
     function reload() {
       $state.go('projects.detail', {
         projectId: $ctrl.project.id
@@ -82,7 +78,6 @@
     function update() {
       $ctrl.project.$update().finally(reload);
     }
-
   }
 
 })();
