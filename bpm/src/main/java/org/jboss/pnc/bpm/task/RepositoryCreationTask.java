@@ -50,10 +50,14 @@ public class RepositoryCreationTask extends BpmTask {
     @Override
     protected Serializable getProcessParameters() throws CoreException {
         try {
-            HashMap<String, String> params = new HashMap<>();
+            HashMap<String, Object> params = new HashMap<>();
             params.put("pncBaseUrl", globalConfig.getPncUrl());
             params.put("repourBaseUrl", globalConfig.getExternalRepourUrl());
-            params.put("taskData", MAPPER.writeValueAsString(repositoryCreationProcessRest));
+            if (isJsonEncodedProcessParameters()) {
+                params.put("taskData", MAPPER.writeValueAsString(repositoryCreationProcessRest));
+            } else {
+                params.put("taskData", repositoryCreationProcessRest);
+            }
             return params;
         } catch (JsonProcessingException e) {
             throw new CoreException("Could not get the parameters.", e);
