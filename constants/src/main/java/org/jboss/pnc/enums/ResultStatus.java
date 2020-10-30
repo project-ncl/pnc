@@ -30,6 +30,10 @@ public enum ResultStatus {
      */
     FAILED(false),
     /**
+     * The operation timed-out.
+     */
+    TIMED_OUT(false),
+    /**
      * The operation failed unexpectedly.
      */
     SYSTEM_ERROR(false);

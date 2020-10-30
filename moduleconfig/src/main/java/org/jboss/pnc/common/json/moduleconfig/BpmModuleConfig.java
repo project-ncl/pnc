@@ -71,6 +71,9 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     @Getter
     private final String bpmNewPassword;
 
+    @Getter
+    private final String newBcCreationProcessId;
+
     public BpmModuleConfig(
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
@@ -88,7 +91,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("bpmNewDeploymentId") String bpmNewDeploymentId,
             @JsonProperty("bpmNewBuildProcessName") String bpmNewBuildProcessName,
             @JsonProperty("bpmNewUsername") String bpmNewUsername,
-            @JsonProperty("bpmNewPassword") String bpmNewPassword) throws MalformedURLException {
+            @JsonProperty("bpmNewPassword") String bpmNewPassword,
+            @JsonProperty("newBcCreationProcessId") String newBcCreationProcessId) throws MalformedURLException {
         this.username = username;
         this.password = password;
         this.deploymentId = deploymentId;
@@ -118,6 +122,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.bpmNewBuildProcessName = bpmNewBuildProcessName;
         this.bpmNewUsername = bpmNewUsername;
         this.bpmNewPassword = bpmNewPassword;
+        this.newBcCreationProcessId = newBcCreationProcessId;
     }
 
     public String getUsername() {
@@ -163,5 +168,4 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     public String getVersionAdjust() {
         return versionAdjust;
     }
-
 }

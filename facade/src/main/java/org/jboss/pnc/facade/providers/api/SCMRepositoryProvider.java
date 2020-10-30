@@ -17,14 +17,15 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
+import lombok.Data;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
+import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.model.RepositoryConfiguration;
 
 import java.util.function.Consumer;
-import lombok.Data;
 
 public interface SCMRepositoryProvider
         extends Provider<Integer, RepositoryConfiguration, SCMRepository, SCMRepository> {
@@ -65,6 +66,8 @@ public interface SCMRepositoryProvider
             Boolean preBuildSyncEnabled,
             JobNotificationType jobType,
             Consumer<RepositoryCreated> consumer);
+
+    void repositoryCreationCompleted(RepositoryCreationResult repositoryCreationResult);
 
     @Data
     public static class RepositoryCreated {
