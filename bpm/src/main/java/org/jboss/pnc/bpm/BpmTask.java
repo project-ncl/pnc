@@ -109,7 +109,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      */
     protected abstract Serializable getProcessParameters() throws CoreException;
 
-    /* package */ void setGlobalConfig(GlobalModuleGroup globalConfig) {
+    public void setGlobalConfig(GlobalModuleGroup globalConfig) {
         this.globalConfig = globalConfig;
     }
 
