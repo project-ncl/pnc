@@ -61,7 +61,7 @@ public class RepositoryCreationTask extends BpmTask {
     }
 
     @Override
-    protected String getProcessId() {
+    public String getProcessId() {
         return config.getBcCreationProcessId();
     }
 

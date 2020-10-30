@@ -23,23 +23,24 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.NoEntityException;
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
+import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.rest.endpoints.internal.api.BpmEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
-
-import static org.jboss.pnc.bpm.BpmEventType.nullableValueOf;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import javax.enterprise.context.ApplicationScoped;
+
+import static org.jboss.pnc.bpm.BpmEventType.nullableValueOf;
 
 @ApplicationScoped
 public class BpmEndpointImpl implements BpmEndpoint {
@@ -48,6 +49,9 @@ public class BpmEndpointImpl implements BpmEndpoint {
 
     @Inject
     private BpmManager bpmManager;
+
+    @Inject
+    SCMRepositoryProvider scmRepositoryProvider;
 
     @Context
     private HttpServletRequest request;
@@ -96,6 +100,11 @@ public class BpmEndpointImpl implements BpmEndpoint {
         } else {
             logger.info("Received notification with unknown eventType {}, ignoring it.", eventTypeName);
         }
+    }
+
+    @Override
+    public void repositoryCreationCompleted(RepositoryCreationResult repositoryCreationResult) {
+        scmRepositoryProvider.repositoryCreationCompleted(repositoryCreationResult);
     }
 
     private String readContent(InputStream inputStream) throws IOException {

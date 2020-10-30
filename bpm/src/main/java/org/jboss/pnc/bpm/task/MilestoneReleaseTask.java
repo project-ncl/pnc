@@ -54,7 +54,7 @@ public class MilestoneReleaseTask extends BpmTask {
     }
 
     @Override
-    protected String getProcessId() {
+    public String getProcessId() {
         return config.getMilestoneReleaseProcessId();
     }
 }

@@ -19,14 +19,15 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.BpmTask;
+import org.jboss.pnc.bpm.RestConnector;
 import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
-import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.bpm.model.RepositoryCloneSuccess;
+import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
@@ -36,6 +37,7 @@ import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
+import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.util.RepourClient;
@@ -47,6 +49,7 @@ import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,15 +57,16 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import static org.jboss.pnc.constants.Patterns.INTERNAL_REPOSITORY_NAME;
 import static org.jboss.pnc.enums.JobNotificationType.SCM_REPOSITORY_CREATION;
+import static org.jboss.pnc.facade.providers.api.UserRoles.WORK_WITH_TECH_PREVIEW;
 import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.matchByScmUrl;
 import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.searchByScmUrl;
 import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.withExactInternalScmRepoUrl;
@@ -92,6 +96,9 @@ public class SCMRepositoryProviderImpl
 
     @Inject
     private BpmManager bpmManager;
+
+    @Inject
+    private BpmModuleConfig bpmConfig;
 
     @Inject
     private RepourClient repour;
@@ -184,9 +191,9 @@ public class SCMRepositoryProviderImpl
             validateRepositoryWithExternalURLDoesNotExist(scmUrl);
 
             boolean sync = preBuildSyncEnabled == null || preBuildSyncEnabled;
-            BpmTask task = startRCreationTask(scmUrl, sync, jobType, consumer);
+            Integer taskId = startRCreationTask(scmUrl, sync, jobType, consumer);
 
-            return new RepositoryCreationResponse(task.getTaskId());
+            return new RepositoryCreationResponse(taskId);
         }
     }
 
@@ -270,7 +277,7 @@ public class SCMRepositoryProviderImpl
         validateRepositoryWithInternalURLDoesNotExist(internalUrl);
     }
 
-    private RepositoryCreationTask startRCreationTask(
+    private Integer startRCreationTask(
             String externalURL,
             boolean preBuildSyncEnabled,
             JobNotificationType jobType,
@@ -287,37 +294,81 @@ public class SCMRepositoryProviderImpl
                 .repositoryConfiguration(repositoryConfiguration)
                 .build();
 
-        RepositoryCreationTask repositoryCreationTask = new RepositoryCreationTask(
-                repositoryCreationProcess,
-                userToken);
+        RepositoryCreationTask task = new RepositoryCreationTask(repositoryCreationProcess, userToken);
 
-        Consumer<RepositoryCloneSuccess> successListener = event -> onRepoCloneSuccess(
-                event,
-                repositoryCreationTask,
-                consumer,
-                jobType,
-                externalURL,
-                preBuildSyncEnabled);
-        repositoryCreationTask.addListener(BpmEventType.RC_REPO_CLONE_SUCCESS, MDCWrappers.wrap(successListener));
-        addErrorListeners(jobType, repositoryCreationTask);
+        if (userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW)) {
+            task.setTaskId(bpmManager.getNextTaskId());
+            RestConnector restConnector = new RestConnector(bpmConfig);
+            try {
+                Map<String, Object> processParameters = task.getExtendedProcessParameters();
+                restConnector.startProcess(bpmConfig.getNewBcCreationProcessId(), processParameters, userToken);
+            } catch (CoreException e) {
+                throw new RuntimeException("Could not get process parameters: " + task, e);
+            } catch (ProcessManagerException e) {
+                throw new RuntimeException("Could not start BPM task using REST connector: " + task, e);
+            }
+        } else { // deprecated
+            Consumer<RepositoryCloneSuccess> successListener = event -> onRepoCloneSuccess(
+                    event.getData().getInternalUrl(),
+                    task.getTaskId(),
+                    consumer,
+                    jobType,
+                    externalURL,
+                    preBuildSyncEnabled);
+            task.addListener(BpmEventType.RC_REPO_CLONE_SUCCESS, MDCWrappers.wrap(successListener));
+            addErrorListeners(jobType, task);
 
-        try {
-            bpmManager.startTask(repositoryCreationTask);
-        } catch (CoreException e) {
-            throw new RuntimeException("Could not start BPM task: " + repositoryCreationTask, e);
+            try {
+                bpmManager.startTask(task);
+            } catch (CoreException e) {
+                throw new RuntimeException("Could not start BPM task: " + task, e);
+            }
         }
-        return repositoryCreationTask;
+        return task.getTaskId();
+    }
+
+    @Override
+    public void repositoryCreationCompleted(RepositoryCreationResult result) {
+        if (result.getStatus().isSuccess()) {
+            onRepoCloneSuccess(
+                    result.getInternalScmUrl(),
+                    result.getTaskId(),
+                    this::onSCMRepositoryCreated,
+                    result.getJobType(),
+                    result.getExternalUrl(),
+                    result.isPreBuildSyncEnabled());
+        } else {
+            String eventType;
+            if (result.isRepoCreatedSuccessfully()) {
+                eventType = BpmEventType.RC_REPO_CLONE_ERROR.toString();
+            } else {
+                eventType = BpmEventType.RC_REPO_CLONE_ERROR.toString();
+            }
+
+            org.jboss.pnc.bpm.model.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.bpm.model.RepositoryConfiguration
+                    .builder()
+                    .externalUrl(result.getExternalUrl())
+                    .preBuildSyncEnabled(result.isPreBuildSyncEnabled())
+                    .build();
+            RepositoryCreationProcess repositoryCreationProcess = RepositoryCreationProcess.builder()
+                    .repositoryConfiguration(repositoryConfiguration)
+                    .build();
+            notifier.sendMessage(
+                    new RepositoryCreationFailure(
+                            result.getJobType(),
+                            eventType,
+                            repositoryCreationProcess,
+                            result.getTaskId().toString()));
+        }
     }
 
     private void onRepoCloneSuccess(
-            RepositoryCloneSuccess event,
-            RepositoryCreationTask repositoryCreationTask,
+            String internalScmUrl,
+            Integer taskId,
             Consumer<RepositoryCreated> consumer,
             JobNotificationType jobType,
             String externalURL,
             boolean preBuildSyncEnabled) throws NumberFormatException {
-        final String internalScmUrl = event.getData().getInternalUrl();
-        final Integer taskId = repositoryCreationTask.getTaskId();
 
         RepositoryConfiguration existing = repository.queryByPredicates(withExactInternalScmRepoUrl(internalScmUrl));
         if (existing != null) {
@@ -335,8 +386,9 @@ public class SCMRepositoryProviderImpl
     }
 
     private void addErrorListeners(JobNotificationType jobType, RepositoryCreationTask task) {
-        Consumer<BpmStringMapNotificationRest> doNotifySMNError = MDCWrappers
-                .wrap((e) -> notifier.sendMessage(mapError(jobType, e, task)));
+        Consumer<BpmStringMapNotificationRest> doNotifySMNError = MDCWrappers.wrap(
+                (e) -> notifier.sendMessage(
+                        mapError(jobType, e, task.getTaskId() == null ? null : task.getTaskId().toString())));
         task.addListener(BpmEventType.RC_REPO_CREATION_ERROR, doNotifySMNError);
         task.addListener(BpmEventType.RC_REPO_CLONE_ERROR, doNotifySMNError);
     }
@@ -344,9 +396,8 @@ public class SCMRepositoryProviderImpl
     private RepositoryCreationFailure mapError(
             JobNotificationType jobType,
             BpmStringMapNotificationRest notification,
-            BpmTask task) {
+            String taskId) {
         log.debug("Received BPM event error: " + notification);
-        final String taskId = task.getTaskId() == null ? null : task.getTaskId().toString();
         return new RepositoryCreationFailure(jobType, notification.getEventType(), notification.getData(), taskId);
     }
 }

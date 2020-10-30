@@ -23,4 +23,10 @@ package org.jboss.pnc.facade.providers.api;
 public class UserRoles {
 
     public static final String SYSTEM_USER = "system-user";
+
+    /**
+     * User's with this role are routed to new implementations that usually run in parallel to the old one (blue/green
+     * testing).
+     */
+    public static final String WORK_WITH_TECH_PREVIEW = "work-with-tech-preview";
 }

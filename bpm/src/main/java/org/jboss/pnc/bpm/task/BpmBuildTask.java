@@ -101,7 +101,7 @@ public class BpmBuildTask extends BpmTask {
     }
 
     @Override
-    protected String getProcessId() {
+    public String getProcessId() {
         if (ConnectorSelector.useNewProcess(this)) {
             return config.getBpmNewBuildProcessName();
         } else {

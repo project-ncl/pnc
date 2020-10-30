@@ -79,7 +79,7 @@ public class BpmSchedulerSmokeTest {
         errorNotification = false;
         BpmTask task = new BpmTask("") {
             @Override
-            protected String getProcessId() {
+            public String getProcessId() {
                 return "colors";
             }
 

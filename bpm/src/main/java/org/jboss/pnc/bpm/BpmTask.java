@@ -97,7 +97,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      * Get the name of the BPM process for this task. Warning: The process MUST be asynchronous so it does not block BPM
      * manager.
      */
-    protected abstract String getProcessId();
+    public abstract String getProcessId();
 
     /**
      * Provide parameters to the BPM process. The JSON representation of this map will be available in the BPM process
@@ -121,7 +121,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         return taskId;
     }
 
-    /* package */ void setTaskId(int taskId) {
+    public void setTaskId(int taskId) {
         this.taskId = taskId;
     }
 
@@ -164,7 +164,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
      *
      * @throws CoreException
      */
-    Map<String, Object> getExtendedProcessParameters() throws CoreException {
+    public Map<String, Object> getExtendedProcessParameters() throws CoreException {
         Serializable processParameters = getProcessParameters();
         requireNonNull(processParameters);
         Map<String, Object> actualParameters = new HashMap<>();

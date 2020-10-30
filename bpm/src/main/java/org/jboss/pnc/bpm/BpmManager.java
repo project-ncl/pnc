@@ -89,7 +89,7 @@ public class BpmManager {
         restConnector.close();
     }
 
-    private int getNextTaskId() {
+    public int getNextTaskId() {
         return nextTaskId.getAndIncrement();
     }
 
