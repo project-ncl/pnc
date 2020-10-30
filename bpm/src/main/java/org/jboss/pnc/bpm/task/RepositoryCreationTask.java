@@ -22,6 +22,7 @@ import lombok.ToString;
 
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
+import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,7 @@ public class RepositoryCreationTask extends BpmTask {
      * The RepositoryCreationRest.BuildConfigurationRest
      */
     private final RepositoryCreationProcess repositoryCreationProcessRest;
+    private JobNotificationType jobType;
 
     public RepositoryCreationTask(RepositoryCreationProcess repositoryCreationProcessRest, String accessToken) {
         super(accessToken);
@@ -53,6 +55,7 @@ public class RepositoryCreationTask extends BpmTask {
             HashMap<String, Object> params = new HashMap<>();
             params.put("pncBaseUrl", globalConfig.getPncUrl());
             params.put("repourBaseUrl", globalConfig.getExternalRepourUrl());
+            params.put("jobType", jobType.toString());
             if (isJsonEncodedProcessParameters()) {
                 params.put("taskData", MAPPER.writeValueAsString(repositoryCreationProcessRest));
             } else {
@@ -69,4 +72,7 @@ public class RepositoryCreationTask extends BpmTask {
         return config.getBcCreationProcessId();
     }
 
+    public void setJobType(JobNotificationType jobType) {
+        this.jobType = jobType;
+    }
 }
