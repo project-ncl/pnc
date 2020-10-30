@@ -304,6 +304,7 @@ public class SCMRepositoryProviderImpl
             task.setTaskId(bpmManager.getNextTaskId());
             task.setGlobalConfig(globalConfig);
             task.setJsonEncodedProcessParameters(false);
+            task.setJobType(jobType);
             RestConnector restConnector = new RestConnector(bpmConfig);
             try {
                 Map<String, Object> processParameters = task.getExtendedProcessParameters();
