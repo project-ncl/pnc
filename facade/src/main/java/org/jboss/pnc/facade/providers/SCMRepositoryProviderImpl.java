@@ -27,6 +27,7 @@ import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
@@ -99,6 +100,9 @@ public class SCMRepositoryProviderImpl
 
     @Inject
     private BpmModuleConfig bpmConfig;
+
+    @Inject
+    private GlobalModuleGroup globalConfig;
 
     @Inject
     private RepourClient repour;
@@ -298,6 +302,7 @@ public class SCMRepositoryProviderImpl
 
         if (userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW)) {
             task.setTaskId(bpmManager.getNextTaskId());
+            task.setGlobalConfig(globalConfig);
             RestConnector restConnector = new RestConnector(bpmConfig);
             try {
                 Map<String, Object> processParameters = task.getExtendedProcessParameters();
