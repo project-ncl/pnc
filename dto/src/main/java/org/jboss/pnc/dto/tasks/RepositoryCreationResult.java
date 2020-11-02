@@ -19,23 +19,28 @@ package org.jboss.pnc.dto.tasks;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.enums.ResultStatus;
 
 @Data
-@Builder(builderClassName = "Builder", builderMethodName = "builder")
+@Builder(builderClassName = "Builder")
 @JsonDeserialize(builder = RepositoryCreationResult.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RepositoryCreationResult {
 
-    private final ResultStatus status;
-    private final boolean repoCreatedSuccessfully; // did first step completed successfully;
-    private final String internalScmUrl;
-    private final String externalUrl;
-    private final boolean preBuildSyncEnabled;
-    private final Integer taskId;
-    private final JobNotificationType jobType;
+    protected final ResultStatus status;
+    protected final boolean repoCreatedSuccessfully; // did first step completed successfully;
+    protected final String internalScmUrl;
+    protected final String externalUrl;
+    protected final boolean preBuildSyncEnabled;
+    protected final Integer taskId;
+    protected final JobNotificationType jobType;
 
+    @JsonPOJOBuilder(withPrefix = "")
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static final class Builder {
+    }
 }
