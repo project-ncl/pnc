@@ -39,11 +39,18 @@ import javax.inject.Inject;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static org.jboss.pnc.buildagent.api.Status.*;
+import static org.jboss.pnc.buildagent.api.Status.COMPLETED;
+import static org.jboss.pnc.buildagent.api.Status.FAILED;
+import static org.jboss.pnc.buildagent.api.Status.INTERRUPTED;
 
 @ApplicationScoped
 public class TermdBuildDriver implements BuildDriver { // TODO rename class
@@ -57,6 +64,8 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
 
     // connect to build agent on internal or on public address
     private boolean useInternalNetwork = true; // TODO configurable
+
+    private boolean httpCallbackMode = true;
 
     private Integer internalCancelTimeoutMillis;
     private long livenessProbeFrequency;
@@ -85,6 +94,7 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
         internalCancelTimeoutMillis = termdBuildDriverModuleConfig.getInternalCancelTimeoutMillis();
         livenessProbeFrequency = termdBuildDriverModuleConfig.getLivenessProbeFrequencyMillis();
         livenessFailTimeout = termdBuildDriverModuleConfig.getLivenessFailTimeoutMillis();
+        httpCallbackMode = termdBuildDriverModuleConfig.isHttpCallbackMode();
 
         executor = MDCExecutors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("termd-build-driver"));
         scheduledExecutorService = MDCExecutors
@@ -128,7 +138,12 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
 
         if (!termdRunningBuild.isCanceled()) {
             String terminalUrl = getBuildAgentUrl(runningEnvironment);
-            final RemoteInvocation remoteInvocation = new RemoteInvocation(clientFactory, terminalUrl, onStatusUpdate);
+            final RemoteInvocation remoteInvocation = new RemoteInvocation(
+                    clientFactory,
+                    terminalUrl,
+                    onStatusUpdate,
+                    httpCallbackMode);
+            buildExecutionSession.setBuildStatusUpdateConsumer(remoteInvocation.getClientStatusUpdateConsumer());
 
             FileTranser fileTransfer = clientFactory
                     .getFileTransfer(URI.create(getBuildAgentUrl(runningEnvironment)), MAX_LOG_SIZE);

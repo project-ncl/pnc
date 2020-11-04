@@ -54,13 +54,31 @@ class RemoteInvocation implements Closeable {
     private boolean canceled = false;
 
     private Set<Runnable> preCloseListeners = new HashSet<>();
+    private Optional<Consumer<Status>> onStatusUpdate;
 
     public RemoteInvocation(
             ClientFactory buildAgentClientFactory,
             String terminalUrl,
-            Optional<Consumer<Status>> onStatusUpdate) throws BuildDriverException {
+            Optional<Consumer<Status>> onStatusUpdate,
+            boolean httpCallback) throws BuildDriverException {
+        this.onStatusUpdate = onStatusUpdate;
 
-        Consumer<TaskStatusUpdateEvent> onStatusUpdateInternal = (event) -> {
+        try {
+            if (httpCallback) {
+                // onStatusUpdate is called externally via getClientStatusUpdateConsumer
+                buildAgentClient = buildAgentClientFactory.createHttpBuildAgentClient(terminalUrl);
+            } else {
+                buildAgentClient = buildAgentClientFactory.createWebSocketBuildAgentClient(
+                        terminalUrl,
+                        MDCWrappers.wrap(getClientStatusUpdateConsumer()));
+            }
+        } catch (TimeoutException | BuildAgentClientException | InterruptedException e) {
+            throw new BuildDriverException("Cannot create Build Agent Client.", e);
+        }
+    }
+
+    public Consumer<TaskStatusUpdateEvent> getClientStatusUpdateConsumer() {
+        return (event) -> {
             final org.jboss.pnc.buildagent.api.Status newStatus;
             if (isCanceled() && event.getNewStatus().equals(FAILED)) {
                 newStatus = INTERRUPTED; // TODO fix returned status and remove this workaround
@@ -74,13 +92,6 @@ class RemoteInvocation implements Closeable {
                         new RemoteInvocationCompletion(newStatus, Optional.ofNullable(event.getOutputChecksum())));
             }
         };
-
-        try {
-            buildAgentClient = buildAgentClientFactory
-                    .createBuildAgentClient(terminalUrl, MDCWrappers.wrap(onStatusUpdateInternal));
-        } catch (TimeoutException | BuildAgentClientException | InterruptedException e) {
-            throw new BuildDriverException("Cannot create Build Agent Client.", e);
-        }
     }
 
     void invoke() {

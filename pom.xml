@@ -597,6 +597,12 @@
 
       <dependency>
         <groupId>org.jboss.pnc.build-agent</groupId>
+        <artifactId>api</artifactId>
+        <version>${version.buildagent}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc.build-agent</groupId>
         <artifactId>client</artifactId>
         <version>${version.buildagent}</version>
       </dependency>
