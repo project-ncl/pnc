@@ -35,8 +35,8 @@
 
         modal.result.then(function () {
           $rootScope.$evalAsync();
-        });
-
+        })
+        .catch(()=>{});
         return modal;
       }
 
