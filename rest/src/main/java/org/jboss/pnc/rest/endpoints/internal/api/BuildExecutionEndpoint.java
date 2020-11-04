@@ -40,7 +40,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 public interface BuildExecutionEndpoint {
 
     @Operation(
-            summary = "Used by Build Agent to nitify completion .",
+            summary = "Used by Build Agent to notify completion.",
             responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION) })
     @POST
     @Path("/completed")
