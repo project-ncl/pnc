@@ -27,6 +27,7 @@ import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import java.net.URI;
 import java.util.Date;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -71,4 +72,9 @@ public interface BuildExecutionSession {
     BuildDriverResult getBuildDriverResult();
 
     void setRepositoryManagerResult(RepositoryManagerResult repositoryManagerResult);
+
+    void setBuildStatusUpdateConsumer(
+            Consumer<org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent> clientStatusUpdateConsumer);
+
+    Consumer<org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent> getBuildStatusUpdateConsumer();
 }

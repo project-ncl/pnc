@@ -49,10 +49,17 @@ public class ClientMockFactory implements ClientFactory {
     }
 
     @Override
-    public BuildAgentClient createBuildAgentClient(String terminalUrl, Consumer<TaskStatusUpdateEvent> onStatusUpdate)
+    public BuildAgentClient createWebSocketBuildAgentClient(
+            String terminalUrl,
+            Consumer<TaskStatusUpdateEvent> onStatusUpdate)
             throws TimeoutException, InterruptedException, BuildAgentClientException {
         this.onStatusUpdate = onStatusUpdate;
         return buildAgentClient;
+    }
+
+    @Override
+    public BuildAgentClient createHttpBuildAgentClient(String terminalUrl) throws BuildAgentClientException {
+        return new BuildAgentMockClient();
     }
 
     @Override

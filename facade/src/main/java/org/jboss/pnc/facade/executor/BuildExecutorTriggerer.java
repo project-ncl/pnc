@@ -17,10 +17,11 @@
  */
 package org.jboss.pnc.facade.executor;
 
+import org.jboss.pnc.bpm.notification.BpmNotifier;
+import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
-import org.jboss.pnc.bpm.notification.BpmNotifier;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -79,6 +80,12 @@ public class BuildExecutorTriggerer {
 
     public void cancelBuild(Integer buildExecutionConfigId) throws CoreException, ExecutorException {
         buildExecutor.cancel(buildExecutionConfigId);
+    }
+
+    public void buildStatusUpdated(TaskStatusUpdateEvent buildStatusUpdated) {
+        buildExecutor.getRunningExecution(Integer.parseInt(buildStatusUpdated.getTaskId()))
+                .getBuildStatusUpdateConsumer()
+                .accept(buildStatusUpdated);
     }
 
     public Optional<BuildTaskContext> getMdcMeta(Integer buildExecutionConfigId, String userId) {
