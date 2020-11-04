@@ -193,7 +193,13 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
                 future.completeExceptionally(result.cause());
             }
         });
-        return future.whenComplete((x, y) -> vertx.close());
+        return future.whenComplete((x, y) -> vertx.close((nothing) -> clearVertx()));
+    }
+
+    private void clearVertx() {
+        this.vertx = null;
+        this.httpClient = null;
+        this.webSocketConnection = null;
     }
 
     @Override
