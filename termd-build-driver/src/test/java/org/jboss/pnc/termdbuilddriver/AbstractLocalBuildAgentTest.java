@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.spi.builddriver.DebugData;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
@@ -57,7 +58,9 @@ public class AbstractLocalBuildAgentTest {
         doReturn(100L).when(buildDriverModuleConfig).getLivenessProbeFrequencyMillis();
         doReturn(5000L).when(buildDriverModuleConfig).getLivenessFailTimeoutMillis();
 
-        clientFactory = new DefaultClientFactory(buildDriverModuleConfig);
+        GlobalModuleGroup globalModuleConfig = mock(GlobalModuleGroup.class);
+
+        clientFactory = new DefaultClientFactory(buildDriverModuleConfig, globalModuleConfig);
         try {
             clientFactory.init();
         } catch (IOException e) {

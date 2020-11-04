@@ -31,6 +31,13 @@ public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
     private Integer internalCancelTimeoutMillis = 5000;
     private Long livenessProbeFrequencyMillis = 5000L;
     private Long livenessFailTimeoutMillis = 15000L;
+    private boolean httpCallbackMode = true;
+
+    private Integer httpRetryMaxAttempts = 10;
+    /**
+     * How long to wait before retry (calculated as: attempt x duration-in-millis).
+     */
+    private Long httpRetryWaitBeforeRetry = 500L;
 
     /**
      * Connect timeout in millis. See {@link java.net.URLConnection#setConnectTimeout(int)}
@@ -47,7 +54,10 @@ public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
             @JsonProperty("livenessProbeFrequencyMillis") Long livenessProbeFrequencyMillis,
             @JsonProperty("livenessFailTimeoutMillis") Long livenessFailTimeoutMillis,
             @JsonProperty("fileTransferConnectTimeout") Integer fileTransferConnectTimeout,
-            @JsonProperty("fileTransferReadTimeout") Integer fileTransferReadTimeout) {
+            @JsonProperty("fileTransferReadTimeout") Integer fileTransferReadTimeout,
+            @JsonProperty("httpCallbackMode") Boolean httpCallbackMode,
+            @JsonProperty("httpRetryMaxAttempts") Integer httpRetryMaxAttempts,
+            @JsonProperty("httpRetryWaitBeforeRetry") Long httpRetryWaitBeforeRetry) {
         if (internalCancelTimeoutMillis != null) {
             this.internalCancelTimeoutMillis = internalCancelTimeoutMillis;
         }
@@ -62,6 +72,15 @@ public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
         }
         if (fileTransferReadTimeout != null) {
             this.fileTransferReadTimeout = fileTransferReadTimeout;
+        }
+        if (httpCallbackMode != null) {
+            this.httpCallbackMode = httpCallbackMode;
+        }
+        if (httpRetryMaxAttempts != null) {
+            this.httpRetryMaxAttempts = httpRetryMaxAttempts;
+        }
+        if (httpRetryWaitBeforeRetry != null) {
+            this.httpRetryWaitBeforeRetry = httpRetryWaitBeforeRetry;
         }
     }
 
