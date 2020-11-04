@@ -132,6 +132,18 @@ public class MDCUtils {
         return mappings;
     }
 
+    public static Map<String, String> getMdcAsHeadersMap() {
+        Map<String, String> headers = new HashMap<>();
+        Map<String, String> mdcContextMap = getContextMap();
+        getMDCToHeaderMappings().forEach((mdcName, headerName) -> {
+            String mdcEntry = mdcContextMap.get(mdcName);
+            if (!StringUtils.isEmpty(mdcEntry)) {
+                headers.put(headerName, mdcEntry);
+            }
+        });
+        return headers;
+    }
+
     public static void addCustomContext(String key, String value) {
         Map<String, String> context = getContextMap();
         context.put(key, value);

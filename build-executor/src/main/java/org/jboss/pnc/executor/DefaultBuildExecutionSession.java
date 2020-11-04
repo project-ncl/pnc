@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.executor;
 
+import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -66,6 +67,10 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     private Runnable cancelHook;
 
     private String accessToken;
+    /**
+     * Build status updates
+     */
+    private Consumer<TaskStatusUpdateEvent> clientStatusUpdateConsumer;
 
     public DefaultBuildExecutionSession(
             BuildExecutionConfiguration buildExecutionConfiguration,
@@ -254,6 +259,16 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     @Override
     public void setRepositoryManagerResult(RepositoryManagerResult repositoryManagerResult) {
         this.repositoryManagerResult = repositoryManagerResult;
+    }
+
+    @Override
+    public void setBuildStatusUpdateConsumer(Consumer<TaskStatusUpdateEvent> clientStatusUpdateConsumer) {
+        this.clientStatusUpdateConsumer = clientStatusUpdateConsumer;
+    }
+
+    @Override
+    public Consumer<TaskStatusUpdateEvent> getBuildStatusUpdateConsumer() {
+        return clientStatusUpdateConsumer;
     }
 
     public synchronized void setCancelHook(Runnable cancelHook) {

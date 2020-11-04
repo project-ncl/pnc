@@ -28,6 +28,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
@@ -49,10 +50,20 @@ public class ClientMockFactory implements ClientFactory {
     }
 
     @Override
-    public BuildAgentClient createBuildAgentClient(String terminalUrl, Consumer<TaskStatusUpdateEvent> onStatusUpdate)
+    public BuildAgentClient createWebSocketBuildAgentClient(
+            String terminalUrl,
+            Consumer<TaskStatusUpdateEvent> onStatusUpdate)
             throws TimeoutException, InterruptedException, BuildAgentClientException {
         this.onStatusUpdate = onStatusUpdate;
         return buildAgentClient;
+    }
+
+    @Override
+    public BuildAgentClient createHttpBuildAgentClient(
+            String terminalUrl,
+            String executionId,
+            Map<String, String> callbackHeaders) throws BuildAgentClientException {
+        return new BuildAgentMockClient();
     }
 
     @Override

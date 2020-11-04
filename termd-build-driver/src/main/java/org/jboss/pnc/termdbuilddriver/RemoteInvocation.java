@@ -22,13 +22,18 @@ import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -54,13 +59,38 @@ class RemoteInvocation implements Closeable {
     private boolean canceled = false;
 
     private Set<Runnable> preCloseListeners = new HashSet<>();
+    private Optional<Consumer<Status>> onStatusUpdate;
 
     public RemoteInvocation(
             ClientFactory buildAgentClientFactory,
             String terminalUrl,
-            Optional<Consumer<Status>> onStatusUpdate) throws BuildDriverException {
+            Optional<Consumer<Status>> onStatusUpdate,
+            boolean httpCallback,
+            String executionId,
+            String accessToken) throws BuildDriverException {
+        this.onStatusUpdate = onStatusUpdate;
 
-        Consumer<TaskStatusUpdateEvent> onStatusUpdateInternal = (event) -> {
+        try {
+            if (httpCallback) {
+                // onStatusUpdate is called externally via getClientStatusUpdateConsumer
+                Map<String, String> callbackHeaders = new HashMap<>();
+                callbackHeaders.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+                callbackHeaders.put(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+                callbackHeaders.putAll(MDCUtils.getMdcAsHeadersMap());
+                buildAgentClient = buildAgentClientFactory
+                        .createHttpBuildAgentClient(terminalUrl, executionId, callbackHeaders);
+            } else {
+                buildAgentClient = buildAgentClientFactory.createWebSocketBuildAgentClient(
+                        terminalUrl,
+                        MDCWrappers.wrap(getClientStatusUpdateConsumer()));
+            }
+        } catch (TimeoutException | BuildAgentClientException | InterruptedException e) {
+            throw new BuildDriverException("Cannot create Build Agent Client.", e);
+        }
+    }
+
+    public Consumer<TaskStatusUpdateEvent> getClientStatusUpdateConsumer() {
+        return (event) -> {
             final org.jboss.pnc.buildagent.api.Status newStatus;
             if (isCanceled() && event.getNewStatus().equals(FAILED)) {
                 newStatus = INTERRUPTED; // TODO fix returned status and remove this workaround
@@ -74,13 +104,6 @@ class RemoteInvocation implements Closeable {
                         new RemoteInvocationCompletion(newStatus, Optional.ofNullable(event.getOutputChecksum())));
             }
         };
-
-        try {
-            buildAgentClient = buildAgentClientFactory
-                    .createBuildAgentClient(terminalUrl, MDCWrappers.wrap(onStatusUpdateInternal));
-        } catch (TimeoutException | BuildAgentClientException | InterruptedException e) {
-            throw new BuildDriverException("Cannot create Build Agent Client.", e);
-        }
     }
 
     void invoke() {

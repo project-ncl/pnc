@@ -23,6 +23,7 @@ import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
 
 import java.net.URI;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
@@ -31,8 +32,13 @@ import java.util.function.Consumer;
  */
 public interface ClientFactory {
 
-    BuildAgentClient createBuildAgentClient(String terminalUrl, Consumer<TaskStatusUpdateEvent> onStatusUpdate)
+    BuildAgentClient createWebSocketBuildAgentClient(String terminalUrl, Consumer<TaskStatusUpdateEvent> onStatusUpdate)
             throws TimeoutException, InterruptedException, BuildAgentClientException;
+
+    BuildAgentClient createHttpBuildAgentClient(
+            String terminalUrl,
+            String executionId,
+            Map<String, String> callbackHeaders) throws BuildAgentClientException;
 
     FileTranser getFileTransfer(URI baseServerUri, int maxLogSize);
 }
