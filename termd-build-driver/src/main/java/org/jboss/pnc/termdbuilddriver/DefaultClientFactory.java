@@ -19,6 +19,8 @@ package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.buildagent.api.ResponseMode;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
+import org.jboss.pnc.buildagent.api.httpinvoke.Request;
+import org.jboss.pnc.buildagent.api.httpinvoke.RetryConfig;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.buildagent.client.BuildAgentHttpClient;
@@ -28,6 +30,7 @@ import org.jboss.pnc.buildagent.client.SocketClientConfiguration;
 import org.jboss.pnc.buildagent.common.http.HttpClient;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.termdbuilddriver.transfer.DefaultFileTranser;
 import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
 import org.slf4j.Logger;
@@ -41,6 +44,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -66,11 +70,14 @@ public class DefaultClientFactory implements ClientFactory {
 
     private HttpClient httpClient;
 
+    private RetryConfig retryConfig;
+
     @Inject
     public DefaultClientFactory(TermdBuildDriverModuleConfig config, GlobalModuleGroup globalConfig) {
         fileTransferConnectTimeout = Optional.ofNullable(config.getFileTransferConnectTimeout());
         fileTransferReadTimeout = Optional.ofNullable(config.getFileTransferReadTimeout());
         pncBaseUrl = globalConfig.getPncUrl();
+        retryConfig = new RetryConfig(config.getHttpRetryMaxAttempts(), config.getHttpRetryWaitBeforeRetry());
     }
 
     @PostConstruct
@@ -95,15 +102,20 @@ public class DefaultClientFactory implements ClientFactory {
     }
 
     @Override
-    public BuildAgentClient createHttpBuildAgentClient(String terminalUrl) throws BuildAgentClientException {
+    public BuildAgentClient createHttpBuildAgentClient(String terminalUrl, Map<String, String> headers)
+            throws BuildAgentClientException {
 
         HttpClientConfiguration configuration = null;
         try {
+            Request callback = new Request(
+                    "POST",
+                    new URL(StringUtils.stripEndingSlash(pncBaseUrl) + "/build-execution/completed"),
+                    headers);
             configuration = HttpClientConfiguration.newBuilder()
                     .termBaseUrl(terminalUrl)
-                    .callbackMethod("POST")
-                    .callbackUrl(new URL(pncBaseUrl + "/build-execution/completed"))
+                    .callback(callback)
                     .livenessResponseTimeout(30000L)
+                    .retryConfig(retryConfig)
                     .build();
         } catch (MalformedURLException e) {
             new BuildAgentClientException("Invalid callback URL.", e);

@@ -77,4 +77,7 @@ public interface BuildExecutionSession {
             Consumer<org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent> clientStatusUpdateConsumer);
 
     Consumer<org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent> getBuildStatusUpdateConsumer();
+
+    String getAccessToken();
+
 }

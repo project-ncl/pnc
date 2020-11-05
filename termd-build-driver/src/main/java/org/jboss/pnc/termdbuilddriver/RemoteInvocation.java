@@ -22,13 +22,18 @@ import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -55,18 +60,25 @@ class RemoteInvocation implements Closeable {
 
     private Set<Runnable> preCloseListeners = new HashSet<>();
     private Optional<Consumer<Status>> onStatusUpdate;
+    private final String accessToken;
 
     public RemoteInvocation(
             ClientFactory buildAgentClientFactory,
             String terminalUrl,
             Optional<Consumer<Status>> onStatusUpdate,
-            boolean httpCallback) throws BuildDriverException {
+            boolean httpCallback,
+            String accessToken) throws BuildDriverException {
         this.onStatusUpdate = onStatusUpdate;
+        this.accessToken = accessToken;
 
         try {
             if (httpCallback) {
                 // onStatusUpdate is called externally via getClientStatusUpdateConsumer
-                buildAgentClient = buildAgentClientFactory.createHttpBuildAgentClient(terminalUrl);
+                Map<String, String> headers = new HashMap<>();
+                headers.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+                headers.put(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+                headers.putAll(MDCUtils.getMdcAsHeadersMap());
+                buildAgentClient = buildAgentClientFactory.createHttpBuildAgentClient(terminalUrl, headers);
             } else {
                 buildAgentClient = buildAgentClientFactory.createWebSocketBuildAgentClient(
                         terminalUrl,
