@@ -28,6 +28,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
@@ -58,7 +59,8 @@ public class ClientMockFactory implements ClientFactory {
     }
 
     @Override
-    public BuildAgentClient createHttpBuildAgentClient(String terminalUrl) throws BuildAgentClientException {
+    public BuildAgentClient createHttpBuildAgentClient(String terminalUrl, Map<String, String> headers)
+            throws BuildAgentClientException {
         return new BuildAgentMockClient();
     }
 

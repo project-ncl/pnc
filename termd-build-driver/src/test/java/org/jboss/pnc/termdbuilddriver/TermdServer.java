@@ -59,11 +59,10 @@ public class TermdServer {
      * @param port
      * @param bindPath
      */
-    public static void startServer(String host, int port, String bindPath, Optional<Path> logFolder)
-            throws InterruptedException, BuildAgentException {
+    public static void startServer(String host, int port, String bindPath, Optional<Path> logFolder) {
         try {
             IoLoggerName[] primaryLoggers = { IoLoggerName.FILE };
-            Options options = new Options(host, port, bindPath, true, false);
+            Options options = new Options(host, port, bindPath, true, false, 3, 100);
             Map<String, String> mdcMap = new HashMap<>();
             mdcMap.put("ctx", RandomUtils.randString(6));
             buildAgent = new BuildAgentServer(logFolder, Optional.empty(), primaryLoggers, options, mdcMap);

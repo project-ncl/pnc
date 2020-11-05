@@ -142,7 +142,8 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
                     clientFactory,
                     terminalUrl,
                     onStatusUpdate,
-                    httpCallbackMode);
+                    httpCallbackMode,
+                    buildExecutionSession.getAccessToken());
             buildExecutionSession.setBuildStatusUpdateConsumer(remoteInvocation.getClientStatusUpdateConsumer());
 
             FileTranser fileTransfer = clientFactory
