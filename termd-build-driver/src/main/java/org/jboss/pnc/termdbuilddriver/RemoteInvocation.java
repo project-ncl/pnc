@@ -74,11 +74,11 @@ class RemoteInvocation implements Closeable {
         try {
             if (httpCallback) {
                 // onStatusUpdate is called externally via getClientStatusUpdateConsumer
-                Map<String, String> headers = new HashMap<>();
-                headers.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
-                headers.put(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
-                headers.putAll(MDCUtils.getMdcAsHeadersMap());
-                buildAgentClient = buildAgentClientFactory.createHttpBuildAgentClient(terminalUrl, headers);
+                Map<String, String> callbackHeaders = new HashMap<>();
+                callbackHeaders.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+                callbackHeaders.put(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+                callbackHeaders.putAll(MDCUtils.getMdcAsHeadersMap());
+                buildAgentClient = buildAgentClientFactory.createHttpBuildAgentClient(terminalUrl, callbackHeaders);
             } else {
                 buildAgentClient = buildAgentClientFactory.createWebSocketBuildAgentClient(
                         terminalUrl,

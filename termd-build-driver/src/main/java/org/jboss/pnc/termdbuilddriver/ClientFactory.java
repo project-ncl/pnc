@@ -35,7 +35,7 @@ public interface ClientFactory {
     BuildAgentClient createWebSocketBuildAgentClient(String terminalUrl, Consumer<TaskStatusUpdateEvent> onStatusUpdate)
             throws TimeoutException, InterruptedException, BuildAgentClientException;
 
-    BuildAgentClient createHttpBuildAgentClient(String terminalUrl, Map<String, String> headers)
+    BuildAgentClient createHttpBuildAgentClient(String terminalUrl, Map<String, String> callbackHeaders)
             throws BuildAgentClientException;
 
     FileTranser getFileTransfer(URI baseServerUri, int maxLogSize);

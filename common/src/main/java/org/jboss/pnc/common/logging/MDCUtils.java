@@ -134,8 +134,9 @@ public class MDCUtils {
 
     public static Map<String, String> getMdcAsHeadersMap() {
         Map<String, String> headers = new HashMap<>();
+        Map<String, String> mdcContextMap = getContextMap();
         getMDCToHeaderMappings().forEach((mdcName, headerName) -> {
-            String mdcEntry = getContextMap().get(mdcName);
+            String mdcEntry = mdcContextMap.get(mdcName);
             if (!StringUtils.isEmpty(mdcEntry)) {
                 headers.put(headerName, mdcEntry);
             }
