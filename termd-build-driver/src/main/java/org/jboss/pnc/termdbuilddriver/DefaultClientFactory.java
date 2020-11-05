@@ -102,7 +102,7 @@ public class DefaultClientFactory implements ClientFactory {
     }
 
     @Override
-    public BuildAgentClient createHttpBuildAgentClient(String terminalUrl, Map<String, String> headers)
+    public BuildAgentClient createHttpBuildAgentClient(String terminalUrl, Map<String, String> callbackHeaders)
             throws BuildAgentClientException {
 
         HttpClientConfiguration configuration = null;
@@ -110,7 +110,7 @@ public class DefaultClientFactory implements ClientFactory {
             Request callback = new Request(
                     "POST",
                     new URL(StringUtils.stripEndingSlash(pncBaseUrl) + "/build-execution/completed"),
-                    headers);
+                    callbackHeaders);
             configuration = HttpClientConfiguration.newBuilder()
                     .termBaseUrl(terminalUrl)
                     .callback(callback)

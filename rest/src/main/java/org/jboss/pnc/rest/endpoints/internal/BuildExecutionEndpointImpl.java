@@ -21,9 +21,11 @@ import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.facade.executor.BuildExecutorTriggerer;
 import org.jboss.pnc.rest.endpoints.internal.api.BuildExecutionEndpoint;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
 
+@ApplicationScoped
 public class BuildExecutionEndpointImpl implements BuildExecutionEndpoint {
 
     @Inject
