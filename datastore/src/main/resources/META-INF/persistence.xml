@@ -67,7 +67,7 @@
           <!-- Enable Hibernate Search -->
           <property name="hibernate.search.default.indexmanager" value="directory-based"/>
           <property name="hibernate.search.default.directory_provider" value="filesystem"/>
-          <property name="hibernate.search.default.indexBase" value="/var/lucene/indexes"/>
+          <property name="hibernate.search.default.indexBase" value="/tmp/lucene/indexes"/>
 
           <!--
               Custom configurations can be made to the single entities
