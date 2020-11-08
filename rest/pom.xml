@@ -57,6 +57,7 @@
         <dependency>
             <groupId>org.jboss.pnc.build-agent</groupId>
             <artifactId>api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- REST dependencies -->
