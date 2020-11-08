@@ -177,4 +177,8 @@ public class BuildExecutorMock implements BuildExecutor {
         BuildDriverResult driverResult = BuildDriverResultMock.mockResult(BuildStatus.CANCELLED);
         buildExecutionSession.setBuildDriverResult(driverResult);
     }
+
+    public void addRunningExecution(Integer id, BuildExecutionSession session) {
+        runningExecutions.put(id, session);
+    }
 }
