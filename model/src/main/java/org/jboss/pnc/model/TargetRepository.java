@@ -38,11 +38,16 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Store;
 import org.jboss.pnc.enums.RepositoryType;
 
 /**
  * Contains information related to a repository of build artifacts (i.e. Maven, NPM, etc)
  */
+@Indexed
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
@@ -66,6 +71,7 @@ public class TargetRepository implements GenericEntity<Integer> {
      */
     @NotNull
     @Column(updatable = false)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private Boolean temporaryRepo;
 
     /**
@@ -74,6 +80,7 @@ public class TargetRepository implements GenericEntity<Integer> {
     @NotNull
     @Size(max = 255)
     @Column(updatable = false)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String identifier;
 
     /**
@@ -83,6 +90,7 @@ public class TargetRepository implements GenericEntity<Integer> {
     @NotNull
     @Size(max = 255)
     @Column(updatable = false)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String repositoryPath;
 
     /**
@@ -92,6 +100,7 @@ public class TargetRepository implements GenericEntity<Integer> {
     @NotNull
     @Column(updatable = false)
     @Enumerated(EnumType.STRING)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private RepositoryType repositoryType;
 
     @OneToMany(mappedBy = "targetRepository")

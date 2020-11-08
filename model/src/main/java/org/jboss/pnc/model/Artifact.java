@@ -21,6 +21,12 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.DateBridge;
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Resolution;
+import org.hibernate.search.annotations.Store;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.ArtifactQuality;
 
@@ -61,6 +67,7 @@ import java.util.Set;
  * the format for the identifier field.
  *
  */
+@Indexed
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
@@ -95,18 +102,22 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @NotNull
     @Size(max = 1024)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String identifier;
 
     @NotNull
     @Size(max = 32)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String md5;
 
     @NotNull
     @Size(max = 40)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String sha1;
 
     @NotNull
     @Size(max = 64)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String sha256;
 
     private Long size;
@@ -114,6 +125,7 @@ public class Artifact implements GenericEntity<Integer> {
     @Audited
     @NotNull
     @Enumerated(EnumType.STRING)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private ArtifactQuality artifactQuality;
 
     /**
@@ -123,9 +135,11 @@ public class Artifact implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_targetRepository"))
     @NotNull
     @ManyToOne(cascade = CascadeType.REFRESH)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private TargetRepository targetRepository;
 
     @Size(max = 255)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String filename;
 
     /**
@@ -133,6 +147,7 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @Size(max = 500)
     @Column(length = 500)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String deployPath;
 
     /**
@@ -155,11 +170,14 @@ public class Artifact implements GenericEntity<Integer> {
      */
     @Size(max = 500)
     @Column(unique = false, length = 500)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private String originUrl;
 
     /**
      * The date when this artifact was originally imported
      */
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @DateBridge(resolution = Resolution.SECOND)
     private Date importDate;
 
     /**
@@ -185,10 +203,14 @@ public class Artifact implements GenericEntity<Integer> {
     private User modificationUser;
 
     @Column(columnDefinition = "timestamp with time zone", updatable = false)
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @DateBridge(resolution = Resolution.SECOND)
     private Date creationTime;
 
     @Audited
     @Column(columnDefinition = "timestamp with time zone")
+    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
+    @DateBridge(resolution = Resolution.SECOND)
     private Date modificationTime;
 
     /**
