@@ -135,7 +135,6 @@ public class Artifact implements GenericEntity<Integer> {
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_artifact_targetRepository"))
     @NotNull
     @ManyToOne(cascade = CascadeType.REFRESH)
-    @Field(index = org.hibernate.search.annotations.Index.YES, analyze = Analyze.YES, store = Store.NO)
     private TargetRepository targetRepository;
 
     @Size(max = 255)
