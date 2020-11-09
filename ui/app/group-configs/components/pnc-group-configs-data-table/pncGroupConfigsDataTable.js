@@ -75,7 +75,8 @@
         })
         .result
         .then(res => $ctrl.onEdit()(res))
-        .then(() => $ctrl.filterPage.refresh());
+        .then(() => $ctrl.filterPage.refresh())
+        .catch(() =>{});;
       });
     }
 

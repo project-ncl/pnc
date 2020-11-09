@@ -36,7 +36,7 @@
         modal.result.then(function () {
           $rootScope.$evalAsync();
         })
-        .catch(()=>{});
+        .catch(() =>{});
         return modal;
       }
 
