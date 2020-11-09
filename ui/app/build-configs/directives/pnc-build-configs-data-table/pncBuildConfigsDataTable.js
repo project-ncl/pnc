@@ -115,8 +115,10 @@
           $q.when($ctrl.onEdit()(editedBuildConfigs)).then(function () {
             $ctrl.refreshBuildConfigs()(editedBuildConfigs);
             $ctrl.filterPage.refresh();
-          });
-        });
+          })
+          .catch(() =>{});
+        })
+        .catch(() =>{});
     }
 
     function generateToolbarActions() {
