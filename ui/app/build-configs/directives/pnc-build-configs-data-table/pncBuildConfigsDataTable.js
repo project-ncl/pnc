@@ -116,9 +116,9 @@
             $ctrl.refreshBuildConfigs()(editedBuildConfigs);
             $ctrl.filterPage.refresh();
           })
-          .catch(() =>{});
+          .catch(() => {});
         })
-        .catch(() =>{});
+        .catch(() => {});
     }
 
     function generateToolbarActions() {
