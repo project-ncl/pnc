@@ -59,8 +59,10 @@ public class ClientMockFactory implements ClientFactory {
     }
 
     @Override
-    public BuildAgentClient createHttpBuildAgentClient(String terminalUrl, Map<String, String> callbackHeaders)
-            throws BuildAgentClientException {
+    public BuildAgentClient createHttpBuildAgentClient(
+            String terminalUrl,
+            String executionId,
+            Map<String, String> callbackHeaders) throws BuildAgentClientException {
         return new BuildAgentMockClient();
     }
 

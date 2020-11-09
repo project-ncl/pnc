@@ -32,8 +32,8 @@ public class BuildExecutionEndpointImpl implements BuildExecutionEndpoint {
     private BuildExecutorTriggerer buildExecutorTriggerer;
 
     @Override
-    public Response buildExecutionCompleted(TaskStatusUpdateEvent updateEvent) {
-        buildExecutorTriggerer.buildStatusUpdated(updateEvent);
+    public Response buildExecutionCompleted(String executionId, TaskStatusUpdateEvent updateEvent) {
+        buildExecutorTriggerer.buildStatusUpdated(executionId, updateEvent);
         return Response.ok().build();
     }
 }

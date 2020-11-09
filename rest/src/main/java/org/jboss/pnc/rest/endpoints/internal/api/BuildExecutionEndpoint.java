@@ -19,6 +19,7 @@
 package org.jboss.pnc.rest.endpoints.internal.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
@@ -26,6 +27,7 @@ import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -43,8 +45,10 @@ public interface BuildExecutionEndpoint {
             summary = "Used by Build Agent to notify completion.",
             responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION) })
     @POST
-    @Path("/completed")
+    @Path("{id}/completed")
     @Consumes(MediaType.APPLICATION_JSON)
-    Response buildExecutionCompleted(TaskStatusUpdateEvent updateEvent);
+    Response buildExecutionCompleted(
+            @Parameter(description = "Build execution ID.") @PathParam("id") String id,
+            TaskStatusUpdateEvent updateEvent);
 
 }

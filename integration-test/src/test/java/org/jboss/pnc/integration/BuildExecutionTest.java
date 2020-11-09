@@ -47,6 +47,7 @@ import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -81,7 +82,9 @@ public class BuildExecutionTest {
             URISyntaxException, InterruptedException, ExecutionException, TimeoutException {
         // given
         TaskStatusUpdateEvent.Builder updateEventBuilder = TaskStatusUpdateEvent.newBuilder();
-        updateEventBuilder.taskId("11").newStatus(Status.COMPLETED).outputChecksum(Md5.digest("black"));
+        updateEventBuilder.taskId(UUID.randomUUID().toString())
+                .newStatus(Status.COMPLETED)
+                .outputChecksum(Md5.digest("black"));
         Credentials user = Credentials.USER;
         Map<String, String> headers = new HashMap<>();
         headers.put(Headers.CONTENT_TYPE_STRING, MediaType.APPLICATION_JSON);
@@ -98,12 +101,13 @@ public class BuildExecutionTest {
         BuildExecutionSession session = createFakeExectionSession(statusChangeConsumer);
 
         // when
-        ((BuildExecutorMock) buildExecutor).addRunningExecution(11, session);
+        int executionId = 11;
+        ((BuildExecutorMock) buildExecutor).addRunningExecution(executionId, session);
         CompletableFuture<HttpClient.Response> responseFuture = new CompletableFuture<>();
         HttpClient httpClient = new HttpClient();
 
         httpClient.invoke(
-                new URL("http://localhost:8080/pnc-rest/v2/build-execution/completed").toURI(),
+                new URL("http://localhost:8080/pnc-rest/v2/build-execution/" + executionId + "/completed").toURI(),
                 "POST",
                 headers,
                 data,
