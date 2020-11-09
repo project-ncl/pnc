@@ -60,16 +60,15 @@ class RemoteInvocation implements Closeable {
 
     private Set<Runnable> preCloseListeners = new HashSet<>();
     private Optional<Consumer<Status>> onStatusUpdate;
-    private final String accessToken;
 
     public RemoteInvocation(
             ClientFactory buildAgentClientFactory,
             String terminalUrl,
             Optional<Consumer<Status>> onStatusUpdate,
             boolean httpCallback,
+            String executionId,
             String accessToken) throws BuildDriverException {
         this.onStatusUpdate = onStatusUpdate;
-        this.accessToken = accessToken;
 
         try {
             if (httpCallback) {
@@ -78,7 +77,8 @@ class RemoteInvocation implements Closeable {
                 callbackHeaders.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
                 callbackHeaders.put(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
                 callbackHeaders.putAll(MDCUtils.getMdcAsHeadersMap());
-                buildAgentClient = buildAgentClientFactory.createHttpBuildAgentClient(terminalUrl, callbackHeaders);
+                buildAgentClient = buildAgentClientFactory
+                        .createHttpBuildAgentClient(terminalUrl, executionId, callbackHeaders);
             } else {
                 buildAgentClient = buildAgentClientFactory.createWebSocketBuildAgentClient(
                         terminalUrl,

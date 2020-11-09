@@ -82,8 +82,8 @@ public class BuildExecutorTriggerer {
         buildExecutor.cancel(buildExecutionConfigId);
     }
 
-    public void buildStatusUpdated(TaskStatusUpdateEvent buildStatusUpdated) {
-        buildExecutor.getRunningExecution(Integer.parseInt(buildStatusUpdated.getTaskId()))
+    public void buildStatusUpdated(String executionId, TaskStatusUpdateEvent buildStatusUpdated) {
+        buildExecutor.getRunningExecution(Integer.parseInt(executionId))
                 .getBuildStatusUpdateConsumer()
                 .accept(buildStatusUpdated);
     }
