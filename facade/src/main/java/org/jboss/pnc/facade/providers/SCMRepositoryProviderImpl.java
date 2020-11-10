@@ -33,6 +33,7 @@ import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.common.util.UrlUtils;
+import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
@@ -40,6 +41,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.enums.JobNotificationType;
+import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.util.RepourClient;
 import org.jboss.pnc.facade.util.UserService;
@@ -61,6 +63,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -106,6 +109,9 @@ public class SCMRepositoryProviderImpl
 
     @Inject
     private RepourClient repour;
+
+    @Inject
+    private BuildConfigurationProvider buildConfigurationProvider;
 
     @Inject
     public SCMRepositoryProviderImpl(
@@ -158,10 +164,15 @@ public class SCMRepositoryProviderImpl
 
     @Override
     public RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled) {
-        return createSCMRepository(scmUrl, preBuildSyncEnabled, SCM_REPOSITORY_CREATION, this::onSCMRepositoryCreated);
+        return createSCMRepository(
+                scmUrl,
+                preBuildSyncEnabled,
+                SCM_REPOSITORY_CREATION,
+                this::notifySCMRepositoryCreated,
+                Optional.empty());
     }
 
-    private void onSCMRepositoryCreated(RepositoryCreated event) {
+    private void notifySCMRepositoryCreated(RepositoryCreated event) {
         final SCMRepository repository = getSpecific(Integer.toString(event.getRepositoryId()));
         final String taskId = event.getTaskId() == null ? null : event.getTaskId().toString();
         if (taskId != null)
@@ -173,7 +184,8 @@ public class SCMRepositoryProviderImpl
             String scmUrl,
             Boolean preBuildSyncEnabled,
             JobNotificationType jobType,
-            Consumer<RepositoryCreated> consumer) {
+            Consumer<RepositoryCreated> consumer,
+            Optional<BuildConfiguration> buildConfiguration) {
         log.trace(
                 "Received request to start RC creation with url autodetect: " + scmUrl + " (sync enabled? "
                         + preBuildSyncEnabled + ")");
@@ -195,7 +207,7 @@ public class SCMRepositoryProviderImpl
             validateRepositoryWithExternalURLDoesNotExist(scmUrl);
 
             boolean sync = preBuildSyncEnabled == null || preBuildSyncEnabled;
-            Integer taskId = startRCreationTask(scmUrl, sync, jobType, consumer);
+            Integer taskId = startRCreationTask(scmUrl, sync, jobType, consumer, buildConfiguration);
 
             return new RepositoryCreationResponse(taskId);
         }
@@ -227,6 +239,7 @@ public class SCMRepositoryProviderImpl
         }
 
         RepositoryConfiguration entity = repository.save(built.build());
+        log.info("Created SCM repository: {}.", entity.toString());
         return mapper.toDTO(entity);
     }
 
@@ -281,11 +294,21 @@ public class SCMRepositoryProviderImpl
         validateRepositoryWithInternalURLDoesNotExist(internalUrl);
     }
 
+    /**
+     *
+     * @param externalURL
+     * @param preBuildSyncEnabled
+     * @param jobType
+     * @param consumer
+     * @param buildConfiguration required when repository is created as part of BC creation process
+     * @return
+     */
     private Integer startRCreationTask(
             String externalURL,
             boolean preBuildSyncEnabled,
             JobNotificationType jobType,
-            Consumer<RepositoryCreated> consumer) {
+            Consumer<RepositoryCreated> consumer,
+            Optional<BuildConfiguration> buildConfiguration) {
         String userToken = userService.currentUserToken();
 
         org.jboss.pnc.bpm.model.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.bpm.model.RepositoryConfiguration
@@ -294,13 +317,14 @@ public class SCMRepositoryProviderImpl
                 .preBuildSyncEnabled(preBuildSyncEnabled)
                 .build();
 
-        RepositoryCreationProcess repositoryCreationProcess = RepositoryCreationProcess.builder()
-                .repositoryConfiguration(repositoryConfiguration)
-                .build();
-
-        RepositoryCreationTask task = new RepositoryCreationTask(repositoryCreationProcess, userToken);
-
+        RepositoryCreationTask task;
         if (userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW)) {
+            RepositoryCreationProcess.RepositoryCreationProcessBuilder repositoryCreationProcess = RepositoryCreationProcess
+                    .builder()
+                    .repositoryConfiguration(repositoryConfiguration);
+            buildConfiguration.ifPresent(bc -> repositoryCreationProcess.buildConfiguration(bc));
+            task = new RepositoryCreationTask(repositoryCreationProcess.build(), userToken);
+
             task.setTaskId(bpmManager.getNextTaskId());
             task.setGlobalConfig(globalConfig);
             task.setJsonEncodedProcessParameters(false);
@@ -315,6 +339,11 @@ public class SCMRepositoryProviderImpl
                 throw new RuntimeException("Could not start BPM task using REST connector: " + task, e);
             }
         } else { // deprecated
+            RepositoryCreationProcess repositoryCreationProcess = RepositoryCreationProcess.builder()
+                    .repositoryConfiguration(repositoryConfiguration)
+                    .build();
+            task = new RepositoryCreationTask(repositoryCreationProcess, userToken);
+
             Consumer<RepositoryCloneSuccess> successListener = event -> onRepoCloneSuccess(
                     event.getData().getInternalUrl(),
                     task.getTaskId(),
@@ -337,17 +366,28 @@ public class SCMRepositoryProviderImpl
     @Override
     public void repositoryCreationCompleted(RepositoryCreationResult result) {
         if (result.getStatus().isSuccess()) {
+            Consumer<RepositoryCreated> onRepositoryCreated = event -> {
+                log.debug("Repository created: {}", event);
+                if (result.getJobType().equals(JobNotificationType.BUILD_CONFIG_CREATION)) {
+                    buildConfigurationProvider.createBuildConfigurationWithRepository(
+                            result.getTaskId().toString(),
+                            event.getRepositoryId(),
+                            result.getBuildConfiguration());
+
+                }
+                notifySCMRepositoryCreated(event);
+            };
             onRepoCloneSuccess(
                     result.getInternalScmUrl(),
                     result.getTaskId(),
-                    this::onSCMRepositoryCreated,
+                    onRepositoryCreated,
                     result.getJobType(),
                     result.getExternalUrl(),
                     result.isPreBuildSyncEnabled());
         } else {
             String eventType;
-            if (result.isRepoCreatedSuccessfully()) {
-                eventType = BpmEventType.RC_REPO_CLONE_ERROR.toString();
+            if (!result.isRepoCreatedSuccessfully()) {
+                eventType = BpmEventType.RC_REPO_CREATION_ERROR.toString();
             } else {
                 eventType = BpmEventType.RC_REPO_CLONE_ERROR.toString();
             }
@@ -375,8 +415,7 @@ public class SCMRepositoryProviderImpl
             Consumer<RepositoryCreated> consumer,
             JobNotificationType jobType,
             String externalURL,
-            boolean preBuildSyncEnabled) throws NumberFormatException {
-
+            boolean preBuildSyncEnabled) {
         RepositoryConfiguration existing = repository.queryByPredicates(withExactInternalScmRepoUrl(internalScmUrl));
         if (existing != null) {
             RepositoryCreationFailure error = new RepositoryCreationFailure(

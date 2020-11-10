@@ -34,7 +34,6 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
-import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider.RepositoryCreated;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
@@ -77,7 +76,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
-import org.jboss.pnc.dto.GroupConfiguration;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withDependantConfiguration;
@@ -511,10 +509,14 @@ public class BuildConfigurationProviderImpl extends
                 request.getPreBuildSyncEnabled(),
                 JobNotificationType.BUILD_CONFIG_CREATION,
                 // wrap as the callback happens from the Bpm task completion
-                MDCWrappers.wrap(
-                        repositoryConfigurationId -> onRCCreationSuccess(
-                                repositoryConfigurationId,
-                                newBuildConfigurationWithId)));
+                // consumer is deprecated with new stateless approach
+                MDCWrappers.wrap(event -> {
+                    createBuildConfigurationWithRepository(
+                            event.getTaskId() == null ? null : event.getTaskId().toString(),
+                            event.getRepositoryId(),
+                            newBuildConfigurationWithId);
+                }),
+                Optional.of(newBuildConfigurationWithId));
 
         BuildConfigCreationResponse response;
         if (rcResponse.getTaskId() == null) {
@@ -559,11 +561,12 @@ public class BuildConfigurationProviderImpl extends
         return Optional.of(mapper.toDTO(newBc));
     }
 
-    private void onRCCreationSuccess(RepositoryCreated event, BuildConfiguration configuration) {
-        final int scmRepositoryId = event.getRepositoryId();
+    public void createBuildConfigurationWithRepository(
+            String taskId,
+            int scmRepositoryId,
+            BuildConfiguration configuration) {
         RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository.queryById(scmRepositoryId);
-        final String taskId = event.getTaskId() == null ? null : event.getTaskId().toString();
-        final boolean sendMessage = event.getTaskId() != null;
+        final boolean sendMessage = taskId != null;
         if (repositoryConfiguration == null) {
             String errorMessage = "Repository Configuration was not found in database.";
             logger.error(errorMessage);
@@ -606,6 +609,7 @@ public class BuildConfigurationProviderImpl extends
             throw new RepositoryViolationException("Failed to add BuildConfig to BuildConfigSets.");
         }
 
+        logger.info("Created Build Configuration with Repository: {}.", buildConfig);
         if (sendMessage) {
             BuildConfigurationCreation successMessage = BuildConfigurationCreation
                     .success(scmRepository, buildConfig, taskId);
