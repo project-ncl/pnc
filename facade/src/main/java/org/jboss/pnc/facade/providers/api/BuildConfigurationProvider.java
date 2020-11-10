@@ -86,4 +86,6 @@ public interface BuildConfigurationProvider
     BuildConfigCreationResponse createWithScm(BuildConfigWithSCMRequest request);
 
     Optional<BuildConfiguration> restoreRevision(String id, int rev);
+
+    void createBuildConfigurationWithRepository(String taskId, int scmRepositoryId, BuildConfiguration configuration);
 }

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.enums.ResultStatus;
 
@@ -38,6 +39,7 @@ public class RepositoryCreationResult {
     protected final boolean preBuildSyncEnabled;
     protected final Integer taskId;
     protected final JobNotificationType jobType;
+    protected final BuildConfiguration buildConfiguration;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

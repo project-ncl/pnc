@@ -24,8 +24,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.BuildConfiguration;
 
 import java.io.Serializable;
 
@@ -45,6 +45,9 @@ public class RepositoryCreationProcess implements Serializable {
 
     @Getter
     private RepositoryConfiguration repositoryConfiguration;
+
+    @Getter
+    private BuildConfiguration buildConfiguration;
 
     @Getter
     private String revision;
