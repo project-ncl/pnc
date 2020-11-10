@@ -78,6 +78,7 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.enums.ValidationErrorType.DUPLICATION;
 import static org.jboss.pnc.enums.ValidationErrorType.FORMAT;
+import static org.jboss.pnc.facade.providers.api.UserRoles.WORK_WITH_TECH_PREVIEW;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
 
@@ -184,8 +185,11 @@ public class ProductMilestoneProviderImpl extends
                 return milestoneReleaseMapper.toDTO(inProgress.get());
             } else {
                 log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
+                boolean useRHPAM = userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW);
+                log.debug("Using RHPAM server: {}", useRHPAM);
+
                 ProductMilestoneRelease milestoneReleaseDb = releaseManager
-                        .startRelease(milestoneInDb, userService.currentUserToken(), milestoneReleaseId);
+                        .startRelease(milestoneInDb, userService.currentUserToken(), useRHPAM, milestoneReleaseId);
                 ProductMilestoneCloseResult milestoneCloseResult = milestoneReleaseMapper.toDTO(milestoneReleaseDb);
                 return milestoneCloseResult;
             }

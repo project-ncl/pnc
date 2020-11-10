@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 
 import javax.ws.rs.Consumes;
@@ -56,5 +57,11 @@ public interface BpmEndpoint {
     @Path("/repository-creation/completed")
     @Consumes(MediaType.APPLICATION_JSON)
     void repositoryCreationCompleted(RepositoryCreationResult repositoryCreationResult);
+
+    @Operation(summary = "", responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success") })
+    @POST
+    @Path("/milestone-release/completed")
+    @Consumes(MediaType.APPLICATION_JSON)
+    void milestoneReleaseCompleted(MilestoneReleaseResultRest milestoneReleaseResult);
 
 }

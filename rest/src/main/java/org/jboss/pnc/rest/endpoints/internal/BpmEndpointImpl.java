@@ -21,7 +21,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.NoEntityException;
+import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.bpm.model.BpmEvent;
+import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
@@ -52,6 +54,9 @@ public class BpmEndpointImpl implements BpmEndpoint {
 
     @Inject
     SCMRepositoryProvider scmRepositoryProvider;
+
+    @Inject
+    private ProductMilestoneReleaseManager productMilestoneReleaseManager;
 
     @Context
     private HttpServletRequest request;
@@ -105,6 +110,11 @@ public class BpmEndpointImpl implements BpmEndpoint {
     @Override
     public void repositoryCreationCompleted(RepositoryCreationResult repositoryCreationResult) {
         scmRepositoryProvider.repositoryCreationCompleted(repositoryCreationResult);
+    }
+
+    @Override
+    public void milestoneReleaseCompleted(MilestoneReleaseResultRest milestoneReleaseResult) {
+        productMilestoneReleaseManager.productMilestoneCloseCompleted(milestoneReleaseResult);
     }
 
     private String readContent(InputStream inputStream) throws IOException {
