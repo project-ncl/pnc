@@ -19,6 +19,7 @@ package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
@@ -32,19 +33,35 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     /**
      * Username to authenticate against remote BPM server for build signal callbacks
      */
+    @Getter
+    @Setter
     private String username;
 
     /**
      * Password to authenticate against remote BPM server for build signal callbacks
      */
+    @Getter
+    @Setter
     private String password;
 
+    @Deprecated
     private final String jenkinsBaseUrl;
+
+    @Getter
     private String deploymentId;
+
+    @Getter
     private String componentBuildProcessId;
+
     private String releaseProcessId;
+
+    @Getter
     private String bcCreationProcessId;
+
+    @Getter
     private String communityBuild;
+
+    @Getter
     private String versionAdjust;
 
     @Getter
@@ -74,6 +91,10 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     @Getter
     private final String newBcCreationProcessId;
 
+    /** process id when closing a milestone */
+    @Getter
+    private final String bpmNewReleaseProcessId;
+
     public BpmModuleConfig(
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
@@ -92,7 +113,8 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("bpmNewBuildProcessName") String bpmNewBuildProcessName,
             @JsonProperty("bpmNewUsername") String bpmNewUsername,
             @JsonProperty("bpmNewPassword") String bpmNewPassword,
-            @JsonProperty("newBcCreationProcessId") String newBcCreationProcessId) throws MalformedURLException {
+            @JsonProperty("newBcCreationProcessId") String newBcCreationProcessId,
+            @JsonProperty("bpmNewReleaseProcessId") String bpmNewReleaseProcessId) throws MalformedURLException {
         this.username = username;
         this.password = password;
         this.deploymentId = deploymentId;
@@ -123,49 +145,15 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.bpmNewUsername = bpmNewUsername;
         this.bpmNewPassword = bpmNewPassword;
         this.newBcCreationProcessId = newBcCreationProcessId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getDeploymentId() {
-        return deploymentId;
-    }
-
-    public String getComponentBuildProcessId() {
-        return componentBuildProcessId;
-    }
-
-    public String getBcCreationProcessId() {
-        return bcCreationProcessId;
+        this.bpmNewReleaseProcessId = bpmNewReleaseProcessId;
     }
 
     public String getMilestoneReleaseProcessId() {
         return releaseProcessId;
     }
 
+    @Deprecated
     public String getJenkinsBaseUrl() {
         return jenkinsBaseUrl;
-    }
-
-    public String getCommunityBuild() {
-        return communityBuild;
-    }
-
-    public String getVersionAdjust() {
-        return versionAdjust;
     }
 }
