@@ -94,7 +94,9 @@ public class ProductMilestoneReleaseManagerTest {
                 milestoneRepository,
                 buildRecordPushResultRepository,
                 mapper,
-                productMilestoneCloseResultEvent);
+                productMilestoneCloseResultEvent,
+                null,
+                null);
     }
 
     @Test
@@ -171,14 +173,14 @@ public class ProductMilestoneReleaseManagerTest {
      * Start a milestone release and process the callback
      */
     private void release(ProductMilestone milestone, int brewBuildId, BuildRecord... records) {
-        releaseManager.startRelease(milestone, null, Sequence.nextId());
+        releaseManager.startRelease(milestone, null, false, Sequence.nextId());
         List<ProductMilestoneRelease> releases = productMilestoneReleaseRepository.queryAll();
         assertThat(releases).hasSize(1);
         taskCapture.task.notify(BpmEventType.BREW_IMPORT, successfulReleaseResult(brewBuildId, records));
     }
 
     private void release(ProductMilestone milestone, MilestoneReleaseResultRest releaseResultRest) {
-        releaseManager.startRelease(milestone, null, Sequence.nextId());
+        releaseManager.startRelease(milestone, null, false, Sequence.nextId());
         List<ProductMilestoneRelease> releases = productMilestoneReleaseRepository.queryAll();
         assertThat(releases).hasSize(1);
         taskCapture.task.notify(BpmEventType.BREW_IMPORT, releaseResultRest);

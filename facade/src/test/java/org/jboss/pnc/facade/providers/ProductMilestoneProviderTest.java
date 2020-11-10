@@ -46,6 +46,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -281,7 +282,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         provider.closeMilestone(mock.getId().toString());
 
         // then
-        verify(releaseManager, times(1)).startRelease(any(), any(), any());
+        verify(releaseManager, times(1)).startRelease(any(), any(), eq(false), any());
     }
 
     private org.jboss.pnc.dto.ProductMilestone createNewProductMilestoneDTO(
