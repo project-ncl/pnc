@@ -42,7 +42,7 @@
     <dt ng-hide="$ctrl.hideField('buildType')">Build Type</dt>
     <dd ng-hide="$ctrl.hideField('buildType')">{{ $ctrl.buildConfig.buildType }}</dd>
     <dt ng-hide="$ctrl.hideField('environment')">Environment</dt>
-    <dd ng-hide="$ctrl.hideField('environment')">{{ $ctrl.buildConfig.environment.name }}</dd>
+    <dd ng-hide="$ctrl.hideField('environment')">{{ $ctrl.buildConfig.environment.name }} [{{ $ctrl.buildConfig.environment.systemImageId }}]</dd>
     <dt ng-hide="$ctrl.hideField('scmRepository')">SCM Repository</dt>
     <dd ng-hide="$ctrl.hideField('scmRepository')">
       <pnc-scm-repository-link scm-repository="$ctrl.buildConfig.scmRepository"></pnc-scm-repository-link>

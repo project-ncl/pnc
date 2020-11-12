@@ -44,6 +44,7 @@
     // -- Controller API --
 
     $ctrl.search = search;
+    $ctrl.formatHumanReadable = formatHumanReadable;
 
     // --------------------
 
@@ -113,6 +114,11 @@
 
       return doSearch($viewValue);
     }
+  }
+
+  function formatHumanReadable(environment) {
+    return `${environment.name} [${environment.systemImageId}]`;
+
   }
 
 })();
