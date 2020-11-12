@@ -17,5 +17,5 @@
     limitations under the License.
 
 -->
-<px-combobox px-expression="environment as environment.name for environment in $ctrl.search($viewValue)" ng-model="$ctrl.input" debounce-ms=500>
+<px-combobox px-expression="environment as $ctrl.formatHumanReadable(environment) for environment in $ctrl.search($viewValue)" ng-model="$ctrl.input" debounce-ms=500>
 </px-combobox>
