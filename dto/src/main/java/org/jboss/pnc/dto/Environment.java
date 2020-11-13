@@ -84,9 +84,14 @@ public class Environment implements DTOEntity {
     private final SystemImageType systemImageType;
 
     /**
-     * Is the environment deprecated and no longer to be used by new builds?
+     * Is the environment deprecated and no longer advisable to be used by new builds?
      */
     private final boolean deprecated;
+
+    /**
+     * Is the environment to be hidden and not available anymore to user?
+     */
+    private final boolean hidden;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -50,7 +50,7 @@
 
     $ctrl.$onInit = function () {
 
-      q = rsqlQuery().where('deprecated').eq(false).end();
+      q = rsqlQuery().where('hidden').eq(false).end();
 
       // Synchronise value from combobox with this component's ng-model
       $scope.$watch(function () {

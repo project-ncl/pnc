@@ -26,6 +26,10 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
  */
 public class EnvironmentPredicates {
 
+    public static Predicate<BuildEnvironment> withNotHidden() {
+        return (root, query, cb) -> cb.equal(root.get(BuildEnvironment_.hidden), false);
+    }
+
     public static Predicate<BuildEnvironment> withEnvironmentName(String name) {
         return (root, query, cb) -> cb.equal(root.get(BuildEnvironment_.name), name);
     }
