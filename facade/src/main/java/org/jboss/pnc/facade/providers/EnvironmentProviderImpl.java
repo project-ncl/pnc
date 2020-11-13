@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.spi.datastore.predicates.EnvironmentPredicates.withNotHidden;
 import static org.jboss.pnc.spi.datastore.predicates.EnvironmentPredicates.withEnvironmentNameAndActive;
 
 import java.util.List;
@@ -28,7 +29,9 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.mapper.api.EnvironmentMapper;
@@ -40,15 +43,43 @@ import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 public class EnvironmentProviderImpl extends AbstractProvider<Integer, BuildEnvironment, Environment, Environment>
         implements EnvironmentProvider {
 
+    private UserService userService;
+
     @Inject
-    public EnvironmentProviderImpl(BuildEnvironmentRepository repository, EnvironmentMapper mapper) {
+    public EnvironmentProviderImpl(
+            BuildEnvironmentRepository repository,
+            EnvironmentMapper mapper,
+            UserService userService) {
         super(repository, mapper, BuildEnvironment.class);
+        this.userService = userService;
     }
 
     @Override
     @RolesAllowed(SYSTEM_USER)
     public Environment store(Environment restEntity) throws DTOValidationException {
         return super.store(restEntity);
+    }
+
+    @Override
+    public Environment getSpecific(String id) {
+        boolean isLoggedInUserSystemUser = userService.hasLoggedInUserRole(SYSTEM_USER);
+        Environment environment = super.getSpecific(id);
+        if (isLoggedInUserSystemUser) {
+            return environment;
+        }
+        if (environment != null && environment.isHidden()) {
+            return null;
+        }
+        return environment;
+    }
+
+    @Override
+    public Page<Environment> getAll(int pageIndex, int pageSize, String sortingRsql, String query) {
+        boolean isLoggedInUserSystemUser = userService.hasLoggedInUserRole(SYSTEM_USER);
+        if (isLoggedInUserSystemUser) {
+            return queryForCollection(pageIndex, pageSize, sortingRsql, query);
+        }
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withNotHidden());
     }
 
     @Override
