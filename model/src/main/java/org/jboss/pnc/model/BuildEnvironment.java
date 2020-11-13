@@ -116,6 +116,9 @@ public class BuildEnvironment implements GenericEntity<Integer> {
     @NotNull
     private boolean deprecated = false;
 
+    @NotNull
+    private boolean hidden = false;
+
     public BuildEnvironment() {
     }
 
@@ -189,6 +192,14 @@ public class BuildEnvironment implements GenericEntity<Integer> {
         this.deprecated = deprecated;
     }
 
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
+
     @Override
     public String toString() {
         return "Build Environment [name: " + name + ", image id: " + this.systemImageId + "]";
@@ -233,6 +244,8 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
         private Boolean deprecated = false;
 
+        private Boolean hidden = false;
+
         private Builder() {
 
         }
@@ -251,6 +264,7 @@ public class BuildEnvironment implements GenericEntity<Integer> {
             buildEnvironment.setAttributes(attributes);
             buildEnvironment.setSystemImageType(systemImageType);
             buildEnvironment.deprecated = deprecated;
+            buildEnvironment.hidden = hidden;
             return buildEnvironment;
         }
 
@@ -296,6 +310,11 @@ public class BuildEnvironment implements GenericEntity<Integer> {
 
         public Builder deprecated(boolean isDeprecated) {
             this.deprecated = isDeprecated;
+            return this;
+        }
+
+        public Builder hidden(boolean isHidden) {
+            this.hidden = isHidden;
             return this;
         }
 
