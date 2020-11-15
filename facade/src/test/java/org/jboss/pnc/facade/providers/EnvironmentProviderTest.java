@@ -21,9 +21,14 @@ import org.assertj.core.api.Condition;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.SystemImageType;
+import org.jboss.pnc.facade.providers.api.UserRoles;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +42,10 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnvironmentProviderTest extends AbstractIntIdProviderTest<BuildEnvironment> {
@@ -47,6 +56,9 @@ public class EnvironmentProviderTest extends AbstractIntIdProviderTest<BuildEnvi
     @Spy
     @InjectMocks
     private EnvironmentProviderImpl provider;
+
+    @Mock
+    private UserService userService;
 
     @Override
     protected AbstractProvider provider() {
@@ -68,6 +80,22 @@ public class EnvironmentProviderTest extends AbstractIntIdProviderTest<BuildEnvi
         envs.add(prepareBuildEnvironment("S-S-S-Slim Shady"));
         envs.add(env);
         fillRepository(envs);
+    }
+
+    @Before
+    public void prepareMocks() throws ReflectiveOperationException {
+        when(userService.hasLoggedInUserRole(UserRoles.SYSTEM_USER)).thenReturn(true);
+    }
+
+    private User prepareNewUser() {
+
+        return User.Builder.newBuilder()
+                .id(113)
+                .email("example@example.com")
+                .firstName("Andrea")
+                .lastName("Vibelli")
+                .username("avibelli")
+                .build();
     }
 
     @Test
