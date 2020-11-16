@@ -17,5 +17,5 @@
     limitations under the License.
 
 -->
-<a href ui-sref="projects.detail.build-configs.detail({ configurationId:$ctrl.revision.id })"
+<a href ui-sref="projects.detail.build-configs.detail({ configurationId:$ctrl.revision.id })" ui-sref-opts="{reload: true}"
    ng-transclude>{{ $ctrl.revision.name || '&mdash;' }}</a>
