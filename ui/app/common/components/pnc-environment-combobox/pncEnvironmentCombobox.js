@@ -100,7 +100,8 @@
 
     function doSearch($viewValue) {
       return EnvironmentResource.query({
-        q: q + rsqlQuery(true).and().where('name').like('*' + $viewValue + '*').end()
+        q: q + rsqlQuery(true).and().where('name').like('*' + $viewValue + '*').end(),
+        sort: '=asc=description'
       }).$promise.then(function (page) {
         return page.data;
       });
