@@ -52,6 +52,11 @@ public class EnvironmentProviderImpl extends AbstractProvider<Integer, BuildEnvi
     }
 
     @Override
+    public Environment update(String id, Environment restEntity) {
+        throw new UnsupportedOperationException("Updating Environments is prohibited");
+    }
+
+    @Override
     public void delete(String id) {
         throw new UnsupportedOperationException("Deleting Environments is prohibited");
     }
