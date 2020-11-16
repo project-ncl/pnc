@@ -27,3 +27,8 @@ BEGIN transaction;
     ALTER TABLE buildenvironment ALTER COLUMN hidden SET NOT NULL;
 COMMIT;
 
+BEGIN transaction;
+    UPDATE buildenvironment SET hidden = true WHERE systemImageRepositoryUrl LIKE 'docker-registry-default.cloud.registry.upshift.redhat.com%';
+    UPDATE buildenvironment SET description = name || ' [' || systemImageId || ']';
+COMMIT;
+
