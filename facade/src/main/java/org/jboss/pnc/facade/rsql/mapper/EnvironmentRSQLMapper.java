@@ -60,6 +60,8 @@ public class EnvironmentRSQLMapper extends AbstractRSQLMapper<Integer, BuildEnvi
                 return BuildEnvironment_.systemImageType;
             case "deprecated":
                 return BuildEnvironment_.deprecated;
+            case "hidden":
+                return BuildEnvironment_.hidden;
             default:
                 return null;
         }
