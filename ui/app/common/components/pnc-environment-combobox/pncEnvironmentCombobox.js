@@ -38,8 +38,7 @@
 
   function Controller($log, $scope, $element, EnvironmentResource, utils, rsqlQuery, $timeout) {
     var $ctrl = this,
-        initialValues,
-        showDeprecated = false;
+        initialValues;
 
     // -- Controller API --
 
