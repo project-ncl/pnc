@@ -20,7 +20,13 @@ package org.jboss.pnc.restclient.websocket;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.GroupBuild;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
+import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
@@ -33,16 +39,24 @@ import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
 /**
  * WebSocket client interface that provides functionality for connecting/disconnecting to the WebSocket server specified
  * by its URL. Furthermore, the client provides API for adding listeners that intercept notifications and API for
- * catching single notification.
+ * catching single a notification.
  *
- * The client has an ability to automatically reconnect in the background to achieve resiliency. The user can manipulate
- * this feature with a set of attributes which can be set during creation of the client:
+ * The client has an ability to automatically reconnect in the background to achieve resiliency. Moreover, the client
+ * gives a user an option to include a secondary way to produce a message through other means than WebSockets(f.e REST).
+ * This secondary way is used when client reconnects and ensures the message wasn't lost during period of lost
+ * connection.
  *
- * - maximumRetries: number of attempted retries before client throws an exception
+ * The user can manipulate this feature with a set of attributes which can be set on creation of the client:
  *
- * - initialDelay: amount of milliseconds client waits before attempting to reconnect
+ * - initialDelay: amount of milliseconds client initially waits before attempting to reconnect
  *
  * - delayMultiplier: a multiplier that increases delay between reconnect attempts
+ *
+ * - upperLimitForRetry: maximum time between retries
+ *
+ * - pingDelays: delays between ping to a connected server
+ *
+ * - maxUnresponsivenessTime: amount of we allow the server to be unresponsive
  *
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
@@ -96,7 +110,8 @@ public interface WebSocketClient extends AutoCloseable {
 
     /**
      * This method is used to intercept one specific Notification defined by notificationClass. Filters are used to
-     * filter out unnecessary Notifications. The method is asynchronous and returns CompletableFuture with the caught
+     * filter out unnecessary Notifications. Reconnect check is used to get a notification by secondary means to ensure
+     * message was not lost on reconnection. The method is asynchronous and returns CompletableFuture with the caught
      * notification as payload.
      *
      * If the connection is closed when invoking this method, the CompletableFuture will complete exceptionally.
@@ -106,11 +121,13 @@ public interface WebSocketClient extends AutoCloseable {
      *
      * @param <T> the notification generic parameter
      * @param notificationClass the notification class
+     * @param reconnectCheck supplier for a secondary means to retrieve a notification
      * @param filters the filters
      * @return the completable future
      */
     <T extends Notification> CompletableFuture<T> catchSingleNotification(
             Class<T> notificationClass,
+            Supplier<T> reconnectCheck,
             Predicate<T>... filters);
 
     /**
@@ -279,6 +296,71 @@ public interface WebSocketClient extends AutoCloseable {
      * @see #catchSingleNotification
      */
     CompletableFuture<ProductMilestoneCloseResultNotification> catchProductMilestoneCloseResult(
+            Predicate<ProductMilestoneCloseResultNotification>... filters);
+
+    /**
+     * Specific version of {@link #catchSingleNotification} method for {@link BuildChangedNotification} with a supplier
+     * invoked on reconnect.
+     *
+     * The reconnectSupplier must retrieve a {@link Build} contextually compatible with the {@param filters}. The
+     * supplier must contain the same {@link Build} that the WS message would have.
+     * 
+     * @param reconnectSupplier Build supplier on reconnect
+     * @param filters the filters
+     * @return the completable future
+     * @see #catchSingleNotification
+     */
+    CompletableFuture<BuildChangedNotification> catchBuildChangedNotification(
+            FallbackRequestSupplier<Build> reconnectSupplier,
+            Predicate<BuildChangedNotification>... filters);
+
+    /**
+     * Specific version of {@link #catchSingleNotification} method for {@link BuildPushResultNotification} with a
+     * supplier invoked on reconnect.
+     * 
+     * The reconnectSupplier must retrieve a {@link BuildPushResult} contextually compatible with the {@param filters}.
+     * The supplier must contain the same {@link BuildPushResult} that the WS message would have.
+     *
+     * @param reconnectSupplier BuildPushResult supplier on reconnect
+     * @param filters the filters
+     * @return the completable future
+     * @see #catchSingleNotification
+     */
+    CompletableFuture<BuildPushResultNotification> catchBuildPushResult(
+            FallbackRequestSupplier<BuildPushResult> reconnectSupplier,
+            Predicate<BuildPushResultNotification>... filters);
+
+    /**
+     * Specific version of {@link #catchSingleNotification} method for {@link GroupBuildChangedNotification} with a
+     * supplier invoked on reconnect.
+     * 
+     * The reconnectSupplier must retrieve a {@link GroupBuild} contextually compatible with the {@param filters}. The
+     * supplier must contain the same {@link GroupBuild} that the WS message would have.
+     *
+     * @param reconnectSupplier GroupBuild supplier on reconnect
+     * @param filters the filters
+     * @return the completable future
+     * @see #catchSingleNotification
+     */
+    CompletableFuture<GroupBuildChangedNotification> catchGroupBuildChangedNotification(
+            FallbackRequestSupplier<GroupBuild> reconnectSupplier,
+            Predicate<GroupBuildChangedNotification>... filters);
+
+    /**
+     * Specific version of {@link #catchSingleNotification} method for {@link ProductMilestoneCloseResultNotification}
+     * with a supplier invoked on reconnect.
+     *
+     * The reconnectSupplier must retrieve a {@link ProductMilestoneCloseResult} contextually compatible with the
+     * {@param filters}. The supplier must contain the same {@link ProductMilestoneCloseResult} that the WS message
+     * would have.
+     * 
+     * @param reconnectSupplier ProductMilestoneCloseResult supplier on reconnect
+     * @param filters the filters
+     * @return the completable future
+     * @see #catchSingleNotification
+     */
+    CompletableFuture<ProductMilestoneCloseResultNotification> catchProductMilestoneCloseResult(
+            FallbackRequestSupplier<ProductMilestoneCloseResult> reconnectSupplier,
             Predicate<ProductMilestoneCloseResultNotification>... filters);
 
     /**

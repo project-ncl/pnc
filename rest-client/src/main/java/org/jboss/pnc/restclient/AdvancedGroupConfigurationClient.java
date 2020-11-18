@@ -20,17 +20,21 @@ package org.jboss.pnc.restclient;
 import static org.jboss.pnc.restclient.websocket.predicates.GroupBuildChangedNotificationPredicates.withGBuildCompleted;
 import static org.jboss.pnc.restclient.websocket.predicates.GroupBuildChangedNotificationPredicates.withGConfigId;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
@@ -49,13 +53,31 @@ public class AdvancedGroupConfigurationClient extends GroupConfigurationClient i
         super(configuration);
     }
 
-    public CompletableFuture<GroupBuild> waitForGroupBuild(String buildConfigId) {
-
+    public CompletableFuture<GroupBuild> waitForGroupBuild(String groupConfigId) {
         webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
 
-        return webSocketClient.catchGroupBuildChangedNotification(withGConfigId(buildConfigId), withGBuildCompleted())
+        return webSocketClient
+                .catchGroupBuildChangedNotification(
+                        () -> fallbackSupplier(groupConfigId),
+                        withGConfigId(groupConfigId),
+                        withGBuildCompleted())
                 .thenApply(GroupBuildChangedNotification::getGroupBuild)
                 .whenCompleteAsync((x, y) -> webSocketClient.disconnect());
+    }
+
+    /**
+     * Used to retrieve group build through REST when WS Client loses connection and reconnects
+     *
+     * @param gcId Id of the GroupConfig where the build was run
+     * @return
+     * @throws RemoteResourceException
+     */
+    private GroupBuild fallbackSupplier(String gcId) throws RemoteResourceException {
+        GroupBuild build = null;
+        try (GroupConfigurationClient client = new GroupConfigurationClient(configuration)) {
+            build = client.getAllGroupBuilds(gcId, Optional.of("=desc=startTime"), Optional.empty()).iterator().next();
+        }
+        return build;
     }
 
     public CompletableFuture<GroupBuild> executeGroupBuild(String groupConfigId, GroupBuildParameters parameters)

@@ -18,18 +18,23 @@
 package org.jboss.pnc.restclient;
 
 import org.jboss.pnc.client.Configuration;
+import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.ProductMilestoneClient;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
+import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
+import static org.jboss.pnc.restclient.websocket.predicates.ProductMilestoneCloseResultNotificationPredicates.isFinished;
 import static org.jboss.pnc.restclient.websocket.predicates.ProductMilestoneCloseResultNotificationPredicates.withMilestoneId;
 
-public class AdvancedProductMilestoneClient extends ProductMilestoneClient {
+public class AdvancedProductMilestoneClient extends ProductMilestoneClient implements AutoCloseable{
 
     private WebSocketClient webSocketClient = new VertxWebSocketClient();
 
@@ -39,9 +44,31 @@ public class AdvancedProductMilestoneClient extends ProductMilestoneClient {
 
     public CompletableFuture<ProductMilestoneCloseResult> waitForMilestoneClose(String milestoneId) {
         webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
-        return webSocketClient.catchProductMilestoneCloseResult(withMilestoneId(milestoneId))
+        return webSocketClient
+                .catchProductMilestoneCloseResult(
+                        () -> fallbackSupplier(milestoneId),
+                        withMilestoneId(milestoneId),
+                        isFinished())
                 .thenApply(ProductMilestoneCloseResultNotification::getProductMilestoneCloseResult)
                 .whenComplete((x, y) -> webSocketClient.disconnect());
+    }
+
+    /**
+     * Used to retrieve latest close result through REST when WS Client loses connection and reconnects
+     *
+     * @param milestoneId Id of the ProductMilestone which was closed
+     * @return
+     * @throws RemoteResourceException
+     */
+    private ProductMilestoneCloseResult fallbackSupplier(String milestoneId) throws RemoteResourceException {
+        ProductMilestoneCloseParameters parameters = new ProductMilestoneCloseParameters();
+        parameters.setLatest(true);
+
+        ProductMilestoneCloseResult result = null;
+        try (ProductMilestoneClient client = new ProductMilestoneClient(configuration)) {
+            result = client.getCloseResults(milestoneId, parameters).iterator().next();
+        }
+        return result;
     }
 
     public CompletableFuture<ProductMilestoneCloseResult> executeMilestoneClose(String milestoneId)
