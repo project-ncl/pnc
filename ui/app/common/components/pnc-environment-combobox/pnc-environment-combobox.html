@@ -17,5 +17,23 @@
     limitations under the License.
 
 -->
-<px-combobox px-expression="environment as environment.description for environment in $ctrl.search($viewValue)" ng-model="$ctrl.input" debounce-ms=500>
+<script type="text/ng-template" id="pnc-environment-combobox-options-template.html">
+    <a ng-click="$ctrl.select(option)" href>{{ ::$ctrl.getViewValue(option) }}
+      <span class="pficon pficon-warning-triangle-o"
+            ng-if="::option.deprecated"
+            uib-tooltip="This build environment is DEPRECATED"
+            tooltip-popup-delay="1000"
+            tooltip-placement="left">
+      </span>
+    </a>
+</script>
+
+<px-combobox px-expression="environment as environment.description for environment in $ctrl.search($viewValue)"
+             ng-model="$ctrl.input"
+             debounce-ms=500
+             option-template-url="pnc-environment-combobox-options-template.html">
 </px-combobox>
+<label>Show deprecated:
+  <input type="checkbox" ng-model="$ctrl.showDeprecated">
+</label>
+<p class="text-warning" ng-show="$ctrl.input.deprecated">WARNING: The selected build environment is deprecated</p>
