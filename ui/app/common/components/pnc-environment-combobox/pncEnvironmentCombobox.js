@@ -39,18 +39,17 @@
   function Controller($log, $scope, $element, EnvironmentResource, utils, rsqlQuery, $timeout) {
     var $ctrl = this,
         initialValues,
-        q;
+        showDeprecated = false;
 
     // -- Controller API --
 
     $ctrl.search = search;
+    $ctrl.showDeprecated = false;
 
     // --------------------
 
 
     $ctrl.$onInit = function () {
-
-      q = rsqlQuery().where('hidden').eq(false).end();
 
       // Synchronise value from combobox with this component's ng-model
       $scope.$watch(function () {
@@ -77,7 +76,7 @@
         $ctrl.input = $ctrl.ngModel.$viewValue;
       };
 
-      initialValues = EnvironmentResource.query({ pageSize: 20, q: q }).$promise.then(function (page) {
+      initialValues = EnvironmentResource.query({ pageSize: 20, q: rsqlQuery().where('deprecated').eq(false).end() }).$promise.then(function (page) {
         return page.data;
       });
     };
@@ -99,8 +98,16 @@
     };
 
     function doSearch($viewValue) {
+      let q;
+
+      if ($ctrl.showDeprecated) {
+        q = rsqlQuery().where('name').like('*' + $viewValue + '*').end();
+      } else {
+        q = rsqlQuery().where('deprecated').eq(false).and().where('name').like('*' + $viewValue + '*').end();
+      }
+
       return EnvironmentResource.query({
-        q: q + rsqlQuery(true).and().where('name').like('*' + $viewValue + '*').end(),
+        q: q,
         sort: '=asc=description'
       }).$promise.then(function (page) {
         return page.data;
