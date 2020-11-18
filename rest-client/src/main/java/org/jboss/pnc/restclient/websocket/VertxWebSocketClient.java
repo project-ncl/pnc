@@ -20,9 +20,16 @@ package org.jboss.pnc.restclient.websocket;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.http.WebSocket;
+import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.GroupBuild;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
@@ -31,16 +38,20 @@ import org.jboss.pnc.dto.notification.Notification;
 import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
 import org.jboss.pnc.dto.notification.RepositoryCreationFailure;
 import org.jboss.pnc.dto.notification.SCMRepositoryCreationSuccess;
+import org.jboss.pnc.enums.BuildStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
@@ -57,7 +68,36 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     private WebSocket webSocketConnection;
 
-    // use concurrent version since we may modify that list concurrently
+    /**
+     * vert.x timer id which periodically sends pings to the WS server
+     */
+    private long periodicPingTimerId = -1;
+
+    /**
+     * delay between individual pings in ms.
+     * 
+     * default: 2 sec
+     */
+    private int pingDelays = 2000;
+
+    /**
+     * amount of time we allow the WS server to be unresponsive to the pings until we consider reconnection
+     * 
+     * default: 20 sec
+     */
+    private int maxUnresponsivenessTime = 20000;
+
+    /**
+     * how many pings were left unanswered.
+     * 
+     * if pingPongDifference > (maxUnresponsivenessTime/pingDelays) is true, we start reconnecting.
+     * (maxUnresponsivenessTime/pingDelays) equals to upper limit of unanswered pings.
+     */
+    private AtomicLong pingPongDifference = new AtomicLong(0);
+
+    /**
+     * use concurrent version since we may modify that list concurrently
+     */
     private Set<Dispatcher> dispatchers = ConcurrentHashMap.newKeySet();
 
     private Set<CompletableFuture<Notification>> singleNotificationFutures = ConcurrentHashMap.newKeySet();
@@ -83,6 +123,11 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     private int reconnectDelay;
 
+    /**
+     * timeout we wait on first connection to WS server or on reconnection
+     */
+    private int connectTimeout = 5000;
+
     public VertxWebSocketClient() {
         reconnectDelay = initialDelay;
     }
@@ -92,6 +137,9 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
         this.upperLimitForRetry = upperLimitForRetry;
         this.initialDelay = initialDelay;
         reconnectDelay = initialDelay;
+        this.connectTimeout = connectTimeout;
+        this.pingDelays = pingDelays;
+        this.maxUnresponsivenessTime = maxUnresponsivenessTime;
     }
 
     @Override
@@ -109,16 +157,19 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
         if (this.vertx == null) {
             this.vertx = Vertx.vertx();
-            this.httpClient = vertx.createHttpClient();
+            HttpClientOptions options = new HttpClientOptions();
+            options.setKeepAlive(false).setConnectTimeout(connectTimeout);
+            this.httpClient = vertx.createHttpClient(options);
         }
 
         if (webSocketConnection != null && !webSocketConnection.isClosed()) {
             log.trace("Already connected.");
             return CompletableFuture.completedFuture(null);
         }
-        CompletableFuture<Void> future = new CompletableFuture<>();
         // in case no port was given, default to http port 80
         int port = serverURI.getPort() == -1 ? 80 : serverURI.getPort();
+
+        CompletableFuture<Void> future = new CompletableFuture<>();
         httpClient.webSocket(port, serverURI.getHost(), serverURI.getPath(), result -> {
             if (result.succeeded()) {
                 log.debug("Connection to WebSocket server: " + webSocketServerUrl + " successful.");
@@ -126,6 +177,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
                 webSocketConnection = result.result();
                 webSocketConnection.textMessageHandler(this::dispatch);
                 webSocketConnection.closeHandler((ignore) -> connectionClosed(webSocketServerUrl));
+                startPingPong(webSocketServerUrl);
                 // Async operation complete
                 future.complete(null);
             } else {
@@ -156,6 +208,20 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
         retryConnection(webSocketServerUrl);
     }
 
+    private void connectionUnreachable(String webSocketServerUrl) {
+        log.warn(
+                "WebSocket server is unreachable. Possible VPN/Network issues, will retry in: " + reconnectDelay
+                        + " milliseconds.");
+        retryConnection(webSocketServerUrl);
+    }
+
+    private void manuallyCloseConnection() {
+        if (webSocketConnection != null && !webSocketConnection.isClosed()) {
+            log.trace("Manually closing WS connection.");
+            webSocketConnection.close();
+        }
+    }
+
     private void retryConnection(String webSocketServerUrl) {
         numberOfRetries++;
         vertx.setTimer(reconnectDelay, (timerId) -> connectAndReset(webSocketServerUrl));
@@ -171,7 +237,34 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
         return connect(webSocketServerUrl).thenRun(this::resetDefaults);
     }
 
+    private void startPingPong(String webSocketServerUrl) {
+        webSocketConnection.pongHandler(this::handlePong);
+        periodicPingTimerId = vertx.setPeriodic(pingDelays, (timerId) -> ping(timerId, webSocketServerUrl));
+    }
+
+    private void ping(long timerId, String webSocketServerUrl) {
+        if (pingPongDifference.get() > (maxUnresponsivenessTime / pingDelays)) {
+            // cancel itself to avoid sending pings during reconnections
+            if (vertx.cancelTimer(timerId)) {
+                periodicPingTimerId = -1;
+            }
+            // unresponsive server still has opened connection even though it does not respond
+            manuallyCloseConnection();
+            connectionUnreachable(webSocketServerUrl);
+            return;
+        }
+        log.trace("Sending ping to WS server: " + webSocketServerUrl);
+        pingPongDifference.incrementAndGet();
+        webSocketConnection.writePing(Buffer.buffer());
+    }
+
+    private void handlePong(Buffer ignore) {
+        log.trace("Received pong from WS server.");
+        pingPongDifference.decrementAndGet();
+    }
+
     private void resetDefaults() {
+        pingPongDifference.set(0);
         reconnectDelay = initialDelay;
         numberOfRetries = 0;
     }
@@ -183,6 +276,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
             return CompletableFuture.completedFuture(null);
         }
         CompletableFuture<Void> future = new CompletableFuture<>();
+        vertx.cancelTimer(periodicPingTimerId);
         webSocketConnection.closeHandler(null);
         webSocketConnection.close((result) -> {
             if (result.succeeded()) {
@@ -366,7 +460,8 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
                 disconnect().get();
             } finally {
                 // always close vertx
-                vertx.close();
+                if (vertx != null)
+                    vertx.close();
             }
         } finally {
             // always finalize
