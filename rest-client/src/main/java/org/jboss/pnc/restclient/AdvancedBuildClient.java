@@ -19,13 +19,16 @@ package org.jboss.pnc.restclient;
 
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.Configuration;
+import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -52,9 +55,25 @@ public class AdvancedBuildClient extends BuildClient implements AutoCloseable {
 
         webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
 
-        return webSocketClient.catchBuildPushResult(withBuildId(buildId), withPushCompleted())
+        return webSocketClient
+                .catchBuildPushResult(() -> fallbackSupplier(buildId), withBuildId(buildId), withPushCompleted())
                 .thenApply(BuildPushResultNotification::getBuildPushResult)
                 .whenComplete((x, y) -> webSocketClient.disconnect());
+    }
+
+    /**
+     * Used to retrieve BuildPushResult through REST when WS Client loses connection and reconnects
+     *
+     * @param buildId Id of the build where the push build was run
+     * @return
+     * @throws RemoteResourceException
+     */
+    private BuildPushResult fallbackSupplier(String buildId) throws RemoteResourceException {
+        BuildPushResult result = null;
+        try (BuildClient client = new BuildClient(configuration)) {
+            result = client.getPushResult(buildId);
+        }
+        return result;
     }
 
     public CompletableFuture<BuildPushResult> executeBrewPush(String buildId, BuildPushParameters parameters)

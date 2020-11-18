@@ -17,13 +17,17 @@
  */
 package org.jboss.pnc.restclient.websocket;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.http.WebSocket;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
@@ -42,16 +46,14 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.WebSocket;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
@@ -75,21 +77,21 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     /**
      * delay between individual pings in ms.
-     * 
+     *
      * default: 2 sec
      */
     private int pingDelays = 2000;
 
     /**
      * amount of time we allow the WS server to be unresponsive to the pings until we consider reconnection
-     * 
+     *
      * default: 20 sec
      */
     private int maxUnresponsivenessTime = 20000;
 
     /**
      * how many pings were left unanswered.
-     * 
+     *
      * if pingPongDifference > (maxUnresponsivenessTime/pingDelays) is true, we start reconnecting.
      * (maxUnresponsivenessTime/pingDelays) equals to upper limit of unanswered pings.
      */
@@ -100,7 +102,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
      */
     private Set<Dispatcher> dispatchers = ConcurrentHashMap.newKeySet();
 
-    private Set<CompletableFuture<Notification>> singleNotificationFutures = ConcurrentHashMap.newKeySet();
+    private Map<CompletableFuture<Notification>, Supplier<Notification>> singleNotificationFutures = new ConcurrentHashMap<>();
 
     /**
      * maximum amount of time in milliseconds taken between retries
@@ -126,18 +128,22 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     /**
      * timeout we wait on first connection to WS server or on reconnection
      */
-    private int connectTimeout = 5000;
+    private final int connectTimeout = 5000;
 
     public VertxWebSocketClient() {
         reconnectDelay = initialDelay;
     }
 
-    public VertxWebSocketClient(int upperLimitForRetry, int initialDelay, int delayMultiplier) {
+    public VertxWebSocketClient(
+            int upperLimitForRetry,
+            int initialDelay,
+            int delayMultiplier,
+            int pingDelays,
+            int maxUnresponsivenessTime) {
         this.delayMultiplier = delayMultiplier;
         this.upperLimitForRetry = upperLimitForRetry;
         this.initialDelay = initialDelay;
         reconnectDelay = initialDelay;
-        this.connectTimeout = connectTimeout;
         this.pingDelays = pingDelays;
         this.maxUnresponsivenessTime = maxUnresponsivenessTime;
     }
@@ -234,7 +240,22 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     private CompletableFuture<Void> connectAndReset(String webSocketServerUrl) {
         log.warn("Trying to reconnect. Number of retries: " + numberOfRetries);
-        return connect(webSocketServerUrl).thenRun(this::resetDefaults);
+        return connect(webSocketServerUrl).thenRun(this::runReconnectChecksOnSingles).thenRun(this::resetDefaults);
+    }
+
+    /**
+     * Run reconnect checks (f.e. invoke REST) on associated notifications and complete them if check succeeds (returns
+     * non-null value)
+     */
+    private void runReconnectChecksOnSingles() {
+        singleNotificationFutures.forEach((key, value) -> {
+            if (!key.isDone()) {
+                Notification notification = value.get();
+                if ((notification != null)) {
+                    key.complete(notification);
+                }
+            }
+        });
     }
 
     private void startPingPong(String webSocketServerUrl) {
@@ -329,11 +350,25 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     @Override
     public <T extends Notification> CompletableFuture<T> catchSingleNotification(
             Class<T> notificationClass,
+            Supplier<T> reconnectCheck,
             Predicate<T>... filters) {
         CompletableFuture<T> future = new CompletableFuture<>();
-        ListenerUnsubscriber unsubscriber = null;
-        singleNotificationFutures.add((CompletableFuture<Notification>) future);
 
+        // returns null on incorrect message
+        Supplier<T> reconnectWithTestCheck = () -> {
+            T t = reconnectCheck.get();
+            for (Predicate<T> filter : filters) {
+                if (t == null || !filter.test(t)) {
+                    return null;
+                }
+            }
+            return t;
+        };
+
+        singleNotificationFutures
+                .put((CompletableFuture<Notification>) future, (Supplier<Notification>) reconnectWithTestCheck);
+
+        ListenerUnsubscriber unsubscriber = null;
         try {
             unsubscriber = onMessage(notificationClass, future::complete, filters);
         } catch (ConnectionClosedException e) {
@@ -345,6 +380,8 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
         final ListenerUnsubscriber finalUnsubscriber = unsubscriber;
         return future.whenComplete((notification, throwable) -> finalUnsubscriber.run());
     }
+
+    // NOTIFICATION LISTENERS
 
     @Override
     public ListenerUnsubscriber onBuildChangedNotification(
@@ -395,6 +432,14 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
         return onMessage(ProductMilestoneCloseResultNotification.class, onNotification, filters);
     }
 
+    // NO RECONNECTS
+
+    private <T extends Notification> CompletableFuture<T> catchSingleNotification(
+            Class<T> notificationClass,
+            Predicate<T>... filters) {
+        return catchSingleNotification(notificationClass, () -> null, filters);
+    }
+
     @Override
     public CompletableFuture<BuildChangedNotification> catchBuildChangedNotification(
             Predicate<BuildChangedNotification>... filters) {
@@ -420,6 +465,12 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     }
 
     @Override
+    public CompletableFuture<ProductMilestoneCloseResultNotification> catchProductMilestoneCloseResult(
+            Predicate<ProductMilestoneCloseResultNotification>... filters) {
+        return catchSingleNotification(ProductMilestoneCloseResultNotification.class, filters);
+    }
+
+    @Override
     public CompletableFuture<RepositoryCreationFailure> catchRepositoryCreationFailure(
             Predicate<RepositoryCreationFailure>... filters) {
         return catchSingleNotification(RepositoryCreationFailure.class, filters);
@@ -431,10 +482,91 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
         return catchSingleNotification(SCMRepositoryCreationSuccess.class, filters);
     }
 
+    // WITH RECONNECTS
+
+    @Override
+    public CompletableFuture<BuildChangedNotification> catchBuildChangedNotification(
+            FallbackRequestSupplier<Build> reconnectSupplier,
+            Predicate<BuildChangedNotification>... filters) {
+        return catchSingleNotification(
+                BuildChangedNotification.class,
+                () -> mockBuildNotification(reconnectSupplier),
+                filters);
+    }
+
+    private BuildChangedNotification mockBuildNotification(FallbackRequestSupplier<Build> fallback) {
+        Build build = null;
+        try {
+            build = fallback.get();
+        } catch (RemoteResourceException exception) {
+            log.warn("Failsafe reconnection failed.", exception);
+            return null;
+        }
+        return build == null ? null : new BuildChangedNotification(BuildStatus.NEW, build);
+    }
+
+    @Override
+    public CompletableFuture<GroupBuildChangedNotification> catchGroupBuildChangedNotification(
+            FallbackRequestSupplier<GroupBuild> reconnectSupplier,
+            Predicate<GroupBuildChangedNotification>... filters) {
+        return catchSingleNotification(
+                GroupBuildChangedNotification.class,
+                () -> mockGroupNotification(reconnectSupplier),
+                filters);
+    }
+
+    private GroupBuildChangedNotification mockGroupNotification(FallbackRequestSupplier<GroupBuild> fallback) {
+        GroupBuild groupBuild = null;
+        try {
+            groupBuild = fallback.get();
+        } catch (RemoteResourceException exception) {
+            log.warn("Failsafe reconnection failed.", exception);
+            return null;
+        }
+        return groupBuild == null ? null : new GroupBuildChangedNotification(groupBuild);
+    }
+
+    @Override
+    public CompletableFuture<BuildPushResultNotification> catchBuildPushResult(
+            FallbackRequestSupplier<BuildPushResult> reconnectSupplier,
+            Predicate<BuildPushResultNotification>... filters) {
+        return catchSingleNotification(
+                BuildPushResultNotification.class,
+                () -> mockBuildPushNotification(reconnectSupplier),
+                filters);
+    }
+
+    private BuildPushResultNotification mockBuildPushNotification(FallbackRequestSupplier<BuildPushResult> fallback) {
+        BuildPushResult pushResult = null;
+        try {
+            pushResult = fallback.get();
+        } catch (RemoteResourceException exception) {
+            log.warn("Failsafe reconnection failed.", exception);
+            return null;
+        }
+        return pushResult == null ? null : new BuildPushResultNotification(pushResult);
+    }
+
     @Override
     public CompletableFuture<ProductMilestoneCloseResultNotification> catchProductMilestoneCloseResult(
+            FallbackRequestSupplier<ProductMilestoneCloseResult> reconnectSupplier,
             Predicate<ProductMilestoneCloseResultNotification>... filters) {
-        return catchSingleNotification(ProductMilestoneCloseResultNotification.class, filters);
+        return catchSingleNotification(
+                ProductMilestoneCloseResultNotification.class,
+                () -> mockMilestoneCloseNotification(reconnectSupplier),
+                filters);
+    }
+
+    private ProductMilestoneCloseResultNotification mockMilestoneCloseNotification(
+            FallbackRequestSupplier<ProductMilestoneCloseResult> fallback) {
+        ProductMilestoneCloseResult pushResult = null;
+        try {
+            pushResult = fallback.get();
+        } catch (RemoteResourceException exception) {
+            log.warn("Failsafe reconnection failed.", exception);
+            return null;
+        }
+        return pushResult == null ? null : new ProductMilestoneCloseResultNotification(pushResult);
     }
 
     @Override

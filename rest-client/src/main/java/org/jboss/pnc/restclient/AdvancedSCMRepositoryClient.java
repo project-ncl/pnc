@@ -33,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import static org.jboss.pnc.restclient.websocket.predicates.SCMRepositoryNotificationPredicates.withFailedTaskId;
 import static org.jboss.pnc.restclient.websocket.predicates.SCMRepositoryNotificationPredicates.withSuccessTaskId;
 
-public class AdvancedSCMRepositoryClient extends SCMRepositoryClient {
+public class AdvancedSCMRepositoryClient extends SCMRepositoryClient implements AutoCloseable {
 
     public AdvancedSCMRepositoryClient(Configuration configuration) {
         super(configuration);
