@@ -20,6 +20,7 @@ package org.jboss.pnc.restclient;
 import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildCompleted;
 import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildConfiguration;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +32,7 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
@@ -52,9 +54,30 @@ public class AdvancedBuildConfigurationClient extends BuildConfigurationClient i
         webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
 
         return webSocketClient
-                .catchBuildChangedNotification(withBuildConfiguration(buildConfigId), withBuildCompleted())
+                .catchBuildChangedNotification(
+                        () -> fallbackSupplier(buildConfigId),
+                        withBuildConfiguration(buildConfigId),
+                        withBuildCompleted())
                 .thenApply(BuildChangedNotification::getBuild)
                 .whenComplete((x, y) -> webSocketClient.disconnect());
+    }
+
+    /**
+     * Used to retrieve build through through REST when WS Client loses connection and reconnects
+     *
+     * @param bcId Id of the BuildConfig where the build was run
+     * @return
+     * @throws RemoteResourceException
+     */
+    private Build fallbackSupplier(String bcId) throws RemoteResourceException {
+        BuildsFilterParameters parameters = new BuildsFilterParameters();
+        parameters.setLatest(true);
+
+        Build build = null;
+        try (BuildConfigurationClient client = new BuildConfigurationClient(configuration)) {
+            build = client.getBuilds(bcId, parameters).iterator().next();
+        }
+        return build;
     }
 
     public CompletableFuture<Build> executeBuild(String buildConfigId, BuildParameters parameters)
@@ -102,6 +125,7 @@ public class AdvancedBuildConfigurationClient extends BuildConfigurationClient i
      */
     @Override
     public void close() {
+        super.close();
         if (webSocketClient != null) {
             try {
                 super.close();
