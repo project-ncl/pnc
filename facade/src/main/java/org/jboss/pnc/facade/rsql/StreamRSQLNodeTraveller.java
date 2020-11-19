@@ -93,19 +93,19 @@ class StreamRSQLNodeTraveller extends RSQLNodeTraveller<Boolean> {
             } else if (node.getOperator().equals(RSQLOperators.GREATER_THAN)) {
                 NumberFormat numberFormat = NumberFormat.getInstance();
                 Number argumentNumber = numberFormat.parse(argument);
-                return numberFormat.parse(propertyValue).intValue() < argumentNumber.intValue();
-            } else if (node.getOperator().equals(RSQLOperators.GREATER_THAN_OR_EQUAL)) {
-                NumberFormat numberFormat = NumberFormat.getInstance();
-                Number argumentNumber = numberFormat.parse(argument);
-                return numberFormat.parse(propertyValue).intValue() <= argumentNumber.intValue();
-            } else if (node.getOperator().equals(RSQLOperators.LESS_THAN)) {
-                NumberFormat numberFormat = NumberFormat.getInstance();
-                Number argumentNumber = numberFormat.parse(argument);
                 return numberFormat.parse(propertyValue).intValue() > argumentNumber.intValue();
             } else if (node.getOperator().equals(RSQLOperators.GREATER_THAN_OR_EQUAL)) {
                 NumberFormat numberFormat = NumberFormat.getInstance();
                 Number argumentNumber = numberFormat.parse(argument);
                 return numberFormat.parse(propertyValue).intValue() >= argumentNumber.intValue();
+            } else if (node.getOperator().equals(RSQLOperators.LESS_THAN)) {
+                NumberFormat numberFormat = NumberFormat.getInstance();
+                Number argumentNumber = numberFormat.parse(argument);
+                return numberFormat.parse(propertyValue).intValue() < argumentNumber.intValue();
+            } else if (node.getOperator().equals(RSQLOperators.LESS_THAN_OR_EQUAL)) {
+                NumberFormat numberFormat = NumberFormat.getInstance();
+                Number argumentNumber = numberFormat.parse(argument);
+                return numberFormat.parse(propertyValue).intValue() <= argumentNumber.intValue();
             } else if (node.getOperator().equals(RSQLProducerImpl.LIKE)) {
                 argument = argument.replaceAll(RSQLProducerImpl.UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
                 return propertyValue.matches(argument);
