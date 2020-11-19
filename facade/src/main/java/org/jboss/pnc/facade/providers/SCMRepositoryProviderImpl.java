@@ -196,7 +196,7 @@ public class SCMRepositoryProviderImpl
 
             // validation phase
             validateInternalRepository(scmUrl);
-            validateRepositoryWithInternalURLDoesNotExist(scmUrl);
+            validateRepositoryWithInternalURLDoesNotExist(scmUrl, null);
 
             SCMRepository scmRepository = createSCMRepositoryFromValues(null, scmUrl, false);
 
@@ -204,7 +204,7 @@ public class SCMRepositoryProviderImpl
             return new RepositoryCreationResponse(scmRepository);
 
         } else {
-            validateRepositoryWithExternalURLDoesNotExist(scmUrl);
+            validateRepositoryWithExternalURLDoesNotExist(scmUrl, null);
 
             boolean sync = preBuildSyncEnabled == null || preBuildSyncEnabled;
             Integer taskId = startRCreationTask(scmUrl, sync, jobType, consumer, buildConfiguration);
@@ -221,7 +221,9 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException("Updating internal URL is prohibited. SCMRepo: " + id);
         }
         if (restEntity.getExternalUrl() != null && !restEntity.getExternalUrl().equals(entityInDb.getExternalUrl())) {
-            validateRepositoryWithExternalURLDoesNotExist(restEntity.getExternalUrl());
+            validateRepositoryWithExternalURLDoesNotExist(
+                    restEntity.getExternalUrl(),
+                    mapper.getIdMapper().toEntity(id));
         }
     }
 
@@ -268,10 +270,11 @@ public class SCMRepositoryProviderImpl
                 && REPOSITORY_NAME_PATTERN.matcher(internalRepoName).matches();
     }
 
-    private void validateRepositoryWithInternalURLDoesNotExist(String internalUrl) throws ConflictedEntryException {
+    private void validateRepositoryWithInternalURLDoesNotExist(String internalUrl, Integer ignoreId)
+            throws ConflictedEntryException {
         RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
                 .queryByInternalScm(internalUrl);
-        if (repositoryConfiguration != null) {
+        if (repositoryConfiguration != null && !repositoryConfiguration.getId().equals(ignoreId)) {
             String message = "SCM Repository already exists (id: " + repositoryConfiguration.getId() + ")";
             throw new ConflictedEntryException(
                     message,
@@ -280,10 +283,11 @@ public class SCMRepositoryProviderImpl
         }
     }
 
-    private void validateRepositoryWithExternalURLDoesNotExist(String externalUrl) throws ConflictedEntryException {
+    private void validateRepositoryWithExternalURLDoesNotExist(String externalUrl, Integer ignoreId)
+            throws ConflictedEntryException {
         RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
                 .queryByExternalScm(externalUrl);
-        if (repositoryConfiguration != null) {
+        if (repositoryConfiguration != null && !repositoryConfiguration.getId().equals(ignoreId)) {
             String message = "SCM Repository already exists (id: " + repositoryConfiguration.getId() + ")";
             throw new ConflictedEntryException(
                     message,
@@ -291,7 +295,7 @@ public class SCMRepositoryProviderImpl
                     repositoryConfiguration.getId().toString());
         }
         String internalUrl = repour.translateExternalUrl(externalUrl);
-        validateRepositoryWithInternalURLDoesNotExist(internalUrl);
+        validateRepositoryWithInternalURLDoesNotExist(internalUrl, ignoreId);
     }
 
     /**

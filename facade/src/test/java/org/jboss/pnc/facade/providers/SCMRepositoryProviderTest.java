@@ -42,9 +42,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import org.jboss.pnc.facade.util.RepourClient;
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -62,6 +62,9 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     @Mock
     private ScmModuleConfig scmModuleConfig;
 
+    @Mock
+    private RepourClient repour;
+
     @InjectMocks
     private SCMRepositoryProviderImpl provider;
 
@@ -75,6 +78,11 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
             "git+ssh://internale.sh",
             false);
 
+    private RepositoryConfiguration mockInternalOnly = createNewRepositoryConfiguration(
+            null,
+            "git+ssh://internal.sh/foo/bar",
+            true);
+
     @Before
     public void setup() {
 
@@ -82,6 +90,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
 
         list.add(mock);
         list.add(mockSecond);
+        list.add(mockInternalOnly);
 
         list.add(
                 createNewRepositoryConfiguration(
@@ -89,7 +98,16 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
                         "git+ssh://" + UUID.randomUUID().toString() + ".eu",
                         true));
 
+        list.forEach(this::setupRC);
+
         fillRepository(list);
+    }
+
+    private void setupRC(RepositoryConfiguration rc) {
+        when(repository.queryByInternalScm(rc.getInternalUrl())).thenReturn(rc);
+        if (rc.getExternalUrl() != null) {
+            when(repository.queryByExternalScm(rc.getExternalUrl())).thenReturn(rc);
+        }
     }
 
     @Override
@@ -186,13 +204,57 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
     }
 
     @Test
+    public void testUpdateWithOwnUrl() {
+        // with
+        String external = "http://external.sh/foo/bar";
+        when(repour.translateExternalUrl(external)).thenReturn(mockInternalOnly.getInternalUrl());
+
+        SCMRepository toUpdate = createNewSCMRepository(
+                external,
+                mockInternalOnly.getInternalUrl(),
+                mockInternalOnly.isPreBuildSyncEnabled(),
+                mockInternalOnly.getId().toString());
+
+        // when
+        SCMRepository updated = provider.update(toUpdate.getId(), toUpdate);
+
+        // then
+        assertThat(updated.getExternalUrl()).isEqualTo(external);
+    }
+
+    @Test
+    public void testUpdateShouldFailWithConflict() {
+        // with
+        String external = "http://external.sh/foo/bar";
+        when(repour.translateExternalUrl(external)).thenReturn(mock.getInternalUrl());
+
+        SCMRepository toUpdate1 = createNewSCMRepository(
+                mockSecond.getExternalUrl(),
+                mockInternalOnly.getInternalUrl(),
+                mockInternalOnly.isPreBuildSyncEnabled(),
+                mockInternalOnly.getId().toString());
+
+        SCMRepository toUpdate2 = createNewSCMRepository(
+                external,
+                mockInternalOnly.getInternalUrl(),
+                mockInternalOnly.isPreBuildSyncEnabled(),
+                mockInternalOnly.getId().toString());
+
+        // when-then
+        assertThatThrownBy(() -> provider.update(toUpdate1.getId(), toUpdate1))
+                .isInstanceOf(ConflictedEntryException.class);
+        assertThatThrownBy(() -> provider.update(toUpdate2.getId(), toUpdate2))
+                .isInstanceOf(ConflictedEntryException.class);
+    }
+
+    @Test
     public void testGetAll() {
 
         // when
         Page<SCMRepository> page = provider.getAll(0, 10, null, null);
 
         // then
-        assertThat(page.getContent()).hasSize(3);
+        assertThat(page.getContent()).hasSize(4);
     }
 
     @Test
