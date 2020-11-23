@@ -38,7 +38,8 @@
 
   function Controller($log, $scope, $element, EnvironmentResource, utils, rsqlQuery, $timeout) {
     var $ctrl = this,
-        activeInitialValues;
+        activeInitialValues,
+        allInitialValues;
 
     // -- Controller API --
 
