@@ -75,7 +75,7 @@
         $ctrl.input = $ctrl.ngModel.$viewValue;
       };
 
-      initialValues = EnvironmentResource.query({ pageSize: 20, q: rsqlQuery().where('deprecated').eq(false).end() }).$promise.then(function (page) {
+      initialValues = EnvironmentResource.query({ q: rsqlQuery().where('deprecated').eq(false).end() }).$promise.then(function (page) {
         return page.data;
       });
     };
@@ -115,7 +115,18 @@
 
     function search($viewValue) {
       if (utils.isEmpty($viewValue)) {
-        return initialValues;
+
+        // If the checkbox is not selected
+        if (!$ctrl.showDeprecated) {
+          return initialValues;
+        } else {
+          return EnvironmentResource.query({
+            q: rsqlQuery().end(),
+            sort: '=asc=description'
+          }).$promise.then(function (page) {
+            return page.data;
+          });
+        }
       }
 
       return doSearch($viewValue);
