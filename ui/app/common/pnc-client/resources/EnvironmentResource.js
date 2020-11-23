@@ -38,7 +38,7 @@
       }, {
         query: {
           method: 'GET',
-          isPaged: true,
+          isPaged: false,
         }
       });
 
