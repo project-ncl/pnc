@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import static org.jboss.pnc.restclient.websocket.predicates.ProductMilestoneCloseResultNotificationPredicates.isFinished;
 import static org.jboss.pnc.restclient.websocket.predicates.ProductMilestoneCloseResultNotificationPredicates.withMilestoneId;
 
-public class AdvancedProductMilestoneClient extends ProductMilestoneClient implements AutoCloseable{
+public class AdvancedProductMilestoneClient extends ProductMilestoneClient implements AutoCloseable {
 
     private WebSocketClient webSocketClient = new VertxWebSocketClient();
 
