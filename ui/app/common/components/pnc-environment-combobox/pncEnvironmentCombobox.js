@@ -38,7 +38,7 @@
 
   function Controller($log, $scope, $element, EnvironmentResource, utils, rsqlQuery, $timeout) {
     var $ctrl = this,
-        initialValues;
+        activeInitialValues;
 
     // -- Controller API --
 
@@ -75,7 +75,17 @@
         $ctrl.input = $ctrl.ngModel.$viewValue;
       };
 
-      initialValues = EnvironmentResource.query({ q: rsqlQuery().where('deprecated').eq(false).end() }).$promise.then(function (page) {
+      activeInitialValues = EnvironmentResource.query({
+        q: rsqlQuery().where('deprecated').eq(false).end(),
+        sort: '=asc=description'
+      }).$promise.then(function (page) {
+        return page.data;
+      });
+
+      allInitialValues = EnvironmentResource.query({
+        q: rsqlQuery().end(),
+        sort: '=asc=description'
+      }).$promise.then(function (page) {
         return page.data;
       });
     };
@@ -118,14 +128,9 @@
 
         // If the checkbox is not selected
         if (!$ctrl.showDeprecated) {
-          return initialValues;
+          return activeInitialValues;
         } else {
-          return EnvironmentResource.query({
-            q: rsqlQuery().end(),
-            sort: '=asc=description'
-          }).$promise.then(function (page) {
-            return page.data;
-          });
+          return allInitialValues;
         }
       }
 
