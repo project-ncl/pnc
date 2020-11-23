@@ -137,7 +137,7 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
     public VertxWebSocketClient(
             int upperLimitForRetry,
             int initialDelay,
-            int delayMultiplier,
+            float delayMultiplier,
             int pingDelays,
             int maxUnresponsivenessTime) {
         this.delayMultiplier = delayMultiplier;
