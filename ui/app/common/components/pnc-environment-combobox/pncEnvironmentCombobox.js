@@ -77,14 +77,16 @@
       };
 
       activeInitialValues = EnvironmentResource.query({
-        q: rsqlQuery().where('deprecated').eq(false).end(),
+        pageSize: 200,
+        q: rsqlQuery().where('hidden').eq(false).and().where('deprecated').eq(false).end(),
         sort: '=asc=description'
       }).$promise.then(function (page) {
         return page.data;
       });
 
       allInitialValues = EnvironmentResource.query({
-        q: rsqlQuery().end(),
+        pageSize: 200,
+        q: rsqlQuery().where('hidden').eq(false).end(),
         sort: '=asc=description'
       }).$promise.then(function (page) {
         return page.data;
@@ -111,12 +113,13 @@
       let q;
 
       if ($ctrl.showDeprecated) {
-        q = rsqlQuery().where('name').like('*' + $viewValue + '*').end();
+        q = rsqlQuery().where('hidden').eq(false).and().where('name').like('*' + $viewValue + '*').end();
       } else {
-        q = rsqlQuery().where('deprecated').eq(false).and().where('name').like('*' + $viewValue + '*').end();
+        q = rsqlQuery().where('hidden').eq(false).and().where('deprecated').eq(false).and().where('name').like('*' + $viewValue + '*').end();
       }
 
       return EnvironmentResource.query({
+        pageSize: 200,
         q: q,
         sort: '=asc=description'
       }).$promise.then(function (page) {
@@ -127,11 +130,11 @@
     function search($viewValue) {
       if (utils.isEmpty($viewValue)) {
 
-        // If the checkbox is not selected
-        if (!$ctrl.showDeprecated) {
-          return activeInitialValues;
-        } else {
+        // If the checkbox is selected
+        if ($ctrl.showDeprecated) {
           return allInitialValues;
+        } else {
+          return activeInitialValues;
         }
       }
 
