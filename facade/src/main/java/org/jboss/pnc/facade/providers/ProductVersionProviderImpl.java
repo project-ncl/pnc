@@ -24,11 +24,14 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 
@@ -49,25 +52,31 @@ public class ProductVersionProviderImpl extends
         implements ProductVersionProvider {
 
     private ProductRepository productRepository;
+    private ProductMilestoneRepository milestoneRepository;
     private BuildConfigurationSetRepository groupConfigRepository;
     private SystemConfig systemConfig;
     private BuildConfigurationRepository buildConfigurationRepository;
+    private ProductMilestoneMapper milestoneMapper;
 
     @Inject
     public ProductVersionProviderImpl(
             ProductVersionRepository repository,
             ProductVersionMapper mapper,
+            ProductMilestoneMapper milestoneMapper,
             ProductRepository productRepository,
+            ProductMilestoneRepository milestoneRepository,
             BuildConfigurationSetRepository groupConfigRepository,
             BuildConfigurationRepository buildConfigurationRepository,
             SystemConfig systemConfig) {
 
         super(repository, mapper, org.jboss.pnc.model.ProductVersion.class);
 
+        this.milestoneMapper = milestoneMapper;
         this.productRepository = productRepository;
         this.groupConfigRepository = groupConfigRepository;
         this.systemConfig = systemConfig;
         this.buildConfigurationRepository = buildConfigurationRepository;
+        this.milestoneRepository = milestoneRepository;
     }
 
     @Override
@@ -124,6 +133,7 @@ public class ProductVersionProviderImpl extends
 
         validateVersionChange(id, restEntity);
         validateGroupConfigsBeforeUpdating(id, restEntity);
+        validateMilestone(id, restEntity);
     }
 
     private void validateVersionChange(String id, ProductVersion restEntity) throws InvalidEntityException {
@@ -153,6 +163,24 @@ public class ProductVersionProviderImpl extends
                             "Group config with id: " + groupConfigId + " already belongs to different product version.",
                             org.jboss.pnc.model.ProductVersion.class,
                             set.getProductVersion().getId().toString());
+                }
+            }
+        }
+    }
+
+    private void validateMilestone(String id, ProductVersion entity) {
+        if (entity.getCurrentProductMilestone() != null) {
+            Integer newMilestoneId = milestoneMapper.getIdMapper()
+                    .toEntity(entity.getCurrentProductMilestone().getId());
+            org.jboss.pnc.model.ProductVersion productVersion = repository.queryById(mapper.getIdMapper().toEntity(id));
+            ProductMilestone currentMilestone = productVersion.getCurrentProductMilestone();
+            if (currentMilestone == null || currentMilestone.getId() != newMilestoneId) {
+                ProductMilestone newMilestone = milestoneRepository.queryById(newMilestoneId);
+                if (newMilestone == null) {
+                    throw new InvalidEntityException("Milestone with id: " + newMilestoneId + " does not exist.");
+                } else if (newMilestone.getEndDate() != null) {
+                    throw new InvalidEntityException(
+                            "Milestone with id: " + newMilestoneId + " is closed, so cannot be set as current.");
                 }
             }
         }

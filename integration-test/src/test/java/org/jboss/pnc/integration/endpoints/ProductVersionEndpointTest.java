@@ -35,6 +35,7 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
+import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
@@ -164,7 +165,7 @@ public class ProductVersionEndpointTest {
 
         RemoteCollection<ProductMilestone> all = client.getMilestones(productVersionsId);
 
-        assertThat(all).hasSize(3).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
+        assertThat(all).hasSize(4).allMatch(v -> v.getProductVersion().getId().equals(productVersionsId));
     }
 
     @Test
@@ -334,6 +335,31 @@ public class ProductVersionEndpointTest {
 
         // then
         assertThatThrownBy(() -> client.update(productVersion.getId(), toUpdate)).isInstanceOf(ClientException.class);
+    }
+
+    @Test
+    public void shouldNotUpdateCurrentToClosedMilestone() throws ClientException {
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asUser());
+        ProductVersion productVersion = client.getSpecific(productVersionsId);
+
+        Map<String, ProductMilestoneRef> milestones = productVersion.getProductMilestones();
+        ProductMilestoneRef closedMilestoneRef = null;
+        for (ProductMilestoneRef milestone : milestones.values()) {
+            if (milestone.getVersion().equals("1.0.0.Build4")) {
+                closedMilestoneRef = milestone;
+                break;
+            }
+        }
+
+        assertThat(closedMilestoneRef.getEndDate()).isNotNull();
+
+        ProductVersion updatedWithClosedMilestone = productVersion.toBuilder()
+                .currentProductMilestone(closedMilestoneRef)
+                .build();
+
+        assertThatThrownBy(() -> client.update(productVersionsId, updatedWithClosedMilestone))
+                .isInstanceOf(ClientException.class);
+
     }
 
     @Test
