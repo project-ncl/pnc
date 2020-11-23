@@ -107,6 +107,8 @@ public class DatabaseDataInitializer {
 
     public static final String PNC_PRODUCT_MILESTONE3 = "1.0.0.Build3";
 
+    public static final String PNC_PRODUCT_MILESTONE4 = "1.0.0.Build4";
+
     public static final String PNC_PROJECT_1_NAME = "Project Newcastle Demo Project 1";
 
     public static final String PNC_PROJECT_BUILD_CFG_ID = "pnc-1.0.0.DR1";
@@ -329,6 +331,15 @@ public class DatabaseDataInitializer {
                 .productVersion(productVersion1)
                 .build();
         demoProductMilestone3 = productMilestoneRepository.save(demoProductMilestone3);
+
+        ProductMilestone demoProductMilestone4 = ProductMilestone.Builder.newBuilder()
+                .version(PNC_PRODUCT_MILESTONE4)
+                .startingDate(TODAY)
+                .plannedEndDate(ONE_WEEK_AFTER_TODAY)
+                .endDate(ONE_WEEK_AFTER_TODAY)
+                .productVersion(productVersion1)
+                .build();
+        demoProductMilestone4 = productMilestoneRepository.save(demoProductMilestone4);
 
         ProductMilestoneRelease milestoneRelease1 = new ProductMilestoneRelease();
         milestoneRelease1.setId(Sequence.nextId());

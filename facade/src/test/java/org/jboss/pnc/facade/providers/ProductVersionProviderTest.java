@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers;
 import org.assertj.core.api.Condition;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.constants.Attributes;
+import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -29,6 +30,7 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -46,6 +48,7 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -55,6 +58,9 @@ public class ProductVersionProviderTest extends AbstractIntIdProviderTest<Produc
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private ProductMilestoneRepository milestoneRepository;
 
     @Mock
     private BuildConfigurationSetRepository configurationSetRepository;
@@ -184,6 +190,25 @@ public class ProductVersionProviderTest extends AbstractIntIdProviderTest<Produc
         String newVersion = "19.0";
         org.jboss.pnc.dto.ProductVersion withClosedMilestone = provider.getSpecific("2");
         org.jboss.pnc.dto.ProductVersion updated = withClosedMilestone.toBuilder().version(newVersion).build();
+
+        assertThatThrownBy(() -> provider.update(withClosedMilestone.getId(), updated))
+                .isInstanceOf(InvalidEntityException.class);
+    }
+
+    @Test
+    public void testShouldThrowWhenCurrentMilestoneIsClosed() {
+        String newVersion = "19.0";
+        org.jboss.pnc.dto.ProductVersion withClosedMilestone = provider.getSpecific("2");
+        ProductMilestoneRef closedMilestone = withClosedMilestone.getProductMilestones().values().iterator().next();
+        org.jboss.pnc.dto.ProductVersion updated = withClosedMilestone.toBuilder()
+                .currentProductMilestone(closedMilestone)
+                .build();
+
+        ProductMilestone closedReturn = new ProductMilestone();
+        closedReturn.setId(Integer.parseInt(closedMilestone.getId()));
+        closedReturn.setEndDate(new Date());
+
+        when(milestoneRepository.queryById(anyInt())).thenReturn(closedReturn);
 
         assertThatThrownBy(() -> provider.update(withClosedMilestone.getId(), updated))
                 .isInstanceOf(InvalidEntityException.class);
