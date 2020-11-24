@@ -45,6 +45,7 @@
 
     $ctrl.search = search;
     $ctrl.showDeprecated = false;
+    $ctrl.forceUpdateOptions = forceUpdateOptions;
 
     // --------------------
 
@@ -139,6 +140,12 @@
       }
 
       return doSearch($viewValue);
+    }
+
+    function forceUpdateOptions($viewValue) {
+      angular.element($element[0].querySelector('px-combobox'))
+             .controller('pxCombobox')
+             .loadOptions($viewValue);
     }
   }
 })();
