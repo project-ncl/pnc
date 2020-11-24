@@ -34,6 +34,6 @@
              option-template-url="pnc-environment-combobox-options-template.html">
 </px-combobox>
 <label>Show deprecated:
-  <input type="checkbox" ng-model="$ctrl.showDeprecated">
+  <input type="checkbox" ng-model="$ctrl.showDeprecated" ng-change="$ctrl.forceUpdateOptions($ctrl.input.description)">
 </label>
 <p class="text-warning" ng-show="$ctrl.input.deprecated">WARNING: The selected build environment is deprecated</p>

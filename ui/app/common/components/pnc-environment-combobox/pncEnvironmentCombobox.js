@@ -38,12 +38,14 @@
 
   function Controller($log, $scope, $element, EnvironmentResource, utils, rsqlQuery, $timeout) {
     var $ctrl = this,
-        initialValues;
+        activeInitialValues,
+        allInitialValues;
 
     // -- Controller API --
 
     $ctrl.search = search;
     $ctrl.showDeprecated = false;
+    $ctrl.forceUpdateOptions = forceUpdateOptions;
 
     // --------------------
 
@@ -75,7 +77,19 @@
         $ctrl.input = $ctrl.ngModel.$viewValue;
       };
 
-      initialValues = EnvironmentResource.query({ pageSize: 20, q: rsqlQuery().where('deprecated').eq(false).end() }).$promise.then(function (page) {
+      activeInitialValues = EnvironmentResource.query({
+        pageSize: 200,
+        q: rsqlQuery().where('hidden').eq(false).and().where('deprecated').eq(false).end(),
+        sort: '=asc=description'
+      }).$promise.then(function (page) {
+        return page.data;
+      });
+
+      allInitialValues = EnvironmentResource.query({
+        pageSize: 200,
+        q: rsqlQuery().where('hidden').eq(false).end(),
+        sort: '=asc=description'
+      }).$promise.then(function (page) {
         return page.data;
       });
     };
@@ -100,12 +114,13 @@
       let q;
 
       if ($ctrl.showDeprecated) {
-        q = rsqlQuery().where('name').like('*' + $viewValue + '*').end();
+        q = rsqlQuery().where('hidden').eq(false).and().where('name').like('*' + $viewValue + '*').end();
       } else {
-        q = rsqlQuery().where('deprecated').eq(false).and().where('name').like('*' + $viewValue + '*').end();
+        q = rsqlQuery().where('hidden').eq(false).and().where('deprecated').eq(false).and().where('name').like('*' + $viewValue + '*').end();
       }
 
       return EnvironmentResource.query({
+        pageSize: 200,
         q: q,
         sort: '=asc=description'
       }).$promise.then(function (page) {
@@ -115,10 +130,21 @@
 
     function search($viewValue) {
       if (utils.isEmpty($viewValue)) {
-        return initialValues;
+        // If the checkbox is selected
+        if ($ctrl.showDeprecated) {
+          return allInitialValues;
+        } else {
+          return activeInitialValues;
+        }
       }
 
       return doSearch($viewValue);
+    }
+
+    function forceUpdateOptions($viewValue) {
+      angular.element($element[0].querySelector('px-combobox'))
+             .controller('pxCombobox')
+             .loadOptions($viewValue);
     }
   }
 })();
