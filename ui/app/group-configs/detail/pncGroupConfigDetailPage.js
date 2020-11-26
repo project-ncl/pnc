@@ -42,8 +42,6 @@
     $ctrl.update = update;
     $ctrl.refresh = refresh;
     $ctrl.delete = deleteGroupConfig;
-    $ctrl.linkWithProductVersion = linkWithProductVersion;
-    $ctrl.unlinkFromProductVersion = unlinkFromProductVersion;
 
     // --------------------
 
@@ -60,12 +58,15 @@
     }
 
     function update(data) {
-      return GroupConfigResource.safePatch($ctrl.groupConfig, {'name': data.name, 'productVersion': { 'id': $ctrl.formModel.productVersion.id}})
-          .$promise
-          .catch(
-            // String retval signals to x-editable lib that the request failed and to rollback the changes in the view.
-            error => error.data.errorMessage
-          );
+      return GroupConfigResource.safePatch(
+        $ctrl.groupConfig,
+        { 'name': data.name, 'productVersion': $ctrl.formModel.productVersion ? { 'id': $ctrl.formModel.productVersion.id } : null }
+      )
+        .$promise
+        .catch(
+          // String retval signals to x-editable lib that the request failed and to rollback the changes in the view.
+          error => error.data.errorMessage
+        );
     }
 
     function refresh() {
@@ -78,23 +79,6 @@
           .then(() => $state.go('group-configs.list'));
     }
 
-    function linkWithProductVersion() {
-
-      modalSelectService.openForProductVersion({
-        title: 'Link ' + $ctrl.groupConfig.name + ' with a product version'
-      })
-          .result
-          .then(productVersion => {
-              GroupConfigResource
-                  .linkWithProductVersion($ctrl.groupConfig, productVersion)
-                  .then(patchedGroupConfig => resetState(patchedGroupConfig, productVersion));
-      });
-    }
-
-    function unlinkFromProductVersion() {
-      GroupConfigResource.unlinkFromProductVersion($ctrl.groupConfig)
-          .then(patchedGroupConfig => resetState(patchedGroupConfig, null));
-    }
   }
 
 })();
