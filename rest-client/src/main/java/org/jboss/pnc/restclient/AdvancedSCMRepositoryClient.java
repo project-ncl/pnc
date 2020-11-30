@@ -33,7 +33,15 @@ import java.util.concurrent.CompletableFuture;
 import static org.jboss.pnc.restclient.websocket.predicates.SCMRepositoryNotificationPredicates.withFailedTaskId;
 import static org.jboss.pnc.restclient.websocket.predicates.SCMRepositoryNotificationPredicates.withSuccessTaskId;
 
+/**
+ * AdvancedSCMRepositoryClient that provides additional features to wait for a SCM repository to finish creating.
+ *
+ * It is necessary to use the class inside a try-with-resources statement to properly cleanup the websocket client.
+ * Otherwise the program using this class may hang indefinitely.
+ */
 public class AdvancedSCMRepositoryClient extends SCMRepositoryClient implements AutoCloseable {
+
+    private final WebSocketClient webSocketClient = new VertxWebSocketClient();
 
     public AdvancedSCMRepositoryClient(Configuration configuration) {
         super(configuration);
@@ -79,8 +87,9 @@ public class AdvancedSCMRepositoryClient extends SCMRepositoryClient implements 
             }
         }
 
+        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
+
         // if bpm task called, listen to either creation or failure events
-        WebSocketClient webSocketClient = createWebSocketClient();
         return CompletableFuture
                 .anyOf(
                         waitForScmCreationFailure(webSocketClient, response.getTaskId().toString()),
@@ -93,14 +102,7 @@ public class AdvancedSCMRepositoryClient extends SCMRepositoryClient implements 
                     } else {
                         return new SCMCreationResult(false, null, null);
                     }
-                })
-                .whenCompleteAsync((x, y) -> webSocketClient.disconnect());
-    }
-
-    private WebSocketClient createWebSocketClient() {
-        WebSocketClient webSocketClient = new VertxWebSocketClient();
-        webSocketClient.connect("ws://" + configuration.getHost() + BASE_PATH + "/notifications").join();
-        return webSocketClient;
+                });
     }
 
     /**
@@ -138,6 +140,18 @@ public class AdvancedSCMRepositoryClient extends SCMRepositoryClient implements 
         public String toString() {
             return "SCMCreationResult{" + "success=" + success + ", scmRepositoryCreationSuccess="
                     + scmRepositoryCreationSuccess + ", repositoryCreationFailure=" + repositoryCreationFailure + '}';
+        }
+    }
+
+    @Override
+    public void close() {
+        if (webSocketClient != null) {
+            try {
+                super.close();
+                webSocketClient.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Couldn't close websocket", e);
+            }
         }
     }
 }
