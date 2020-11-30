@@ -49,14 +49,6 @@
       $ctrl.formModel = $ctrl.groupConfig.toJSON();
     };
 
-
-    function resetState(groupConfig, productVersion) {
-      $log.debug('pncGroupConfigDetailPage::resetState [groupConfig: %O | productVersion: %O]', groupConfig, productVersion);
-      $ctrl.groupConfig = groupConfig;
-      $ctrl.productVersion = productVersion;
-      $ctrl.formModel = groupConfig.toJSON();
-    }
-
     function update(data) {
       return GroupConfigResource.safePatch(
         $ctrl.groupConfig,
