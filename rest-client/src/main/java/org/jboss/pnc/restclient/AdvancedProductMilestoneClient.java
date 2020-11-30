@@ -34,6 +34,12 @@ import java.util.concurrent.CompletableFuture;
 import static org.jboss.pnc.restclient.websocket.predicates.ProductMilestoneCloseResultNotificationPredicates.isFinished;
 import static org.jboss.pnc.restclient.websocket.predicates.ProductMilestoneCloseResultNotificationPredicates.withMilestoneId;
 
+/**
+ * AdvancedProductMilestoneClient that provides additional features to wait for a ProductMilestone to finish closing.
+ * 
+ * It is necessary to use the class inside a try-with-resources statement to properly cleanup the websocket client.
+ * Otherwise the program using this class may hang indefinitely.
+ */
 public class AdvancedProductMilestoneClient extends ProductMilestoneClient implements AutoCloseable {
 
     private WebSocketClient webSocketClient = new VertxWebSocketClient();
@@ -49,8 +55,7 @@ public class AdvancedProductMilestoneClient extends ProductMilestoneClient imple
                         () -> fallbackSupplier(milestoneId),
                         withMilestoneId(milestoneId),
                         isFinished())
-                .thenApply(ProductMilestoneCloseResultNotification::getProductMilestoneCloseResult)
-                .whenComplete((x, y) -> webSocketClient.disconnect());
+                .thenApply(ProductMilestoneCloseResultNotification::getProductMilestoneCloseResult);
     }
 
     /**

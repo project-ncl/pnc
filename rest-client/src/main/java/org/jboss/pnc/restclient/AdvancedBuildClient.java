@@ -57,8 +57,7 @@ public class AdvancedBuildClient extends BuildClient implements AutoCloseable {
 
         return webSocketClient
                 .catchBuildPushResult(() -> fallbackSupplier(buildId), withBuildId(buildId), withPushCompleted())
-                .thenApply(BuildPushResultNotification::getBuildPushResult)
-                .whenComplete((x, y) -> webSocketClient.disconnect());
+                .thenApply(BuildPushResultNotification::getBuildPushResult);
     }
 
     /**
