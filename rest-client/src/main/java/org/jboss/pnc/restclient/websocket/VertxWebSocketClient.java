@@ -28,6 +28,11 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.Build;
@@ -62,7 +67,21 @@ public class VertxWebSocketClient implements WebSocketClient, AutoCloseable {
 
     private static final Logger log = LoggerFactory.getLogger(VertxWebSocketClient.class);
 
-    private static final ObjectMapper objectMapper = JsonOutputConverterMapper.getMapper();
+    private static final ObjectMapper objectMapper = getObjectMapper();
+
+    /**
+     * Almost identical version of {@link JsonOutputConverterMapper} but without constant error messages on missing
+     * openshift class
+     * 
+     * @return JSON mapper
+     */
+    private static ObjectMapper getObjectMapper() {
+        return new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .registerModule(new Jdk8Module())
+                .registerModule(new JavaTimeModule())
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS);
+    }
 
     private Vertx vertx;
 
