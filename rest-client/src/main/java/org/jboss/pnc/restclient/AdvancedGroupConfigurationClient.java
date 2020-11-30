@@ -40,10 +40,10 @@ import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
 /**
- * AdvancedGroupConfigurationClient that provides additional features to wait for a group build to finish
+ * AdvancedGroupConfigurationClient that provides additional features to wait for a group build to finish.
  *
- * It is highly recommended to use the class inside a try-with-resources statement to properly cleanup the websocket
- * client. Otherwise the program using this class may hang indefinitely
+ * It is necessary to use the class inside a try-with-resources statement to properly cleanup the websocket client.
+ * Otherwise the program using this class may hang indefinitely.
  */
 public class AdvancedGroupConfigurationClient extends GroupConfigurationClient implements AutoCloseable {
 
@@ -61,8 +61,7 @@ public class AdvancedGroupConfigurationClient extends GroupConfigurationClient i
                         () -> fallbackSupplier(groupConfigId),
                         withGConfigId(groupConfigId),
                         withGBuildCompleted())
-                .thenApply(GroupBuildChangedNotification::getGroupBuild)
-                .whenCompleteAsync((x, y) -> webSocketClient.disconnect());
+                .thenApply(GroupBuildChangedNotification::getGroupBuild);
     }
 
     /**

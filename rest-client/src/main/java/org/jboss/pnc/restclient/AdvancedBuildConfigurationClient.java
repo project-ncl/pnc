@@ -39,8 +39,8 @@ import org.jboss.pnc.restclient.websocket.WebSocketClient;
 /**
  * AdvancedBuildConfigurationClient that provides additional features to wait for a build to finish.
  *
- * It is highly recommended to use the class inside a try-with-resources statement to properly cleanup the websocket
- * client. Otherwise the program using this class may hang indefinitely
+ * It is necessary to use the class inside a try-with-resources statement to properly cleanup the websocket client.
+ * Otherwise the program using this class may hang indefinitely.
  */
 public class AdvancedBuildConfigurationClient extends BuildConfigurationClient implements AutoCloseable {
 
@@ -58,8 +58,7 @@ public class AdvancedBuildConfigurationClient extends BuildConfigurationClient i
                         () -> fallbackSupplier(buildConfigId),
                         withBuildConfiguration(buildConfigId),
                         withBuildCompleted())
-                .thenApply(BuildChangedNotification::getBuild)
-                .whenComplete((x, y) -> webSocketClient.disconnect());
+                .thenApply(BuildChangedNotification::getBuild);
     }
 
     /**
@@ -125,7 +124,6 @@ public class AdvancedBuildConfigurationClient extends BuildConfigurationClient i
      */
     @Override
     public void close() {
-        super.close();
         if (webSocketClient != null) {
             try {
                 super.close();
