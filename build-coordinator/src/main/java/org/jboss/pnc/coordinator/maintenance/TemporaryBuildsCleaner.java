@@ -34,6 +34,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -81,15 +82,28 @@ public class TemporaryBuildsCleaner {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Result deleteTemporaryBuild(Integer buildRecordId, String authToken) throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
-
         if (buildRecord == null) {
             throw new ValidationException(
                     "Cannot delete temporary build with id " + buildRecordId + " as no build with this id exists");
         }
+        return deleteTemporaryBuild(buildRecord, authToken);
+    }
+
+    private Result deleteTemporaryBuild(BuildRecord buildRecord, String authToken) throws ValidationException {
+        Integer buildRecordId = buildRecord.getId();
 
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
+
+        // first delete BRs where this build is noRebuildCause
+        List<BuildRecord> noRebuildBRs = buildRecordRepository.getBuildByCausingRecord(buildRecordId);
+        for (BuildRecord noRebuildBR : noRebuildBRs) {
+            log.info("Deleting build " + noRebuildBR.getId() + " which has noRebuildCause " + buildRecordId + ".");
+            deleteTemporaryBuild(noRebuildBR.getId(), authToken);
+        }
+
+        // delete the build itself
         log.info(
                 "Starting deletion of a temporary build " + buildRecord + "; Built artifacts: "
                         + buildRecord.getBuiltArtifacts() + "; Dependencies: " + buildRecord.getDependencies());
@@ -103,20 +117,11 @@ public class TemporaryBuildsCleaner {
                     "Failed to delete remote temporary builds.");
         }
 
-        removeRebuildCauseRelationship(buildRecord);
         removeBuiltArtifacts(buildRecord);
 
         buildRecordRepository.delete(buildRecord.getId());
         log.info("Deletion of the temporary build {} finished successfully.", buildRecord);
         return new Result(buildRecordId.toString(), ResultStatus.SUCCESS);
-    }
-
-    private void removeRebuildCauseRelationship(BuildRecord buildRecord) {
-        List<BuildRecord> buildByCausingRecord = buildRecordRepository.getBuildByCausingRecord(buildRecord.getId());
-        for (BuildRecord record : buildByCausingRecord) {
-            record.setNoRebuildCause(null);
-            buildRecordRepository.save(record);
-        }
     }
 
     private void deleteArtifact(Artifact artifact) {
@@ -132,7 +137,7 @@ public class TemporaryBuildsCleaner {
 
     /**
      * Deletes a BuildConfigSetRecord and BuildRecords produced in the build
-     * 
+     *
      * @param buildConfigSetRecordId BuildConfigSetRecord to be deleted
      * @param authToken
      */
