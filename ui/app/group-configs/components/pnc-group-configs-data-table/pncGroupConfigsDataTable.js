@@ -75,7 +75,10 @@
         })
         .result
         .then(res => $ctrl.onEdit()(res))
-        .then(() => $ctrl.filterPage.refresh())
+        .then(res => {
+          $ctrl.page.data = Object.values(res.groupConfigs);
+          $ctrl.filterPage.refresh();
+        })
         .catch(() => {});
       });
     }
