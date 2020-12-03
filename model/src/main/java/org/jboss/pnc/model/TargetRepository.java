@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -243,6 +244,7 @@ public class TargetRepository implements GenericEntity<Integer> {
         private Set<Artifact> artifacts;
 
         private Builder() {
+            artifacts = new HashSet<>();
         }
 
         public Builder id(Integer val) {
