@@ -53,6 +53,10 @@ public enum ArtifactQuality {
      * The artifact is built as temporary and it is planned to remove it later. The artifact cannot be used for product
      * releases.
      */
-    TEMPORARY
+    TEMPORARY,
+    /**
+     * The artifact was not built inhouse and was imported from outside world.
+     */
+    IMPORTED
 
 }

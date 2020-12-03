@@ -30,6 +30,8 @@ import javax.persistence.criteria.Join;
 import java.util.Optional;
 import java.util.Set;
 
+import org.jboss.pnc.model.TargetRepository_;
+
 /**
  * Predicates for {@link org.jboss.pnc.model.Artifact} entity.
  */
@@ -51,6 +53,11 @@ public class ArtifactPredicates {
             Join<Artifact, ProductMilestone> productMilestones = root.join(Artifact_.distributedInProductMilestones);
             return cb.equal(productMilestones.get(ProductMilestone_.id), productMilestoneId);
         };
+    }
+
+    public static Predicate<Artifact> withTargetRepositoryId(Integer targetRepositoryId) {
+        return (root, query, cb) -> cb
+                .equal(root.join(Artifact_.targetRepository).get(TargetRepository_.id), targetRepositoryId);
     }
 
     /**
