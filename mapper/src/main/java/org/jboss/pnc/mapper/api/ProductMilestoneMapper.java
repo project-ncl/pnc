@@ -34,7 +34,7 @@ import org.mapstruct.MappingTarget;
  */
 @Mapper(
         config = MapperCentralConfig.class,
-        uses = { RefToReferenceMapper.class, ProductVersionMapper.class, ProductReleaseMapper.class })
+        uses = { RefToReferenceMapper.class, ProductVersionMapper.class, ProductReleaseMapper.class, UserMapper.class })
 public interface ProductMilestoneMapper extends
         UpdatableEntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
 
