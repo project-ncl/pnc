@@ -139,6 +139,10 @@ public class ProductMilestone implements GenericEntity<Integer> {
                             columnList = "product_milestone_id") })
     private Set<Artifact> distributedArtifacts;
 
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_distributed_artifacts_importer_user"), updatable = false)
+    private User distributedArtifactsImporter;
+
     public ProductMilestone() {
         performedBuilds = new HashSet<>();
         distributedArtifacts = new HashSet<>();
@@ -243,6 +247,14 @@ public class ProductMilestone implements GenericEntity<Integer> {
         return this.distributedArtifacts.remove(distributedArtifact);
     }
 
+    public User getDistributedArtifactsImporter() {
+        return distributedArtifactsImporter;
+    }
+
+    public void setDistributedArtifactsImporter(User distributedArtifactsImporter) {
+        this.distributedArtifactsImporter = distributedArtifactsImporter;
+    }
+
     /**
      * If this milestone was promoted to a release, this field will be set. Will be null if the milestone was not
      * relesed.
@@ -305,6 +317,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private ProductRelease productRelease;
 
+        private User distributedArtifactsImporter;
+
         private Builder() {
             performedBuilds = new HashSet<>();
             distributedArtifacts = new HashSet<>();
@@ -334,6 +348,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
                 productRelease.setProductMilestone(productMilestone);
                 productMilestone.setProductRelease(productRelease);
             }
+
+            productMilestone.setDistributedArtifactsImporter(distributedArtifactsImporter);
 
             return productMilestone;
         }
@@ -403,6 +419,11 @@ public class ProductMilestone implements GenericEntity<Integer> {
                 return productVersion.getProduct().getName();
             }
             return "";
+        }
+
+        public Builder distributedArtifactsImporter(User distributedArtifactsImporter) {
+            this.distributedArtifactsImporter = distributedArtifactsImporter;
+            return this;
         }
     }
 }

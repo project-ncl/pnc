@@ -284,6 +284,7 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
                 productReleaseMapper,
                 ProductMilestoneMapperImpl.class);
         injectMethod("refToReferenceMapper", productMilestoneMapper, refMapper, ProductMilestoneMapperImpl.class);
+        injectMethod("userMapper", productMilestoneMapper, userMapper, ProductMilestoneMapperImpl.class);
         injectMethod("productMilestoneMapper", refMapper, productMilestoneMapper, RefToReferenceMapper.class);
 
         injectMethod("mapSetMapper", groupConfigurationMapper, mapSetMapper, GroupConfigurationMapperImpl.class);

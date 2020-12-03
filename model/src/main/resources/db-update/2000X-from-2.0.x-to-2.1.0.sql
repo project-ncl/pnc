@@ -24,3 +24,9 @@ UPDATE buildconfiguration SET brewPullActive=false;
 ALTER TABLE buildconfiguration_aud ADD COLUMN brewpullactive boolean;
 UPDATE buildconfiguration SET brewPullActive=false;
 
+BEGIN transaction;
+    ALTER TABLE ProductMilestone ADD COLUMN distributedArtifactsImporter_id integer;
+
+    ALTER TABLE ProductMilestone ADD CONSTRAINT fk_distributed_artifacts_importer_user
+    FOREIGN KEY (distributedArtifactsImporter_id) REFERENCES usertable(id);
+COMMIT;
