@@ -15,31 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.enums;
+package org.jboss.pnc.constants;
 
 /**
- * Types of artifact repositories.
+ *
+ * @author jbrazdil
  */
-public enum RepositoryType {
-    /**
-     * Maven artifact repository such as Maven central (http://central.maven.org/maven2/).
-     */
-    MAVEN,
-    /**
-     * Node.js package repository such as https://registry.npmjs.org/.
-     */
-    NPM,
-    /**
-     * CocoaPod repository for managing Swift and Objective-C Cocoa dependencies.
-     */
-    COCOA_POD,
-    /**
-     * Generic HTTP proxy that captures artifacts with an unsupported, or no specific, repository type.
-     */
-    GENERIC_PROXY,
-    /**
-     * Artifacts which are not found in other repositories but are present in a distribution archive.
-     */
-    DISTRIBUTION_ARCHIVE
+public class ReposiotryIdentifier {
 
+    public static final String INDY_MAVEN = "indy-maven";
+
+    public static final String INDY_NPM = "indy-npm";
+
+    public static final String DISTRIBUTION_ARCHIVE = "distribution-archive";
 }

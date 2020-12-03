@@ -21,6 +21,7 @@ import com.google.common.base.Preconditions;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
@@ -545,14 +546,14 @@ public class DatabaseDataInitializer {
         TargetRepository targetRepository = TargetRepository.newBuilder()
                 .repositoryType(RepositoryType.MAVEN)
                 .repositoryPath("builds-untested")
-                .identifier("indy-maven")
+                .identifier(ReposiotryIdentifier.INDY_MAVEN)
                 .temporaryRepo(false)
                 .build();
 
         TargetRepository targetRepository2 = TargetRepository.newBuilder()
                 .repositoryType(RepositoryType.NPM)
                 .repositoryPath("builds-tested")
-                .identifier("indy-npm")
+                .identifier(ReposiotryIdentifier.INDY_NPM)
                 .temporaryRepo(true)
                 .build();
 
