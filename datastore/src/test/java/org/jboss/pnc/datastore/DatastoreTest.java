@@ -58,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,6 +67,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.jboss.pnc.constants.ReposiotryIdentifier;
 
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
@@ -204,7 +206,7 @@ public class DatastoreTest {
         TargetRepository targetRepository = TargetRepository.newBuilder()
                 .repositoryType(RepositoryType.MAVEN)
                 .repositoryPath("builds-untested")
-                .identifier("indy-maven")
+                .identifier(ReposiotryIdentifier.INDY_MAVEN)
                 .temporaryRepo(false)
                 .build();
         targetRepository = targetRepositoryRepository.save(targetRepository);
@@ -277,13 +279,13 @@ public class DatastoreTest {
         TargetRepository targetRepository = TargetRepository.newBuilder()
                 .repositoryType(RepositoryType.MAVEN)
                 .repositoryPath(buildsUntestedRepoPath)
-                .identifier("indy-maven")
+                .identifier(ReposiotryIdentifier.INDY_MAVEN)
                 .temporaryRepo(false)
                 .build();
         TargetRepository targetRepositorySharedImports = TargetRepository.newBuilder()
                 .repositoryType(RepositoryType.MAVEN)
                 .repositoryPath("shared-imports")
-                .identifier("indy-maven")
+                .identifier(ReposiotryIdentifier.INDY_MAVEN)
                 .temporaryRepo(false)
                 .build();
 
@@ -291,7 +293,7 @@ public class DatastoreTest {
         TargetRepository targetRepositoryTmp = TargetRepository.newBuilder()
                 .repositoryType(RepositoryType.MAVEN)
                 .repositoryPath("temp-" + now)
-                .identifier("indy-maven")
+                .identifier(ReposiotryIdentifier.INDY_MAVEN)
                 .temporaryRepo(true)
                 .build();
 

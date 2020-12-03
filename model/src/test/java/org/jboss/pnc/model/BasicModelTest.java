@@ -34,6 +34,8 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
+import org.jboss.pnc.constants.ReposiotryIdentifier;
+
 public class BasicModelTest extends AbstractModelTest {
 
     /** located in src/test/resources */
@@ -168,7 +170,7 @@ public class BasicModelTest extends AbstractModelTest {
     private TargetRepository getTargetRepository(String path) {
         return TargetRepository.newBuilder()
                 .temporaryRepo(false)
-                .identifier("indy-maven")
+                .identifier(ReposiotryIdentifier.INDY_MAVEN)
                 .repositoryPath(path)
                 .repositoryType(RepositoryType.MAVEN)
                 .build();

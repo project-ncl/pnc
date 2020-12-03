@@ -73,6 +73,7 @@ import java.util.concurrent.TimeUnit;
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
+import org.jboss.pnc.constants.ReposiotryIdentifier;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
 
 /**
@@ -552,10 +553,10 @@ public class IndyRepositorySession implements RepositorySession {
         String identifier;
         if (repoType == RepositoryType.MAVEN) {
             storeKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildPromotionTarget);
-            identifier = "indy-maven";
+            identifier = ReposiotryIdentifier.INDY_MAVEN;
         } else if (repoType == RepositoryType.NPM) {
             storeKey = new StoreKey(NPM_PKG_KEY, StoreType.hosted, buildPromotionTarget);
-            identifier = "indy-npm";
+            identifier = ReposiotryIdentifier.INDY_NPM;
         } else {
             throw new RepositoryManagerException(
                     "Repository type " + repoType + " is not supported for uploads by Indy repo manager driver.");

@@ -24,6 +24,7 @@ import org.jboss.pnc.model.TargetRepository;
 import java.time.Instant;
 import java.util.Date;
 
+import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.RepositoryType;
 
 /**
@@ -64,7 +65,7 @@ public class ArtifactBuilder {
 
     public static TargetRepository mockTargetRepository(String path) {
         return TargetRepository.newBuilder()
-                .identifier("indy-maven")
+                .identifier(ReposiotryIdentifier.INDY_MAVEN)
                 .repositoryPath(path)
                 .repositoryType(RepositoryType.MAVEN)
                 .temporaryRepo(false)
