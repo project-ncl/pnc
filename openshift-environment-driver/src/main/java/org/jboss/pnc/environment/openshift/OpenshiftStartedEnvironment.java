@@ -466,7 +466,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         CompletableFuture<RunningEnvironment> runningEnvironmentFuture = allOfOrException(
                 podFuture,
                 serviceFuture,
-                routeFuture).thenApplyAsync(nul -> isBuildAgentUpFuture)
+                routeFuture).thenComposeAsync(nul -> isBuildAgentUpFuture)
                         .thenApplyAsync(
                                 nul -> RunningEnvironment.createInstance(
                                         pod.getName(),
