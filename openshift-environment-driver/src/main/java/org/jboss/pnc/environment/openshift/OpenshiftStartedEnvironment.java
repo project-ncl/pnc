@@ -413,14 +413,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             Consumer<RunningEnvironment> onComplete,
             Consumer<Exception> onError,
             int retries) {
-        URL buildAgentUrl;
-        try {
-            buildAgentUrl = new URL(getInternalEndpointUrl());
-        } catch (MalformedURLException e) {
-            onError.accept(e);
-            return;
-        }
-
         cancelHook = () -> onComplete.accept(null);
 
         CompletableFuture<Void> podFuture = creatingPod.thenComposeAsync(nul -> {
@@ -462,7 +454,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         });
 
         CancellableCompletableFuture<Void> isBuildAgentUpFuture = pollingMonitor.monitor(
-                () -> isServletAvailable(buildAgentUrl),
+                () -> isInternalServletAvailable(),
                 pollingMonitorCheckInterval,
                 pollingMonitorTimeout,
                 TimeUnit.SECONDS);
@@ -606,10 +598,14 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         runningMonitors.clear();
     }
 
-    private boolean isServletAvailable(URL servletUrl) {
+    private boolean isInternalServletAvailable() {
         try {
+            URL servletUrl = new URL(getInternalEndpointUrl());
+            logger.debug("isInternalServletAvailable with url: {}", servletUrl);
             return connectToPingUrl(servletUrl);
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
+            // Illegal argument exception may be thrown if the URL host is null, which may happen if the service hasn't
+            // been created yet when getInternalEndpointUrl is called
             return false;
         }
     }
@@ -791,6 +787,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private boolean connectToPingUrl(URL url) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setConnectTimeout(500);
+        connection.setReadTimeout(2000);
         connection.setRequestMethod("GET");
         connection.setDoOutput(true);
         connection.setDoInput(true);
