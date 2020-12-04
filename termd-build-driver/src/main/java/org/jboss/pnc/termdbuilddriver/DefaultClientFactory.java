@@ -129,6 +129,8 @@ public class DefaultClientFactory implements ClientFactory {
         DefaultFileTranser defaultFileTranser = new DefaultFileTranser(baseServerUri, maxLogSize);
         fileTransferConnectTimeout.ifPresent(defaultFileTranser::setConnectTimeout);
         fileTransferReadTimeout.ifPresent(defaultFileTranser::setReadTimeout);
+        defaultFileTranser.setHttpRetryMaxAttempts(retryConfig.getMaxRetries());
+        defaultFileTranser.setHttpRetryWaitBeforeRetry(retryConfig.getWaitBeforeRetry());
         return defaultFileTranser;
     }
 

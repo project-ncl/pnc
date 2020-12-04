@@ -34,6 +34,14 @@ import java.util.function.Consumer;
 
 public class DefaultFileTranser implements FileTranser {
 
+    /**
+     * Stupid functional interface to encapsulate upload / download function. Used for the retry method
+     */
+    @FunctionalInterface
+    interface MyRunnable<T> {
+        T run() throws TransferException;
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     public static final String ENCODING = "UTF-8";
@@ -55,6 +63,16 @@ public class DefaultFileTranser implements FileTranser {
      */
     private int readTimeout = 30000;
 
+    /**
+     * Max number of http attempts in case of failure
+     */
+    private int httpRetryMaxAttempts = 10;
+
+    /**
+     * How long to wait between retry attempts
+     */
+    private long httpRetryWaitBeforeRetry = 500L;
+
     public DefaultFileTranser(URI baseServerUri, int maxDownloadSize) {
         this.baseServerUri = baseServerUri;
         this.maxDownloadSize = maxDownloadSize;
@@ -62,6 +80,11 @@ public class DefaultFileTranser implements FileTranser {
 
     @Override
     public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) throws TransferException {
+        return retry(() -> downloadFileToStringBuilderPrivate(logsAggregate, uri), "Download log file");
+    }
+
+    private StringBuffer downloadFileToStringBuilderPrivate(StringBuffer logsAggregate, URI uri)
+            throws TransferException {
         try {
             logger.debug("Downloading file to String Buffer from {}", uri);
 
@@ -113,6 +136,10 @@ public class DefaultFileTranser implements FileTranser {
 
     @Override
     public void uploadScript(String script, Path remoteFilePath) throws TransferException {
+        retry(() -> uploadScriptPrivate(script, remoteFilePath), "Upload script");
+    }
+
+    private Void uploadScriptPrivate(String script, Path remoteFilePath) throws TransferException {
         logger.debug("Uploading build script to remote path {}, build script {}", remoteFilePath, script);
         String scriptPath = UPLOAD_PATH + remoteFilePath.toAbsolutePath().toString();
         logger.debug("Resolving script path {} to base uri {}", scriptPath, baseServerUri);
@@ -140,6 +167,8 @@ public class DefaultFileTranser implements FileTranser {
                                 + " - Returned status code " + connection.getResponseCode());
             }
             logger.debug("Uploaded successfully");
+
+            return null;
         } catch (IOException e) {
             throw new TransferException("Could not upload build script: " + uploadUri.toString(), e);
         }
@@ -151,5 +180,68 @@ public class DefaultFileTranser implements FileTranser {
 
     public void setReadTimeout(int readTimeout) {
         this.readTimeout = readTimeout;
+    }
+
+    public void setHttpRetryMaxAttempts(int httpRetryMaxAttempts) {
+        this.httpRetryMaxAttempts = httpRetryMaxAttempts;
+    }
+
+    public int getHttpRetryMaxAttempts() {
+        return httpRetryMaxAttempts;
+    }
+
+    public void setHttpRetryWaitBeforeRetry(long httpRetryWaitBeforeRetry) {
+        this.httpRetryWaitBeforeRetry = httpRetryWaitBeforeRetry;
+    }
+
+    public long getHttpRetryWaitBeforeRetry() {
+        return httpRetryWaitBeforeRetry;
+    }
+
+    /**
+     * Helper method to sleep the thread for x milliseconds. Written so that we don't have to deal with exceptions
+     *
+     * @param milliseconds amount of sleep
+     */
+    private void sleep(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException f) {
+            logger.warn("Could not sleep peacefully!");
+        }
+    }
+
+    /**
+     * Retry to run the myRunnable if a transfer exception is thrown, up until httpRetryMaxAttempts. Sleep for
+     * httpRetryWaitBeforeRetry milliseconds between retries.
+     *
+     * If we have reached the max number of attempts, rethrow the transfer exception
+     *
+     * @param myRunnable task to run
+     * @param taskName task name to use for logging
+     * @throws TransferException thrown if the task fails after httpRetryMaxAttempts
+     */
+    <T> T retry(MyRunnable<T> myRunnable, String taskName) throws TransferException {
+
+        // make sure we attempt to call the runnable at least once!
+        int tempHttpRetryMaxAttempts = httpRetryMaxAttempts >= 1 ? httpRetryMaxAttempts : 1;
+
+        for (int i = 1; i <= tempHttpRetryMaxAttempts; i++) {
+
+            try {
+                return myRunnable.run();
+            } catch (TransferException e) {
+                // if we have reached the max number of attempts, give up and throw the transfer exception
+                if (i == tempHttpRetryMaxAttempts) {
+                    throw e;
+                } else {
+                    logger.warn("{} failed after {} attempts. Sleeping...", taskName, i, e);
+                    sleep(httpRetryWaitBeforeRetry);
+                }
+            }
+        }
+
+        // we shouldn't be here at all, but if we are, let's throw an Exception
+        throw new RuntimeException("The retry method ended abnormally");
     }
 }
