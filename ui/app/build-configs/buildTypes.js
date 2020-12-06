@@ -32,6 +32,10 @@
         {
           id: 'GRADLE',
           name: 'Gradle'
+        },
+        {
+          id: 'SBT',
+          name: 'Scala Build Tool (SBT)'
         }
       ];
     }
