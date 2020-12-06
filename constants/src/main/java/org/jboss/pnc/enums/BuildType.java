@@ -37,7 +37,13 @@ public enum BuildType {
      * Build using Gradle as its build tool. Uses Gradle Manipulator in pre-build oprations and
      * {@link RepositoryType#MAVEN} repository.
      */
-    GRADLE(RepositoryType.MAVEN);
+    GRADLE(RepositoryType.MAVEN),
+
+    /**
+     * Build using SBT (Scala Build Tool) as its build tool. Uses project-manipulator in pre-build oprations and
+     * {@link RepositoryType#MAVEN} repository.
+     */
+    SBT(RepositoryType.MAVEN);
 
     private RepositoryType repoType;
 

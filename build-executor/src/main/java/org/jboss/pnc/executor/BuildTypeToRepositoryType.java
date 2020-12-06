@@ -33,6 +33,8 @@ public class BuildTypeToRepositoryType {
                 return RepositoryType.NPM;
             case GRADLE:
                 return RepositoryType.MAVEN;
+            case SBT:
+                return RepositoryType.MAVEN;
         }
         throw new RuntimeException("Cannot create repository for build type: " + buildType);
     }
