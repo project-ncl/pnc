@@ -31,8 +31,11 @@ import com.openshift.restclient.OpenShiftException;
 import com.openshift.restclient.ResourceKind;
 import com.openshift.restclient.authorization.ResourceForbiddenException;
 import com.openshift.restclient.model.IResource;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.lang.RandomStringUtils;
 import org.jboss.dmr.ModelNode;
+import org.jboss.pnc.common.concurrent.MDCScheduledThreadPoolExecutor;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -54,10 +57,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,6 +92,11 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     private static final String METRICS_POD_STARTED_FAILED_KEY = METRICS_POD_STARTED_KEY + ".failed";
     private static final String METRICS_POD_STARTED_RETRY_KEY = METRICS_POD_STARTED_KEY + ".retries";
     private static final String METRICS_POD_STARTED_FAILED_REASON_KEY = METRICS_POD_STARTED_KEY + ".failed_reason";
+
+    /**
+     * Max amount of time to wait between retries of creating the environment objects. It has to be greater than 1
+     */
+    private static final int MAX_CREATION_ENVIRONMENT_RETRY_SECONDS = 5;
 
     private int creationPodRetry;
     private int pollingMonitorTimeout;
@@ -152,6 +160,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
     // Used to track whether all the futures for creation are completed, or failed with an exception
     private CompletableFuture<Void> openshiftDefinitions;
 
+    private CompletableFuture<Void> createEnvironmentFuture;
+
     public OpenshiftStartedEnvironment(
             ExecutorService executor,
             OpenshiftBuildAgentConfig openshiftBuildAgentConfig,
@@ -187,7 +197,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         client = new ClientBuilder(environmentConfiguration.getRestEndpointUrl())
                 .usingToken(environmentConfiguration.getRestAuthToken())
                 .build();
-        client.getServerReadyStatus(); // make sure client is connected
 
         environmetVariables = new HashMap<>();
 
@@ -222,10 +231,31 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         MDCUtils.getProcessContext().ifPresent(v -> environmetVariables.put("logProcessContext", v));
         environmetVariables.put("resourcesMemory", builderPodMemory(environmentConfiguration, parameters));
 
-        createEnvironment();
+        createEnvironmentWithRetries();
+    }
+
+    /**
+     * call createEnvironment with retries in case an error happens when talking with Openshift server An example is the
+     * dreaded:
+     *
+     * com.openshift.restclient.OpenShiftException: Exception trying to GET https://<openshift
+     * server></openshift>/apis/servicecatalog.k8s.io/v1beta1 response code: 503
+     *
+     * The max number of retries is `creationPodRetry` with an exponential backoff to a maximum of
+     * MAX_CREATION_ENVIRONMENT_RETRY_SECONDS
+     *
+     */
+    private void createEnvironmentWithRetries() {
+        RetryPolicy<Object> retryPolicy = new RetryPolicy<>().withMaxRetries(creationPodRetry)
+                .withBackoff(1, MAX_CREATION_ENVIRONMENT_RETRY_SECONDS, ChronoUnit.SECONDS);
+        createEnvironmentFuture = Failsafe.with(retryPolicy).with(executor).runAsync(this::createEnvironment);
     }
 
     private void createEnvironment() {
+
+        logger.info("Creating openshift objects...");
+        client.getServerReadyStatus(); // make sure client is connected
+
         String randString = RandomUtils.randString(6);// note the 24 char limit
         buildAgentContextPath = "pnc-ba-" + randString;
 
@@ -378,7 +408,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         });
 
         logger.debug("Creating new build environment");
-        createEnvironment();
+        createEnvironmentWithRetries();
 
         // restart the process again
         monitorInitialization(onComplete, onError, retries - 1);
@@ -413,129 +443,144 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             Consumer<RunningEnvironment> onComplete,
             Consumer<Exception> onError,
             int retries) {
-        cancelHook = () -> onComplete.accept(null);
 
-        CompletableFuture<Void> podFuture = creatingPod.thenComposeAsync(nul -> {
-            CancellableCompletableFuture<Void> monitor = pollingMonitor
-                    .monitor(this::isPodRunning, pollingMonitorCheckInterval, pollingMonitorTimeout, TimeUnit.SECONDS);
-            addFuture(monitor);
-            return monitor;
-        }, executor);
+        // make sure we run the lambda below after the creation of openshift objects has been submitted
+        createEnvironmentFuture.thenAcceptAsync(doNotCare -> {
+            cancelHook = () -> onComplete.accept(null);
 
-        CompletableFuture<Void> serviceFuture = creatingService.thenComposeAsync(nul -> {
-            CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(
-                    this::isServiceRunning,
-                    pollingMonitorCheckInterval,
-                    pollingMonitorTimeout,
-                    TimeUnit.SECONDS);
-            addFuture(monitor);
-            return monitor;
-        }, executor);
-
-        CompletableFuture<Void> routeFuture;
-        if (creatingRoute.isPresent()) {
-            routeFuture = creatingRoute.get().thenComposeAsync(nul -> {
+            CompletableFuture<Void> podFuture = creatingPod.thenComposeAsync(nul -> {
                 CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(
-                        this::isRouteRunning,
+                        this::isPodRunning,
                         pollingMonitorCheckInterval,
                         pollingMonitorTimeout,
                         TimeUnit.SECONDS);
                 addFuture(monitor);
                 return monitor;
             }, executor);
-        } else {
-            routeFuture = CompletableFuture.completedFuture(null);
-        }
 
-        CompletableFuture<Void> openshiftDefinitionsError = new CompletableFuture<>();
-        openshiftDefinitions.exceptionally(t -> {
-            openshiftDefinitionsError.completeExceptionally(t);
-            return null;
-        });
+            CompletableFuture<Void> serviceFuture = creatingService.thenComposeAsync(nul -> {
+                CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(
+                        this::isServiceRunning,
+                        pollingMonitorCheckInterval,
+                        pollingMonitorTimeout,
+                        TimeUnit.SECONDS);
+                addFuture(monitor);
+                return monitor;
+            }, executor);
 
-        CancellableCompletableFuture<Void> isBuildAgentUpFuture = pollingMonitor.monitor(
-                () -> isInternalServletAvailable(),
-                pollingMonitorCheckInterval,
-                pollingMonitorTimeout,
-                TimeUnit.SECONDS);
-        addFuture(isBuildAgentUpFuture);
+            CompletableFuture<Void> routeFuture;
+            if (creatingRoute.isPresent()) {
+                routeFuture = creatingRoute.get().thenComposeAsync(nul -> {
+                    CancellableCompletableFuture<Void> monitor = pollingMonitor.monitor(
+                            this::isRouteRunning,
+                            pollingMonitorCheckInterval,
+                            pollingMonitorTimeout,
+                            TimeUnit.SECONDS);
+                    addFuture(monitor);
+                    return monitor;
+                }, executor);
+            } else {
+                routeFuture = CompletableFuture.completedFuture(null);
+            }
 
-        // In the presence of exceptions, the original CompletableFuture#allOf waits for all remaining operations to
-        // complete. Instead, if we wanted to signal completion as soon as one of the operations complete exceptionally,
-        // we would need to change the implementation, provided in the allOfOrException methos below.
-        CompletableFuture<RunningEnvironment> runningEnvironmentFuture = allOfOrException(
-                podFuture,
-                serviceFuture,
-                routeFuture).thenComposeAsync(nul -> isBuildAgentUpFuture)
-                        .thenApplyAsync(
-                                nul -> RunningEnvironment.createInstance(
-                                        pod.getName(),
-                                        Integer.parseInt(environmentConfiguration.getContainerPort()),
-                                        route.getHost(),
-                                        getPublicEndpointUrl(),
-                                        getInternalEndpointUrl(),
-                                        repositorySession,
-                                        Paths.get(environmentConfiguration.getWorkingDirectory()),
-                                        this::destroyEnvironment,
-                                        debugData),
-                                executor);
+            CompletableFuture<Void> openshiftDefinitionsError = new CompletableFuture<>();
+            openshiftDefinitions.exceptionally(t -> {
+                openshiftDefinitionsError.completeExceptionally(t);
+                return null;
+            });
 
-        CompletableFuture.anyOf(runningEnvironmentFuture, openshiftDefinitionsError)
-                .handle((runningEnvironment, throwable) -> {
-                    if (throwable != null) {
+            CancellableCompletableFuture<Void> isBuildAgentUpFuture = pollingMonitor.monitor(
+                    () -> isInternalServletAvailable(),
+                    pollingMonitorCheckInterval,
+                    pollingMonitorTimeout,
+                    TimeUnit.SECONDS);
+            addFuture(isBuildAgentUpFuture);
 
-                        logger.info("Error while trying to create an OpenShift environment... ", throwable);
-                        cancelAndClearMonitors();
+            // In the presence of exceptions, the original CompletableFuture#allOf waits for all remaining operations to
+            // complete. Instead, if we wanted to signal completion as soon as one of the operations complete
+            // exceptionally,
+            // we would need to change the implementation, provided in the allOfOrException methos below.
+            CompletableFuture<RunningEnvironment> runningEnvironmentFuture = allOfOrException(
+                    podFuture,
+                    serviceFuture,
+                    routeFuture).thenComposeAsync(nul -> isBuildAgentUpFuture)
+                            .thenApplyAsync(
+                                    nul -> RunningEnvironment.createInstance(
+                                            pod.getName(),
+                                            Integer.parseInt(environmentConfiguration.getContainerPort()),
+                                            route.getHost(),
+                                            getPublicEndpointUrl(),
+                                            getInternalEndpointUrl(),
+                                            repositorySession,
+                                            Paths.get(environmentConfiguration.getWorkingDirectory()),
+                                            this::destroyEnvironment,
+                                            debugData),
+                                    executor);
 
-                        // no more retries, execute the onError consumer
-                        if (retries == 0) {
-                            logger.info("No more retries left, giving up!");
-                            onError.accept(
-                                    new Exception(getPrettierErrorMessageFromThrowable(throwable, true), throwable));
-                        } else {
-                            PodFailedStartException podFailedStartExc = null;
-                            if (throwable instanceof PodFailedStartException) {
-                                podFailedStartExc = (PodFailedStartException) throwable;
-                            } else if (throwable.getCause() instanceof PodFailedStartException) {
-                                podFailedStartExc = (PodFailedStartException) throwable.getCause();
-                            }
+            CompletableFuture.anyOf(runningEnvironmentFuture, openshiftDefinitionsError)
+                    .handle((runningEnvironment, throwable) -> {
+                        if (throwable != null) {
 
-                            if (podFailedStartExc != null && !Arrays.asList(POD_RETRYABLE_STATUSES)
-                                    .contains(podFailedStartExc.getPodStatus())) {
+                            logger.info("Error while trying to create an OpenShift environment... ", throwable);
+                            cancelAndClearMonitors();
 
-                                logger.info(
-                                        "The detected pod error status '{}' is not considered among the ones to be retried, giving up!",
-                                        podFailedStartExc.getPodStatus());
-                                // the status is not to be retried
+                            // no more retries, execute the onError consumer
+                            if (retries == 0) {
+                                logger.info("No more retries left, giving up!");
                                 onError.accept(
                                         new Exception(
-                                                getPrettierErrorMessageFromThrowable(throwable, false),
+                                                getPrettierErrorMessageFromThrowable(throwable, true),
                                                 throwable));
                             } else {
-                                if (!cancelRequested) {
-                                    logger.warn(
-                                            "Creating build environment failed with error '{}'! Retrying ({} retries left)...",
-                                            throwable,
-                                            retries);
-                                    retryEnvironment(onComplete, onError, retries);
+                                PodFailedStartException podFailedStartExc = null;
+                                if (throwable instanceof PodFailedStartException) {
+                                    podFailedStartExc = (PodFailedStartException) throwable;
+                                } else if (throwable.getCause() instanceof PodFailedStartException) {
+                                    podFailedStartExc = (PodFailedStartException) throwable.getCause();
+                                }
+
+                                if (podFailedStartExc != null && !Arrays.asList(POD_RETRYABLE_STATUSES)
+                                        .contains(podFailedStartExc.getPodStatus())) {
+
+                                    logger.info(
+                                            "The detected pod error status '{}' is not considered among the ones to be retried, giving up!",
+                                            podFailedStartExc.getPodStatus());
+                                    // the status is not to be retried
+                                    onError.accept(
+                                            new Exception(
+                                                    getPrettierErrorMessageFromThrowable(throwable, false),
+                                                    throwable));
                                 } else {
-                                    logger.info("Build was cancelled, not retrying environment!");
+                                    if (!cancelRequested) {
+                                        logger.warn(
+                                                "Creating build environment failed with error '{}'! Retrying ({} retries left)...",
+                                                throwable,
+                                                retries);
+                                        retryEnvironment(onComplete, onError, retries);
+                                    } else {
+                                        logger.info("Build was cancelled, not retrying environment!");
+                                    }
                                 }
                             }
+                        } else {
+                            logger.info(
+                                    "Environment successfully initialized. Pod [{}]; Service [{}].",
+                                    pod.getName(),
+                                    service.getName());
+                            onComplete.accept((RunningEnvironment) runningEnvironment); // openshiftDefinitionsError
+                            // completes only with error
                         }
-                    } else {
-                        logger.info(
-                                "Environment successfully initialized. Pod [{}]; Service [{}].",
-                                pod.getName(),
-                                service.getName());
-                        onComplete.accept((RunningEnvironment) runningEnvironment); // openshiftDefinitionsError
-                                                                                    // completes only with error
-                    }
-                    gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_SUCCESS_KEY));
-                    return null;
-                });
+                        gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_SUCCESS_KEY));
+                        return null;
+                    });
 
-        logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
+            logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
+        }, executor).handle((result, throwable) -> {
+            if (throwable != null) {
+                onError.accept(new Exception(getPrettierErrorMessageFromThrowable(throwable, false), throwable));
+            }
+            return null;
+        });
     }
 
     private String getPrettierErrorMessageFromThrowable(Throwable throwable, boolean finishedRetries) {
@@ -676,7 +721,11 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     @Override
     public String getId() {
-        return pod.getName();
+        if (creatingPod != null && creatingPod.isDone()) {
+            return pod.getName();
+        } else {
+            return environmetVariables.getOrDefault("pod-name", "");
+        }
     }
 
     @Override
@@ -735,7 +784,9 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      */
     private <T extends IResource> void tryOpenshiftDeleteResource(T resource) {
         try {
-            client.delete(resource);
+            if (resource != null) {
+                client.delete(resource);
+            }
         } catch (NotFoundException e) {
             logger.warn("Couldn't delete the Openshift resource since it does not exist", e);
         }

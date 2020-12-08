@@ -778,6 +778,13 @@
         <version>1.13.23.RELEASE</version>
       </dependency>
 
+      <!-- retries for completable futures -->
+      <dependency>
+        <groupId>net.jodah</groupId>
+        <artifactId>failsafe</artifactId>
+        <version>2.4.0</version>
+      </dependency>
+
       <dependency>
         <groupId>com.openshift</groupId>
         <artifactId>openshift-restclient-java</artifactId>
