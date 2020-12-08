@@ -185,7 +185,7 @@ public class ProductMilestoneProviderImpl extends
                 return milestoneReleaseMapper.toDTO(inProgress.get());
             } else {
                 log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
-                boolean useRHPAM = userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW);
+                boolean useRHPAM = true || userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW);
                 log.debug("Using RHPAM server: {}", useRHPAM);
 
                 ProductMilestoneRelease milestoneReleaseDb = releaseManager

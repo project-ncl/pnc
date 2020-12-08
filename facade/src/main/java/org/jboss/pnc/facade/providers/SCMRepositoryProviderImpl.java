@@ -322,7 +322,7 @@ public class SCMRepositoryProviderImpl
                 .build();
 
         RepositoryCreationTask task;
-        if (userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW)) {
+        if (true || userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW)) {
             RepositoryCreationProcess.RepositoryCreationProcessBuilder repositoryCreationProcess = RepositoryCreationProcess
                     .builder()
                     .repositoryConfiguration(repositoryConfiguration);
