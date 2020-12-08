@@ -35,7 +35,7 @@ public class ConnectorSelector {
             Map<String, String> genericParameters = buildTask.getBuildTask()
                     .getBuildConfigurationAudited()
                     .getGenericParameters();
-            if (genericParameters.getOrDefault(GENERIC_PARAMETER_KEY, "").equals(RHPAM)) {
+            if (true || genericParameters.getOrDefault(GENERIC_PARAMETER_KEY, "").equals(RHPAM)) {
                 return true;
             }
         }
