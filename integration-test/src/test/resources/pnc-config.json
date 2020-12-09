@@ -46,7 +46,8 @@
           "alignmentParameters" : {
             "MVN" : "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
             "NPM" : "",
-            "GRADLE": "--info -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true"
+            "GRADLE": "--info -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true",
+            "SBT" : ""
           }
         },
         {
