@@ -577,8 +577,8 @@ public class BuildConfigurationEndpointTest {
 
         for (BuildType buildType : BuildType.values()) {
             AlignmentParameters params = client.getBuildTypeDefaultAlignmentParameters(buildType.name());
-            // NPM default alignment params are empty
-            if (!BuildType.NPM.equals(buildType)) {
+            // NPM and SBT default alignment params are empty
+            if (!BuildType.NPM.equals(buildType) && !BuildType.SBT.equals(buildType)) {
                 assertThat(params.getParameters()).isNotEmpty();
                 assertThat(params.getBuildType()).isNotEmpty();
             }
