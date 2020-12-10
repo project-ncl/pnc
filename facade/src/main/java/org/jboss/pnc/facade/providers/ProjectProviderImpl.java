@@ -49,7 +49,7 @@ public class ProjectProviderImpl
     }
 
     @Override
-    public void validateBeforeUpdating(String id, Project restEntity) {
+    public void validateBeforeUpdating(Integer id, Project restEntity) {
         super.validateBeforeUpdating(id, restEntity);
         validateIfNotConflicted(restEntity);
     }

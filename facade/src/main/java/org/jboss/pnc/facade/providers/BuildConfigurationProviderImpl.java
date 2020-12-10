@@ -190,8 +190,7 @@ public class BuildConfigurationProviderImpl extends
     }
 
     @Override
-    protected void validateBeforeUpdating(String id, BuildConfiguration buildConfigurationRest) {
-
+    protected void validateBeforeUpdating(Integer id, BuildConfiguration buildConfigurationRest) {
         super.validateBeforeUpdating(id, buildConfigurationRest);
 
         org.jboss.pnc.model.BuildConfiguration dbEntity = findInDB(id);
@@ -203,14 +202,14 @@ public class BuildConfigurationProviderImpl extends
         validateEnvironment(buildConfigurationRest);
     }
 
-    private void validateDependencies(String buildConfigId, Map<String, BuildConfigurationRef> dependencies)
+    private void validateDependencies(Integer buildConfigId, Map<String, BuildConfigurationRef> dependencies)
             throws InvalidEntityException {
 
         if (dependencies == null || dependencies.isEmpty()) {
             return;
         }
 
-        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(buildConfigId));
+        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(buildConfigId);
 
         for (String id : dependencies.keySet()) {
 
@@ -263,7 +262,7 @@ public class BuildConfigurationProviderImpl extends
     @Override
     public BuildConfigurationRevision createRevision(String id, BuildConfiguration buildConfiguration) {
         buildConfigRevisionHelper.updateBuildConfiguration(id, buildConfiguration);
-        return buildConfigRevisionHelper.findRevision(id, buildConfiguration);
+        return buildConfigRevisionHelper.findRevision(parseId(id), buildConfiguration);
     }
 
     @Override

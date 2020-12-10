@@ -56,10 +56,11 @@ public abstract class AbstractUpdatableProvider<ID extends Serializable, DB exte
     }
 
     @Override
-    public DTO update(String id, DTO restEntity) {
+    public DTO update(String stringId, DTO restEntity) {
+        ID id = parseId(stringId);
         validateBeforeUpdating(id, restEntity);
         log.debug("Updating entity: " + restEntity.toString());
-        DB dbEntity = repository.queryById(mapper().getIdMapper().toEntity(id));
+        DB dbEntity = repository.queryById(id);
         log.debug("Updating existing entity: " + dbEntity);
         preUpdate(dbEntity, restEntity);
         mapper().updateEntity(restEntity, dbEntity);
@@ -68,19 +69,19 @@ public abstract class AbstractUpdatableProvider<ID extends Serializable, DB exte
         return mapper().toDTO(dbEntity);
     }
 
-    protected DB findInDB(String id) {
-        DB dbEntity = repository.queryById(mapper().getIdMapper().toEntity(id));
+    protected DB findInDB(ID id) {
+        DB dbEntity = repository.queryById(id);
         if (dbEntity == null) {
             throw new RepositoryViolationException("Entity should exist in the DB.");
         }
         return dbEntity;
     }
 
-    protected void validateBeforeUpdating(String id, DTO restEntity) {
+    protected void validateBeforeUpdating(ID id, DTO restEntity) {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
                 .validateNotEmptyArgument()
                 .validateAnnotations()
-                .validateAgainstRepository(repository, mapper.getIdMapper().toEntity(id), true);
+                .validateAgainstRepository(repository, id, true);
     }
 
     protected void onUpdate(DB dbEntity) {

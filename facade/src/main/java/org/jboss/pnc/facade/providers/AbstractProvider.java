@@ -25,7 +25,9 @@ import org.jboss.pnc.dto.validation.groups.WhenDeleting;
 import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -83,8 +85,9 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
     }
 
     @Override
-    public DTO getSpecific(String id) {
-        DB dbEntity = repository.queryById(mapper.getIdMapper().toEntity(id));
+    public DTO getSpecific(String stringId) {
+        ID id = parseId(stringId);
+        DB dbEntity = repository.queryById(id);
         return mapper.toDTO(dbEntity);
     }
 
@@ -114,9 +117,10 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(String stringId) {
+        ID id = parseId(stringId);
         validateBeforeDeleting(id);
-        repository.delete(mapper.getIdMapper().toEntity(id));
+        repository.delete(id);
     }
 
     @Override
@@ -143,9 +147,17 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
                 .validateAnnotations();
     }
 
-    protected void validateBeforeDeleting(String id) {
+    protected void validateBeforeDeleting(ID id) {
         ValidationBuilder.validateObject(WhenDeleting.class)
-                .validateAgainstRepository(repository, mapper.getIdMapper().toEntity(id), true)
+                .validateAgainstRepository(repository, id, true)
                 .validateAnnotations();
+    }
+
+    protected ID parseId(String stringId) {
+        try {
+            return mapper.getIdMapper().toEntity(stringId);
+        } catch (NumberFormatException ex) {
+            throw new EmptyEntityException("Error parsing id " + stringId);
+        }
     }
 }
