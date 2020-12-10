@@ -192,10 +192,11 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
 
     @RolesAllowed(SYSTEM_USER)
     @Override
-    public Build update(String id, Build restEntity) {
+    public Build update(String buildId, Build restEntity) {
+        Integer id = parseId(buildId);
         validateBeforeUpdating(id, restEntity);
         logger.debug("Updating build: " + restEntity.toString());
-        BuildRecord entityInDB = repository.queryById(Integer.valueOf(id));
+        BuildRecord entityInDB = repository.queryById(id);
         entityInDB.setStatus(restEntity.getStatus());
         return mapper.toDTO(entityInDB);
     }
@@ -211,7 +212,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
 
         try {
             return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(
-                    BuildMapper.idMapper.toEntity(buildId),
+                    parseId(buildId),
                     user.getLoginToken(),
                     notifyOnBuildDeletionCompletion(callback));
         } catch (ValidationException e) {
@@ -502,7 +503,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
     @Override
     public URI getInternalScmArchiveLink(String buildId) {
 
-        BuildRecord buildRecord = repository.queryById(BuildMapper.idMapper.toEntity(buildId));
+        BuildRecord buildRecord = repository.queryById(parseId(buildId));
 
         if (buildRecord.getScmRevision() == null) {
             return null;
@@ -527,7 +528,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
      * @throws EmptyEntityException if build record with associated id does not exist
      */
     private BuildRecord getBuildRecord(String buildId) {
-        BuildRecord buildRecord = repository.queryById(BuildMapper.idMapper.toEntity(buildId));
+        BuildRecord buildRecord = repository.queryById(parseId(buildId));
 
         if (buildRecord == null) {
             throw new EmptyEntityException("Build with id: " + buildId + " does not exist!");
@@ -560,11 +561,11 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
 
     @Override
     public Build getSpecific(String buildId) {
-
+        Integer id = parseId(buildId);
         List<BuildTask> runningBuilds = buildCoordinator.getSubmittedBuildTasks();
 
         Build build = runningBuilds.stream()
-                .filter(buildTask -> buildId.equals(BuildMapper.idMapper.toDto(buildTask.getId())))
+                .filter(buildTask -> id.equals(buildTask.getId()))
                 .findAny()
                 .map(buildMapper::fromBuildTask)
                 .orElse(null);
@@ -572,7 +573,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
         // if build not in runningBuilds, check the database
         if (build == null) {
             // use findByIdFetchProperties instead of super.getSpecific to get 'BuildConfigurationAudited' object
-            build = mapper.toDTO(buildRecordRepository.findByIdFetchProperties(BuildMapper.idMapper.toEntity(buildId)));
+            build = mapper.toDTO(buildRecordRepository.findByIdFetchProperties(id));
         }
 
         return build;
@@ -606,7 +607,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
             throw new InvalidEntityException("Artifacts not found, missing ids: " + ids);
         }
 
-        final Integer id = BuildMapper.idMapper.toEntity(buildId);
+        final Integer id = parseId(buildId);
         BuildRecord buildRecord = repository.queryById(id);
         for (Artifact artifact : artifacts) {
             if (artifact.getBuildRecord() != null && !id.equals(artifact.getBuildRecord().getId())) {
@@ -623,7 +624,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
 
     @Override
     public Set<String> getBuiltArtifactIds(String buildId) {
-        final Integer id = BuildMapper.idMapper.toEntity(buildId);
+        final Integer id = parseId(buildId);
         BuildRecord buildRecord = repository.queryById(id);
         return nullableStreamOf(buildRecord.getBuiltArtifacts()).map(builtArtifact -> builtArtifact.getId().toString())
                 .collect(Collectors.toSet());
@@ -632,7 +633,7 @@ public class BuildProviderImpl extends AbstractProvider<Integer, BuildRecord, Bu
     @RolesAllowed(SYSTEM_USER)
     @Override
     public void setDependentArtifacts(String buildId, List<String> artifactIds) {
-        BuildRecord buildRecord = repository.queryById(BuildMapper.idMapper.toEntity(buildId));
+        BuildRecord buildRecord = repository.queryById(parseId(buildId));
         Set<Artifact> artifacts = artifactIds.stream()
                 .map(aId -> Artifact.Builder.newBuilder().id(Integer.valueOf(aId)).build())
                 .collect(Collectors.toSet());

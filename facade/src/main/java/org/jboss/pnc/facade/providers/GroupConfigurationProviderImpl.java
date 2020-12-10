@@ -78,10 +78,11 @@ public class GroupConfigurationProviderImpl
     }
 
     @Override
-    public GroupConfiguration update(String id, GroupConfiguration restEntity) {
+    public GroupConfiguration update(String stringId, GroupConfiguration restEntity) {
+        Integer id = parseId(stringId);
         validateBeforeUpdating(id, restEntity);
         log.debug("Updating entity: " + restEntity);
-        BuildConfigurationSet dbEntity = repository.queryById(Integer.valueOf(id));
+        BuildConfigurationSet dbEntity = repository.queryById(id);
         if (dbEntity.isArchived()) {
             throw new RepositoryViolationException("The Group Config " + id + " is already deleted.");
         }
