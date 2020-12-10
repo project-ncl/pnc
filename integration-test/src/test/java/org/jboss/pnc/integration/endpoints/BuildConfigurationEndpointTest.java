@@ -548,7 +548,7 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration bc = client.getSpecific(configuration2Id);
 
         BuildConfiguration newBC1 = bc.toBuilder().name(updatedName).description(description).build();
-        BuildConfiguration newBC2 = newBC1.toBuilder().description(description).build();
+        BuildConfiguration newBC2 = newBC1.toBuilder().description(description + " and again").build();
 
         BuildConfigurationRevision newRevision1 = client.createRevision(configuration2Id, newBC1);
         BuildConfigurationRevision newRevision2 = client.createRevision(configuration2Id, newBC2);

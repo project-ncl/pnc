@@ -18,6 +18,8 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.DTOEntity;
+import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -50,12 +52,19 @@ public class BuildConfigRevisionHelper {
     @Inject
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
 
+    @Inject
+    private BuildConfigurationProvider buildConfigurationProvider;
+
+    /**
+     * Updates the Build Config in new transaction. This is necessary when you want to get the newly create Build Config
+     * revision, as Envers creates new revisions when transaction commits.
+     */
     @Transactional(Transactional.TxType.REQUIRES_NEW)
-    public void updateBuildConfiguration(org.jboss.pnc.model.BuildConfiguration bcEntity) {
-        buildConfigurationRepository.save(bcEntity);
+    public void updateBuildConfiguration(String id, org.jboss.pnc.dto.BuildConfiguration bcEntity) {
+        buildConfigurationProvider.update(id, bcEntity);
     }
 
-    public BuildConfigurationRevision findRevision(String id, BuildConfiguration bcEntity) {
+    public BuildConfigurationRevision findRevision(String id, org.jboss.pnc.dto.BuildConfiguration bcEntity) {
         return buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(Integer.valueOf(id))
                 .stream()
                 .peek(p -> logger.warn("going through: " + p))
@@ -68,22 +77,35 @@ public class BuildConfigRevisionHelper {
                                         + "BuildConfiguration to be stored: " + bcEntity));
     }
 
-    public static boolean equalValues(BuildConfigurationAudited audited, BuildConfiguration query) {
-        return audited.getName().equals(query.getName())
-                && Objects.equals(audited.getBuildScript(), query.getBuildScript())
-                && equalsId(audited.getRepositoryConfiguration(), query.getRepositoryConfiguration())
-                && Objects.equals(audited.getScmRevision(), query.getScmRevision())
-                && equalsId(audited.getProject(), query.getProject())
-                && equalsId(audited.getBuildEnvironment(), query.getBuildEnvironment())
-                && audited.getGenericParameters().equals(query.getGenericParameters());
+    public static boolean equalValues(BuildConfigurationAudited persisted, org.jboss.pnc.dto.BuildConfiguration query) {
+        return Objects.equals(persisted.getName(), query.getName())
+                && Objects.equals(persisted.getBuildScript(), query.getBuildScript())
+                && equalsId(persisted.getRepositoryConfiguration(), query.getScmRepository())
+                && Objects.equals(persisted.getScmRevision(), query.getScmRevision())
+                && equalsId(persisted.getProject(), query.getProject())
+                && equalsId(persisted.getBuildEnvironment(), query.getEnvironment())
+                && Objects.equals(persisted.getGenericParameters(), query.getParameters())
+                && (persisted.getBuildType() == query.getBuildType());
     }
 
-    private static boolean equalsId(GenericEntity<Integer> dbEntity, GenericEntity<Integer> query) {
-        if (dbEntity == null || query == null) {
-            return dbEntity == query;
+    public static boolean equalValues(BuildConfiguration persisted, org.jboss.pnc.dto.BuildConfiguration query) {
+        return Objects.equals(persisted.getName(), query.getName())
+                && Objects.equals(persisted.getBuildScript(), query.getBuildScript())
+                && equalsId(persisted.getRepositoryConfiguration(), query.getScmRepository())
+                && Objects.equals(persisted.getScmRevision(), query.getScmRevision())
+                && equalsId(persisted.getProject(), query.getProject())
+                && equalsId(persisted.getBuildEnvironment(), query.getEnvironment())
+                && Objects.equals(persisted.getGenericParameters(), query.getParameters())
+                && (persisted.getBuildType() == query.getBuildType());
+    }
+
+    private static boolean equalsId(GenericEntity<Integer> persisted, DTOEntity toUpdate) {
+        if (persisted == null && toUpdate == null) {
+            return true;
         }
-
-        return dbEntity.getId().equals(query.getId());
+        if (persisted == null || toUpdate == null) {
+            return false;
+        }
+        return persisted.getId().toString().equals(toUpdate.getId());
     }
-
 }
