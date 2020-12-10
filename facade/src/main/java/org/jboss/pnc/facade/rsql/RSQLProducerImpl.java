@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.rsql;
 
 import cz.jirutka.rsql.parser.RSQLParser;
+import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.ComparisonOperator;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLOperators;
@@ -88,8 +89,12 @@ public class RSQLProducerImpl implements RSQLProducer {
         if (rsql == null || rsql.isEmpty()) {
             return new EmptyRSQLPredicate();
         }
-        Node rootNode = predicateParser.parse(preprocessRSQL(rsql));
-        return getEntityPredicate(rootNode, type);
+        try {
+            Node rootNode = predicateParser.parse(preprocessRSQL(rsql));
+            return getEntityPredicate(rootNode, type);
+        } catch (RSQLParserException ex) {
+            throw new RSQLException("failure parsing RSQL", ex);
+        }
     }
 
     @Override
@@ -97,8 +102,12 @@ public class RSQLProducerImpl implements RSQLProducer {
         if (rsql == null || rsql.isEmpty()) {
             return x -> true;
         }
-        Node rootNode = predicateParser.parse(preprocessRSQL(rsql));
-        return getStreamPredicate(rootNode);
+        try {
+            Node rootNode = predicateParser.parse(preprocessRSQL(rsql));
+            return getStreamPredicate(rootNode);
+        } catch (RSQLParserException ex) {
+            throw new RSQLException("failure parsing RSQL", ex);
+        }
     }
 
     @Override
