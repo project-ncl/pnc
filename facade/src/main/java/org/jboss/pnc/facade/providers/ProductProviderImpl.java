@@ -54,7 +54,7 @@ public class ProductProviderImpl
     }
 
     @Override
-    public void validateBeforeUpdating(String id, Product restEntity) {
+    public void validateBeforeUpdating(Integer id, Product restEntity) {
         super.validateBeforeUpdating(id, restEntity);
         validateIfNotConflicted(restEntity, WhenUpdating.class);
     }

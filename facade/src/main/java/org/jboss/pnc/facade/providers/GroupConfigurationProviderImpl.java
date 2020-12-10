@@ -78,7 +78,7 @@ public class GroupConfigurationProviderImpl
     }
 
     @Override
-    protected void validateBeforeUpdating(String id, GroupConfiguration restEntity) {
+    protected void validateBeforeUpdating(Integer id, GroupConfiguration restEntity) {
         super.validateBeforeUpdating(id, restEntity);
 
         BuildConfigurationSet dbEntity = findInDB(id);

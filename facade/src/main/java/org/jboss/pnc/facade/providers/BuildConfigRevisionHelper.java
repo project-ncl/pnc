@@ -64,8 +64,8 @@ public class BuildConfigRevisionHelper {
         buildConfigurationProvider.update(id, bcEntity);
     }
 
-    public BuildConfigurationRevision findRevision(String id, org.jboss.pnc.dto.BuildConfiguration bcEntity) {
-        return buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(Integer.valueOf(id))
+    public BuildConfigurationRevision findRevision(Integer id, org.jboss.pnc.dto.BuildConfiguration bcEntity) {
+        return buildConfigurationAuditedRepository.findAllByIdOrderByRevDesc(id)
                 .stream()
                 .peek(p -> logger.warn("going through: " + p))
                 .filter(bca -> equalValues(bca, bcEntity))

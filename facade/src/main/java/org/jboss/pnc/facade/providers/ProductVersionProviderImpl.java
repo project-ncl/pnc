@@ -128,7 +128,7 @@ public class ProductVersionProviderImpl extends
     }
 
     @Override
-    protected void validateBeforeUpdating(String id, ProductVersion restEntity) {
+    protected void validateBeforeUpdating(Integer id, ProductVersion restEntity) {
         super.validateBeforeUpdating(id, restEntity);
 
         validateVersionChange(id, restEntity);
@@ -136,7 +136,7 @@ public class ProductVersionProviderImpl extends
         validateMilestone(id, restEntity);
     }
 
-    private void validateVersionChange(String id, ProductVersion restEntity) throws InvalidEntityException {
+    private void validateVersionChange(Integer id, ProductVersion restEntity) throws InvalidEntityException {
         org.jboss.pnc.model.ProductVersion entityInDb = findInDB(id);
         boolean changingVersion = !entityInDb.getVersion().equals(restEntity.getVersion());
         if (changingVersion) {
@@ -150,7 +150,7 @@ public class ProductVersionProviderImpl extends
         }
     }
 
-    private void validateGroupConfigsBeforeUpdating(String id, ProductVersion restEntity)
+    private void validateGroupConfigsBeforeUpdating(Integer id, ProductVersion restEntity)
             throws InvalidEntityException, NumberFormatException, ConflictedEntryException {
         if (restEntity.getGroupConfigs() != null) {
             for (String groupConfigId : restEntity.getGroupConfigs().keySet()) {
@@ -158,7 +158,7 @@ public class ProductVersionProviderImpl extends
                 if (set == null) {
                     throw new InvalidEntityException("Group config with id: " + groupConfigId + " does not exist.");
                 }
-                if (set.getProductVersion() != null && !set.getProductVersion().getId().toString().equals(id)) {
+                if (set.getProductVersion() != null && !set.getProductVersion().getId().equals(id)) {
                     throw new ConflictedEntryException(
                             "Group config with id: " + groupConfigId + " already belongs to different product version.",
                             org.jboss.pnc.model.ProductVersion.class,
@@ -168,11 +168,11 @@ public class ProductVersionProviderImpl extends
         }
     }
 
-    private void validateMilestone(String id, ProductVersion entity) {
+    private void validateMilestone(Integer id, ProductVersion entity) {
         if (entity.getCurrentProductMilestone() != null) {
             Integer newMilestoneId = milestoneMapper.getIdMapper()
                     .toEntity(entity.getCurrentProductMilestone().getId());
-            org.jboss.pnc.model.ProductVersion productVersion = repository.queryById(mapper.getIdMapper().toEntity(id));
+            org.jboss.pnc.model.ProductVersion productVersion = repository.queryById(id);
             ProductMilestone currentMilestone = productVersion.getCurrentProductMilestone();
             if (currentMilestone == null || currentMilestone.getId() != newMilestoneId) {
                 ProductMilestone newMilestone = milestoneRepository.queryById(newMilestoneId);

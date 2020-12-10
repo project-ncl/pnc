@@ -277,12 +277,7 @@ public class ArtifactProviderImpl
             String query,
             String buildId) {
 
-        return queryForCollection(
-                pageIndex,
-                pageSize,
-                sortingRsql,
-                query,
-                withBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(parseId(buildId)));
     }
 
     @Override
@@ -297,7 +292,7 @@ public class ArtifactProviderImpl
                 pageSize,
                 sortingRsql,
                 query,
-                withDependantBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
+                withDependantBuildRecordId(parseId(buildId)));
     }
 
     @Override

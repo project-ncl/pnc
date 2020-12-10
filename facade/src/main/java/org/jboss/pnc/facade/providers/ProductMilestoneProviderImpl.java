@@ -120,8 +120,8 @@ public class ProductMilestoneProviderImpl extends
     }
 
     @Override
-    protected void validateBeforeUpdating(String id, ProductMilestone restEntity) {
-        super.validateBeforeUpdating(restEntity.getId(), restEntity);
+    protected void validateBeforeUpdating(Integer id, ProductMilestone restEntity) {
+        super.validateBeforeUpdating(id, restEntity);
         org.jboss.pnc.model.ProductMilestone milestoneInDb = findInDB(id);
         // we can't modify milestone if it's already released
         if (milestoneInDb.getEndDate() != null) {
