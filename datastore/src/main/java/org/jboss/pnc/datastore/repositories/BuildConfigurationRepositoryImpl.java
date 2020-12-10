@@ -57,48 +57,11 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public BuildConfiguration save(BuildConfiguration buildConfiguration) {
-        Integer id = buildConfiguration.getId();
-        BuildConfiguration persisted = queryById(id);
-        if (persisted != null) {
-            if (!areParametersEqual(persisted, buildConfiguration)
-                    || !equalAuditedValues(persisted, buildConfiguration)) {
-                // always increment the revision of main entity when the child collection is updated
-                // the @PreUpdate method in BuildConfiguration was removed, the calculation of whether the
-                // lastModificationTime needs to be changed is done here
-                buildConfiguration.setLastModificationTime(new Date());
-            } else {
-                // No changes to audit, reset the lastModificationUser to previous existing
-                buildConfiguration.setLastModificationUser(persisted.getLastModificationUser());
-            }
-        }
         // Update or save need to set the default alignment parameters
         buildConfiguration.setDefaultAlignmentParams(
                 alignmentConfig.getAlignmentParameters().get(buildConfiguration.getBuildType().toString()));
 
         return springRepository.save(buildConfiguration);
-    }
-
-    private boolean equalAuditedValues(BuildConfiguration persisted, BuildConfiguration toUpdate) {
-        return Objects.equals(persisted.getName(), toUpdate.getName())
-                && Objects.equals(persisted.getBuildScript(), toUpdate.getBuildScript())
-                && equalsId(persisted.getRepositoryConfiguration(), toUpdate.getRepositoryConfiguration())
-                && Objects.equals(persisted.getScmRevision(), toUpdate.getScmRevision())
-                && equalsId(persisted.getProject(), toUpdate.getProject())
-                && equalsId(persisted.getBuildEnvironment(), toUpdate.getBuildEnvironment())
-                && (persisted.isArchived() == toUpdate.isArchived())
-                && (persisted.getBuildType() == toUpdate.getBuildType());
-    }
-
-    private boolean equalsId(GenericEntity<Integer> persisted, GenericEntity<Integer> toUpdate) {
-        if (persisted == null && toUpdate == null) {
-            return true;
-        }
-
-        if (persisted == null || toUpdate == null) {
-            return false;
-        }
-
-        return persisted.getId().equals(toUpdate.getId());
     }
 
     private boolean areParametersEqual(BuildConfiguration persisted, BuildConfiguration newBC) {

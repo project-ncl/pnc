@@ -61,6 +61,7 @@ public abstract class AbstractUpdatableProvider<ID extends Serializable, DB exte
         log.debug("Updating entity: " + restEntity.toString());
         DB dbEntity = repository.queryById(mapper().getIdMapper().toEntity(id));
         log.debug("Updating existing entity: " + dbEntity);
+        preUpdate(dbEntity, restEntity);
         mapper().updateEntity(restEntity, dbEntity);
         onUpdate(dbEntity);
         log.debug("Updated entity: " + dbEntity);
@@ -83,6 +84,10 @@ public abstract class AbstractUpdatableProvider<ID extends Serializable, DB exte
     }
 
     protected void onUpdate(DB dbEntity) {
+        // no-op
+    }
+
+    protected void preUpdate(DB dbEntity, DTO restEntity) {
         // no-op
     }
 }

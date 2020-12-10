@@ -22,6 +22,7 @@ import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
@@ -49,6 +50,7 @@ import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -71,6 +73,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -168,30 +171,13 @@ public class BuildConfigurationProviderImpl extends
     }
 
     @Override
-    public BuildConfiguration update(String id, BuildConfiguration restEntity) {
-        // Do not use super.update to allow the lazy initialization fix
-        validateBeforeUpdating(id, restEntity);
-        logger.debug("Updating entity: " + restEntity.toString());
-
-        // DO NOT REMOVE - Triggers the initialization of LAZY collections (fixes NCL-5686)
-        org.jboss.pnc.model.BuildConfiguration persistedBc = repository.queryById(Integer.valueOf(id));
-        if (persistedBc != null) {
-            if (persistedBc.getDependencies() != null) {
-                persistedBc.getDependencies().isEmpty();
-            }
-            if (persistedBc.getDependants() != null) {
-                persistedBc.getDependants().isEmpty();
-            }
+    protected void preUpdate(org.jboss.pnc.model.BuildConfiguration dbEntity, BuildConfiguration restEntity) {
+        if (!BuildConfigRevisionHelper.equalValues(dbEntity, restEntity)) {
+            // Changes to audit, set the modificationUser and modificationTime to new values
+            org.jboss.pnc.model.User currentUser = userService.currentUser();
+            dbEntity.setLastModificationUser(currentUser);
+            dbEntity.setLastModificationTime(new Date());
         }
-        org.jboss.pnc.model.BuildConfiguration saved = repository.save(mapper.toEntity(restEntity));
-        return mapper.toDTO(saved);
-    }
-
-    @Override
-    protected void onUpdate(org.jboss.pnc.model.BuildConfiguration entityInDb) {
-        org.jboss.pnc.model.User currentUser = userService.currentUser();
-        entityInDb.setLastModificationUser(currentUser);
-        entityInDb.setLastModificationTime(new Date());
     }
 
     @Override
@@ -276,25 +262,8 @@ public class BuildConfigurationProviderImpl extends
 
     @Override
     public BuildConfigurationRevision createRevision(String id, BuildConfiguration buildConfiguration) {
-        super.validateBeforeSaving(buildConfiguration.toBuilder().id(null).build());
-        validateIfItsNotConflicted(buildConfiguration.toBuilder().id(id).build());
-        validateDependencies(id, buildConfiguration.getDependencies());
-        BuildConfigurationAudited latestRevision = buildConfigurationAuditedRepository
-                .findLatestById(Integer.parseInt(id));
-        if (latestRevision == null) {
-            throw new RepositoryViolationException("Entity should exist in the DB");
-        }
-
-        org.jboss.pnc.model.BuildConfiguration bcEntity = mapper.toEntity(buildConfiguration);
-        if (BuildConfigRevisionHelper.equalValues(latestRevision, bcEntity)) {
-            return buildConfigurationRevisionMapper.toDTO(latestRevision);
-        }
-        bcEntity.setCreationTime(latestRevision.getCreationTime());
-        org.jboss.pnc.model.User user = userService.currentUser();
-        bcEntity.setLastModificationUser(user);
-
-        buildConfigRevisionHelper.updateBuildConfiguration(bcEntity);
-        return buildConfigRevisionHelper.findRevision(id, bcEntity);
+        buildConfigRevisionHelper.updateBuildConfiguration(id, buildConfiguration);
+        return buildConfigRevisionHelper.findRevision(id, buildConfiguration);
     }
 
     @Override
