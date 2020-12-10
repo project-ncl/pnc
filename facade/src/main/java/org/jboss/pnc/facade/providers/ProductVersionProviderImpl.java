@@ -86,9 +86,10 @@ public class ProductVersionProviderImpl
     }
 
     @Override
-    public ProductVersion update(String id, ProductVersion restEntity) {
+    public ProductVersion update(String stringId, ProductVersion restEntity) {
+        Integer id = parseId(stringId);
         validateBeforeUpdating(id, restEntity);
-        ProductVersion current = super.getSpecific(id);
+        ProductVersion current = super.getSpecific(stringId);
 
         boolean hasClosedMilestone = current.getProductMilestones()
                 .values()
@@ -102,7 +103,7 @@ public class ProductVersionProviderImpl
         }
 
         // get Hibernate-managed entity
-        org.jboss.pnc.model.ProductVersion managedModel = repository.queryById(Integer.parseInt(id));
+        org.jboss.pnc.model.ProductVersion managedModel = repository.queryById(id);
         org.jboss.pnc.model.ProductVersion updatedModel = mapper.toEntity(restEntity);
 
         groupConfigRepository.cascadeUpdates(
@@ -117,7 +118,7 @@ public class ProductVersionProviderImpl
                 org.jboss.pnc.model.ProductVersion::getBuildConfigurations,
                 BuildConfiguration::setProductVersion);
 
-        return super.update(id, restEntity);
+        return super.update(stringId, restEntity);
     }
 
     @Override
@@ -149,7 +150,7 @@ public class ProductVersionProviderImpl
     }
 
     @Override
-    protected void validateBeforeUpdating(String id, ProductVersion restEntity) {
+    protected void validateBeforeUpdating(Integer id, ProductVersion restEntity) {
         super.validateBeforeUpdating(id, restEntity);
 
         if (restEntity.getGroupConfigs() != null) {
@@ -158,7 +159,7 @@ public class ProductVersionProviderImpl
                 if (set == null) {
                     throw new InvalidEntityException("Group config with id: " + groupConfigId + " does not exist.");
                 }
-                if (set.getProductVersion() != null && !set.getProductVersion().getId().toString().equals(id)) {
+                if (set.getProductVersion() != null && !set.getProductVersion().getId().equals(id)) {
                     throw new ConflictedEntryException(
                             "Group config with id: " + groupConfigId + " already belongs to different product version.",
                             org.jboss.pnc.model.ProductVersion.class,

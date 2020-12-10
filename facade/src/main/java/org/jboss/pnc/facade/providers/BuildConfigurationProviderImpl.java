@@ -168,16 +168,17 @@ public class BuildConfigurationProviderImpl extends
     }
 
     @Override
-    public BuildConfiguration update(String id, BuildConfiguration restEntity) {
+    public BuildConfiguration update(String stringId, BuildConfiguration restEntity) {
         org.jboss.pnc.model.User currentUser = userService.currentUser();
         User user = userMapper.toDTO(currentUser);
         // Do not use super.update to allow the lazy initialization fix
-        restEntity = restEntity.toBuilder().id(id).modificationUser(user).build();
+        restEntity = restEntity.toBuilder().id(stringId).modificationUser(user).build();
+        Integer id = parseId(stringId);
         validateBeforeUpdating(id, restEntity);
         logger.debug("Updating entity: " + restEntity.toString());
 
         // DO NOT REMOVE - Triggers the initialization of LAZY collections (fixes NCL-5686)
-        org.jboss.pnc.model.BuildConfiguration persistedBc = repository.queryById(Integer.valueOf(id));
+        org.jboss.pnc.model.BuildConfiguration persistedBc = repository.queryById(id);
         if (persistedBc != null) {
             if (persistedBc.getDependencies() != null) {
                 persistedBc.getDependencies().isEmpty();
@@ -200,8 +201,7 @@ public class BuildConfigurationProviderImpl extends
     }
 
     @Override
-    protected void validateBeforeUpdating(String id, BuildConfiguration buildConfigurationRest) {
-
+    protected void validateBeforeUpdating(Integer id, BuildConfiguration buildConfigurationRest) {
         super.validateBeforeUpdating(id, buildConfigurationRest);
 
         validateIfItsNotConflicted(buildConfigurationRest);
@@ -209,14 +209,14 @@ public class BuildConfigurationProviderImpl extends
         validateEnvironment(buildConfigurationRest);
     }
 
-    private void validateDependencies(String buildConfigId, Map<String, BuildConfigurationRef> dependencies)
+    private void validateDependencies(Integer buildConfigId, Map<String, BuildConfigurationRef> dependencies)
             throws InvalidEntityException {
 
         if (dependencies == null || dependencies.isEmpty()) {
             return;
         }
 
-        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(Integer.valueOf(buildConfigId));
+        org.jboss.pnc.model.BuildConfiguration buildConfig = repository.queryById(buildConfigId);
 
         for (String id : dependencies.keySet()) {
 
@@ -267,12 +267,12 @@ public class BuildConfigurationProviderImpl extends
     }
 
     @Override
-    public BuildConfigurationRevision createRevision(String id, BuildConfiguration buildConfiguration) {
+    public BuildConfigurationRevision createRevision(String stringId, BuildConfiguration buildConfiguration) {
+        Integer id = parseId(stringId);
         super.validateBeforeSaving(buildConfiguration.toBuilder().id(null).build());
-        validateIfItsNotConflicted(buildConfiguration.toBuilder().id(id).build());
+        validateIfItsNotConflicted(buildConfiguration.toBuilder().id(stringId).build());
         validateDependencies(id, buildConfiguration.getDependencies());
-        BuildConfigurationAudited latestRevision = buildConfigurationAuditedRepository
-                .findLatestById(Integer.parseInt(id));
+        BuildConfigurationAudited latestRevision = buildConfigurationAuditedRepository.findLatestById(id);
         if (latestRevision == null) {
             throw new RepositoryViolationException("Entity should exist in the DB");
         }

@@ -241,12 +241,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
             String query,
             String buildId) {
 
-        return queryForCollection(
-                pageIndex,
-                pageSize,
-                sortingRsql,
-                query,
-                withBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withBuildRecordId(parseId(buildId)));
     }
 
     @Override
@@ -261,7 +256,7 @@ public class ArtifactProviderImpl extends AbstractProvider<Integer, Artifact, or
                 pageSize,
                 sortingRsql,
                 query,
-                withDependantBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
+                withDependantBuildRecordId(parseId(buildId)));
     }
 
     @Override

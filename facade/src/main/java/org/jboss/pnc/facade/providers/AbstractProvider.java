@@ -26,7 +26,9 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.Provider;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
 import org.jboss.pnc.facade.validation.DTOValidationException;
+import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
@@ -79,8 +81,9 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
     }
 
     @Override
-    public DTO getSpecific(String id) {
-        DB dbEntity = repository.queryById(mapper.getIdMapper().toEntity(id));
+    public DTO getSpecific(String stringId) {
+        ID id = parseId(stringId);
+        DB dbEntity = repository.queryById(id);
         return mapper.toDTO(dbEntity);
     }
 
@@ -106,16 +109,17 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
 
     @Override
     public DTO update(String id, DTO restEntity) {
-        validateBeforeUpdating(id, restEntity);
+        validateBeforeUpdating(parseId(id), restEntity);
         log.debug("Updating entity: " + restEntity.toString());
         DB saved = repository.save(mapper.toEntity(restEntity));
         return mapper.toDTO(saved);
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(String stringId) {
+        ID id = parseId(stringId);
         validateBeforeDeleting(id);
-        repository.delete(mapper.getIdMapper().toEntity(id));
+        repository.delete(id);
     }
 
     @Override
@@ -136,11 +140,11 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, content);
     }
 
-    protected void validateBeforeUpdating(String id, DTO restEntity) {
+    protected void validateBeforeUpdating(ID id, DTO restEntity) {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class)
                 .validateNotEmptyArgument()
                 .validateAnnotations()
-                .validateAgainstRepository(repository, mapper.getIdMapper().toEntity(id), true);
+                .validateAgainstRepository(repository, id, true);
     }
 
     protected void validateBeforeSaving(DTO restEntity) {
@@ -149,9 +153,17 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
                 .validateAnnotations();
     }
 
-    protected void validateBeforeDeleting(String id) {
+    protected void validateBeforeDeleting(ID id) {
         ValidationBuilder.validateObject(WhenDeleting.class)
-                .validateAgainstRepository(repository, mapper.getIdMapper().toEntity(id), true)
+                .validateAgainstRepository(repository, id, true)
                 .validateAnnotations();
+    }
+
+    protected ID parseId(String stringId) {
+        try {
+            return mapper.getIdMapper().toEntity(stringId);
+        } catch (NumberFormatException ex) {
+            throw new EmptyEntityException("Error parsing id " + stringId);
+        }
     }
 }

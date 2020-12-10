@@ -113,7 +113,8 @@ public class ProductMilestoneProviderImpl
     }
 
     @Override
-    public ProductMilestone update(String id, ProductMilestone restEntity) {
+    public ProductMilestone update(String stringId, ProductMilestone restEntity) {
+        Integer id = parseId(stringId);
         validateBeforeUpdating(id, restEntity);
 
         org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
@@ -126,7 +127,7 @@ public class ProductMilestoneProviderImpl
         }
 
         log.debug("Updating milestone for id: {}", id);
-        milestoneRestDb.setId(Integer.valueOf(id));
+        milestoneRestDb.setId(id);
 
         // make sure that user cannot set the 'endDate' via the REST API
         // this should only be set after the release process is successful
@@ -146,8 +147,8 @@ public class ProductMilestoneProviderImpl
     }
 
     @Override
-    protected void validateBeforeUpdating(String id, ProductMilestone restEntity) {
-        super.validateBeforeUpdating(restEntity.getId(), restEntity);
+    protected void validateBeforeUpdating(Integer id, ProductMilestone restEntity) {
+        super.validateBeforeUpdating(id, restEntity);
         validateDoesNotConflict(restEntity);
     }
 
