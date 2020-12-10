@@ -22,6 +22,7 @@ import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.coordinator.maintenance.BlacklistAsyncInvoker;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
+import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.Page;
@@ -206,36 +207,13 @@ public class ArtifactProviderImpl
     }
 
     @Override
-    @RolesAllowed(SYSTEM_USER)
-    public org.jboss.pnc.dto.Artifact update(String id, org.jboss.pnc.dto.Artifact restEntity)
-            throws DTOValidationException {
-        return updateArtifact(id, restEntity);
-    }
-
-    @Override
-    protected void onUpdate(Artifact dbEntity) {
-        // To update modification user/time only when audited fields are updated the artifact update must be done using
-        // the updateArtifact method. The AbstractUpdatableProvider.update must not be called. This class extends
-        // AbstractUpdatableProvider and not just AbstractProvider to make this note explicit.
-        throw new UnsupportedOperationException("You must call updateArtifact not super.update to update artifact.");
-    }
-
-    public org.jboss.pnc.dto.Artifact updateArtifact(String id, org.jboss.pnc.dto.Artifact restEntity) {
-        validateBeforeUpdating(id, restEntity);
-        logger.debug("Updating entity: " + restEntity.toString());
-        Artifact dbEntity = repository.queryById(mapper().getIdMapper().toEntity(id));
-        logger.debug("Updating existing entity: " + dbEntity);
-
-        boolean equalAuditedValues = equalAuditedValues(dbEntity, restEntity);
-        mapper().updateEntity(restEntity, dbEntity);
-        if (!equalAuditedValues) {
+    protected void preUpdate(Artifact dbEntity, org.jboss.pnc.dto.Artifact restEntity) {
+        if (!equalAuditedValues(dbEntity, restEntity)) {
             // Changes to audit, set the modificationUser and modificationTime to new values
             org.jboss.pnc.model.User currentUser = userService.currentUser();
             dbEntity.setModificationUser(currentUser);
             dbEntity.setModificationTime(new Date());
         }
-        logger.debug("Updated entity: " + dbEntity);
-        return mapper().toDTO(dbEntity);
     }
 
     private boolean equalAuditedValues(Artifact persisted, org.jboss.pnc.dto.Artifact toUpdate) {
@@ -258,7 +236,7 @@ public class ArtifactProviderImpl
 
         validateIfArtifactQualityIsModifiable(artifact, newQuality);
 
-        updateArtifact(id, artifact.toBuilder().artifactQuality(newQuality).qualityLevelReason(reason).build());
+        update(id, artifact.toBuilder().artifactQuality(newQuality).qualityLevelReason(reason).build());
 
         ArtifactAudited latestRevision = artifactAuditedRepository.findLatestById(Integer.parseInt(id));
         if (latestRevision == null) {
