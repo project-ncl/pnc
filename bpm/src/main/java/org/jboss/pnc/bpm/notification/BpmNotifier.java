@@ -29,6 +29,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.jboss.pnc.bpm.ConnectorSelector;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.common.Configuration;
@@ -50,9 +51,6 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.jboss.pnc.bpm.ConnectorSelector.GENERIC_PARAMETER_KEY;
-import static org.jboss.pnc.bpm.ConnectorSelector.RHPAM;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -95,11 +93,10 @@ public class BpmNotifier {
         if (buildResult.getBuildExecutionConfiguration().isPresent()) {
             BuildExecutionConfiguration buildExecutionConfiguration = buildResult.getBuildExecutionConfiguration()
                     .get();
-            if (buildExecutionConfiguration.getGenericParameters()
-                    .getOrDefault(GENERIC_PARAMETER_KEY, "")
-                    .equals(RHPAM)) {
-                isNewBpmProcess = true;
-            }
+            isNewBpmProcess = ConnectorSelector
+                    .useNewProcessForBuild(buildExecutionConfiguration.getGenericParameters());
+        } else {
+            log.error("Missing BuildExecutionConfiguration!");
         }
 
         HttpPost request = new HttpPost(uri);
