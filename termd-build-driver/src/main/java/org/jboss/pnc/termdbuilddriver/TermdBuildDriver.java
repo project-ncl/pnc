@@ -30,13 +30,13 @@ import org.jboss.pnc.spi.builddriver.RunningBuild;
 import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
-import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
+import org.jboss.pnc.termdbuilddriver.transfer.ClientFileTransfer;
+import org.jboss.pnc.termdbuilddriver.transfer.FileTransfer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.net.URI;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -61,6 +61,7 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
     private static final Logger logger = LoggerFactory.getLogger(TermdBuildDriver.class);
 
     private final ClientFactory clientFactory;
+    private Optional<Integer> fileTransferReadTimeout = Optional.empty();
 
     // connect to build agent on internal or on public address
     private boolean useInternalNetwork = true; // TODO configurable
@@ -99,6 +100,8 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
         executor = MDCExecutors.newFixedThreadPool(threadPoolSize, new NamedThreadFactory("termd-build-driver"));
         scheduledExecutorService = MDCExecutors
                 .newScheduledThreadPool(1, new NamedThreadFactory("build-driver-liveness-cancel"));
+
+        fileTransferReadTimeout = Optional.ofNullable(termdBuildDriverModuleConfig.getFileTransferReadTimeout());
     }
 
     @Override
@@ -147,8 +150,8 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
                     buildExecutionSession.getAccessToken());
             buildExecutionSession.setBuildStatusUpdateConsumer(remoteInvocation.getClientStatusUpdateConsumer());
 
-            FileTranser fileTransfer = clientFactory
-                    .getFileTransfer(URI.create(getBuildAgentUrl(runningEnvironment)), MAX_LOG_SIZE);
+            FileTransfer fileTransfer = new ClientFileTransfer(remoteInvocation.getBuildAgentClient(), MAX_LOG_SIZE);
+            fileTransferReadTimeout.ifPresent(fileTransfer::setReadTimeout);
 
             CompletableFuture<Void> prepareBuildFuture = CompletableFuture.supplyAsync(() -> {
                 logger.debug("Uploading build script to build environment ...");
@@ -259,10 +262,10 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
         return completableFuture;
     }
 
-    private String uploadTask(RunningEnvironment runningEnvironment, String command, FileTranser fileTranser) {
+    private String uploadTask(RunningEnvironment runningEnvironment, String command, FileTransfer fileTransfer) {
         try {
             logger.debug("Full script:\n {}", command);
-            fileTranser.uploadScript(
+            fileTransfer.uploadScript(
                     command,
                     Paths.get(runningEnvironment.getWorkingDirectory().toAbsolutePath().toString(), "run.sh"));
 
@@ -282,16 +285,14 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
     private CompletedBuild collectResults(
             RunningEnvironment runningEnvironment,
             RemoteInvocationCompletion remoteInvocationCompletion,
-            FileTranser transfer) {
+            FileTransfer transfer) {
         logger.info("Collecting results ...");
         try {
             StringBuffer stringBuffer = new StringBuffer();
 
             String logsDirectory = runningEnvironment.getWorkingDirectory().toString();
 
-            URI logsUri = new URI(getBuildAgentUrl(runningEnvironment))
-                    .resolve("servlet/download" + logsDirectory + "/console.log");
-            transfer.downloadFileToStringBuilder(stringBuffer, logsUri);
+            transfer.downloadFileToStringBuilder(stringBuffer, logsDirectory + "/console.log");
 
             String prependMessage = "";
             BuildStatus buildStatus = getBuildStatus(remoteInvocationCompletion.getStatus());
@@ -328,7 +329,7 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
     private void complete(
             TermdRunningBuild termdRunningBuild,
             RemoteInvocationCompletion completion,
-            FileTranser fileTransfer) {
+            FileTransfer fileTransfer) {
 
         if (completion.getException() != null) {
             logger.warn("Completed with exception.", completion.getException());

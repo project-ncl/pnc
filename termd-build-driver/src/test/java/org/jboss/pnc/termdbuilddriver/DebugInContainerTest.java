@@ -20,8 +20,6 @@ package org.jboss.pnc.termdbuilddriver;
 import org.assertj.core.api.Assertions;
 import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
-import org.jboss.pnc.buildagent.client.BuildAgentClientException;
-import org.jboss.pnc.buildagent.server.BuildAgentException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.enums.BuildStatus;
@@ -37,7 +35,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -60,12 +57,12 @@ public class DebugInContainerTest {
     SystemConfig systemConfig = mock(SystemConfig.class);
 
     @Test
-    public void shouldEnableSshWhenBuildFails() throws IOException, BuildAgentException, InterruptedException,
-            BuildAgentClientException, BuildDriverException {
+    public void shouldEnableSshWhenBuildFails() throws InterruptedException, BuildDriverException {
 
         TermdBuildDriverModuleConfig buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
         doReturn(1000L).when(buildDriverModuleConfig).getLivenessProbeFrequencyMillis();
         doReturn(5000L).when(buildDriverModuleConfig).getLivenessFailTimeoutMillis();
+        doReturn(5000).when(buildDriverModuleConfig).getFileTransferReadTimeout();
 
         ClientMockFactory buildAgentClientFactory = new ClientMockFactory();
         TermdBuildDriver driver = new TermdBuildDriver(systemConfig, buildDriverModuleConfig, buildAgentClientFactory);
@@ -98,7 +95,7 @@ public class DebugInContainerTest {
                 .accept(TaskStatusUpdateEvent.newBuilder().newStatus(Status.FAILED).build());
 
         // then
-        CompletedBuild completedBuild = result.poll(1, TimeUnit.SECONDS);
+        CompletedBuild completedBuild = result.poll(3, TimeUnit.SECONDS);
         Assert.assertNotNull("Missing build result.", completedBuild);
         Assert.assertEquals(
                 "The build should fail.",

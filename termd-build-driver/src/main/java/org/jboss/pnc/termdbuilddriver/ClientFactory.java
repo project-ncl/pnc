@@ -20,9 +20,7 @@ package org.jboss.pnc.termdbuilddriver;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
-import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -40,5 +38,4 @@ public interface ClientFactory {
             String executionId,
             Map<String, String> callbackHeaders) throws BuildAgentClientException;
 
-    FileTranser getFileTransfer(URI baseServerUri, int maxLogSize);
 }

@@ -57,6 +57,7 @@ public class AbstractLocalBuildAgentTest {
         buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
         doReturn(100L).when(buildDriverModuleConfig).getLivenessProbeFrequencyMillis();
         doReturn(5000L).when(buildDriverModuleConfig).getLivenessFailTimeoutMillis();
+        doReturn(5000).when(buildDriverModuleConfig).getFileTransferReadTimeout();
 
         GlobalModuleGroup globalModuleConfig = mock(GlobalModuleGroup.class);
 

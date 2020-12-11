@@ -27,12 +27,13 @@ import java.io.OutputStream;
 import java.lang.invoke.MethodHandles;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.function.Consumer;
 
-public class DefaultFileTranser implements FileTranser {
+public class DefaultFileTransfer implements FileTransfer {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -55,19 +56,19 @@ public class DefaultFileTranser implements FileTranser {
      */
     private int readTimeout = 30000;
 
-    public DefaultFileTranser(URI baseServerUri, int maxDownloadSize) {
+    public DefaultFileTransfer(URI baseServerUri, int maxDownloadSize) {
         this.baseServerUri = baseServerUri;
         this.maxDownloadSize = maxDownloadSize;
     }
 
     @Override
-    public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) throws TransferException {
+    public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, String uri) throws TransferException {
         try {
             logger.debug("Downloading file to String Buffer from {}", uri);
 
             ArrayDeque<String> logLines = new ArrayDeque<>();
 
-            HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+            HttpURLConnection connection = (HttpURLConnection) new URL(uri).openConnection();
             connection.setRequestMethod("GET");
 
             connection.setDoOutput(true);
@@ -149,6 +150,7 @@ public class DefaultFileTranser implements FileTranser {
         this.connectTimeout = connectTimeout;
     }
 
+    @Override
     public void setReadTimeout(int readTimeout) {
         this.readTimeout = readTimeout;
     }

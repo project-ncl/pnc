@@ -17,17 +17,18 @@
  */
 package org.jboss.pnc.termdbuilddriver.transfer;
 
-import java.net.URI;
 import java.nio.file.Path;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public interface FileTranser {
+public interface FileTransfer {
 
-    StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri) throws TransferException;
+    StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, String uri) throws TransferException;
 
     boolean isFullyDownloaded();
 
     void uploadScript(String script, Path remoteFilePath) throws TransferException;
+
+    void setReadTimeout(int readTimeout);
 }

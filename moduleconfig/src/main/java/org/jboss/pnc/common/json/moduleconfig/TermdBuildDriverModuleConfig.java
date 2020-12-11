@@ -47,7 +47,7 @@ public class TermdBuildDriverModuleConfig extends AbstractModuleConfig {
     /**
      * Connect timeout in millis. See {@link java.net.URLConnection#setReadTimeout(int)}
      */
-    private int fileTransferReadTimeout;
+    private int fileTransferReadTimeout = 60000;
 
     public TermdBuildDriverModuleConfig(
             @JsonProperty("internalCancelTimeoutMillis") Integer internalCancelTimeoutMillis,
