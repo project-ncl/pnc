@@ -20,15 +20,17 @@ package org.jboss.pnc.termdbuilddriver;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
-import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
-import org.jboss.pnc.termdbuilddriver.transfer.TransferException;
+import org.jboss.pnc.buildagent.common.http.HttpClient;
+import org.jboss.pnc.buildagent.common.http.StringResult;
 
 import java.io.IOException;
-import java.net.URI;
+import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
@@ -66,27 +68,6 @@ public class ClientMockFactory implements ClientFactory {
         return new BuildAgentMockClient();
     }
 
-    @Override
-    public FileTranser getFileTransfer(URI baseServerUri, int maxLogSize) {
-        return new FileTranser() {
-
-            @Override
-            public StringBuffer downloadFileToStringBuilder(StringBuffer logsAggregate, URI uri)
-                    throws TransferException {
-                return new StringBuffer();
-            }
-
-            @Override
-            public boolean isFullyDownloaded() {
-                return true;
-            }
-
-            @Override
-            public void uploadScript(String script, Path remoteFilePath) throws TransferException {
-            }
-        };
-    }
-
     public Consumer<TaskStatusUpdateEvent> getOnStatusUpdate() {
         return onStatusUpdate;
     }
@@ -103,8 +84,33 @@ public class ClientMockFactory implements ClientFactory {
         }
 
         @Override
-        public void cancel() throws BuildAgentClientException {
+        public void execute(Object command, long responseTimeout, TimeUnit unit) throws BuildAgentClientException {
+            executedCommands.add(command);
+        }
 
+        @Override
+        public void uploadFile(
+                ByteBuffer buffer,
+                Path remoteFilePath,
+                CompletableFuture<HttpClient.Response> responseFuture) {
+            responseFuture.complete(new HttpClient.Response(200, new StringResult(true, "")));
+        }
+
+        @Override
+        public void downloadFile(Path remoteFilePath, CompletableFuture<HttpClient.Response> responseFuture) {
+            responseFuture.complete(new HttpClient.Response(200, new StringResult(true, "Mock log.")));
+        }
+
+        @Override
+        public void downloadFile(
+                Path remoteFilePath,
+                CompletableFuture<HttpClient.Response> responseFuture,
+                long maxDownloadSize) {
+            responseFuture.complete(new HttpClient.Response(200, new StringResult(true, "Mock log.")));
+        }
+
+        @Override
+        public void cancel() throws BuildAgentClientException {
         }
 
         @Override

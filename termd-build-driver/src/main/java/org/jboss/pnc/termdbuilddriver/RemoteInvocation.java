@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
@@ -111,7 +112,7 @@ class RemoteInvocation implements Closeable {
         if (buildAgentClient != null) {
             try {
                 logger.info("Invoking remote command {}.", command);
-                buildAgentClient.execute(command);
+                buildAgentClient.execute(command, 5, TimeUnit.MINUTES);
                 logger.debug("Remote command invoked.");
             } catch (BuildAgentClientException e) {
                 throw new RuntimeException("Cannot execute remote command.", e);
@@ -149,6 +150,10 @@ class RemoteInvocation implements Closeable {
 
     public CompletableFuture<RemoteInvocationCompletion> getCompletionNotifier() {
         return completionNotifier;
+    }
+
+    public BuildAgentClient getBuildAgentClient() {
+        return buildAgentClient;
     }
 
     @Override

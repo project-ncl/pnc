@@ -94,7 +94,7 @@ public class LivenessProbeTest {
 
         // then
         Throwable throwable = result.poll(1, TimeUnit.SECONDS);
-        Assert.assertNotNull("It should compelte with an exception.", throwable);
+        Assert.assertNotNull("It should complete with an exception.", throwable);
         Assert.assertEquals("Build Agent has gone away.", throwable.getMessage());
     }
 

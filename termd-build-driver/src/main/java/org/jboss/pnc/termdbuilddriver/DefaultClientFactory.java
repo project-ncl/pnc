@@ -31,8 +31,6 @@ import org.jboss.pnc.buildagent.common.http.HttpClient;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.termdbuilddriver.transfer.DefaultFileTranser;
-import org.jboss.pnc.termdbuilddriver.transfer.FileTranser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +40,6 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 import java.util.Optional;
@@ -122,14 +119,6 @@ public class DefaultClientFactory implements ClientFactory {
             new BuildAgentClientException("Invalid callback URL.", e);
         }
         return new BuildAgentHttpClient(httpClient, configuration);
-    }
-
-    @Override
-    public FileTranser getFileTransfer(URI baseServerUri, int maxLogSize) {
-        DefaultFileTranser defaultFileTranser = new DefaultFileTranser(baseServerUri, maxLogSize);
-        fileTransferConnectTimeout.ifPresent(defaultFileTranser::setConnectTimeout);
-        fileTransferReadTimeout.ifPresent(defaultFileTranser::setReadTimeout);
-        return defaultFileTranser;
     }
 
     @PreDestroy
