@@ -35,11 +35,13 @@ public class ConnectorSelector {
             Map<String, String> genericParameters = buildTask.getBuildTask()
                     .getBuildConfigurationAudited()
                     .getGenericParameters();
-            if (true || genericParameters.getOrDefault(GENERIC_PARAMETER_KEY, "").equals(RHPAM)) {
-                return true;
-            }
+            return useNewProcessForBuild(genericParameters);
         }
         return false;
+    }
+
+    public static boolean useNewProcessForBuild(Map<String, String> genericParameters) {
+        return true || genericParameters.getOrDefault(GENERIC_PARAMETER_KEY, "").equals(RHPAM);
     }
 
 }
