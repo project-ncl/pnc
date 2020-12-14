@@ -58,6 +58,7 @@ public interface ArtifactMapper
     @Mapping(target = "modificationUser", qualifiedBy = IdEntity.class)
     @Mapping(target = "buildRecord", source = "build")
     @Mapping(target = "dependantBuildRecords", ignore = true)
+    @Mapping(target = "targetRepository", qualifiedBy = IdEntity.class)
     /*
      * Builder that MapStruct uses when generating mapper has method dependantBuildRecord() which confuses MapStruct as
      * he thinks it is a new property
@@ -74,7 +75,6 @@ public interface ArtifactMapper
     @Mapping(target = "modificationUser", ignore = true) // will be set when updating
     @Mapping(target = "creationTime", ignore = true)
     @Mapping(target = "modificationTime", ignore = true) // will be set when updating
-    @Mapping(target = "buildRecord", source = "build")
     @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
     void updateEntity(org.jboss.pnc.dto.Artifact dtoEntity, @MappingTarget org.jboss.pnc.model.Artifact target);
 

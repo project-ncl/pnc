@@ -104,6 +104,7 @@ public class BuildResultSerializationTest {
         injectMethod("refToReferenceMapper", artifactMapper, refMapper, AbstractArtifactMapperImpl.class);
         injectMethod("userMapper", refMapper, userMapper, RefToReferenceMapper.class);
         injectMethod("buildMapper", refMapper, buildMapper, RefToReferenceMapper.class);
+        injectMethod("targetRepositoryMapper", refMapper, targetRepositoryMapper, RefToReferenceMapper.class);
         when(configuration.getGlobalConfig()).thenReturn(globalConfig);
     }
 

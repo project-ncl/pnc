@@ -19,6 +19,7 @@ package org.jboss.pnc.mapper.api;
 
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.ArtifactRevisionRef;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.ArtifactAudited;
 import org.jboss.pnc.model.IdRev;
 import org.mapstruct.BeanMapping;
@@ -29,7 +30,10 @@ import org.mapstruct.Mapping;
  *
  * @author Andrea Vibelli &lt;avibelli@redhat.com&gt;
  */
-@Mapper(config = MapperCentralConfig.class, uses = { UserMapper.class }, imports = IdRev.class)
+@Mapper(
+        config = MapperCentralConfig.class,
+        uses = { UserMapper.class, RefToReferenceMapper.class },
+        imports = IdRev.class)
 public interface ArtifactRevisionMapper {
 
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
