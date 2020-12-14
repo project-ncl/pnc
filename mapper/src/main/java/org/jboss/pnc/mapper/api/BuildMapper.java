@@ -184,10 +184,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Long, BuildRecord, Bu
             target = "buildConfigRevision",
             source = "buildConfigurationAudited",
             resultType = BuildConfigurationRevisionRef.class)
-    // Workaround for [NCL-4228]
-    // Use of Reference class was needed here because resultType=GroupBuildRef.class along with unwrapping of Optional
-    // resulted in NPE in Mapstruct processor
-    @Mapping(target = "groupBuild", source = "buildSetTask.buildConfigSetRecord", qualifiedBy = Reference.class)
+    @Mapping(target = "groupBuild", source = "buildSetTask.buildConfigSetRecord")
     @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
     @Mapping(target = "noRebuildCause", resultType = BuildRef.class)
     @Mapping(target = "buildContentId", source = "contentId")

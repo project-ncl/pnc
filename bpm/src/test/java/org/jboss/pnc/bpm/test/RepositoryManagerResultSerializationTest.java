@@ -94,6 +94,7 @@ public class RepositoryManagerResultSerializationTest {
         injectMethod("refToReferenceMapper", artifactMapper, refMapper, AbstractArtifactMapperImpl.class);
         injectMethod("userMapper", refMapper, userMapper, RefToReferenceMapper.class);
         injectMethod("buildMapper", refMapper, buildMapper, RefToReferenceMapper.class);
+        injectMethod("targetRepositoryMapper", refMapper, targetRepositoryMapper, RefToReferenceMapper.class);
     }
 
     private void injectMethod(String fieldName, Object to, Object what, Class clazz)
