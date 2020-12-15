@@ -166,7 +166,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             MetricsConfiguration metricsConfiguration,
             Map<String, String> parameters) {
 
-        logger.info("Creating new build environment using image id: " + environmentConfiguration.getImageId());
+        logger.info("Creating new build environment using image id: {}", environmentConfiguration.getImageId());
 
         this.creationPodRetry = environmentConfiguration.getCreationPodRetry();
         this.pollingMonitorTimeout = environmentConfiguration.getPollingMonitorTimeout();
@@ -315,7 +315,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                                 + " parameter.",
                         ex);
             }
-            logger.info("Using override for builder pod memory size: " + builderPodMemoryOverride);
+            logger.info("Using override for builder pod memory size: {}", builderPodMemoryOverride);
         }
         return ((int) Math.ceil(builderPodMemory * 1024)) + "Mi";
     }
@@ -343,7 +343,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         properties.putAll(runtimeProperties);
         String definition = StringPropertyReplacer.replaceProperties(resourceDefinition, properties);
         if (logger.isTraceEnabled()) {
-            logger.trace("Node definition: " + secureLog(definition));
+            logger.trace("Node definition: {}", secureLog(definition));
         }
 
         return ModelNode.fromJSONString(definition);
@@ -454,7 +454,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         });
 
         CancellableCompletableFuture<Void> isBuildAgentUpFuture = pollingMonitor.monitor(
-                () -> isInternalServletAvailable(),
+                this::isInternalServletAvailable,
                 pollingMonitorCheckInterval,
                 pollingMonitorTimeout,
                 TimeUnit.SECONDS);
@@ -552,8 +552,8 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 || throwable.getCause() instanceof PodFailedStartException) {
 
             PodFailedStartException podFailedStartExc = (throwable instanceof PodFailedStartException)
-                    ? (podFailedStartExc = (PodFailedStartException) throwable)
-                    : (podFailedStartExc = (PodFailedStartException) throwable.getCause());
+                    ? (PodFailedStartException) throwable
+                    : (PodFailedStartException) throwable.getCause();
 
             if (podFailedStartExc != null && Arrays.asList("ErrImagePull", "ImagePullBackOff", "InvalidImageName")
                     .contains(podFailedStartExc.getPodStatus())) {
@@ -636,7 +636,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
     private boolean isServiceRunning() {
         service = client.get(service.getKind(), service.getName(), environmentConfiguration.getPncNamespace());
-        boolean isRunning = service.getPods().size() > 0;
+        boolean isRunning = !service.getPods().isEmpty();
         if (isRunning) {
             logger.debug("Service {} running.", service.getName());
             return true;
@@ -654,7 +654,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 return false;
             }
         } catch (IOException e) {
-            logger.error("Cannot open URL " + getPublicEndpointUrl(), e);
+            logger.error("Cannot open URL {}", getPublicEndpointUrl(), e);
             return false;
         }
     }
@@ -799,7 +799,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         try {
             return new String(jsonStringEncoder.quoteAsString(mapper.writeValueAsString(object)));
         } catch (JsonProcessingException e) {
-            logger.error("Could not parse object: " + object, e);
+            logger.error("Could not parse object: {}", object, e);
             throw new RuntimeException(e);
         }
     }
