@@ -38,6 +38,7 @@ import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleCo
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.monitor.CancellableCompletableFuture;
 import org.jboss.pnc.common.monitor.PollingMonitor;
+import org.jboss.pnc.common.util.CompletableFutureUtils;
 import org.jboss.pnc.common.util.RandomUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.environment.openshift.exceptions.PodFailedStartException;
@@ -54,7 +55,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.time.Instant;
@@ -460,25 +460,21 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 TimeUnit.SECONDS);
         addFuture(isBuildAgentUpFuture);
 
-        // In the presence of exceptions, the original CompletableFuture#allOf waits for all remaining operations to
-        // complete. Instead, if we wanted to signal completion as soon as one of the operations complete exceptionally,
-        // we would need to change the implementation, provided in the allOfOrException methos below.
-        CompletableFuture<RunningEnvironment> runningEnvironmentFuture = allOfOrException(
-                podFuture,
-                serviceFuture,
-                routeFuture).thenComposeAsync(nul -> isBuildAgentUpFuture)
-                        .thenApplyAsync(
-                                nul -> RunningEnvironment.createInstance(
-                                        pod.getName(),
-                                        Integer.parseInt(environmentConfiguration.getContainerPort()),
-                                        route.getHost(),
-                                        getPublicEndpointUrl(),
-                                        getInternalEndpointUrl(),
-                                        repositorySession,
-                                        Paths.get(environmentConfiguration.getWorkingDirectory()),
-                                        this::destroyEnvironment,
-                                        debugData),
-                                executor);
+        CompletableFuture<RunningEnvironment> runningEnvironmentFuture = CompletableFutureUtils
+                .allOfOrException(podFuture, serviceFuture, routeFuture)
+                .thenComposeAsync(nul -> isBuildAgentUpFuture)
+                .thenApplyAsync(
+                        nul -> RunningEnvironment.createInstance(
+                                pod.getName(),
+                                Integer.parseInt(environmentConfiguration.getContainerPort()),
+                                route.getHost(),
+                                getPublicEndpointUrl(),
+                                getInternalEndpointUrl(),
+                                repositorySession,
+                                Paths.get(environmentConfiguration.getWorkingDirectory()),
+                                this::destroyEnvironment,
+                                debugData),
+                        executor);
 
         CompletableFuture.anyOf(runningEnvironmentFuture, openshiftDefinitionsError)
                 .handle((runningEnvironment, throwable) -> {
@@ -575,17 +571,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     + " attempts were made), so we are giving up for now!";
         }
         return errMsg;
-    }
-
-    public static <T> CompletableFuture<T> allOfOrException(CompletableFuture<T>... futures) {
-        CompletableFuture<T> failure = new CompletableFuture<T>();
-        for (CompletableFuture<T> f : futures) {
-            f.exceptionally(ex -> {
-                failure.completeExceptionally(ex);
-                return null;
-            });
-        }
-        return (CompletableFuture<T>) CompletableFuture.anyOf(failure, CompletableFuture.allOf(futures));
     }
 
     private void addFuture(CancellableCompletableFuture<Void> future) {
