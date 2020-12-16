@@ -81,7 +81,7 @@ public class BuildRecordRepositoryMock extends IntIdRepositoryMock<BuildRecord> 
         return buildRecords.stream()
                 .filter(br -> br.getBuildConfigurationId().equals(configurationId))
                 .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
-                .filter(br -> !(temporaryBuild == false && br.isTemporaryBuild()))
+                .filter(br -> !(!temporaryBuild && br.isTemporaryBuild()))
                 .max(Comparator.comparing(BuildRecord::getId))
                 .orElse(null);
     }

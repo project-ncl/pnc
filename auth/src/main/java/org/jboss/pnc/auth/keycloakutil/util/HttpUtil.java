@@ -166,7 +166,7 @@ public class HttpUtil {
         addHeaders(req, request.getHeaders());
 
         if (request.getBody() != null) {
-            if (req instanceof HttpEntityEnclosingRequestBase == false) {
+            if (!(req instanceof HttpEntityEnclosingRequestBase)) {
                 throw new RuntimeException("Request type does not support body: " + type);
             }
             ((HttpEntityEnclosingRequestBase) req).setEntity(new InputStreamEntity(request.getBody()));

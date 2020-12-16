@@ -147,7 +147,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     @PreRemove
     public void preRemove() {
-        if (this.temporaryBuild == false)
+        if (!this.temporaryBuild)
             throw new PersistenceException(
                     "The non-temporary builds cannot be deleted! Only deletion of temporary builds is supported");
     }
