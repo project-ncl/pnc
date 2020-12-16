@@ -87,7 +87,7 @@ public class DefaultFileTransfer implements FileTransfer {
                 StringUtils.readStream(inputStream, charset, logLines, maxDownloadSize, removedLines);
             }
 
-            logsAggregate.append("==== ").append(uri.toString()).append(" ====\n");
+            logsAggregate.append("==== ").append(uri).append(" ====\n");
             while (true) {
                 String line = logLines.pollFirst();
                 if (line == null) {
@@ -103,7 +103,7 @@ public class DefaultFileTransfer implements FileTransfer {
             }
             return logsAggregate;
         } catch (IOException e) {
-            throw new TransferException("Could not obtain log file: " + uri.toString(), e);
+            throw new TransferException("Could not obtain log file: " + uri, e);
         }
     }
 
