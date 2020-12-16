@@ -391,7 +391,7 @@ public class ArtifactProviderImpl
                     "Artifact " + artifact.getId() + " with quality " + artifact.getArtifactQuality()
                             + " cannot be changed to another quality level.",
                     Artifact.class,
-                    artifact.getId().toString());
+                    artifact.getId());
         }
 
         // If the artifact is TEMPORARY, quality level can only change to DELETED
@@ -401,7 +401,7 @@ public class ArtifactProviderImpl
             throw new ConflictedEntryException(
                     "Temporary artifact " + artifact.getId() + " can only be changed to DELETED quality level.",
                     Artifact.class,
-                    artifact.getId().toString());
+                    artifact.getId());
         }
     }
 }

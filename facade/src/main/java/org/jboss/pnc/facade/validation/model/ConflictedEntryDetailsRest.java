@@ -34,7 +34,7 @@ public class ConflictedEntryDetailsRest {
     public ConflictedEntryDetailsRest(ConflictedEntryException conflictedEntryException) {
         this.conflictedEntryException = conflictedEntryException;
         this.conflictedEntity = conflictedEntryException.getConflictedEntity().getSimpleName();
-        this.conflictedRecordId = conflictedEntryException.getConflictedRecordId().toString();
+        this.conflictedRecordId = conflictedEntryException.getConflictedRecordId();
     }
 
     public String getConflictedRecordId() {

@@ -73,7 +73,7 @@ public class BuildStatusMQNotifications {
         headers.put("type", "BuildStateChange");
         headers.put("attribute", "state-change");
         headers.put("name", buildConfigurationAudited.getName());
-        headers.put("configurationId", buildConfigurationAudited.getId().toString());
+        headers.put("configurationId", buildConfigurationAudited.getId());
         headers.put("configurationRevision", buildConfigurationAudited.getRev().toString());
         headers.put("oldStatus", toStringStatus(event.getOldStatus()));
         headers.put("newStatus", toStringStatus(event.getNewStatus()));
