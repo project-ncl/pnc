@@ -198,9 +198,7 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
                     // both of combined futures return the same type
                     RemoteInvocationCompletion remoteInvocationCompletion = (RemoteInvocationCompletion) result;
                     if (remoteInvocationCompletion.getException() != null) {
-                        logger.warn(
-                                "Completing build execution. Exception: {};",
-                                remoteInvocationCompletion.getException());
+                        logger.warn("Completing build execution.", remoteInvocationCompletion.getException());
                     } else {
                         logger.debug("Completing build execution. Status: {};", remoteInvocationCompletion.getStatus());
                     }

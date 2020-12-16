@@ -808,10 +808,10 @@ public class IndyRepositorySession implements RepositorySession {
                 promoter.rollbackPathPromote(result);
             } catch (IndyClientException ex2) {
                 logger.error(
-                        "Failed to set readonly flag on repo: %s. Reason given was: %s.",
-                        ex,
+                        "Failed to set readonly flag on repo: {}. Reason given was: {}.",
                         key,
-                        ex.getMessage());
+                        ex.getMessage(),
+                        ex);
                 throw new RepositoryManagerException(
                         "Subsequently also failed to rollback the promotion of paths from %s to %s. Reason "
                                 + "given was: %s",
