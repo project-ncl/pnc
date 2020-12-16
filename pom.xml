@@ -105,8 +105,8 @@
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.1.0</atlasVersion>
     <indyVersion>2.4.1</indyVersion>
-    <version.assertj-core>3.18.0</version.assertj-core>
-    <version.mockito>3.6.0</version.mockito>
+    <version.assertj-core>3.18.1</version.assertj-core>
+    <version.mockito>3.6.28</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.kie-services-client>6.5.0.Final</version.kie-services-client>
@@ -904,7 +904,7 @@
       <dependency>
         <groupId>net.bytebuddy</groupId>
         <artifactId>byte-buddy</artifactId>
-        <version>1.10.17</version> <!-- force version provided by mockito to override hibernate version -->
+        <version>1.10.18</version> <!-- force version provided by mockito to override hibernate version -->
       </dependency>
       <dependency>
         <groupId>com.googlecode.catch-exception</groupId>
