@@ -910,8 +910,8 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Integer, BuildR
                 int pageSize,
                 SortInfo sortInfo,
                 Predicate<BuildRecord>... predicate) {
-            this.maxPageSize = pageSize > 10 ? pageSize : 10;
-            this.firstIndex = firstIndex > 0 ? firstIndex : 0;
+            this.maxPageSize = Math.max(pageSize, 10);
+            this.firstIndex = Math.max(firstIndex, 0);
             this.lastIndex = lastIndex;
             this.predicates = predicate;
             this.sortInfo = sortInfo;
