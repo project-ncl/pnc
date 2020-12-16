@@ -29,7 +29,7 @@ public class BuildConfigurationSupportedGenericParametersProviderTest {
 
     private BuildConfigurationSupportedGenericParametersProviderImpl bcSupportedGenericParameters;
 
-    public BuildConfigurationSupportedGenericParametersProviderTest() throws FileNotFoundException, IOException {
+    public BuildConfigurationSupportedGenericParametersProviderTest() throws IOException {
         bcSupportedGenericParameters = new BuildConfigurationSupportedGenericParametersProviderImpl();
     }
 

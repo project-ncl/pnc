@@ -105,7 +105,7 @@ public class GroupConfigurationEndpointTest {
     }
 
     @Test
-    public void testCreateNewGroupConfig() throws RemoteResourceException, ClientException {
+    public void testCreateNewGroupConfig() throws ClientException {
         GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
 
         final String name = "Testing 101";
@@ -122,7 +122,7 @@ public class GroupConfigurationEndpointTest {
     }
 
     @Test
-    public void testUpdateGroupConfig() throws RemoteResourceException, ClientException {
+    public void testUpdateGroupConfig() throws ClientException {
         GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
 
         final String name = "Testing 100 Updated";
