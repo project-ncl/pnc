@@ -41,7 +41,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ModuleConfigJsonTest {
 
     @Test
-    public void serializationTest() throws JsonGenerationException, JsonMappingException, IOException {
+    public void serializationTest() throws IOException {
         ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
         JenkinsBuildDriverModuleConfig jenkinsBuildDriverModuleConfig = new JenkinsBuildDriverModuleConfig(
                 "user",
@@ -77,7 +77,7 @@ public class ModuleConfigJsonTest {
     }
 
     @Test
-    public void deserializationTest() throws JsonParseException, JsonMappingException, IOException {
+    public void deserializationTest() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         PncConfigProvider<AuthenticationModuleConfig> pncProvider = new PncConfigProvider<>(
                 AuthenticationModuleConfig.class);

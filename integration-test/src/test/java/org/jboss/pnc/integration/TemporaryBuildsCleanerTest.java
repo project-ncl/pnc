@@ -158,7 +158,7 @@ public class TemporaryBuildsCleanerTest {
     }
 
     @Before
-    public void init() throws Exception, RollbackException {
+    public void init() throws Exception {
         if (this.user == null) {
             this.user = userRepository.queryAll().get(0);
             assertNotNull(this.user);
