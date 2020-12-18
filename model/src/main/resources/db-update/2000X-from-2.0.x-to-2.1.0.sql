@@ -30,3 +30,16 @@ BEGIN transaction;
     ALTER TABLE ProductMilestone ADD CONSTRAINT fk_distributed_artifacts_importer_user
     FOREIGN KEY (distributedArtifactsImporter_id) REFERENCES usertable(id);
 COMMIT;
+
+-- [NCL-5738] - build record using GUID
+BEGIN transaction;
+ALTER TABLE buildrecord ALTER COLUMN id SET DATA TYPE bigint;
+ALTER TABLE buildrecord ALTER COLUMN norebuildcause_id SET DATA TYPE bigint;
+ALTER TABLE artifact ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
+ALTER TABLE build_record_artifact_dependencies_map ALTER COLUMN build_record_id SET DATA TYPE bigint;
+ALTER TABLE build_record_attributes ALTER COLUMN build_record_id SET DATA TYPE bigint;
+ALTER TABLE build_record_built_artifact_map ALTER COLUMN build_record_id SET DATA TYPE bigint;
+ALTER TABLE build_record_built_artifact_map ALTER COLUMN build_record_id SET DATA TYPE bigint;
+ALTER TABLE buildrecordpushresult ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
+ALTER TABLE build_record_attributes ALTER COLUMN build_record_id SET DATA TYPE bigint;
+COMMIT;
