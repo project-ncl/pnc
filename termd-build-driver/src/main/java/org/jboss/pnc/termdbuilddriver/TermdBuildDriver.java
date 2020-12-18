@@ -51,6 +51,7 @@ import java.util.function.Consumer;
 import static org.jboss.pnc.buildagent.api.Status.COMPLETED;
 import static org.jboss.pnc.buildagent.api.Status.FAILED;
 import static org.jboss.pnc.buildagent.api.Status.INTERRUPTED;
+import static org.jboss.pnc.buildagent.api.Status.SYSTEM_ERROR;
 
 @ApplicationScoped
 public class TermdBuildDriver implements BuildDriver { // TODO rename class
@@ -182,7 +183,7 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
                         Status status = remoteInvocationCompletion.getStatus();
                         if (status.isFinal()) {
                             logger.debug("Script completionNotifier completed with status {}.", status);
-                            if (status == FAILED && debugData.isEnableDebugOnFailure()) {
+                            if ((status == FAILED || status == SYSTEM_ERROR) && debugData.isEnableDebugOnFailure()) {
                                 debugData.setDebugEnabled(true);
                                 remoteInvocation.enableSsh();
                             }
@@ -296,7 +297,7 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
             BuildStatus buildStatus = getBuildStatus(remoteInvocationCompletion.getStatus());
 
             if (!transfer.isFullyDownloaded()) {
-                prependMessage = "----- build log was cut, storing only last part -----\n";
+                prependMessage = "----- build log was cut -----\n";
                 if (buildStatus.completedSuccessfully()) {
                     prependMessage = "----- build has completed successfully but it is marked as failed due to log overflow. Max log size is "
                             + MAX_LOG_SIZE + " -----\n";
@@ -319,8 +320,10 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
             return BuildStatus.SUCCESS;
         } else if (INTERRUPTED.equals(completionStatus)) {
             return BuildStatus.CANCELLED;
-        } else {
+        } else if (FAILED.equals(completionStatus)) {
             return BuildStatus.FAILED;
+        } else {
+            return BuildStatus.SYSTEM_ERROR;
         }
     }
 
