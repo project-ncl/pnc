@@ -30,6 +30,7 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
@@ -51,7 +52,7 @@ import java.util.stream.Collectors;
 @XmlRootElement(name = "buildExecutionConfiguration")
 public class BuildExecutionConfigurationRest {
 
-    protected long id;
+    protected String id;
     protected String buildContentId;
     protected User user;
     protected String buildScript;
@@ -86,7 +87,7 @@ public class BuildExecutionConfigurationRest {
     }
 
     public BuildExecutionConfigurationRest(BuildExecutionConfiguration buildExecutionConfiguration) {
-        id = buildExecutionConfiguration.getId();
+        id = BuildMapper.idMapper.toDto(buildExecutionConfiguration.getId());
         buildContentId = buildExecutionConfiguration.getBuildContentId();
         buildScript = buildExecutionConfiguration.getBuildScript();
         name = buildExecutionConfiguration.getName();
@@ -119,7 +120,7 @@ public class BuildExecutionConfigurationRest {
                 .map(ArtifactRepositoryRest::toArtifactRepository)
                 .collect(Collectors.toList());
         return BuildExecutionConfiguration.build(
-                id,
+                BuildMapper.idMapper.toEntity(id),
                 buildContentId,
                 user.getId(),
                 buildScript,
