@@ -200,7 +200,7 @@ public class BpmManager {
      * This method solves backwards compatibility problem. It will be removed soon.
      */
     @Deprecated
-    public Integer getTaskIdByBuildId(int buildId) {
+    public Integer getTaskIdByBuildId(long buildId) {
         List<Integer> result = tasks.values()
                 .stream()
                 .filter(t -> t instanceof BpmBuildTask)

@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationWithCallbackRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
+import org.jboss.pnc.facade.validation.InvalidEntityException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -34,7 +35,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.jboss.pnc.facade.validation.InvalidEntityException;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.FORBIDDEN_DESCRIPTION;
@@ -59,7 +59,7 @@ public interface BuildTaskEndpoint {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Deprecated
     public Response buildTaskCompleted(
-            @Parameter(description = "Build task id") @PathParam("taskId") int buildId,
+            @Parameter(description = "Build task id") @PathParam("taskId") String buildId,
             @Parameter(
                     description = "Build result",
                     required = true) @FormParam("buildResult") BuildResultRest buildResult)
@@ -72,7 +72,7 @@ public interface BuildTaskEndpoint {
     @Path("/{taskId}/completed")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response buildTaskCompletedJson(
-            @Parameter(description = "Build task id") @PathParam("taskId") int buildId,
+            @Parameter(description = "Build task id") @PathParam("taskId") String buildId,
             @Parameter(description = "Build result", required = true) BuildResultRest buildResult)
             throws InvalidEntityException;
 
@@ -120,6 +120,6 @@ public interface BuildTaskEndpoint {
                                                                                      // APPLICATION_FORM_URLENCODED
     public Response cancelBuild(
             @Parameter(
-                    description = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.") @PathParam("buildExecutionConfigurationId") long buildExecutionConfigurationId);
+                    description = "Build Execution Configuration ID. See org.jboss.pnc.spi.executor.BuildExecutionConfiguration.") @PathParam("buildExecutionConfigurationId") String buildExecutionConfigurationId);
 
 }
