@@ -29,9 +29,14 @@ import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.facade.executor.BuildExecutorTriggerer;
 import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.facade.validation.ValidationBuilder;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.rest.endpoints.internal.api.BuildTaskEndpoint;
+import org.jboss.pnc.rest.endpoints.internal.dto.AcceptedResponse;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
@@ -44,10 +49,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import java.util.Optional;
-import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
-import org.jboss.pnc.facade.validation.InvalidEntityException;
-import org.jboss.pnc.facade.validation.ValidationBuilder;
-import org.jboss.pnc.rest.endpoints.internal.dto.AcceptedResponse;
 
 @Dependent
 public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
@@ -73,7 +74,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     UserService userService;
 
     @Override
-    public Response buildTaskCompleted(int buildId, BuildResultRest buildResult) throws InvalidEntityException {
+    public Response buildTaskCompleted(String buildId, BuildResultRest buildResult) throws InvalidEntityException {
 
         // TODO set MDC from request headers instead of business data
         // logger.debug("Received task completed notification for coordinating task id [{}].", buildId);
@@ -85,14 +86,16 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         // }
         // MDCUtils.addContext(buildExecutionConfiguration.getBuildContentId(),
         // buildExecutionConfiguration.isTempBuild(), systemConfig.getTemporaryBuildExpireDate());
-        logger.info("Received build task completed notification for id {}.", buildId);
+        Long internalBuildId = BuildMapper.idMapper.toEntity(buildId);
+
+        logger.info("Received build task completed notification for id {}.", internalBuildId);
 
         ValidationBuilder.validateObject(buildResult, WhenCreatingNew.class).validateAnnotations();
 
-        Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
+        Integer taskId = bpmManager.getTaskIdByBuildId(internalBuildId);
         if (taskId == null) {
-            logger.error("No task for id [{}].", buildId);
-            throw new RuntimeException("Could not find BPM task for build with ID " + buildId);
+            logger.error("No task for id [{}].", internalBuildId);
+            throw new RuntimeException("Could not find BPM task for build with ID " + internalBuildId);
         }
 
         // check if task is already completed
@@ -123,22 +126,24 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                 if (logger.isTraceEnabled()) {
                     logger.trace("Received build result wit full log: {}.", buildResult.toFullLogString());
                 }
-                logger.debug("Will notify for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
+                logger.debug("Will notify for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, internalBuildId);
                 bpmManager.notify(taskId, buildResult);
-                logger.debug("Notified for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
+                logger.debug("Notified for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, internalBuildId);
                 bpmManager.remove(taskId);
                 return Response.ok().build();
             } finally {
                 MDCUtils.removeBuildContext();
             }
         } else {
-            return Response.status(Response.Status.NOT_FOUND).entity("No active build with id: " + buildId).build();
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("No active build with id: " + internalBuildId)
+                    .build();
         }
 
     }
 
     @Override
-    public Response buildTaskCompletedJson(int buildId, BuildResultRest buildResult)
+    public Response buildTaskCompletedJson(String buildId, BuildResultRest buildResult)
             throws org.jboss.pnc.facade.validation.InvalidEntityException {
         return buildTaskCompleted(buildId, buildResult);
     }
@@ -228,28 +233,30 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     }
 
     @Override
-    public Response cancelBuild(long buildExecutionConfigurationId) {
+    public Response cancelBuild(String buildExecutionConfigurationId) {
+
+        Long buildExecutionId = BuildMapper.idMapper.toEntity(buildExecutionConfigurationId);
 
         logger.debug(
                 "Endpoint /cancel-build requested for buildTaskId [{}], from [{}]",
-                buildExecutionConfigurationId,
+                buildExecutionId,
                 request.getRemoteAddr());
 
         try {
 
             Optional<BuildTaskContext> mdcMeta = buildExecutorTriggerer
-                    .getMdcMeta(buildExecutionConfigurationId, userService.currentUsername());
+                    .getMdcMeta(buildExecutionId, userService.currentUsername());
 
             if (mdcMeta.isPresent()) {
                 MDCUtils.addBuildContext(mdcMeta.get());
             } else {
                 logger.warn(
-                        "Unable to retrieve MDC meta. There is no running build for buildExecutionConfigurationId: {}.",
-                        buildExecutionConfigurationId);
+                        "Unable to retrieve MDC meta. There is no running build for buildExecutionId: {}.",
+                        buildExecutionId);
             }
 
-            logger.info("Cancelling build execution for configuration.id: {}.", buildExecutionConfigurationId);
-            buildExecutorTriggerer.cancelBuild(buildExecutionConfigurationId);
+            logger.info("Cancelling build execution for configuration.id: {}.", buildExecutionId);
+            buildExecutorTriggerer.cancelBuild(buildExecutionId);
 
             return Response.ok().build();
 
