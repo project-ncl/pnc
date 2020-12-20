@@ -52,7 +52,7 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     public BuildExecutionConfigurationWithCallbackRest(
-            long id,
+            String id,
             String buildContentId,
             User user,
             String buildScript,

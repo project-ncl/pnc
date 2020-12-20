@@ -181,8 +181,9 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             UriBuilder uriBuilder = UriBuilder.fromUri(globalConfig.getExternalPncUrl())
                     .path("/ws/executor/notifications");
 
-            String id = Long.toString(buildExecutionConfiguration.getId());
-            AcceptedResponse acceptedResponse = new AcceptedResponse(id, uriBuilder.build().toString());
+            AcceptedResponse acceptedResponse = new AcceptedResponse(
+                    buildExecutionConfiguration.getId(),
+                    uriBuilder.build().toString());
 
             return Response.ok().entity(acceptedResponse).build();
         } catch (Exception e) {
@@ -220,8 +221,9 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             UriBuilder uriBuilder = UriBuilder.fromUri(globalConfig.getExternalPncUrl())
                     .path("/ws/executor/notifications");
 
-            String id = Long.toString(buildExecutionConfiguration.getId());
-            AcceptedResponse acceptedResponse = new AcceptedResponse(id, uriBuilder.build().toString());
+            AcceptedResponse acceptedResponse = new AcceptedResponse(
+                    buildExecutionConfiguration.getId(),
+                    uriBuilder.build().toString());
 
             return Response.ok().entity(acceptedResponse).build();
         } catch (Exception e) {
