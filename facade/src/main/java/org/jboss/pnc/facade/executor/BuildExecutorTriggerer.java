@@ -22,7 +22,6 @@ import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -84,7 +83,7 @@ public class BuildExecutorTriggerer {
     }
 
     public void buildStatusUpdated(String executionId, TaskStatusUpdateEvent buildStatusUpdated) {
-        buildExecutor.getRunningExecution(BuildMapper.idMapper.toEntity(executionId))
+        buildExecutor.getRunningExecution(Long.parseLong(executionId))
                 .getBuildStatusUpdateConsumer()
                 .accept(buildStatusUpdated);
     }
