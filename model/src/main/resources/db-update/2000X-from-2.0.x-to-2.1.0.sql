@@ -42,4 +42,5 @@ ALTER TABLE build_record_built_artifact_map ALTER COLUMN build_record_id SET DAT
 ALTER TABLE build_record_built_artifact_map ALTER COLUMN build_record_id SET DATA TYPE bigint;
 ALTER TABLE buildrecordpushresult ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
 ALTER TABLE build_record_attributes ALTER COLUMN build_record_id SET DATA TYPE bigint;
+ALTER TABLE _archived_buildrecords ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
 COMMIT;
