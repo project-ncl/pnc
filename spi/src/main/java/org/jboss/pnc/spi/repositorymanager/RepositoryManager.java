@@ -31,6 +31,26 @@ public interface RepositoryManager {
 
     /**
      * Create a new repository session tuned to the parameters of that build collection and the build that will use this
+     * repository session. Attempts several times when there is connection issue with repository server
+     *
+     * @param buildExecution The build execution currently running
+     * @param accessToken The access token to use
+     * @param serviceAccountToken The access token for service account to use for repo creation, promotion and cleanup
+     * @param repositoryType the created repositories' type (npm, maven, etc.)
+     * @param genericParameters Generic parameters specified in the BuildConfiguration
+     * @return The new repository session
+     * @throws RepositoryManagerException If there is a problem creating the repository even after defined number of
+     *         retries
+     */
+    RepositorySession createBuildRepositoryWithRetries(
+            BuildExecution buildExecution,
+            String accessToken,
+            String serviceAccountToken,
+            RepositoryType repositoryType,
+            Map<String, String> genericParameters) throws RepositoryManagerException;
+
+    /**
+     * Create a new repository session tuned to the parameters of that build collection and the build that will use this
      * repository session.
      *
      * @param buildExecution The build execution currently running
