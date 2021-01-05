@@ -239,7 +239,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
             BuildExecution buildExecution = buildExecutionSession.getBuildExecutionConfiguration();
             String serviceAccountToken = (serviceClient == null ? null : serviceClient.getAuthToken());
 
-            RepositorySession buildRepository = repositoryManager.createBuildRepository(
+            RepositorySession buildRepository = repositoryManager.createBuildRepositoryWithRetries(
                     buildExecution,
                     buildExecutionSession.getAccessToken(),
                     serviceAccountToken,

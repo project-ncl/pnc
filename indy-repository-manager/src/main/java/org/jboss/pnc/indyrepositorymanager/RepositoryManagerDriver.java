@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.indyrepositorymanager;
 
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.apache.commons.lang.StringUtils;
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.client.core.IndyClientException;
@@ -63,6 +65,7 @@ import javax.inject.Inject;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -93,6 +96,10 @@ public class RepositoryManagerDriver implements RepositoryManager {
     static final String GRADLE_PLUGINS_REPO = "maven:remote:gradle-plugins";
 
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-executor");
+
+    private static final int MAX_REPOSITORY_CREATION_RETRY_DELAY_SECONDS = 5;
+
+    private static final int REPOSITORY_CREATION_ATTEMPTS = 5;
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -196,6 +203,26 @@ public class RepositoryManagerDriver implements RepositoryManager {
         return (managerType == RepositoryType.MAVEN) || (managerType == RepositoryType.NPM);
     }
 
+    @Override
+    public RepositorySession createBuildRepositoryWithRetries(
+            BuildExecution buildExecution,
+            String accessToken,
+            String serviceAccountToken,
+            RepositoryType repositoryType,
+            Map<String, String> genericParameters) throws RepositoryManagerException {
+        RetryPolicy<Object> retryPolicy = new RetryPolicy<>().handle(RepositoryManagerException.class)
+                .withMaxRetries(REPOSITORY_CREATION_ATTEMPTS)
+                .withBackoff(1, MAX_REPOSITORY_CREATION_RETRY_DELAY_SECONDS, ChronoUnit.SECONDS);
+        return Failsafe.with(retryPolicy)
+                .get(
+                        () -> createBuildRepository(
+                                buildExecution,
+                                accessToken,
+                                serviceAccountToken,
+                                repositoryType,
+                                genericParameters));
+    }
+
     /**
      * Use the Indy client API to setup global and build-set level repos and groups, then setup the repo/group needed
      * for this build. Calculate the URL to use for resolving artifacts using the Indy Folo API (Folo is an artifact
@@ -219,6 +246,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         try {
             setupBuildRepos(buildExecution, packageType, serviceAccountIndy, genericParameters);
         } catch (IndyClientException e) {
+            logger.debug("Failed to setup repository or repository group for this build");
             throw new RepositoryManagerException(
                     "Failed to setup repository or repository group for this build: %s",
                     e,
@@ -241,6 +269,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             logger.info("Using '{}' for {} repository access in build: {}", url, packageType, buildId);
         } catch (IndyClientException e) {
+            logger.debug("Failed to retrieve Indy client module for the artifact tracker");
             throw new RepositoryManagerException(
                     "Failed to retrieve Indy client module for the artifact tracker: %s",
                     e,

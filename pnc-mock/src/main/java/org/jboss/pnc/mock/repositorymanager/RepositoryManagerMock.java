@@ -68,6 +68,17 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
+    public RepositorySession createBuildRepositoryWithRetries(
+            BuildExecution buildExecution,
+            String accessToken,
+            String serviceAccountToken,
+            RepositoryType repositoryType,
+            Map<String, String> genericParameters) throws RepositoryManagerException {
+        RepositorySession repositoryConfiguration = new RepositorySessionMock();
+        return repositoryConfiguration;
+    }
+
+    @Override
     public RepositorySession createBuildRepository(
             BuildExecution buildExecution,
             String accessToken,
