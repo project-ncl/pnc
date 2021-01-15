@@ -239,16 +239,16 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
 
         initDebug();
 
-        ModelNode podConfigurationNode = createModelNode(
-                Configurations.getContentAsString(Resource.PNC_BUILDER_POD, openshiftBuildAgentConfig),
-                environmetVariables);
-        pod = new Pod(
-                podConfigurationNode,
-                client,
-                ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
-        pod.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createPod = () -> {
             try {
+                ModelNode podConfigurationNode = createModelNode(
+                        Configurations.getContentAsString(Resource.PNC_BUILDER_POD, openshiftBuildAgentConfig),
+                        environmetVariables);
+                pod = new Pod(
+                        podConfigurationNode,
+                        client,
+                        ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.POD));
+                pod.setNamespace(environmentConfiguration.getPncNamespace());
                 client.create(pod, pod.getNamespace());
             } catch (Throwable e) {
                 logger.error("Cannot create pod.", e);
@@ -257,16 +257,16 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         };
         creatingPod = CompletableFuture.runAsync(createPod, executor);
 
-        ModelNode serviceConfigurationNode = createModelNode(
-                Configurations.getContentAsString(Resource.PNC_BUILDER_SERVICE, openshiftBuildAgentConfig),
-                environmetVariables);
-        service = new Service(
-                serviceConfigurationNode,
-                client,
-                ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
-        service.setNamespace(environmentConfiguration.getPncNamespace());
         Runnable createService = () -> {
             try {
+                ModelNode serviceConfigurationNode = createModelNode(
+                        Configurations.getContentAsString(Resource.PNC_BUILDER_SERVICE, openshiftBuildAgentConfig),
+                        environmetVariables);
+                service = new Service(
+                        serviceConfigurationNode,
+                        client,
+                        ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.SERVICE));
+                service.setNamespace(environmentConfiguration.getPncNamespace());
                 client.create(service, service.getNamespace());
             } catch (Throwable e) {
                 logger.error("Cannot create service.", e);
@@ -276,16 +276,16 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         creatingService = CompletableFuture.runAsync(createService, executor);
 
         if (createRoute) {
-            ModelNode routeConfigurationNode = createModelNode(
-                    Configurations.getContentAsString(Resource.PNC_BUILDER_ROUTE, openshiftBuildAgentConfig),
-                    environmetVariables);
-            route = new Route(
-                    routeConfigurationNode,
-                    client,
-                    ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE));
-            route.setNamespace(environmentConfiguration.getPncNamespace());
             Runnable createRoute = () -> {
                 try {
+                    ModelNode routeConfigurationNode = createModelNode(
+                            Configurations.getContentAsString(Resource.PNC_BUILDER_ROUTE, openshiftBuildAgentConfig),
+                            environmetVariables);
+                    route = new Route(
+                            routeConfigurationNode,
+                            client,
+                            ResourcePropertiesRegistry.getInstance().get(OSE_API_VERSION, ResourceKind.ROUTE));
+                    route.setNamespace(environmentConfiguration.getPncNamespace());
                     client.create(route, route.getNamespace());
                 } catch (Throwable e) {
                     logger.error("Cannot create route.", e);
@@ -530,8 +530,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_SUCCESS_KEY));
                     return null;
                 });
-
-        logger.info("Waiting to initialize environment. Pod [{}]; Service [{}].", pod.getName(), service.getName());
     }
 
     private String getPrettierErrorMessageFromThrowable(Throwable throwable, boolean finishedRetries) {
