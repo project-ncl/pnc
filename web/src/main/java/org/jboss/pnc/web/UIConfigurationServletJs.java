@@ -37,7 +37,7 @@ import java.io.PrintWriter;
  * @author Alex Creasy
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
-@WebServlet("/scripts/config.js")
+@WebServlet("/config.js")
 @Dependent
 public class UIConfigurationServletJs extends HttpServlet {
 
