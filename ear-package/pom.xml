@@ -345,7 +345,7 @@
               <groupId>org.jboss.pnc</groupId>
               <artifactId>web</artifactId>
               <bundleDir>/</bundleDir>
-              <contextRoot>/pnc-web</contextRoot>
+              <contextRoot>/pnc-web-config</contextRoot>
             </webModule>
           </modules>
         </configuration>

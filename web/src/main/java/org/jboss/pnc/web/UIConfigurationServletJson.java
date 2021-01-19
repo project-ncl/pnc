@@ -37,7 +37,7 @@ import java.io.PrintWriter;
  * @author Alex Creasy
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
-@WebServlet("/configuration/config.json")
+@WebServlet("/config.json")
 @Dependent
 public class UIConfigurationServletJson extends HttpServlet {
 
