@@ -33,5 +33,3 @@ public class AnalyzeDeliverablesBpmRequest implements Serializable {
     private List<String> urls;
     private String config;
 }
-
-
