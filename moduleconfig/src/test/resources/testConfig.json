@@ -10,6 +10,7 @@
             "indyUrl": "http://127.0.0.1:8004",
             "pncUrl": "http://127.0.0.1:8005",
             "repourUrl": "http://127.0.0.1:8006",
+            "delAnalUrl": "http://127.0.0.1:8007",
             "externalBifrostUrl": "http://1.2.3.4",
             "externalDaUrl": "http://1.2.3.5",
             "externalCausewayUrl": "http://1.2.3.6",

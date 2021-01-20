@@ -56,6 +56,9 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private String releaseProcessId;
 
     @Getter
+    private String deliverablesProcessId;
+
+    @Getter
     private String bcCreationProcessId;
 
     @Getter
@@ -95,6 +98,9 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     @Getter
     private final String bpmNewReleaseProcessId;
 
+    @Getter
+    private final String analyzeDeliverablesBpmProcessId;
+
     public BpmModuleConfig(
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
@@ -102,6 +108,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("componentBuildProcessId") String componentBuildProcessId,
             @JsonProperty("releaseProcessId") String releaseProcessId,
             @JsonProperty("bcCreationProcessId") String bcCreationProcessId,
+            @JsonProperty("deliverablesProcessId") String deliverablesProcessId,
             @JsonProperty("jenkinsBaseUrl") String jenkinsBaseUrl,
             @JsonProperty("communityBuild") String communityBuild,
             @JsonProperty("versionAdjust") String versionAdjust,
@@ -114,16 +121,20 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("bpmNewUsername") String bpmNewUsername,
             @JsonProperty("bpmNewPassword") String bpmNewPassword,
             @JsonProperty("newBcCreationProcessId") String newBcCreationProcessId,
-            @JsonProperty("bpmNewReleaseProcessId") String bpmNewReleaseProcessId) throws MalformedURLException {
+            @JsonProperty("bpmNewReleaseProcessId") String bpmNewReleaseProcessId,
+            @JsonProperty("analyzeDeliverablesBpmProcessId") String analyzeDeliverablesBpmProcessId)
+            throws MalformedURLException {
         this.username = username;
         this.password = password;
         this.deploymentId = deploymentId;
         this.componentBuildProcessId = componentBuildProcessId;
         this.releaseProcessId = releaseProcessId;
+        this.deliverablesProcessId = deliverablesProcessId;
         this.bcCreationProcessId = bcCreationProcessId;
         this.jenkinsBaseUrl = jenkinsBaseUrl;
         this.communityBuild = communityBuild;
         this.versionAdjust = versionAdjust;
+        this.analyzeDeliverablesBpmProcessId = analyzeDeliverablesBpmProcessId;
         if (httpConnectionRequestTimeout == null) {
             this.httpConnectionRequestTimeout = 5000; // default to 5 sec
         } else {

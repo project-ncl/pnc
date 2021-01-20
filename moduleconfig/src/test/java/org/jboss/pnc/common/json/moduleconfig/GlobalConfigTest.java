@@ -42,6 +42,7 @@ public class GlobalConfigTest extends AbstractModuleConfigTest {
         assertEquals("http://127.0.0.1:8004", globalConfig.getIndyUrl());
         assertEquals("http://127.0.0.1:8005", globalConfig.getPncUrl());
         assertEquals("http://127.0.0.1:8006", globalConfig.getRepourUrl());
+        assertEquals("http://127.0.0.1:8007", globalConfig.getDelAnalUrl());
 
         assertEquals("http://1.2.3.4", globalConfig.getExternalBifrostUrl());
         assertEquals("http://1.2.3.5", globalConfig.getExternalDaUrl());
