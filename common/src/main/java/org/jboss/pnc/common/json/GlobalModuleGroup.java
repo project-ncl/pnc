@@ -28,6 +28,7 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String indyUrl;
     private String pncUrl;
     private String repourUrl;
+    private String delAnalUrl;
 
     private String externalBifrostUrl;
     private String externalDaUrl;
@@ -139,6 +140,14 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalRepourUrl(String externalRepourUrl) {
         this.externalRepourUrl = externalRepourUrl;
+    }
+
+    public String getDelAnalUrl() {
+        return delAnalUrl;
+    }
+
+    public void setDelAnalUrl(String delAnalUrl) {
+        this.delAnalUrl = delAnalUrl;
     }
 
 }
