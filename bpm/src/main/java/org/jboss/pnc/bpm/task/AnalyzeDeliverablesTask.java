@@ -52,7 +52,7 @@ public class AnalyzeDeliverablesTask extends BpmTask {
             params.put("pncBaseUrl", globalConfig.getPncUrl());
             params.put("delAnalUrl", globalConfig.getDelAnalUrl());
             params.put("callback", callback);
-        if (isJsonEncodedProcessParameters()) {
+            if (isJsonEncodedProcessParameters()) {
                 params.put("taskData", MAPPER.writeValueAsString(request));
             } else {
                 params.put("taskData", request);

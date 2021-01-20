@@ -31,6 +31,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
@@ -79,6 +80,7 @@ public class RestConnector implements Connector {
             throws ProcessManagerException {
         String url = endpointUrl.processInstances(processId);
         log.debug("Staring new process using http endpoint: {}", url);
+        processParameters.put("mdc", new MDCParameters());
 
         Map<String, Map<String, Object>> body = new HashMap<>();
         body.put("in_initData", processParameters);
