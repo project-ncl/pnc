@@ -100,15 +100,64 @@ public interface GenericSettingEndpoint {
     @Path("announcement-banner")
     public void setAnnouncementBanner(@Parameter(description = BANNER_TEXT, required = true) String banner);
 
-    static final String IS_IN_MAINTENTANC_MODE_DESC = "Get status of maintenance mode";
+    static final String GET_PNC_VERSION_DESC = "Get PNC System version";
 
     /**
-     * {@value IS_IN_MAINTENTANC_MODE_DESC}
+     * {@value GET_PNC_VERSION_DESC}
+     *
+     * @return
+     */
+    @Operation(
+            summary = GET_PNC_VERSION_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Banner.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("pnc-version")
+    public String getPNCVersion();
+
+    static final String PNC_VERSION = "Current PNC System Version";
+    static final String SET_PNC_VERSION_DESC = "Set current PNC System Version. Needs to be admin";
+
+    /**
+     * {@value SET_PNC_VERSION_DESC}
+     *
+     * @param version {@value PNC_VERSION}
+     */
+    @Operation(
+            summary = SET_PNC_VERSION_DESC,
+            responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @POST
+    @Path("pnc-version")
+    public void setPNCVersion(@Parameter(description = PNC_VERSION, required = true) String version);
+
+    static final String IS_IN_MAINTENANCE_MODE_DESC = "Get status of maintenance mode";
+
+    /**
+     * {@value IS_IN_MAINTENANCE_MODE_DESC}
      * 
      * @return
      */
     @Operation(
-            summary = IS_IN_MAINTENTANC_MODE_DESC,
+            summary = IS_IN_MAINTENANCE_MODE_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

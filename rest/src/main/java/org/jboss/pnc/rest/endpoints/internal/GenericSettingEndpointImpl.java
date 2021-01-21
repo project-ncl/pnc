@@ -44,6 +44,16 @@ public class GenericSettingEndpointImpl implements GenericSettingEndpoint {
     }
 
     @Override
+    public String getPNCVersion() {
+        return genericSettingProvider.getPNCVersion();
+    }
+
+    @Override
+    public void setPNCVersion(String version) {
+        genericSettingProvider.setPNCVersion(version);
+    }
+
+    @Override
     public Boolean isInMaintenanceMode() {
         return genericSettingProvider.isInMaintenanceMode();
     }

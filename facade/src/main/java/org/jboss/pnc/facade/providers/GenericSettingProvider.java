@@ -39,6 +39,7 @@ public class GenericSettingProvider {
 
     public static final String ANNOUNCEMENT_BANNER = "ANNOUNCEMENT_BANNER";
     public static final String MAINTENANCE_MODE = "MAINTENANCE_MODE";
+    public static final String PNC_VERSION = "PNC_VERSION";
 
     @Inject
     private GenericSettingRepository genericSettingRepository;
@@ -107,6 +108,27 @@ public class GenericSettingProvider {
         }
 
         return !isInMaintenanceMode();
+    }
+
+    @RolesAllowed("system-user")
+    public void setPNCVersion(String version) {
+
+        log.info("PNC System version set to: '{}'", version);
+        GenericSetting pncVersion = createGenericParameterIfNotFound(PNC_VERSION);
+        pncVersion.setValue(version);
+        genericSettingRepository.save(pncVersion);
+        notifier.sendMessage(GenericSettingNotification.newAnnoucement(version));
+    }
+
+    public String getPNCVersion() {
+
+        GenericSetting pncVersion = genericSettingRepository.queryByKey(PNC_VERSION);
+
+        if (pncVersion == null) {
+            return Strings.EMPTY;
+        } else {
+            return pncVersion.getValue();
+        }
     }
 
     @RolesAllowed("system-user")
