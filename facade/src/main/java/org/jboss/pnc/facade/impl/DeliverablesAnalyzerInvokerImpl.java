@@ -29,7 +29,6 @@ import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
 import org.jboss.pnc.facade.DeliverablesAnalyzerInvoker;
 import org.jboss.pnc.facade.util.UserService;
-import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,15 +82,13 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
             AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
                     request.getSourcesLink(),
                     null);
-            AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, accessToken, callback);
-            analyzeTask.setTaskId(bpmManager.getNextTaskId());
-            analyzeTask.setGlobalConfig(globalConfig);
-            analyzeTask.setJsonEncodedProcessParameters(false);
-            restConnector.startProcess(
-                    bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
-                    analyzeTask.getExtendedProcessParameters(),
-                    accessToken);
-        } catch (CoreException | ProcessManagerException e) {
+            AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(
+                    bpmRequest,
+                    callback,
+                    globalConfig.getDelAnalUrl());
+
+            restConnector.startProcess(bpmConfig.getAnalyzeDeliverablesBpmProcessId(), analyzeTask, accessToken);
+        } catch (ProcessManagerException e) {
             log.error("Error trying to start analysis of deliverables task for milestone: {}", milestoneId, e);
             throw new RuntimeException(e);
         }
@@ -100,8 +97,6 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
     private void addMDCHeaders(Set<Request.Header> headers) {
         headersFromMdc(headers, MDCHeaderKeys.REQUEST_CONTEXT);
         headersFromMdc(headers, MDCHeaderKeys.PROCESS_CONTEXT);
-        headersFromMdc(headers, MDCHeaderKeys.TMP);
-        headersFromMdc(headers, MDCHeaderKeys.EXP);
     }
 
     private void addCommonHeaders(Set<Request.Header> headers, String accessToken) {

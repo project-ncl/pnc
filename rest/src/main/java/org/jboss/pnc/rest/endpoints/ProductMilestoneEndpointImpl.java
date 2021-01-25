@@ -18,6 +18,8 @@
 package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.auth.AuthenticationProvider;
+import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
@@ -42,6 +44,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import java.util.Collections;
+import java.util.UUID;
 
 @ApplicationScoped
 public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
@@ -136,6 +139,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Override
     public void analyzeDeliverables(String id, DeliverablesAnalysisRequest request) {
+        MDCUtils.addProcessContext(String.valueOf(Sequence.nextId()));
         analyzerInvoker.startAnalysis(id, request);
     }
 }
