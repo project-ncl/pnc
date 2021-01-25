@@ -27,8 +27,7 @@ import java.util.Map;
  */
 public interface Connector extends Closeable {
 
-    Long startProcess(String processId, Map<String, Object> processParameters, String accessToken)
-            throws ProcessManagerException;
+    Long startProcess(String processId, Object processParameters, String accessToken) throws ProcessManagerException;
 
     /**
      * Use only for a scheduled cleanup
