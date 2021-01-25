@@ -17,49 +17,24 @@
  */
 package org.jboss.pnc.bpm.task;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
-import org.jboss.pnc.spi.exception.CoreException;
 
-import java.io.Serializable;
-import java.util.HashMap;
-
-@ToString(callSuper = true)
-public class AnalyzeDeliverablesTask extends BpmTask {
+@Getter
+public class AnalyzeDeliverablesTask {
 
     private final AnalyzeDeliverablesBpmRequest request;
 
     private final Request callback;
 
-    public AnalyzeDeliverablesTask(AnalyzeDeliverablesBpmRequest request, String accessToken, Request callback) {
-        super(accessToken);
+    private final String delAnalUrl;
+
+    public AnalyzeDeliverablesTask(AnalyzeDeliverablesBpmRequest request, Request callback, String delAnalUrl) {
         this.request = request;
         this.callback = callback;
-    }
-
-    @Override
-    public String getProcessId() {
-        return config.getDeliverablesProcessId();
-    }
-
-    @Override
-    protected Serializable getProcessParameters() throws CoreException {
-        try {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("pncBaseUrl", globalConfig.getPncUrl());
-            params.put("delAnalUrl", globalConfig.getDelAnalUrl());
-            params.put("callback", callback);
-            if (isJsonEncodedProcessParameters()) {
-                params.put("taskData", MAPPER.writeValueAsString(request));
-            } else {
-                params.put("taskData", request);
-            }
-            return params;
-        } catch (JsonProcessingException e) {
-            throw new CoreException("Could not get the parameters.", e);
-        }
+        this.delAnalUrl = delAnalUrl;
     }
 }

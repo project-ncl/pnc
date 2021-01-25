@@ -20,6 +20,7 @@ package org.jboss.pnc.bpm.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
@@ -28,8 +29,7 @@ import java.util.List;
 @ToString
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class AnalyzeDeliverablesBpmRequest implements Serializable {
-    private List<String> urls;
-    private String config;
+    private final List<String> urls;
+    private final String config;
 }
