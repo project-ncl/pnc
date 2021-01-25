@@ -24,6 +24,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -90,8 +91,8 @@ public class KieClientConnector implements Connector {
     }
 
     @Override
-    public Long startProcess(String processId, Map<String, Object> processParameters, String accessToken) {
-        ProcessInstance processInstance = session.startProcess(processId, processParameters);
+    public Long startProcess(String processId, Object processParameters, String accessToken) {
+        ProcessInstance processInstance = session.startProcess(processId, (Map<String, Object>) processParameters);
 
         if (processInstance == null) {
             log.warn("Failed to create new process instance.");

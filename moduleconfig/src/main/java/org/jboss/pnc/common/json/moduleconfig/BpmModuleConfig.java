@@ -56,9 +56,6 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     private String releaseProcessId;
 
     @Getter
-    private String deliverablesProcessId;
-
-    @Getter
     private String bcCreationProcessId;
 
     @Getter
@@ -108,7 +105,6 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("componentBuildProcessId") String componentBuildProcessId,
             @JsonProperty("releaseProcessId") String releaseProcessId,
             @JsonProperty("bcCreationProcessId") String bcCreationProcessId,
-            @JsonProperty("deliverablesProcessId") String deliverablesProcessId,
             @JsonProperty("jenkinsBaseUrl") String jenkinsBaseUrl,
             @JsonProperty("communityBuild") String communityBuild,
             @JsonProperty("versionAdjust") String versionAdjust,
@@ -129,7 +125,6 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.deploymentId = deploymentId;
         this.componentBuildProcessId = componentBuildProcessId;
         this.releaseProcessId = releaseProcessId;
-        this.deliverablesProcessId = deliverablesProcessId;
         this.bcCreationProcessId = bcCreationProcessId;
         this.jenkinsBaseUrl = jenkinsBaseUrl;
         this.communityBuild = communityBuild;

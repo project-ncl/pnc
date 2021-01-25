@@ -76,14 +76,17 @@ public class RestConnector implements Connector {
     }
 
     @Override
-    public Long startProcess(String processId, Map<String, Object> processParameters, String accessToken)
+    public Long startProcess(String processId, Object requestObject, String accessToken)
             throws ProcessManagerException {
         String url = endpointUrl.processInstances(processId);
         log.debug("Staring new process using http endpoint: {}", url);
+
+        Map<String, Object> processParameters = new HashMap<>();
         processParameters.put("mdc", new MDCParameters());
+        processParameters.put("task", requestObject);
 
         Map<String, Map<String, Object>> body = new HashMap<>();
-        body.put("in_initData", processParameters);
+        body.put("initData", processParameters);
 
         HttpEntity requestEntity;
         try {
