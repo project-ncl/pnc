@@ -35,6 +35,7 @@ import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericPara
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
+import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
@@ -119,7 +120,11 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public Build trigger(String id, BuildParameters buildParams) {
-        return triggerBuild(id, OptionalInt.empty(), buildParams);
+        try {
+            return triggerBuild(id, OptionalInt.empty(), buildParams);
+        } catch (BuildConflictException ex) {
+            throw new AlreadyRunningException(ex, ex.getBuildTaskId());
+        }
     }
 
     @Override
@@ -191,7 +196,11 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public Build triggerRevision(String id, int rev, BuildParameters buildParams) {
-        return triggerBuild(id, OptionalInt.of(rev), buildParams);
+        try {
+            return triggerBuild(id, OptionalInt.of(rev), buildParams);
+        } catch (BuildConflictException ex) {
+            throw new AlreadyRunningException(ex, ex.getBuildTaskId());
+        }
     }
 
     @Override
@@ -238,7 +247,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
         return new AlignmentParameters(buildType, alignmentConfig.getAlignmentParameters().get(buildType));
     }
 
-    private Build triggerBuild(String id, OptionalInt rev, BuildParameters buildParams) {
+    private Build triggerBuild(String id, OptionalInt rev, BuildParameters buildParams) throws BuildConflictException {
         try {
             logger.debug(
                     "Endpoint /build requested for buildConfigurationId: {}, revision: {}, parameters: {}",
@@ -250,7 +259,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
             long buildId = buildTriggerer.triggerBuild(Integer.parseInt(id), rev, buildOptions);
 
             return buildProvider.getSpecific(BuildMapper.idMapper.toDto(buildId));
-        } catch (BuildConflictException | CoreException ex) {
+        } catch (CoreException ex) {
             throw new RuntimeException(ex);
         }
     }
