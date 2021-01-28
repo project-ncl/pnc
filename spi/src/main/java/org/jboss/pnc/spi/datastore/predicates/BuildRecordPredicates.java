@@ -174,6 +174,11 @@ public class BuildRecordPredicates {
         };
     }
 
+    public static Predicate<BuildRecord> exceptBuildConfigurationIdRev(List<IdRev> buildConfigurationsWithIdRevs) {
+        return (root, query, cb) -> cb
+                .not(withBuildConfigurationIdRev(buildConfigurationsWithIdRevs).apply(root, query, cb));
+    }
+
     public static Predicate<BuildRecord> withArtifactDistributedInMilestone(Integer productMilestoneId) {
         return (root, query, cb) -> {
             SetJoin<BuildRecord, Artifact> builtArtifacts = root.join(BuildRecord_.builtArtifacts);

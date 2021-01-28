@@ -100,6 +100,7 @@ import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -837,11 +838,19 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Long, BuildReco
     }
 
     private Predicate<BuildRecord> getPredicateWithBuildConfigName(String buildConfigName) {
+        Function<List<IdRev>, Predicate<BuildRecord>> predicateFunction;
+        if (buildConfigName.startsWith("!")) {
+            buildConfigName = buildConfigName.substring(1);
+            predicateFunction = BuildRecordPredicates::exceptBuildConfigurationIdRev;
+        } else {
+            predicateFunction = BuildRecordPredicates::withBuildConfigurationIdRev;
+        }
+
         List<IdRev> buildConfigurationAuditedIdRevs = buildConfigurationAuditedRepository
                 .searchIdRevForBuildConfigurationName(buildConfigName);
 
         if (!buildConfigurationAuditedIdRevs.isEmpty()) {
-            return BuildRecordPredicates.withBuildConfigurationIdRev(buildConfigurationAuditedIdRevs);
+            return predicateFunction.apply(buildConfigurationAuditedIdRevs);
         } else {
             return Predicate.nonMatching();
         }

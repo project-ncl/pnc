@@ -275,6 +275,24 @@ public class BuildEndpointTest {
     }
 
     @Test
+    public void shouldFilterByBuildConfigurationNameNotLike() throws Exception {
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
+        BuildsFilterParameters filter = new BuildsFilterParameters();
+        filter.setBuildConfigName("!*" + buildConfigName.substring(1, buildConfigName.length() - 2) + "*");
+
+        List<String> buildConfigNames = client.getAll(filter, null)
+                .getAll()
+                .stream()
+                .map(Build::getBuildConfigRevision)
+                .map(BuildConfigurationRevisionRef::getName)
+                .collect(Collectors.toList());
+
+        assertThat(buildConfigNames).hasSize(2); // from DatabaseDataInitializer
+        assertThat(buildConfigNames).doesNotContain(buildConfigName);
+    }
+
+    @Test
     public void shouldFilterByNotExistingBuildConfigurationName() throws Exception {
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
         String buildConfigName = "SomeRandomName";
