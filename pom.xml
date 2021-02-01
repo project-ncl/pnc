@@ -103,7 +103,7 @@
     <maven.min.version>3.2</maven.min.version>
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
-    <atlasVersion>1.1.0</atlasVersion>
+    <atlasVersion>1.1.1</atlasVersion>
     <indyVersion>2.5.2</indyVersion>
     <version.assertj-core>3.18.1</version.assertj-core>
     <version.mockito>3.6.28</version.mockito>
