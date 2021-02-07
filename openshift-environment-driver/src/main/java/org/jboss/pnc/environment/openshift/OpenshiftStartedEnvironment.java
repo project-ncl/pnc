@@ -187,7 +187,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         client = new ClientBuilder(environmentConfiguration.getRestEndpointUrl())
                 .usingToken(environmentConfiguration.getRestAuthToken())
                 .build();
-        client.getServerReadyStatus(); // make sure client is connected
 
         environmetVariables = new HashMap<>();
 
