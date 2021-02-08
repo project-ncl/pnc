@@ -43,22 +43,19 @@ public class ProductMilestoneCloseResultRef implements DTOEntity {
     /**
      * ID of the close attempt.
      */
-    @NotNull(groups = WhenUpdating.class)
-    @NotNull(groups = WhenCreatingNew.class)
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String id;
 
     /**
      * Status of the close attempt.
      */
-    @NotNull(groups = WhenUpdating.class)
-    @NotNull(groups = WhenCreatingNew.class)
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected MilestoneCloseStatus status;
 
     /**
      * The time when the close operation started.
      */
-    @NotNull(groups = WhenUpdating.class)
-    @NotNull(groups = WhenCreatingNew.class)
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected Instant startingDate;
 
     /**
