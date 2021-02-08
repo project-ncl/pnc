@@ -134,6 +134,11 @@ public class DatastoreAdapter {
                 buildRecordBuilder.repourLog(repourResult.getLog());
                 buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
+                if (repourResult.getCompletionStatus() != null && repourResult.getCompletionStatus().isFailed()) {
+                    buildRecordBuilder.appendLog(
+                            "\nBuild failed in midst of alignment, please check the Alignment tab for more information.\n");
+                    buildRecordStatus = FAILED;
+                }
             } else {
                 userLog.warn("Missing Repour Result!");
                 log.warn("[BuildTask:" + buildTask.getId() + "] Missing RepourResult.");
