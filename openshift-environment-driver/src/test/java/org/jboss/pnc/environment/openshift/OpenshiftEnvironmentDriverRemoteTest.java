@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.environment.openshift;
 
-import com.openshift.internal.restclient.DefaultClient;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.monitor.PollingMonitor;
@@ -69,8 +68,6 @@ public class OpenshiftEnvironmentDriverRemoteTest {
     private final EnvironmentDriver environmentDriver;
 
     public OpenshiftEnvironmentDriverRemoteTest() throws Exception {
-        // workaround for protected root rest endpoint from where version should be read
-        System.setProperty(DefaultClient.SYSTEM_PROP_OPENSHIFT_API_VERSION, "v1");
 
         SystemConfig systemConfig = Mockito.mock(SystemConfig.class);
         OpenshiftEnvironmentDriverModuleConfig openshiftEnvironmentDriverModuleConfig = Mockito
