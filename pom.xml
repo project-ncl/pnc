@@ -82,7 +82,6 @@
     <module>rest</module>
     <module>notifications</module>
     <module>spi</module>
-    <module>ui</module>
     <module>web</module>
     <module>openshift-environment-driver</module>
     <module>demo-data</module>
@@ -560,12 +559,6 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>spi</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>ui</artifactId>
         <version>${project.version}</version>
       </dependency>
 
@@ -1376,9 +1369,6 @@
               <!-- Exclude downloaded/generated -->
               <exclude>**/.tmp/**</exclude>
               <exclude>**/.cache/**</exclude>
-              <exclude>**/.build-tmp/**</exclude>
-              <exclude>**/.sass-cache/**</exclude>
-              <exclude>**/bower_components/**</exclude>
               <exclude>**/dist/**</exclude>
               <exclude>**/node/**</exclude>
               <exclude>**/node_modules/**</exclude>
