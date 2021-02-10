@@ -34,12 +34,6 @@ JEE Server requirements:
 - Java IDE (IntelliJ IDEA community recommended)
     - code style template: https://github.com/project-ncl/ide-config
 
-**UI development**
-- Node.js
-- npm
-- Angular JS
-- Bower >= 0.9.1
-
 **REST API documentation and testing**
 
 OpenAPI api doc is available via any OpenAPI viewer using this spec http://hostname/pnc-rest/v2/openapi.json
@@ -131,10 +125,6 @@ TODO: this is not working currently, integration tests are always run against HS
 The container tests can also be run against postgresql by activating the `container-tests` profile, and the `production` profile.
 
     mvn install -Pproduction,container-tests
-
-### UI Module Compilation Errors
-
-Due to the need to integrate a modern frontend workflow into a maven project there can occasionally be some complications in a build. Some data is cached by the UI that is not completely cleaned by running `mvn clean`. In case of strange build failures with the UI module please try running: `mvn clean -Dfrontend.clean.force` and this will completely clean out all data. NOTE: with this profile enabled build times will increase by a few minutes as the ui build system will have to retrieve a large amount of previously cached data.
 
 
 ## Configuration
