@@ -83,9 +83,12 @@ public class BuildExecutorTriggerer {
     }
 
     public void buildStatusUpdated(String executionId, TaskStatusUpdateEvent buildStatusUpdated) {
-        buildExecutor.getRunningExecution(Long.parseLong(executionId))
-                .getBuildStatusUpdateConsumer()
-                .accept(buildStatusUpdated);
+        BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(Long.parseLong(executionId));
+        if (runningExecution != null) {
+            runningExecution.getBuildStatusUpdateConsumer().accept(buildStatusUpdated);
+        } else {
+            log.warn("There is no running build execution {}.", executionId);
+        }
     }
 
     public Optional<BuildTaskContext> getMdcMeta(Long buildExecutionConfigId, String userId) {
