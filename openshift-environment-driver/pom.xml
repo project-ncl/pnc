@@ -104,8 +104,8 @@
     </dependency>
 
     <dependency>
-      <groupId>com.openshift</groupId>
-      <artifactId>openshift-restclient-java</artifactId>
+      <groupId>io.fabric8</groupId>
+      <artifactId>openshift-client</artifactId>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
