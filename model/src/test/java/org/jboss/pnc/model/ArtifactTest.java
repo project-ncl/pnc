@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.model;
 
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.junit.After;
@@ -59,11 +60,7 @@ public class ArtifactTest extends AbstractModelTest {
     public void shouldProhibitDeletionOfNonTemporaryArtifact() {
         // given
         Artifact artifact = prepareArtifactBuilder().artifactQuality(ArtifactQuality.NEW).build();
-
-        em.getTransaction().begin();
-        em.persist(artifact);
-        em.getTransaction().commit();
-        int artifactId = artifact.getId();
+        int artifactId = storeArtifact(artifact);
 
         // when, then
         try {
@@ -83,13 +80,7 @@ public class ArtifactTest extends AbstractModelTest {
     public void shouldAllowDeletionOfTemporaryArtifact() {
         // given
         Artifact artifact = prepareArtifactBuilder().artifactQuality(ArtifactQuality.TEMPORARY).build();
-
-        em.getTransaction().begin();
-        em.persist(artifact);
-        em.getTransaction().commit();
-        int artifactId = artifact.getId();
-        assertNotNull(artifact.getId());
-        assertTrue(artifact.getId() != 0);
+        int artifactId = storeArtifact(artifact);
 
         // when
         em.getTransaction().begin();
@@ -104,12 +95,7 @@ public class ArtifactTest extends AbstractModelTest {
     public void shouldAllowDeletionOfDeletedQualityArtifacts() {
         // given
         Artifact artifact = prepareArtifactBuilder().artifactQuality(ArtifactQuality.DELETED).build();
-
-        em.getTransaction().begin();
-        em.persist(artifact);
-        em.getTransaction().commit();
-        int artifactId = artifact.getId();
-        assertTrue(artifact.getId() != 0);
+        int artifactId = storeArtifact(artifact);
 
         // when
         em.getTransaction().begin();
@@ -118,6 +104,40 @@ public class ArtifactTest extends AbstractModelTest {
 
         // then
         assertNull(em.find(Artifact.class, artifactId));
+    }
+
+    @Test
+    public void shouldSetDefaultBuildCategory() {
+        // given
+        Artifact artifact = prepareArtifactBuilder().build();
+
+        // when
+        int artifactId = storeArtifact(artifact);
+
+        // then
+        Artifact foundArtifact = em.find(Artifact.class, artifactId);
+        assertNotNull(foundArtifact);
+        assertEquals(BuildCategory.STANDARD, foundArtifact.getBuildCategory());
+    }
+
+    @Test
+    public void shouldUpdateBuildCategory() {
+        // given
+        Artifact artifact = prepareArtifactBuilder().build();
+        int artifactId = storeArtifact(artifact);
+
+        // when
+        Artifact updatableArtifact = em.find(Artifact.class, artifactId);
+        updatableArtifact.setBuildCategory(BuildCategory.SERVICE);
+
+        em.getTransaction().begin();
+        em.merge(updatableArtifact);
+        em.getTransaction().commit();
+
+        // then
+        Artifact foundArtifact = em.find(Artifact.class, artifactId);
+        assertNotNull(foundArtifact);
+        assertEquals(BuildCategory.SERVICE, foundArtifact.getBuildCategory());
     }
 
     private void insertBasicTargetRepository() {
@@ -139,5 +159,15 @@ public class ArtifactTest extends AbstractModelTest {
                 .md5("md5")
                 .sha1("sha1")
                 .sha256("sha256");
+    }
+
+    private int storeArtifact(Artifact artifact) {
+        em.getTransaction().begin();
+        em.persist(artifact);
+        em.getTransaction().commit();
+        int artifactId = artifact.getId();
+        assertNotNull(artifact.getId());
+        assertTrue(artifact.getId() != 0);
+        return artifactId;
     }
 }
