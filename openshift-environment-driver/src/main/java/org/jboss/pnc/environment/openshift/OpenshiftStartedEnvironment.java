@@ -459,7 +459,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         CompletableFuture<RunningEnvironment> runningEnvironmentFuture = allOfOrException(
                 podFuture,
                 serviceFuture,
-                routeFuture).thenComposeAsync(nul -> isBuildAgentUpFuture)
+                routeFuture).thenComposeAsync(nul -> isBuildAgentUpFuture, executor)
                         .thenApplyAsync(
                                 nul -> RunningEnvironment.createInstance(
                                         pod.getMetadata().getName(),
@@ -474,7 +474,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                                 executor);
 
         CompletableFuture.anyOf(runningEnvironmentFuture, openshiftDefinitionsError)
-                .handle((runningEnvironment, throwable) -> {
+                .handleAsync((runningEnvironment, throwable) -> {
                     if (throwable != null) {
 
                         logger.info("Error while trying to create an OpenShift environment... ", throwable);
@@ -526,7 +526,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                     }
                     gaugeMetric.ifPresent(g -> g.incrementMetric(METRICS_POD_STARTED_SUCCESS_KEY));
                     return null;
-                });
+                }, executor);
     }
 
     private String getPrettierErrorMessageFromThrowable(Throwable throwable, boolean finishedRetries) {
