@@ -635,15 +635,17 @@ public class Artifact implements GenericEntity<Integer> {
             artifact.setSha1(sha1);
             artifact.setSha256(sha256);
             artifact.setSize(size);
+
             if (artifactQuality == null) {
                 artifactQuality = ArtifactQuality.NEW;
             }
+            artifact.setArtifactQuality(artifactQuality);
 
             if (buildCategory == null) {
                 buildCategory = BuildCategory.STANDARD;
             }
+            artifact.setBuildCategory(buildCategory);
 
-            artifact.setArtifactQuality(artifactQuality);
             artifact.setTargetRepository(targetRepository);
             artifact.setFilename(filename);
             artifact.setDeployPath(deployPath);
