@@ -348,7 +348,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void addTaskToBuildQueue(BuildTask buildTask) {
-
+        // make sure there is no build context, it might be set from the request headers of the dependant build
+        // completion notification
+        MDCUtils.removeBuildContext();
         MDCUtils.addBuildContext(getMDCMeta(buildTask));
         try {
             if (isBuildConfigurationAlreadyInQueue(buildTask)) {
