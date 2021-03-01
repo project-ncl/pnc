@@ -20,6 +20,7 @@ package org.jboss.pnc.dto;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -67,6 +68,13 @@ public class ArtifactRef implements DTOEntity {
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final ArtifactQuality artifactQuality;
+
+    /**
+     * Category of the build denoting its support and usage
+     */
+    @PatchSupport({ REPLACE })
+    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    protected final BuildCategory buildCategory;
 
     /**
      * MD5 checksum of the artifact.

@@ -19,6 +19,7 @@ package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import java.time.Instant;
@@ -70,6 +71,7 @@ public class Artifact extends ArtifactRef {
             String id,
             String identifier,
             ArtifactQuality artifactQuality,
+            BuildCategory buildCategory,
             String md5,
             String sha1,
             String sha256,
@@ -89,6 +91,7 @@ public class Artifact extends ArtifactRef {
                 id,
                 identifier,
                 artifactQuality,
+                buildCategory,
                 md5,
                 sha1,
                 sha256,
