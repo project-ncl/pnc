@@ -23,6 +23,7 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
@@ -115,6 +116,11 @@ public class Artifact implements GenericEntity<Integer> {
     @NotNull
     @Enumerated(EnumType.STRING)
     private ArtifactQuality artifactQuality;
+
+    @Audited
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private BuildCategory buildCategory;
 
     /**
      * The type of repository which hosts this artifact (Maven, NPM, etc). This field determines the format of the
@@ -295,6 +301,14 @@ public class Artifact implements GenericEntity<Integer> {
 
     public void setArtifactQuality(ArtifactQuality artifactQuality) {
         this.artifactQuality = artifactQuality;
+    }
+
+    public BuildCategory getBuildCategory() {
+        return buildCategory;
+    }
+
+    public void setBuildCategory(BuildCategory buildCategory) {
+        this.buildCategory = buildCategory;
     }
 
     /**
@@ -516,7 +530,7 @@ public class Artifact implements GenericEntity<Integer> {
     }
 
     /**
-     * @param reason The reason for the Quality level setting (change) of this artifact
+     * @param qualityLevelReason The reason for the Quality level setting (change) of this artifact
      */
     public void setQualityLevelReason(String qualityLevelReason) {
         this.qualityLevelReason = StringUtils.nullIfBlank(qualityLevelReason);
@@ -576,6 +590,8 @@ public class Artifact implements GenericEntity<Integer> {
 
         private ArtifactQuality artifactQuality;
 
+        private BuildCategory buildCategory;
+
         private TargetRepository targetRepository;
 
         private String filename;
@@ -622,6 +638,11 @@ public class Artifact implements GenericEntity<Integer> {
             if (artifactQuality == null) {
                 artifactQuality = ArtifactQuality.NEW;
             }
+
+            if (buildCategory == null) {
+                buildCategory = BuildCategory.STANDARD;
+            }
+
             artifact.setArtifactQuality(artifactQuality);
             artifact.setTargetRepository(targetRepository);
             artifact.setFilename(filename);
@@ -674,6 +695,11 @@ public class Artifact implements GenericEntity<Integer> {
 
         public Builder artifactQuality(ArtifactQuality artifactQuality) {
             this.artifactQuality = artifactQuality;
+            return this;
+        }
+
+        public Builder buildCategory(BuildCategory buildCategory) {
+            this.buildCategory = buildCategory;
             return this;
         }
 
