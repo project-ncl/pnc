@@ -44,3 +44,9 @@ ALTER TABLE buildrecordpushresult ALTER COLUMN buildrecord_id SET DATA TYPE bigi
 ALTER TABLE build_record_attributes ALTER COLUMN build_record_id SET DATA TYPE bigint;
 ALTER TABLE _archived_buildrecords ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
 COMMIT;
+
+-- [NCL-6361] Add to the Artifacts model a new field to store the build category
+BEGIN transaction;
+    ALTER TABLE Artifact ADD COLUMN buildCategory varchar(50);
+    UPDATE Artifact SET buildCategory='STANDARD';
+COMMIT;
