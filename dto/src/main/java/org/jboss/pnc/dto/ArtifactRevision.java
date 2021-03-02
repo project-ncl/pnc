@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jboss.pnc.enums.BuildCategory;
 
 /**
  * Revision of a an artifact created or used by build.
@@ -53,8 +54,9 @@ public class ArtifactRevision extends ArtifactRevisionRef {
             String qualityLevelReason,
             Instant modificationTime,
             ArtifactQuality artifactQuality,
+            BuildCategory buildCategory,
             User modificationUser) {
-        super(id, rev, qualityLevelReason, modificationTime, artifactQuality);
+        super(id, rev, qualityLevelReason, modificationTime, artifactQuality, buildCategory);
         this.modificationUser = modificationUser;
     }
 
