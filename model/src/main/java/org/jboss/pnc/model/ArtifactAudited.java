@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Objects;
 
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 
 /**
  * The audited record of an artifact, to keep track of the changes to the Quality label. Each change to the quality
@@ -46,6 +47,8 @@ public class ArtifactAudited implements GenericEntity<Integer> {
     private IdRev idRev;
 
     private ArtifactQuality artifactQuality;
+
+    private BuildCategory buildCategory;
 
     private User modificationUser;
 
@@ -90,6 +93,14 @@ public class ArtifactAudited implements GenericEntity<Integer> {
         this.artifactQuality = artifactQuality;
     }
 
+    public BuildCategory getBuildCategory() {
+        return buildCategory;
+    }
+
+    public void setBuildCategory(BuildCategory buildCategory) {
+        this.buildCategory = buildCategory;
+    }
+
     public User getModificationUser() {
         return modificationUser;
     }
@@ -124,7 +135,8 @@ public class ArtifactAudited implements GenericEntity<Integer> {
 
     @Override
     public String toString() {
-        return "ArtifactAudited [artifactQuality=" + artifactQuality + ", id=" + id + ", rev=" + rev + "]";
+        return "ArtifactAudited [artifactQuality=" + artifactQuality + ", buildCategory=" + buildCategory + ", id=" + id
+                + ", rev=" + rev + "]";
     }
 
     @Override
@@ -155,6 +167,7 @@ public class ArtifactAudited implements GenericEntity<Integer> {
             artifactAudited.setRev(rev);
             artifactAudited.setIdRev(new IdRev(artifact.getId(), rev));
             artifactAudited.setArtifactQuality(artifact.getArtifactQuality());
+            artifactAudited.setBuildCategory(artifact.getBuildCategory());
             artifactAudited.setModificationTime(artifact.getModificationTime());
             artifactAudited.setModificationUser(artifact.getModificationUser());
             artifactAudited.setQualityLevelReason(artifact.getQualityLevelReason());

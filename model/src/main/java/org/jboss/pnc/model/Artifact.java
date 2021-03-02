@@ -539,7 +539,8 @@ public class Artifact implements GenericEntity<Integer> {
     @Override
     public String toString() {
         String tr = (targetRepository == null) ? "targetRepository=null" : targetRepository.toString();
-        return "Artifact [id: " + id + ", identifier=" + identifier + ", quality=" + artifactQuality + ", " + tr + "]";
+        return "Artifact [id: " + id + ", identifier=" + identifier + ", artifactQuality=" + artifactQuality
+                + ", buildCategory=" + buildCategory + ", " + tr + "]";
     }
 
     public String getDescriptiveString() {
