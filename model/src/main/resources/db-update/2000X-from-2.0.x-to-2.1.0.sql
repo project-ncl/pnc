@@ -47,6 +47,9 @@ COMMIT;
 
 -- [NCL-6361] Add to the Artifacts model a new field to store the build category
 BEGIN transaction;
-    ALTER TABLE Artifact ADD COLUMN buildCategory varchar(50);
-    UPDATE Artifact SET buildCategory='STANDARD';
+    ALTER TABLE artifact ADD COLUMN buildCategory varchar(50);
+    UPDATE artifact SET buildCategory='STANDARD';
+
+    ALTER TABLE artifact_aud ADD COLUMN buildCategory varchar(50);
+    UPDATE artifact_aud SET buildCategory='STANDARD';
 COMMIT;
