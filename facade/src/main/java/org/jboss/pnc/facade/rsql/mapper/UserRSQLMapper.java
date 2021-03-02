@@ -22,6 +22,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.User_;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -41,6 +42,11 @@ public class UserRSQLMapper extends AbstractRSQLMapper<Integer, User> {
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<User, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override

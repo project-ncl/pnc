@@ -22,6 +22,7 @@ import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductMilestoneRelease_;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -42,6 +43,11 @@ public class ProductMilestoneReleaseRSQLMapper extends AbstractRSQLMapper<Long, 
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<ProductMilestoneRelease, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override

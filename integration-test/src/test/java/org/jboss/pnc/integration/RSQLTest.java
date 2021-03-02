@@ -241,15 +241,22 @@ public class RSQLTest {
     @Test
     public void shouldFilterBuildConfigsWithAssociatedProductVersion() throws RemoteResourceException {
         String query = "productVersion=isnull=false";
-        RemoteCollection<BuildConfiguration> gcs = buildConfigClient.getAll(empty(), Optional.of(query));
-        assertThat(gcs).hasSize(3);
+        RemoteCollection<BuildConfiguration> bcs = buildConfigClient.getAll(empty(), Optional.of(query));
+        assertThat(bcs).hasSize(3);
     }
 
     @Test
     public void shouldFilterBuildConfigsWithoutAssociatedProductVersion() throws RemoteResourceException {
         String query = "productVersion=isnull=true";
-        RemoteCollection<BuildConfiguration> gcs = buildConfigClient.getAll(empty(), Optional.of(query));
-        assertThat(gcs).hasSize(2);
+        RemoteCollection<BuildConfiguration> bcs = buildConfigClient.getAll(empty(), Optional.of(query));
+        assertThat(bcs).hasSize(2);
+    }
+
+    @Test
+    public void shouldFilterBuildConfigsByAssociatedGroupConfig() throws RemoteResourceException {
+        String query = "groupConfigurations.name==Example-Build-Group-1";
+        RemoteCollection<BuildConfiguration> bcs = buildConfigClient.getAll(empty(), Optional.of(query));
+        assertThat(bcs).hasSize(3);
     }
 
     @Test

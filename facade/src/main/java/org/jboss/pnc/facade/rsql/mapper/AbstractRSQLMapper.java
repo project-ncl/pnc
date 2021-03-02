@@ -26,6 +26,7 @@ import org.jboss.pnc.model.GenericEntity;
 import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 import java.io.Serializable;
 
@@ -65,6 +66,13 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
                 return mapEntity(from, toEntity(name), selector.next());
             }
         }
+        if (toEntitySet(name) != null) {
+            if (selector.isFinal()) {
+                return (Path<?>) from.get(toEntitySet(name));
+            } else {
+                return mapEntitySet(from, toEntitySet(name), selector.next());
+            }
+        }
         throw new RSQLException("Unknown RSQL selector " + name + " for type " + type);
     }
 
@@ -74,6 +82,15 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
             RSQLSelectorPath selector) {
         Class<X> bindableJavaType = entity.getBindableJavaType();
         From<DB, X> join = from.join(entity);
+        return mapper.toPath(bindableJavaType, join, selector);
+    }
+
+    protected <X extends GenericEntity<?>> Path<?> mapEntitySet(
+            From<?, DB> from,
+            SetAttribute<DB, X> entitySet,
+            RSQLSelectorPath selector) {
+        Class<X> bindableJavaType = entitySet.getBindableJavaType();
+        From<DB, X> join = from.join(entitySet);
         return mapper.toPath(bindableJavaType, join, selector);
     }
 
@@ -88,6 +105,11 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
             Class<? extends GenericEntity<?>> bindableType = entity.getBindableJavaType();
             return entity.getName() + "." + mapper.toPath(bindableType, selector.next());
         }
+        SetAttribute<DB, ? extends GenericEntity<?>> entitySet = toEntitySet(name);
+        if (entitySet != null) {
+            Class<? extends GenericEntity<?>> type = entitySet.getBindableJavaType();
+            return entitySet.getName() + "." + mapper.toPath(type, selector.next());
+        }
         throw new RSQLException("Unknown RSQL selector " + name + " for type " + type);
     }
 
@@ -97,6 +119,8 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
     }
 
     protected abstract SingularAttribute<DB, ? extends GenericEntity<?>> toEntity(String name);
+
+    protected abstract SetAttribute<DB, ? extends GenericEntity<?>> toEntitySet(String name);
 
     protected abstract SingularAttribute<DB, ?> toAttribute(String name);
 

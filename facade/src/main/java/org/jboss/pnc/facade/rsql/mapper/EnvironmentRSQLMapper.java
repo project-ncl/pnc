@@ -22,6 +22,7 @@ import org.jboss.pnc.model.BuildEnvironment_;
 import org.jboss.pnc.model.GenericEntity;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -41,6 +42,11 @@ public class EnvironmentRSQLMapper extends AbstractRSQLMapper<Integer, BuildEnvi
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<BuildEnvironment, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override

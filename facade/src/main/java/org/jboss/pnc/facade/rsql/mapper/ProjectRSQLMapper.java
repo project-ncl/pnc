@@ -22,6 +22,7 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.Project_;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -41,6 +42,11 @@ public class ProjectRSQLMapper extends AbstractRSQLMapper<Integer, Project> {
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<Project, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override
