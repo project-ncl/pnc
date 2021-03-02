@@ -33,6 +33,7 @@ import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
@@ -228,6 +229,7 @@ public class ArtifactEndpointTest {
                 .filename("builtArtifactInsert.jar")
                 .identifier("integration-test:built-artifact-insert:jar:1.0")
                 .targetRepository(targetRepositoryRef)
+                .buildCategory(BuildCategory.STANDARD)
                 .md5("insert-md5-1")
                 .sha1("insert-1")
                 .sha256("insert-1")
@@ -250,6 +252,7 @@ public class ArtifactEndpointTest {
                 .filename("builtArtifactInsert2.jar")
                 .identifier("integration-test:built-artifact-insert2:jar:1.0")
                 .targetRepository(targetRepositoryRef)
+                .buildCategory(BuildCategory.STANDARD)
                 .md5("insert-md5-2")
                 .sha1("insert-2")
                 .sha256("insert-2")
@@ -532,6 +535,7 @@ public class ArtifactEndpointTest {
 
         Artifact artifact = Artifact.builder()
                 .artifactQuality(ArtifactQuality.TEMPORARY)
+                .buildCategory(BuildCategory.STANDARD)
                 .filename("temp-builtArtifactInsert2.jar")
                 .identifier("integration-test:temp-built-artifact-insert2:jar:1.0")
                 .targetRepository(targetRepositoryRef)
@@ -559,6 +563,7 @@ public class ArtifactEndpointTest {
 
         Artifact artifact = Artifact.builder()
                 .artifactQuality(ArtifactQuality.TEMPORARY)
+                .buildCategory(BuildCategory.STANDARD)
                 .filename("temp-builtArtifactInsert3.jar")
                 .identifier("integration-test:temp-built-artifact-insert3:jar:1.0")
                 .targetRepository(targetRepositoryRef)
