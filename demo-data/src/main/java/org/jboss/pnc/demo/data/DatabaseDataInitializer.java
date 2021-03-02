@@ -22,13 +22,7 @@ import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
-import org.jboss.pnc.enums.ArtifactQuality;
-import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.enums.MilestoneCloseStatus;
-import org.jboss.pnc.enums.RepositoryType;
-import org.jboss.pnc.enums.SupportLevel;
-import org.jboss.pnc.enums.SystemImageType;
+import org.jboss.pnc.enums.*;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -569,6 +563,7 @@ public class DatabaseDataInitializer {
                 .sha256("1660168483cb8a05d1cc2e77c861682a42ed9517ba945159d5538950c5db00fa")
                 .size(10L)
                 .artifactQuality(ArtifactQuality.NEW)
+                .buildCategory(BuildCategory.STANDARD)
                 .build();
         Artifact builtArtifact2 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact2:jar:1.0")
@@ -579,6 +574,7 @@ public class DatabaseDataInitializer {
                 .sha256("2fafc2ed0f752ac2540283d48c5cd663254a853c5cb13dec02dce023fc7471a9")
                 .size(11L)
                 .artifactQuality(ArtifactQuality.VERIFIED)
+                .buildCategory(BuildCategory.STANDARD)
                 .build();
         Artifact builtArtifact3 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact11:pom:1.0")
@@ -589,6 +585,7 @@ public class DatabaseDataInitializer {
                 .sha256("b39f88c9937f201981767e539025121971e72bc590ea20ed7fdfffafc05f55a9")
                 .size(10L)
                 .artifactQuality(ArtifactQuality.DELETED)
+                .buildCategory(BuildCategory.STANDARD)
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact22:jar:1.0")
@@ -599,6 +596,7 @@ public class DatabaseDataInitializer {
                 .sha256("61c9ccd3ba0013311ddb89cb9a29389b6761061bdcdfb48f0096bf98c7279a21")
                 .size(11L)
                 .artifactQuality(ArtifactQuality.NEW)
+                .buildCategory(BuildCategory.STANDARD)
                 .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);

@@ -40,6 +40,7 @@ import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
@@ -570,6 +571,7 @@ public class BuildEndpointTest {
         Artifact badQuality = artifactClient.create(
                 Artifact.builder()
                         .artifactQuality(ArtifactQuality.DELETED)
+                        .buildCategory(BuildCategory.STANDARD)
                         .filename("builtArtifactInsert2.jar")
                         .identifier("integration-test:built-artifact:jar:1.0")
                         .targetRepository(artifactClient.getSpecific("100").getTargetRepository())
@@ -597,6 +599,7 @@ public class BuildEndpointTest {
         Artifact newArtifact = artifactClient.create(
                 Artifact.builder()
                         .artifactQuality(ArtifactQuality.NEW)
+                        .buildCategory(BuildCategory.STANDARD)
                         .filename("builtArtifactInsertNew.jar")
                         .identifier("integration-test:built-artifact-new:jar:1.0")
                         .targetRepository(artifactClient.getSpecific("100").getTargetRepository())

@@ -23,6 +23,7 @@ import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.DTOValidationException;
@@ -130,7 +131,11 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
                 .build();
 
         final String identifier = "foo:bar:0.0.1";
-        Artifact artifact = Artifact.builder().identifier(identifier).artifactQuality(ArtifactQuality.NEW).build();
+        Artifact artifact = Artifact.builder()
+                .identifier(identifier)
+                .artifactQuality(ArtifactQuality.NEW)
+                .buildCategory(BuildCategory.STANDARD)
+                .build();
 
         Artifact stored = provider.store(artifact);
 
@@ -146,6 +151,7 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
                 .id("123")
                 .identifier(identifier)
                 .artifactQuality(ArtifactQuality.NEW)
+                .buildCategory(BuildCategory.STANDARD)
                 .build();
 
         try {
@@ -186,6 +192,7 @@ public class ArtifactProviderTest extends AbstractIntIdProviderTest<org.jboss.pn
         Artifact toUpdate = Artifact.builder()
                 .id(artifact1.getId().toString())
                 .artifactQuality(ArtifactQuality.BLACKLISTED) // Modified field
+                .buildCategory(BuildCategory.STANDARD)
                 .identifier(artifact1.getIdentifier())
                 .md5(artifact1.getMd5())
                 .sha1(artifact1.getSha1())
