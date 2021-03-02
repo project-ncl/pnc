@@ -496,7 +496,7 @@ public class DatabaseDataInitializer {
 
         // Build config set containing the three example build configs
         buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder()
-                .name("Example Build Group 1")
+                .name("Example-Build-Group-1")
                 .buildConfiguration(buildConfiguration1)
                 .buildConfiguration(buildConfiguration2)
                 .buildConfiguration(buildConfiguration3)
@@ -504,7 +504,7 @@ public class DatabaseDataInitializer {
                 .build();
 
         BuildConfigurationSet buildConfigurationSet2 = BuildConfigurationSet.Builder.newBuilder()
-                .name("Fabric Build Group")
+                .name("Fabric-Build-Group")
                 .buildConfiguration(buildConfiguration4)
                 .productVersion(productVersion1)
                 .build();

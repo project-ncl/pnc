@@ -22,6 +22,7 @@ import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.GenericEntity;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -44,6 +45,11 @@ public class ArtifactRSQLMapper extends AbstractRSQLMapper<Integer, Artifact> {
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<Artifact, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override

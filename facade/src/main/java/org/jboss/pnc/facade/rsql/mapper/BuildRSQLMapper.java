@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -55,6 +56,11 @@ public class BuildRSQLMapper extends AbstractRSQLMapper<Long, BuildRecord> {
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<BuildRecord, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override

@@ -22,6 +22,7 @@ import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -45,6 +46,11 @@ public class ProductVersionRSQLMapper extends AbstractRSQLMapper<Integer, Produc
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<ProductVersion, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override

@@ -27,6 +27,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.criteria.From;
 import javax.persistence.criteria.Path;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -74,6 +75,11 @@ public class ProductReleaseRSQLMapper extends AbstractRSQLMapper<Integer, Produc
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<ProductRelease, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override

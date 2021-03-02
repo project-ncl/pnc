@@ -22,6 +22,7 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -40,6 +41,11 @@ public class TargetRepositoryRSQLMapper extends AbstractRSQLMapper<Integer, Targ
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<TargetRepository, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override

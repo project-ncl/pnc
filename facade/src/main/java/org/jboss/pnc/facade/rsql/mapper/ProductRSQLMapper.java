@@ -22,6 +22,7 @@ import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.Product_;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -41,6 +42,11 @@ public class ProductRSQLMapper extends AbstractRSQLMapper<Integer, Product> {
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<Product, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override

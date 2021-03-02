@@ -22,6 +22,7 @@ import org.jboss.pnc.model.BuildConfigurationSet_;
 import org.jboss.pnc.model.GenericEntity;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -43,6 +44,11 @@ public class GroupConfigurationRSQLMapper extends AbstractRSQLMapper<Integer, Bu
             default:
                 return null;
         }
+    }
+
+    @Override
+    protected SetAttribute<BuildConfigurationSet, ? extends GenericEntity<?>> toEntitySet(String name) {
+        return null;
     }
 
     @Override
