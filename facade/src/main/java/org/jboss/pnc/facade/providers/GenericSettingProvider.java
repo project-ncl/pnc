@@ -117,7 +117,6 @@ public class GenericSettingProvider {
         GenericSetting pncVersion = createGenericParameterIfNotFound(PNC_VERSION);
         pncVersion.setValue(version);
         genericSettingRepository.save(pncVersion);
-        notifier.sendMessage(GenericSettingNotification.newAnnoucement(version));
     }
 
     public String getPNCVersion() {
