@@ -33,9 +33,6 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 import org.jboss.pnc.enums.BuildCategory;
-import org.jboss.pnc.processor.annotation.PatchSupport;
-
-import static org.jboss.pnc.processor.annotation.PatchSupport.Operation.REPLACE;
 
 /**
  * Revision of an artifact created or used by build.
