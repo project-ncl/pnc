@@ -28,6 +28,7 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.AlignmentParameters;
@@ -39,6 +40,7 @@ import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigWithLatestPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigRevisionPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
@@ -116,6 +118,33 @@ public interface BuildConfigurationEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
     Page<BuildConfiguration> getAll(@Valid @BeanParam PageParameters pageParams);
+
+    static final String GET_ALL_WITH_LATEST_BUILD_DESC = "Gets all build configs with latest build info included.";
+
+    /**
+     * {@value GET_ALL_WITH_LATEST_BUILD_DESC}
+     *
+     * @param pageParams
+     * @return
+     */
+    @Operation(
+            summary = GET_ALL_WITH_LATEST_BUILD_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildConfigWithLatestPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/withLatestBuild")
+    Page<BuildConfigurationWithLatestBuild> getAllWithLatestBuild(@Valid @BeanParam PageParameters pageParams);
 
     static final String CREATE_NEW_DESC = "Creates a new build config.";
 

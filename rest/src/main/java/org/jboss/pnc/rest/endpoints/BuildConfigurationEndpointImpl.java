@@ -23,6 +23,7 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.AlignmentParameters;
@@ -123,6 +124,15 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
                 }
             }
         }
+    }
+
+    @Override
+    public Page<BuildConfigurationWithLatestBuild> getAllWithLatestBuild(PageParameters pageParams) {
+        return buildConfigurationProvider.getBuildConfigurationIncludeLatestBuild(
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ());
     }
 
     @Override

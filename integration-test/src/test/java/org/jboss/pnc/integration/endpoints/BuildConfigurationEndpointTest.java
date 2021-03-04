@@ -38,6 +38,7 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.GroupConfiguration;
@@ -50,6 +51,7 @@ import org.jboss.pnc.dto.response.Parameter;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
+import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
@@ -65,6 +67,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.NotFoundException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -161,6 +164,27 @@ public class BuildConfigurationEndpointTest {
         RemoteCollection<BuildConfiguration> all = client.getAll();
 
         assertThat(all).hasSize(5); // from DatabaseDataInitializer
+    }
+
+    @Test
+    @InSequence(10)
+    public void testGetAllWithLatest() throws RemoteResourceException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+
+        RemoteCollection<BuildConfigurationWithLatestBuild> bcs = client.getAllWithLatestBuild();
+
+        BuildsFilterParameters filter = new BuildsFilterParameters();
+        filter.setLatest(true);
+
+        assertThat(bcs).hasSize(5); // from DatabaseDataInitializer
+
+        for (BuildConfigurationWithLatestBuild bc : bcs.getAll()) {
+            List<Build> associatedBuilds = new ArrayList<>(client.getBuilds(bc.getId(), filter).getAll());
+            if (bc.getLatestBuild() != null) {
+                assertThat(associatedBuilds).isNotEmpty();
+                assertThat(bc.getLatestBuild().getId()).isEqualTo(associatedBuilds.get(0).getId());
+            }
+        }
     }
 
     @Test

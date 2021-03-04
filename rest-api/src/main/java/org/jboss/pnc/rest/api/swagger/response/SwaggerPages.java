@@ -22,6 +22,7 @@ import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.Environment;
@@ -52,6 +53,9 @@ public class SwaggerPages {
     }
 
     public static class BuildConfigPage extends Page<BuildConfiguration> {
+    }
+
+    public static class BuildConfigWithLatestPage extends Page<BuildConfigurationWithLatestBuild> {
     }
 
     public static class BuildConfigRevisionPage extends Page<BuildConfigurationRevision> {
