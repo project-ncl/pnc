@@ -45,8 +45,10 @@ import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.Ignored
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPatterns;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
@@ -91,6 +93,11 @@ import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.TEMPOR
 public class RepositoryManagerDriver implements RepositoryManager {
 
     static final String EXTRA_PUBLIC_REPOSITORIES_KEY = "EXTRA_REPOSITORIES";
+
+    /** Key of build category value in generic parameters map. */
+    static final String BUILD_CATEGORY_KEY = "BUILD_CATEGORY";
+    /** Build category param value for managed service builds. */
+    static final String BUILD_CATEGORY_SERVICE = "SERVICE";
 
     /** Store key of gradle-plugins remote repository. */
     static final String GRADLE_PLUGINS_REPO = "maven:remote:gradle-plugins";
@@ -278,6 +285,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
         boolean tempBuild = buildExecution.isTempBuild();
         String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_TARGET : BUILD_PROMOTION_TARGET;
+        BuildCategory buildCategory = getBuildCategory(genericParameters);
         ArtifactFilter artifactFilter = new ArtifactFilterImpl(
                 ignoredPathPatternsPromotion,
                 ignoredPathPatternsData,
@@ -290,7 +298,13 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 new IndyRepositoryConnectionInfo(url, deployUrl),
                 artifactFilter,
                 buildPromotionTarget,
+                buildCategory,
                 tempBuild);
+    }
+
+    private BuildCategory getBuildCategory(Map<String, String> genericParameters) {
+        return genericParameters.get(BUILD_CATEGORY_KEY) == BUILD_CATEGORY_SERVICE ? BuildCategory.SERVICE
+                : BuildCategory.STANDARD;
     }
 
     private String getIndyPackageTypeKey(RepositoryType repoType) {
@@ -312,14 +326,16 @@ public class RepositoryManagerDriver implements RepositoryManager {
             return null;
         }
 
+        BuildConfigurationAudited bc = br.getBuildConfigurationAudited();
         String buildContentId = br.getBuildContentId();
-        BuildType buildType = br.getBuildConfigurationAudited().getBuildType();
+        BuildType buildType = bc.getBuildType();
         boolean tempBuild = br.isTemporaryBuild();
 
         Indy indy = init(null);
 
         String buildPromotionTarget = tempBuild ? TEMP_BUILD_PROMOTION_TARGET : BUILD_PROMOTION_TARGET;
         String packageType = getIndyPackageTypeKey(buildType.getRepoType());
+        BuildCategory buildCategory = getBuildCategory(bc.getGenericParameters());
 
         ArtifactFilter artifactFilter = new ArtifactFilterImpl(
                 ignoredPathPatternsPromotion,
@@ -333,6 +349,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
                 null,
                 artifactFilter,
                 buildPromotionTarget,
+                buildCategory,
                 tempBuild);
         return session.extractBuildArtifacts(false);
     }

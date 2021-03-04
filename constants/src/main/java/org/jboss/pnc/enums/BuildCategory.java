@@ -18,17 +18,17 @@
 package org.jboss.pnc.enums;
 
 /**
- * Enum identifying category type of a build
+ * Enum identifying category of a build.
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 public enum BuildCategory {
     /**
-     * The build is built to be used in On-Premise products or Managed services
+     * The build is built to be used in On-Premise products or Managed services.
      */
     STANDARD,
     /**
-     * The build is built to be used in Managed services only
+     * The build is built to be used in Managed services only.
      */
     SERVICE
 }
