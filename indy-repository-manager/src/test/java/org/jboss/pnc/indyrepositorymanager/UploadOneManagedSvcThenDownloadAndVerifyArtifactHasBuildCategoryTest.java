@@ -36,29 +36,28 @@ import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(ContainerTest.class)
-public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest extends AbstractImportTest {
+public class UploadOneManagedSvcThenDownloadAndVerifyArtifactHasBuildCategoryTest extends AbstractImportTest {
 
     private static final Logger log = LoggerFactory
-            .getLogger(UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest.class);
+            .getLogger(UploadOneManagedSvcThenDownloadAndVerifyArtifactHasBuildCategoryTest.class);
 
     @Test
     public void extractBuildArtifacts_ContainsTwoUploads() throws Exception {
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
-        RepositorySession rc = driver.createBuildRepository(
-                execution,
-                accessToken,
-                accessToken,
-                RepositoryType.MAVEN,
-                Collections.emptyMap());
+        Map<String, String> genericParams = new HashMap<>(1);
+        genericParams.put(RepositoryManagerDriver.BUILD_CATEGORY_KEY, RepositoryManagerDriver.BUILD_CATEGORY_SERVICE);
+        RepositorySession rc = driver
+                .createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, genericParams);
 
         assertThat(rc, notNullValue());
 
@@ -97,9 +96,9 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest extends Abst
                 builtArtifact.getIdentifier(),
                 equalTo(artifactRef));
         assertThat(
-                builtArtifact + " doesn't have correct build category: " + BuildCategory.STANDARD,
+                builtArtifact + " doesn't have correct build category: " + BuildCategory.SERVICE,
                 builtArtifact.getBuildCategory(),
-                equalTo(BuildCategory.STANDARD));
+                equalTo(BuildCategory.SERVICE));
 
         client.close();
     }

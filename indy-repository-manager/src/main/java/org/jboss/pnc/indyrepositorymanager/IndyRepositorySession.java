@@ -41,6 +41,7 @@ import org.commonjava.indy.promote.model.PathsPromoteRequest;
 import org.commonjava.indy.promote.model.PathsPromoteResult;
 import org.commonjava.indy.promote.model.ValidationResult;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.TargetRepository;
@@ -110,6 +111,8 @@ public class IndyRepositorySession implements RepositorySession {
 
     private String buildPromotionTarget;
 
+    private BuildCategory buildCategory;
+
     private static Set<String> checksumSuffixes;
     static {
         checksumSuffixes = new HashSet<>(4);
@@ -127,6 +130,7 @@ public class IndyRepositorySession implements RepositorySession {
             IndyRepositoryConnectionInfo info,
             ArtifactFilter artifactFilter,
             String buildPromotionTarget,
+            BuildCategory buildCategory,
             boolean isTempBuild) {
         this.validator = validatorFactory.getValidator();
         this.indy = indy;
@@ -136,6 +140,7 @@ public class IndyRepositorySession implements RepositorySession {
         this.artifactFilter = artifactFilter;
         this.connectionInfo = info;
         this.buildPromotionTarget = buildPromotionTarget;
+        this.buildCategory = buildCategory;
         this.isTempBuild = isTempBuild;
     }
 
@@ -631,7 +636,8 @@ public class IndyRepositorySession implements RepositorySession {
                             .filename(new File(path).getName())
                             .identifier(identifier)
                             .targetRepository(targetRepository)
-                            .artifactQuality(artifactQuality);
+                            .artifactQuality(artifactQuality)
+                            .buildCategory(buildCategory);
 
                     Artifact artifact = validateArtifact(artifactBuilder.build());
                     data.add(artifact);

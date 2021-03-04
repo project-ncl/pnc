@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.spi.repositorymanager;
 
-import java.util.Map;
-import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
+
+import java.util.Map;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-23.
