@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
+import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
 import org.jboss.pnc.dto.requests.BuildConfigWithSCMRequest;
 import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.Page;
@@ -56,6 +57,12 @@ public interface BuildConfigurationProvider
             String sortingRsql,
             String query,
             String scmRepositoryId);
+
+    Page<BuildConfigurationWithLatestBuild> getBuildConfigurationIncludeLatestBuild(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query);
 
     BuildConfiguration clone(String buildConfigurationId);
 

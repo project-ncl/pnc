@@ -19,10 +19,11 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
-import org.jboss.pnc.dto.DTOEntity;
+import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
@@ -34,6 +35,8 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
+import org.jboss.pnc.facade.providers.api.BuildPageInfo;
+import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -50,7 +53,6 @@ import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -68,12 +70,12 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -131,6 +133,9 @@ public class BuildConfigurationProviderImpl extends
 
     @Inject
     private ProjectRepository projectRepository;
+
+    @Inject
+    private BuildProvider buildProvider;
 
     @Inject
     private UserService userService;
@@ -318,6 +323,41 @@ public class BuildConfigurationProviderImpl extends
                 query,
                 withScmRepositoryId(Integer.valueOf(scmRepositoryId)),
                 isNotArchived());
+    }
+
+    @Override
+    public Page<BuildConfigurationWithLatestBuild> getBuildConfigurationIncludeLatestBuild(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query) {
+        Page<BuildConfiguration> buildConfigs = queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                isNotArchived());
+        List<BuildConfigurationWithLatestBuild> bcsWithLatest = new ArrayList<>();
+        buildConfigs.getContent().forEach(bc -> bcsWithLatest.add(populateBuildConfigWithLatestBuild(bc)));
+        return new Page<>(
+                pageIndex,
+                pageSize,
+                buildConfigs.getTotalPages(),
+                buildConfigs.getTotalHits(),
+                bcsWithLatest);
+    }
+
+    private BuildConfigurationWithLatestBuild populateBuildConfigWithLatestBuild(BuildConfiguration buildConfig) {
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 10, null, null, true, false, buildConfig.getName());
+        Optional<Build> latestBuild = buildProvider.getBuildsForBuildConfiguration(pageInfo, buildConfig.getId())
+                .getContent()
+                .stream()
+                .findFirst();
+        return BuildConfigurationWithLatestBuild.builderWithLatestBuild()
+                .buildConfig(buildConfig)
+                .latestBuild(latestBuild.orElse(null))
+                .latestBuildUsername(latestBuild.map(build -> build.getUser().getUsername()).orElse(null))
+                .build();
     }
 
     @Override
