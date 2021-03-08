@@ -25,6 +25,7 @@ import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.util.UserService;
@@ -171,11 +172,12 @@ public class ArtifactProviderImpl
             int pageSize,
             Optional<String> identifierPattern,
             Set<ArtifactQuality> qualities,
-            Optional<RepositoryType> repoType) {
+            Optional<RepositoryType> repoType,
+            Set<BuildCategory> buildCategories) {
 
         CriteriaBuilder cb = em.getCriteriaBuilder();
 
-        CriteriaQuery<Tuple> query = artifactInfoQuery(cb, identifierPattern, qualities, repoType);
+        CriteriaQuery<Tuple> query = artifactInfoQuery(cb, identifierPattern, qualities, repoType, buildCategories);
         int offset = pageIndex * pageSize;
         List<ArtifactInfo> artifacts = em.createQuery(query)
                 .setMaxResults(pageSize)
@@ -325,7 +327,8 @@ public class ArtifactProviderImpl
             CriteriaBuilder cb,
             Optional<String> identifierPattern,
             Set<ArtifactQuality> qualities,
-            Optional<RepositoryType> repoType) {
+            Optional<RepositoryType> repoType,
+            Set<BuildCategory> buildCategories) {
 
         CriteriaQuery<Tuple> query = cb.createTupleQuery();
 
@@ -335,16 +338,26 @@ public class ArtifactProviderImpl
                 artifact.get(Artifact_.id),
                 artifact.get(Artifact_.identifier),
                 artifact.get(Artifact_.artifactQuality),
-                repository.get(TargetRepository_.REPOSITORY_TYPE));
+                repository.get(TargetRepository_.REPOSITORY_TYPE),
+                artifact.get(Artifact_.buildCategory));
+
         Predicate withIdentifierLike = identifierPattern.isPresent()
                 ? cb.like(artifact.get(Artifact_.identifier), identifierPattern.get().replace("*", "%"))
                 : cb.and();
+
         Predicate withQualityIn = !qualities.isEmpty() ? artifact.get(Artifact_.ARTIFACT_QUALITY).in(qualities)
                 : cb.and();
+
+        Predicate withBuildCategoryIn = !buildCategories.isEmpty()
+                ? artifact.get(Artifact_.BUILD_CATEGORY).in(buildCategories)
+                : cb.and();
+
         Predicate withRepoType = repoType.isPresent() ? cb
                 .equal(artifact.join(Artifact_.targetRepository).get(TargetRepository_.REPOSITORY_TYPE), repoType.get())
                 : cb.and();
-        query.where(cb.and(withIdentifierLike, withQualityIn, withRepoType));
+
+        query.where(cb.and(withIdentifierLike, withQualityIn, withRepoType, withBuildCategoryIn));
+
         return query;
     }
 
@@ -354,6 +367,7 @@ public class ArtifactProviderImpl
                 .identifier(tuple.get(1).toString())
                 .artifactQuality((ArtifactQuality) tuple.get(2))
                 .repositoryType((RepositoryType) tuple.get(3))
+                .buildCategory((BuildCategory) tuple.get(4))
                 .build();
     }
 
