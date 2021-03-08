@@ -17,12 +17,9 @@
  */
 package org.jboss.pnc.processor;
 
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.processor.annotation.Client;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -79,7 +76,7 @@ public class ClientGenerator extends AbstractProcessor {
         try {
             return process0(annotations, roundEnv);
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to processs annotated sources.", e);
+            logger.log(Level.SEVERE, "Failed to process annotated sources.", e);
         }
         return false;
     }
@@ -93,6 +90,11 @@ public class ClientGenerator extends AbstractProcessor {
             logger.info("Generating client for " + restInterfaceName);
 
             List<MethodSpec> methods = new ArrayList<>();
+
+            // [NCL-6405]: Add old variant of ArtifactEndpoint.getAllFiltered method for backward compatibility reasons
+            if ("ArtifactEndpoint".equals(restInterfaceName)) {
+                methods.add(createOldGetAllFilteredMethod());
+            }
 
             for (ExecutableElement restApiMethod : ElementFilter.methodsIn(endpointApi.getEnclosedElements())) {
                 logger.info("Processing method " + restApiMethod.getSimpleName());
@@ -306,6 +308,22 @@ public class ClientGenerator extends AbstractProcessor {
 
         }
         return true;
+    }
+
+    private MethodSpec createOldGetAllFilteredMethod() {
+        return MethodSpec.methodBuilder("getAllFiltered")
+                .addModifiers(Modifier.PUBLIC)
+                .returns(
+                        ParameterizedTypeName.get(
+                                ClassName.get("org.jboss.pnc.client", "RemoteCollection"),
+                                ClassName.get("org.jboss.pnc.dto.response", "ArtifactInfo")))
+                .addParameter(String.class, "identifier")
+                .addParameter(ParameterizedTypeName.get(Set.class, ArtifactQuality.class), "qualities")
+                .addParameter(RepositoryType.class, "repoType")
+                .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"))
+                .addStatement(
+                        "return getAllFiltered(identifier, qualities, repoType, java.util.Collections.emptySet())")
+                .build();
     }
 
     private MethodSpec completeMethod(MethodSpec.Builder methodBuilder, String... coreStatements) {
