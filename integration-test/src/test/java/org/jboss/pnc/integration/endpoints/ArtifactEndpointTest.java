@@ -141,6 +141,18 @@ public class ArtifactEndpointTest {
     }
 
     @Test
+    public void testGetAllArtifactsFilteredByBuildCategories() throws RemoteResourceException {
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        RemoteCollection<ArtifactInfo> result;
+
+        result = client.getAllFiltered(null, null, null, new HashSet<>(Arrays.asList(BuildCategory.STANDARD)));
+        assertThat(result).allSatisfy(a -> assertThat(a.getArtifactQuality().equals(BuildCategory.STANDARD)));
+
+        result = client.getAllFiltered(null, null, null, new HashSet<>(Arrays.asList(BuildCategory.SERVICE)));
+        assertThat(result).hasSize(2); // from DatabaseDataInitializer
+    }
+
+    @Test
     public void testGetAllArtifactsFilteredByRepoType() throws RemoteResourceException {
         ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
         RemoteCollection<ArtifactInfo> result;
