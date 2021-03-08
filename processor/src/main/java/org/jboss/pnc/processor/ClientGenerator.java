@@ -312,6 +312,7 @@ public class ClientGenerator extends AbstractProcessor {
 
     private MethodSpec createOldGetAllFilteredMethod() {
         return MethodSpec.methodBuilder("getAllFiltered")
+                .addAnnotation(Deprecated.class)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(
                         ParameterizedTypeName.get(
