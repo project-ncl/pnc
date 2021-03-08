@@ -31,6 +31,7 @@ import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
@@ -120,6 +121,7 @@ public interface ArtifactEndpoint {
     static final String GET_ALL_FILTERED_DESC = "Gets all artifacts according to specified filters.";
     static final String FILTER_IDENTIFIER_DESC = "Filter by artifact identifier or its part.";
     static final String FILTER_QUALITY_DESC = "List of artifact qualities to include in result.";
+    static final String FILTER_BUILD_CATEGORY_DESC = "List of artifact build categories to include in result.";
     static final String FILTER_REPOSITORY_TYPE_DESC = "Type of target repository.";
 
     /**
@@ -152,7 +154,9 @@ public interface ArtifactEndpoint {
             @Valid @BeanParam PaginationParameters paginationParameters,
             @Parameter(description = FILTER_IDENTIFIER_DESC) @QueryParam("identifier") String identifier,
             @Parameter(description = FILTER_QUALITY_DESC) @QueryParam("qualities") Set<ArtifactQuality> qualities,
-            @Parameter(description = FILTER_REPOSITORY_TYPE_DESC) @QueryParam("repoType") RepositoryType repoType);
+            @Parameter(description = FILTER_REPOSITORY_TYPE_DESC) @QueryParam("repoType") RepositoryType repoType,
+            @Parameter(
+                    description = FILTER_BUILD_CATEGORY_DESC) @QueryParam("buildCategories") Set<BuildCategory> buildCategories);
 
     static final String GET_SPECIFIC_DESC = "Gets a specific build config.";
 

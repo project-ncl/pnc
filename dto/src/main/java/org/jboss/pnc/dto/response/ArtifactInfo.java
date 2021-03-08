@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 
 /**
@@ -58,6 +59,11 @@ public class ArtifactInfo {
      * identifier string.
      */
     protected final RepositoryType repositoryType;
+
+    /**
+     * Category of the build denoting its support and usage
+     */
+    protected final BuildCategory buildCategory;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

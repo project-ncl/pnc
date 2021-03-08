@@ -23,6 +23,7 @@ import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 
@@ -45,7 +46,9 @@ public interface ArtifactProvider
             int pageSize,
             Optional<String> identifierPattern,
             Set<ArtifactQuality> qualities, // default value is empty Set
-            Optional<RepositoryType> repoType);
+            Optional<RepositoryType> repoType,
+            Set<BuildCategory> buildCategories // default value is empty Set
+    );
 
     Page<Artifact> getBuiltArtifactsForBuild(
             int pageIndex,

@@ -585,7 +585,7 @@ public class DatabaseDataInitializer {
                 .sha256("b39f88c9937f201981767e539025121971e72bc590ea20ed7fdfffafc05f55a9")
                 .size(10L)
                 .artifactQuality(ArtifactQuality.DELETED)
-                .buildCategory(BuildCategory.STANDARD)
+                .buildCategory(BuildCategory.SERVICE)
                 .build();
         Artifact builtArtifact4 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact22:jar:1.0")
@@ -596,7 +596,7 @@ public class DatabaseDataInitializer {
                 .sha256("61c9ccd3ba0013311ddb89cb9a29389b6761061bdcdfb48f0096bf98c7279a21")
                 .size(11L)
                 .artifactQuality(ArtifactQuality.NEW)
-                .buildCategory(BuildCategory.STANDARD)
+                .buildCategory(BuildCategory.SERVICE)
                 .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
@@ -615,6 +615,7 @@ public class DatabaseDataInitializer {
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
                 .artifactQuality(ArtifactQuality.NEW)
+                .buildCategory(BuildCategory.STANDARD)
                 .deployPath("/imported1")
                 .build();
         Artifact importedArtifact2 = Artifact.Builder.newBuilder()
@@ -628,6 +629,7 @@ public class DatabaseDataInitializer {
                 .sha256("sha256-fake-abcd1234")
                 .size(10L)
                 .artifactQuality(ArtifactQuality.NEW)
+                .buildCategory(BuildCategory.STANDARD)
                 .deployPath("/imported2")
                 .build();
 
