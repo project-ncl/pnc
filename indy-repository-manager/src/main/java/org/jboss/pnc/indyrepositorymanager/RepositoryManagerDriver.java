@@ -303,7 +303,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     private BuildCategory getBuildCategory(Map<String, String> genericParameters) {
-        return genericParameters.get(BUILD_CATEGORY_KEY) == BUILD_CATEGORY_SERVICE ? BuildCategory.SERVICE
+        return BUILD_CATEGORY_SERVICE.equalsIgnoreCase(genericParameters.get(BUILD_CATEGORY_KEY))
+                ? BuildCategory.SERVICE
                 : BuildCategory.STANDARD;
     }
 
