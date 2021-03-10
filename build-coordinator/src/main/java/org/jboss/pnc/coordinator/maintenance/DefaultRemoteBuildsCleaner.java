@@ -27,10 +27,10 @@ import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.model.core.dto.StoreListingDTO;
+import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
+import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.causewayclient.CausewayClient;
-import org.jboss.pnc.causewayclient.remotespi.TaggedBuild;
-import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
@@ -234,7 +234,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
     private UntagRequest prepareUntagRequest(String tagPrefix, int brewBuildId) {
         TaggedBuild taggedBuild = new TaggedBuild(tagPrefix, brewBuildId);
-        return new UntagRequest(taggedBuild, null);
+        return new UntagRequest(null, taggedBuild);
     }
 
 }

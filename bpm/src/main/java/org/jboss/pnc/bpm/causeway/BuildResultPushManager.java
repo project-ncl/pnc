@@ -19,20 +19,20 @@ package org.jboss.pnc.bpm.causeway;
 
 import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
 import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
+import org.jboss.pnc.api.causeway.dto.push.Build;
+import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
+import org.jboss.pnc.api.causeway.dto.push.BuildRoot;
+import org.jboss.pnc.api.causeway.dto.push.BuiltArtifact;
+import org.jboss.pnc.api.causeway.dto.push.Dependency;
+import org.jboss.pnc.api.causeway.dto.push.Logfile;
+import org.jboss.pnc.api.causeway.dto.push.MavenBuild;
+import org.jboss.pnc.api.causeway.dto.push.MavenBuiltArtifact;
+import org.jboss.pnc.api.causeway.dto.push.NpmBuild;
+import org.jboss.pnc.api.causeway.dto.push.NpmBuiltArtifact;
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.bpm.InvalidReferenceException;
 import org.jboss.pnc.bpm.MissingInternalReferenceException;
 import org.jboss.pnc.causewayclient.CausewayClient;
-import org.jboss.pnc.causewayclient.remotespi.Build;
-import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
-import org.jboss.pnc.causewayclient.remotespi.BuildRoot;
-import org.jboss.pnc.causewayclient.remotespi.BuiltArtifact;
-import org.jboss.pnc.causewayclient.remotespi.CallbackTarget;
-import org.jboss.pnc.causewayclient.remotespi.Dependency;
-import org.jboss.pnc.causewayclient.remotespi.Logfile;
-import org.jboss.pnc.causewayclient.remotespi.MavenBuild;
-import org.jboss.pnc.causewayclient.remotespi.MavenBuiltArtifact;
-import org.jboss.pnc.causewayclient.remotespi.NpmBuild;
-import org.jboss.pnc.causewayclient.remotespi.NpmBuiltArtifact;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.constants.MDCKeys;
@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -130,9 +131,10 @@ public class BuildResultPushManager {
             BuildImportRequest buildImportRequest = createCausewayPushRequest(
                     buildPushOperation.getBuildRecord(),
                     buildPushOperation.getTagPrefix(),
-                    String.format(
-                            buildPushOperation.getCompleteCallbackUrlTemplate(),
-                            buildPushOperation.getBuildRecord().getId()),
+                    URI.create(
+                            String.format(
+                                    buildPushOperation.getCompleteCallbackUrlTemplate(),
+                                    buildPushOperation.getBuildRecord().getId())),
                     authToken,
                     buildPushOperation.getPushResultId(),
                     buildPushOperation.isReImport());
@@ -163,7 +165,7 @@ public class BuildResultPushManager {
     private BuildImportRequest createCausewayPushRequest(
             BuildRecord buildRecord,
             String tagPrefix,
-            String callBackUrl,
+            URI callBackUrl,
             String authToken,
             Long pushResultId,
             boolean reimport) {
@@ -171,12 +173,13 @@ public class BuildResultPushManager {
         logger.debug("BuildRecord: {}", buildRecord.getId());
         logger.debug("BuildEnvironment: {}", buildEnvironment);
 
-        BuildRoot buildRoot = new BuildRoot(
-                "DOCKER_IMAGE",
-                "x86_64", // TODO set based on env, some env has native build tools
-                "rhel",
-                "x86_64",
-                buildEnvironment.getAttributes());
+        BuildRoot buildRoot = BuildRoot.builder()
+                .container("DOCKER_IMAGE")
+                .containerArchitecture("x86_64") // TODO set based on env, some env has native build tools
+                .host("rhel")
+                .hostArchitecture("x86_64")
+                .tools(buildEnvironment.getAttributes())
+                .build();
 
         List<Artifact> builtArtifactEntities = artifactRepository
                 .queryWithPredicates(ArtifactPredicates.withBuildRecordId(buildRecord.getId()));
@@ -196,7 +199,12 @@ public class BuildResultPushManager {
         Map<String, String> callbackHeaders = Collections.singletonMap(
                 MDCUtils.getMDCToHeaderMappings().get(MDCKeys.PROCESS_CONTEXT_KEY),
                 pushResultId.toString());
-        CallbackTarget callbackTarget = CallbackTarget.callbackPost(callBackUrl, authToken, callbackHeaders);
+        Request callbackTarget = Request.builder()
+                .method(Request.Method.POST)
+                .authTokenHeader(authToken)
+                .uri(callBackUrl)
+                .header(MDCUtils.getMDCToHeaderMappings().get(MDCKeys.PROCESS_CONTEXT_KEY), pushResultId.toString())
+                .build();
 
         String executionRootName = null;
         // prefer execution root name from generic parameters
@@ -260,25 +268,26 @@ public class BuildResultPushManager {
 
         addLogs(buildRecord, logs);
 
-        return new MavenBuild(
-                rootGav.getGroupId(),
-                rootGav.getArtifactId(),
-                rootGav.getVersion(),
-                executionRootName,
-                buildRecord.getExecutionRootVersion(),
-                "PNC",
-                buildRecord.getId(),
-                String.format(PNC_BUILD_RECORD_PATH, buildRecord.getId()),
-                buildRecord.getStartTime(),
-                buildRecord.getEndTime(),
-                buildRecord.getScmRepoURL(),
-                buildRecord.getScmRevision(),
-                buildRecord.getScmTag(),
-                buildRoot,
-                logs,
-                dependencies,
-                builtArtifacts,
-                tagPrefix);
+        return MavenBuild.builder()
+                .groupId(rootGav.getGroupId())
+                .artifactId(rootGav.getArtifactId())
+                .version(rootGav.getVersion())
+                .buildName(executionRootName)
+                .buildVersion(buildRecord.getExecutionRootVersion())
+                .externalBuildSystem("PNC")
+                .externalBuildID(buildRecord.getId().toString())
+                .externalBuildURL(String.format(PNC_BUILD_RECORD_PATH, buildRecord.getId()))
+                .startTime(buildRecord.getStartTime())
+                .endTime(buildRecord.getEndTime())
+                .scmURL(buildRecord.getScmRepoURL())
+                .scmRevision(buildRecord.getScmRevision())
+                .scmTag(buildRecord.getScmTag())
+                .buildRoot(buildRoot)
+                .logs(logs)
+                .dependencies(dependencies)
+                .builtArtifacts(builtArtifacts)
+                .tagPrefix(tagPrefix)
+                .build();
     }
 
     private Build getNpmBuild(
@@ -293,44 +302,47 @@ public class BuildResultPushManager {
 
         addLogs(buildRecord, logs);
 
-        return new NpmBuild(
-                nv.getName(),
-                nv.getVersionString(),
-                executionRootName,
-                buildRecord.getExecutionRootVersion(),
-                "PNC",
-                buildRecord.getId(),
-                String.format(PNC_BUILD_RECORD_PATH, buildRecord.getId()),
-                buildRecord.getStartTime(),
-                buildRecord.getEndTime(),
-                buildRecord.getScmRepoURL(),
-                buildRecord.getScmRevision(),
-                buildRecord.getScmTag(),
-                buildRoot,
-                logs,
-                dependencies,
-                builtArtifacts,
-                tagPrefix);
+        return NpmBuild.builder()
+                .name(nv.getName())
+                .version(nv.getVersionString())
+                .buildName(executionRootName)
+                .buildVersion(buildRecord.getExecutionRootVersion())
+                .externalBuildSystem("PNC")
+                .externalBuildID(buildRecord.getId().toString())
+                .externalBuildURL(String.format(PNC_BUILD_RECORD_PATH, buildRecord.getId()))
+                .startTime(buildRecord.getStartTime())
+                .endTime(buildRecord.getEndTime())
+                .scmURL(buildRecord.getScmRepoURL())
+                .scmRevision(buildRecord.getScmRevision())
+                .scmTag(buildRecord.getScmTag())
+                .buildRoot(buildRoot)
+                .logs(logs)
+                .dependencies(dependencies)
+                .builtArtifacts(builtArtifacts)
+                .tagPrefix(tagPrefix)
+                .build();
     }
 
     private void addLogs(BuildRecord buildRecord, Set<Logfile> logs) {
         if (buildRecord.getBuildLogSize() != null && buildRecord.getBuildLogSize() > 0) {
             logs.add(
-                    new Logfile(
-                            "build.log",
-                            getBuildLogPath(buildRecord.getId()),
-                            buildRecord.getBuildLogSize(),
-                            buildRecord.getBuildLogMd5()));
+                    Logfile.builder()
+                            .filename("build.log")
+                            .deployPath(getBuildLogPath(buildRecord.getId()))
+                            .size(buildRecord.getBuildLogSize())
+                            .md5(buildRecord.getBuildLogMd5())
+                            .build());
         } else {
             logger.warn("Missing build log for BR.id: {}.", buildRecord.getId());
         }
         if (buildRecord.getRepourLogSize() != null && buildRecord.getRepourLogSize() > 0) {
             logs.add(
-                    new Logfile(
-                            "repour.log",
-                            getRepourLogPath(buildRecord.getId()),
-                            buildRecord.getRepourLogSize(),
-                            buildRecord.getRepourLogMd5()));
+                    Logfile.builder()
+                            .filename("repour.log")
+                            .deployPath(getRepourLogPath(buildRecord.getId()))
+                            .size(buildRecord.getRepourLogSize())
+                            .md5(buildRecord.getRepourLogMd5())
+                            .build());
         } else {
             logger.warn("Missing repour log for BR.id: {}.", buildRecord.getId());
         }

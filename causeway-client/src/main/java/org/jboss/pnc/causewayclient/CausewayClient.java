@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.causewayclient;
 
-import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
-import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
+import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
+import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
