@@ -17,10 +17,10 @@
  */
 package org.jboss.pnc.causewayclient;
 
+import org.jboss.pnc.api.causeway.dto.untag.TaggedBuild;
+import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
 import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.causewayclient.remotespi.TaggedBuild;
-import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -64,6 +64,6 @@ public class CausewayClientRemoteTest {
 
     private UntagRequest prepareUntagRequest(String tagPrefix, int brewBuildId) {
         TaggedBuild taggedBuild = new TaggedBuild(tagPrefix, brewBuildId);
-        return new UntagRequest(taggedBuild, null);
+        return new UntagRequest(null, taggedBuild);
     }
 }

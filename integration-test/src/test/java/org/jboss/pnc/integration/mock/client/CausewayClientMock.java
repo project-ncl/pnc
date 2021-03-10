@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.integration.mock.client;
 
+import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
+import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.causewayclient.CausewayClient;
-import org.jboss.pnc.causewayclient.remotespi.BuildImportRequest;
-import org.jboss.pnc.causewayclient.remotespi.UntagRequest;
 
 import javax.enterprise.context.ApplicationScoped;
 

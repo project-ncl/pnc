@@ -44,6 +44,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.enterprise.event.Event;
 import java.util.Collections;
+import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -159,6 +160,10 @@ public class BuildResultPushManagerTest {
         record.setStatus(BuildStatus.SUCCESS);
         record.setBuildConfigurationAudited(bca);
         record.setDependencies(Collections.emptySet());
+        record.setStartTime(new Date());
+        record.setEndTime(new Date());
+        record.setScmRepoURL("https://example.com/foo.git");
+        record.setScmRevision("abcdef012345");
         if (withExecutionRootName) {
             record.setExecutionRootName("execution:root");
         }
