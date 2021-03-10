@@ -33,6 +33,8 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.bpm.InvalidReferenceException;
 import org.jboss.pnc.bpm.MissingInternalReferenceException;
 import org.jboss.pnc.causewayclient.CausewayClient;
+import org.jboss.pnc.common.gerrit.Gerrit;
+import org.jboss.pnc.common.gerrit.GerritException;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.constants.MDCKeys;
@@ -86,6 +88,8 @@ public class BuildResultPushManager {
 
     private Event<BuildPushResult> buildPushResultEvent;
 
+    private Gerrit gerrit;
+
     private Logger logger = LoggerFactory.getLogger(BuildResultPushManager.class);
 
     @Deprecated // required by EJB
@@ -100,6 +104,7 @@ public class BuildResultPushManager {
             InProgress inProgress,
             Event<BuildPushResult> buildPushResultEvent,
             ArtifactRepository artifactRepository,
+            Gerrit gerrit,
             CausewayClient causewayClient) {
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
         this.buildRecordPushResultRepository = buildRecordPushResultRepository;
@@ -107,6 +112,7 @@ public class BuildResultPushManager {
         this.inProgress = inProgress;
         this.buildPushResultEvent = buildPushResultEvent;
         this.artifactRepository = artifactRepository;
+        this.gerrit = gerrit;
         this.causewayClient = causewayClient;
     }
 
@@ -256,6 +262,15 @@ public class BuildResultPushManager {
         }
     }
 
+    private String getSourcesUrl(BuildRecord buildRecord) {
+        try {
+            return gerrit
+                    .generateDownloadUrlWithGerritGitweb(buildRecord.getScmRepoURL(), buildRecord.getScmRevision());
+        } catch (GerritException e) {
+            throw new RuntimeException("Failed to get SCM url from gerrit", e);
+        }
+    }
+
     private Build getMavenBuild(
             BuildRecord buildRecord,
             String tagPrefix,
@@ -284,6 +299,7 @@ public class BuildResultPushManager {
                 .scmTag(buildRecord.getScmTag())
                 .buildRoot(buildRoot)
                 .logs(logs)
+                .sourcesURL(getSourcesUrl(buildRecord))
                 .dependencies(dependencies)
                 .builtArtifacts(builtArtifacts)
                 .tagPrefix(tagPrefix)
@@ -317,6 +333,7 @@ public class BuildResultPushManager {
                 .scmTag(buildRecord.getScmTag())
                 .buildRoot(buildRoot)
                 .logs(logs)
+                .sourcesURL(getSourcesUrl(buildRecord))
                 .dependencies(dependencies)
                 .builtArtifacts(builtArtifacts)
                 .tagPrefix(tagPrefix)
