@@ -23,6 +23,8 @@ import org.jboss.pnc.bpm.causeway.InProgress;
 import org.jboss.pnc.bpm.causeway.Result;
 import org.jboss.pnc.causewayclient.CausewayClient;
 import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.common.gerrit.Gerrit;
+import org.jboss.pnc.common.gerrit.GerritException;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
@@ -72,6 +74,9 @@ public class BuildResultPushManagerTest {
     @Mock
     private ArtifactRepository artifactRepository;
 
+    @Mock
+    private Gerrit gerrit;
+
     private BuildResultPushManager releaseManager;
 
     private int milestoneIdSequence = 0;
@@ -88,9 +93,10 @@ public class BuildResultPushManagerTest {
     }
 
     @Before
-    public void setUp() throws CoreException {
+    public void setUp() throws CoreException, GerritException {
         when(buildConfigurationAuditedRepository.queryById(any(IdRev.class))).thenReturn(buildConfigurationAudited);
         when(causewayClient.importBuild(any(), any())).thenReturn(true);
+        when(gerrit.generateDownloadUrlWithGerritGitweb(any(), any())).thenReturn("https://example.com/foo.tar.gz");
         buildRecordRepository = new BuildRecordRepositoryMock();
         buildRecordPushResultRepository = new BuildRecordPushResultRepositoryMock();
 
@@ -101,6 +107,7 @@ public class BuildResultPushManagerTest {
                 new InProgress(),
                 buildRecordPushResultRestEvent,
                 artifactRepository,
+                gerrit,
                 causewayClient);
     }
 
