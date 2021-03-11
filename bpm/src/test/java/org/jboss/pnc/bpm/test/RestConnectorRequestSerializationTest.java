@@ -116,7 +116,7 @@ public class RestConnectorRequestSerializationTest {
         urls.add(url2);
         String config = "config";
         AnalyzeDeliverablesBpmRequest request = new AnalyzeDeliverablesBpmRequest(urls, config);
-        Set<Request.Header> headers = new HashSet<>();
+        List<Request.Header> headers = new ArrayList<>();
         headers.add(new Request.Header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
 
         Request callback = new Request(Request.Method.POST, URI.create("http://mock.com/"), headers);

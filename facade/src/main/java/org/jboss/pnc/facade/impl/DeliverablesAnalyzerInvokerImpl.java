@@ -20,7 +20,6 @@ package org.jboss.pnc.facade.impl;
 import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.RestConnector;
 import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
 import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
@@ -38,8 +37,8 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import java.net.URI;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @ApplicationScoped
 public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvoker {
@@ -72,7 +71,7 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
         String actualEndpoint = String.format(callbackUrlTemplate, globalConfig.getPncUrl(), milestoneId);
         URI callbackURI = URI.create(actualEndpoint);
 
-        Set<Request.Header> headers = new HashSet<>();
+        List<Request.Header> headers = new ArrayList<>();
         addCommonHeaders(headers, accessToken);
         addMDCHeaders(headers);
 
@@ -94,19 +93,19 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
         }
     }
 
-    private void addMDCHeaders(Set<Request.Header> headers) {
+    private void addMDCHeaders(List<Request.Header> headers) {
         headersFromMdc(headers, MDCHeaderKeys.REQUEST_CONTEXT);
         headersFromMdc(headers, MDCHeaderKeys.PROCESS_CONTEXT);
     }
 
-    private void addCommonHeaders(Set<Request.Header> headers, String accessToken) {
+    private void addCommonHeaders(List<Request.Header> headers, String accessToken) {
         headers.add(new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, MediaType.APPLICATION_JSON));
         if (accessToken != null) {
             headers.add(new Request.Header(HttpHeaders.AUTHORIZATION_STRING, "Bearer " + accessToken));
         }
     }
 
-    private void headersFromMdc(Set<Request.Header> headers, MDCHeaderKeys headerKey) {
+    private void headersFromMdc(List<Request.Header> headers, MDCHeaderKeys headerKey) {
         String mdcValue = MDC.get(headerKey.getMdcKey());
         if (mdcValue != null && mdcValue.isEmpty()) {
             headers.add(new Request.Header(headerKey.getHeaderName(), mdcValue.trim()));

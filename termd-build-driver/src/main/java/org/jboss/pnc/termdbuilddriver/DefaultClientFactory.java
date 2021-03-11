@@ -19,7 +19,7 @@ package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.buildagent.api.ResponseMode;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
-import org.jboss.pnc.buildagent.api.httpinvoke.Request;
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.buildagent.api.httpinvoke.RetryConfig;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
@@ -40,11 +40,15 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -104,18 +108,23 @@ public class DefaultClientFactory implements ClientFactory {
             String executionId,
             Map<String, String> callbackHeaders) throws BuildAgentClientException {
 
+        List<Request.Header> headers = callbackHeaders.entrySet()
+                .stream()
+                .map(e -> new Request.Header(e.getKey(), e.getValue()))
+                .collect(Collectors.toList());
+
         HttpClientConfiguration configuration = null;
         try {
             URL callbackUrl = new URL(
                     StringUtils.stripEndingSlash(pncBaseUrl) + "/build-execution/" + executionId + "/completed");
-            Request callback = new Request("POST", callbackUrl, callbackHeaders);
+            Request callback = new Request(Request.Method.POST, callbackUrl.toURI(), headers);
             configuration = HttpClientConfiguration.newBuilder()
                     .termBaseUrl(terminalUrl)
                     .callback(callback)
                     .livenessResponseTimeout(30000L)
                     .retryConfig(retryConfig)
                     .build();
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             new BuildAgentClientException("Invalid callback URL.", e);
         }
         return new BuildAgentHttpClient(httpClient, configuration);

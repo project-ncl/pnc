@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
-import org.jboss.pnc.buildagent.client.BuildAgentClientException;
-import org.jboss.pnc.buildagent.server.BuildAgentException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.spi.builddriver.CompletedBuild;
@@ -33,7 +31,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -55,8 +52,7 @@ public class LivenessProbeTest {
     SystemConfig systemConfig = mock(SystemConfig.class);
 
     @Test
-    public void shouldFailTheBuildWhenAgentIsNotResponding() throws IOException, BuildAgentException,
-            InterruptedException, BuildAgentClientException, BuildDriverException {
+    public void shouldFailTheBuildWhenAgentIsNotResponding() throws InterruptedException, BuildDriverException {
 
         TermdBuildDriverModuleConfig buildDriverModuleConfig = mock(TermdBuildDriverModuleConfig.class);
         doReturn(200L).when(buildDriverModuleConfig).getLivenessProbeFrequencyMillis();

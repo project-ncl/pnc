@@ -55,8 +55,8 @@ public class ClientFileTransfer implements FileTransfer {
         try {
             logger.debug("Downloading file to String Buffer from {}", path);
 
-            CompletableFuture<HttpClient.Response> responseFuture = new CompletableFuture<>();
-            buildAgentClient.downloadFile(Paths.get(path), responseFuture, maxDownloadSize);
+            CompletableFuture<HttpClient.Response> responseFuture = buildAgentClient
+                    .downloadFile(Paths.get(path), maxDownloadSize);
 
             HttpClient.Response response = responseFuture.get(readTimeout, TimeUnit.MILLISECONDS);
 
@@ -86,9 +86,8 @@ public class ClientFileTransfer implements FileTransfer {
     @Override
     public void uploadScript(String script, Path remoteFilePath) throws TransferException {
         logger.debug("Uploading build script to remote path {}, build script {}", remoteFilePath, script);
-        CompletableFuture<HttpClient.Response> responseFuture = new CompletableFuture<>();
-        buildAgentClient
-                .uploadFile(ByteBuffer.wrap(script.getBytes(StandardCharsets.UTF_8)), remoteFilePath, responseFuture);
+        CompletableFuture<HttpClient.Response> responseFuture = buildAgentClient
+                .uploadFile(ByteBuffer.wrap(script.getBytes(StandardCharsets.UTF_8)), remoteFilePath);
         try {
             HttpClient.Response response = responseFuture.get(readTimeout, TimeUnit.MILLISECONDS);
             if (response.getCode() != 200) {

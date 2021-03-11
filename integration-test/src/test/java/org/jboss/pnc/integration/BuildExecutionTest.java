@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.undertow.util.Headers;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.common.http.HttpClient;
@@ -42,11 +43,11 @@ import org.junit.runner.RunWith;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -86,10 +87,10 @@ public class BuildExecutionTest {
                 .newStatus(Status.COMPLETED)
                 .outputChecksum(Md5.digest("black"));
         Credentials user = Credentials.USER;
-        Map<String, String> headers = new HashMap<>();
-        headers.put(Headers.CONTENT_TYPE_STRING, MediaType.APPLICATION_JSON);
+        List<Request.Header> headers = new ArrayList<>();
+        headers.add(new Request.Header(Headers.CONTENT_TYPE_STRING, MediaType.APPLICATION_JSON));
         user.createAuthHeader((k, v) -> {
-            headers.put(k, v);
+            headers.add(new Request.Header(k, v));
             return null;
         });
         String data = objectMapper.writeValueAsString(updateEventBuilder.build());
@@ -103,17 +104,13 @@ public class BuildExecutionTest {
         // when
         long executionId = 11L;
         ((BuildExecutorMock) buildExecutor).addRunningExecution(executionId, session);
-        CompletableFuture<HttpClient.Response> responseFuture = new CompletableFuture<>();
         HttpClient httpClient = new HttpClient();
 
-        httpClient.invoke(
-                new URL("http://localhost:8080/pnc-rest/v2/build-execution/" + executionId + "/completed").toURI(),
-                "POST",
-                headers,
-                data,
-                responseFuture,
-                0,
-                0L);
+        Request request = new Request(
+                Request.Method.POST,
+                URI.create("http://localhost:8080/pnc-rest/v2/build-execution/" + executionId + "/completed"),
+                headers);
+        CompletableFuture<HttpClient.Response> responseFuture = httpClient.invoke(request, data);
 
         // then
         TaskStatusUpdateEvent event = events.take();// event received
