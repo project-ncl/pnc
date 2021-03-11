@@ -22,6 +22,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 import org.jboss.pnc.buildagent.client.BuildAgentHttpClient;
+import org.jboss.pnc.buildagent.client.HttpClientConfiguration;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -52,7 +53,11 @@ public class EAPModulesAccessTest {
      */
     @Test
     public void shouldBeAbleToCreteBuildAgentClient() throws BuildAgentClientException {
-        BuildAgentClient client = new BuildAgentHttpClient("http://localhost/", null, "POST");
+        HttpClientConfiguration configuration = HttpClientConfiguration.newBuilder()
+                .termBaseUrl("http://localhost/")
+                .livenessResponseTimeout(30000L)
+                .build();
+        BuildAgentClient client = new BuildAgentHttpClient(configuration);
         Assert.assertNotNull(client);
     }
 

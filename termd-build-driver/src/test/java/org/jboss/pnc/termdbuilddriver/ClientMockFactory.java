@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -84,29 +85,28 @@ public class ClientMockFactory implements ClientFactory {
         }
 
         @Override
+        public CompletableFuture<HttpClient.Response> uploadFile(ByteBuffer buffer, Path remoteFilePath) {
+            return CompletableFuture.completedFuture(new HttpClient.Response(200, new StringResult(true, "")));
+        }
+
+        @Override
         public void execute(Object command, long responseTimeout, TimeUnit unit) throws BuildAgentClientException {
             executedCommands.add(command);
         }
 
-        @Override
-        public void uploadFile(
-                ByteBuffer buffer,
-                Path remoteFilePath,
-                CompletableFuture<HttpClient.Response> responseFuture) {
-            responseFuture.complete(new HttpClient.Response(200, new StringResult(true, "")));
+        public CompletableFuture<String> executeAsync(Object command) {
+            executedCommands.add(command);
+            return CompletableFuture.completedFuture(Integer.toString(executedCommands.size()));
         }
 
         @Override
-        public void downloadFile(Path remoteFilePath, CompletableFuture<HttpClient.Response> responseFuture) {
-            responseFuture.complete(new HttpClient.Response(200, new StringResult(true, "Mock log.")));
+        public CompletableFuture<HttpClient.Response> downloadFile(Path remoteFilePath) {
+            return CompletableFuture.completedFuture(new HttpClient.Response(200, new StringResult(true, "Mock log.")));
         }
 
         @Override
-        public void downloadFile(
-                Path remoteFilePath,
-                CompletableFuture<HttpClient.Response> responseFuture,
-                long maxDownloadSize) {
-            responseFuture.complete(new HttpClient.Response(200, new StringResult(true, "Mock log.")));
+        public CompletableFuture<HttpClient.Response> downloadFile(Path remoteFilePath, long maxDownloadSize) {
+            return CompletableFuture.completedFuture(new HttpClient.Response(200, new StringResult(true, "Mock log.")));
         }
 
         @Override
@@ -114,7 +114,17 @@ public class ClientMockFactory implements ClientFactory {
         }
 
         @Override
+        public CompletableFuture<HttpClient.Response> cancel(String s) {
+            return null;
+        }
+
+        @Override
         public String getSessionId() {
+            return null;
+        }
+
+        @Override
+        public CompletableFuture<Set<String>> getRunningProcesses() {
             return null;
         }
 

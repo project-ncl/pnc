@@ -19,7 +19,7 @@
 package org.jboss.pnc.termdbuilddriver;
 
 import org.jboss.pnc.buildagent.common.RandomUtils;
-import org.jboss.pnc.buildagent.server.BuildAgentException;
+import org.jboss.pnc.buildagent.common.BuildAgentException;
 import org.jboss.pnc.buildagent.server.BuildAgentServer;
 import org.jboss.pnc.buildagent.server.IoLoggerName;
 import org.jboss.pnc.buildagent.server.Options;
