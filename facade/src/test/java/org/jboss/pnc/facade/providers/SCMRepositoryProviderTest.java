@@ -279,7 +279,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
 
         RepositoryCreationResponse response = provider
-                .createSCMRepository("http://github.com/project-ncl/cleaner.git", true);
+                .createSCMRepository("git+ssh://github.com/project-ncl/cleaner.git", true);
 
         // then
         // NCL-5989 don't send WS message if repository is created immediately (happens with internal url)
@@ -299,7 +299,19 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
 
         // then
-        assertThatThrownBy(() -> provider.createSCMRepository("http://github.com/notvalid", true))
+        assertThatThrownBy(() -> provider.createSCMRepository("git+ssh://github.com/notvalid", true))
+                .isInstanceOf(InvalidEntityException.class);
+    }
+
+    @Test
+    public void testCreateSCMRepositoryWithWrongUrlProtocolShouldFail() throws ConfigurationParseException {
+
+        // when
+        when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
+
+        // then
+        assertThatThrownBy(() -> provider.createSCMRepository("https://github.com/project-ncl/cleaner.git", true))
                 .isInstanceOf(InvalidEntityException.class);
     }
 

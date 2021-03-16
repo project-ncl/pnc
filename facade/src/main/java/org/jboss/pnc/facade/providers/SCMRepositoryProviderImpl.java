@@ -255,6 +255,10 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException(
                     "Incorrect format of internal repository. Internal repository"
                             + " url should not contain '/gerrit/' part of the url");
+        } else if (internalRepoUrl.split("://")[0].contains("http")) {
+            log.info("Invalid internal repo url: " + internalRepoUrl);
+            throw new InvalidEntityException(
+                    "Incorrect url protocol. Http and https protocols are not supported for internal repository. Try using 'git+ssh'");
         }
     }
 
