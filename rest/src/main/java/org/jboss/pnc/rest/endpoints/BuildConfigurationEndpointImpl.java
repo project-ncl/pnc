@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
@@ -47,7 +48,6 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,8 +108,9 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     private void validate(BuildConfiguration buildConfiguration) {
         if (buildConfiguration != null) {
             Map<String, String> parameters = buildConfiguration.getParameters();
-            if (parameters != null && parameters.containsKey("BUILD_CATEGORY")) {
-                String buildCategoryStr = parameters.get("BUILD_CATEGORY");
+            String buildCategoryKey = BuildConfigurationParameterKeys.BUILD_CATEGORY.name();
+            if (parameters != null && parameters.containsKey(buildCategoryKey)) {
+                String buildCategoryStr = parameters.get(buildCategoryKey);
                 try {
                     BuildCategory.valueOf(buildCategoryStr);
                 } catch (Exception ex) {
@@ -117,7 +118,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
                             .map(BuildCategory::name)
                             .collect(Collectors.toList());
                     throw new InvalidEntityException(
-                            "BUILD_CATEGORY value " + buildCategoryStr + " is invalid. Valid values are: "
+                            buildCategoryKey + " value " + buildCategoryStr + " is invalid. Valid values are: "
                                     + String.join(", ", categories) + '.');
                 }
             }

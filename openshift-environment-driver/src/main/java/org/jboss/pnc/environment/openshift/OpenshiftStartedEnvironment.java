@@ -32,6 +32,7 @@ import io.fabric8.openshift.api.model.Route;
 import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.apache.commons.lang.RandomStringUtils;
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
 import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -100,7 +101,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      *
      * For pod creation, the failure reason we expect when docker registry is not behaving is 'ErrImagePull' or
      * 'ImagePullBackOff'
-     * 
+     *
      * 'Error' and 'InvalidImageName' statuses were added as per NCL-6032 investigations
      */
     private static final String[] POD_FAILED_STATUSES = { "Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull",
@@ -111,11 +112,6 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      */
     private static final String[] POD_RETRYABLE_STATUSES = { "Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull",
             "ImagePullBackOff", "Error" };
-
-    /**
-     * Parameter specifying override for the builder pod memory size.
-     */
-    private static final String BUILDER_POD_MEMORY = "BUILDER_POD_MEMORY";
 
     private final OpenShiftClient client;
     private final ObjectMapper mapper;
@@ -296,13 +292,14 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
             OpenshiftEnvironmentDriverModuleConfig environmentConfiguration1,
             Map<String, String> parameters) {
         double builderPodMemory = environmentConfiguration1.getBuilderPodMemory();
-        String builderPodMemoryOverride = parameters.get(BUILDER_POD_MEMORY);
+        String builderPodMemoryKey = BuildConfigurationParameterKeys.BUILDER_POD_MEMORY.name();
+        String builderPodMemoryOverride = parameters.get(builderPodMemoryKey);
         if (builderPodMemoryOverride != null) {
             try {
                 builderPodMemory = Double.parseDouble(builderPodMemoryOverride);
             } catch (NumberFormatException ex) {
                 throw new IllegalArgumentException(
-                        "Failed to parse memory size '" + builderPodMemoryOverride + "' from " + BUILDER_POD_MEMORY
+                        "Failed to parse memory size '" + builderPodMemoryOverride + "' from " + builderPodMemoryKey
                                 + " parameter.",
                         ex);
             }
@@ -752,7 +749,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      * Return an escaped string of the JSON representation of the object
      *
      * By 'escaped', it means that strings like '"' are escaped to '\"'
-     * 
+     *
      * @param object object to marshall
      * @return Escaped Json String
      */

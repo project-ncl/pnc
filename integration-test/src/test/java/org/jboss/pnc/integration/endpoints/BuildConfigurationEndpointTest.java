@@ -23,6 +23,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.EnvironmentClient;
@@ -564,7 +565,7 @@ public class BuildConfigurationEndpointTest {
         assertThat(all).haveExactly(
                 1,
                 new Condition<>(
-                        p -> p.getName().equals("ALIGNMENT_PARAMETERS")
+                        p -> p.getName().equals(BuildConfigurationParameterKeys.ALIGNMENT_PARAMETERS.name())
                                 && p.getDescription().startsWith("Additional parameters, which will be "),
                         "has PME parameter"))
                 .size()
@@ -587,7 +588,7 @@ public class BuildConfigurationEndpointTest {
 
     /**
      * Reproducer NCL-5686 - update of build configuration with dependencies, with cache enabled, is possible
-     * 
+     *
      * @throws Exception
      */
     @Test

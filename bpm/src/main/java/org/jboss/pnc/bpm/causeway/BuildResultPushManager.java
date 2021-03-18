@@ -18,6 +18,7 @@
 package org.jboss.pnc.bpm.causeway;
 
 import org.commonjava.atlas.npm.ident.ref.NpmPackageRef;
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.bpm.InvalidReferenceException;
 import org.jboss.pnc.bpm.MissingInternalReferenceException;
 import org.jboss.pnc.causewayclient.CausewayClient;
@@ -68,11 +69,6 @@ import java.util.stream.Collectors;
  */
 @Stateless
 public class BuildResultPushManager {
-
-    /**
-     * Generic parameter name for overriding the executionRootName value received from Repour.
-     */
-    private static final String BREW_BUILD_NAME = "BREW_BUILD_NAME";
 
     private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/v2/builds/%d";
     private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/v2/builds/%d/logs/build";
@@ -207,8 +203,9 @@ public class BuildResultPushManager {
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
                 .queryById(buildRecord.getBuildConfigurationAuditedIdRev());
         Map<String, String> genericParameters = buildConfigurationAudited.getGenericParameters();
-        if (genericParameters.containsKey(BREW_BUILD_NAME)) {
-            executionRootName = genericParameters.get(BREW_BUILD_NAME);
+        String brewBuildNameKey = BuildConfigurationParameterKeys.BREW_BUILD_NAME.name();
+        if (genericParameters.containsKey(brewBuildNameKey)) {
+            executionRootName = genericParameters.get(brewBuildNameKey);
         }
         if (executionRootName == null) {
             executionRootName = buildRecord.getExecutionRootName();

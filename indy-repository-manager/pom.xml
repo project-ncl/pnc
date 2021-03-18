@@ -41,6 +41,16 @@
   <dependencies>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-api</artifactId>
+      <exclusions>
+      	<exclusion>
+      		<groupId>javax.ws.rs</groupId>
+      		<artifactId>javax.ws.rs-api</artifactId>
+      	</exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
       <artifactId>model</artifactId>
     </dependency>
     <dependency>
