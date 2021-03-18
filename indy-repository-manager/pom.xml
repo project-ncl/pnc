@@ -46,6 +46,12 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>spi</artifactId>
+      <exclusions>
+      	<exclusion>
+      		<groupId>javax.ws.rs</groupId>
+      		<artifactId>javax.ws.rs-api</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -224,7 +230,19 @@
       </dependency>
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-cdi</artifactId>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-multipart-provider</artifactId>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-jaxb-provider</artifactId>
         <version>${version.indy-resteasy}</version>
         <scope>test</scope>
       </dependency>
