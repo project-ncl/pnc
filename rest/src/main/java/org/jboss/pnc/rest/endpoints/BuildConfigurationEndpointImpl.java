@@ -29,6 +29,7 @@ import org.jboss.pnc.dto.response.BuildConfigCreationResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Parameter;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericParametersProvider;
@@ -46,6 +47,7 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +59,13 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.util.List;
+import java.util.Map;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoint {
@@ -98,8 +105,28 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
         return endpointHelper.getAll(pageParams);
     }
 
+    private void validate(BuildConfiguration buildConfiguration) {
+        if (buildConfiguration != null) {
+            Map<String, String> parameters = buildConfiguration.getParameters();
+            if (parameters != null && parameters.containsKey("BUILD_CATEGORY")) {
+                String buildCategoryStr = parameters.get("BUILD_CATEGORY");
+                try {
+                    BuildCategory.valueOf(buildCategoryStr);
+                } catch (Exception ex) {
+                    List<String> categories = Stream.of(BuildCategory.values())
+                            .map(BuildCategory::name)
+                            .collect(Collectors.toList());
+                    throw new InvalidEntityException(
+                            "BUILD_CATEGORY value " + buildCategoryStr + " is invalid. Valid values are: "
+                                    + String.join(", ", categories) + '.');
+                }
+            }
+        }
+    }
+
     @Override
     public BuildConfiguration createNew(BuildConfiguration buildConfiguration) {
+        validate(buildConfiguration);
         return endpointHelper.create(buildConfiguration);
     }
 
@@ -110,11 +137,13 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
 
     @Override
     public void update(String id, BuildConfiguration buildConfiguration) {
+        validate(buildConfiguration);
         endpointHelper.update(id, buildConfiguration);
     }
 
     @Override
     public BuildConfiguration patchSpecific(String id, BuildConfiguration buildConfiguration) {
+        validate(buildConfiguration);
         return endpointHelper.update(id, buildConfiguration);
     }
 
