@@ -230,6 +230,12 @@
       </dependency>
       <dependency>
         <groupId>org.jboss.resteasy</groupId>
+        <artifactId>resteasy-jaxb-provider</artifactId>
+        <version>${version.indy-resteasy}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.resteasy</groupId>
         <artifactId>resteasy-client</artifactId>
         <version>${version.indy-resteasy}</version>
         <scope>test</scope>
