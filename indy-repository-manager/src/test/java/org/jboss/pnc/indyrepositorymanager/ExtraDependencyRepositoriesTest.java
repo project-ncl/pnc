@@ -22,6 +22,7 @@ import org.commonjava.indy.model.core.Group;
 import org.commonjava.indy.model.core.StoreKey;
 import org.commonjava.indy.model.core.StoreType;
 import org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor;
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
@@ -86,7 +87,7 @@ public class ExtraDependencyRepositoriesTest extends AbstractImportTest {
 
     private Map<String, String> createGenericParamsMap(String repoString) {
         Map<String, String> genericParams = new HashMap<>();
-        genericParams.put(RepositoryManagerDriver.EXTRA_PUBLIC_REPOSITORIES_KEY, repoString);
+        genericParams.put(BuildConfigurationParameterKeys.EXTRA_REPOSITORIES.name(), repoString);
         return genericParams;
     }
 }

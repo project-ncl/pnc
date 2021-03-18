@@ -23,6 +23,7 @@ import org.commonjava.atlas.maven.ident.ref.ProjectVersionRef;
 import org.commonjava.atlas.maven.ident.ref.SimpleArtifactRef;
 import org.commonjava.atlas.maven.ident.ref.SimpleProjectVersionRef;
 import org.commonjava.indy.client.core.util.UrlUtils;
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
@@ -55,7 +56,7 @@ public class UploadOneManagedSvcThenDownloadAndVerifyArtifactHasBuildCategoryTes
         // create a dummy non-chained build execution and repo session based on it
         BuildExecution execution = new TestBuildExecution();
         Map<String, String> genericParams = new HashMap<>(1);
-        genericParams.put(RepositoryManagerDriver.BUILD_CATEGORY_KEY, RepositoryManagerDriver.BUILD_CATEGORY_SERVICE);
+        genericParams.put(BuildConfigurationParameterKeys.BUILD_CATEGORY.name(), BuildCategory.SERVICE.name());
         RepositorySession rc = driver
                 .createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, genericParams);
 

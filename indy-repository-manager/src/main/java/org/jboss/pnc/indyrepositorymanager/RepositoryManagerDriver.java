@@ -37,6 +37,7 @@ import org.commonjava.indy.model.core.io.IndyObjectMapper;
 import org.commonjava.indy.promote.client.IndyPromoteClientModule;
 import org.commonjava.util.jhttpc.model.SiteConfig;
 import org.commonjava.util.jhttpc.model.SiteConfigBuilder;
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -91,13 +92,6 @@ import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.TEMPOR
  */
 @ApplicationScoped
 public class RepositoryManagerDriver implements RepositoryManager {
-
-    static final String EXTRA_PUBLIC_REPOSITORIES_KEY = "EXTRA_REPOSITORIES";
-
-    /** Key of build category value in generic parameters map. */
-    static final String BUILD_CATEGORY_KEY = "BUILD_CATEGORY";
-    /** Build category param value for managed service builds. */
-    static final String BUILD_CATEGORY_SERVICE = "SERVICE";
 
     /** Store key of gradle-plugins remote repository. */
     static final String GRADLE_PLUGINS_REPO = "maven:remote:gradle-plugins";
@@ -303,8 +297,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     private BuildCategory getBuildCategory(Map<String, String> genericParameters) {
-        return BUILD_CATEGORY_SERVICE.equalsIgnoreCase(genericParameters.get(BUILD_CATEGORY_KEY))
-                ? BuildCategory.SERVICE
+        String buildCategoryKey = BuildConfigurationParameterKeys.BUILD_CATEGORY.name();
+        return BuildCategory.SERVICE.name().equals(genericParameters.get(buildCategoryKey)) ? BuildCategory.SERVICE
                 : BuildCategory.STANDARD;
     }
 
@@ -422,7 +416,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     List<ArtifactRepository> extractExtraRepositoriesFromGenericParameters(Map<String, String> genericParameters) {
-        String extraReposString = genericParameters.get(EXTRA_PUBLIC_REPOSITORIES_KEY);
+        String extraReposString = genericParameters.get(BuildConfigurationParameterKeys.EXTRA_REPOSITORIES.name());
         if (extraReposString == null) {
             return new ArrayList<>();
         }

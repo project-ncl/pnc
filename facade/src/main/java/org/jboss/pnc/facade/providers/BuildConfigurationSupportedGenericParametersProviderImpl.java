@@ -17,22 +17,21 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.jboss.pnc.dto.response.Parameter;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationSupportedGenericParametersProvider;
 
 import javax.annotation.security.PermitAll;
 import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 /**
  * Provider of statically defined BuildConfiguration generic parameters, that are known to the Orchestrator.
- * 
+ *
  * The parameters are set in the resources file
- * 
+ *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
  */
@@ -41,18 +40,15 @@ import java.util.Set;
 public class BuildConfigurationSupportedGenericParametersProviderImpl
         implements BuildConfigurationSupportedGenericParametersProvider {
 
-    private static final String RESOURCES_FILE = "buildConfigurationSupportedGenericParameters.properties";
-
     private Set<Parameter> supportedGenericParameters = new HashSet<>();
 
     public BuildConfigurationSupportedGenericParametersProviderImpl() throws IOException {
-
-        Properties props = new Properties();
-        props.load(new InputStreamReader(getClass().getClassLoader().getResourceAsStream(RESOURCES_FILE)));
-
-        props.forEach((key, value) -> supportedGenericParameters.add(new Parameter(key.toString(), value.toString())));
+        for (BuildConfigurationParameterKeys value : BuildConfigurationParameterKeys.values()) {
+            supportedGenericParameters.add(new Parameter(value.name(), value.getDesc()));
+        }
     }
 
+    @Override
     public Set<Parameter> getSupportedGenericParameters() {
         return supportedGenericParameters;
     }

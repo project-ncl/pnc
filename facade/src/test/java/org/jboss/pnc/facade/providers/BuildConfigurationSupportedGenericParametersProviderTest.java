@@ -17,15 +17,14 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.api.constants.BuildConfigurationParameterKeys;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BuildConfigurationSupportedGenericParametersProviderTest {
-    private static final String ALIGNMENT_PARAMETERS = "ALIGNMENT_PARAMETERS";
 
     private BuildConfigurationSupportedGenericParametersProviderImpl bcSupportedGenericParameters;
 
@@ -35,8 +34,8 @@ public class BuildConfigurationSupportedGenericParametersProviderTest {
 
     @Test
     public void testGetPMEParameter() {
-        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters())
-                .anySatisfy(param -> ALIGNMENT_PARAMETERS.equals(param.getName()));
+        assertThat(bcSupportedGenericParameters.getSupportedGenericParameters()).anySatisfy(
+                param -> BuildConfigurationParameterKeys.ALIGNMENT_PARAMETERS.name().equals(param.getName()));
         assertThat(bcSupportedGenericParameters.getSupportedGenericParameters())
                 .anySatisfy(parameter -> parameter.getDescription().startsWith("Additional"));
     }
