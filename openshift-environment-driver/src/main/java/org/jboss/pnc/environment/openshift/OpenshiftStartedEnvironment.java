@@ -589,9 +589,18 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
         }
     }
 
+    /**
+     * Endpoint to get the internal DNS endpoint of the builder pod.
+     *
+     * @return String endpoint if present null if service object is not ready yet or null
+     */
     private String getInternalEndpointUrl() {
-        return "http://" + service.getSpec().getClusterIP() + "/" + buildAgentContextPath + "/"
-                + environmentConfiguration.getBuildAgentBindPath();
+        if (service == null || service.getSpec() == null || service.getSpec().getClusterIP() == null) {
+            return null;
+        } else {
+            return "http://" + service.getSpec().getClusterIP() + "/" + buildAgentContextPath + "/"
+                    + environmentConfiguration.getBuildAgentBindPath();
+        }
     }
 
     /**
