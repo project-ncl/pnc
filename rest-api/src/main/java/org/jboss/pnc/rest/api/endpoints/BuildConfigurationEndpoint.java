@@ -143,7 +143,7 @@ public interface BuildConfigurationEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    @Path("/withLatestBuild")
+    @Path("/x-with-latest-build")
     Page<BuildConfigurationWithLatestBuild> getAllWithLatestBuild(@Valid @BeanParam PageParameters pageParams);
 
     static final String CREATE_NEW_DESC = "Creates a new build config.";
