@@ -113,13 +113,13 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
             if (parameters != null && parameters.containsKey(buildCategoryKey)) {
                 String buildCategoryStr = parameters.get(buildCategoryKey);
                 try {
-                    BuildCategory.valueOf(buildCategoryStr);
+                    BuildCategory.valueOf(buildCategoryStr.toUpperCase());
                 } catch (Exception ex) {
                     List<String> categories = Stream.of(BuildCategory.values())
                             .map(BuildCategory::name)
                             .collect(Collectors.toList());
                     throw new InvalidEntityException(
-                            buildCategoryKey + " value " + buildCategoryStr + " is invalid. Valid values are: "
+                            buildCategoryKey + " value '" + buildCategoryStr + "' is invalid. Valid values are: "
                                     + String.join(", ", categories) + '.');
                 }
             }
