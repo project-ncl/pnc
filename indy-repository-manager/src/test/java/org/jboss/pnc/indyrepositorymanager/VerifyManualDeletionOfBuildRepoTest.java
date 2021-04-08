@@ -61,7 +61,8 @@ public class VerifyManualDeletionOfBuildRepoTest extends AbstractImportTest {
                 accessToken,
                 accessToken,
                 RepositoryType.MAVEN,
-                Collections.emptyMap());
+                Collections.emptyMap(),
+                false);
 
         String pkgType = MAVEN_PKG_KEY;
 

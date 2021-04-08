@@ -1,3 +1,5 @@
+package org.jboss.pnc.indyrepositorymanager;
+
 /**
  * JBoss, Home of Professional Open Source.
  * Copyright 2014-2020 Red Hat, Inc., and individual contributors
@@ -15,7 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.indyrepositorymanager;
 
 import org.commonjava.indy.client.core.Indy;
 import org.commonjava.indy.model.core.Group;
@@ -24,25 +25,35 @@ import org.commonjava.indy.model.core.StoreType;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.indyrepositorymanager.fixture.TestBuildExecution;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerException;
 import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.util.Collections;
+import java.util.Map;
 
-import static org.apache.commons.lang.StringUtils.join;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 @Category(ContainerTest.class)
-public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManagerDriverTest {
+public class BuildGroupSetBrewPullActiveMetadataTest extends AbstractRepositoryManagerDriverTest {
 
     @Test
-    public void verifyGroupComposition_ProductVersion_WithConfSet() throws Exception {
+    public void verifyGroupHasBrewPullActiveMetadataSetWhenTrue() throws Exception {
+        verifyBrewPullActiveMetadataSetProperly(true, "build_myproject_420");
+    }
+
+    @Test
+    public void verifyGroupHasBrewPullActiveMetadataSetWhenFalse() throws Exception {
+        verifyBrewPullActiveMetadataSetProperly(false, "build_myproject_421");
+    }
+
+    private void verifyBrewPullActiveMetadataSetProperly(boolean brewPullActive, String buildId)
+            throws RepositoryManagerException, org.commonjava.indy.client.core.IndyClientException {
         // create a dummy composed (chained) build execution and a repo session based on it
-        BuildExecution execution = new TestBuildExecution("build_myproject_67890");
+        BuildExecution execution = new TestBuildExecution(buildId);
         Indy indy = driver.getIndy(accessToken);
 
         RepositorySession repositoryConfiguration = driver.createBuildRepository(
@@ -51,29 +62,14 @@ public class BuildGroupIncludesConfSetGroupTest extends AbstractRepositoryManage
                 accessToken,
                 RepositoryType.MAVEN,
                 Collections.emptyMap(),
-                false);
+                brewPullActive);
+
         String repoId = repositoryConfiguration.getBuildRepositoryId();
-
-        assertThat(repoId, equalTo(execution.getBuildContentId()));
-
-        // check that the build group includes:
-        // - the build's hosted repo
-        // - the build-set's repo group
-        // - the product version repo group
-        // - the "shared-releases" repo group
-        // - the "shared-imports" repo
-        // - the public group
-        // ...in that order
         Group buildGroup = indy.stores().load(new StoreKey(MAVEN_PKG_KEY, StoreType.group, repoId), Group.class);
+        Map<String, String> metadata = buildGroup.getMetadata();
 
-        System.out.printf("Constituents:\n  %s\n", join(buildGroup.getConstituents(), "\n  "));
-        assertGroupConstituents(
-                buildGroup,
-                new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, execution.getBuildContentId()),
-                new StoreKey(
-                        MAVEN_PKG_KEY,
-                        StoreType.group,
-                        IndyRepositoryConstants.COMMON_BUILD_GROUP_CONSTITUENTS_GROUP));
+        assertThat(metadata).containsEntry(
+                AbstractRepositoryManagerDriverTest.BREW_PULL_ACTIVE_METADATA_KEY,
+                Boolean.toString(brewPullActive));
     }
-
 }

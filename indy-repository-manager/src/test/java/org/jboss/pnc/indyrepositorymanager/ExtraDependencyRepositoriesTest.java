@@ -71,7 +71,7 @@ public class ExtraDependencyRepositoriesTest extends AbstractImportTest {
         BuildExecution execution = new TestBuildExecution();
 
         RepositorySession repositorySession = driver
-                .createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, genericParams);
+                .createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, genericParams, false);
         assertNotNull(repositorySession);
 
         StoreKey buildGroupKey = new StoreKey(

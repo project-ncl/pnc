@@ -244,7 +244,8 @@ public class DefaultBuildExecutor implements BuildExecutor {
                     buildExecutionSession.getAccessToken(),
                     serviceAccountToken,
                     repositoryType,
-                    buildExecutionSession.getBuildExecutionConfiguration().getGenericParameters());
+                    buildExecutionSession.getBuildExecutionConfiguration().getGenericParameters(),
+                    buildExecutionSession.getBuildExecutionConfiguration().isBrewPullActive());
             return buildRepository;
         } catch (Throwable e) {
             throw new BuildProcessException(e);

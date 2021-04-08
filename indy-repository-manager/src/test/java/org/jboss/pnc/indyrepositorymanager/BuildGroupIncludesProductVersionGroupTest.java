@@ -50,7 +50,8 @@ public class BuildGroupIncludesProductVersionGroupTest extends AbstractRepositor
                 accessToken,
                 accessToken,
                 RepositoryType.MAVEN,
-                Collections.emptyMap());
+                Collections.emptyMap(),
+                false);
         String repoId = repositoryConfiguration.getBuildRepositoryId();
 
         assertThat(repoId, equalTo(execution.getBuildContentId()));

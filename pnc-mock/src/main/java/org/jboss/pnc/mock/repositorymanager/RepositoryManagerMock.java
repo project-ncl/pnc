@@ -73,7 +73,8 @@ public class RepositoryManagerMock implements RepositoryManager {
             String accessToken,
             String serviceAccountToken,
             RepositoryType repositoryType,
-            Map<String, String> genericParameters) throws RepositoryManagerException {
+            Map<String, String> genericParameters,
+            boolean brewPullActive) throws RepositoryManagerException {
         RepositorySession repositoryConfiguration = new RepositorySessionMock();
         return repositoryConfiguration;
     }
@@ -84,7 +85,8 @@ public class RepositoryManagerMock implements RepositoryManager {
             String accessToken,
             String serviceAccountToken,
             RepositoryType repositoryType,
-            Map<String, String> genericParameters) throws RepositoryManagerException {
+            Map<String, String> genericParameters,
+            boolean brewPullActive) throws RepositoryManagerException {
 
         RepositorySession repositoryConfiguration = new RepositorySessionMock();
         return repositoryConfiguration;

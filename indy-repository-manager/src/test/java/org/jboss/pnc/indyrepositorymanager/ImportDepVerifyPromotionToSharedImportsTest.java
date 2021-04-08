@@ -59,7 +59,8 @@ public class ImportDepVerifyPromotionToSharedImportsTest extends AbstractImportT
                 accessToken,
                 accessToken,
                 RepositoryType.MAVEN,
-                Collections.emptyMap());
+                Collections.emptyMap(),
+                false);
 
         // simulate a build resolving an artifact via the Indy remote repository.
         assertThat(download(UrlUtils.buildUrl(session.getConnectionInfo().getDependencyUrl(), path)), equalTo(content));

@@ -57,7 +57,8 @@ public class VerifyBuildRepoPromotionToUntestedBuildsGroupTest extends AbstractI
                 accessToken,
                 accessToken,
                 RepositoryType.MAVEN,
-                Collections.emptyMap());
+                Collections.emptyMap(),
+                false);
 
         StoreKey hostedKey = new StoreKey(MAVEN_PKG_KEY, StoreType.hosted, buildId);
 

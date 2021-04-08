@@ -58,7 +58,7 @@ public class UploadOneManagedSvcThenDownloadAndVerifyArtifactHasBuildCategoryTes
         Map<String, String> genericParams = new HashMap<>(1);
         genericParams.put(BuildConfigurationParameterKeys.BUILD_CATEGORY.name(), BuildCategory.SERVICE.name());
         RepositorySession rc = driver
-                .createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, genericParams);
+                .createBuildRepository(execution, accessToken, accessToken, RepositoryType.MAVEN, genericParams, false);
 
         assertThat(rc, notNullValue());
 

@@ -58,7 +58,8 @@ public class UploadOneThenDownloadAndVerifyArtifactHasOriginUrlTest extends Abst
                 accessToken,
                 accessToken,
                 RepositoryType.MAVEN,
-                Collections.emptyMap());
+                Collections.emptyMap(),
+                false);
 
         assertThat(rc, notNullValue());
 

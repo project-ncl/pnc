@@ -86,6 +86,14 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
     @JsonProperty(required = false)
     private String tempBuildPromotionTarget = "temporary-builds";
 
+    /**
+     * Name of metadata-key to set in the Indy build group to activate / de-activate brew pull
+     */
+    @Getter
+    @Setter
+    @JsonProperty("brew-pull-active-metadata-key")
+    private String brewPullActiveMetadataKey;
+
     public IndyRepoDriverModuleConfig() {
     }
 

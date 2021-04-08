@@ -110,6 +110,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private final String TEMP_BUILD_PROMOTION_TARGET;
 
+    private final String BREW_PULL_ACTIVE_METADATA_KEY;
+
     private String baseUrl;
 
     private List<String> ignoredRepoPatterns;
@@ -125,6 +127,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         this.DEFAULT_REQUEST_TIMEOUT = 0;
         this.BUILD_PROMOTION_TARGET = "";
         this.TEMP_BUILD_PROMOTION_TARGET = "";
+        this.BREW_PULL_ACTIVE_METADATA_KEY = "";
     }
 
     @Inject
@@ -142,6 +145,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         this.DEFAULT_REQUEST_TIMEOUT = indyDriverConfig.getDefaultRequestTimeout();
         this.BUILD_PROMOTION_TARGET = indyDriverConfig.getBuildPromotionTarget();
         this.TEMP_BUILD_PROMOTION_TARGET = indyDriverConfig.getTempBuildPromotionTarget();
+        this.BREW_PULL_ACTIVE_METADATA_KEY = indyDriverConfig.getBrewPullActiveMetadataKey();
 
         baseUrl = StringUtils.stripEnd(globalConfig.getIndyUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
@@ -210,7 +214,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
             String accessToken,
             String serviceAccountToken,
             RepositoryType repositoryType,
-            Map<String, String> genericParameters) throws RepositoryManagerException {
+            Map<String, String> genericParameters,
+            boolean brewPullActive) throws RepositoryManagerException {
         RetryPolicy<Object> retryPolicy = new RetryPolicy<>().handle(RepositoryManagerException.class)
                 .withMaxRetries(REPOSITORY_CREATION_ATTEMPTS)
                 .withBackoff(1, MAX_REPOSITORY_CREATION_RETRY_DELAY_SECONDS, ChronoUnit.SECONDS);
@@ -221,7 +226,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
                                 accessToken,
                                 serviceAccountToken,
                                 repositoryType,
-                                genericParameters));
+                                genericParameters,
+                                brewPullActive));
     }
 
     /**
@@ -238,14 +244,15 @@ public class RepositoryManagerDriver implements RepositoryManager {
             String accessToken,
             String serviceAccountToken,
             RepositoryType repositoryType,
-            Map<String, String> genericParameters) throws RepositoryManagerException {
+            Map<String, String> genericParameters,
+            boolean brewPullActive) throws RepositoryManagerException {
         Indy indy = init(accessToken);
         Indy serviceAccountIndy = init(serviceAccountToken);
         String packageType = getIndyPackageTypeKey(repositoryType);
 
         String buildId = buildExecution.getBuildContentId();
         try {
-            setupBuildRepos(buildExecution, packageType, serviceAccountIndy, genericParameters);
+            setupBuildRepos(buildExecution, packageType, serviceAccountIndy, genericParameters, brewPullActive);
         } catch (IndyClientException e) {
             logger.debug("Failed to setup repository or repository group for this build");
             throw new RepositoryManagerException(
@@ -363,7 +370,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
             BuildExecution execution,
             String packageType,
             Indy indy,
-            Map<String, String> genericParameters) throws IndyClientException {
+            Map<String, String> genericParameters,
+            boolean brewPullActive) throws IndyClientException {
 
         String buildContentId = execution.getBuildContentId();
         long id = execution.getId();
@@ -397,6 +405,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             // build-local artifacts
             buildGroup.addConstituent(hostedKey);
+
+            // [MMENG-1262] set if brew pull is active or not via group metadata
+            buildGroup.setMetadata(BREW_PULL_ACTIVE_METADATA_KEY, Boolean.toString(brewPullActive));
 
             // Global-level repos, for captured/shared artifacts and access to the outside world
             addGlobalConstituents(buildType, packageType, buildGroup, tempBuild);
