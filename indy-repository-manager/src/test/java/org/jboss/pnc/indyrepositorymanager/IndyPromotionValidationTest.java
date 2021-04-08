@@ -74,7 +74,8 @@ public class IndyPromotionValidationTest {
                     null,
                     null,
                     RepositoryType.MAVEN,
-                    Collections.emptyMap());
+                    Collections.emptyMap(),
+                    false);
 
             CloseableHttpClient client = HttpClientBuilder.create().build();
             String deployUrl = repositorySession.getConnectionInfo().getDeployUrl();

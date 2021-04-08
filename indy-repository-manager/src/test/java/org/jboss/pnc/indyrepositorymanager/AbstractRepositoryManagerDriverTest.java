@@ -53,6 +53,7 @@ public class AbstractRepositoryManagerDriverTest {
     protected static final String CONFIG_SYSPROP = "pnc-config-file";
 
     protected static final String PNC_BUILDS = "pnc-builds";
+    protected static final String BREW_PULL_ACTIVE_METADATA_KEY = "koji-pull";
 
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();
@@ -80,6 +81,7 @@ public class AbstractRepositoryManagerDriverTest {
         ModuleConfigJson moduleConfigJson = new ModuleConfigJson("pnc-config");
         IndyRepoDriverModuleConfig mavenRepoDriverModuleConfig = new IndyRepoDriverModuleConfig();
         mavenRepoDriverModuleConfig.setIgnoredRepoPatterns(getIgnoredRepoPatterns());
+        mavenRepoDriverModuleConfig.setBrewPullActiveMetadataKey(BREW_PULL_ACTIVE_METADATA_KEY);
         SystemConfig systemConfig = new SystemConfig(
                 "",
                 "",

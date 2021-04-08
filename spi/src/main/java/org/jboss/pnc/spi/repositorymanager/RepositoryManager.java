@@ -39,6 +39,7 @@ public interface RepositoryManager {
      * @param serviceAccountToken The access token for service account to use for repo creation, promotion and cleanup
      * @param repositoryType the created repositories' type (npm, maven, etc.)
      * @param genericParameters Generic parameters specified in the BuildConfiguration
+     * @param brewPullActive whether to have brew pull or not
      * @return The new repository session
      * @throws RepositoryManagerException If there is a problem creating the repository even after defined number of
      *         retries
@@ -48,7 +49,8 @@ public interface RepositoryManager {
             String accessToken,
             String serviceAccountToken,
             RepositoryType repositoryType,
-            Map<String, String> genericParameters) throws RepositoryManagerException;
+            Map<String, String> genericParameters,
+            boolean brewPullActive) throws RepositoryManagerException;
 
     /**
      * Create a new repository session tuned to the parameters of that build collection and the build that will use this
@@ -59,6 +61,7 @@ public interface RepositoryManager {
      * @param serviceAccountToken The access token for service account to use for repo creation, promotion and cleanup
      * @param repositoryType the created repositories' type (npm, maven, etc.)
      * @param genericParameters Generic parameters specified in the BuildConfiguration
+     * @param brewPullActive whether to have brew pull or not
      * @return The new repository session
      * @throws RepositoryManagerException If there is a problem creating the repository
      */
@@ -67,7 +70,8 @@ public interface RepositoryManager {
             String accessToken,
             String serviceAccountToken,
             RepositoryType repositoryType,
-            Map<String, String> genericParameters) throws RepositoryManagerException;
+            Map<String, String> genericParameters,
+            boolean brewPullActive) throws RepositoryManagerException;
 
     /**
      * Collects processed repository manager result for a previously finished build for any repair work needed. This

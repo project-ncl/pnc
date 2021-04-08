@@ -61,7 +61,8 @@ public class UploadTwoThenVerifyExtractedArtifactsContainThemTest extends Abstra
                 accessToken,
                 accessToken,
                 RepositoryType.MAVEN,
-                Collections.emptyMap());
+                Collections.emptyMap(),
+                false);
         assertThat(rc, notNullValue());
 
         String baseUrl = rc.getConnectionInfo().getDeployUrl();

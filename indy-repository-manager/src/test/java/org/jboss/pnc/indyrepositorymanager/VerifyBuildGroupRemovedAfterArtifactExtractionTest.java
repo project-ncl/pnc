@@ -56,7 +56,8 @@ public class VerifyBuildGroupRemovedAfterArtifactExtractionTest extends Abstract
                 accessToken,
                 accessToken,
                 RepositoryType.MAVEN,
-                Collections.emptyMap());
+                Collections.emptyMap(),
+                false);
 
         // simulate a build deploying a file.
         indy.module(IndyFoloContentClientModule.class)

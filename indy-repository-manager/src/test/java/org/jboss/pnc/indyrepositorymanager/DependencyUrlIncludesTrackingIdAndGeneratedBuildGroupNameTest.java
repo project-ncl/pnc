@@ -45,7 +45,8 @@ public class DependencyUrlIncludesTrackingIdAndGeneratedBuildGroupNameTest exten
                 accessToken,
                 accessToken,
                 RepositoryType.MAVEN,
-                Collections.emptyMap());
+                Collections.emptyMap(),
+                false);
         assertThat(repositoryConfiguration, notNullValue());
 
         // verify the URLs in the connection info reference this build, and refer to a tracked repository group URL
