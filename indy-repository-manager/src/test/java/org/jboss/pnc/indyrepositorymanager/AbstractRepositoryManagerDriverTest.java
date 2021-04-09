@@ -82,6 +82,8 @@ public class AbstractRepositoryManagerDriverTest {
         IndyRepoDriverModuleConfig mavenRepoDriverModuleConfig = new IndyRepoDriverModuleConfig();
         mavenRepoDriverModuleConfig.setIgnoredRepoPatterns(getIgnoredRepoPatterns());
         mavenRepoDriverModuleConfig.setBrewPullActiveMetadataKey(BREW_PULL_ACTIVE_METADATA_KEY);
+        preConfigureMavenRepositoryDriver(mavenRepoDriverModuleConfig);
+
         SystemConfig systemConfig = new SystemConfig(
                 "",
                 "",
@@ -214,6 +216,14 @@ public class AbstractRepositoryManagerDriverTest {
             StoreKey actual = groupConstituents.get(i);
             assertThat(actual, equalTo(expected));
         }
+    }
+
+    /**
+     * Allow sub-classes to configure the IndyRepoDriverModuleConfig By default it does nothing
+     *
+     * @param config
+     */
+    public void preConfigureMavenRepositoryDriver(IndyRepoDriverModuleConfig config) {
     }
 
 }
