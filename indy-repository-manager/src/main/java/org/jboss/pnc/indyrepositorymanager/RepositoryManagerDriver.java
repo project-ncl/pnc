@@ -46,6 +46,7 @@ import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.Ignored
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig.IgnoredPatterns;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
@@ -122,12 +123,18 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
     private BuildRecordRepository buildRecordRepository;
 
+    private final boolean INDY_SIDECAR_ENABLED;
+
+    private final String INDY_SIDECAR_URL;
+
     @Deprecated
     public RepositoryManagerDriver() { // workaround for CDI constructor parameter injection bug
         this.DEFAULT_REQUEST_TIMEOUT = 0;
         this.BUILD_PROMOTION_TARGET = "";
         this.TEMP_BUILD_PROMOTION_TARGET = "";
         this.BREW_PULL_ACTIVE_METADATA_KEY = "";
+        this.INDY_SIDECAR_ENABLED = false;
+        this.INDY_SIDECAR_URL = "";
     }
 
     @Inject
@@ -146,6 +153,8 @@ public class RepositoryManagerDriver implements RepositoryManager {
         this.BUILD_PROMOTION_TARGET = indyDriverConfig.getBuildPromotionTarget();
         this.TEMP_BUILD_PROMOTION_TARGET = indyDriverConfig.getTempBuildPromotionTarget();
         this.BREW_PULL_ACTIVE_METADATA_KEY = indyDriverConfig.getBrewPullActiveMetadataKey();
+        this.INDY_SIDECAR_ENABLED = indyDriverConfig.isIndySidecarEnabled();
+        this.INDY_SIDECAR_URL = indyDriverConfig.getIndySidecarUrl();
 
         baseUrl = StringUtils.stripEnd(globalConfig.getIndyUrl(), "/");
         if (!baseUrl.endsWith("/api")) {
@@ -274,6 +283,18 @@ public class RepositoryManagerDriver implements RepositoryManager {
 
             StoreKey hostedKey = new StoreKey(packageType, StoreType.hosted, buildId);
             deployUrl = indy.module(IndyFoloContentClientModule.class).trackingUrl(buildId, hostedKey);
+
+            if (INDY_SIDECAR_ENABLED) {
+                logger.info("Indy sidecar feature enabled: replacing Indy host with Indy sidecar host");
+                try {
+                    url = UrlUtils.replaceHostInUrl(url, INDY_SIDECAR_URL);
+                    deployUrl = UrlUtils.replaceHostInUrl(deployUrl, INDY_SIDECAR_URL);
+                } catch (MalformedURLException e) {
+                    throw new RuntimeException(
+                            "Indy sidecar url ('%s') or Indy urls ('%s', '%s') are url malformed!"
+                                    .format(INDY_SIDECAR_URL, url, deployUrl));
+                }
+            }
 
             logger.info("Using '{}' for {} repository access in build: {}", url, packageType, buildId);
         } catch (IndyClientException e) {

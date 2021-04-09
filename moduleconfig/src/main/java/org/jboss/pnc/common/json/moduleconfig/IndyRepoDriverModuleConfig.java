@@ -94,6 +94,16 @@ public class IndyRepoDriverModuleConfig extends AbstractModuleConfig {
     @JsonProperty("brew-pull-active-metadata-key")
     private String brewPullActiveMetadataKey;
 
+    @Getter
+    @Setter
+    @JsonProperty("indy-sidecar-enabled")
+    private boolean indySidecarEnabled;
+
+    @Getter
+    @Setter
+    @JsonProperty("indy-sidecar-url")
+    private String indySidecarUrl;
+
     public IndyRepoDriverModuleConfig() {
     }
 
