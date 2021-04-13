@@ -27,18 +27,18 @@ public class BuildConflictException extends Exception {
     /**
      * The id of the build task which conflicts with the new request
      */
-    private Integer buildTaskId;
+    private Long buildTaskId;
 
     public BuildConflictException(String message) {
         super(message);
     }
 
-    public BuildConflictException(String message, Integer buildTaskId) {
+    public BuildConflictException(String message, Long buildTaskId) {
         super(message);
         this.buildTaskId = buildTaskId;
     }
 
-    public Integer getBuildTaskId() {
+    public Long getBuildTaskId() {
         return buildTaskId;
     }
 }

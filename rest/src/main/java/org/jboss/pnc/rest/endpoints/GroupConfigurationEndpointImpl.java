@@ -30,6 +30,8 @@ import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
+import org.jboss.pnc.facade.validation.ConflictedEntryException;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.rest.api.endpoints.GroupConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
@@ -157,7 +159,9 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
                     .triggerGroupBuild(Integer.parseInt(groupConfigId), buildConfigRevisions, buildOptions);
 
             return groupBuildProvider.getSpecific(Integer.toString(groupBuildId));
-        } catch (BuildConflictException | CoreException ex) {
+        } catch (BuildConflictException ex) {
+            throw new ConflictedEntryException(ex.getMessage(), null, BuildMapper.idMapper.toDto(ex.getBuildTaskId()));
+        } catch (CoreException ex) {
             throw new RuntimeException(ex);
         }
     }
