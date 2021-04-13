@@ -49,6 +49,7 @@ import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -65,14 +66,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import static org.jboss.pnc.constants.Patterns.INTERNAL_REPOSITORY_NAME;
 import static org.jboss.pnc.enums.JobNotificationType.SCM_REPOSITORY_CREATION;
 import static org.jboss.pnc.facade.providers.api.UserRoles.WORK_WITH_TECH_PREVIEW;
-import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.matchByScmUrl;
-import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.searchByScmUrl;
 import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.withExactInternalScmRepoUrl;
 
 @PermitAll
@@ -135,11 +134,10 @@ public class SCMRepositoryProviderImpl
             String query,
             String matchUrl,
             String searchUrl) {
-
         List<Predicate<RepositoryConfiguration>> predicates = new ArrayList<>();
 
-        addToListIfStringNotNullAndNotEmpty(predicates, matchUrl, () -> matchByScmUrl(matchUrl));
-        addToListIfStringNotNullAndNotEmpty(predicates, searchUrl, () -> searchByScmUrl(searchUrl));
+        validateAndAddPredicate(predicates, matchUrl, RepositoryConfigurationPredicates::matchByScmUrl);
+        validateAndAddPredicate(predicates, searchUrl, RepositoryConfigurationPredicates::searchByScmUrl);
 
         // transform list to array for 'predicates' varargs in 'queryForCollection' method
         Predicate<RepositoryConfiguration>[] predicatesArray = new Predicate[predicates.size()];
@@ -149,16 +147,21 @@ public class SCMRepositoryProviderImpl
     }
 
     /**
-     * Add item to the list if the string is not null *and* not empty
+     * Creates predicate and add it to the list if the string is not null *and* not empty.
      *
      * @param list
      * @param str
      * @param item
      * @param <T>
+     * @throws InvalidEntityException when IllegalArgumentException is thrown when creating the predicate.
      */
-    private <T> void addToListIfStringNotNullAndNotEmpty(List<T> list, String str, Supplier<T> item) {
+    private <T> void validateAndAddPredicate(List<Predicate<T>> list, String str, Function<String, Predicate<T>> item) {
         if (str != null && !str.isEmpty()) {
-            list.add(item.get());
+            try {
+                list.add(item.apply(str));
+            } catch (IllegalArgumentException ex) {
+                throw new InvalidEntityException(ex.getMessage());
+            }
         }
     }
 
