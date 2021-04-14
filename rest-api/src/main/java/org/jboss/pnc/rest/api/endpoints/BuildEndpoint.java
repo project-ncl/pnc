@@ -504,7 +504,7 @@ public interface BuildEndpoint {
     @Path("/{id}/brew-push")
     BuildPushResult push(
             @Parameter(description = B_ID) @PathParam("id") String id,
-            BuildPushParameters buildPushParameters);
+            @Valid BuildPushParameters buildPushParameters);
 
     static final String CANCEL_PUSH_DESC = "Cancels push of build to Brew.";
 
