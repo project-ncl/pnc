@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.dto.requests;
 
+import javax.validation.constraints.NotBlank;
+
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -36,6 +38,7 @@ public class BuildPushParameters {
     /**
      * Koji tag prefix, to which the build should be tagged upon import.
      */
+    @NotBlank
     private final String tagPrefix;
 
     /**
