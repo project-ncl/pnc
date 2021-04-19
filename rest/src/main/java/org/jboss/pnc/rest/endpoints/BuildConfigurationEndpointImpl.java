@@ -309,7 +309,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
                 buildParams.isTemporaryBuild(),
                 buildParams.isBuildDependencies(),
                 buildParams.isKeepPodOnFailure(),
-                buildParams.isTimestampAlignment(),
+                false,
                 buildParams.getRebuildMode());
         checkBuildOptionsValidity(buildOptions);
         return buildOptions;
