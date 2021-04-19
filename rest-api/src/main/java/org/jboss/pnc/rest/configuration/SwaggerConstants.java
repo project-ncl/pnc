@@ -76,7 +76,7 @@ public interface SwaggerConstants {
             + "the Maitai process instance creating the repository ('buildConfig' key is null)";
 
     public static final String TEMPORARY_BUILD_DESC = "Is it a temporary build or a standard build?";
-    public static final String TIMESTAMP_ALIGNMENT_DESC = "Should we add a timestamp during the alignment? Valid only for temporary builds.";
+    public static final String TIMESTAMP_ALIGNMENT_DESC = "This feature was disabled. Setting this value has no effect on the build.";
     public static final String REBUILD_MODE_DESC = "What should varant rebuild?";
     public static final String DEFAULT_REBUILD_MODE = "IMPLICIT_DEPENDENCY_CHECK";
     public static final String BUILD_DEPENDENCIES_DESC = "Should we build also dependencies of this Build Config?";

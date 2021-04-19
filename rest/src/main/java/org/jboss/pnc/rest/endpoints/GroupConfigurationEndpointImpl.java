@@ -171,7 +171,7 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
                 buildParams.isTemporaryBuild(),
                 false,
                 false,
-                buildParams.isTimestampAlignment(),
+                false,
                 buildParams.getRebuildMode());
         checkBuildOptionsValidity(buildOptions);
         return buildOptions;
