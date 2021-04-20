@@ -199,13 +199,7 @@ public final class UrlUtils {
 
         URL originalUrl = new URL(url);
         URL newHostUrl = new URL(newHost);
-
-        boolean hostHasPort = newHost.contains(":");
-
-        int newPort = -1;
-        if (hostHasPort) {
-            newPort = newHostUrl.getPort();
-        }
+        int newPort = newHostUrl.getPort();
 
         // Use implicit port if it's a default port
         boolean oldIsHttp = originalUrl.getProtocol().equals("http");
