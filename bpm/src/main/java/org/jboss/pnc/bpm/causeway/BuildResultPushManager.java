@@ -67,6 +67,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.jboss.pnc.api.constants.BuildConfigurationParameterKeys.BREW_BUILD_NAME;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -212,17 +214,13 @@ public class BuildResultPushManager {
                 .header(MDCUtils.getMDCToHeaderMappings().get(MDCKeys.PROCESS_CONTEXT_KEY), pushResultId.toString())
                 .build();
 
-        String executionRootName = null;
+        String executionRootName = buildRecord.getExecutionRootName();
         // prefer execution root name from generic parameters
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
                 .queryById(buildRecord.getBuildConfigurationAuditedIdRev());
         Map<String, String> genericParameters = buildConfigurationAudited.getGenericParameters();
-        String brewBuildNameKey = BuildConfigurationParameterKeys.BREW_BUILD_NAME.name();
-        if (genericParameters.containsKey(brewBuildNameKey)) {
-            executionRootName = genericParameters.get(brewBuildNameKey);
-        }
         if (executionRootName == null) {
-            executionRootName = buildRecord.getExecutionRootName();
+            executionRootName = genericParameters.get(BREW_BUILD_NAME.name());
         }
 
         Build build = getBuild(
@@ -374,15 +372,15 @@ public class BuildResultPushManager {
         return String.format(PNC_BUILD_LOG_PATH, id);
     }
 
-    private Gav buildRootToGAV(String executionRootName, String executionRootVersion) {
-        if (executionRootName == null) {
-            throw new IllegalArgumentException("ExecutionRootName must be defined.");
+    private Gav buildRootToGAV(String brewBuildName, String executionRootVersion) {
+        if (brewBuildName == null) {
+            throw new IllegalArgumentException("Build attribute " + BREW_BUILD_NAME + " can't be missing");
         }
 
-        String[] splittedName = executionRootName.split(":");
+        String[] splittedName = brewBuildName.split(":");
         if (splittedName.length != 2) {
             throw new IllegalArgumentException(
-                    "Execution root '" + executionRootName + "' doesn't seem to be maven G:A.");
+                    BREW_BUILD_NAME + " attribute '" + brewBuildName + "' doesn't seem to be maven G:A.");
         }
         return new Gav(splittedName[0], splittedName[1], executionRootVersion);
     }

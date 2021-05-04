@@ -135,7 +135,7 @@ public class BuildResultPushManagerTest {
 
         // then
         assertThat(result).extracting(Result::getStatus).isEqualTo(BuildPushStatus.SYSTEM_ERROR);
-        assertThat(result.getMessage()).containsIgnoringCase("ExecutionRoot");
+        assertThat(result.getMessage()).containsIgnoringCase("attribute BREW_BUILD_NAME");
     }
 
     @Test
