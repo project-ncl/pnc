@@ -33,6 +33,7 @@ public interface BuildExecution {
 
     BuildType getBuildType();
 
+    @Deprecated
     String getTempBuildTimestamp();
 
     /**
