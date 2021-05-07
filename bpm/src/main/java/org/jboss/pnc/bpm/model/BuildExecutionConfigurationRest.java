@@ -74,6 +74,7 @@ public class BuildExecutionConfigurationRest {
 
     protected boolean tempBuild;
 
+    @Deprecated
     protected String tempBuildTimestamp;
 
     protected boolean brewPullActive;

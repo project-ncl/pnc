@@ -68,6 +68,7 @@ public class BuildOptions {
         return RebuildMode.FORCE.equals(rebuildMode);
     }
 
+    @Deprecated
     public boolean isTimestampAlignment() {
         return false;
     }
