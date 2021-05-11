@@ -106,6 +106,7 @@ public class BuildExecutionConfigurationRest {
         genericParameters = buildExecutionConfiguration.getGenericParameters();
         tempBuild = buildExecutionConfiguration.isTempBuild();
         tempBuildTimestamp = buildExecutionConfiguration.getTempBuildTimestamp();
+        brewPullActive = buildExecutionConfiguration.isBrewPullActive();
         defaultAlignmentParams = buildExecutionConfiguration.getDefaultAlignmentParams();
 
         artifactRepositories = new ArrayList<>();
