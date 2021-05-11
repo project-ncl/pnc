@@ -20,8 +20,10 @@ package org.jboss.pnc.enums;
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @deprecated use pnc-api
  */
-public enum ArtifactQuality {
+@Deprecated
+public enum ArtifactQuality { // TODO mark all deprecated
     /**
      * The artifact has not yet been verified or tested.
      */

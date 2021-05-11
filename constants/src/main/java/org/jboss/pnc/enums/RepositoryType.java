@@ -19,7 +19,10 @@ package org.jboss.pnc.enums;
 
 /**
  * Types of artifact repositories.
+ * 
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum RepositoryType {
     /**
      * Maven artifact repository such as Maven central (http://central.maven.org/maven2/).

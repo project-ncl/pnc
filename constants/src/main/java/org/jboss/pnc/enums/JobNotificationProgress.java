@@ -21,7 +21,9 @@ package org.jboss.pnc.enums;
  * Enum describing job progress in notifications.
  * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum JobNotificationProgress {
     /**
      * The job is waiting. For example build waiting for dependencies.

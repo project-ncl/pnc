@@ -21,7 +21,10 @@ package org.jboss.pnc.enums;
  * Enum that represents the type of the build environment system image which will be used for the build. The system
  * image type indicates which build environment driver(s) is capable of initializing the environment (container, vm,
  * etc) in which the build will run.
+ * 
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum SystemImageType {
 
     /**

@@ -21,7 +21,9 @@ package org.jboss.pnc.constants;
  * Represents attribute keys.
  *
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
+ * @deprecated use pnc-api
  */
+@Deprecated
 public class Attributes {
 
     /**

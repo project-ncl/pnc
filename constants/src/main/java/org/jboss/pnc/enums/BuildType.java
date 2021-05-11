@@ -21,7 +21,9 @@ package org.jboss.pnc.enums;
  * BuildType is used to define pre-build operations and to set proper repository.
  *
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum BuildType {
     /**
      * Build using Maven as its build tool. Uses POM Manipulation Extension in pre-build oprations and

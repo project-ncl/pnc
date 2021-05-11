@@ -19,7 +19,9 @@ package org.jboss.pnc.enums;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum RebuildMode {
 
     /**

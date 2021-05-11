@@ -190,7 +190,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
         }
         try {
             SiteConfig siteConfig = new SiteConfigBuilder("indy", baseUrl)
-                    .withRequestTimeoutSeconds(DEFAULT_REQUEST_TIMEOUT)
+                    .withRequestTimeoutSeconds(DEFAULT_REQUEST_TIMEOUT) // TODO config
                     // this client is used in single build, we don't need more than 1 connection at a time
                     .withMaxConnections(1)
                     .build();

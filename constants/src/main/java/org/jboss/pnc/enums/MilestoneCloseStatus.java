@@ -21,7 +21,10 @@ package org.jboss.pnc.enums;
  * Status of the process of milestone closing.
  *
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/30/16 Time: 1:16 PM
+ * 
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum MilestoneCloseStatus {
 
     /**

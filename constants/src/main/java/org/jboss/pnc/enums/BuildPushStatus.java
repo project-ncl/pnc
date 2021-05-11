@@ -21,7 +21,9 @@ package org.jboss.pnc.enums;
  * Status of a push of a build to Koji.
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum BuildPushStatus {
     /**
      * Push was accepted and is in progress.

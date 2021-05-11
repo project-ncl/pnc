@@ -21,7 +21,9 @@ package org.jboss.pnc.enums;
  * Enum describing build progress.
  * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum BuildProgress {
     /**
      * The build is waiting.

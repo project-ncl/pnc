@@ -19,7 +19,10 @@ package org.jboss.pnc.enums;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 8/26/16 Time: 2:39 PM
+ * 
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum ReleaseStatus {
     SUCCESS(MilestoneCloseStatus.SUCCEEDED),
     FAILURE(MilestoneCloseStatus.FAILED),

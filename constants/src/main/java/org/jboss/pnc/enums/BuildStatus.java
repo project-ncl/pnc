@@ -30,7 +30,9 @@ import static org.jboss.pnc.enums.BuildProgress.PENDING;
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  *
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum BuildStatus {
     /**
      * Build/GroupBuild has completed successfully. The dependant Builds can be scheduled.

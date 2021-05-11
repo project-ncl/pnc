@@ -20,7 +20,9 @@ package org.jboss.pnc.constants;
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @deprecated use pnc-api
  */
+@Deprecated
 public class Patterns {
 
     /**

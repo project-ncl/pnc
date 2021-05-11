@@ -21,7 +21,9 @@ package org.jboss.pnc.enums;
  * Enum identifying category of a build.
  *
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum BuildCategory {
     /**
      * The build is built to be used in On-Premise products or Managed services.

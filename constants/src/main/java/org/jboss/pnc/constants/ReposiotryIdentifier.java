@@ -20,7 +20,9 @@ package org.jboss.pnc.constants;
 /**
  *
  * @author jbrazdil
+ * @deprecated use pnc-api
  */
+@Deprecated
 public class ReposiotryIdentifier {
 
     public static final String INDY_MAVEN = "indy-maven";

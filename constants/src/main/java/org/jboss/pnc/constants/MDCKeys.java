@@ -20,7 +20,9 @@ package org.jboss.pnc.constants;
 /**
  * This class provides keys for Mapped Diagnostic Context (MDC) in logging.
  *
+ * @deprecated use pnc-api
  */
+@Deprecated
 public class MDCKeys {
     /**
      * Identifier of the original request context.

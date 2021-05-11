@@ -21,7 +21,9 @@ package org.jboss.pnc.enums;
  * Enum describing asynchonous job types in notifications.
  * 
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum JobNotificationType {
     /**
      * Job type representing single build.

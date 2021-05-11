@@ -19,7 +19,10 @@ package org.jboss.pnc.enums;
 
 /**
  * Status of generic result of some operation or task.
+ * 
+ * @deprecated use pnc-api
  */
+@Deprecated
 public enum ResultStatus {
     /**
      * The operation was successful.
