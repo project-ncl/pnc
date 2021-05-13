@@ -163,6 +163,11 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, L
     }
 
     @Override
+    public List<BuildRecord> getLatestBuildsForBuildConfigs(List<Integer> configIds) {
+        return this.repository.getLatestBuildsByBuildConfigIds(configIds);
+    }
+
+    @Override
     public Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId) {
         return repository.findByBuiltArtifacts(artifactsId);
     }
