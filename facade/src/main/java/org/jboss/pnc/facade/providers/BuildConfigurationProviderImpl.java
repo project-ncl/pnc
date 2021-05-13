@@ -35,7 +35,6 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
-import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.util.UserService;
@@ -48,17 +47,22 @@ import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
@@ -72,10 +76,12 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -102,10 +108,19 @@ public class BuildConfigurationProviderImpl extends
     private ProductVersionRepository productVersionRepository;
 
     @Inject
+    private BuildRecordRepository buildRecordRepository;
+
+    @Inject
+    private BuildCoordinator buildCoordinator;
+
+    @Inject
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
 
     @Inject
     private SCMRepositoryMapper scmRepositoryMapper;
+
+    @Inject
+    private BuildMapper buildMapper;
 
     @Inject
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
@@ -337,8 +352,17 @@ public class BuildConfigurationProviderImpl extends
                 sortingRsql,
                 query,
                 isNotArchived());
+
+        List<Integer> configIds = buildConfigs.getContent()
+                .stream()
+                .map(bc -> mapper.getIdMapper().toEntity(bc.getId()))
+                .collect(Collectors.toList());
+        List<BuildRecord> latestBuilds = buildRecordRepository.getLatestBuildsForBuildConfigs(configIds);
+
         List<BuildConfigurationWithLatestBuild> bcsWithLatest = new ArrayList<>();
-        buildConfigs.getContent().forEach(bc -> bcsWithLatest.add(populateBuildConfigWithLatestBuild(bc)));
+        buildConfigs.getContent()
+                .forEach(bc -> bcsWithLatest.add(populateBuildConfigWithLatestBuild(bc, latestBuilds)));
+
         return new Page<>(
                 pageIndex,
                 pageSize,
@@ -347,16 +371,29 @@ public class BuildConfigurationProviderImpl extends
                 bcsWithLatest);
     }
 
-    private BuildConfigurationWithLatestBuild populateBuildConfigWithLatestBuild(BuildConfiguration buildConfig) {
-        BuildPageInfo pageInfo = new BuildPageInfo(0, 10, null, null, true, false, buildConfig.getName());
-        Optional<Build> latestBuild = buildProvider.getBuildsForBuildConfiguration(pageInfo, buildConfig.getId())
-                .getContent()
+    private Optional<BuildTask> getLatestBuildTaskForBuildConfig(Integer configId) {
+        return buildCoordinator.getSubmittedBuildTasks()
                 .stream()
+                .filter(Objects::nonNull)
+                .filter(buildTask -> buildTask.getBuildConfigurationAudited().getId().equals(configId))
+                .max(Comparator.comparing(BuildTask::getSubmitTime));
+    }
+
+    private BuildConfigurationWithLatestBuild populateBuildConfigWithLatestBuild(
+            BuildConfiguration buildConfig,
+            List<BuildRecord> latestBuilds) {
+        Integer bcId = mapper.getIdMapper().toEntity(buildConfig.getId());
+        Optional<BuildTask> latestBuildTask = getLatestBuildTaskForBuildConfig(bcId);
+        Optional<BuildRecord> latestBuildRecord = latestBuilds.stream()
+                .filter(br -> br.getBuildConfigurationId().equals(bcId))
                 .findFirst();
+        Build latestBuild = latestBuildTask.map(buildMapper::fromBuildTask)
+                .orElse(latestBuildRecord.map(buildMapper::toDTO).orElse(null));
+
         return BuildConfigurationWithLatestBuild.builderWithLatestBuild()
                 .buildConfig(buildConfig)
-                .latestBuild(latestBuild.orElse(null))
-                .latestBuildUsername(latestBuild.map(build -> build.getUser().getUsername()).orElse(null))
+                .latestBuild(latestBuild)
+                .latestBuildUsername(latestBuild == null ? null : latestBuild.getUser().getUsername())
                 .build();
     }
 

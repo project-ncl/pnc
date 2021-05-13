@@ -116,6 +116,11 @@ public class BuildRecordRepositoryMock extends LongIdRepositoryMock<BuildRecord>
     }
 
     @Override
+    public List<BuildRecord> getLatestBuildsForBuildConfigs(List<Integer> configIds) {
+        return null;
+    }
+
+    @Override
     public BuildRecord save(BuildRecord entity) {
         return super.save(entity);
     }

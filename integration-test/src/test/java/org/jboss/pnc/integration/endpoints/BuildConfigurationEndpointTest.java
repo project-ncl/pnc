@@ -171,14 +171,14 @@ public class BuildConfigurationEndpointTest {
     public void testGetAllWithLatest() throws RemoteResourceException {
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
 
-        RemoteCollection<BuildConfigurationWithLatestBuild> bcs = client.getAllWithLatestBuild();
+        RemoteCollection<BuildConfigurationWithLatestBuild> bcsWithLatest = client.getAllWithLatestBuild();
 
         BuildsFilterParameters filter = new BuildsFilterParameters();
         filter.setLatest(true);
 
-        assertThat(bcs).hasSize(5); // from DatabaseDataInitializer
+        assertThat(bcsWithLatest).hasSize(5); // from DatabaseDataInitializer
 
-        for (BuildConfigurationWithLatestBuild bc : bcs.getAll()) {
+        for (BuildConfigurationWithLatestBuild bc : bcsWithLatest.getAll()) {
             List<Build> associatedBuilds = new ArrayList<>(client.getBuilds(bc.getId(), filter).getAll());
             if (bc.getLatestBuild() != null) {
                 assertThat(associatedBuilds).isNotEmpty();

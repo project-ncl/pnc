@@ -23,11 +23,16 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.enterprise.context.Dependent;
+import java.util.List;
 import java.util.Set;
 
 @Dependent
 public interface BuildRecordSpringRepository
         extends JpaRepository<BuildRecord, Long>, JpaSpecificationExecutor<BuildRecord> {
+
+    @Query("SELECT br FROM BuildRecord br WHERE br.submitTime = (SELECT max(brr.submitTime) FROM BuildRecord brr"
+            + " WHERE br.buildConfigurationId = brr.buildConfigurationId) AND br.buildConfigurationId IN ?1")
+    List<BuildRecord> getLatestBuildsByBuildConfigIds(List<Integer> configIds);
 
     @Query("select br from BuildRecord br fetch all properties where br.id = ?1")
     BuildRecord findByIdFetchAllProperties(Long id);
