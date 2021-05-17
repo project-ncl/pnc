@@ -352,6 +352,7 @@ public class SCMRepositoryProviderImpl
                     .repositoryConfiguration(repositoryConfiguration)
                     .build();
             task = new RepositoryCreationTask(repositoryCreationProcess, userToken);
+            task.setJobType(jobType);
 
             Consumer<RepositoryCloneSuccess> successListener = event -> onRepoCloneSuccess(
                     event.getData().getInternalUrl(),
