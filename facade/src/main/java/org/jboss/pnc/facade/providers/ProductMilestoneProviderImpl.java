@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -99,6 +100,9 @@ public class ProductMilestoneProviderImpl extends
 
     @Inject
     private EntityManager em;
+
+    @Inject
+    private BpmModuleConfig bpmConfig;
 
     @Inject
     public ProductMilestoneProviderImpl(
@@ -185,7 +189,8 @@ public class ProductMilestoneProviderImpl extends
                 return milestoneReleaseMapper.toDTO(inProgress.get());
             } else {
                 log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
-                boolean useRHPAM = true || userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW);
+                boolean useRHPAM = bpmConfig.isNewBpmForced()
+                        || userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW);
                 log.debug("Using RHPAM server: {}", useRHPAM);
 
                 ProductMilestoneRelease milestoneReleaseDb = releaseManager

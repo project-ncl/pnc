@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
+import org.jboss.pnc.common.util.StringUtils;
 
 import java.net.MalformedURLException;
 
@@ -98,6 +99,9 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     @Getter
     private final String analyzeDeliverablesBpmProcessId;
 
+    @Getter
+    private final boolean newBpmForced;
+
     public BpmModuleConfig(
             @JsonProperty("username") String username,
             @JsonProperty("password") String password,
@@ -111,6 +115,7 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("connectionRequestTimeout") Integer httpConnectionRequestTimeout,
             @JsonProperty("connectTimeout") Integer httpConnectTimeout,
             @JsonProperty("socketTimeout") Integer httpSocketTimeout,
+            @JsonProperty("newBpmForced") String newBpmForced,
             @JsonProperty("bpmNewBaseUrl") String bpmNewBaseUrl,
             @JsonProperty("bpmNewDeploymentId") String bpmNewDeploymentId,
             @JsonProperty("bpmNewBuildProcessName") String bpmNewBuildProcessName,
@@ -144,6 +149,11 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             this.httpSocketTimeout = 5000; // default to 5 sec
         } else {
             this.httpSocketTimeout = httpSocketTimeout;
+        }
+        if (StringUtils.isEmpty(newBpmForced)) {
+            this.newBpmForced = false;
+        } else {
+            this.newBpmForced = Boolean.parseBoolean(newBpmForced);
         }
         this.bpmNewBaseUrl = bpmNewBaseUrl;
         this.bpmNewDeploymentId = bpmNewDeploymentId;
