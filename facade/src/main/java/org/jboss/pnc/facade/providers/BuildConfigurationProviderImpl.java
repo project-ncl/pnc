@@ -352,17 +352,15 @@ public class BuildConfigurationProviderImpl extends
                 sortingRsql,
                 query,
                 isNotArchived());
-
         List<Integer> configIds = buildConfigs.getContent()
                 .stream()
                 .map(bc -> mapper.getIdMapper().toEntity(bc.getId()))
                 .collect(Collectors.toList());
         List<BuildRecord> latestBuilds = buildRecordRepository.getLatestBuildsForBuildConfigs(configIds);
-
+        List<BuildTask> runningBuilds = buildCoordinator.getSubmittedBuildTasks();
         List<BuildConfigurationWithLatestBuild> bcsWithLatest = new ArrayList<>();
         buildConfigs.getContent()
-                .forEach(bc -> bcsWithLatest.add(populateBuildConfigWithLatestBuild(bc, latestBuilds)));
-
+                .forEach(bc -> bcsWithLatest.add(populateBuildConfigWithLatestBuild(bc, latestBuilds, runningBuilds)));
         return new Page<>(
                 pageIndex,
                 pageSize,
@@ -371,19 +369,14 @@ public class BuildConfigurationProviderImpl extends
                 bcsWithLatest);
     }
 
-    private Optional<BuildTask> getLatestBuildTaskForBuildConfig(Integer configId) {
-        return buildCoordinator.getSubmittedBuildTasks()
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(buildTask -> buildTask.getBuildConfigurationAudited().getId().equals(configId))
-                .max(Comparator.comparing(BuildTask::getSubmitTime));
-    }
-
     private BuildConfigurationWithLatestBuild populateBuildConfigWithLatestBuild(
             BuildConfiguration buildConfig,
-            List<BuildRecord> latestBuilds) {
+            List<BuildRecord> latestBuilds,
+            List<BuildTask> runningBuilds) {
         Integer bcId = mapper.getIdMapper().toEntity(buildConfig.getId());
-        Optional<BuildTask> latestBuildTask = getLatestBuildTaskForBuildConfig(bcId);
+        Optional<BuildTask> latestBuildTask = runningBuilds.stream()
+                .filter(bt -> bt.getBuildConfigurationAudited().getId().equals(bcId))
+                .max(Comparator.comparing(BuildTask::getSubmitTime));
         Optional<BuildRecord> latestBuildRecord = latestBuilds.stream()
                 .filter(br -> br.getBuildConfigurationId().equals(bcId))
                 .findFirst();
