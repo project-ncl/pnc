@@ -25,6 +25,7 @@ import org.jboss.pnc.common.security.Md5;
 import org.jboss.pnc.common.security.Sha256;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -354,6 +355,15 @@ public class BuildRecord implements GenericEntity<Long> {
      */
     public Long getId() {
         return id;
+    }
+
+    /**
+     * Gets the id in the base32 encoding.
+     *
+     * @return the id in base32 encoding.
+     */
+    public String getBase32Id() {
+        return LongBase32IdConverter.toString(id);
     }
 
     /**
