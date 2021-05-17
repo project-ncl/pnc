@@ -29,19 +29,19 @@ public class ConnectorSelector {
     public static final String GENERIC_PARAMETER_KEY = "BPM_SERVER";
     public static final String RHPAM = "RH-PAM";
 
-    public static boolean useNewProcess(BpmTask task) {
+    public static boolean useNewProcess(BpmTask task, boolean forceNew) {
         if (task instanceof BpmBuildTask) {
             BpmBuildTask buildTask = (BpmBuildTask) task;
             Map<String, String> genericParameters = buildTask.getBuildTask()
                     .getBuildConfigurationAudited()
                     .getGenericParameters();
-            return useNewProcessForBuild(genericParameters);
+            return useNewProcessForBuild(genericParameters, forceNew);
         }
         return false;
     }
 
-    public static boolean useNewProcessForBuild(Map<String, String> genericParameters) {
-        return true || genericParameters.getOrDefault(GENERIC_PARAMETER_KEY, "").equals(RHPAM);
+    public static boolean useNewProcessForBuild(Map<String, String> genericParameters, boolean forceNew) {
+        return forceNew || genericParameters.getOrDefault(GENERIC_PARAMETER_KEY, "").equals(RHPAM);
     }
 
 }

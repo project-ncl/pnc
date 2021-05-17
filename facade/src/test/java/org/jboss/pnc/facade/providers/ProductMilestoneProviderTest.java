@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
+import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -63,6 +64,9 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     @Mock
     private UserService userService;
 
+    @Mock
+    private BpmModuleConfig bpmModuleConfig;
+
     @InjectMocks
     private ProductMilestoneProviderImpl provider;
 
@@ -73,6 +77,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     @Before
     public void setup() {
         when(userService.currentUserToken()).thenReturn("eyUserToken");
+        when(bpmModuleConfig.isNewBpmForced()).thenReturn(true);
 
         ProductMilestoneFactory.getInstance().setIdSupplier(() -> entityId.getAndIncrement());
 

@@ -93,8 +93,9 @@ public class BpmNotifier {
         if (buildResult.getBuildExecutionConfiguration().isPresent()) {
             BuildExecutionConfiguration buildExecutionConfiguration = buildResult.getBuildExecutionConfiguration()
                     .get();
-            isNewBpmProcess = ConnectorSelector
-                    .useNewProcessForBuild(buildExecutionConfiguration.getGenericParameters());
+            isNewBpmProcess = ConnectorSelector.useNewProcessForBuild(
+                    buildExecutionConfiguration.getGenericParameters(),
+                    bpmConfig.isNewBpmForced());
         } else {
             log.error("Missing BuildExecutionConfiguration!");
         }

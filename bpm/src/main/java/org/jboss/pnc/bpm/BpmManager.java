@@ -121,7 +121,7 @@ public class BpmManager {
     }
 
     public void defineConnector(BpmTask task) {
-        if (ConnectorSelector.useNewProcess(task)) {
+        if (ConnectorSelector.useNewProcess(task, bpmConfig.isNewBpmForced())) {
             task.setConnector(restConnector);
             task.setJsonEncodedProcessParameters(false);
         } else {
