@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.coordinator;
 
 import lombok.Getter;
 
+import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -243,6 +244,15 @@ public class BuildTask {
 
     public long getId() {
         return id;
+    }
+
+    /**
+     * Gets the id in the base32 encoding.
+     *
+     * @return the id in base32 encoding.
+     */
+    public String getBase32Id() {
+        return LongBase32IdConverter.toString(id);
     }
 
     public Date getSubmitTime() {
