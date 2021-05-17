@@ -18,7 +18,7 @@
 package org.jboss.pnc.facade.rsql;
 
 import org.hibernate.query.criteria.internal.path.SingularAttributePath;
-import org.jboss.pnc.common.util.NumberUtils;
+import org.jboss.pnc.common.Numbers;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.enums.BuildType;
@@ -84,7 +84,7 @@ public class RSQLPredicateProducerTest {
     public void testCriteriaPredicate() {
         long id = 4L;
         org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate = producer
-                .getCriteriaPredicate(BuildRecord.class, "id==" + NumberUtils.decimalToBase64(id));
+                .getCriteriaPredicate(BuildRecord.class, "id==" + Numbers.decimalToBase64(id));
 
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);

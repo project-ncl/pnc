@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.mapper;
 
-import org.jboss.pnc.common.util.NumberUtils;
+import org.jboss.pnc.common.Numbers;
 import org.jboss.pnc.mapper.api.IdMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class LongBase64IdMapper implements IdMapper<Long, String> {
                 logger.warn("Id is not a long.", e);
             }
         }
-        return NumberUtils.base64ToDecimal(id);
+        return Numbers.base64ToDecimal(id);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class LongBase64IdMapper implements IdMapper<Long, String> {
         if (id < 100000000000000000L) {
             return id.toString();
         } else {
-            return NumberUtils.decimalToBase64(id);
+            return Numbers.decimalToBase64(id);
         }
     }
 }
