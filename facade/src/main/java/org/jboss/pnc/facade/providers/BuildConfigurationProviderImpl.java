@@ -24,6 +24,7 @@ import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
+import org.jboss.pnc.dto.BuildRef;
 import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.notification.BuildConfigurationCreation;
@@ -375,18 +376,20 @@ public class BuildConfigurationProviderImpl extends
             List<BuildTask> runningBuilds) {
         Integer bcId = mapper.getIdMapper().toEntity(buildConfig.getId());
         Optional<BuildTask> latestBuildTask = runningBuilds.stream()
+                .filter(Objects::nonNull)
                 .filter(bt -> bt.getBuildConfigurationAudited().getId().equals(bcId))
                 .max(Comparator.comparing(BuildTask::getSubmitTime));
         Optional<BuildRecord> latestBuildRecord = latestBuilds.stream()
                 .filter(br -> br.getBuildConfigurationId().equals(bcId))
                 .findFirst();
-        Build latestBuild = latestBuildTask.map(buildMapper::fromBuildTask)
-                .orElse(latestBuildRecord.map(buildMapper::toDTO).orElse(null));
-
+        BuildRef latestBuild = latestBuildTask.map((bt -> (BuildRef) buildMapper.fromBuildTask(bt)))
+                .orElse(latestBuildRecord.map(buildMapper::toRef).orElse(null));
+        String latestBuildUsername = latestBuildTask.map(bt -> bt.getUser().getUsername())
+                .orElse(latestBuildRecord.map(br -> br.getUser().getUsername()).orElse(null));
         return BuildConfigurationWithLatestBuild.builderWithLatestBuild()
                 .buildConfig(buildConfig)
                 .latestBuild(latestBuild)
-                .latestBuildUsername(latestBuild == null ? null : latestBuild.getUser().getUsername())
+                .latestBuildUsername(latestBuildUsername)
                 .build();
     }
 
