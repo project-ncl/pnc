@@ -31,7 +31,7 @@ public interface BuildRecordSpringRepository
         extends JpaRepository<BuildRecord, Long>, JpaSpecificationExecutor<BuildRecord> {
 
     @Query("SELECT br FROM BuildRecord br WHERE br.submitTime = (SELECT max(brr.submitTime) FROM BuildRecord brr"
-            + " WHERE br.buildConfigurationId = brr.buildConfigurationId) AND br.buildConfigurationId IN ?1")
+            + " WHERE br.buildConfigurationId = brr.buildConfigurationId) AND (COALESCE(?1) IS NULL OR ?1 IS EMPTY OR (br.buildConfigurationId IN ?1))")
     List<BuildRecord> getLatestBuildsByBuildConfigIds(List<Integer> configIds);
 
     @Query("select br from BuildRecord br fetch all properties where br.id = ?1")
@@ -42,6 +42,6 @@ public interface BuildRecordSpringRepository
     BuildRecord findByIdFetchProperties(Long id);
 
     @Query("SELECT DISTINCT br FROM BuildRecord br " + "JOIN br.builtArtifacts builtArtifacts "
-            + "WHERE builtArtifacts.id IN (?1)")
+            + "WHERE (COALESCE(?1) IS NULL OR ?1 IS EMPTY OR (builtArtifacts.id IN ?1))")
     Set<BuildRecord> findByBuiltArtifacts(Set<Integer> dependenciesIds);
 }
