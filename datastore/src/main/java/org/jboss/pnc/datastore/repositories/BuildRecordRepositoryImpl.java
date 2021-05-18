@@ -37,6 +37,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -164,12 +166,14 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, L
 
     @Override
     public List<BuildRecord> getLatestBuildsForBuildConfigs(List<Integer> configIds) {
-        return this.repository.getLatestBuildsByBuildConfigIds(configIds);
+        return (configIds == null || configIds.isEmpty()) ? Collections.emptyList()
+                : this.repository.getLatestBuildsByBuildConfigIds(configIds);
     }
 
     @Override
     public Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId) {
-        return repository.findByBuiltArtifacts(artifactsId);
+        return (artifactsId == null || artifactsId.isEmpty()) ? Collections.emptySet()
+                : repository.findByBuiltArtifacts(artifactsId);
     }
 
     @Override
