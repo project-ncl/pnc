@@ -15,17 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.rsql.converter;
+package org.jboss.pnc.mapper;
 
-import org.jboss.pnc.mapper.LongBase64IdMapper;
 import org.jboss.pnc.mapper.api.IdMapper;
+import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 
-public class Base64EncodedLongValueConverter implements ValueConverter {
-
-    IdMapper<Long, String> idMapper = new LongBase64IdMapper();
+public class LongBase32IdMapper implements IdMapper<Long, String> {
 
     @Override
-    public Comparable<Long> convert(Value value) {
-        return idMapper.toEntity(value.getValue());
+    public Long toEntity(String id) {
+        return LongBase32IdConverter.toLong(id);
+    }
+
+    @Override
+    public String toDto(Long id) {
+        return LongBase32IdConverter.toString(id);
     }
 }

@@ -27,7 +27,7 @@ import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.BrewNameWorkaround;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
-import org.jboss.pnc.mapper.LongBase64IdMapper;
+import org.jboss.pnc.mapper.LongBase32IdMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.mapper.api.BuildMapper.StatusMapper;
 import org.jboss.pnc.model.BuildRecord;
@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 
 public interface BuildMapper extends UpdatableEntityMapper<Long, BuildRecord, Build, BuildRef> {
 
-    IdMapper<Long, String> idMapper = new LongBase64IdMapper();
+    IdMapper<Long, String> idMapper = new LongBase32IdMapper();
 
     @Override
     @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
