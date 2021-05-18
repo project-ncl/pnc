@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.facade.rsql.converter.Base64EncodedLongValueConverter;
+import org.jboss.pnc.facade.rsql.converter.Base32EncodedLongValueConverter;
 import org.jboss.pnc.facade.rsql.converter.ValueConverter;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
@@ -98,7 +98,7 @@ public class BuildRSQLMapper extends AbstractRSQLMapper<Long, BuildRecord> {
         switch (name) {
             case "id":
                 logger.debug("Using custom value converter ...");
-                return new Base64EncodedLongValueConverter();
+                return new Base32EncodedLongValueConverter();
             default:
                 return super.getValueConverter(name);
         }

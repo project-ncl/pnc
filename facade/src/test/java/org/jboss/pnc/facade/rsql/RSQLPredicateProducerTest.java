@@ -84,7 +84,7 @@ public class RSQLPredicateProducerTest {
     public void testCriteriaPredicate() {
         long id = 4L;
         org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate = producer
-                .getCriteriaPredicate(BuildRecord.class, "id==" + Numbers.decimalToBase64(id));
+                .getCriteriaPredicate(BuildRecord.class, "id==" + Numbers.decimalToBase32(id));
 
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);
