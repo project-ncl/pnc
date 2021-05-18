@@ -21,6 +21,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import javax.enterprise.context.Dependent;
 import java.util.List;
@@ -30,9 +31,9 @@ import java.util.Set;
 public interface BuildRecordSpringRepository
         extends JpaRepository<BuildRecord, Long>, JpaSpecificationExecutor<BuildRecord> {
 
-    @Query("SELECT br FROM BuildRecord br WHERE br.submitTime = (SELECT max(brr.submitTime) FROM BuildRecord brr"
-            + " WHERE br.buildConfigurationId = brr.buildConfigurationId) AND ((COALESCE(?1) IS NULL) OR (br.buildConfigurationId IN ?1))")
-    List<BuildRecord> getLatestBuildsByBuildConfigIds(List<Integer> configIds);
+    @Query("SELECT br FROM BuildRecord br WHERE (size(:configIds) > 0) AND br.submitTime = (SELECT max(brr.submitTime) FROM BuildRecord brr"
+            + " WHERE br.buildConfigurationId = brr.buildConfigurationId) AND br.buildConfigurationId IN (:configIds)")
+    List<BuildRecord> getLatestBuildsByBuildConfigIds(@Param("configIds") List<Integer> configIds);
 
     @Query("select br from BuildRecord br fetch all properties where br.id = ?1")
     BuildRecord findByIdFetchAllProperties(Long id);
@@ -42,6 +43,7 @@ public interface BuildRecordSpringRepository
     BuildRecord findByIdFetchProperties(Long id);
 
     @Query("SELECT DISTINCT br FROM BuildRecord br " + "JOIN br.builtArtifacts builtArtifacts "
-            + "WHERE ((COALESCE(?1) IS NULL) OR (builtArtifacts.id IN ?1))")
-    Set<BuildRecord> findByBuiltArtifacts(Set<Integer> dependenciesIds);
+            + "WHERE (size(:dependenciesIds) > 0) AND builtArtifacts.id IN (:dependenciesIds)")
+    Set<BuildRecord> findByBuiltArtifacts(@Param("dependenciesIds") Set<Integer> dependenciesIds);
+
 }
