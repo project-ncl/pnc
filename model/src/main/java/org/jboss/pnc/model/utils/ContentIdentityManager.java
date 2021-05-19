@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.model.utils;
 
+import org.jboss.pnc.common.pnc.LongBase32IdConverter;
+
 /**
  * Component that contains the rules for generating various content ID's which are used to uniquely associate content
  * stored in external services with builds, build-sets, products, etc.
@@ -25,8 +27,8 @@ public class ContentIdentityManager {
 
     public static String getBuildContentId(Long buildRecordId) {
         if (buildRecordId == null)
-            throw new IllegalArgumentException("Null is not a valid build content ID");
+            throw new IllegalArgumentException("Null is not a valid build record ID");
 
-        return "build-" + buildRecordId;
+        return "build-" + LongBase32IdConverter.toString(buildRecordId);
     }
 }
