@@ -104,8 +104,8 @@
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.1.0</atlasVersion>
     <indyVersion>2.5.4</indyVersion>
-    <version.assertj-core>3.18.1</version.assertj-core>
-    <version.mockito>3.8.0</version.mockito>
+    <version.assertj-core>3.19.0</version.assertj-core>
+    <version.mockito>3.9.0</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.kie-services-client>6.5.0.Final</version.kie-services-client>
@@ -113,9 +113,9 @@
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
     <version.swagger2>2.1.4</version.swagger2>
     <version.buildagent>0.8.2-SNAPSHOT</version.buildagent>
-    <version.lombok>1.18.18</version.lombok>
+    <version.lombok>1.18.20</version.lombok>
     <version.mapstruct>1.4.2.Final</version.mapstruct>
-    <version.junit>4.13.1</version.junit>
+    <version.junit>4.13.2</version.junit>
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
     <version.vertx.core>3.8.5</version.vertx.core>
     <version.pnc-api>2.0.2-SNAPSHOT</version.pnc-api>
@@ -781,7 +781,7 @@
       <dependency>
         <groupId>io.fabric8</groupId>
         <artifactId>openshift-client</artifactId>
-        <version>5.0.1</version>
+        <version>5.3.1</version>
       </dependency>
 
       <dependency>
@@ -1681,7 +1681,7 @@
       <plugin>
           <groupId>net.revelc.code.formatter</groupId>
           <artifactId>formatter-maven-plugin</artifactId>
-          <version>2.12.2</version>
+          <version>2.15.0</version>
           <configuration>
               <configFile>../eclipse-codeStyle.xml</configFile>
           </configuration>
