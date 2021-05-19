@@ -53,11 +53,11 @@ public class RepositoryManagerResultMapper {
     public RepositoryManagerResult toEntity(RepositoryManagerResultRest dto) {
         List<org.jboss.pnc.model.Artifact> builtArtifacts = dto.getBuiltArtifacts()
                 .stream()
-                .map(artifactRest -> artifactMapper.toEntity(artifactRest))
+                .map(artifactRest -> artifactMapper.toEntityWithTransientTargetRepository(artifactRest))
                 .collect(Collectors.toList());
         List<org.jboss.pnc.model.Artifact> dependencies = dto.getDependencies()
                 .stream()
-                .map(artifactRest -> artifactMapper.toEntity(artifactRest))
+                .map(artifactRest -> artifactMapper.toEntityWithTransientTargetRepository(artifactRest))
                 .collect(Collectors.toList());
         String buildContentId = dto.getBuildContentId();
         String log = dto.getLog();

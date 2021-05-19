@@ -68,8 +68,16 @@ public interface ArtifactMapper
     @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
     Artifact toEntity(org.jboss.pnc.dto.Artifact dtoEntity);
 
+    /**
+     * Created model.Artifact can contain target repository entity in transient (in case id is null) or unspecified (in
+     * case id is not null) JPA state.
+     */
+    @InheritConfiguration(name = "toEntity")
+    @Mapping(target = "targetRepository")
+    Artifact toEntityWithTransientTargetRepository(org.jboss.pnc.dto.Artifact dtoEntity);
+
     @Override
-    @InheritConfiguration
+    @InheritConfiguration(name = "toEntity")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "creationUser", ignore = true)
     @Mapping(target = "modificationUser", ignore = true) // will be set when updating
