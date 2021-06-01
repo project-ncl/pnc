@@ -25,7 +25,6 @@ import org.jboss.pnc.common.security.Md5;
 import org.jboss.pnc.common.security.Sha256;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +32,12 @@ import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
-import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -90,7 +89,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
                         columnList = "buildconfiguration_id,buildconfiguration_rev"),
                 @Index(name = "idx_buildrecord_productmilestone", columnList = "productmilestone_id"),
                 @Index(name = "idx_buildrecord_norebuildcause", columnList = "norebuildcause_id") })
-public class BuildRecord implements GenericEntity<Long> {
+public class BuildRecord implements GenericEntity<Base32LongID> {
 
     private static final long serialVersionUID = -5472083609387609797L;
 
@@ -98,8 +97,8 @@ public class BuildRecord implements GenericEntity<Long> {
 
     private static Logger logger = LoggerFactory.getLogger(BuildRecord.class);
 
-    @Id
-    private Long id;
+    @EmbeddedId
+    private Base32LongID id;
 
     /**
      * Contains the settings that were used at the time the build was executed. Hibernate envers identifies each audited
@@ -353,17 +352,8 @@ public class BuildRecord implements GenericEntity<Long> {
      *
      * @return the id
      */
-    public Long getId() {
+    public Base32LongID getId() {
         return id;
-    }
-
-    /**
-     * Gets the id in the base32 encoding.
-     *
-     * @return the id in base32 encoding.
-     */
-    public String getBase32Id() {
-        return LongBase32IdConverter.toString(id);
     }
 
     /**
@@ -372,7 +362,7 @@ public class BuildRecord implements GenericEntity<Long> {
      * @param id the new id
      */
     @Override
-    public void setId(Long id) {
+    public void setId(Base32LongID id) {
         this.id = id;
     }
 
@@ -879,7 +869,7 @@ public class BuildRecord implements GenericEntity<Long> {
 
     public static class Builder {
 
-        private Long id;
+        private Base32LongID id;
 
         private String buildContentId;
 
@@ -1041,8 +1031,13 @@ public class BuildRecord implements GenericEntity<Long> {
             }
         }
 
-        public Builder id(Long id) {
+        public Builder id(Base32LongID id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder id(String id) {
+            this.id = new Base32LongID(id);
             return this;
         }
 
