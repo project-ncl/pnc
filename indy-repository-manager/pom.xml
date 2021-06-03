@@ -35,7 +35,7 @@
   <properties>
     <version.hibernate-search>5.11.8.Final</version.hibernate-search>
     <version.weld>2.4.6.Final</version.weld>
-    <version.indy-resteasy>3.0.12.Final</version.indy-resteasy>
+    <version.indy-resteasy>4.5.6.Final-redhat-00004</version.indy-resteasy>
   </properties>
 
   <dependencies>
