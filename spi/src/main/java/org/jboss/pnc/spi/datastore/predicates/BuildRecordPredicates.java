@@ -55,10 +55,6 @@ public class BuildRecordPredicates {
 
     private static Logger logger = LoggerFactory.getLogger(BuildRecordPredicates.class);
 
-    public static Predicate<BuildRecord> withBuildRecordId(Integer buildRecordId) {
-        return (root, query, cb) -> cb.equal(root.get(org.jboss.pnc.model.BuildRecord_.id), buildRecordId);
-    }
-
     public static Predicate<BuildRecord> withBuildConfigurationId(Integer configurationId) {
         return (root, query, cb) -> cb.equal(root.get(BuildRecord_.buildConfigurationId), configurationId);
     }
