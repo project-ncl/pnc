@@ -27,18 +27,20 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import org.jboss.pnc.model.Base32LongID;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @ApplicationScoped
 public class InProgress {
-    private Map<Long, Context> inProgress = new ConcurrentHashMap<>();
+    private Map<Base32LongID, Context> inProgress = new ConcurrentHashMap<>();
 
-    public boolean add(Long id, String tagPrefix, String pushResultId) {
+    public boolean add(Base32LongID id, String tagPrefix, String pushResultId) {
         return inProgress.putIfAbsent(id, new Context(id, tagPrefix, pushResultId)) == null;
     }
 
-    public Context remove(Long id) {
+    public Context remove(Base32LongID id) {
         return inProgress.remove(id);
     }
 
@@ -46,14 +48,14 @@ public class InProgress {
         return Collections.unmodifiableSet(inProgress.values().stream().collect(Collectors.toSet()));
     }
 
-    public Context get(Long id) {
+    public Context get(Base32LongID id) {
         return inProgress.get(id);
     }
 
     @Getter
     @AllArgsConstructor
     public class Context {
-        Long id;
+        Base32LongID id;
         String tagPrefix;
         String pushResultId;
     }

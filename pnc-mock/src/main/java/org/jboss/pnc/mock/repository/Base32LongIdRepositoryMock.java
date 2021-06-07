@@ -15,26 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.rsql.converter;
+package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.facade.rsql.RSQLException;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.GenericEntity;
 
-public class Base32EncodedLongValueConverter implements ValueConverter {
+public abstract class Base32LongIdRepositoryMock<EntityType extends GenericEntity<Base32LongID>>
+        extends RepositoryMock<Base32LongID, EntityType> {
 
     @Override
-    public <DB extends GenericEntity<?>, T> Comparable<T> convertComparable(Value<DB, T> value) {
-        throw new RSQLException("Comparing by id is not supported.");
-    }
-
-    @Override
-    public <DB extends GenericEntity<?>, T> T convert(Value<DB, T> value) {
-        if (value.getJavaType() != Base32LongID.class) {
-            throw new IllegalArgumentException(
-                    "Expected to get value for type Base32LongID, got value for type " + value.getJavaType());
-        }
-
-        return (T) new Base32LongID(value.getValue());
+    public Base32LongID getNextId() {
+        return new Base32LongID(Sequence.nextId());
     }
 }

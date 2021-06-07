@@ -25,10 +25,10 @@ import org.jboss.pnc.common.pnc.LongBase32IdConverter;
  */
 public class ContentIdentityManager {
 
-    public static String getBuildContentId(Long buildRecordId) {
+    public static String getBuildContentId(String buildRecordId) {
         if (buildRecordId == null)
             throw new IllegalArgumentException("Null is not a valid build record ID");
 
-        return "build-" + LongBase32IdConverter.toString(buildRecordId);
+        return "build-" + buildRecordId;
     }
 }

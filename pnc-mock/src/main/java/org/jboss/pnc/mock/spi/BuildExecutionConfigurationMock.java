@@ -32,7 +32,7 @@ public class BuildExecutionConfigurationMock {
 
     public static BuildExecutionConfiguration mock() {
         return BuildExecutionConfiguration.build(
-                1,
+                "1",
                 "condent-id",
                 "1",
                 "mvn clean install",

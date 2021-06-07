@@ -26,13 +26,14 @@ import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
+import org.jboss.pnc.model.Base32LongID;
 
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface BuildProvider extends Provider<Long, org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
+public interface BuildProvider extends Provider<Base32LongID, org.jboss.pnc.model.BuildRecord, Build, BuildRef> {
 
     /**
      * Get the internal scm archive link for a build record. If the scm revision is not specified in the build record

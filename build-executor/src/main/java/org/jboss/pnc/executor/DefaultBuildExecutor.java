@@ -84,7 +84,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     private RepositoryManagerFactory repositoryManagerFactory;
     private BuildDriverFactory buildDriverFactory;
     private EnvironmentDriverFactory environmentDriverFactory;
-    private final ConcurrentMap<Long, DefaultBuildExecutionSession> runningExecutions = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, DefaultBuildExecutionSession> runningExecutions = new ConcurrentHashMap<>();
     private KeycloakServiceClient serviceClient;
 
     private SystemConfig systemConfig;
@@ -131,7 +131,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
                 buildExecutionConfiguration,
                 onBuildExecutionStatusChangedEvent);
 
-        long executionConfigurationId = buildExecutionConfiguration.getId();
+        String executionConfigurationId = buildExecutionConfiguration.getId();
         DefaultBuildExecutionSession existing = runningExecutions
                 .putIfAbsent(executionConfigurationId, buildExecutionSession);
         if (existing != null) {
@@ -175,7 +175,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     }
 
     @Override
-    public void cancel(Long executionConfigurationId) throws ExecutorException {
+    public void cancel(String executionConfigurationId) throws ExecutorException {
         DefaultBuildExecutionSession buildExecutionSession = runningExecutions.get(executionConfigurationId);
         if (buildExecutionSession != null) {
             log.info("Cancelling build {}.", buildExecutionSession.getId());
@@ -216,7 +216,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     }
 
     @Override
-    public BuildExecutionSession getRunningExecution(long buildExecutionTaskId) {
+    public BuildExecutionSession getRunningExecution(String buildExecutionTaskId) {
         return runningExecutions.get(buildExecutionTaskId);
     }
 
@@ -453,7 +453,7 @@ public class DefaultBuildExecutor implements BuildExecutor {
     }
 
     private Void completeExecution(DefaultBuildExecutionSession buildExecutionSession, Throwable e) {
-        Long buildExecutionId = buildExecutionSession.getId();
+        String buildExecutionId = buildExecutionSession.getId();
         try {
             // Ends when the result is stored by the Orchestrator
             ProcessStageUtils.logProcessStageBegin("FINALIZING_BUILD", "Finalizing build ...");

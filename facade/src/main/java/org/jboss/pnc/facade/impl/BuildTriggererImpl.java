@@ -28,6 +28,7 @@ import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.facade.util.HibernateLazyInitializer;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -96,8 +97,10 @@ public class BuildTriggererImpl implements BuildTriggerer {
     GenericSettingProvider genericSettingProvider;
 
     @Override
-    public long triggerBuild(final int buildConfigId, OptionalInt buildConfigurationRevision, BuildOptions buildOptions)
-            throws BuildConflictException, CoreException {
+    public String triggerBuild(
+            final int buildConfigId,
+            OptionalInt buildConfigurationRevision,
+            BuildOptions buildOptions) throws BuildConflictException, CoreException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
 
@@ -116,12 +119,12 @@ public class BuildTriggererImpl implements BuildTriggerer {
     }
 
     @Override
-    public boolean cancelBuild(long buildId) throws CoreException {
+    public boolean cancelBuild(String buildId) throws CoreException {
         return buildCoordinator.cancel(buildId);
     }
 
     @Override
-    public Optional<BuildTaskContext> getMdcMeta(long buildId) {
+    public Optional<BuildTaskContext> getMdcMeta(String buildId) {
         return buildCoordinator.getMDCMeta(buildId);
     }
 
@@ -159,10 +162,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
         logger.info(
                 "Started build of Build Configuration {}. Build Tasks: {}",
                 buildConfigId,
-                buildSetTask.getBuildTasks()
-                        .stream()
-                        .map(bt -> Long.toString(bt.getId()))
-                        .collect(Collectors.joining()));
+                buildSetTask.getBuildTasks().stream().map(BuildTask::getId).collect(Collectors.joining()));
         return buildSetTask;
     }
 
@@ -187,10 +187,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
         logger.info(
                 "Started build of Group Configuration {}. Build Tasks: {}",
                 groupConfigId,
-                buildSetTask.getBuildTasks()
-                        .stream()
-                        .map(bt -> Long.toString(bt.getId()))
-                        .collect(Collectors.joining()));
+                buildSetTask.getBuildTasks().stream().map(BuildTask::getId).collect(Collectors.joining()));
         return buildSetTask;
     }
 
@@ -230,10 +227,10 @@ public class BuildTriggererImpl implements BuildTriggerer {
         return buildConfigurationAuditedsMap;
     }
 
-    private long selectBuildRecordIdOf(Collection<BuildTask> buildTasks, int buildConfigId) throws CoreException {
+    private String selectBuildRecordIdOf(Collection<BuildTask> buildTasks, int buildConfigId) throws CoreException {
         return buildTasks.stream()
                 .filter(t -> t.getBuildConfigurationAudited().getBuildConfiguration().getId().equals(buildConfigId))
-                .map(BuildTask::getId)
+                .map(buildTask -> buildTask.getId())
                 .findAny()
                 .orElseThrow(() -> new CoreException("No build id for the triggered configuration"));
     }

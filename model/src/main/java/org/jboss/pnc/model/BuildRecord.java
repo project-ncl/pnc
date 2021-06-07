@@ -25,7 +25,6 @@ import org.jboss.pnc.common.security.Md5;
 import org.jboss.pnc.common.security.Sha256;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,12 +32,12 @@ import javax.persistence.Basic;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
-import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -56,6 +55,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,7 +90,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
                         columnList = "buildconfiguration_id,buildconfiguration_rev"),
                 @Index(name = "idx_buildrecord_productmilestone", columnList = "productmilestone_id"),
                 @Index(name = "idx_buildrecord_norebuildcause", columnList = "norebuildcause_id") })
-public class BuildRecord implements GenericEntity<Long> {
+public class BuildRecord implements GenericEntity<Base32LongID> {
 
     private static final long serialVersionUID = -5472083609387609797L;
 
@@ -98,8 +98,8 @@ public class BuildRecord implements GenericEntity<Long> {
 
     private static Logger logger = LoggerFactory.getLogger(BuildRecord.class);
 
-    @Id
-    private Long id;
+    @EmbeddedId
+    private Base32LongID id;
 
     /**
      * Contains the settings that were used at the time the build was executed. Hibernate envers identifies each audited
@@ -353,17 +353,8 @@ public class BuildRecord implements GenericEntity<Long> {
      *
      * @return the id
      */
-    public Long getId() {
+    public Base32LongID getId() {
         return id;
-    }
-
-    /**
-     * Gets the id in the base32 encoding.
-     *
-     * @return the id in base32 encoding.
-     */
-    public String getBase32Id() {
-        return LongBase32IdConverter.toString(id);
     }
 
     /**
@@ -372,7 +363,7 @@ public class BuildRecord implements GenericEntity<Long> {
      * @param id the new id
      */
     @Override
-    public void setId(Long id) {
+    public void setId(Base32LongID id) {
         this.id = id;
     }
 
@@ -673,7 +664,7 @@ public class BuildRecord implements GenericEntity<Long> {
     }
 
     public String putAttribute(String key, String value) {
-        if (this.id == null) {
+        if (id == null) {
             throw new PersistenceException("Build record id must be set before adding the attributes.");
         }
         Optional<BuildRecordAttribute> old = getAttributeEntity(key);
@@ -811,25 +802,29 @@ public class BuildRecord implements GenericEntity<Long> {
         buildRecordPushResult.setBuildRecord(null);
     }
 
-    public void setDependentBuildRecordIds(Long[] dependentBuildRecordIds) {
+    public void setDependentBuildRecordIds(Base32LongID[] dependentBuildRecordIds) {
         if (dependentBuildRecordIds != null) {
-            this.dependentBuildRecordIds = StringUtils.serializeLong(dependentBuildRecordIds);
+            Long[] longIds = Arrays.stream(dependentBuildRecordIds).map(Base32LongID::getLongId).toArray(Long[]::new);
+            this.dependentBuildRecordIds = StringUtils.serializeLong(longIds);
         } else {
             this.dependentBuildRecordIds = "";
         }
     }
 
-    public Long[] getDependentBuildRecordIds() {
-        return StringUtils.deserializeLong(dependentBuildRecordIds);
+    public Base32LongID[] getDependentBuildRecordIds() {
+        Long[] longIds = StringUtils.deserializeLong(dependentBuildRecordIds);
+        return Arrays.stream(longIds).map(Base32LongID::new).toArray(Base32LongID[]::new);
     }
 
-    public Long[] getDependencyBuildRecordIds() {
-        return StringUtils.deserializeLong(dependencyBuildRecordIds);
+    public Base32LongID[] getDependencyBuildRecordIds() {
+        Long[] longIds = StringUtils.deserializeLong(dependencyBuildRecordIds);
+        return Arrays.stream(longIds).map(Base32LongID::new).toArray(Base32LongID[]::new);
     }
 
-    public void setDependencyBuildRecordIds(Long[] dependencyBuildRecordIds) {
+    public void setDependencyBuildRecordIds(Base32LongID[] dependencyBuildRecordIds) {
         if (dependencyBuildRecordIds != null) {
-            this.dependencyBuildRecordIds = StringUtils.serializeLong(dependencyBuildRecordIds);
+            Long[] longIds = Arrays.stream(dependencyBuildRecordIds).map(Base32LongID::getLongId).toArray(Long[]::new);
+            this.dependencyBuildRecordIds = StringUtils.serializeLong(longIds);
         } else {
             this.dependencyBuildRecordIds = "";
         }
@@ -879,7 +874,7 @@ public class BuildRecord implements GenericEntity<Long> {
 
     public static class Builder {
 
-        private Long id;
+        private Base32LongID id;
 
         private String buildContentId;
 
@@ -931,9 +926,9 @@ public class BuildRecord implements GenericEntity<Long> {
 
         private Map<String, String> attributes = new HashMap<>();
 
-        private Long[] dependentBuildRecordIds;
+        private Base32LongID[] dependentBuildRecordIds;
 
-        private Long[] dependencyBuildRecordIds;
+        private Base32LongID[] dependencyBuildRecordIds;
 
         private BuildRecord noRebuildCause;
 
@@ -1041,8 +1036,13 @@ public class BuildRecord implements GenericEntity<Long> {
             }
         }
 
-        public Builder id(Long id) {
+        public Builder id(Base32LongID id) {
             this.id = id;
+            return this;
+        }
+
+        public Builder id(String id) {
+            this.id = new Base32LongID(id);
             return this;
         }
 
@@ -1192,12 +1192,12 @@ public class BuildRecord implements GenericEntity<Long> {
             return this;
         }
 
-        public BuildRecord.Builder dependencyBuildRecordIds(Long[] dependencyBuildRecordIds) {
+        public BuildRecord.Builder dependencyBuildRecordIds(Base32LongID[] dependencyBuildRecordIds) {
             this.dependencyBuildRecordIds = dependencyBuildRecordIds;
             return this;
         }
 
-        public BuildRecord.Builder dependentBuildRecordIds(Long[] dependentBuildRecordIds) {
+        public BuildRecord.Builder dependentBuildRecordIds(Base32LongID[] dependentBuildRecordIds) {
             this.dependentBuildRecordIds = dependentBuildRecordIds;
             return this;
         }

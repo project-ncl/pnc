@@ -88,7 +88,7 @@ public class BuildExecutionConfigurationRest {
     }
 
     public BuildExecutionConfigurationRest(BuildExecutionConfiguration buildExecutionConfiguration) {
-        id = BuildMapper.idMapper.toDto(buildExecutionConfiguration.getId());
+        id = buildExecutionConfiguration.getId();
         buildContentId = buildExecutionConfiguration.getBuildContentId();
         buildScript = buildExecutionConfiguration.getBuildScript();
         name = buildExecutionConfiguration.getName();
@@ -122,7 +122,7 @@ public class BuildExecutionConfigurationRest {
                 .map(ArtifactRepositoryRest::toArtifactRepository)
                 .collect(Collectors.toList());
         return BuildExecutionConfiguration.build(
-                BuildMapper.idMapper.toEntity(id),
+                id,
                 buildContentId,
                 user.getId(),
                 buildScript,

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mock.repository;
 
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 
@@ -30,7 +31,7 @@ public class BuildRecordPushResultRepositoryMock extends LongIdRepositoryMock<Bu
         implements BuildRecordPushResultRepository {
 
     @Override
-    public BuildRecordPushResult getLatestForBuildRecord(Long buildRecordId) {
+    public BuildRecordPushResult getLatestForBuildRecord(Base32LongID buildRecordId) {
         return data.stream()
                 .filter(buildRecordPushResult -> buildRecordPushResult.getBuildRecord().getId().equals(buildRecordId))
                 .sorted(Comparator.comparing(BuildRecordPushResult::getId).reversed())
@@ -39,7 +40,7 @@ public class BuildRecordPushResultRepositoryMock extends LongIdRepositoryMock<Bu
     }
 
     @Override
-    public List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Long buildRecordId) {
+    public List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Base32LongID buildRecordId) {
         throw new RuntimeException("Not implemented!");
     }
 

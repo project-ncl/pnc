@@ -20,6 +20,7 @@ package org.jboss.pnc.facade;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.BuildPushStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 
 import java.util.Set;
@@ -34,9 +35,9 @@ public interface BrewPusher {
 
     BuildPushResult pushBuild(String id, BuildPushParameters buildPushParameters) throws ProcessException;
 
-    boolean brewPushCancel(long buildId);
+    boolean brewPushCancel(String buildId);
 
-    BuildPushResult brewPushComplete(long buildId, BuildPushResult buildPushResult);
+    BuildPushResult brewPushComplete(String buildId, BuildPushResult buildPushResult);
 
     /**
      * Gets generated in progress brew push result or the latest completed one. If there is one in progress for given
@@ -46,5 +47,5 @@ public interface BrewPusher {
      * @param buildId build record id
      * @return generated or loaded push result, {@code null} in case there is no completed nor in progress
      */
-    BuildPushResult getBrewPushResult(long buildId);
+    BuildPushResult getBrewPushResult(String buildId);
 }

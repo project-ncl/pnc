@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories.internal;
 
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -28,18 +29,18 @@ import java.util.Set;
 
 @Dependent
 public interface BuildRecordSpringRepository
-        extends JpaRepository<BuildRecord, Long>, JpaSpecificationExecutor<BuildRecord> {
+        extends JpaRepository<BuildRecord, Base32LongID>, JpaSpecificationExecutor<BuildRecord> {
 
     @Query("SELECT br FROM BuildRecord br WHERE br.submitTime = (SELECT max(brr.submitTime) FROM BuildRecord brr"
             + " WHERE br.buildConfigurationId = brr.buildConfigurationId) AND br.buildConfigurationId IN ?1")
     List<BuildRecord> getLatestBuildsByBuildConfigIds(List<Integer> configIds);
 
     @Query("select br from BuildRecord br fetch all properties where br.id = ?1")
-    BuildRecord findByIdFetchAllProperties(Long id);
+    BuildRecord findByIdFetchAllProperties(Base32LongID id);
 
     @Query("select br from BuildRecord br " + "left join fetch br.productMilestone "
             + "left join fetch br.buildConfigSetRecord " + "left join fetch br.user " + "where br.id = ?1")
-    BuildRecord findByIdFetchProperties(Long id);
+    BuildRecord findByIdFetchProperties(Base32LongID id);
 
     @Query("SELECT DISTINCT br FROM BuildRecord br " + "JOIN br.builtArtifacts builtArtifacts "
             + "WHERE builtArtifacts.id IN (?1)")

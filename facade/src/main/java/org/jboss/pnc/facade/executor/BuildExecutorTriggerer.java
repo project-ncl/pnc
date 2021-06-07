@@ -78,12 +78,12 @@ public class BuildExecutorTriggerer {
         return buildExecutionSession;
     }
 
-    public void cancelBuild(Long buildExecutionConfigId) throws CoreException, ExecutorException {
+    public void cancelBuild(String buildExecutionConfigId) throws CoreException, ExecutorException {
         buildExecutor.cancel(buildExecutionConfigId);
     }
 
     public void buildStatusUpdated(String executionId, TaskStatusUpdateEvent buildStatusUpdated) {
-        BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(Long.parseLong(executionId));
+        BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(executionId);
         if (runningExecution != null) {
             runningExecution.getBuildStatusUpdateConsumer().accept(buildStatusUpdated);
         } else {
@@ -91,7 +91,7 @@ public class BuildExecutorTriggerer {
         }
     }
 
-    public Optional<BuildTaskContext> getMdcMeta(Long buildExecutionConfigId, String userId) {
+    public Optional<BuildTaskContext> getMdcMeta(String buildExecutionConfigId, String userId) {
         BuildExecutionSession runningExecution = buildExecutor.getRunningExecution(buildExecutionConfigId);
         if (runningExecution != null) {
             BuildExecutionConfiguration buildExecutionConfiguration = runningExecution.getBuildExecutionConfiguration();

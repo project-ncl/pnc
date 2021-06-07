@@ -21,6 +21,7 @@ import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.DefaultRevisionEntity;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.criteria.AuditDisjunction;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
@@ -161,14 +162,14 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
      */
     private List<BuildRecord> getBuildRecords(IdRev idRev) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        CriteriaQuery<Base32LongID> query = cb.createQuery(Base32LongID.class);
         Root<BuildRecord> root = query.from(BuildRecord.class);
         query.select(root.get(BuildRecord_.id));
         query.where(
                 cb.and(
                         cb.equal(root.get(BuildRecord_.buildConfigurationId), idRev.getId()),
                         cb.equal(root.get(BuildRecord_.buildConfigurationRev), idRev.getRev())));
-        List<Long> buildRecordIds = entityManager.createQuery(query).getResultList();
+        List<Base32LongID> buildRecordIds = entityManager.createQuery(query).getResultList();
         return buildRecordIds.stream()
                 .map(id -> BuildRecord.Builder.newBuilder().id(id).build())
                 .collect(Collectors.toList());
@@ -180,11 +181,11 @@ public class BuildConfigurationAuditedRepositoryImpl implements BuildConfigurati
      */
     private List<BuildRecord> getBuildRecords(Integer buildConfigurationId) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        CriteriaQuery<Base32LongID> query = cb.createQuery(Base32LongID.class);
         Root<BuildRecord> root = query.from(BuildRecord.class);
         query.select(root.get(BuildRecord_.id));
         query.where(cb.equal(root.get(BuildRecord_.buildConfigurationId), buildConfigurationId));
-        List<Long> buildRecordIds = entityManager.createQuery(query).getResultList();
+        List<Base32LongID> buildRecordIds = entityManager.createQuery(query).getResultList();
         return buildRecordIds.stream()
                 .map(id -> BuildRecord.Builder.newBuilder().id(id).build())
                 .collect(Collectors.toList());

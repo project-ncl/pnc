@@ -50,6 +50,7 @@ import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.ResultMapper;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -126,7 +127,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.witho
 
 @PermitAll
 @Stateless
-public class BuildProviderImpl extends AbstractUpdatableProvider<Long, BuildRecord, Build, BuildRef>
+public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, BuildRecord, Build, BuildRef>
         implements BuildProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildProviderImpl.class);
@@ -194,7 +195,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Long, BuildReco
     @RolesAllowed(SYSTEM_USER)
     @Override
     public Build update(String buildId, Build restEntity) {
-        Long id = parseId(buildId);
+        Base32LongID id = parseId(buildId);
         validateBeforeUpdating(id, restEntity);
         logger.debug("Updating build: " + restEntity.toString());
         BuildRecord entityInDB = repository.queryById(id);
@@ -461,8 +462,8 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Long, BuildReco
                 .filter(
                         t -> t.getBuildSetTask() != null
                                 && buildConfigSetRecord.getId().equals(t.getBuildSetTask().getId()))
-                .sorted(Comparator.comparingLong(BuildTask::getId))
-                .map(t -> BuildMapper.idMapper.toDto(t.getId()))
+                .sorted(Comparator.comparing(bt -> bt.getBuildConfigurationAudited().getName()))
+                .map(t -> t.getId())
                 .collect(Collectors.toList());
 
         List<String> runningAndStoredIds = new ArrayList<>(runningTaskIds);
@@ -547,7 +548,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Long, BuildReco
     private BuildWithDependencies getRunningOrCompletedBuild(String id) {
         Optional<BuildTask> buildTask = buildCoordinator.getSubmittedBuildTasks()
                 .stream()
-                .filter(submittedBuild -> BuildMapper.idMapper.toDto(submittedBuild.getId()).equals(id))
+                .filter(submittedBuild -> submittedBuild.getId().equals(id))
                 .findFirst();
         if (buildTask.isPresent()) {
             return new BuildWithDependencies(buildTask.get());
@@ -565,7 +566,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Long, BuildReco
         List<BuildTask> runningBuilds = buildCoordinator.getSubmittedBuildTasks();
 
         Build build = runningBuilds.stream()
-                .filter(buildTask -> buildId.equals(BuildMapper.idMapper.toDto(buildTask.getId())))
+                .filter(buildTask -> buildId.equals(buildTask.getId()))
                 .findAny()
                 .map(buildMapper::fromBuildTask)
                 .orElse(null);
@@ -607,14 +608,14 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Long, BuildReco
             throw new InvalidEntityException("Artifacts not found, missing ids: " + ids);
         }
 
-        final Long id = parseId(buildId);
+        final Base32LongID id = parseId(buildId);
         BuildRecord buildRecord = repository.queryById(id);
         for (Artifact artifact : artifacts) {
             if (artifact.getBuildRecord() != null && !id.equals(artifact.getBuildRecord().getId())) {
                 throw new ConflictedEntryException(
                         "Artifact " + artifact.getId() + " is already marked as built by different build.",
                         BuildRecord.class,
-                        artifact.getBuildRecord().getId().toString());
+                        BuildMapper.idMapper.toDto(artifact.getBuildRecord().getId()));
             }
             artifact.setBuildRecord(buildRecord);
         }
@@ -624,7 +625,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Long, BuildReco
 
     @Override
     public Set<String> getBuiltArtifactIds(String buildId) {
-        final Long id = parseId(buildId);
+        final Base32LongID id = parseId(buildId);
         BuildRecord buildRecord = repository.queryById(id);
         return nullableStreamOf(buildRecord.getBuiltArtifacts()).map(builtArtifact -> builtArtifact.getId().toString())
                 .collect(Collectors.toSet());
@@ -971,14 +972,8 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Long, BuildReco
 
         public BuildWithDependencies(BuildTask buildTask) {
             build = buildMapper.fromBuildTask(buildTask);
-            dependencies = buildTask.getDependencies()
-                    .stream()
-                    .map(bt -> BuildMapper.idMapper.toDto(bt.getId()))
-                    .collect(Collectors.toSet());
-            dependants = buildTask.getDependants()
-                    .stream()
-                    .map(bt -> BuildMapper.idMapper.toDto(bt.getId()))
-                    .collect(Collectors.toSet());
+            dependencies = buildTask.getDependencies().stream().map(bt -> bt.getId()).collect(Collectors.toSet());
+            dependants = buildTask.getDependants().stream().map(bt -> bt.getId()).collect(Collectors.toSet());
         }
 
         public BuildWithDependencies(BuildRecord buildRecord) {

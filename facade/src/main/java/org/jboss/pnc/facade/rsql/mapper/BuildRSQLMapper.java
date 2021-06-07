@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.rsql.mapper;
 
 import org.jboss.pnc.facade.rsql.converter.Base32EncodedLongValueConverter;
 import org.jboss.pnc.facade.rsql.converter.ValueConverter;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.GenericEntity;
@@ -34,7 +35,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class BuildRSQLMapper extends AbstractRSQLMapper<Long, BuildRecord> {
+public class BuildRSQLMapper extends AbstractRSQLMapper<Base32LongID, BuildRecord> {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildRSQLMapper.class);
 

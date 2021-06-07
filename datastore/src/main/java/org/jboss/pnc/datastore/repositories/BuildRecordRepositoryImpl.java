@@ -21,6 +21,7 @@ import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
 import org.jboss.pnc.datastore.repositories.internal.PageableMapper;
 import org.jboss.pnc.datastore.repositories.internal.SpecificationsMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
@@ -54,7 +55,8 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.witho
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
 
 @Stateless
-public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Long> implements BuildRecordRepository {
+public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, Base32LongID>
+        implements BuildRecordRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildRecordRepositoryImpl.class);
 
@@ -79,7 +81,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, L
     }
 
     @Override
-    public BuildRecord findByIdFetchAllProperties(Long id) {
+    public BuildRecord findByIdFetchAllProperties(Base32LongID id) {
         BuildRecord buildRecord = repository.findByIdFetchAllProperties(id);
         if (buildRecord != null) {
             fetchBuildConfigurationAudited(buildRecord);
@@ -88,7 +90,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, L
     }
 
     @Override
-    public BuildRecord findByIdFetchProperties(Long id) {
+    public BuildRecord findByIdFetchProperties(Base32LongID id) {
         BuildRecord buildRecord = repository.findByIdFetchProperties(id);
         if (buildRecord != null) {
             fetchBuildConfigurationAudited(buildRecord);
@@ -177,7 +179,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, L
     }
 
     @Override
-    public List<BuildRecord> getBuildByCausingRecord(Long causingRecordId) {
+    public List<BuildRecord> getBuildByCausingRecord(Base32LongID causingRecordId) {
         return queryWithPredicates(withCausingBuildRecordId(causingRecordId));
     }
 }

@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class BuildExecutionConfigurationMock implements BuildExecutionConfiguration {
 
-    private int id;
+    private String id;
     private String buildContentId;
     private String userId;
     private String buildScript;
@@ -55,7 +55,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public static BuildExecutionConfiguration mockConfig() {
         BuildExecutionConfigurationMock mock = new BuildExecutionConfigurationMock();
-        mock.setId(1);
+        mock.setId("1");
         mock.setBuildScript("mvn install");
         mock.setScmRepoURL("http://www.github.com");
         mock.setScmRevision("f18de64523d5054395d82e24d4e28473a05a3880");
@@ -76,11 +76,11 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     }
 
     @Override
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

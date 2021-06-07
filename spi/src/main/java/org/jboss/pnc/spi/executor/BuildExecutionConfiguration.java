@@ -33,7 +33,7 @@ import java.util.Map;
 public interface BuildExecutionConfiguration extends BuildExecution {
 
     @Override
-    long getId();
+    String getId();
 
     String getUserId();
 
@@ -64,7 +64,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
     String getDefaultAlignmentParams();
 
     static BuildExecutionConfiguration build(
-            Long id,
+            String id,
             String buildContentId,
             String userId,
             String buildScript,
@@ -109,7 +109,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
     }
 
     static BuildExecutionConfiguration build(
-            long id,
+            String id,
             String buildContentId,
             String userId,
             String buildScript,
@@ -150,7 +150,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
         return new BuildExecutionConfiguration() {
 
             @Override
-            public long getId() {
+            public String getId() {
                 return id;
             }
 

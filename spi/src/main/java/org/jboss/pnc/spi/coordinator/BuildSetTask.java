@@ -105,11 +105,11 @@ public class BuildSetTask {
             finishBuildSetTask();
         } else {
             if (log.isTraceEnabled()) {
-                List<Long> running = buildTasks.stream()
+                String running = buildTasks.stream()
                         .filter(bt -> !bt.getStatus().isCompleted())
                         .filter(bt -> !bt.getStatus().hasFailed())
                         .map(BuildTask::getId)
-                        .collect(Collectors.toList());
+                        .collect(Collectors.joining(", "));
                 log.trace("There are still running or waiting builds [{}].", running);
             }
         }

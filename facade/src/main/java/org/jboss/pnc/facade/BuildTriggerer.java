@@ -33,7 +33,7 @@ import java.util.OptionalInt;
  */
 public interface BuildTriggerer {
 
-    long triggerBuild(int buildConfigId, OptionalInt rev, BuildOptions buildOptions)
+    String triggerBuild(int buildConfigId, OptionalInt rev, BuildOptions buildOptions)
             throws BuildConflictException, CoreException;
 
     int triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
@@ -46,8 +46,8 @@ public interface BuildTriggerer {
      * @return True if the cancel request is successfully accepted, false if if there is no running build with such ID
      * @throws CoreException Thrown if cancellation fails due to any internal error
      */
-    boolean cancelBuild(long buildId) throws CoreException;
+    boolean cancelBuild(String buildId) throws CoreException;
 
-    Optional<BuildTaskContext> getMdcMeta(long buildId);
+    Optional<BuildTaskContext> getMdcMeta(String buildId);
 
 }
