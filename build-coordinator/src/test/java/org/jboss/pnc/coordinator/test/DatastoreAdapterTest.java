@@ -200,7 +200,7 @@ public class DatastoreAdapterTest {
                 BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 13),
                 buildOptions,
                 MockUser.newTestUser(1),
-                123,
+                "123",
                 null,
                 new Date(),
                 null,

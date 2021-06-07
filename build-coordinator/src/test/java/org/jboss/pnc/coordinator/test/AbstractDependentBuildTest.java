@@ -190,7 +190,7 @@ public abstract class AbstractDependentBuildTest {
                 .iterator()
                 .next();
         return BuildRecord.Builder.newBuilder()
-                .id(Sequence.nextId())
+                .id(Sequence.nextBase32Id())
                 .status(BuildStatus.SUCCESS)
                 .buildConfigurationAudited(configurationAudited)
                 .temporaryBuild(false)
@@ -273,7 +273,7 @@ public abstract class AbstractDependentBuildTest {
         }
     }
 
-    protected BuildTask getBuildTaskById(Long taskId) {
+    protected BuildTask getBuildTaskById(String taskId) {
         Optional<BuildTask> buildTask = builtTasks.stream().filter(bt -> bt.getId() == taskId).findAny();
         if (buildTask.isPresent()) {
             return buildTask.get();

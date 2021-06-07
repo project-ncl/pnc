@@ -461,7 +461,7 @@ public class TemporaryBuildsCleanerTest {
 
     private BuildRecord.Builder initBuildRecordBuilder() {
         return BuildRecord.Builder.newBuilder()
-                .id(Sequence.nextId())
+                .id(Sequence.nextBase32Id())
                 .buildConfigurationAudited(this.buildConfigurationAudited)
                 .submitTime(new Date())
                 .user(this.user)

@@ -102,7 +102,7 @@ public class BuildExecutionTest {
         BuildExecutionSession session = createFakeExectionSession(statusChangeConsumer);
 
         // when
-        long executionId = 11L;
+        String executionId = "11";
         ((BuildExecutorMock) buildExecutor).addRunningExecution(executionId, session);
         HttpClient httpClient = new HttpClient();
 

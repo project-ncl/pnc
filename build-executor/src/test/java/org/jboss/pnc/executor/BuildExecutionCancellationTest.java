@@ -94,7 +94,7 @@ public class BuildExecutionCancellationTest extends BuildExecutionBase {
                 try {
                     log.info("Cancelling build ...");
                     Thread.sleep(100);
-                    executor.cancel(Long.valueOf(buildConfiguration.getId()));
+                    executor.cancel(e.getBuildTaskId());
                 } catch (ExecutorException | InterruptedException e0) {
                     e0.printStackTrace();
                 }

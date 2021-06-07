@@ -23,8 +23,10 @@ import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.facade.rsql.converter.Value;
+import org.jboss.pnc.facade.rsql.converter.ValueConverter;
 import org.jboss.pnc.facade.rsql.mapper.BuildRSQLMapper;
 import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildEnvironment_;
 import org.jboss.pnc.model.BuildRecord;
@@ -77,21 +79,24 @@ public class RSQLPredicateProducerTest {
         Class<?> foo = BuildRecord.class;
         when(universalMapper.toPath(ArgumentMatchers.same(BuildRecord.class), any(), any()))
                 .then(callBuildRecordPath());
-        when(universalMapper.convertValue(any(Value.class))).then(callBuildRecordConvert());
+        ValueConverter valueConverter = mock(ValueConverter.class);
+        when(universalMapper.getConverter()).thenReturn(valueConverter);
+        when(valueConverter.convert(any(Value.class))).then(callBuildRecordConvert());
+        when(valueConverter.convertComparable(any(Value.class))).then(callBuildRecordConvertComparable());
     }
 
     @Test
     public void testCriteriaPredicate() {
-        long id = 4L;
+        Base32LongID id = new Base32LongID(4L);
         org.jboss.pnc.spi.datastore.repositories.api.Predicate<BuildRecord> criteriaPredicate = producer
-                .getCriteriaPredicate(BuildRecord.class, "id==" + Numbers.decimalToBase32(id));
+                .getCriteriaPredicate(BuildRecord.class, "id==" + id.getId());
 
         CriteriaBuilder cb = mock(CriteriaBuilder.class);
         Root<BuildRecord> root = mock(Root.class);
-        SingularAttributePath<Long> idPath = mock(SingularAttributePath.class);
+        SingularAttributePath<Base32LongID> idPath = mock(SingularAttributePath.class);
 
         when(root.get(BuildRecord_.id)).thenReturn(idPath);
-        Mockito.doReturn(Long.class).when(idPath).getJavaType();
+        Mockito.doReturn(Base32LongID.class).when(idPath).getJavaType();
 
         SingularAttribute pathAttribute = mock(SingularAttribute.class);
         java.lang.reflect.Member javaMember = mock(java.lang.reflect.Member.class);
@@ -438,6 +443,13 @@ public class RSQLPredicateProducerTest {
         return invocation -> {
             Value value = (Value) invocation.getArgument(0);
             return new BuildRSQLMapper().getValueConverter(value.getName()).convert(value);
+        };
+    }
+
+    private Answer<?> callBuildRecordConvertComparable() {
+        return invocation -> {
+            Value value = (Value) invocation.getArgument(0);
+            return new BuildRSQLMapper().getValueConverter(value.getName()).convertComparable(value);
         };
     }
 }

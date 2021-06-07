@@ -111,7 +111,7 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
 
     private class MockBuildSchedulerWithManualBuildCompletion implements BuildScheduler {
 
-        Map<Long, Consumer<BuildResult>> scheduledTasks = new HashMap();
+        Map<String, Consumer<BuildResult>> scheduledTasks = new HashMap();
 
         @Override
         public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete)
@@ -120,7 +120,7 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
             scheduledTasks.put(buildTask.getId(), onComplete);
         }
 
-        public void completeBuild(long taskId) {
+        public void completeBuild(String taskId) {
             BuildResult result = buildResult();
             Consumer<BuildResult> buildResultConsumer = scheduledTasks.get(taskId);
 

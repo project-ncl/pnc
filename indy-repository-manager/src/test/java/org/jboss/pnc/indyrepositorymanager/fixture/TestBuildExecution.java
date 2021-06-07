@@ -25,7 +25,7 @@ import java.util.List;
 
 public class TestBuildExecution implements BuildExecution {
 
-    private int id = 1;
+    private String id = "1";
 
     private String buildContentId;
 
@@ -47,7 +47,7 @@ public class TestBuildExecution implements BuildExecution {
     }
 
     @Override
-    public long getId() {
+    public String getId() {
         return id;
     }
 

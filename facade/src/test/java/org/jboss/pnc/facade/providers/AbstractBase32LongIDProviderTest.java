@@ -15,24 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integration.mock;
+package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.coordinator.maintenance.RemoteBuildsCleaner;
-import org.jboss.pnc.enums.ResultStatus;
-import org.jboss.pnc.mapper.api.BuildMapper;
-import org.jboss.pnc.spi.coordinator.Result;
-import org.jboss.pnc.model.BuildRecord;
-
-import javax.enterprise.context.Dependent;
+import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.GenericEntity;
 
 /**
- * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ *
+ * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
+ * @param <T> tested provider type
  */
-@Dependent
-public class RemoteBuildsCleanerMock implements RemoteBuildsCleaner {
+public abstract class AbstractBase32LongIDProviderTest<T extends GenericEntity<Base32LongID>>
+        extends AbstractProviderTest<Base32LongID, T> {
 
-    @Override
-    public Result deleteRemoteBuilds(BuildRecord buildRecord, String authToken) {
-        return new Result(BuildMapper.idMapper.toDto(buildRecord.getId()), ResultStatus.SUCCESS);
+    protected Base32LongID getNextId() {
+        return new Base32LongID(Sequence.nextId());
     }
+
 }

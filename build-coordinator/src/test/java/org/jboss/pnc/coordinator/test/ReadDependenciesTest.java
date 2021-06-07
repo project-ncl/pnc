@@ -95,7 +95,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
                 buildConfigurationSet,
                 user,
                 buildOptions,
-                () -> Sequence.nextId(),
+                () -> Sequence.nextBase32Id(),
                 buildQueue.getUnfinishedTasks());
     }
 }

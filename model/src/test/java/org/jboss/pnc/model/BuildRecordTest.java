@@ -72,7 +72,7 @@ public class BuildRecordTest extends AbstractModelTest {
     @Test
     public void shouldProhibitDeletionOfNonTemporaryBuild() {
         // given
-        long brId = 666;
+        Base32LongID brId = new Base32LongID("666");
         BuildRecord br = prepareBuildRecordBuilder().id(brId).temporaryBuild(false).build();
 
         em.getTransaction().begin();
@@ -88,7 +88,7 @@ public class BuildRecordTest extends AbstractModelTest {
             em.getTransaction().rollback();
             BuildRecord obtainedBr = em.find(BuildRecord.class, brId);
             assertNotNull(obtainedBr);
-            assertEquals(brId, obtainedBr.getId().intValue());
+            assertEquals(brId, obtainedBr.getId());
             return;
         }
         fail("Deletion of the standard BuildRecord should be prohibited.");
@@ -97,7 +97,7 @@ public class BuildRecordTest extends AbstractModelTest {
     @Test
     public void shouldAllowDeletionOfTemporaryBuild() {
         // given
-        long brId = 666;
+        Base32LongID brId = new Base32LongID("CERBB5D55GARK");
         BuildRecord br = prepareBuildRecordBuilder().id(brId).temporaryBuild(true).build();
 
         em.getTransaction().begin();

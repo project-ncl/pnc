@@ -42,7 +42,7 @@ public class BuildExecutionConfigurationTest {
     public void serializeAndDeserializeBuildResult() throws IOException, BuildDriverException {
 
         BuildExecutionConfiguration buildExecutionConfiguration = BuildExecutionConfiguration.build(
-                1,
+                "1",
                 "condent-id",
                 "1",
                 "mvn clean install",
