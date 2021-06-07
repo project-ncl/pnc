@@ -37,10 +37,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -228,12 +225,6 @@ public interface BuildMapper extends UpdatableEntityMapper<Long, BuildRecord, Bu
 
         public static String toDtoId(BuildRecord buildRecord) {
             return idMapper.toDto(buildRecord.getId());
-        }
-    }
-
-    public static class BuildTaskIdMapper {
-        public static List<String> toBuildIds(Set<BuildTask> buildTasks) {
-            return buildTasks.stream().map(BuildTask::getId).map(idMapper::toDto).collect(Collectors.toList());
         }
     }
 
