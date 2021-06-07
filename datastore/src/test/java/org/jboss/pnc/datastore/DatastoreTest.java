@@ -236,7 +236,7 @@ public class DatastoreTest {
         Assert.assertNotNull(user.getId());
 
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
-                .id(Sequence.nextId())
+                .id(Sequence.nextBase32Id())
                 .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))
@@ -358,7 +358,7 @@ public class DatastoreTest {
         dependencies.add(importedArtifact2);
         dependencies.add(importedDuplicateArtifact);
         BuildRecord.Builder buildRecordBuilder = BuildRecord.Builder.newBuilder()
-                .id(Sequence.nextId())
+                .id(Sequence.nextBase32Id())
                 .buildConfigurationAudited(buildConfigAud)
                 .submitTime(Date.from(Instant.now()))
                 .startTime(Date.from(Instant.now()))

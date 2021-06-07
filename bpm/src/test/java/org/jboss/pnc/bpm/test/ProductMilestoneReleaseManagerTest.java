@@ -29,6 +29,7 @@ import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.enums.ReleaseStatus;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
 import org.jboss.pnc.mock.repository.*;
 import org.jboss.pnc.model.*;
@@ -163,8 +164,11 @@ public class ProductMilestoneReleaseManagerTest {
                 .isEqualTo(MilestoneCloseStatus.FAILED);
     }
 
-    private BuildImportResultRest buildImportResultRest(BuildImportStatus status, Long buildRecordId, Integer brewId) {
-        return new BuildImportResultRest(buildRecordId, brewId, brewUrl(brewId), status, null);
+    private BuildImportResultRest buildImportResultRest(
+            BuildImportStatus status,
+            Base32LongID buildId,
+            Integer brewId) {
+        return new BuildImportResultRest(BuildMapper.idMapper.toDto(buildId), brewId, brewUrl(brewId), status, null);
     }
 
     /**
@@ -196,7 +200,7 @@ public class ProductMilestoneReleaseManagerTest {
         List<BuildImportResultRest> buildResults = new ArrayList<>();
 
         for (int i = 0; i < records.length; i++) {
-            Long recordId = records[i].getId();
+            Base32LongID recordId = records[i].getId();
             buildResults.add(buildImportResultRest(BuildImportStatus.SUCCESSFUL, recordId, brewBuildId + i));
         }
 
@@ -221,7 +225,7 @@ public class ProductMilestoneReleaseManagerTest {
     private BuildRecord buildRecord(ProductMilestone milestone) {
         BuildRecord record = new BuildRecord();
         record.setProductMilestone(milestone);
-        record.setId(Sequence.nextId());
+        record.setId(new Base32LongID(Sequence.nextId()));
         buildRecordRepository.save(record);
         return record;
     }

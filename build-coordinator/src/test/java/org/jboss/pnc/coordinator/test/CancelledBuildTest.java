@@ -77,7 +77,7 @@ public class CancelledBuildTest extends ProjectBuilder {
                 CompletableFuture.runAsync(() -> {
                     try {
                         Thread.sleep(250); // wait a bit for build execution to start
-                        coordinator.cancel(BuildMapper.idMapper.toEntity(event.getBuild().getId()));
+                        coordinator.cancel(event.getBuild().getId());
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
                         Assert.fail("Unable to cancel the build.");
@@ -104,7 +104,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         Assert.assertNotNull(buildRecord.getEndTime());
         Assert.assertEquals(BuildStatus.CANCELLED, buildRecord.getStatus());
 
-        Long buildTaskId = buildTask.getId();
+        String buildTaskId = buildTask.getId();
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.CANCELLED, buildTaskId);
     }
@@ -127,10 +127,7 @@ public class CancelledBuildTest extends ProjectBuilder {
                         Thread.sleep(250); // wait a bit for build execution to start
                         // we need to get buildConfigSet id to cancel BuildGroup, it is not provided by event class
                         // directly, so we need to dit it up from buildTaskId that event provides
-                        coordinator.cancelSet(
-                                getBuildConfigSetId(
-                                        coordinator,
-                                        BuildMapper.idMapper.toEntity(event.getBuild().getId())));
+                        coordinator.cancelSet(getBuildConfigSetId(coordinator, event.getBuild().getId()));
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);
                         Assert.fail("Unable to cancel the build.");
@@ -169,7 +166,7 @@ public class CancelledBuildTest extends ProjectBuilder {
 
         // 3 is independent, 2 is dependent on 3, 1 is dependent on 2
         for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            Long buildTaskId = buildTask.getId();
+            String buildTaskId = buildTask.getId();
             switch (buildTask.getBuildConfigurationAudited().getId()) {
                 case 1:
                     // Building status is skipped (cancelled before it can start building)
@@ -193,7 +190,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         }
     }
 
-    private Integer getBuildConfigSetId(BuildCoordinator coordinator, Long buildTaskId) {
+    private Integer getBuildConfigSetId(BuildCoordinator coordinator, String buildTaskId) {
         return coordinator.getSubmittedBuildTasks()
                 .stream()
                 .filter(t -> buildTaskId.equals(t.getId()))

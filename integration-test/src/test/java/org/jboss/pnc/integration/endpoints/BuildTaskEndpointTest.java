@@ -90,7 +90,7 @@ public class BuildTaskEndpointTest {
         request.addHeader(Credentials.USER.createAuthHeader(BasicHeader::new));
 
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
-                1,
+                "1",
                 "test-content-id",
                 "1",
                 "mvn clean install",

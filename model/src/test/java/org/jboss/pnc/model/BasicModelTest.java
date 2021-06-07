@@ -146,7 +146,7 @@ public class BasicModelTest extends AbstractModelTest {
         BuildConfigurationAudited buildConfigAud = findBuildConfigurationAudited(em);
 
         BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder()
-                .id(1L)
+                .id("1")
                 .buildConfigurationAudited(buildConfigAud)
                 .buildLog("Build Completed.")
                 .buildContentId("foo")
@@ -218,7 +218,7 @@ public class BasicModelTest extends AbstractModelTest {
         BuildConfigurationAudited buildConfigAud = findBuildConfigurationAudited(em);
 
         BuildRecord buildRecord = BuildRecord.Builder.newBuilder()
-                .id(2L)
+                .id("CERBB5D55GARK")
                 .buildConfigurationAudited(buildConfigAud)
                 .buildLog("Bulid Complete")
                 .buildContentId("foo")

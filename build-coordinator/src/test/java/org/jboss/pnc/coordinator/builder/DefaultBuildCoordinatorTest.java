@@ -374,7 +374,7 @@ public class DefaultBuildCoordinatorTest {
                 BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 13),
                 buildOptions,
                 MockUser.newTestUser(1),
-                1,
+                "1",
                 null,
                 new Date(),
                 null,

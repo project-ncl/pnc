@@ -31,6 +31,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.mock.repository.BuildRecordPushResultRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
@@ -163,7 +164,7 @@ public class BuildResultPushManagerTest {
 
     private BuildRecord buildRecord(boolean withExecutionRootName) {
         BuildRecord record = new BuildRecord();
-        record.setId(Sequence.nextId());
+        record.setId(new Base32LongID(Sequence.nextId()));
         record.setStatus(BuildStatus.SUCCESS);
         record.setBuildConfigurationAudited(bca);
         record.setDependencies(Collections.emptySet());

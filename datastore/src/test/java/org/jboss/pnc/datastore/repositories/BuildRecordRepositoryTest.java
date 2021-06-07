@@ -88,7 +88,7 @@ public class BuildRecordRepositoryTest {
     public void shouldFindNoneExpiredTemporaryBuilds() {
         // given
         Date now = new Date();
-        BuildRecord givenBr = initBuildRecordBuilder(Sequence.nextId()).endTime(now).temporaryBuild(true).build();
+        BuildRecord givenBr = initBuildRecordBuilder(Sequence.nextBase32Id()).endTime(now).temporaryBuild(true).build();
         buildRecordRepository.save(givenBr);
 
         // when
@@ -103,7 +103,7 @@ public class BuildRecordRepositoryTest {
     @Test
     public void shouldFindExpiredTemporaryBuilds() {
         // given
-        BuildRecord givenBr = initBuildRecordBuilder(Sequence.nextId()).endTime(new Date(0))
+        BuildRecord givenBr = initBuildRecordBuilder(Sequence.nextBase32Id()).endTime(new Date(0))
                 .temporaryBuild(true)
                 .build();
         givenBr = buildRecordRepository.save(givenBr);
@@ -121,14 +121,14 @@ public class BuildRecordRepositoryTest {
     public void shouldGetRecordsWithoutAttributeKey() {
         // given
         Date now = new Date();
-        BuildRecord buildRecord0 = initBuildRecordBuilder(200000L).endTime(now)
+        BuildRecord buildRecord0 = initBuildRecordBuilder("CERBB5D55GARK").endTime(now)
                 .temporaryBuild(true)
                 .attribute("ATTR1", "X")
                 .attribute("TEST", "true") // exclude all other builds
                 .build();
         buildRecordRepository.save(buildRecord0);
 
-        BuildRecord buildRecord1 = initBuildRecordBuilder(200001L).endTime(now)
+        BuildRecord buildRecord1 = initBuildRecordBuilder("200001").endTime(now)
                 .temporaryBuild(true)
                 .attribute("ATTR1", "X")
                 .attribute("ATTR2", "X")
@@ -146,7 +146,7 @@ public class BuildRecordRepositoryTest {
         Assertions.assertThat(result.size()).isEqualTo(1);
     }
 
-    private BuildRecord.Builder initBuildRecordBuilder(Long id) {
+    private BuildRecord.Builder initBuildRecordBuilder(String id) {
         if (user == null) {
             List<User> users = userRepository.queryWithPredicates(UserPredicates.withUserName("demo-user"));
             if (users.size() > 0) {

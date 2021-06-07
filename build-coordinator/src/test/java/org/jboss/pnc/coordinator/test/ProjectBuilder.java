@@ -346,7 +346,7 @@ public class ProjectBuilder {
         }
     }
 
-    private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, Long buildTaskId) {
+    private void assertAllStatusUpdateReceived(List<BuildStatusChangedEvent> receivedStatuses, String buildTaskId) {
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.ENQUEUED, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.SUCCESS, buildTaskId);
@@ -354,7 +354,7 @@ public class ProjectBuilder {
 
     private void assertAllStatusUpdateReceivedForFailedBuild(
             List<BuildStatusChangedEvent> receivedStatuses,
-            Long buildTaskId) {
+            String buildTaskId) {
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.ENQUEUED, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.BUILDING, buildTaskId);
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.FAILED, buildTaskId);
@@ -362,17 +362,17 @@ public class ProjectBuilder {
 
     private void assertAllStatusUpdateReceivedForFailedWaitingForDeps(
             List<BuildStatusChangedEvent> receivedStatuses,
-            Long buildTaskId) {
+            String buildTaskId) {
         assertStatusUpdateReceived(receivedStatuses, BuildStatus.REJECTED, buildTaskId);
     }
 
     void assertStatusUpdateReceived(
             List<BuildStatusChangedEvent> receivedStatusEvents,
             BuildStatus status,
-            Long buildTaskId) {
+            String buildTaskId) {
         boolean received = false;
         for (BuildStatusChangedEvent receivedStatusEvent : receivedStatusEvents) {
-            if (receivedStatusEvent.getBuild().getId().equals(BuildMapper.idMapper.toDto(buildTaskId))
+            if (receivedStatusEvent.getBuild().getId().equals(buildTaskId)
                     && receivedStatusEvent.getNewStatus().equals(status)) {
                 received = true;
                 break;

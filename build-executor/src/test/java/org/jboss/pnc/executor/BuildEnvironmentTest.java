@@ -157,7 +157,7 @@ public class BuildEnvironmentTest {
         };
 
         BuildExecutionConfiguration buildExecutionConfiguration = new DefaultBuildExecutionConfiguration(
-                1,
+                "1",
                 "build-content-id",
                 "1",
                 buildConfiguration.getBuildScript(),

@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
@@ -37,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -64,7 +66,7 @@ public class BuildIteratorTest {
     public void prepareMock() {
         when(mapper.toDTO(any())).thenAnswer((InvocationOnMock invocation) -> {
             BuildRecord build = invocation.getArgument(0);
-            return Build.builder().id(build.getId().toString()).build();
+            return Build.builder().id(BuildMapper.idMapper.toDto(build.getId())).build();
         });
     }
 
@@ -113,14 +115,15 @@ public class BuildIteratorTest {
                 .thenAnswer((InvocationOnMock invocation) -> {
                     PageInfo pageInfo = invocation.getArgument(0);
 
-                    return IntStream.range(pageInfo.getPageOffset(), pageInfo.getPageOffset() + pageInfo.getPageSize())
-                            .mapToObj(BuildIteratorTest::mockBuildRecord)
+                    return LongStream.range(pageInfo.getPageOffset(), pageInfo.getPageOffset() + pageInfo.getPageSize())
+                            .mapToObj(Base32LongID::new)
+                            .map(BuildIteratorTest::mockBuildRecord)
                             .collect(Collectors.toList());
 
                 });
     }
 
-    private static BuildRecord mockBuildRecord(long i) {
+    private static BuildRecord mockBuildRecord(Base32LongID i) {
         BuildRecord br = mock(BuildRecord.class);
         when(br.getId()).thenReturn(i);
         return br;

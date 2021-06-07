@@ -33,7 +33,6 @@ import org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.indyrepositorymanager.IndyRepositoryManagerResult;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -140,17 +139,18 @@ public class StatusUpdatesTest {
         User user = User.Builder.newBuilder().id(3).username("test-user-3").build();
         Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {})
                 .getBuildTasks();
-        Set<Long> tasksIds = buildTasks.stream().map((BuildTask::getId)).collect(Collectors.toSet());
+        Set<String> tasksIds = buildTasks.stream().map((BuildTask::getId)).collect(Collectors.toSet());
 
-        Set<Long> receivedUpdatesForId = new HashSet<>();
+        Set<String> receivedUpdatesForId = new HashSet<>();
         Consumer<BuildStatusChangedEvent> statusChangeEventConsumer = (statusChangedEvent) -> {
-            receivedUpdatesForId.add(BuildMapper.idMapper.toEntity(statusChangedEvent.getBuild().getId()));
+            receivedUpdatesForId.add(statusChangedEvent.getBuild().getId());
         };
 
         tasksIds.forEach((id) -> buildStatusNotifications.subscribe(new BuildCallBack(id, statusChangeEventConsumer)));
 
         buildTasks.forEach((bt) -> buildCoordinator.updateBuildTaskStatus(bt, BuildCoordinationStatus.DONE));
 
+        System.out.println("Received updates: " + receivedUpdatesForId);
         tasksIds.forEach(
                 (id) -> Assert.assertTrue("Did not receive update for task " + id, receivedUpdatesForId.contains(id)));
     }
@@ -181,7 +181,7 @@ public class StatusUpdatesTest {
                 buildConfigurationSet,
                 user,
                 buildOptions,
-                () -> Sequence.nextId(),
+                () -> Sequence.nextBase32Id(),
                 buildQueue.getUnfinishedTasks());
     }
 

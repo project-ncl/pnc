@@ -31,6 +31,7 @@ import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.CorruptedDataException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -61,6 +62,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -71,6 +73,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -98,13 +101,15 @@ import static org.mockito.Mockito.when;
  * @author Jakub Bartecek &lt;jbartece@redhat.com&gt;
  */
 @RunWith(MockitoJUnitRunner.Silent.class)
-public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecord> {
+public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<BuildRecord> {
 
     private static final int CURRENT_USER = randInt(1000, 100000);
 
     private static final String USER_TOKEN = "token";
 
     private final Logger logger = LoggerFactory.getLogger(BuildProviderImplTest.class);
+
+    private static int buildConfigNum = 1;
 
     @Mock
     private BuildRecordRepository repository;
@@ -150,8 +155,8 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
     public void prepareMock() throws ReflectiveOperationException, IllegalArgumentException {
         when(repository.queryWithPredicatesUsingCursor(any(PageInfo.class), any(SortInfo.class), any()))
                 .thenAnswer(new ListAnswer(repositoryList));
-        when(repository.findByIdFetchProperties(anyLong())).thenAnswer(inv -> {
-            Long id = inv.getArgument(0);
+        when(repository.findByIdFetchProperties(any())).thenAnswer(inv -> {
+            Base32LongID id = inv.getArgument(0);
             return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
         });
 
@@ -171,7 +176,7 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
     }
 
     private BuildTask mockBuildTask() {
-        return mockBuildTask(UUID.randomUUID().toString());
+        return mockBuildTask("buildConfigNumero" + (buildConfigNum++));
     }
 
     private BuildTask mockBuildTask(String buildConfigName) {
@@ -179,7 +184,7 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
         when(bca.getName()).thenReturn(buildConfigName);
 
         BuildTask bt = mock(BuildTask.class);
-        when(bt.getId()).thenReturn(getNextId());
+        when(bt.getId()).thenReturn(getNextId().getId());
         when(bt.getSubmitTime()).thenReturn(new Date());
         when(bt.getBuildConfigurationAudited()).thenReturn(bca);
 
@@ -196,12 +201,14 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
         return mockBuildRecord(getNextId(), new Long[0], new Long[0]);
     }
 
-    private BuildRecord mockBuildRecord(Long buildRecordId, Long[] dependencies, Long[] dependents) {
+    private BuildRecord mockBuildRecord(Base32LongID buildRecordId, Long[] dependencies, Long[] dependents) {
         Integer buildConfigurationId = intId.incrementAndGet();
+        Base32LongID[] depcies = Arrays.stream(dependencies).map(Base32LongID::new).toArray(Base32LongID[]::new);
+        Base32LongID[] depts = Arrays.stream(dependents).map(Base32LongID::new).toArray(Base32LongID[]::new);
         BuildRecord br = BuildRecord.Builder.newBuilder()
                 .id(buildRecordId)
-                .dependencyBuildRecordIds(dependencies)
-                .dependentBuildRecordIds(dependents)
+                .dependencyBuildRecordIds(depcies)
+                .dependentBuildRecordIds(depts)
                 .submitTime(new Date())
                 .buildConfigurationAudited(
                         BuildConfigurationAudited.Builder.newBuilder()
@@ -239,7 +246,7 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
 
         // Verify
         assertEquals(1, builds.getTotalHits());
-        assertEquals(BuildMapper.idMapper.toDto(latestRunning.getId()), builds.getContent().iterator().next().getId());
+        assertEquals(latestRunning.getId(), builds.getContent().iterator().next().getId());
     }
 
     @Test
@@ -281,8 +288,8 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
         assertEquals(4, builds.getTotalHits());
         assertEquals(2, builds.getContent().size());
         Iterator<Build> it = builds.getContent().iterator();
-        assertEquals(BuildMapper.idMapper.toDto(build1.getId()), it.next().getId());
-        assertEquals(BuildMapper.idMapper.toDto(build2.getId()), it.next().getId());
+        assertEquals(build1.getId(), it.next().getId());
+        assertEquals(build2.getId(), it.next().getId());
     }
 
     @Test
@@ -301,7 +308,7 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
         // Then
         assertEquals(1, builds.getTotalHits());
         Iterator<Build> it = builds.getContent().iterator();
-        assertEquals(BuildMapper.idMapper.toDto(givenBT.getId()), it.next().getId());
+        assertEquals(givenBT.getId(), it.next().getId());
     }
 
     @Test
@@ -321,7 +328,7 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
         // Then
         assertEquals(1, builds.getTotalHits());
         Iterator<Build> it = builds.getContent().iterator();
-        assertEquals(BuildMapper.idMapper.toDto(givenBT.getId()), it.next().getId());
+        assertEquals(givenBT.getId(), it.next().getId());
     }
 
     @Test
@@ -345,7 +352,7 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
     @Test
     public void testFilterFinishedBuildsByBuildConfigName() {
         // Given
-        Long givenIdAndBcName = 85792L;
+        Base32LongID givenIdAndBcName = new Base32LongID(85792L);
 
         mockBuildTask();
         mockBuildTask();
@@ -384,7 +391,7 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
         assertEquals(8, builds.getTotalHits());
         assertEquals(2, builds.getContent().size());
         Iterator<Build> it = builds.getContent().iterator();
-        assertEquals(BuildMapper.idMapper.toDto(build1.getId()), it.next().getId());
+        assertEquals(build1.getId(), it.next().getId());
         assertEquals(BuildMapper.idMapper.toDto(build2.getId()), it.next().getId());
     }
 
@@ -400,23 +407,23 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
         BuildRecord build2 = mockBuildRecord();
         BuildTask build1 = mockBuildTask();
 
-        testPage(0, 2, build1.getId(), build2.getId());
-        testPage(1, 2, build3.getId(), build4.getId());
-        testPage(2, 2, build5.getId(), build6.getId());
-        testPage(3, 2, build7.getId(), build8.getId());
+        testPage(0, 2, new Base32LongID(build1.getId()), build2.getId());
+        testPage(1, 2, new Base32LongID(build3.getId()), build4.getId());
+        testPage(2, 2, new Base32LongID(build5.getId()), build6.getId());
+        testPage(3, 2, new Base32LongID(build7.getId()), build8.getId());
 
-        testPage(1, 3, build4.getId(), build5.getId(), build6.getId());
-        testPage(2, 3, build7.getId(), build8.getId());
+        testPage(1, 3, build4.getId(), new Base32LongID(build5.getId()), build6.getId());
+        testPage(2, 3, new Base32LongID(build7.getId()), build8.getId());
 
         testPage(2, 10);
     }
 
-    private void testPage(int idx, int size, Long... ids) {
+    private void testPage(int idx, int size, Base32LongID... ids) {
         BuildPageInfo pageInfo = new BuildPageInfo(idx, size, "", "", false, false, "");
         Page<Build> builds = provider.getBuilds(pageInfo);
 
         Iterator<Build> it = builds.getContent().iterator();
-        for (Long id : ids) {
+        for (Base32LongID id : ids) {
             assertEquals(BuildMapper.idMapper.toDto(id), it.next().getId());
         }
         assertFalse(it.hasNext());
@@ -484,8 +491,8 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
     public void testGetSpecificRunning() {
         BuildTask task = mockBuildTask();
 
-        Build specific = provider.getSpecific(BuildMapper.idMapper.toDto(task.getId()));
-        assertThat(specific.getId()).isEqualTo(BuildMapper.idMapper.toDto(task.getId()));
+        Build specific = provider.getSpecific(task.getId());
+        assertThat(specific.getId()).isEqualTo(task.getId());
         assertThat(specific.getSubmitTime()).isEqualTo(task.getSubmitTime().toInstant());
     }
 
@@ -535,10 +542,12 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
 
         // Then
         assertThat(graph.getVertices()).hasSize(3);
-        assertThat(graph.getVertices().values().stream().map(Vertex::getName)).containsExactly(
-                BuildMapper.idMapper.toDto(task.getId()),
-                BuildMapper.idMapper.toDto(taskDep.getId()),
-                BuildMapper.idMapper.toDto(taskDepDep.getId()));
+        List<String> buildTaskIDsOrderedByBCName = Stream.of(task, taskDep, taskDepDep)
+                .sorted(Comparator.comparing(t -> t.getBuildConfigurationAudited().getName()))
+                .map(t -> t.getId())
+                .collect(Collectors.toList());
+        assertThat(graph.getVertices().values().stream().map(Vertex::getName))
+                .containsExactlyElementsOf(buildTaskIDsOrderedByBCName);
     }
 
     @Test(expected = EmptyEntityException.class)
@@ -556,28 +565,31 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
     public void dependencyGraphTest() {
         // given
         BuildTask bt100002 = mock(BuildTask.class);
-        when(bt100002.getId()).thenReturn(100002L);
+        when(bt100002.getId()).thenReturn("100002");
         BuildTask bt110000 = mock(BuildTask.class);
-        when(bt110000.getId()).thenReturn(110000L);
+        when(bt110000.getId()).thenReturn("110000");
         when(bt110000.getDependencies()).thenReturn(Collections.emptySet());
         when(bt110000.getDependants()).thenReturn(Collections.singleton(bt100002));
         runningBuilds.add(bt110000);
 
-        mockBuildRecord(100000L, new Long[] { 100002L }, new Long[] {});
-        mockBuildRecord(100001L, new Long[] { 100002L }, new Long[] {});
+        mockBuildRecord(new Base32LongID(100000L), new Long[] { 100002L }, new Long[] {});
+        mockBuildRecord(new Base32LongID(100001L), new Long[] { 100002L }, new Long[] {});
 
         BuildRecord currentBuild = mockBuildRecord(
-                100002L,
+                new Base32LongID(100002L),
                 new Long[] { 100003L, 100005L, 100006L },
-                new Long[] { 100000L, 100001L, bt110000.getId() });
+                new Long[] { 100000L, 100001L, Long.valueOf(bt110000.getId()) });
 
-        BuildRecord buildRecord100003 = mockBuildRecord(100003L, new Long[] { 100004L }, new Long[] { 100002L });
-        mockBuildRecord(100004L, new Long[] {}, new Long[] { 100003L });
-        mockBuildRecord(100005L, new Long[] {}, new Long[] { 100002L });
-        mockBuildRecord(100006L, new Long[] {}, new Long[] { 100002L });
+        BuildRecord buildRecord100003 = mockBuildRecord(
+                new Base32LongID(100003L),
+                new Long[] { 100004L },
+                new Long[] { 100002L });
+        mockBuildRecord(new Base32LongID(100004L), new Long[] {}, new Long[] { 100003L });
+        mockBuildRecord(new Base32LongID(100005L), new Long[] {}, new Long[] { 100002L });
+        mockBuildRecord(new Base32LongID(100006L), new Long[] {}, new Long[] { 100002L });
 
         // when
-        Graph<Build> dependencyGraph = provider.getDependencyGraph(BuildMapper.idMapper.toDto(bt100002.getId()));
+        Graph<Build> dependencyGraph = provider.getDependencyGraph(bt100002.getId());
 
         // then
         logger.info("Graph: {}", dependencyGraph.toString());
@@ -596,11 +608,8 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
         assertEquals(1, getIncommingEdges(dependencyGraph, vertex3).count());
 
         // then from running build
-        Graph<Build> dependencyGraphFromRunning = provider
-                .getDependencyGraph(BuildMapper.idMapper.toDto(bt110000.getId()));
-        Vertex<Build> runningVertex = getBuildVertexByName(
-                dependencyGraphFromRunning,
-                BuildMapper.idMapper.toDto(bt110000.getId()));
+        Graph<Build> dependencyGraphFromRunning = provider.getDependencyGraph(bt110000.getId());
+        Vertex<Build> runningVertex = getBuildVertexByName(dependencyGraphFromRunning, bt110000.getId());
         assertEquals(1, getOutgoingEdges(dependencyGraphFromRunning, runningVertex).count());
         assertEquals(1, getIncommingEdges(dependencyGraphFromRunning, runningVertex).count());
     }
@@ -608,8 +617,11 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
     @Test(expected = CorruptedDataException.class)
     public void shouldThrowCorruptedDataExceptionTest() {
         // given
-        mockBuildRecord(200000L, new Long[] {}, new Long[] {});
-        BuildRecord buildRecord = mockBuildRecord(200001L, new Long[] { 200000L, 220000L }, new Long[] {});
+        mockBuildRecord(new Base32LongID(200000L), new Long[] {}, new Long[] {});
+        BuildRecord buildRecord = mockBuildRecord(
+                new Base32LongID(200001L),
+                new Long[] { 200000L, 220000L },
+                new Long[] {});
 
         // when
         Graph<Build> dependencyGraph = provider.getDependencyGraph(BuildMapper.idMapper.toDto(buildRecord.getId()));
@@ -635,7 +647,7 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
     @Test
     public void shouldPerformCallbackAfterDeletion() throws Exception {
         // given
-        final Long buildId = 88L;
+        final Base32LongID buildId = new Base32LongID(88L);
         final String buildIdString = BuildMapper.idMapper.toDto(buildId);
         final String callbackUrl = "http://localhost:8088/callback";
         WireMockServer wireMockServer = new WireMockServer(8088);
@@ -674,14 +686,15 @@ public class BuildProviderImplTest extends AbstractLongIdProviderTest<BuildRecor
                 .thenAnswer((InvocationOnMock invocation) -> {
                     PageInfo pageInfo = invocation.getArgument(0);
 
-                    return IntStream.range(pageInfo.getPageOffset(), pageInfo.getPageOffset() + pageInfo.getPageSize())
-                            .mapToObj(BuildProviderImplTest::mockBuildRecord)
+                    return LongStream.range(pageInfo.getPageOffset(), pageInfo.getPageOffset() + pageInfo.getPageSize())
+                            .mapToObj(Base32LongID::new)
+                            .map(BuildProviderImplTest::mockBuildRecord)
                             .collect(Collectors.toList());
 
                 });
     }
 
-    private static BuildRecord mockBuildRecord(long i) {
+    private static BuildRecord mockBuildRecord(Base32LongID i) {
         BuildRecord br = mock(BuildRecord.class);
         when(br.getId()).thenReturn(i);
         return br;
