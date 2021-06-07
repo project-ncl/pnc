@@ -44,7 +44,6 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
 import java.util.Collections;
-import java.util.UUID;
 
 @ApplicationScoped
 public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
