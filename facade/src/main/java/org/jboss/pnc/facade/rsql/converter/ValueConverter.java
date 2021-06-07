@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.facade.rsql.converter;
 
+import org.jboss.pnc.model.GenericEntity;
+
 public interface ValueConverter {
-    <DB, T> Comparable<T> convert(Value<DB, T> value);
+    <DB extends GenericEntity<?>, T> Comparable<T> convertComparable(Value<DB, T> value);
+
+    <DB extends GenericEntity<?>, T> T convert(Value<DB, T> value);
 }

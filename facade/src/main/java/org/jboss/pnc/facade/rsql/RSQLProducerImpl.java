@@ -155,7 +155,7 @@ public class RSQLProducerImpl implements RSQLProducer {
                     cb,
                     (BiFunction<From<?, DB>, RSQLSelectorPath, Path>) (from, selector) -> mapper
                             .toPath(type, from, selector),
-                    (Function<Value<? extends GenericEntity, ?>, Comparable<?>>) (value) -> mapper.convertValue(value));
+                    mapper.getConverter());
             return rootNode.accept(visitor);
         };
     }

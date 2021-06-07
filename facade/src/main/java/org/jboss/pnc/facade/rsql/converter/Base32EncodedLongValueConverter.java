@@ -28,4 +28,9 @@ public class Base32EncodedLongValueConverter implements ValueConverter {
     public Comparable<Long> convert(Value value) {
         return idMapper.toEntity(value.getValue());
     }
+
+    @Override
+    public Comparable<Long> convertComparable(Value value) {
+        return idMapper.toEntity(value.getValue());
+    }
 }
