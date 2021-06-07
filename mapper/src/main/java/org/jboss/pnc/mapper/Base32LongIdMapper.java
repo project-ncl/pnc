@@ -15,26 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.rsql.converter;
+package org.jboss.pnc.mapper;
 
-import org.jboss.pnc.facade.rsql.RSQLException;
+import org.jboss.pnc.mapper.api.IdMapper;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.GenericEntity;
 
-public class Base32EncodedLongValueConverter implements ValueConverter {
+public class Base32LongIdMapper implements IdMapper<Base32LongID, String> {
 
     @Override
-    public <DB extends GenericEntity<?>, T> Comparable<T> convertComparable(Value<DB, T> value) {
-        throw new RSQLException("Comparing by id is not supported.");
+    public Base32LongID toEntity(String id) {
+        return new Base32LongID(id);
     }
 
     @Override
-    public <DB extends GenericEntity<?>, T> T convert(Value<DB, T> value) {
-        if (value.getJavaType() != Base32LongID.class) {
-            throw new IllegalArgumentException(
-                    "Expected to get value for type Base32LongID, got value for type " + value.getJavaType());
-        }
-
-        return (T) new Base32LongID(value.getValue());
+    public String toDto(Base32LongID id) {
+        return id.getId();
     }
 }

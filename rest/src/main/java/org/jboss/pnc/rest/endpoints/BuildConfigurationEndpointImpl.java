@@ -296,9 +296,9 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
                     buildParams);
 
             BuildOptions buildOptions = toBuildOptions(buildParams);
-            long buildId = buildTriggerer.triggerBuild(Integer.parseInt(id), rev, buildOptions);
+            String buildId = buildTriggerer.triggerBuild(Integer.parseInt(id), rev, buildOptions);
 
-            return buildProvider.getSpecific(BuildMapper.idMapper.toDto(buildId));
+            return buildProvider.getSpecific(buildId);
         } catch (CoreException ex) {
             throw new RuntimeException(ex);
         }

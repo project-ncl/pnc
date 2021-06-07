@@ -27,9 +27,10 @@ import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.BrewNameWorkaround;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
-import org.jboss.pnc.mapper.LongBase32IdMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
+import org.jboss.pnc.mapper.Base32LongIdMapper;
 import org.jboss.pnc.mapper.api.BuildMapper.StatusMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.mapstruct.BeanMapping;
@@ -50,9 +51,9 @@ import java.util.Optional;
                 BrewNameWorkaround.class, GroupBuildMapper.class, BuildBCRevisionFetcher.class,
                 ProductMilestoneMapper.class })
 
-public interface BuildMapper extends UpdatableEntityMapper<Long, BuildRecord, Build, BuildRef> {
+public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRecord, Build, BuildRef> {
 
-    IdMapper<Long, String> idMapper = new LongBase32IdMapper();
+    Base32LongIdMapper idMapper = new Base32LongIdMapper();
 
     @Override
     @Mapping(target = "id", expression = "java( getIdMapper().toDto(dbEntity.getId()) )")
@@ -167,7 +168,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Long, BuildRecord, Bu
     @Mapping(target = "executionRootVersion", ignore = true)
     public abstract void updateEntity(Build dtoEntity, @MappingTarget BuildRecord target);
 
-    @Mapping(target = "id", expression = "java( getIdMapper().toDto(buildTask.getId()) )")
+    @Mapping(target = "id", expression = "java( buildTask.getId() )")
     @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
     @Mapping(
             target = "scmRepository",
@@ -229,7 +230,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Long, BuildRecord, Bu
     }
 
     @Override
-    default IdMapper<Long, String> getIdMapper() {
+    default IdMapper<Base32LongID, String> getIdMapper() {
         return idMapper;
     }
 }

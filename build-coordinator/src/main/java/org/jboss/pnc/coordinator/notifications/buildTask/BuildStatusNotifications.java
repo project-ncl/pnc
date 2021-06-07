@@ -54,7 +54,7 @@ public class BuildStatusNotifications {
         log.debug("Observed new status changed event {}.", event);
         BuildStatusChangedEvent buildStatusChangedEvent = event; // Avoid CDI runtime issue issue NCL-1505
         Predicate<BuildCallBack> filterSubscribersMatchingTaskId = (callBackUrl) -> callBackUrl.getBuildTaskId()
-                .equals(BuildMapper.idMapper.toEntity(buildStatusChangedEvent.getBuild().getId()));
+                .equals(buildStatusChangedEvent.getBuild().getId());
 
         Set<BuildCallBack> matchingTasks = subscribers.stream()
                 .filter(filterSubscribersMatchingTaskId)

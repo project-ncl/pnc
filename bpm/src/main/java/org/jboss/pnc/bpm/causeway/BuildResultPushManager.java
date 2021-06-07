@@ -41,8 +41,10 @@ import org.jboss.pnc.constants.MDCKeys;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
@@ -75,9 +77,9 @@ import static org.jboss.pnc.api.constants.BuildConfigurationParameterKeys.BREW_B
 @Stateless
 public class BuildResultPushManager {
 
-    private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/v2/builds/%d";
-    private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/v2/builds/%d/logs/build";
-    private static final String PNC_REPOUR_LOG_PATH = "/pnc-rest/v2/builds/%d/logs/align";
+    private static final String PNC_BUILD_RECORD_PATH = "/pnc-rest/v2/builds/%s";
+    private static final String PNC_BUILD_LOG_PATH = "/pnc-rest/v2/builds/%s/logs/build";
+    private static final String PNC_REPOUR_LOG_PATH = "/pnc-rest/v2/builds/%s/logs/align";
 
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
     private BuildRecordPushResultRepository buildRecordPushResultRepository;
@@ -124,11 +126,12 @@ public class BuildResultPushManager {
                 buildPushOperation.getBuildRecord().getId(),
                 buildPushOperation.getTagPrefix(),
                 buildPushOperation.getPushResultId().toString());
+        String externalBuildId = BuildMapper.idMapper.toDto(buildPushOperation.getBuildRecord().getId());
         if (!added) {
-            logger.warn("Push for build.id {} already running.", buildPushOperation.getBuildRecord().getId());
+            logger.warn("Push for build.id {} already running.", externalBuildId);
             return new Result(
                     buildPushOperation.getPushResultId().toString(),
-                    buildPushOperation.getBuildRecord().getId().toString(),
+                    externalBuildId,
                     BuildPushStatus.REJECTED,
                     "A push for this buildRecord is already running.");
         }
@@ -139,10 +142,7 @@ public class BuildResultPushManager {
             BuildImportRequest buildImportRequest = createCausewayPushRequest(
                     buildPushOperation.getBuildRecord(),
                     buildPushOperation.getTagPrefix(),
-                    URI.create(
-                            String.format(
-                                    buildPushOperation.getCompleteCallbackUrlTemplate(),
-                                    buildPushOperation.getBuildRecord().getId())),
+                    URI.create(String.format(buildPushOperation.getCompleteCallbackUrlTemplate(), externalBuildId)),
                     authToken,
                     buildPushOperation.getPushResultId(),
                     buildPushOperation.isReImport());
@@ -163,11 +163,7 @@ public class BuildResultPushManager {
         if (!BuildPushStatus.ACCEPTED.equals(pushStatus)) {
             inProgress.remove(buildPushOperation.getBuildRecord().getId());
         }
-        return new Result(
-                buildPushOperation.getPushResultId().toString(),
-                buildPushOperation.getBuildRecord().getId().toString(),
-                pushStatus,
-                message);
+        return new Result(buildPushOperation.getPushResultId().toString(), externalBuildId, pushStatus, message);
     }
 
     private BuildImportRequest createCausewayPushRequest(
@@ -281,6 +277,7 @@ public class BuildResultPushManager {
 
         addLogs(buildRecord, logs);
 
+        String externalBuildID = BuildMapper.idMapper.toDto(buildRecord.getId());
         return MavenBuild.builder()
                 .groupId(rootGav.getGroupId())
                 .artifactId(rootGav.getArtifactId())
@@ -288,8 +285,8 @@ public class BuildResultPushManager {
                 .buildName(executionRootName)
                 .buildVersion(buildRecord.getExecutionRootVersion())
                 .externalBuildSystem("PNC")
-                .externalBuildID(buildRecord.getId().toString())
-                .externalBuildURL(String.format(PNC_BUILD_RECORD_PATH, buildRecord.getId()))
+                .externalBuildID(externalBuildID)
+                .externalBuildURL(String.format(PNC_BUILD_RECORD_PATH, externalBuildID))
                 .startTime(buildRecord.getStartTime())
                 .endTime(buildRecord.getEndTime())
                 .scmURL(buildRecord.getScmRepoURL())
@@ -316,14 +313,15 @@ public class BuildResultPushManager {
 
         addLogs(buildRecord, logs);
 
+        String externalBuildID = buildRecord.getId().toString();
         return NpmBuild.builder()
                 .name(nv.getName())
                 .version(nv.getVersionString())
                 .buildName(executionRootName)
                 .buildVersion(buildRecord.getExecutionRootVersion())
                 .externalBuildSystem("PNC")
-                .externalBuildID(buildRecord.getId().toString())
-                .externalBuildURL(String.format(PNC_BUILD_RECORD_PATH, buildRecord.getId()))
+                .externalBuildID(externalBuildID)
+                .externalBuildURL(String.format(PNC_BUILD_RECORD_PATH, externalBuildID))
                 .startTime(buildRecord.getStartTime())
                 .endTime(buildRecord.getEndTime())
                 .scmURL(buildRecord.getScmRepoURL())
@@ -339,36 +337,37 @@ public class BuildResultPushManager {
     }
 
     private void addLogs(BuildRecord buildRecord, Set<Logfile> logs) {
+        String externalBuildID = buildRecord.getId().toString();
         if (buildRecord.getBuildLogSize() != null && buildRecord.getBuildLogSize() > 0) {
             logs.add(
                     Logfile.builder()
                             .filename("build.log")
-                            .deployPath(getBuildLogPath(buildRecord.getId()))
+                            .deployPath(getBuildLogPath(externalBuildID))
                             .size(buildRecord.getBuildLogSize())
                             .md5(buildRecord.getBuildLogMd5())
                             .build());
         } else {
-            logger.warn("Missing build log for BR.id: {}.", buildRecord.getId());
+            logger.warn("Missing build log for BR.id: {}.", externalBuildID);
         }
         if (buildRecord.getRepourLogSize() != null && buildRecord.getRepourLogSize() > 0) {
             logs.add(
                     Logfile.builder()
                             .filename("repour.log")
-                            .deployPath(getRepourLogPath(buildRecord.getId()))
+                            .deployPath(getRepourLogPath(externalBuildID))
                             .size(buildRecord.getRepourLogSize())
                             .md5(buildRecord.getRepourLogMd5())
                             .build());
         } else {
-            logger.warn("Missing repour log for BR.id: {}.", buildRecord.getId());
+            logger.warn("Missing repour log for BR.id: {}.", externalBuildID);
         }
         // TODO respond with error if logs are missing
     }
 
-    private String getRepourLogPath(Long id) {
+    private String getRepourLogPath(String id) {
         return String.format(PNC_REPOUR_LOG_PATH, id);
     }
 
-    private String getBuildLogPath(Long id) {
+    private String getBuildLogPath(String id) {
         return String.format(PNC_BUILD_LOG_PATH, id);
     }
 
@@ -436,7 +435,7 @@ public class BuildResultPushManager {
                 .collect(Collectors.toSet());
     }
 
-    public Long complete(Long buildRecordId, BuildRecordPushResult buildRecordPushResult) {
+    public Long complete(Base32LongID buildRecordId, BuildRecordPushResult buildRecordPushResult) {
         // accept only listed elements otherwise a new request might be wrongly completed from response of an older one
         // get context for validation
         InProgress.Context pushContext = inProgress.get(buildRecordId);
@@ -460,7 +459,7 @@ public class BuildResultPushManager {
         return saved.getId();
     }
 
-    public boolean cancelInProgressPush(Long buildRecordId) {
+    public boolean cancelInProgressPush(Base32LongID buildRecordId) {
         InProgress.Context pushContext = inProgress.remove(buildRecordId);
         BuildPushResult buildRecordPushResultRest = BuildPushResult.builder()
                 .status(BuildPushStatus.CANCELED)
@@ -470,7 +469,7 @@ public class BuildResultPushManager {
         return pushContext != null;
     }
 
-    public Optional<InProgress.Context> getContext(long buildId) {
+    public Optional<InProgress.Context> getContext(Base32LongID buildId) {
         return inProgress.getAll().stream().filter(c -> c.getId().equals(buildId)).findAny();
     }
 }

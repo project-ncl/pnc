@@ -28,7 +28,7 @@ class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionStatusChan
 
     private final BuildExecutionStatus oldStatus;
     private final BuildExecutionStatus newStatus;
-    private final Long buildTaskId;
+    private final String buildTaskId;
     private final Integer buildConfigurationId;
     private final Optional<BuildResult> buildResult;
 
@@ -37,7 +37,7 @@ class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionStatusChan
     public DefaultBuildExecutorStatusChangedEvent(
             BuildExecutionStatus oldStatus,
             BuildExecutionStatus newStatus,
-            Long buildTaskId,
+            String buildTaskId,
             Integer buildConfigurationId,
             Optional<BuildResult> buildResult,
             boolean isFinal) {
@@ -51,7 +51,7 @@ class DefaultBuildExecutorStatusChangedEvent implements BuildExecutionStatusChan
     }
 
     @Override
-    public Long getBuildTaskId() {
+    public String getBuildTaskId() {
         return buildTaskId;
     }
 

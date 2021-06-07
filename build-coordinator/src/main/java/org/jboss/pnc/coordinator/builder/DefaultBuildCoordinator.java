@@ -206,8 +206,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         return build0(user, buildOptions, buildConfigurationAudited);
     }
 
-    private Long buildRecordIdSupplier() {
-        return Sequence.nextId();
+    private String buildRecordIdSupplier() {
+        return Sequence.nextBase32Id();
     }
 
     /**
@@ -399,7 +399,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public boolean cancel(long buildTaskId) throws CoreException {
+    public boolean cancel(String buildTaskId) throws CoreException {
         // Logging MDC must be set before calling
         Optional<BuildTask> taskOptional = getSubmittedBuildTasks().stream()
                 .filter(buildTask -> buildTask.getId() == buildTaskId)
@@ -424,7 +424,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public Optional<BuildTaskContext> getMDCMeta(Long buildTaskId) {
+    public Optional<BuildTaskContext> getMDCMeta(String buildTaskId) {
         return getSubmittedBuildTasks().stream()
                 .filter(buildTask -> buildTaskId.equals(buildTask.getId()))
                 .map(this::getMDCMeta)
@@ -676,7 +676,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     public void completeNoBuild(BuildTask buildTask, CompletionStatus completionStatus) {
-        long buildTaskId = buildTask.getId();
+        String buildTaskId = buildTask.getId();
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         try {
             if (CompletionStatus.NO_REBUILD_REQUIRED.equals(completionStatus)) {
@@ -709,7 +709,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     public void completeBuild(BuildTask buildTask, BuildResult buildResult) {
-        long buildTaskId = buildTask.getId();
+        String buildTaskId = buildTask.getId();
 
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         try {

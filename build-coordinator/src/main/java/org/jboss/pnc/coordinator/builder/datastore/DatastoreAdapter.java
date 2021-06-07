@@ -19,6 +19,7 @@ package org.jboss.pnc.coordinator.builder.datastore;
 
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -363,14 +364,19 @@ public class DatastoreAdapter {
             builder.buildConfigSetRecord(buildConfigSetRecord);
         }
 
-        List<Long> dependencies = buildTask.getDependencies()
+        List<Base32LongID> dependencies = buildTask.getDependencies()
                 .stream()
                 .map(BuildTask::getId)
+                .map(Base32LongID::new)
                 .collect(Collectors.toList());
-        builder.dependencyBuildRecordIds(dependencies.toArray(new Long[dependencies.size()]));
+        builder.dependencyBuildRecordIds(dependencies.toArray(new Base32LongID[dependencies.size()]));
 
-        List<Long> dependants = buildTask.getDependants().stream().map(BuildTask::getId).collect(Collectors.toList());
-        builder.dependentBuildRecordIds(dependants.toArray(new Long[dependants.size()]));
+        List<Base32LongID> dependants = buildTask.getDependants()
+                .stream()
+                .map(BuildTask::getId)
+                .map(Base32LongID::new)
+                .collect(Collectors.toList());
+        builder.dependentBuildRecordIds(dependants.toArray(new Base32LongID[dependants.size()]));
 
         return builder;
     }

@@ -20,6 +20,7 @@ package org.jboss.pnc.spi.datastore.predicates;
 import org.apache.commons.collections.CollectionUtils;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.ProductMilestone;
@@ -37,11 +38,11 @@ import org.jboss.pnc.model.TargetRepository_;
  */
 public class ArtifactPredicates {
 
-    public static Predicate<Artifact> withBuildRecordId(Long buildRecordId) {
+    public static Predicate<Artifact> withBuildRecordId(Base32LongID buildRecordId) {
         return (root, query, cb) -> cb.equal(root.join(Artifact_.buildRecord).get(BuildRecord_.id), buildRecordId);
     }
 
-    public static Predicate<Artifact> withDependantBuildRecordId(Long buildRecordId) {
+    public static Predicate<Artifact> withDependantBuildRecordId(Base32LongID buildRecordId) {
         return (root, query, cb) -> {
             Join<Artifact, BuildRecord> buildRecords = root.join(Artifact_.dependantBuildRecords);
             return cb.equal(buildRecords.get(BuildRecord_.id), buildRecordId);

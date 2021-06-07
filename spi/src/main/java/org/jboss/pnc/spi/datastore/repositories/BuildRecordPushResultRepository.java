@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
@@ -27,7 +28,7 @@ import java.util.List;
  */
 public interface BuildRecordPushResultRepository extends Repository<BuildRecordPushResult, Long> {
 
-    BuildRecordPushResult getLatestForBuildRecord(Long buildRecordId);
+    BuildRecordPushResult getLatestForBuildRecord(Base32LongID buildRecordId);
 
-    List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Long buildRecordId);
+    List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Base32LongID buildRecordId);
 }

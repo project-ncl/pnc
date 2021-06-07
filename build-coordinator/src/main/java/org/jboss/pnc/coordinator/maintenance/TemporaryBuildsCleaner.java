@@ -19,7 +19,9 @@ package org.jboss.pnc.coordinator.maintenance;
 
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.ResultStatus;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.Result;
@@ -79,26 +81,27 @@ public class TemporaryBuildsCleaner {
      * @return true if success
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Result deleteTemporaryBuild(Long buildRecordId, String authToken) throws ValidationException {
+    public Result deleteTemporaryBuild(Base32LongID buildRecordId, String authToken) throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
         if (buildRecord == null) {
             throw new ValidationException(
-                    "Cannot delete temporary build with id " + buildRecordId + " as no build with this id exists");
+                    "Cannot delete temporary build with id " + BuildMapper.idMapper.toDto(buildRecordId)
+                            + " as no build with this id exists");
         }
         return deleteTemporaryBuild(buildRecord, authToken);
     }
 
     private Result deleteTemporaryBuild(BuildRecord buildRecord, String authToken) throws ValidationException {
-        Long buildRecordId = buildRecord.getId();
 
         if (!buildRecord.isTemporaryBuild()) {
             throw new ValidationException("Only deletion of the temporary builds is allowed");
         }
 
         // first delete BRs where this build is noRebuildCause
-        List<BuildRecord> noRebuildBRs = buildRecordRepository.getBuildByCausingRecord(buildRecordId);
+        List<BuildRecord> noRebuildBRs = buildRecordRepository.getBuildByCausingRecord(buildRecord.getId());
         for (BuildRecord noRebuildBR : noRebuildBRs) {
-            log.info("Deleting build " + noRebuildBR.getId() + " which has noRebuildCause " + buildRecordId + ".");
+            log.info(
+                    "Deleting build " + noRebuildBR.getId() + " which has noRebuildCause " + buildRecord.getId() + ".");
             deleteTemporaryBuild(noRebuildBR.getId(), authToken);
         }
 
@@ -107,20 +110,18 @@ public class TemporaryBuildsCleaner {
                 "Starting deletion of a temporary build " + buildRecord + "; Built artifacts: "
                         + buildRecord.getBuiltArtifacts() + "; Dependencies: " + buildRecord.getDependencies());
 
+        String externalBuildId = BuildMapper.idMapper.toDto(buildRecord.getId());
         Result result = remoteBuildsCleaner.deleteRemoteBuilds(buildRecord, authToken);
         if (!result.isSuccess()) {
             log.error("Failed to delete remote temporary builds for BR.id:{}.", buildRecord.getId());
-            return new Result(
-                    buildRecordId.toString(),
-                    ResultStatus.FAILED,
-                    "Failed to delete remote temporary builds.");
+            return new Result(externalBuildId, ResultStatus.FAILED, "Failed to delete remote temporary builds.");
         }
 
         removeBuiltArtifacts(buildRecord);
 
         buildRecordRepository.delete(buildRecord.getId());
         log.info("Deletion of the temporary build {} finished successfully.", buildRecord);
-        return new Result(buildRecordId.toString(), ResultStatus.SUCCESS);
+        return new Result(externalBuildId, ResultStatus.SUCCESS);
     }
 
     private void deleteArtifact(Artifact artifact) {

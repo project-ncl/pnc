@@ -37,6 +37,7 @@ import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.ResultStatus;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.spi.coordinator.Result;
@@ -104,29 +105,26 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         if (!result.isSuccess()) {
             return result;
         }
-        return new Result(buildRecord.getId().toString(), ResultStatus.SUCCESS);
+        return new Result(BuildMapper.idMapper.toDto(buildRecord.getId()), ResultStatus.SUCCESS);
     }
 
     private Result requestDeleteViaCauseway(BuildRecord buildRecord) {
-        Long buildRecordId = buildRecord.getId();
         List<BuildRecordPushResult> toRemove = buildRecordPushResultRepository
-                .getAllSuccessfulForBuildRecord(buildRecordId);
+                .getAllSuccessfulForBuildRecord(buildRecord.getId());
 
+        String externalBuildId = BuildMapper.idMapper.toDto(buildRecord.getId());
         for (BuildRecordPushResult pushResult : toRemove) {
             boolean success = causewayUntag(pushResult.getTagPrefix(), pushResult.getBrewBuildId());
             if (!success) {
                 logger.error(
                         "Failed to un-tag pushed build record. BuildRecord.id: {}; brewBuildId: {}; tagPrefix: {};",
-                        buildRecordId,
+                        buildRecord.getId(),
                         pushResult.getBrewBuildId(),
                         pushResult.getTagPrefix());
-                return new Result(
-                        buildRecordId.toString(),
-                        ResultStatus.FAILED,
-                        "Failed to un-tag pushed build record.");
+                return new Result(externalBuildId, ResultStatus.FAILED, "Failed to un-tag pushed build record.");
             }
         }
-        return new Result(buildRecordId.toString(), ResultStatus.SUCCESS);
+        return new Result(externalBuildId, ResultStatus.SUCCESS);
     }
 
     private Result deleteBuildsFromIndy(BuildRecord buildRecord, String authToken) {

@@ -147,7 +147,7 @@ public class TermdBuildDriver implements BuildDriver { // TODO rename class
                     terminalUrl,
                     onStatusUpdate,
                     httpCallbackMode,
-                    buildExecutionSession.getId().toString(),
+                    buildExecutionSession.getId(),
                     buildExecutionSession.getAccessToken());
             buildExecutionSession.setBuildStatusUpdateConsumer(remoteInvocation.getClientStatusUpdateConsumer());
 

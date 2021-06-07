@@ -93,7 +93,7 @@ public class RepositoryManagerMock implements RepositoryManager {
     }
 
     @Override
-    public RepositoryManagerResult collectRepoManagerResult(Long id) throws RepositoryManagerException {
+    public RepositoryManagerResult collectRepoManagerResult(String id) throws RepositoryManagerException {
         return RepositoryManagerResultMock.mockResult(false);
     }
 

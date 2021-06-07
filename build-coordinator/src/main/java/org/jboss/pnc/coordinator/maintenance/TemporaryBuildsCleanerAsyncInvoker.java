@@ -19,6 +19,7 @@ package org.jboss.pnc.coordinator.maintenance;
 
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.enums.ResultStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.Result;
@@ -75,7 +76,7 @@ public class TemporaryBuildsCleanerAsyncInvoker {
      * @return True if the build exists and deletion started otherwise, false is build doesn't exist
      * @throws ValidationException Thrown when build cannot be deleted
      */
-    public boolean deleteTemporaryBuild(Long buildRecordId, String authToken, Consumer<Result> onComplete)
+    public boolean deleteTemporaryBuild(Base32LongID buildRecordId, String authToken, Consumer<Result> onComplete)
             throws ValidationException {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchAllProperties(buildRecordId);
         if (buildRecord == null) {

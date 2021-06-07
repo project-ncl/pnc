@@ -19,6 +19,7 @@ package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildRecordPushResultSpringRepository;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPushResultPredicates;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
@@ -40,7 +41,7 @@ public class BuildRecordPushResultRepositoryImpl extends AbstractRepository<Buil
     }
 
     @Override
-    public BuildRecordPushResult getLatestForBuildRecord(Long buildRecordId) {
+    public BuildRecordPushResult getLatestForBuildRecord(Base32LongID buildRecordId) {
         List<BuildRecordPushResult> buildRecordPushResults = queryWithPredicates(
                 BuildRecordPushResultPredicates.forBuildRecordOrderByIdDesc(buildRecordId));
         if (buildRecordPushResults == null || buildRecordPushResults.size() == 0) {
@@ -51,7 +52,7 @@ public class BuildRecordPushResultRepositoryImpl extends AbstractRepository<Buil
     }
 
     @Override
-    public List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Long buildRecordId) {
+    public List<BuildRecordPushResult> getAllSuccessfulForBuildRecord(Base32LongID buildRecordId) {
         return queryWithPredicates(BuildRecordPushResultPredicates.successForBuildRecord(buildRecordId));
     }
 }

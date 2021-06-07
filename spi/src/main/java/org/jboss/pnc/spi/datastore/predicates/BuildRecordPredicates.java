@@ -20,6 +20,7 @@ package org.jboss.pnc.spi.datastore.predicates;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -263,7 +264,7 @@ public class BuildRecordPredicates {
         return (root, query, cb) -> cb.isTrue(root.get(BuildRecord_.temporaryBuild));
     }
 
-    public static Predicate<BuildRecord> withCausingBuildRecordId(Long buildRecordId) {
+    public static Predicate<BuildRecord> withCausingBuildRecordId(Base32LongID buildRecordId) {
         return (root, query, cb) -> {
             Join<BuildRecord, BuildRecord> join = root.join(BuildRecord_.noRebuildCause);
             return cb.equal(join.get(BuildRecord_.id), buildRecordId);

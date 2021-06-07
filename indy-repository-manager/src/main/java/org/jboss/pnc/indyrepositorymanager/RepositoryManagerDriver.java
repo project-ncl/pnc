@@ -50,6 +50,7 @@ import org.jboss.pnc.common.util.UrlUtils;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -343,8 +344,9 @@ public class RepositoryManagerDriver implements RepositoryManager {
     }
 
     @Override
-    public RepositoryManagerResult collectRepoManagerResult(Long id) throws RepositoryManagerException {
-        BuildRecord br = buildRecordRepository.findByIdFetchProperties(id);
+    public RepositoryManagerResult collectRepoManagerResult(String id) throws RepositoryManagerException {
+        Base32LongID buildId = new Base32LongID(id);
+        BuildRecord br = buildRecordRepository.findByIdFetchProperties(buildId);
         if (br == null) {
             return null;
         }
@@ -395,7 +397,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
             boolean brewPullActive) throws IndyClientException {
 
         String buildContentId = execution.getBuildContentId();
-        long id = execution.getId();
+        String id = execution.getId();
         BuildType buildType = execution.getBuildType();
 
         // if the build-level group doesn't exist, create it.
@@ -480,7 +482,7 @@ public class RepositoryManagerDriver implements RepositoryManager {
     private void addExtraConstituents(
             String packageType,
             List<ArtifactRepository> repositories,
-            long buildId,
+            String buildId,
             String buildContentId,
             Indy indy,
             Group buildGroup) throws IndyClientException {

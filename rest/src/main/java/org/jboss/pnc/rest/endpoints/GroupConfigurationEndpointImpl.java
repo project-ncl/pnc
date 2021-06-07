@@ -160,7 +160,7 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
 
             return groupBuildProvider.getSpecific(Integer.toString(groupBuildId));
         } catch (BuildConflictException ex) {
-            throw new ConflictedEntryException(ex.getMessage(), null, BuildMapper.idMapper.toDto(ex.getBuildTaskId()));
+            throw new ConflictedEntryException(ex.getMessage(), null, ex.getBuildTaskId());
         } catch (CoreException ex) {
             throw new RuntimeException(ex);
         }

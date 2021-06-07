@@ -65,7 +65,7 @@ public class BuildTasksInitializer {
             BuildConfigurationAudited buildConfigurationAudited,
             User user,
             BuildOptions buildOptions,
-            Supplier<Long> buildTaskIdProvider,
+            Supplier<String> buildTaskIdProvider,
             Set<BuildTask> submittedBuildTasks) {
 
         BuildSetTask buildSetTask = BuildSetTask.Builder.newBuilder()
@@ -196,7 +196,7 @@ public class BuildTasksInitializer {
             BuildConfigurationSet buildConfigurationSet,
             User user,
             BuildOptions buildOptions,
-            Supplier<Long> buildTaskIdProvider,
+            Supplier<String> buildTaskIdProvider,
             Set<BuildTask> submittedBuildTasks) throws CoreException {
 
         return createBuildSetTask(
@@ -230,7 +230,7 @@ public class BuildTasksInitializer {
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
             BuildOptions buildOptions,
-            Supplier<Long> buildTaskIdProvider,
+            Supplier<String> buildTaskIdProvider,
             Set<BuildTask> submittedBuildTasks) throws CoreException {
         BuildSetTask buildSetTask = initBuildSetTask(buildConfigurationSet, user, buildOptions);
 
@@ -297,7 +297,7 @@ public class BuildTasksInitializer {
     private void fillBuildTaskSet(
             BuildSetTask buildSetTask,
             User user,
-            Supplier<Long> buildTaskIdProvider,
+            Supplier<String> buildTaskIdProvider,
             ProductMilestone productMilestone,
             Set<BuildConfigurationAudited> toBuild,
             Set<BuildTask> alreadySubmittedBuildTasks,
@@ -312,7 +312,7 @@ public class BuildTasksInitializer {
                 buildTask = taskOptional.get();
                 log.debug("Linking BuildConfigurationAudited {} to existing task {}.", buildConfigAudited, buildTask);
             } else {
-                long buildId = buildTaskIdProvider.get();
+                String buildId = buildTaskIdProvider.get();
                 String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
                 // Used only for this operation inside the loop
                 MDCUtils.addBuildContext(

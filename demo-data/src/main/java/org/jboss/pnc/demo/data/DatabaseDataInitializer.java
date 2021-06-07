@@ -18,6 +18,7 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
+
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -648,7 +649,7 @@ public class DatabaseDataInitializer {
                 .queryById(buildConfig1AuditIdRev);
         if (buildConfigAudited1 != null) {
 
-            long nextId = Sequence.nextId();
+            String nextId = Sequence.nextBase32Id();
             log.info("####nextId: " + nextId);
 
             BuildRecord buildRecord1 = BuildRecord.Builder.newBuilder()
@@ -684,7 +685,7 @@ public class DatabaseDataInitializer {
                             + savedBuildRecord1.getBuildConfigurationAuditedIdRev());
             buildRecords.add(buildRecord1);
 
-            nextId = Sequence.nextId();
+            nextId = Sequence.nextBase32Id();
             log.info("####nextId: " + nextId);
 
             BuildRecord tempRecord1 = BuildRecord.Builder.newBuilder()
@@ -778,7 +779,7 @@ public class DatabaseDataInitializer {
                 .queryById(buildConfig2AuditIdRev);
         if (buildConfigAudited2 != null) {
 
-            long nextId = Sequence.nextId();
+            String nextId = Sequence.nextBase32Id();
             log.info("####nextId: " + nextId);
 
             BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
@@ -798,7 +799,7 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(false)
                     .build();
 
-            nextId = Sequence.nextId();
+            nextId = Sequence.nextBase32Id();
             log.info("####nextId: " + nextId);
 
             BuildRecord savedBuildRecord2 = buildRecordRepository.save(buildRecord2);

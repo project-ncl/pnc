@@ -43,7 +43,7 @@ public class BuildTask {
 
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-task");
 
-    private final long id;
+    private final String id;
     private final BuildConfigurationAudited buildConfigurationAudited; // TODO decouple DB entity
 
     @Getter
@@ -95,7 +95,7 @@ public class BuildTask {
             User user,
             Date submitTime,
             BuildSetTask buildSetTask,
-            long id,
+            String id,
             Integer buildConfigSetRecordId,
             ProductMilestone productMilestone,
             String contentId,
@@ -242,17 +242,8 @@ public class BuildTask {
         this.hasFailed = hasFailed;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
-    }
-
-    /**
-     * Gets the id in the base32 encoding.
-     *
-     * @return the id in base32 encoding.
-     */
-    public String getBase32Id() {
-        return LongBase32IdConverter.toString(id);
     }
 
     public Date getSubmitTime() {
@@ -307,7 +298,7 @@ public class BuildTask {
             BuildConfigurationAudited buildConfigurationAudited,
             BuildOptions buildOptions,
             User user,
-            long buildTaskId,
+            String buildTaskId,
             BuildSetTask buildSetTask,
             Date submitTime,
             ProductMilestone productMilestone,

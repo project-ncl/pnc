@@ -26,12 +26,15 @@ import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.ProductMilestone;
@@ -54,7 +57,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
-import org.jboss.pnc.common.concurrent.Sequence;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 
@@ -268,7 +270,7 @@ public class ProductMilestoneReleaseManager {
     private void storeBuildRecordPush(
             BuildImportResultRest buildRest,
             ProductMilestoneRelease productMilestoneRelease) {
-        Long recordId = buildRest.getBuildRecordId();
+        Base32LongID recordId = BuildMapper.idMapper.toEntity(buildRest.getBuildRecordId());
         BuildRecord record = buildRecordRepository.queryById(recordId);
         if (record == null) {
             log.error("No record found for record id: {}, skipped saving info: {}", recordId, buildRest);

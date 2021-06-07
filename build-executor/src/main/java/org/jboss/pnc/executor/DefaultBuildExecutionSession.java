@@ -227,7 +227,7 @@ public class DefaultBuildExecutionSession implements BuildExecutionSession {
     }
 
     @Override
-    public Long getId() {
+    public String getId() {
         return getBuildExecutionConfiguration().getId();
     }
 

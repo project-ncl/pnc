@@ -38,6 +38,7 @@ import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -97,7 +98,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Inject
     private BrewPusher brewPusher;
 
-    private EndpointHelper<Long, Build, BuildRef> endpointHelper;
+    private EndpointHelper<Base32LongID, Build, BuildRef> endpointHelper;
 
     @PostConstruct
     public void init() {
@@ -227,7 +228,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Override
     public BuildPushResult getPushResult(String id) {
-        BuildPushResult brewPushResult = brewPusher.getBrewPushResult(BuildMapper.idMapper.toEntity(id));
+        BuildPushResult brewPushResult = brewPusher.getBrewPushResult(id);
         if (brewPushResult == null) {
             throw new NotFoundException();
         }
@@ -245,12 +246,12 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Override
     public void cancelPush(String id) {
-        brewPusher.brewPushCancel(BuildMapper.idMapper.toEntity(id));
+        brewPusher.brewPushCancel(id);
     }
 
     @Override
     public BuildPushResult completePush(String id, BuildPushResult buildPushResult) {
-        return brewPusher.brewPushComplete(BuildMapper.idMapper.toEntity(id), buildPushResult);
+        return brewPusher.brewPushComplete(id, buildPushResult);
     }
 
     @Override
@@ -263,14 +264,14 @@ public class BuildEndpointImpl implements BuildEndpoint {
         try {
             logger.debug("Received cancel request for buildTaskId: {}.", buildId);
 
-            Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(BuildMapper.idMapper.toEntity(buildId));
+            Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(buildId);
             if (mdcMeta.isPresent()) {
                 MDCUtils.addBuildContext(mdcMeta.get());
             } else {
                 logger.warn("Unable to retrieve MDC meta. There is no running build for buildTaskId: {}.", buildId);
             }
 
-            if (!buildTriggerer.cancelBuild(BuildMapper.idMapper.toEntity(buildId))) {
+            if (!buildTriggerer.cancelBuild(buildId)) {
                 throw new NotFoundException();
             }
             logger.debug("Cancel request for buildTaskId {} successfully processed.", buildId);

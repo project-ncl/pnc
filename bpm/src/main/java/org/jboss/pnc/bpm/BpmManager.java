@@ -200,11 +200,11 @@ public class BpmManager {
      * This method solves backwards compatibility problem. It will be removed soon.
      */
     @Deprecated
-    public Integer getTaskIdByBuildId(long buildId) {
+    public Integer getTaskIdByBuildId(String buildId) {
         List<Integer> result = tasks.values()
                 .stream()
                 .filter(t -> t instanceof BpmBuildTask)
-                .filter(t -> ((BpmBuildTask) t).getBuildTask().getId() == buildId)
+                .filter(t -> ((BpmBuildTask) t).getBuildTask().getId().equals(buildId))
                 .map(BpmTask::getTaskId)
                 .collect(Collectors.toList());
         if (result.size() > 1) {

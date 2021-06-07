@@ -40,6 +40,7 @@ import org.jboss.pnc.facade.validation.OperationNotAllowedException;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.model.IdRev;
@@ -112,7 +113,7 @@ public class BrewPusherImpl implements BrewPusher {
         for (BuildRecord buildRecord : buildRecords) {
             Long buildPushResultId = Sequence.nextId();
             MDCUtils.addProcessContext(buildPushResultId.toString());
-            MDCUtils.addCustomContext(BUILD_ID_KEY, buildRecord.getId().toString());
+            MDCUtils.addCustomContext(BUILD_ID_KEY, buildRecord.getId().getId());
             try {
                 results.add(doPushBuild(buildRecord.getId(), buildPushParameters, buildPushResultId));
             } catch (OperationNotAllowedException | AlreadyRunningException e) {
@@ -120,7 +121,7 @@ public class BrewPusherImpl implements BrewPusher {
                         BuildPushResult.builder()
                                 .status(BuildPushStatus.REJECTED)
                                 .id(buildPushResultId.toString())
-                                .buildId(buildRecord.getId().toString())
+                                .buildId(BuildMapper.idMapper.toDto(buildRecord.getId()))
                                 .message(e.getMessage())
                                 .build());
             } catch (InconsistentDataException | ProcessException e) {
@@ -128,7 +129,7 @@ public class BrewPusherImpl implements BrewPusher {
                         BuildPushResult.builder()
                                 .status(BuildPushStatus.SYSTEM_ERROR)
                                 .id(buildPushResultId.toString())
-                                .buildId(buildRecord.getId().toString())
+                                .buildId(BuildMapper.idMapper.toDto(buildRecord.getId()))
                                 .message(e.getMessage())
                                 .build());
             } finally {
@@ -141,6 +142,7 @@ public class BrewPusherImpl implements BrewPusher {
 
     @Override
     public BuildPushResult pushBuild(String buildId, BuildPushParameters buildPushParameters) throws ProcessException {
+        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
         BuildRecord build = buildRecordRepository.queryById(BuildMapper.idMapper.toEntity(buildId));
         if (build.getStatus().equals(BuildStatus.NO_REBUILD_REQUIRED)) {
             throw new OperationNotAllowedException(
@@ -148,17 +150,19 @@ public class BrewPusherImpl implements BrewPusher {
         }
         Long buildPushResultId = Sequence.nextId();
         MDCUtils.addProcessContext(buildPushResultId.toString());
-        MDCUtils.addCustomContext(BUILD_ID_KEY, buildId);
+        MDCUtils.addCustomContext(BUILD_ID_KEY, id.getId());
         try {
-            return doPushBuild(BuildMapper.idMapper.toEntity(buildId), buildPushParameters, buildPushResultId);
+            return doPushBuild(id, buildPushParameters, buildPushResultId);
         } finally {
             MDCUtils.removeProcessContext();
             MDCUtils.removeCustomContext(BUILD_ID_KEY);
         }
     }
 
-    private BuildPushResult doPushBuild(Long buildId, BuildPushParameters buildPushParameters, Long buildPushResultId)
-            throws ProcessException {
+    private BuildPushResult doPushBuild(
+            Base32LongID buildId,
+            BuildPushParameters buildPushParameters,
+            Long buildPushResultId) throws ProcessException {
 
         userLog.info("Push started."); // TODO START timing event
         // collect and validate input data
@@ -226,7 +230,7 @@ public class BrewPusherImpl implements BrewPusher {
      * @throws InconsistentDataException when there is no SUCCESS status before NO_REBUILD_REQUIRED
      * @throws InvalidEntityException when the status is not SUCCESS or NO_REBUILD_REQUIRED
      */
-    private BuildRecord getLatestSuccessfullyExecutedBuildRecord(Long buildRecordId) {
+    private BuildRecord getLatestSuccessfullyExecutedBuildRecord(Base32LongID buildRecordId) {
         BuildRecord buildRecord = buildRecordRepository.findByIdFetchProperties(buildRecordId);
         if (buildRecord == null) {
             throw new EmptyEntityException("Build record not found.");
@@ -253,14 +257,15 @@ public class BrewPusherImpl implements BrewPusher {
     }
 
     @Override
-    public boolean brewPushCancel(long buildId) {
-        Optional<InProgress.Context> pushContext = buildResultPushManager.getContext(buildId);
+    public boolean brewPushCancel(String buildId) {
+        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
+        Optional<InProgress.Context> pushContext = buildResultPushManager.getContext(id);
         if (pushContext.isPresent()) {
             MDCUtils.addProcessContext(pushContext.get().getPushResultId());
-            MDCUtils.addCustomContext(BUILD_ID_KEY, BuildMapper.idMapper.toDto(buildId));
+            MDCUtils.addCustomContext(BUILD_ID_KEY, id.getId());
             userLog.info("Build push cancel requested.");
             try {
-                return buildResultPushManager.cancelInProgressPush(buildId);
+                return buildResultPushManager.cancelInProgressPush(id);
             } finally {
                 MDCUtils.removeProcessContext();
                 MDCUtils.removeCustomContext(BUILD_ID_KEY);
@@ -271,16 +276,17 @@ public class BrewPusherImpl implements BrewPusher {
     }
 
     @Override
-    public BuildPushResult brewPushComplete(long buildId, BuildPushResult buildPushResult) {
+    public BuildPushResult brewPushComplete(String buildId, BuildPushResult buildPushResult) {
+        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
         MDCUtils.addProcessContext(buildPushResult.getId());
-        MDCUtils.addCustomContext(BUILD_ID_KEY, Long.toString(buildId));
+        MDCUtils.addCustomContext(BUILD_ID_KEY, id.getId());
         try {
             log.info(
                     "Received completion notification for BuildRecord.id: {}. Object received: {}.",
                     buildId,
                     buildPushResult);
 
-            buildResultPushManager.complete(buildId, buildPushResultMapper.toEntity(buildPushResult));
+            buildResultPushManager.complete(id, buildPushResultMapper.toEntity(buildPushResult));
             userLog.info("Brew push completed."); // TODO END timing event
             return buildPushResult;
         } finally {
@@ -290,18 +296,18 @@ public class BrewPusherImpl implements BrewPusher {
     }
 
     @Override
-    public BuildPushResult getBrewPushResult(long buildId) {
+    public BuildPushResult getBrewPushResult(String buildId) {
+        Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
         BuildPushResult result = null;
-        Optional<InProgress.Context> pushContext = buildResultPushManager.getContext(buildId);
+        Optional<InProgress.Context> pushContext = buildResultPushManager.getContext(id);
         if (pushContext.isPresent()) {
             result = BuildPushResult.builder()
-                    .buildId(BuildMapper.idMapper.toDto(buildId))
+                    .buildId(buildId)
                     .status(BuildPushStatus.ACCEPTED)
                     .logContext(pushContext.get().getPushResultId())
                     .build();
         } else {
-            BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository
-                    .getLatestForBuildRecord(buildId);
+            BuildRecordPushResult latestForBuildRecord = buildRecordPushResultRepository.getLatestForBuildRecord(id);
             if (latestForBuildRecord != null) {
                 return buildPushResultMapper.toDTO(latestForBuildRecord);
             }

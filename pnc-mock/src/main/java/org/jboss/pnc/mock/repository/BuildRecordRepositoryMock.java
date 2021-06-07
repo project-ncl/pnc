@@ -19,6 +19,7 @@ package org.jboss.pnc.mock.repository;
 
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
@@ -39,14 +40,15 @@ import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:04 PM
  */
-public class BuildRecordRepositoryMock extends LongIdRepositoryMock<BuildRecord> implements BuildRecordRepository {
+public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildRecord>
+        implements BuildRecordRepository {
     @Override
-    public BuildRecord findByIdFetchAllProperties(Long id) {
+    public BuildRecord findByIdFetchAllProperties(Base32LongID id) {
         return queryById(id);
     }
 
     @Override
-    public BuildRecord findByIdFetchProperties(Long id) {
+    public BuildRecord findByIdFetchProperties(Base32LongID id) {
         return queryById(id);
     }
 
@@ -82,7 +84,7 @@ public class BuildRecordRepositoryMock extends LongIdRepositoryMock<BuildRecord>
                 .filter(br -> br.getBuildConfigurationId().equals(configurationId))
                 .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
                 .filter(br -> !(!temporaryBuild && br.isTemporaryBuild()))
-                .max(Comparator.comparing(BuildRecord::getId))
+                .max(Comparator.comparing(BuildRecord::getSubmitTime))
                 .orElse(null);
     }
 
@@ -111,7 +113,7 @@ public class BuildRecordRepositoryMock extends LongIdRepositoryMock<BuildRecord>
                 .filter(
                         buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev()
                                 .equals(buildConfigurationAuditedIdRev))
-                .max(Comparator.comparing(BuildRecord::getId));
+                .max(Comparator.comparing(BuildRecord::getSubmitTime));
         return first.orElse(null);
     }
 
@@ -144,7 +146,7 @@ public class BuildRecordRepositoryMock extends LongIdRepositoryMock<BuildRecord>
     }
 
     @Override
-    public List<BuildRecord> getBuildByCausingRecord(Long causingRecordId) {
+    public List<BuildRecord> getBuildByCausingRecord(Base32LongID causingRecordId) {
         return null;
     }
 }

@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
@@ -33,14 +34,14 @@ import java.util.Set;
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildRecord} entity.
  */
-public interface BuildRecordRepository extends Repository<BuildRecord, Long> {
+public interface BuildRecordRepository extends Repository<BuildRecord, Base32LongID> {
 
-    BuildRecord findByIdFetchAllProperties(Long id);
+    BuildRecord findByIdFetchAllProperties(Base32LongID id);
 
     /**
      * @return null if record is not found.
      */
-    BuildRecord findByIdFetchProperties(Long id);
+    BuildRecord findByIdFetchProperties(Base32LongID id);
 
     List<BuildRecord> queryWithPredicatesUsingCursor(
             PageInfo pageInfo,
@@ -71,7 +72,7 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Long> {
                 .filter(
                         record -> (includeTemporary && record.isTemporaryBuild())
                                 || (includePersistent && !record.isTemporaryBuild()))
-                .max(Comparator.comparing(BuildRecord::getId))
+                .max(Comparator.comparing(BuildRecord::getSubmitTime))
                 .orElse(null);
     }
 
@@ -85,5 +86,5 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Long> {
 
     Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId);
 
-    List<BuildRecord> getBuildByCausingRecord(Long causingRecordId);
+    List<BuildRecord> getBuildByCausingRecord(Base32LongID causingRecordId);
 }

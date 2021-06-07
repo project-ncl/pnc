@@ -154,8 +154,7 @@ public class DefaultNotifier implements Notifier {
     @Override
     public void onBpmProcessClientSubscribe(AttachedClient client, String messagesId) {
         if (bpmManager.isPresent()) {
-            Optional<BpmTask> maybeTask = BpmBuildTask
-                    .getBpmTaskByBuildTaskId(bpmManager.get(), Integer.valueOf(messagesId));
+            Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager.get(), messagesId);
             if (maybeTask.isPresent()) {
                 BpmTask bpmTask = maybeTask.get();
                 Optional<BpmEvent> maybeLastEvent = bpmTask.getEvents().stream().reduce((first, second) -> second);
