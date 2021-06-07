@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.rsql.converter;
 
 import org.jboss.pnc.facade.rsql.RSQLException;
+import org.jboss.pnc.model.GenericEntity;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -28,7 +29,7 @@ import java.util.Date;
 public class CastValueConverter implements ValueConverter {
 
     @Override
-    public <DB, T> Comparable<T> convert(Value<DB, T> value) {
+    public <DB extends GenericEntity<?>, T> Comparable<T> convertComparable(Value<DB, T> value) {
         Class<T> javaType = value.getJavaType();
         String argument = value.getValue();
 
@@ -58,5 +59,10 @@ public class CastValueConverter implements ValueConverter {
             throw new UnsupportedOperationException(
                     "The target type " + javaType + " is not known to the type converter.");
         }
+    }
+
+    @Override
+    public <DB extends GenericEntity<?>, T> T convert(Value<DB, T> value) {
+        return (T) convertComparable(value);
     }
 }

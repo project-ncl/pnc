@@ -26,6 +26,7 @@ import cz.jirutka.rsql.parser.ast.OrNode;
 import cz.jirutka.rsql.parser.ast.RSQLOperators;
 import org.hibernate.query.criteria.internal.path.SingularAttributePath;
 import org.jboss.pnc.facade.rsql.converter.Value;
+import org.jboss.pnc.facade.rsql.converter.ValueConverter;
 import org.jboss.pnc.model.GenericEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,17 +59,17 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
     private final Root<DB> root;
     private final CriteriaBuilder cb;
     private final BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath;
-    private Function<Value<?, ?>, Comparable<?>> convertValue;
+    private ValueConverter valueConverter;
 
     public EntityRSQLNodeTraveller(
             Root<DB> root,
             CriteriaBuilder cb,
             BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath,
-            Function<Value<?, ?>, Comparable<?>> convertValue) {
+            ValueConverter valueConverter) {
         this.root = root;
         this.cb = cb;
         this.toPath = toPath;
-        this.convertValue = convertValue;
+        this.valueConverter = valueConverter;
     }
 
     @Override
@@ -89,28 +90,28 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
         List<String> arguments = node.getArguments();
         final ComparisonOperator operator = node.getOperator();
         if (RSQLOperators.EQUAL.equals(operator)) {
-            Object argument = convertValue.apply(getValue(path, arguments.get(0)));
+            Object argument = valueConverter.convert(getValue(path, arguments.get(0)));
             return cb.equal(path, argument);
         } else if (RSQLOperators.NOT_EQUAL.equals(operator)) {
-            Object argument = convertValue.apply(getValue(path, arguments.get(0)));
+            Object argument = valueConverter.convert(getValue(path, arguments.get(0)));
             return cb.notEqual(path, argument);
         } else if (RSQLOperators.GREATER_THAN.equals(operator)) {
-            Comparable argument = convertValue.apply(getValue(path, arguments.get(0)));
+            Comparable argument = valueConverter.convertComparable(getValue(path, arguments.get(0)));
             return cb.greaterThan(path, argument);
         } else if (RSQLOperators.GREATER_THAN_OR_EQUAL.equals(operator)) {
-            Comparable argument = convertValue.apply(getValue(path, arguments.get(0)));
+            Comparable argument = valueConverter.convertComparable(getValue(path, arguments.get(0)));
             return cb.greaterThanOrEqualTo(path, argument);
         } else if (RSQLOperators.LESS_THAN.equals(operator)) {
-            Comparable argument = convertValue.apply(getValue(path, arguments.get(0)));
+            Comparable argument = valueConverter.convertComparable(getValue(path, arguments.get(0)));
             return cb.lessThan(path, argument);
         } else if (RSQLOperators.LESS_THAN_OR_EQUAL.equals(operator)) {
-            Comparable argument = convertValue.apply(getValue(path, arguments.get(0)));
+            Comparable argument = valueConverter.convertComparable(getValue(path, arguments.get(0)));
             return cb.lessThanOrEqualTo(path, argument);
         } else if (RSQLOperators.IN.equals(operator)) {
-            List<Comparable> castArguments = castArguments(arguments, path);
+            List<Object> castArguments = castArguments(arguments, path);
             return path.in(castArguments);
         } else if (RSQLOperators.NOT_IN.equals(operator)) {
-            List<Comparable> castArguments = castArguments(arguments, path);
+            List<Object> castArguments = castArguments(arguments, path);
             return cb.not(path.in(castArguments));
         } else if (LIKE.equals(operator)) {
             return cb.like(cb.lower(path), preprocessLikeOperatorArgument(arguments.get(0).toLowerCase()));
@@ -160,8 +161,8 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
         return argument.replaceAll("\\?", "_").replaceAll("\\*", "%");
     }
 
-    private <T extends Comparable<? super T>> List<T> castArguments(List<String> arguments, Path path) {
-        return arguments.stream().map(a -> (T) convertValue.apply(getValue(path, a))).collect(Collectors.toList());
+    private List<Object> castArguments(List<String> arguments, Path path) {
+        return arguments.stream().map(a -> valueConverter.convert(getValue(path, a))).collect(Collectors.toList());
     }
 
 }

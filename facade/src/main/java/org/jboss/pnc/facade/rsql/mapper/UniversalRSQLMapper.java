@@ -55,8 +55,18 @@ public class UniversalRSQLMapper {
         throw new UnsupportedOperationException("Missing RSQL mapper implementation for " + type);
     }
 
-    public <DB extends GenericEntity<?>, T> Comparable<T> convertValue(Value<DB, T> value) {
-        ValueConverter valueConverter = mapper(value.getModelClass()).getValueConverter(value.getName());
-        return valueConverter.convert(value);
+    public ValueConverter getConverter() {
+        return new UniversalValueConverter();
+    }
+
+    public class UniversalValueConverter implements ValueConverter {
+
+        public <DB extends GenericEntity<?>, T> Comparable<T> convertComparable(Value<DB, T> value) {
+            return mapper(value.getModelClass()).getValueConverter(value.getName()).convertComparable(value);
+        }
+
+        public <DB extends GenericEntity<?>, T> T convert(Value<DB, T> value) {
+            return mapper(value.getModelClass()).getValueConverter(value.getName()).convert(value);
+        }
     }
 }
