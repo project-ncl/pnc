@@ -402,7 +402,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public boolean cancel(String buildTaskId) throws CoreException {
         // Logging MDC must be set before calling
         Optional<BuildTask> taskOptional = getSubmittedBuildTasks().stream()
-                .filter(buildTask -> buildTask.getId() == buildTaskId)
+                .filter(buildTask -> buildTask.getId().equals(buildTaskId))
                 .findAny();
         if (taskOptional.isPresent()) {
             log.debug("Cancelling task {}.", taskOptional.get());
