@@ -274,7 +274,7 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected BuildTask getBuildTaskById(String taskId) {
-        Optional<BuildTask> buildTask = builtTasks.stream().filter(bt -> bt.getId() == taskId).findAny();
+        Optional<BuildTask> buildTask = builtTasks.stream().filter(bt -> bt.getId().equals(taskId)).findAny();
         if (buildTask.isPresent()) {
             return buildTask.get();
         } else {
