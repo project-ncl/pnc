@@ -222,6 +222,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      * @throws CoreException Thrown if there is a problem initializing the build
      */
     @Override
+    @Deprecated
     public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)
             throws CoreException {
         synchronized (buildMethodLock) {
@@ -328,11 +329,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             // records
             if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
                 buildQueue.enqueueTaskSet(buildSetTask);
-                buildSetTask.getBuildTasks()
-                        .stream()
-                        .filter(this::rejectAlreadySubmitted)
-                        .sorted(this::dependantsFirst)
-                        .forEach(this::addTaskToBuildQueue);
+                buildSetTask.getBuildTasks().stream().sorted(this::dependantsFirst).forEach(this::addTaskToBuildQueue);
             }
         }
     }
@@ -519,20 +516,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private void checkForEmptyBuildSetTask(BuildSetTask buildSetTask) {
         if (buildSetTask.getBuildTasks() == null || buildSetTask.getBuildTasks().isEmpty()) {
             updateBuildSetTaskStatus(buildSetTask, BuildSetStatus.REJECTED, "Build config set is empty");
-        }
-    }
-
-    private boolean rejectAlreadySubmitted(BuildTask buildTask) {
-        Optional<BuildTask> alreadyActiveBuildTask = buildQueue
-                .getUnfinishedTask(buildTask.getBuildConfigurationAudited());
-        if (alreadyActiveBuildTask.isPresent()) {
-            updateBuildTaskStatus(
-                    buildTask,
-                    BuildCoordinationStatus.REJECTED,
-                    "The configuration is already in the build queue.");
-            return false;
-        } else {
-            return true;
         }
     }
 

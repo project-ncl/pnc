@@ -40,6 +40,10 @@ public interface BuildCoordinator {
     BuildSetTask build(BuildConfigurationAudited buildConfiguration, User user, BuildOptions buildOptions)
             throws BuildConflictException, CoreException;
 
+    /**
+     * @deprecated It's used in the tests only
+     */
+    @Deprecated
     BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)
             throws CoreException;
 
