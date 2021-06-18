@@ -105,13 +105,13 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
      * 'Error' and 'InvalidImageName' statuses were added as per NCL-6032 investigations
      */
     private static final String[] POD_FAILED_STATUSES = { "Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull",
-            "ImagePullBackOff", "Error", "InvalidImageName" };
+            "ImagePullBackOff", "Error", "InvalidImageName", "ContainerCannotRun" };
 
     /**
      * List of Pod statuses that can be retried
      */
     private static final String[] POD_RETRYABLE_STATUSES = { "Failed", "Unknown", "CrashLoopBackOff", "ErrImagePull",
-            "ImagePullBackOff", "Error" };
+            "ImagePullBackOff", "Error", "ContainerCannotRun" };
 
     private final OpenShiftClient client;
     private final ObjectMapper mapper;
