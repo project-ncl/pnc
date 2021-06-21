@@ -53,3 +53,8 @@ BEGIN transaction;
     ALTER TABLE artifact_aud ADD COLUMN buildCategory varchar(50);
     UPDATE artifact_aud SET buildCategory='STANDARD';
 COMMIT;
+
+-- Add pattern index on identifier in the artifact table
+BEGIN transaction;
+    CREATE INDEX idx_artifact_identifier_patt ON artifact (identifier text_pattern_ops)
+COMMIT;
