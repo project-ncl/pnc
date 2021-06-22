@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
@@ -65,7 +66,8 @@ public class ClientMockFactory implements ClientFactory {
     public BuildAgentClient createHttpBuildAgentClient(
             String terminalUrl,
             String executionId,
-            Map<String, String> callbackHeaders) throws BuildAgentClientException {
+            Map<String, String> callbackHeaders,
+            List<Request.Header> requestHeaders) throws BuildAgentClientException {
         return new BuildAgentMockClient();
     }
 
