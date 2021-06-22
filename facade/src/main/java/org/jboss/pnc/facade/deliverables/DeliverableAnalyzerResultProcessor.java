@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
@@ -49,6 +50,7 @@ import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
  * @author jbrazdil
  */
 @Transactional
+@ApplicationScoped
 public class DeliverableAnalyzerResultProcessor {
     private static final String KOJI_PATH_MAVEN_PREFIX = "/api/content/maven/remote/koji-";
 
