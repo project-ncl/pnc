@@ -55,6 +55,7 @@ import org.jboss.pnc.rest.endpoints.internal.BuildMaintenanceEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.BuildTaskEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.CacheEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.DebugEndpointImpl;
+import org.jboss.pnc.rest.endpoints.internal.DeliverableAnalysisEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.GenericSettingEndpointImpl;
 import org.jboss.pnc.rest.endpoints.internal.HealthCheckEndpointImpl;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
@@ -219,6 +220,7 @@ public class JaxRsActivatorNew extends Application {
         resources.add(GenericSettingEndpointImpl.class);
         resources.add(CacheEndpointImpl.class);
         resources.add(DebugEndpointImpl.class);
+        resources.add(DeliverableAnalysisEndpointImpl.class);
     }
 
     private void addExceptionMappers(Set<Class<?>> resources) {
