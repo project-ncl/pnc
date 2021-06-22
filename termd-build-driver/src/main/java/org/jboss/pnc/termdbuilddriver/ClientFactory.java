@@ -17,10 +17,12 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -36,6 +38,7 @@ public interface ClientFactory {
     BuildAgentClient createHttpBuildAgentClient(
             String terminalUrl,
             String executionId,
-            Map<String, String> callbackHeaders) throws BuildAgentClientException;
+            Map<String, String> callbackHeaders,
+            List<Request.Header> requestHeaders) throws BuildAgentClientException;
 
 }

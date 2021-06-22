@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.buildagent.api.Status;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
@@ -31,8 +32,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -78,8 +81,10 @@ class RemoteInvocation implements Closeable {
                 callbackHeaders.put(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON);
                 callbackHeaders.put(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
                 callbackHeaders.putAll(MDCUtils.getMdcAsHeadersMap());
+                List<Request.Header> requestHeaders = Collections
+                        .singletonList(new Request.Header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken));
                 buildAgentClient = buildAgentClientFactory
-                        .createHttpBuildAgentClient(terminalUrl, executionId, callbackHeaders);
+                        .createHttpBuildAgentClient(terminalUrl, executionId, callbackHeaders, requestHeaders);
             } else {
                 buildAgentClient = buildAgentClientFactory.createWebSocketBuildAgentClient(
                         terminalUrl,

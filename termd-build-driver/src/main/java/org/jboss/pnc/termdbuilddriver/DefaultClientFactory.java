@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.termdbuilddriver;
 
+import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.buildagent.api.ResponseMode;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
-import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.buildagent.api.httpinvoke.RetryConfig;
 import org.jboss.pnc.buildagent.client.BuildAgentClient;
 import org.jboss.pnc.buildagent.client.BuildAgentClientException;
@@ -45,7 +45,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -106,7 +105,8 @@ public class DefaultClientFactory implements ClientFactory {
     public BuildAgentClient createHttpBuildAgentClient(
             String terminalUrl,
             String executionId,
-            Map<String, String> callbackHeaders) throws BuildAgentClientException {
+            Map<String, String> callbackHeaders,
+            List<Request.Header> requestHeaders) throws BuildAgentClientException {
 
         List<Request.Header> headers = callbackHeaders.entrySet()
                 .stream()
@@ -123,6 +123,7 @@ public class DefaultClientFactory implements ClientFactory {
                     .callback(callback)
                     .livenessResponseTimeout(30000L)
                     .retryConfig(retryConfig)
+                    .requestHeaders(requestHeaders)
                     .build();
         } catch (MalformedURLException | URISyntaxException e) {
             new BuildAgentClientException("Invalid callback URL.", e);
