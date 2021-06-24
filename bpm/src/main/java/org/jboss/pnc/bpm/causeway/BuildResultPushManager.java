@@ -41,6 +41,7 @@ import org.jboss.pnc.constants.MDCKeys;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
 import org.jboss.pnc.model.Artifact;
@@ -402,7 +403,7 @@ public class BuildResultPushManager {
             return new NpmBuiltArtifact(
                     nv.getName(),
                     nv.getVersionString(),
-                    artifact.getId(),
+                    ArtifactMapper.idMapper.toDto(artifact.getId()),
                     artifact.getFilename(),
                     artifact.getTargetRepository().getRepositoryType().toString(),
                     artifact.getMd5(),
@@ -419,7 +420,7 @@ public class BuildResultPushManager {
                     gav.getGroupId(),
                     gav.getArtifactId(),
                     gav.getVersion(),
-                    artifact.getId(),
+                    ArtifactMapper.idMapper.toDto(artifact.getId()),
                     artifact.getFilename(),
                     artifact.getTargetRepository().getRepositoryType().toString(),
                     artifact.getMd5(),

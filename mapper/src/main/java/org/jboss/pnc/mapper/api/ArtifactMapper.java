@@ -32,6 +32,8 @@ import org.mapstruct.MappingTarget;
 public interface ArtifactMapper
         extends UpdatableEntityMapper<Integer, Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef> {
 
+    IntIdMapper idMapper = new IntIdMapper();
+
     @Override
     @Mapping(target = "deployUrl", ignore = true)
     @Mapping(target = "publicUrl", ignore = true)
