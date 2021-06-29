@@ -154,7 +154,7 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
 
                 // delete the content
                 StoreKey storeKey = new StoreKey(pkgKey, StoreType.hosted, buildContentId);
-                indyStores.delete(storeKey, "Scheduled cleanup of temporary builds.");
+                indyStores.delete(storeKey, "Scheduled cleanup of temporary builds.", true);
             }
             // delete generic http repos
             List<Group> genericGroups;
