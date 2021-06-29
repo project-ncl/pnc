@@ -146,7 +146,7 @@ public class ArtifactEndpointTest {
         RemoteCollection<ArtifactInfo> result;
 
         result = client.getAllFiltered(null, null, null, new HashSet<>(Arrays.asList(BuildCategory.STANDARD)));
-        assertThat(result).allSatisfy(a -> assertThat(a.getArtifactQuality().equals(BuildCategory.STANDARD)));
+        assertThat(result).allSatisfy(a -> assertThat(a.getBuildCategory().equals(BuildCategory.STANDARD)));
 
         result = client.getAllFiltered(null, null, null, new HashSet<>(Arrays.asList(BuildCategory.SERVICE)));
         assertThat(result).hasSize(2); // from DatabaseDataInitializer
