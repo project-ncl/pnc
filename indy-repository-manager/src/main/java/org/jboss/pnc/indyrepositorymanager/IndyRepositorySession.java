@@ -40,6 +40,7 @@ import org.commonjava.indy.promote.model.AbstractPromoteResult;
 import org.commonjava.indy.promote.model.PathsPromoteRequest;
 import org.commonjava.indy.promote.model.PathsPromoteResult;
 import org.commonjava.indy.promote.model.ValidationResult;
+import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
@@ -57,7 +58,6 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-
 import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -74,7 +74,6 @@ import java.util.concurrent.TimeUnit;
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
-import org.jboss.pnc.constants.ReposiotryIdentifier;
 import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.SHARED_IMPORTS_ID;
 
 /**
@@ -218,7 +217,7 @@ public class IndyRepositorySession implements RepositorySession {
                 } catch (PromotionValidationException ex) {
                     status = CompletionStatus.FAILED;
                     log = ex.getMessage();
-                    logger.error("Built artifact promotion failed. Error(s): {}", log);
+                    logger.warn("Built artifact promotion failed. Error(s): {}", log);
                     userLog.error("Built artifact promotion failed. Error(s): {}", log);
                 }
 
