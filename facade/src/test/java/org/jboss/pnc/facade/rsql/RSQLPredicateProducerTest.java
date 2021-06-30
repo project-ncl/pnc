@@ -225,6 +225,27 @@ public class RSQLPredicateProducerTest {
     }
 
     @Test
+    public void testComparatorWithNullValue() {
+        Comparator<BuildConfiguration> comparator = producer.getComparator("=desc=id");
+
+        BuildConfiguration foo = BuildConfiguration.builder().id("3").name("FooBC").build();
+        BuildConfiguration bar = BuildConfiguration.builder().id("5").name("BarBC").build();
+        BuildConfiguration baz = BuildConfiguration.builder().id("7").name("BazBC").build();
+        BuildConfiguration nul = BuildConfiguration.builder().id(null).name("NulBC").build();
+
+        List<BuildConfiguration> sorted = Arrays.asList(foo, bar, baz, nul)
+                .stream()
+                .sorted(comparator)
+                .collect(Collectors.toList());
+
+        assertEquals(4, sorted.size());
+        assertEquals("NulBC", sorted.get(0).getName());
+        assertEquals("BazBC", sorted.get(1).getName());
+        assertEquals("BarBC", sorted.get(2).getName());
+        assertEquals("FooBC", sorted.get(3).getName());
+    }
+
+    @Test
     public void testComparatorUnknownQuery() {
         Comparator<BuildConfiguration> comparator = producer.getComparator("=desc=fieldThatDoesNotExists");
 
