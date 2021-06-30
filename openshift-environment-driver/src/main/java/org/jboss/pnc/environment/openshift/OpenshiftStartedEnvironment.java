@@ -643,7 +643,7 @@ public class OpenshiftStartedEnvironment implements StartedEnvironment {
                 return false;
             }
         } catch (IOException e) {
-            logger.error("Cannot open URL {}", getPublicEndpointUrl(), e);
+            logger.warn("Cannot open URL {}", getPublicEndpointUrl(), e);
             return false;
         }
     }
