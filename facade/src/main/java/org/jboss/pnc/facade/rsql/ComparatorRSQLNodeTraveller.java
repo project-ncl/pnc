@@ -47,7 +47,8 @@ class ComparatorRSQLNodeTraveller<DTO> extends RSQLNodeTraveller<Comparator<DTO>
         logger.trace("Sorting direction - {}, arguments {}", node.getOperator(), node.getArguments());
         Comparator<DTO> comparator = null;
         for (String argument : node.getArguments()) {
-            Comparator<DTO> comp = Comparator.comparing(dto -> getProperty(dto, argument));
+            Comparator<DTO> comp = Comparator
+                    .comparing(dto -> getProperty(dto, argument), Comparator.nullsLast(Comparator.naturalOrder()));
             if (comparator == null) {
                 comparator = comp;
             } else {
@@ -68,8 +69,9 @@ class ComparatorRSQLNodeTraveller<DTO> extends RSQLNodeTraveller<Comparator<DTO>
         try {
             String getter = "get" + StringUtils.firstCharToUpperCase(argument);
             Method method = object.getClass().getMethod(getter);
+            Class<?> returnType = method.getReturnType();
             Object obj = method.invoke(object);
-            if (obj instanceof Comparable) {
+            if (Comparable.class.isAssignableFrom(returnType)) {
                 return (Comparable) obj;
             } else {
                 throw new RSQLException("Field " + argument + " is not comparable.");
