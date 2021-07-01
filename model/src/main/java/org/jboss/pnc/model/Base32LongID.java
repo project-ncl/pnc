@@ -26,6 +26,9 @@ import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 
 @Embeddable
 public class Base32LongID implements Serializable {
+
+    private static final long serialVersionUID = -3000291820607237160L;
+
     @Column(name = "id", nullable = false, updatable = false)
     private long id;
 
