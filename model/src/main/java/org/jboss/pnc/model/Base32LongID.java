@@ -47,6 +47,10 @@ public class Base32LongID implements Serializable {
         return LongBase32IdConverter.toString(id);
     }
 
+    public void setId(String id) {
+        this.id = LongBase32IdConverter.toLong(Objects.requireNonNull(id));
+    }
+
     public long getLongId() {
         return id;
     }
