@@ -112,14 +112,14 @@
     <version.keycloak>9.0.3.redhat-00002</version.keycloak>
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
     <version.swagger2>2.1.4</version.swagger2>
-    <version.buildagent>1.0.0-SNAPSHOT</version.buildagent>
+    <version.buildagent>1.0.0</version.buildagent>
     <version.lombok>1.18.18</version.lombok>
     <version.mapstruct>1.4.2.Final</version.mapstruct>
     <version.junit>4.13.1</version.junit>
     <version.org.glassfish.javax.el-impl>3.0.1.b08-redhat-1</version.org.glassfish.javax.el-impl>
     <version.vertx.core>3.8.5</version.vertx.core>
-    <version.pnc-api>2.0.2-SNAPSHOT</version.pnc-api>
-    <version.pnc-common>2.0.1-SNAPSHOT</version.pnc-common>
+    <version.pnc-api>2.1.0</version.pnc-api>
+    <version.pnc-common>2.1.0</version.pnc-common>
     <!-- same base version (no -redhat) as version.org.apache.httpcomponents.httpclient from the eap BOM-->
     <version.org.apache.httpcomponents.fluent-hc>4.5.4</version.org.apache.httpcomponents.fluent-hc>
 
