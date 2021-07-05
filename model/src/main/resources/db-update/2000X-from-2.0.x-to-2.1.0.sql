@@ -17,12 +17,14 @@
 --
 
 -- [NCL-6158]: Introduce new field BuildConfiguration.brewPullActive, which defaults to false
-ALTER TABLE buildconfiguration ADD COLUMN brewpullactive boolean;
-ALTER TABLE buildconfiguration ALTER COLUMN brewpullactive SET NOT NULL;
-UPDATE buildconfiguration SET brewPullActive=false;
+BEGIN transaction;
+    ALTER TABLE buildconfiguration ADD COLUMN brewpullactive boolean;
+    UPDATE buildconfiguration SET brewPullActive=false;
+    ALTER TABLE buildconfiguration ALTER COLUMN brewpullactive SET NOT NULL;
 
-ALTER TABLE buildconfiguration_aud ADD COLUMN brewpullactive boolean;
-UPDATE buildconfiguration SET brewPullActive=false;
+    ALTER TABLE buildconfiguration_aud ADD COLUMN brewpullactive boolean;
+    UPDATE buildconfiguration SET brewPullActive=false;
+COMMIT;
 
 BEGIN transaction;
     ALTER TABLE ProductMilestone ADD COLUMN distributedArtifactsImporter_id integer;
@@ -33,16 +35,13 @@ COMMIT;
 
 -- [NCL-5738] - build record using GUID
 BEGIN transaction;
-ALTER TABLE buildrecord ALTER COLUMN id SET DATA TYPE bigint;
-ALTER TABLE buildrecord ALTER COLUMN norebuildcause_id SET DATA TYPE bigint;
-ALTER TABLE artifact ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
-ALTER TABLE build_record_artifact_dependencies_map ALTER COLUMN build_record_id SET DATA TYPE bigint;
-ALTER TABLE build_record_attributes ALTER COLUMN build_record_id SET DATA TYPE bigint;
-ALTER TABLE build_record_built_artifact_map ALTER COLUMN build_record_id SET DATA TYPE bigint;
-ALTER TABLE build_record_built_artifact_map ALTER COLUMN build_record_id SET DATA TYPE bigint;
-ALTER TABLE buildrecordpushresult ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
-ALTER TABLE build_record_attributes ALTER COLUMN build_record_id SET DATA TYPE bigint;
-ALTER TABLE _archived_buildrecords ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
+    ALTER TABLE buildrecord ALTER COLUMN id SET DATA TYPE bigint;
+    ALTER TABLE buildrecord ALTER COLUMN norebuildcause_id SET DATA TYPE bigint;
+    ALTER TABLE artifact ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
+    ALTER TABLE build_record_artifact_dependencies_map ALTER COLUMN build_record_id SET DATA TYPE bigint;
+    ALTER TABLE build_record_attributes ALTER COLUMN build_record_id SET DATA TYPE bigint;
+    ALTER TABLE buildrecordpushresult ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
+    ALTER TABLE _archived_buildrecords ALTER COLUMN buildrecord_id SET DATA TYPE bigint;
 COMMIT;
 
 -- [NCL-6361] Add to the Artifacts model a new field to store the build category
@@ -56,5 +55,6 @@ COMMIT;
 
 -- Add pattern index on identifier in the artifact table
 BEGIN transaction;
-    CREATE INDEX idx_artifact_identifier_patt ON artifact (identifier text_pattern_ops)
+    CREATE INDEX idx_artifact_identifier_patt ON artifact (identifier text_pattern_ops);
 COMMIT;
+
