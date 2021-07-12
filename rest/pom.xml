@@ -132,6 +132,10 @@
             <artifactId>hibernate-core</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-api</artifactId>
+        </dependency>
 
     </dependencies>
 
