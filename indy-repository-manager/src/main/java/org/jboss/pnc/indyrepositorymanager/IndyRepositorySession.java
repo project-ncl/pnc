@@ -194,7 +194,7 @@ public class IndyRepositorySession implements RepositorySession {
             status = CompletionStatus.FAILED;
             log = ex.getMessage();
             logger.warn("Dependencies promotion failed. Error(s): {}", log);
-            userLog.error("Built artifact promotion failed. Error(s): {}", log);
+            userLog.error("Dependencies promotion failed. Error(s): {}", log);
         }
 
         if (liveBuild) {
