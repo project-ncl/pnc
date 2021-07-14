@@ -98,6 +98,16 @@ public class Artifact implements GenericEntity<Integer> {
     @Size(max = 1024)
     private String identifier;
 
+    /**
+     * Package URL with format scheme:type/namespace/name@version?qualifiers#subpath. A purl is a URL string used to
+     * identify and locate a software package in a mostly universal and uniform way across programing languages, package
+     * managers, packaging conventions, tools, APIs and databases. Such a package URL is useful to reliably reference
+     * the same software package using a simple and expressive syntax and conventions based on familiar URLs. See
+     * https://github.com/package-url/purl-spec
+     */
+    @Size(max = 1024)
+    private String purl;
+
     @NotNull
     @Size(max = 32)
     private String md5;
@@ -269,6 +279,14 @@ public class Artifact implements GenericEntity<Integer> {
      */
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+
+    public String getPurl() {
+        return purl;
+    }
+
+    public void setPurl(String purl) {
+        this.purl = purl;
     }
 
     public String getMd5() {
@@ -581,6 +599,8 @@ public class Artifact implements GenericEntity<Integer> {
 
         private String identifier;
 
+        private String purl;
+
         private String md5;
 
         private String sha1;
@@ -632,6 +652,7 @@ public class Artifact implements GenericEntity<Integer> {
             Artifact artifact = new Artifact();
             artifact.setId(id);
             artifact.setIdentifier(identifier);
+            artifact.setPurl(purl);
             artifact.setMd5(md5);
             artifact.setSha1(sha1);
             artifact.setSha256(sha256);
@@ -673,6 +694,11 @@ public class Artifact implements GenericEntity<Integer> {
 
         public Builder identifier(String identifier) {
             this.identifier = identifier;
+            return this;
+        }
+
+        public Builder purl(String purl) {
+            this.purl = purl;
             return this;
         }
 

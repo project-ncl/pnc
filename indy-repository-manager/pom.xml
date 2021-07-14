@@ -197,6 +197,11 @@
     </dependency>
 
     <dependency>
+      <groupId>com.github.package-url</groupId>
+      <artifactId>packageurl-java</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>test-common</artifactId>
       <scope>test</scope>

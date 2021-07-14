@@ -59,6 +59,8 @@ public class ArtifactRSQLMapper extends AbstractRSQLMapper<Integer, Artifact> {
                 return Artifact_.id;
             case "identifier":
                 return Artifact_.identifier;
+            case "purl":
+                return Artifact_.purl;
             case "md5":
                 return Artifact_.md5;
             case "sha1":
