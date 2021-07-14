@@ -70,6 +70,7 @@ public class Artifact extends ArtifactRef {
             Build build,
             String id,
             String identifier,
+            String purl,
             ArtifactQuality artifactQuality,
             BuildCategory buildCategory,
             String md5,
@@ -90,6 +91,7 @@ public class Artifact extends ArtifactRef {
         super(
                 id,
                 identifier,
+                purl,
                 artifactQuality,
                 buildCategory,
                 md5,

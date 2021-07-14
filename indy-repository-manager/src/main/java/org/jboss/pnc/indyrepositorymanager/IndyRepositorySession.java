@@ -54,6 +54,10 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.packageurl.MalformedPackageURLException;
+import com.github.packageurl.PackageURL;
+import com.github.packageurl.PackageURLBuilder;
+
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -71,6 +75,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.commonjava.indy.model.core.GenericPackageTypeDescriptor.GENERIC_PKG_KEY;
 import static org.commonjava.indy.pkg.maven.model.MavenPackageTypeDescriptor.MAVEN_PKG_KEY;
 import static org.commonjava.indy.pkg.npm.model.NPMPackageTypeDescriptor.NPM_PKG_KEY;
@@ -340,6 +345,7 @@ public class IndyRepositorySession implements RepositorySession {
             String path = download.getPath();
             if (artifactFilter.acceptsForData(download)) {
                 String identifier = computeIdentifier(download);
+                String purl = computePurl(download);
 
                 logger.info("Recording download: {}", identifier);
 
@@ -361,6 +367,7 @@ public class IndyRepositorySession implements RepositorySession {
                         .importDate(Date.from(Instant.now()))
                         .filename(new File(path).getName())
                         .identifier(identifier)
+                        .purl(purl)
                         .targetRepository(targetRepository);
 
                 Artifact artifact = validateArtifact(artifactBuilder.build());
@@ -619,6 +626,7 @@ public class IndyRepositorySession implements RepositorySession {
 
                 if (artifactFilter.acceptsForData(upload)) {
                     String identifier = computeIdentifier(upload);
+                    String purl = computePurl(upload);
 
                     logger.info("Recording upload: {}", identifier);
 
@@ -634,6 +642,7 @@ public class IndyRepositorySession implements RepositorySession {
                             .deployPath(upload.getPath())
                             .filename(new File(path).getName())
                             .identifier(identifier)
+                            .purl(purl)
                             .targetRepository(targetRepository)
                             .artifactQuality(artifactQuality)
                             .buildCategory(buildCategory);
@@ -711,6 +720,95 @@ public class IndyRepositorySession implements RepositorySession {
     }
 
     /**
+     * Computes purl string for an artifact.
+     *
+     * @param transfer the download or upload that we want to generate identifier for
+     * @return generated purl
+     */
+    private String computePurl(final TrackedContentEntryDTO transfer) {
+        String purl = null;
+
+        try {
+            switch (transfer.getStoreKey().getPackageType()) {
+                case MAVEN_PKG_KEY:
+
+                    ArtifactPathInfo pathInfo = ArtifactPathInfo.parse(transfer.getPath());
+                    if (pathInfo != null) {
+                        // See https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst#maven
+                        PackageURLBuilder purlBuilder = PackageURLBuilder.aPackageURL()
+                                .withType(PackageURL.StandardTypes.MAVEN)
+                                .withNamespace(pathInfo.getProjectId().getGroupId())
+                                .withName(pathInfo.getProjectId().getArtifactId())
+                                .withVersion(pathInfo.getVersion())
+                                .withQualifier(
+                                        "type",
+                                        StringUtils.isEmpty(pathInfo.getType()) ? "jar" : pathInfo.getType());
+
+                        if (!StringUtils.isEmpty(pathInfo.getClassifier())) {
+                            purlBuilder.withQualifier("classifier", pathInfo.getClassifier());
+                        }
+                        purl = purlBuilder.build().toString();
+                    }
+                    break;
+
+                case NPM_PKG_KEY:
+
+                    NpmPackagePathInfo npmPathInfo = NpmPackagePathInfo.parse(transfer.getPath());
+                    if (npmPathInfo != null) {
+                        // See https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst#npm
+                        PackageURLBuilder purlBuilder = PackageURLBuilder.aPackageURL()
+                                .withType(PackageURL.StandardTypes.NPM)
+                                .withVersion(npmPathInfo.getVersion().toString());
+
+                        String[] scopeAndName = npmPathInfo.getName().split("/");
+                        if (scopeAndName != null && scopeAndName.length > 0) {
+                            if (scopeAndName.length == 1) {
+                                // No scope
+                                purlBuilder.withName(scopeAndName[0]);
+
+                                purl = purlBuilder.build().toString();
+                            } else if (scopeAndName.length == 2) {
+                                // Scoped package
+                                purlBuilder.withNamespace(scopeAndName[0].replace("@", ""));
+                                purlBuilder.withName(scopeAndName[1]);
+
+                                purl = purlBuilder.build().toString();
+                            }
+                        }
+                    }
+                    break;
+
+                case GENERIC_PKG_KEY:
+                    // handle generic downloads along with other invalid download paths for other package types
+                    break;
+
+                default:
+                    // do not do anything by default
+                    logger.warn(
+                            "Package type {} is not handled by Indy repository session.",
+                            transfer.getStoreKey().getPackageType());
+                    break;
+            }
+
+            if (purl == null) {
+                purl = computeGenericPurl(
+                        transfer.getPath(),
+                        transfer.getOriginUrl(),
+                        transfer.getLocalUrl(),
+                        transfer.getSha256());
+            }
+
+        } catch (MalformedPackageURLException ex) {
+            logger.error(
+                    "Cannot calculate purl for path {}. Reason given was: {}.",
+                    transfer.getPath(),
+                    ex.getMessage(),
+                    ex);
+        }
+        return purl;
+    }
+
+    /**
      * Compute the identifier string for a generic download, that does not match package type specific files structure.
      * It prefers to use the origin URL if it is not empty. In case it is then it uses local URL, which can never be
      * empty, it is the local file mirror in Indy. After that it attaches the sha256 separated by a pipe.
@@ -728,6 +826,32 @@ public class IndyRepositorySession implements RepositorySession {
         }
         identifier += '|' + sha256;
         return identifier;
+    }
+
+    /**
+     * Compute the purl string for a generic download, that does not match package type specific files structure. It
+     * prefers to use the origin URL if it is not empty. In case it is then it uses local URL, which can never be empty,
+     * it is the local file mirror in Indy. After that it attaches the sha256 separated by a pipe.
+     *
+     * @param originUrl the origin URL of the transfer, it can be null
+     * @param localUrl url where the artifact was backed up in Indy
+     * @param sha256 the SHA-256 of the transfer
+     * @return the generated purl
+     * @throws MalformedPackageURLException
+     */
+    private String computeGenericPurl(String path, String originUrl, String localUrl, String sha256)
+            throws MalformedPackageURLException {
+        // See https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst#generic
+        String name = new File(path).getName();
+        String downloadUrl = originUrl != null ? originUrl : localUrl;
+
+        PackageURLBuilder purlBuilder = PackageURLBuilder.aPackageURL()
+                .withType(PackageURL.StandardTypes.GENERIC)
+                .withName(name)
+                .withQualifier("download_url", downloadUrl)
+                .withQualifier("checksum", "sha256:" + sha256);
+
+        return purlBuilder.build().toString();
     }
 
     /**
