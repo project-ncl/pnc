@@ -761,19 +761,17 @@ public class IndyRepositorySession implements RepositorySession {
                                 .withVersion(npmPathInfo.getVersion().toString());
 
                         String[] scopeAndName = npmPathInfo.getName().split("/");
-                        if (scopeAndName != null && scopeAndName.length > 0) {
-                            if (scopeAndName.length == 1) {
-                                // No scope
-                                purlBuilder.withName(scopeAndName[0]);
+                        if (scopeAndName.length == 1) {
+                            // No scope
+                            purlBuilder.withName(scopeAndName[0]);
 
-                                purl = purlBuilder.build().toString();
-                            } else if (scopeAndName.length == 2) {
-                                // Scoped package
-                                purlBuilder.withNamespace(scopeAndName[0].replace("@", ""));
-                                purlBuilder.withName(scopeAndName[1]);
+                            purl = purlBuilder.build().toString();
+                        } else if (scopeAndName.length == 2) {
+                            // Scoped package
+                            purlBuilder.withNamespace(scopeAndName[0].replace("@", ""));
+                            purlBuilder.withName(scopeAndName[1]);
 
-                                purl = purlBuilder.build().toString();
-                            }
+                            purl = purlBuilder.build().toString();
                         }
                     }
                     break;
