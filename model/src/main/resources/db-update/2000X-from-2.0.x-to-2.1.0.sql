@@ -16,14 +16,15 @@
 -- limitations under the License.
 --
 
--- [NCL-6158]: Introduce new field BuildConfiguration.brewPullActive, which defaults to false
+-- [NCL-6158]: Introduce new field BuildConfiguration.brewPullActive, which defaults to false, but existing records
+-- should have it active
 BEGIN transaction;
     ALTER TABLE buildconfiguration ADD COLUMN brewpullactive boolean;
-    UPDATE buildconfiguration SET brewPullActive=false;
+    UPDATE buildconfiguration SET brewPullActive=true;
     ALTER TABLE buildconfiguration ALTER COLUMN brewpullactive SET NOT NULL;
 
     ALTER TABLE buildconfiguration_aud ADD COLUMN brewpullactive boolean;
-    UPDATE buildconfiguration SET brewPullActive=false;
+    UPDATE buildconfiguration SET brewPullActive=true;
 COMMIT;
 
 BEGIN transaction;
