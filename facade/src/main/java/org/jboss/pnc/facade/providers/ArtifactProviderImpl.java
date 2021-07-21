@@ -43,10 +43,10 @@ import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
+import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,9 +60,10 @@ import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
@@ -84,6 +85,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha2
  */
 @PermitAll
 @Stateless
+@SuppressWarnings("deprecation")
 public class ArtifactProviderImpl
         extends AbstractUpdatableProvider<Integer, Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
         implements ArtifactProvider {
@@ -109,10 +111,6 @@ public class ArtifactProviderImpl
 
     private static final String MVN_BLACKLIST_JSON_PAYLOAD = "{\"groupId\":\"%s\",\"artifactId\":\"%s\",\"version\":\"%s\"}";
 
-    private BuildRecordRepository buildRecordRepository;
-
-    private final TargetRepositoryRepository targetRepositoryRepository;
-
     private ArtifactRevisionMapper artifactRevisionMapper;
 
     private ArtifactAuditedRepository artifactAuditedRepository;
@@ -131,15 +129,11 @@ public class ArtifactProviderImpl
             ArtifactRepository repository,
             ArtifactMapper mapper,
             ArtifactRevisionMapper artifactRevisionMapper,
-            BuildRecordRepository buildRecordRepository,
-            TargetRepositoryRepository targetRepositoryRepository,
             ArtifactAuditedRepository artifactAuditedRepository,
             BlacklistAsyncInvoker blacklistAsyncInvoker,
             UserService userService,
             UserMapper userMapper) {
         super(repository, mapper, Artifact.class);
-        this.buildRecordRepository = buildRecordRepository;
-        this.targetRepositoryRepository = targetRepositoryRepository;
         this.artifactRevisionMapper = artifactRevisionMapper;
         this.artifactAuditedRepository = artifactAuditedRepository;
         this.blacklistAsyncInvoker = blacklistAsyncInvoker;
@@ -187,7 +181,11 @@ public class ArtifactProviderImpl
                 .map(this::mapTupleToArtifactInfo)
                 .collect(Collectors.toList());
 
-        return new Page<>(pageIndex, pageSize, artifacts.size(), artifacts);
+        Predicate<Artifact>[] predicates = getPredicates(identifierPattern, qualities, repoType, buildCategories);
+        int totalHits = repository.count(predicates);
+        int totalPages = (totalHits + pageSize - 1) / pageSize;
+
+        return new Page<>(pageIndex, pageSize, totalPages, totalHits, artifacts);
     }
 
     @Override
@@ -338,27 +336,60 @@ public class ArtifactProviderImpl
                 artifact.get(Artifact_.id),
                 artifact.get(Artifact_.identifier),
                 artifact.get(Artifact_.artifactQuality),
-                repository.get(TargetRepository_.REPOSITORY_TYPE),
+                repository.get(TargetRepository_.repositoryType),
                 artifact.get(Artifact_.buildCategory));
 
-        Predicate withIdentifierLike = identifierPattern.isPresent()
+        javax.persistence.criteria.Predicate withIdentifierLike = identifierPattern.isPresent()
                 ? cb.like(artifact.get(Artifact_.identifier), identifierPattern.get().replace("*", "%"))
                 : cb.and();
 
-        Predicate withQualityIn = !qualities.isEmpty() ? artifact.get(Artifact_.ARTIFACT_QUALITY).in(qualities)
+        javax.persistence.criteria.Predicate withQualityIn = !qualities.isEmpty()
+                ? artifact.get(Artifact_.artifactQuality).in(qualities)
                 : cb.and();
 
-        Predicate withBuildCategoryIn = !buildCategories.isEmpty()
-                ? artifact.get(Artifact_.BUILD_CATEGORY).in(buildCategories)
+        javax.persistence.criteria.Predicate withBuildCategoryIn = !buildCategories.isEmpty()
+                ? artifact.get(Artifact_.buildCategory).in(buildCategories)
                 : cb.and();
 
-        Predicate withRepoType = repoType.isPresent() ? cb
-                .equal(artifact.join(Artifact_.targetRepository).get(TargetRepository_.REPOSITORY_TYPE), repoType.get())
+        javax.persistence.criteria.Predicate withRepoType = repoType.isPresent() ? cb
+                .equal(artifact.join(Artifact_.targetRepository).get(TargetRepository_.repositoryType), repoType.get())
                 : cb.and();
 
         query.where(cb.and(withIdentifierLike, withQualityIn, withRepoType, withBuildCategoryIn));
 
         return query;
+    }
+
+    private Predicate<Artifact>[] getPredicates(
+            Optional<String> identifierPattern,
+            Set<ArtifactQuality> qualities,
+            Optional<RepositoryType> repoType,
+            Set<BuildCategory> buildCategories) {
+
+        List<Predicate<Artifact>> predicates = new ArrayList<>(4);
+
+        if (identifierPattern.isPresent()) {
+            Predicate<Artifact> withIdentifierLike = ArtifactPredicates
+                    .withIdentifierLike(identifierPattern.get().replace("*", "%"));
+            predicates.add(withIdentifierLike);
+        }
+
+        if (!qualities.isEmpty()) {
+            Predicate<Artifact> withQualityIn = ArtifactPredicates.withArtifactQualityIn(qualities);
+            predicates.add(withQualityIn);
+        }
+
+        if (!buildCategories.isEmpty()) {
+            Predicate<Artifact> withBuildCategoryIn = ArtifactPredicates.withBuildCategoryIn(buildCategories);
+            predicates.add(withBuildCategoryIn);
+        }
+
+        if (repoType.isPresent()) {
+            Predicate<Artifact> withRepoType = ArtifactPredicates.withTargetRepositoryRepositoryType(repoType.get());
+            predicates.add(withRepoType);
+        }
+
+        return predicates.toArray(new Predicate[predicates.size()]);
     }
 
     private ArtifactInfo mapTupleToArtifactInfo(Tuple tuple) {

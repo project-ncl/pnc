@@ -18,6 +18,9 @@
 package org.jboss.pnc.spi.datastore.predicates;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.Base32LongID;
@@ -36,7 +39,16 @@ import org.jboss.pnc.model.TargetRepository_;
 /**
  * Predicates for {@link org.jboss.pnc.model.Artifact} entity.
  */
+@SuppressWarnings("deprecation")
 public class ArtifactPredicates {
+
+    public static Predicate<Artifact> withArtifactQualityIn(Set<ArtifactQuality> qualities) {
+        return (root, query, cb) -> root.get(Artifact_.artifactQuality).in(qualities);
+    }
+
+    public static Predicate<Artifact> withBuildCategoryIn(Set<BuildCategory> categories) {
+        return (root, query, cb) -> root.get(Artifact_.buildCategory).in(categories);
+    }
 
     public static Predicate<Artifact> withBuildRecordId(Base32LongID buildRecordId) {
         return (root, query, cb) -> cb.equal(root.join(Artifact_.buildRecord).get(BuildRecord_.id), buildRecordId);
@@ -59,6 +71,11 @@ public class ArtifactPredicates {
     public static Predicate<Artifact> withTargetRepositoryId(Integer targetRepositoryId) {
         return (root, query, cb) -> cb
                 .equal(root.join(Artifact_.targetRepository).get(TargetRepository_.id), targetRepositoryId);
+    }
+
+    public static Predicate<Artifact> withTargetRepositoryRepositoryType(RepositoryType repoType) {
+        return (root, query, cb) -> cb
+                .equal(root.join(Artifact_.targetRepository).get(TargetRepository_.repositoryType), repoType);
     }
 
     /**
@@ -92,6 +109,10 @@ public class ArtifactPredicates {
             return (root, query, cb) -> cb
                     .and(root.get(Artifact_.buildRecord).isNotNull(), root.get(Artifact_.identifier).in(identifiers));
         }
+    }
+
+    public static Predicate<Artifact> withIdentifierLike(String identifierPattern) {
+        return (root, query, cb) -> cb.like(root.get(Artifact_.identifier), identifierPattern);
     }
 
     public static Predicate<Artifact> withSha256In(Set<String> sha256s) {
