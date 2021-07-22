@@ -767,8 +767,8 @@ public class IndyRepositorySession implements RepositorySession {
 
                             purl = purlBuilder.build().toString();
                         } else if (scopeAndName.length == 2) {
-                            // Scoped package ('@' needs to be encoded, doing it manually here)
-                            purlBuilder.withNamespace(scopeAndName[0].replace("@", "%40"));
+                            // Scoped package
+                            purlBuilder.withNamespace(scopeAndName[0]);
                             purlBuilder.withName(scopeAndName[1]);
 
                             purl = purlBuilder.build().toString();
