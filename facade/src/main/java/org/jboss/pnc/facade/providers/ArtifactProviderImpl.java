@@ -339,23 +339,34 @@ public class ArtifactProviderImpl
                 repository.get(TargetRepository_.repositoryType),
                 artifact.get(Artifact_.buildCategory));
 
-        javax.persistence.criteria.Predicate withIdentifierLike = identifierPattern.isPresent()
-                ? cb.like(artifact.get(Artifact_.identifier), identifierPattern.get().replace("*", "%"))
-                : cb.and();
+        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>(4);
+        if (identifierPattern.isPresent()) {
+            javax.persistence.criteria.Predicate withIdentifierLike = cb
+                    .like(artifact.get(Artifact_.identifier), identifierPattern.get().replace("*", "%"));
+            predicates.add(withIdentifierLike);
+        }
 
-        javax.persistence.criteria.Predicate withQualityIn = !qualities.isEmpty()
-                ? artifact.get(Artifact_.artifactQuality).in(qualities)
-                : cb.and();
+        if (!qualities.isEmpty()) {
+            javax.persistence.criteria.Predicate withQualityIn = artifact.get(Artifact_.artifactQuality).in(qualities);
+            predicates.add(withQualityIn);
+        }
 
-        javax.persistence.criteria.Predicate withBuildCategoryIn = !buildCategories.isEmpty()
-                ? artifact.get(Artifact_.buildCategory).in(buildCategories)
-                : cb.and();
+        if (!buildCategories.isEmpty()) {
+            javax.persistence.criteria.Predicate withBuildCategoryIn = artifact.get(Artifact_.buildCategory)
+                    .in(buildCategories);
+            predicates.add(withBuildCategoryIn);
+        }
 
-        javax.persistence.criteria.Predicate withRepoType = repoType.isPresent() ? cb
-                .equal(artifact.join(Artifact_.targetRepository).get(TargetRepository_.repositoryType), repoType.get())
-                : cb.and();
+        if (repoType.isPresent()) {
+            javax.persistence.criteria.Predicate withRepoType = cb.equal(
+                    artifact.join(Artifact_.targetRepository).get(TargetRepository_.repositoryType),
+                    repoType.get());
+            predicates.add(withRepoType);
+        }
 
-        query.where(cb.and(withIdentifierLike, withQualityIn, withRepoType, withBuildCategoryIn));
+        query.where(cb.and(predicates.toArray(new javax.persistence.criteria.Predicate[predicates.size()])));
+
+        query.orderBy(cb.asc(artifact.get(Artifact_.id)));
 
         return query;
     }
