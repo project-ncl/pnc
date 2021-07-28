@@ -93,6 +93,7 @@ import static org.jboss.pnc.indyrepositorymanager.IndyRepositoryConstants.TEMPOR
  * @author <a href="mailto:jdcasey@commonjava.org">John Casey</a>
  */
 @ApplicationScoped
+@SuppressWarnings("deprecation")
 public class RepositoryManagerDriver implements RepositoryManager {
 
     /** Store key of gradle-plugins remote repository. */
@@ -292,8 +293,11 @@ public class RepositoryManagerDriver implements RepositoryManager {
                     deployUrl = UrlUtils.replaceHostInUrl(deployUrl, INDY_SIDECAR_URL);
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(
-                            "Indy sidecar url ('%s') or Indy urls ('%s', '%s') are url malformed!"
-                                    .format(INDY_SIDECAR_URL, url, deployUrl));
+                            String.format(
+                                    "Indy sidecar url ('%s') or Indy urls ('%s', '%s') are malformed!",
+                                    INDY_SIDECAR_URL,
+                                    url,
+                                    deployUrl));
                 }
             }
 
