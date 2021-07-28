@@ -26,6 +26,7 @@ import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
 import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
+import org.jboss.pnc.common.Numbers;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -133,15 +134,19 @@ public class ProductMilestoneReleaseManager {
         return productMilestoneReleaseRepository.save(release);
     }
 
-    public void cancel(ProductMilestone milestoneInDb) {
-        Collection<BpmTask> activeTasks = bpmManager.getActiveTasks();
-        Optional<MilestoneReleaseTask> milestoneReleaseTask = activeTasks.stream()
-                .map(task -> (MilestoneReleaseTask) task)
-                .filter(task -> task.getMilestone().getId().equals(milestoneInDb.getId()))
-                .findAny();
-
-        if (milestoneReleaseTask.isPresent()) {
-            bpmManager.cancelTask(milestoneReleaseTask.get());
+    public void cancel(ProductMilestone milestoneInDb, String accessToken, boolean useRHPAM) {
+        if (!useRHPAM) {
+            Collection<BpmTask> activeTasks = bpmManager.getActiveTasks();
+            Optional<MilestoneReleaseTask> milestoneReleaseTask = activeTasks.stream()
+                    .map(task -> (MilestoneReleaseTask) task)
+                    .filter(task -> task.getMilestone().getId().equals(milestoneInDb.getId()))
+                    .findAny();
+            if (milestoneReleaseTask.isPresent()) {
+                bpmManager.cancelTask(milestoneReleaseTask.get());
+            }
+        } else {
+            RestConnector restConnector = new RestConnector(bpmConfig);
+            restConnector.cancelByCorrelation(Numbers.decimalToBase32(milestoneInDb.getId()), accessToken);
         }
 
         ProductMilestoneRelease milestoneRelease = productMilestoneReleaseRepository
@@ -188,6 +193,7 @@ public class ProductMilestoneReleaseManager {
             restConnector.startProcess(
                     bpmConfig.getBpmNewReleaseProcessId(),
                     releaseTask.getExtendedProcessParameters(),
+                    Numbers.decimalToBase32(milestoneReleaseId),
                     accessToken);
             return release;
         } catch (CoreException | ProcessManagerException e) {

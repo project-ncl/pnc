@@ -47,6 +47,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -238,7 +240,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         provider.cancelMilestoneCloseProcess(mock.getId().toString());
 
         // then
-        verify(releaseManager, times(1)).cancel(any());
+        verify(releaseManager, times(1)).cancel(any(), anyString(), anyBoolean());
     }
 
     @Test
