@@ -75,6 +75,12 @@
     <dependency>
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-promote-client-java</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.enterprise</groupId>
+          <artifactId>cdi-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.commonjava.indy</groupId>

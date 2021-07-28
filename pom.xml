@@ -103,7 +103,7 @@
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
     <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.1.0</atlasVersion>
-    <indyVersion>2.5.4</indyVersion>
+    <indyVersion>2.6.0</indyVersion>
     <version.assertj-core>3.18.1</version.assertj-core>
     <version.mockito>3.8.0</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>

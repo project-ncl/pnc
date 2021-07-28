@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.indyrepositorymanager.fixture;
 
+import org.commonjava.indy.core.expire.DefaultScheduleManager;
 import org.commonjava.indy.core.expire.ScheduleManager;
 import org.commonjava.indy.inject.TestData;
 import org.commonjava.indy.model.core.io.IndyObjectMapper;
@@ -43,7 +44,7 @@ public class Producer {
         PasswordManager passman = new AttributePasswordManager();
         http = new HttpImpl(passman);
 
-        scheduleManager = new ScheduleManager();
+        scheduleManager = new DefaultScheduleManager();
     }
 
     // @Produces
