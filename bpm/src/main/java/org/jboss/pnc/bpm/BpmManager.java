@@ -213,6 +213,10 @@ public class BpmManager {
         return result.size() == 1 ? result.get(0) : null;
     }
 
+    /**
+     * @deprecated use stateless RestConnector
+     */
+    @Deprecated
     public Collection<BpmTask> getActiveTasks() {
         return Collections.unmodifiableCollection(new HashSet<>(tasks.values()));
     }

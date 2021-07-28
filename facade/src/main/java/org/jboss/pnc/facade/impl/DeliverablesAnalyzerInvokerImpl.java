@@ -51,8 +51,7 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
 
     private BpmModuleConfig bpmConfig;
 
-    // TODO enter the actual endpoint once ready
-    private String callbackUrlTemplate = "%s/product-milestones/%s/TODO";
+    private String callbackUrlTemplate = "%s/deliverable-analysis/complete";
 
     @Inject
     public DeliverablesAnalyzerInvokerImpl(
@@ -68,7 +67,7 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
     public void startAnalysis(String milestoneId, DeliverablesAnalysisRequest request) {
         String accessToken = userService.currentUserToken();
 
-        String actualEndpoint = String.format(callbackUrlTemplate, globalConfig.getPncUrl(), milestoneId);
+        String actualEndpoint = String.format(callbackUrlTemplate, globalConfig.getPncUrl());
         URI callbackURI = URI.create(actualEndpoint);
 
         List<Request.Header> headers = new ArrayList<>();

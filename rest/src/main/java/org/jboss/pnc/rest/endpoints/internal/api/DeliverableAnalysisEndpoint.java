@@ -17,23 +17,19 @@
  */
 package org.jboss.pnc.rest.endpoints.internal.api;
 
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
-import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
-import org.jboss.pnc.dto.tasks.RepositoryCreationResult;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 
 /**
  * This endpoint is used for interacting with Deliverable Analyzer processes.

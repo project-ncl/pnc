@@ -210,13 +210,16 @@ public class ProductMilestoneProviderImpl extends
             userLog.info("Milestone is already closed.");
             throw new RepositoryViolationException("Milestone is already closed!");
         } else {
+            boolean useRHPAM = bpmConfig.isNewBpmForced() || userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW);
+            log.debug("Using RHPAM server: {}", useRHPAM);
+
             if (releaseManager.noReleaseInProgress(milestoneInDb)) {
                 userLog.warn(
                         "Milestone's 'end date' set and no release in progress! Cannot run cancel process for given id");
                 throw new EmptyEntityException("No running cancel process for given id.");
             } else {
                 userLog.info("Cancelling milestone release process ...");
-                releaseManager.cancel(milestoneInDb);
+                releaseManager.cancel(milestoneInDb, userService.currentUserToken(), useRHPAM);
             }
         }
     }
