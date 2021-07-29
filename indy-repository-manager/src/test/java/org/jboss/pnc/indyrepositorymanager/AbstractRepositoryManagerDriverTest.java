@@ -174,7 +174,14 @@ public class AbstractRepositoryManagerDriverTest {
     protected final void initBaseTestConfig(CoreServerFixture fixture) throws IOException {
         writeConfigFile(
                 "main.conf",
-                "standalone=true\nnfc.provider=ispn\n[storage-default]\nstorage.dir=" + storageDir);
+                "standalone=true\n"
+                        + "nfc.provider=ispn\n"
+                        + "[storage-default]\n"
+                        + "storage.dir=" + storageDir + "\n"
+                        + "[durable-state]\n"
+                        + "folo.storage=infinispan\n"
+                        + "store.storage=infinispan\n"
+                        + "schedule.storage=infinispan");
         writeConfigFile("conf.d/scheduler.conf", "[scheduler]\nenabled=false");
         writeConfigFile("conf.d/threadpools.conf", "[threadpools]\nenabled=false");
     }
