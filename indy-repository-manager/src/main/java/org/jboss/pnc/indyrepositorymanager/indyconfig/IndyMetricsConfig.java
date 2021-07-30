@@ -1,4 +1,4 @@
-package org.jboss.pnc.indyrepositorymanager;
+package org.jboss.pnc.indyrepositorymanager.indyconfig;
 
 import org.commonjava.o11yphant.metrics.conf.ConsoleConfig;
 import org.commonjava.o11yphant.metrics.conf.ELKConfig;
