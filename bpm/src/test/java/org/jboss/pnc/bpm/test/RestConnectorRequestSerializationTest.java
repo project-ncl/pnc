@@ -37,12 +37,9 @@ import org.slf4j.MDC;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
-
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
@@ -115,7 +112,7 @@ public class RestConnectorRequestSerializationTest {
         urls.add(url1);
         urls.add(url2);
         String config = "config";
-        AnalyzeDeliverablesBpmRequest request = new AnalyzeDeliverablesBpmRequest(urls, config);
+        AnalyzeDeliverablesBpmRequest request = new AnalyzeDeliverablesBpmRequest("id", urls, config);
         List<Request.Header> headers = new ArrayList<>();
         headers.add(new Request.Header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
 

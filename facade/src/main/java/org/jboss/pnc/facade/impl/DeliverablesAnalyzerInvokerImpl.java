@@ -78,6 +78,7 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
 
         try (RestConnector restConnector = new RestConnector(bpmConfig)) {
             AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
+                    milestoneId,
                     request.getSourcesLink(),
                     null);
             AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(

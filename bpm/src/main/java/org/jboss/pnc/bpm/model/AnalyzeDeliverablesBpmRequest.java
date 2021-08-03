@@ -19,8 +19,6 @@ package org.jboss.pnc.bpm.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
@@ -30,6 +28,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class AnalyzeDeliverablesBpmRequest implements Serializable {
+    private final String milestoneId;
     private final List<String> urls;
     private final String config;
 }
