@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,11 +83,11 @@ public class RestConnector implements Connector {
         log.debug("Staring new process using http endpoint: {}", url);
 
         Map<String, Object> processParameters = new HashMap<>();
+        processParameters.put("auth", Collections.singletonMap("token", accessToken));
         processParameters.put("mdc", new MDCParameters());
         processParameters.put("task", requestObject);
 
-        Map<String, Map<String, Object>> body = new HashMap<>();
-        body.put("initData", processParameters);
+        Map<String, Map<String, Object>> body = Collections.singletonMap("initData", processParameters);
 
         HttpEntity requestEntity;
         try {
