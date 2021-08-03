@@ -91,17 +91,12 @@ public class RestConnector implements Connector {
     @Override
     public Long startProcess(String processId, Object requestObject, String accessToken)
             throws ProcessManagerException {
-        return startProcess(processId, requestObject, null, Sequence.nextBase32Id());
+        return startProcess(processId, requestObject, Sequence.nextBase32Id(), accessToken);
     }
 
     public Long startProcess(String processId, Object requestObject, String correlationKey, String accessToken)
             throws ProcessManagerException {
-        HttpPost request;
-        if (correlationKey != null) {
-            request = endpointUrl.startProcessInstance(currentDeploymentId, processId, correlationKey);
-        } else {
-            request = endpointUrl.startProcessInstance(currentDeploymentId, processId);
-        }
+        HttpPost request = endpointUrl.startProcessInstance(currentDeploymentId, processId, correlationKey);
         log.debug("Staring new process using http endpoint: {}", request.getURI());
 
         Map<String, Object> processParameters = new HashMap<>();
