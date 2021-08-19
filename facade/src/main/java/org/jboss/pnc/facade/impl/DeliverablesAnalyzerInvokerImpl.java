@@ -26,14 +26,18 @@ import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
+import org.jboss.pnc.enums.AnalysisStatus;
 import org.jboss.pnc.facade.DeliverablesAnalyzerInvoker;
+import org.jboss.pnc.facade.deliverables.DefaultAnalysisStatusChangedEvent;
 import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.facade.deliverables.AnalysisStatusChangedEvent;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import java.net.URI;
@@ -53,14 +57,18 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
 
     private String callbackUrlTemplate = "%s/deliverable-analysis/complete";
 
+    private final Event<AnalysisStatusChangedEvent> analysisStatusChangedEventNotifier;
+
     @Inject
     public DeliverablesAnalyzerInvokerImpl(
             UserService userService,
             GlobalModuleGroup globalConfig,
-            BpmModuleConfig bpmConfig) {
+            BpmModuleConfig bpmConfig,
+            Event<AnalysisStatusChangedEvent> analysisStatusChangedEventNotifier) {
         this.userService = userService;
         this.globalConfig = globalConfig;
         this.bpmConfig = bpmConfig;
+        this.analysisStatusChangedEventNotifier = analysisStatusChangedEventNotifier;
     }
 
     @Override
@@ -87,6 +95,12 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
                     globalConfig.getDelAnalUrl());
 
             restConnector.startProcess(bpmConfig.getAnalyzeDeliverablesBpmProcessId(), analyzeTask, accessToken);
+
+            AnalysisStatusChangedEvent analysisStatusChanged = new DefaultAnalysisStatusChangedEvent(
+                    AnalysisStatus.STARTED,
+                    milestoneId,
+                    request.getSourcesLink());
+            analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
         } catch (ProcessManagerException e) {
             log.error("Error trying to start analysis of deliverables task for milestone: {}", milestoneId, e);
             throw new RuntimeException(e);
