@@ -26,6 +26,7 @@ import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.jboss.pnc.common.util.ProcessStageUtils;
+import org.jboss.pnc.common.util.Quicksort;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.dto.Build;
@@ -64,6 +65,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -329,11 +331,34 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             // records
             if (!BuildSetStatus.REJECTED.equals(buildSetTask.getStatus())) {
                 buildQueue.enqueueTaskSet(buildSetTask);
-                buildSetTask.getBuildTasks().stream().sorted(this::dependantsFirst).forEach(this::addTaskToBuildQueue);
+                List<BuildTask> toSort = new ArrayList<>(buildSetTask.getBuildTasks());
+                // [NCLSUP-393] Don't use default Java Timsort because our Comparator method is not stable. We use
+                // our homemade quicksort instead that doesn't check if our comparator is stable
+                Quicksort.quicksort(toSort, this::dependantsFirst);
+                toSort.forEach(this::addTaskToBuildQueue);
             }
         }
     }
 
+    /**
+     * Compare between tasks to put dependants at the beginning. This method is unfortunately not stable since it allows
+     * this scenario: if task1 depends on task2, and task3 doesn't depend on any tasks, then this comparator allows for
+     * this:
+     * <ul>
+     * <li>task1 = task3</li>
+     * <li>task2 = task3</li>
+     * <li>task1 &lt; task3</li>
+     * </ul>
+     *
+     * If both task1 and task2 = task3, it would infer that task1 = task3. Alas, this is not the case for this
+     * comparison and it makes Java's default sort implementation upset (Error is: Comparison method violates its
+     * general contract!) NCLSUP-393 describes the issue.
+     *
+     * @param task1 first task to compare
+     * @param task2 second task to compare
+     * @return -1 if task1 should be before task2, 0 if task1 = task2, 1 if task1 should be after task2
+     *
+     */
     private int dependantsFirst(BuildTask task1, BuildTask task2) {
         if (task1.getDependencies().contains(task2)) {
             return -1;
