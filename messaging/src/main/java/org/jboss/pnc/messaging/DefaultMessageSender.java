@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.messaging;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.messaging.spi.Message;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
@@ -41,9 +42,11 @@ import java.util.Map;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @Singleton
+@Slf4j
 public class DefaultMessageSender implements MessageSender {
 
     private Logger logger = LoggerFactory.getLogger(DefaultMessageSender.class);
+    private static final int DEFAULT_MESSAGE_SEND_RETRIES = 3;
 
     @Resource(mappedName = "java:/ConnectionFactory")
     protected ConnectionFactory connectionFactory;
@@ -111,6 +114,10 @@ public class DefaultMessageSender implements MessageSender {
      * @throws MessagingRuntimeException
      */
     protected void doSendMessage(String message, Map<String, String> headers) {
+        doSendMessagePrivate(message, headers, DEFAULT_MESSAGE_SEND_RETRIES);
+    }
+
+    private void doSendMessagePrivate(String message, Map<String, String> headers, int retries) {
         Session session = null;
         MessageProducer messageProducer = null;
         try {
@@ -118,9 +125,17 @@ public class DefaultMessageSender implements MessageSender {
             messageProducer = session.createProducer(destination);
             sendUsingProducer(message, headers, session, messageProducer);
         } catch (Exception e) {
-            throw new MessagingRuntimeException(
-                    "Cannot send the message: " + message + "; with headers: " + headers + ".",
-                    e);
+            if (retries <= 1) {
+                // give up
+                throw new MessagingRuntimeException(
+                        "Cannot send the message: " + message + "; with headers: " + headers + ".",
+                        e);
+            } else {
+                sleep(retries);
+                // try to set up a new connection on exception for the next message
+                init();
+                doSendMessagePrivate(message, headers, retries - 1);
+            }
         } finally {
             if (session != null) {
                 try {
@@ -170,6 +185,30 @@ public class DefaultMessageSender implements MessageSender {
             messageProducer.send(textMessage);
         } catch (JMSException e) {
             throw new MessagingRuntimeException(e);
+        }
+    }
+
+    /**
+     * Sleep exponentially as the number of retries decrease, up till max back-off time of 1024 millisecond
+     *
+     * @param retries
+     */
+    private static void sleep(int retries) {
+        int sleepMilli = (int) Math.min(Math.pow(2, (double) 10 / retries) * 10, 1024);
+        waitForNoException(sleepMilli);
+    }
+
+    /**
+     * Wrapper Thread.sleep function where no exceptions are thrown
+     *
+     * @param millis time to sleep
+     */
+    public static void waitForNoException(long millis) {
+
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            log.warn("Sleeping was interrupted", e);
         }
     }
 }
