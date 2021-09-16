@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.endpoints;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
@@ -29,6 +30,7 @@ import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.facade.DeliverablesAnalyzerInvoker;
+import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneCloseResultProvider;
@@ -53,6 +55,9 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
     private ProductMilestoneCloseResultProvider productMilestoneCloseResultProvider;
+
+    @Inject
+    private ArtifactProvider artifactProvider;
 
     @Inject
     private BuildProvider buildProvider;
@@ -128,6 +133,16 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
                     filterParams.isLatest(),
                     filterParams.isRunning());
         }
+    }
+
+    @Override
+    public Page<Artifact> getDeliveredArtifacts(String id, PageParameters pageParams) {
+        return artifactProvider.getDeliveredArtifactsForMilestone(
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ(),
+                id);
     }
 
     @Override
