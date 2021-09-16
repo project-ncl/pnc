@@ -27,6 +27,7 @@ import org.jboss.pnc.client.ProductVersionClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
+import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -309,4 +310,12 @@ public class ProductMilestoneEndpointTest {
         assertThat(all).hasSize(1);
     }
 
+    @Test
+    public void testGetDeliveredArtifacts() throws ClientException {
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
+
+        assertThat(all).hasSize(3);
+    }
 }

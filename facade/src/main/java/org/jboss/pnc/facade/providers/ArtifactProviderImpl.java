@@ -36,6 +36,7 @@ import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.ArtifactAudited;
@@ -76,6 +77,7 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDistributedInProductMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
@@ -113,6 +115,8 @@ public class ArtifactProviderImpl
 
     private ArtifactRevisionMapper artifactRevisionMapper;
 
+    private ProductMilestoneMapper productMilestoneMapper;
+
     private ArtifactAuditedRepository artifactAuditedRepository;
 
     private BlacklistAsyncInvoker blacklistAsyncInvoker;
@@ -129,12 +133,14 @@ public class ArtifactProviderImpl
             ArtifactRepository repository,
             ArtifactMapper mapper,
             ArtifactRevisionMapper artifactRevisionMapper,
+            ProductMilestoneMapper productMilestoneMapper,
             ArtifactAuditedRepository artifactAuditedRepository,
             BlacklistAsyncInvoker blacklistAsyncInvoker,
             UserService userService,
             UserMapper userMapper) {
         super(repository, mapper, Artifact.class);
         this.artifactRevisionMapper = artifactRevisionMapper;
+        this.productMilestoneMapper = productMilestoneMapper;
         this.artifactAuditedRepository = artifactAuditedRepository;
         this.blacklistAsyncInvoker = blacklistAsyncInvoker;
         this.userService = userService;
@@ -295,6 +301,21 @@ public class ArtifactProviderImpl
                 sortingRsql,
                 query,
                 withDependantBuildRecordId(BuildMapper.idMapper.toEntity(buildId)));
+    }
+
+    @Override
+    public Page<org.jboss.pnc.dto.Artifact> getDeliveredArtifactsForMilestone(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            String milestoneId) {
+        return queryForCollection(
+                pageIndex,
+                pageSize,
+                sortingRsql,
+                query,
+                withDistributedInProductMilestone(productMilestoneMapper.getIdMapper().toEntity(milestoneId)));
     }
 
     @Override
