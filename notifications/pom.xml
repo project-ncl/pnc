@@ -56,11 +56,6 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>rest-api</artifactId>
         </dependency>
-        <dependency> <!-- TODO do we need this -->
-            <groupId>org.jboss.pnc</groupId>
-            <artifactId>facade</artifactId>
-        </dependency>
-
 
         <!-- Java EE dependencies -->
         <dependency>

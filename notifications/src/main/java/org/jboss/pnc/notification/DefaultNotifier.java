@@ -18,15 +18,12 @@
 package org.jboss.pnc.notification;
 
 import org.jboss.pnc.common.concurrent.MDCExecutors;
-import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
-import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
@@ -38,8 +35,6 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
@@ -73,9 +68,6 @@ public class DefaultNotifier implements Notifier {
         }
     };
 
-    @Inject
-    BuildProvider buildProvider;
-
     @PostConstruct
     public void init() {
         scheduler.scheduleAtFixedRate(this::cleanUp, 1, 1, TimeUnit.HOURS);
@@ -97,11 +89,6 @@ public class DefaultNotifier implements Notifier {
     }
 
     @Override
-    public Optional<AttachedClient> getAttachedClient(String sessionId) {
-        return attachedClients.stream().filter(client -> client.getSessionId().equals(sessionId)).findAny();
-    }
-
-    @Override
     public MessageCallback getCallback() {
         return messageCallback;
     }
@@ -117,26 +104,6 @@ public class DefaultNotifier implements Notifier {
                     detachClient(client);
                 }
             }
-        }
-    }
-
-    /**
-     * Used to avoid race condition when subscribed after the task completion as the completion completion event will
-     * not be triggered again.
-     */
-    @Override //TODO do we still need this ?
-    public void onBuildStatusUpdatesSubscribe(AttachedClient client, String messagesId) {
-
-        Build build = buildProvider.getSpecific(messagesId);
-
-        if (build != null) {
-            // TODO speak to mkelnar and Jan if we can change from BuildResultRest to Build
-            client.sendMessage(build, messageCallback);
-        } else {
-            String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
-            String errorMessage = "No build for id: " + messagesId;
-            ErrorResponse error = new ErrorResponse(statusCode, errorMessage);
-            client.sendMessage(error, messageCallback);
         }
     }
 

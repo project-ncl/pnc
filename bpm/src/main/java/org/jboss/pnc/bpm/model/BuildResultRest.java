@@ -46,7 +46,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Deprecated
-//TODO do we still need this
+// TODO do we still need this
 public class BuildResultRest extends BpmEvent implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(BuildResultRest.class);
