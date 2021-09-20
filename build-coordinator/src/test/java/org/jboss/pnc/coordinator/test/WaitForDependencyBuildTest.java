@@ -114,9 +114,11 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
         Map<String, Consumer<BuildResult>> scheduledTasks = new HashMap();
 
         @Override
-        public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete)
-                throws CoreException, ExecutorException {
+        public void startBuilding(BuildTask buildTask) throws CoreException, ExecutorException {
             builtTasks.add(buildTask);
+            Consumer<BuildResult> onComplete = (buildResult -> {
+                coordinator.completeBuild(buildTask, buildResult);
+            });
             scheduledTasks.put(buildTask.getId(), onComplete);
         }
 

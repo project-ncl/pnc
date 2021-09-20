@@ -39,7 +39,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.bpm.BpmEventType.nullableValueOf;
@@ -50,6 +49,7 @@ import static org.jboss.pnc.bpm.BpmEventType.nullableValueOf;
  * @author Jakub Senko
  */
 @ApplicationScoped
+@Deprecated // use stateless approach
 public class BpmManager {
 
     private static final Logger log = LoggerFactory.getLogger(BpmManager.class);
@@ -64,8 +64,6 @@ public class BpmManager {
     private RestConnector restConnector;
 
     private static final String SIGNAL_CANCEL = "CANCELLED";
-
-    private Set<Consumer<BpmTask>> newTaskAddedSubscribes = new HashSet<>();
 
     @Deprecated
     public BpmManager() { // CDI workaround
@@ -109,10 +107,6 @@ public class BpmManager {
             task.setProcessInstanceId(processInstanceId);
             task.setProcessName(processId);
             tasks.put(task.getTaskId(), task);
-
-            log.debug("Notifying new task added {}.", task.getTaskId());
-            notifyNewTaskAdded(task);
-
             log.debug("Created new process linked to task: {}", task);
             return true;
         } catch (Exception e) {
@@ -128,14 +122,6 @@ public class BpmManager {
             task.setConnector(kieConnector);
             task.setJsonEncodedProcessParameters(true);
         }
-    }
-
-    private void notifyNewTaskAdded(BpmTask task) {
-        log.debug("Notifying {} subscribers for new task {}.", newTaskAddedSubscribes.size(), task.getTaskId());
-        newTaskAddedSubscribes.forEach(subscriber -> {
-            log.debug("Notifying subscriber {}.", subscriber.getClass());
-            subscriber.accept(task);
-        });
     }
 
     public boolean cancelTask(BpmTask bpmTask) {

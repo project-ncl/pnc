@@ -17,45 +17,35 @@
  */
 package org.jboss.pnc.notification;
 
-import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.bpm.task.BpmBuildTask;
-import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
-import org.jboss.pnc.bpm.model.BpmEvent;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
-import org.jboss.pnc.dto.notification.BuildPushResultNotification;
+import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
+import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.jboss.pnc.dto.response.ErrorResponse;
 
 /**
  * Notification mechanism for Web Sockets. All implementation details should be placed in AttachedClient.
@@ -83,33 +73,12 @@ public class DefaultNotifier implements Notifier {
         }
     };
 
-    Optional<BpmManager> bpmManager;
-
     @Inject
-    Instance<BpmManager> bpmManagerInstance;
-
-    @Inject
-    Configuration configuration;
+    BuildProvider buildProvider;
 
     @PostConstruct
     public void init() {
         scheduler.scheduleAtFixedRate(this::cleanUp, 1, 1, TimeUnit.HOURS);
-
-        String buildSchedulerId;
-        try {
-            SystemConfig systemConfig = configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class));
-            buildSchedulerId = systemConfig.getBuildSchedulerId();
-        } catch (ConfigurationParseException e) {
-            logger.warn("Cannot read system config buildSchedulerId");
-            buildSchedulerId = "does-not-match";
-        }
-
-        if (BpmBuildScheduler.schedulerId.equals(buildSchedulerId) && !bpmManagerInstance.isUnsatisfied()
-                && !bpmManagerInstance.isAmbiguous()) {
-            bpmManager = Optional.of(bpmManagerInstance.get());
-        } else {
-            bpmManager = Optional.empty();
-        }
     }
 
     @Override
@@ -151,28 +120,23 @@ public class DefaultNotifier implements Notifier {
         }
     }
 
-    @Override
-    public void onBpmProcessClientSubscribe(AttachedClient client, String messagesId) {
-        if (bpmManager.isPresent()) {
-            Optional<BpmTask> maybeTask = BpmBuildTask.getBpmTaskByBuildTaskId(bpmManager.get(), messagesId);
-            if (maybeTask.isPresent()) {
-                BpmTask bpmTask = maybeTask.get();
-                Optional<BpmEvent> maybeLastEvent = bpmTask.getEvents().stream().reduce((first, second) -> second);
-                if (maybeLastEvent.isPresent()) {
-                    BpmEvent lastBpmEvent = maybeLastEvent.get();
-                    client.sendMessage(lastBpmEvent, messageCallback);
-                } else {
-                    String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
-                    String errorMessage = "No events for id: " + messagesId;
-                    ErrorResponse error = new ErrorResponse(statusCode, errorMessage);
-                    client.sendMessage(error, messageCallback);
-                }
-            } else {
-                String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
-                String errorMessage = "No process for id: " + messagesId;
-                ErrorResponse error = new ErrorResponse(statusCode, errorMessage);
-                client.sendMessage(error, messageCallback);
-            }
+    /**
+     * Used to avoid race condition when subscribed after the task completion as the completion completion event will
+     * not be triggered again.
+     */
+    @Override //TODO do we still need this ?
+    public void onBuildStatusUpdatesSubscribe(AttachedClient client, String messagesId) {
+
+        Build build = buildProvider.getSpecific(messagesId);
+
+        if (build != null) {
+            // TODO speak to mkelnar and Jan if we can change from BuildResultRest to Build
+            client.sendMessage(build, messageCallback);
+        } else {
+            String statusCode = Integer.toString(Response.Status.NO_CONTENT.getStatusCode());
+            String errorMessage = "No build for id: " + messagesId;
+            ErrorResponse error = new ErrorResponse(statusCode, errorMessage);
+            client.sendMessage(error, messageCallback);
         }
     }
 

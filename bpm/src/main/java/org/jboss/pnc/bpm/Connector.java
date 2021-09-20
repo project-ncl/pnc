@@ -20,14 +20,20 @@ package org.jboss.pnc.bpm;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 
 import java.io.Closeable;
-import java.util.Map;
 
 /**
  * @author Matej Lazar
  */
 public interface Connector extends Closeable {
 
+    /**
+     * @deprecated start the process with correlationKey
+     */
+    @Deprecated
     Long startProcess(String processId, Object processParameters, String accessToken) throws ProcessManagerException;
+
+    Long startProcess(String processId, Object requestObject, String correlationKey, String accessToken)
+            throws ProcessManagerException;
 
     /**
      * Use only for a scheduled cleanup
@@ -35,6 +41,12 @@ public interface Connector extends Closeable {
     @Deprecated
     boolean isProcessInstanceCompleted(Long processInstanceId);
 
+    boolean cancelByCorrelation(String correlationKey, String accessToken);
+
+    /**
+     * @deprecated use cancelByCorrelation
+     */
+    @Deprecated
     boolean cancel(Long processInstanceId, String accessToken);
 
     @Override

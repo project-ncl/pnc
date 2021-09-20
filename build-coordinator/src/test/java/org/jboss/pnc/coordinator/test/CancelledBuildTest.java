@@ -20,7 +20,6 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -64,10 +63,9 @@ public class CancelledBuildTest extends ProjectBuilder {
     @Test(timeout = 5_000)
     public void buildSingleProjectTestCase() throws Exception {
         // given
-        DatastoreMock datastoreMock = new DatastoreMock();
-        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
+        TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
 
-        BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock).coordinator;
+        BuildCoordinator coordinator = buildCoordinatorFactory.createBuildCoordinator(datastore).coordinator;
 
         List<BuildStatusChangedEvent> receivedStatuses = new ArrayList<>();
 
@@ -93,7 +91,7 @@ public class CancelledBuildTest extends ProjectBuilder {
                 onStatusUpdate);
 
         // expect
-        List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
+        List<BuildRecord> buildRecords = datastore.getBuildRecords();
 
         Assert.assertEquals("Too many build records in datastore: " + buildRecords, 1, buildRecords.size());
 
@@ -127,6 +125,7 @@ public class CancelledBuildTest extends ProjectBuilder {
                         Thread.sleep(250); // wait a bit for build execution to start
                         // we need to get buildConfigSet id to cancel BuildGroup, it is not provided by event class
                         // directly, so we need to dit it up from buildTaskId that event provides
+                        log.info("Cancelling ...");
                         coordinator.cancelSet(getBuildConfigSetId(coordinator, event.getBuild().getId()));
                     } catch (CoreException | InterruptedException e) {
                         log.error("Unable to cancel the build.", e);

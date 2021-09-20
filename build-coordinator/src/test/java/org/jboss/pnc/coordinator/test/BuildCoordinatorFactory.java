@@ -20,12 +20,15 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
+import org.jboss.pnc.coordinator.builder.BuildScheduler;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.coordinator.builder.local.LocalBuildScheduler;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -45,9 +48,6 @@ public class BuildCoordinatorFactory {
     Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
     @Inject
-    BuildSchedulerFactory buildSchedulerFactory;
-
-    @Inject
     private GroupBuildMapper groupBuildMapper;
 
     @Inject
@@ -58,6 +58,15 @@ public class BuildCoordinatorFactory {
 
         SystemConfig systemConfig = createConfiguration();
         BuildQueue queue = new BuildQueue(systemConfig);
+
+        LocalBuildSchedulerMock localBuildScheduler = new LocalBuildSchedulerMock();
+
+        BuildSchedulerFactory buildSchedulerFactory = new BuildSchedulerFactory() {
+            @Override
+            public BuildScheduler getBuildScheduler() {
+                return localBuildScheduler;
+            }
+        };
         BuildCoordinator coordinator = new DefaultBuildCoordinator(
                 datastoreAdapter,
                 buildStatusChangedEventNotifier,
@@ -67,6 +76,7 @@ public class BuildCoordinatorFactory {
                 systemConfig,
                 groupBuildMapper,
                 buildMapper);
+        localBuildScheduler.setBuildCoordinator(coordinator);
         coordinator.start();
         queue.initSemaphore();
         return new BuildCoordinatorBeans(queue, coordinator);
@@ -84,8 +94,25 @@ public class BuildCoordinatorFactory {
                 "10",
                 null,
                 null,
-                "",
+                "3600",
                 "",
                 "10");
     }
+
+    public static class LocalBuildSchedulerMock extends LocalBuildScheduler {
+
+        @Override
+        public String getId() {
+            return "local-build-scheduler-mock";
+        }
+
+        public void setBuildCoordinator(BuildCoordinator buildCoordinator) {
+            this.buildCoordinator = buildCoordinator;
+        }
+
+        public LocalBuildSchedulerMock() {
+            buildExecutor = new BuildExecutorMock();
+        }
+    };
+
 }
