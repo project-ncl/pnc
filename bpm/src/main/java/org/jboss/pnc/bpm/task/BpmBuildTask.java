@@ -18,7 +18,6 @@
 package org.jboss.pnc.bpm.task;
 
 import lombok.ToString;
-import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.ConnectorSelector;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
@@ -29,8 +28,6 @@ import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Optional;
@@ -42,8 +39,6 @@ import java.util.Optional;
 public class BpmBuildTask extends BpmTask {
 
     private final BuildTask buildTask;
-
-    private static final Logger LOG = LoggerFactory.getLogger(BpmBuildTask.class);
 
     public BuildTask getBuildTask() {
         return buildTask;
@@ -108,16 +103,5 @@ public class BpmBuildTask extends BpmTask {
         } else {
             return config.getComponentBuildProcessId();
         }
-    }
-
-    public static Optional<BpmTask> getBpmTaskByBuildTaskId(BpmManager bpmManager, String buildTaskId) {
-        return bpmManager.getActiveTasks().stream().filter(bpmTask -> {
-            if (bpmTask instanceof BpmBuildTask) {
-                String buildId = ((BpmBuildTask) bpmTask).getBuildTask().getId();
-                return buildId.equals(buildTaskId);
-            } else {
-                return false;
-            }
-        }).findFirst();
     }
 }

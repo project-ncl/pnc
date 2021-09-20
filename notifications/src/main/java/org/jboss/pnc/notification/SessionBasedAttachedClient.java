@@ -18,29 +18,20 @@
 package org.jboss.pnc.notification;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
-import org.jboss.pnc.spi.notifications.Notifier;
 
 import javax.websocket.Session;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SessionBasedAttachedClient implements AttachedClient {
 
     private final Session session;
-    private Notifier notifier;
 
     private final JacksonProvider mapperProvider = new JacksonProvider();
-    private List<Subscription> subscriptions = new ArrayList();
 
-    public SessionBasedAttachedClient(Session session, Notifier notifier) {
+    public SessionBasedAttachedClient(Session session) {
         this.session = session;
-        this.notifier = notifier;
     }
 
     @Override
@@ -72,33 +63,6 @@ public class SessionBasedAttachedClient implements AttachedClient {
     }
 
     @Override
-    public void subscribe(String topic, String messagesId) {
-        subscriptions.add(new Subscription(topic, messagesId));
-        if (topic.equals(Notifier.Topic.COMPONENT_BUILD.getId())) {
-            notifier.onBuildStatusUpdatesSubscribe(this, messagesId);
-        }
-    }
-
-    @Override
-    public void unsubscribe(String topic, String messagesId) {
-        subscriptions.remove(new Subscription(topic, messagesId));
-    }
-
-    /**
-     * @return True if topic match and optional qualifier on subscription match or is empty
-     */
-    @Override
-    public boolean isSubscribed(String topic, String qualifier) {
-        for (Subscription subscription : subscriptions) {
-            if (topic.equals(subscription.getTopic())
-                    && (subscription.getQualifier().equals("") || subscription.getQualifier().equals(qualifier))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o)
             return true;
@@ -117,13 +81,5 @@ public class SessionBasedAttachedClient implements AttachedClient {
     public int hashCode() {
         int result = session != null ? session.hashCode() : 0;
         return result;
-    }
-
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    @Getter
-    private class Subscription {
-        String topic;
-        String qualifier;
     }
 }

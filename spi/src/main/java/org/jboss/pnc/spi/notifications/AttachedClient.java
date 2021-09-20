@@ -37,10 +37,4 @@ public interface AttachedClient {
      */
     void sendMessage(Object messageBody, MessageCallback callback);
 
-    void subscribe(String topic, String messagesId);
-
-    void unsubscribe(String topic, String messagesId);
-
-    boolean isSubscribed(String topic, String messagesId);
-
 }

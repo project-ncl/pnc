@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.spi.notifications;
 
-import java.util.Optional;
-
 /**
  * Notification mechanism for Web Sockets. All implementation details should be placed in AttachedClient.
  */
@@ -32,26 +30,6 @@ public interface Notifier {
 
     void sendMessage(Object message);
 
-    Optional<AttachedClient> getAttachedClient(String sessionId);
-
     MessageCallback getCallback();
 
-    void onBuildStatusUpdatesSubscribe(AttachedClient client, String messagesId);
-
-    enum Topic {
-        COMPONENT_BUILD("component-build"),
-        CAUSEWAY_PUSH("causeway-push"),
-        BUILD_RECORDS_DELETE("build-records#delete"),
-        BUILD_CONFIG_SET_RECORDS_DELETE("build-config-set-records#delete");
-
-        Topic(String id) {
-            this.id = id;
-        }
-
-        private String id;
-
-        public String getId() {
-            return id;
-        }
-    }
 }
