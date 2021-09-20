@@ -20,14 +20,15 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -36,6 +37,9 @@ import java.util.List;
 
 @RunWith(Arquillian.class)
 public class ProjectWithFailedDependenciesBuildTest extends ProjectBuilder {
+
+    @Inject
+    BuildCoordinatorFactory buildCoordinatorFactory;
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -47,7 +51,12 @@ public class ProjectWithFailedDependenciesBuildTest extends ProjectBuilder {
     @Test
     @InSequence(10)
     public void buildFailingProjectTestCase() throws Exception {
-        buildFailingProject(configurationBuilder.buildConfigurationSetWithFailedDependencies(1), 1);
+        BuildCoordinatorBeans buildCoordinatorBeans = buildCoordinatorFactory.createBuildCoordinator(datastore);
+
+        buildFailingProject(
+                configurationBuilder.buildConfigurationSetWithFailedDependencies(1),
+                1,
+                buildCoordinatorBeans.coordinator);
     }
 
     @Test

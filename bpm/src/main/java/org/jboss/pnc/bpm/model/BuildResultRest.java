@@ -39,10 +39,14 @@ import java.io.Serializable;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ *
+ * @deprecated use {@link org.jboss.pnc.dto.Build}
  */
 @XmlRootElement(name = "buildResult")
 @NoArgsConstructor
 @AllArgsConstructor
+@Deprecated
+//TODO do we still need this
 public class BuildResultRest extends BpmEvent implements Serializable {
 
     private static final Logger log = LoggerFactory.getLogger(BuildResultRest.class);

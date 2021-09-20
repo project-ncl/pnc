@@ -22,7 +22,6 @@ import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
@@ -72,10 +71,6 @@ public class ProjectBuilder {
     public static final int N_STATUS_UPDATES_PER_TASK_WITH_DEPENDENCIES = 4; // additional WAITING_FOR_DEPENDENCIES
     public static final int N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS = 2; // only REJECTED_FAILED_DEPENDENCIES
                                                                                    // and WAITING_FOR_DEPENDENCIES
-
-    @Inject
-    BuildCoordinator buildCoordinator;
-
     @Inject
     DatastoreMock datastore;
 
@@ -179,13 +174,18 @@ public class ProjectBuilder {
         buildSetTask.getBuildTasks().forEach(bt -> assertAllStatusUpdateReceived(receivedStatuses, bt.getId()));
     }
 
-    void buildFailingProject(BuildConfigurationSet buildConfigurationSet, int numCompletedBuilds)
-            throws InterruptedException, CoreException, DatastoreException {
-        buildFailingProject(buildConfigurationSet, numCompletedBuilds, 1);
+    void buildFailingProject(
+            BuildConfigurationSet buildConfigurationSet,
+            int numCompletedBuilds,
+            BuildCoordinator buildCoordinator) throws InterruptedException, CoreException, DatastoreException {
+        buildFailingProject(buildConfigurationSet, numCompletedBuilds, 1, buildCoordinator);
     }
 
-    void buildFailingProject(BuildConfigurationSet buildConfigurationSet, int numCompletedBuilds, int numFailedBuilds)
-            throws InterruptedException, CoreException, DatastoreException {
+    void buildFailingProject(
+            BuildConfigurationSet buildConfigurationSet,
+            int numCompletedBuilds,
+            int numFailedBuilds,
+            BuildCoordinator buildCoordinator) throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * numCompletedBuilds
                 + N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS * numFailedBuilds;
         buildProjectsAndVerifyResult(
@@ -220,7 +220,7 @@ public class ProjectBuilder {
             List<BuildStatusChangedEvent> receivedStatuses,
             List<BuildSetStatusChangedEvent> receivedSetStatuses) throws InterruptedException, CoreException {
         Consumer<BuildStatusChangedEvent> onStatusUpdateInternal = (statusUpdate) -> {
-            log.debug("Received status change event [" + (i++) + "]: " + statusUpdate);
+            log.debug("Received status change event [" + (i++) + "]: {}.", statusUpdate);
             receivedStatuses.add(statusUpdate);
             onStatusUpdate.accept(statusUpdate);
         };

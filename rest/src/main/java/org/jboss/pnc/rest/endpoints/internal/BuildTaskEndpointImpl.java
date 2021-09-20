@@ -18,11 +18,10 @@
 package org.jboss.pnc.rest.endpoints.internal;
 
 import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationWithCallbackRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
-import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -34,10 +33,9 @@ import org.jboss.pnc.facade.executor.BuildExecutorTriggerer;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
-import org.jboss.pnc.mapper.api.BuildMapper;
-import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.rest.endpoints.internal.api.BuildTaskEndpoint;
 import org.jboss.pnc.rest.endpoints.internal.dto.AcceptedResponse;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 import org.slf4j.Logger;
@@ -61,6 +59,12 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
     @Inject
     private BpmManager bpmManager;
+
+    @Inject
+    private BuildCoordinator buildCoordinator;
+
+    @Inject
+    private BuildResultMapper mapper;
 
     @Inject
     private BuildExecutorTriggerer buildExecutorTriggerer;
@@ -91,19 +95,11 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
         ValidationBuilder.validateObject(buildResult, WhenCreatingNew.class).validateAnnotations();
 
-        Integer taskId = bpmManager.getTaskIdByBuildId(buildId);
-        if (taskId == null) {
-            logger.error("No task for id [{}].", buildId);
-            throw new RuntimeException("Could not find BPM task for build with ID " + buildId);
-        }
-
         // check if task is already completed
         // required workaround as we don't remove the BpmTasks immediately after the completion
-        Optional<BpmTask> taskOptional = bpmManager.getTaskById(taskId);
-        if (taskOptional.isPresent()) {
-            BpmBuildTask bpmBuildTask = (BpmBuildTask) taskOptional.get();
-            BuildTask buildTask = bpmBuildTask.getBuildTask();
-
+        Optional<BuildTask> maybeBuildTask = buildCoordinator.getSubmittedBuildTask(buildId);
+        if (maybeBuildTask.isPresent()) {
+            BuildTask buildTask = maybeBuildTask.get();
             boolean temporaryBuild = buildTask.getBuildOptions().isTemporaryBuild();
             MDCUtils.addBuildContext(
                     buildTask.getContentId(),
@@ -113,22 +109,23 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             try {
                 if (buildTask.getStatus().isCompleted()) {
                     logger.warn(
-                            "Task with id: {} is already completed with status: {}",
+                            "BuildTask with id: {} is already completed with status: {}",
                             buildTask.getId(),
                             buildTask.getStatus());
                     return Response.status(Response.Status.GONE)
                             .entity(
-                                    "Task with id: " + buildTask.getId() + " is already completed with status: "
+                                    "BuildTask with id: " + buildTask.getId() + " is already completed with status: "
                                             + buildTask.getStatus() + ".")
                             .build();
                 }
                 if (logger.isTraceEnabled()) {
                     logger.trace("Received build result wit full log: {}.", buildResult.toFullLogString());
                 }
-                logger.debug("Will notify for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
-                bpmManager.notify(taskId, buildResult);
-                logger.debug("Notified for bpmTaskId[{}] linked to buildTaskId [{}].", taskId, buildId);
-                bpmManager.remove(taskId);
+                logger.debug("Completing buildTask [{}] ...", buildId);
+
+                buildCoordinator.completeBuild(buildTask, mapper.toEntity(buildResult));
+
+                logger.debug("Completed buildTask [{}].", buildId);
                 return Response.ok().build();
             } finally {
                 MDCUtils.removeBuildContext();
@@ -136,7 +133,6 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity("No active build with id: " + buildId).build();
         }
-
     }
 
     @Override

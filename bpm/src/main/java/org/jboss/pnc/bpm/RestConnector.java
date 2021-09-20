@@ -149,6 +149,7 @@ public class RestConnector implements Connector {
         return false;
     }
 
+    @Override
     public boolean cancelByCorrelation(String correlationKey, String accessToken) {
         try {
             HttpGet request = endpointUrl.queryProcessInstanceByCorrelation(correlationKey);

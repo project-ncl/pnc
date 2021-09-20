@@ -36,7 +36,7 @@ public interface Notifier {
 
     MessageCallback getCallback();
 
-    void onBpmProcessClientSubscribe(AttachedClient client, String messagesId);
+    void onBuildStatusUpdatesSubscribe(AttachedClient client, String messagesId);
 
     enum Topic {
         COMPONENT_BUILD("component-build"),

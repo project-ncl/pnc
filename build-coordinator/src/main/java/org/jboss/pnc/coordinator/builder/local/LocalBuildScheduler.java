@@ -23,6 +23,7 @@ import org.jboss.pnc.coordinator.builder.BuildScheduler;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -46,7 +47,8 @@ public class LocalBuildScheduler implements BuildScheduler {
 
     public static final String ID = "local-build-scheduler";
 
-    private BuildExecutor buildExecutor;
+    protected BuildExecutor buildExecutor;
+    protected BuildCoordinator buildCoordinator;
 
     @Override
     public String getId() {
@@ -58,19 +60,24 @@ public class LocalBuildScheduler implements BuildScheduler {
     } // CDI workaround
 
     @Inject
-    public LocalBuildScheduler(BuildExecutor buildExecutor) {
+    public LocalBuildScheduler(BuildExecutor buildExecutor, BuildCoordinator buildCoordinator) {
         this.buildExecutor = buildExecutor;
+        this.buildCoordinator = buildCoordinator;
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException {
+    public void startBuilding(BuildTask buildTask) throws CoreException {
 
         Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent = (statusChangedEvent) -> {
-            log.debug("Received execution status update {}.", statusChangedEvent);
-            if (statusChangedEvent.getNewStatus().isCompleted()) {
-                BuildResult buildResult = statusChangedEvent.getBuildResult().get();
-                log.debug("Notifying build execution completed {}.", statusChangedEvent);
-                onComplete.accept(buildResult);
+            try {
+                log.debug("Received execution status update {}.", statusChangedEvent);
+                if (statusChangedEvent.getNewStatus().isCompleted()) {
+                    BuildResult buildResult = statusChangedEvent.getBuildResult().get();
+                    log.debug("Notifying build execution completed {}.", statusChangedEvent);
+                    buildCoordinator.completeBuild(buildTask, buildResult);
+                }
+            } catch (Throwable t) {
+                log.error("Failed to notify build completion.", t);
             }
         };
 
@@ -81,6 +88,7 @@ public class LocalBuildScheduler implements BuildScheduler {
                 contentId,
                 buildTask.getUser().getId().toString(),
                 configuration.getBuildScript(),
+                configuration.getId().toString(),
                 configuration.getName(),
                 configuration.getRepositoryConfiguration().getInternalUrl(),
                 configuration.getScmRevision(),

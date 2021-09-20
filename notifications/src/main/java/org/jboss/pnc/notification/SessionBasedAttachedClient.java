@@ -26,8 +26,6 @@ import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
 
-import javax.websocket.SendHandler;
-import javax.websocket.SendResult;
 import javax.websocket.Session;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +75,7 @@ public class SessionBasedAttachedClient implements AttachedClient {
     public void subscribe(String topic, String messagesId) {
         subscriptions.add(new Subscription(topic, messagesId));
         if (topic.equals(Notifier.Topic.COMPONENT_BUILD.getId())) {
-            notifier.onBpmProcessClientSubscribe(this, messagesId);
+            notifier.onBuildStatusUpdatesSubscribe(this, messagesId);
         }
     }
 

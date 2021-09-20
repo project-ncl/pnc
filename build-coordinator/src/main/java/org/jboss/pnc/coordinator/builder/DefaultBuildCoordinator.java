@@ -77,7 +77,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
@@ -630,8 +629,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     private void processBuildTask(BuildTask task) {
-        Consumer<BuildResult> onComplete = (result) -> completeBuild(task, result);
-
         try {
             // check if task is already been build or is currently building
             // in case when task depends on two or more other tasks, all dependents call this method
@@ -653,7 +650,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 task.setStartTime(new Date());
                 updateBuildTaskStatus(task, BuildCoordinationStatus.BUILDING);
             }
-            buildScheduler.startBuilding(task, onComplete);
+            buildScheduler.startBuilding(task);
         } catch (CoreException | ExecutorException e) {
             log.debug(" Build coordination task failed. Setting it as SYSTEM_ERROR.", e);
             updateBuildTaskStatus(task, BuildCoordinationStatus.SYSTEM_ERROR, e.getMessage());
@@ -902,6 +899,14 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
         log.trace("Status of build task {} updated.", dependentTask);
         storeRejectedTask(dependentTask);
+    }
+
+    @Override
+    public Optional<BuildTask> getSubmittedBuildTask(String buildId) {
+        return buildQueue.getSubmittedBuildTasks()
+                .stream()
+                .filter(buildTask -> buildTask.getId().equals(buildId))
+                .findAny();
     }
 
     public List<BuildTask> getSubmittedBuildTasks() {

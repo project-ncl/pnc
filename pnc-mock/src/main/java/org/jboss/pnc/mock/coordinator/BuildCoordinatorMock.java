@@ -84,6 +84,11 @@ public class BuildCoordinatorMock implements BuildCoordinator {
         return Mockito.mock(BuildSetTask.class);
     }
 
+    @Override
+    public Optional<BuildTask> getSubmittedBuildTask(String buildId) {
+        return activeTasks.stream().filter(buildTask -> buildTask.getId().equals(buildId)).findAny();
+    }
+
     public List<BuildTask> getSubmittedBuildTasks() {
         return activeTasks;
     }

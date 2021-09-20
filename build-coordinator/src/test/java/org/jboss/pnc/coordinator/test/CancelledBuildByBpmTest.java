@@ -24,6 +24,7 @@ import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.bpm.model.mapper.RepositoryManagerResultMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
@@ -50,10 +51,12 @@ import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
@@ -79,6 +82,7 @@ import static org.jboss.pnc.bpm.BpmEventType.BUILD_COMPLETE;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(MockitoJUnitRunner.class)
+@Ignore // build cancel is not signalled via bpmTaskAnymore
 public class CancelledBuildByBpmTest {
 
     private static final Logger log = LoggerFactory.getLogger(CancelledBuildByBpmTest.class);
@@ -195,7 +199,8 @@ public class CancelledBuildByBpmTest {
                 throws CoreException, ConfigurationParseException, IOException {
             BpmMock manager = new BpmMock();
             manager.setOnTaskStarted(onTaskStarted);
-            buildScheduler = new BpmBuildScheduler(manager, buildResultMapper);
+            BpmModuleConfig bpmConfig = Mockito.mock(BpmModuleConfig.class);
+            buildScheduler = new BpmBuildScheduler(manager, bpmConfig);
         }
 
         @Override

@@ -53,12 +53,10 @@ public interface BuildCoordinator {
             User user,
             BuildOptions buildOptions) throws CoreException;
 
+    Optional<BuildTask> getSubmittedBuildTask(String buildId);
+
     List<BuildTask> getSubmittedBuildTasks();
 
-    /**
-     * @deprecated will become private
-     */
-    @Deprecated
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
 
     /**
@@ -77,5 +75,4 @@ public interface BuildCoordinator {
     void start();
 
     Optional<BuildTaskContext> getMDCMeta(String buildTaskId);
-
 }

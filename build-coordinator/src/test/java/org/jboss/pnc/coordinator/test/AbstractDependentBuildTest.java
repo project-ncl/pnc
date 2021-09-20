@@ -80,7 +80,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -317,11 +316,10 @@ public abstract class AbstractDependentBuildTest {
     private class MockBuildScheduler implements BuildScheduler {
 
         @Override
-        public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete)
-                throws CoreException, ExecutorException {
+        public void startBuilding(BuildTask buildTask) throws CoreException, ExecutorException {
             builtTasks.add(buildTask);
             BuildResult result = buildResult();
-            onComplete.accept(result);
+            coordinator.completeBuild(buildTask, result);
         }
 
         @Override

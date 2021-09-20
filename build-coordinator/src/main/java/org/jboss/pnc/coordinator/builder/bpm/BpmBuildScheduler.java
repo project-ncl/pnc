@@ -18,20 +18,23 @@
 
 package org.jboss.pnc.coordinator.builder.bpm;
 
-import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
+import org.jboss.pnc.bpm.Connector;
+import org.jboss.pnc.bpm.RestConnector;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
-import org.jboss.pnc.bpm.model.BuildResultRest;
-import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
+
+import static org.jboss.pnc.bpm.ConnectorSelector.useNewProcessForBuild;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -41,9 +44,10 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     private BpmManager manager;
 
-    private BuildResultMapper mapper;
+    private BpmModuleConfig bpmConfig;
 
     public static final String schedulerId = "bpm-build-scheduler";
+    private Connector restConnector;
 
     @Override
     public String getId() {
@@ -55,17 +59,35 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Inject
-    public BpmBuildScheduler(BpmManager manager, BuildResultMapper mapper) {
+    public BpmBuildScheduler(BpmManager manager, BpmModuleConfig bpmConfig) {
         this.manager = manager;
-        this.mapper = mapper;
+        this.bpmConfig = bpmConfig;
+    }
+
+    @PostConstruct
+    public void init() {
+        restConnector = new RestConnector(bpmConfig);
+    }
+
+    @PreDestroy
+    private void dispose() {
+        restConnector.close();
     }
 
     @Override
-    public void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException {
+    public void startBuilding(BuildTask buildTask) throws CoreException {
         try {
+            Map<String, String> genericParameters = buildTask.getBuildConfigurationAudited().getGenericParameters();
             BpmBuildTask task = new BpmBuildTask(buildTask);
-            task.<BuildResultRest> addListener(BpmEventType.BUILD_COMPLETE, b -> onComplete.accept(mapper.toEntity(b)));
-            manager.startTask(task);
+            if (useNewProcessForBuild(genericParameters, bpmConfig.isNewBpmForced())) {
+                restConnector.startProcess(
+                        bpmConfig.getBpmNewBuildProcessName(),
+                        task.getExtendedProcessParameters(),
+                        buildTask.getId(),
+                        task.getAccessToken());
+            } else {
+                manager.startTask(task);
+            }
         } catch (Exception e) {
             throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
         }
@@ -73,16 +95,22 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Override
     public boolean cancel(BuildTask buildTask) {
-        Optional<BpmBuildTask> taskOptional = manager.getActiveTasks()
-                .stream()
-                .filter(bpmTask -> bpmTask instanceof BpmBuildTask)
-                .map(bpmTask -> (BpmBuildTask) bpmTask)
-                .filter(bpmTask -> bpmTask.getBuildTask().getId().equals(buildTask.getId()))
-                .findAny();
-        if (taskOptional.isPresent()) {
-            return manager.cancelTask(taskOptional.get());
+        Map<String, String> genericParameters = buildTask.getBuildConfigurationAudited().getGenericParameters();
+        BpmBuildTask task = new BpmBuildTask(buildTask);
+        if (useNewProcessForBuild(genericParameters, bpmConfig.isNewBpmForced())) {
+            return restConnector.cancelByCorrelation(buildTask.getId(), task.getAccessToken());
         } else {
-            return false;
+            Optional<BpmBuildTask> taskOptional = manager.getActiveTasks()
+                    .stream()
+                    .filter(bpmTask -> bpmTask instanceof BpmBuildTask)
+                    .map(bpmTask -> (BpmBuildTask) bpmTask)
+                    .filter(bpmTask -> bpmTask.getBuildTask().getId().equals(buildTask.getId()))
+                    .findAny();
+            if (taskOptional.isPresent()) {
+                return manager.cancelTask(taskOptional.get());
+            } else {
+                return false;
+            }
         }
     }
 }

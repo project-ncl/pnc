@@ -18,12 +18,9 @@
 
 package org.jboss.pnc.coordinator.builder;
 
-import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
-
-import java.util.function.Consumer;
 
 /**
  * BuildScheduler is used to direct the build to by scheduler defined execution engine. Example: BuildCoordinator uses
@@ -33,7 +30,7 @@ import java.util.function.Consumer;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface BuildScheduler {
-    void startBuilding(BuildTask buildTask, Consumer<BuildResult> onComplete) throws CoreException, ExecutorException;
+    void startBuilding(BuildTask buildTask) throws CoreException, ExecutorException;
 
     String getId();
 

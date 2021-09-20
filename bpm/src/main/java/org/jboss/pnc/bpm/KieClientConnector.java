@@ -24,7 +24,6 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -102,6 +101,12 @@ public class KieClientConnector implements Connector {
     }
 
     @Override
+    public Long startProcess(String processId, Object processParameters, String correlationKey, String accessToken) {
+        throw new UnsupportedOperationException(
+                "Cannot start process instance with correlationKey using KieClientConnector.");
+    }
+
+    @Override
     public boolean isProcessInstanceCompleted(Long processInstanceId) {
         ProcessInstance processInstance = session.getProcessInstance(processInstanceId);
         log.debug("fetched: {}", processInstance);
@@ -110,6 +115,11 @@ public class KieClientConnector implements Connector {
         }
         int state = processInstance.getState();
         return state == STATE_COMPLETED || state == STATE_ABORTED;
+    }
+
+    @Override
+    public boolean cancelByCorrelation(String correlationKey, String accessToken) {
+        throw new UnsupportedOperationException("Cannot signal cancel with correlationKey using KieClientConnector.");
     }
 
     @Override
