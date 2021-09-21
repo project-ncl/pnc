@@ -72,6 +72,7 @@ public class BpmBuildTask extends BpmTask {
                 contentId,
                 buildTask.getUser().getId().toString(),
                 buildConfigurationAudited.getBuildScript(),
+                buildConfigurationAudited.getId().toString(),
                 buildConfigurationAudited.getName(),
                 // TODO update to use also other parts or Repository Configuration
                 buildConfigurationAudited.getRepositoryConfiguration().getInternalUrl(),

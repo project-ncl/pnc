@@ -146,6 +146,7 @@ class BuildExecutionBase {
                 "build-content-id",
                 "1",
                 buildConfiguration.getBuildScript(),
+                buildConfiguration.getId().toString(),
                 buildConfiguration.getName(),
                 buildConfiguration.getRepositoryConfiguration().getInternalUrl(),
                 buildConfiguration.getScmRevision(),
