@@ -94,6 +94,7 @@ public class BuildTaskEndpointTest {
                 "test-content-id",
                 "1",
                 "mvn clean install",
+                "12",
                 "jboss-modules",
                 "scm-url",
                 "f18de64523d5054395d82e24d4e28473a05a3880",

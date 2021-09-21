@@ -35,6 +35,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final String buildContentId;
     private final String userId;
     private final String buildScript;
+    private final String buildConfigurationId;
     private final String name;
     private final String scmRepoURL;
     private final String scmRevision;
@@ -58,6 +59,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             String buildContentId,
             String userId,
             String buildScript,
+            String buildConfigurationId,
             String name,
             String scmRepoURL,
             String scmRevision,
@@ -80,6 +82,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.buildContentId = buildContentId;
         this.userId = userId;
         this.buildScript = buildScript;
+        this.buildConfigurationId = buildConfigurationId;
         this.name = name;
         this.scmRepoURL = scmRepoURL;
         this.scmRevision = scmRevision;
@@ -117,6 +120,11 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     @Override
     public String getBuildScript() {
         return buildScript;
+    }
+
+    @Override
+    public String getBuildConfigurationId() {
+        return buildConfigurationId;
     }
 
     @Override

@@ -30,7 +30,6 @@ import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 
@@ -56,6 +55,7 @@ public class BuildExecutionConfigurationRest {
     protected String buildContentId;
     protected User user;
     protected String buildScript;
+    protected String buildConfigurationId;
     protected String name;
 
     protected String scmRepoURL;
@@ -91,6 +91,7 @@ public class BuildExecutionConfigurationRest {
         id = buildExecutionConfiguration.getId();
         buildContentId = buildExecutionConfiguration.getBuildContentId();
         buildScript = buildExecutionConfiguration.getBuildScript();
+        buildConfigurationId = buildExecutionConfiguration.getBuildConfigurationId();
         name = buildExecutionConfiguration.getName();
         scmRepoURL = buildExecutionConfiguration.getScmRepoURL();
         scmRevision = buildExecutionConfiguration.getScmRevision();
@@ -126,6 +127,7 @@ public class BuildExecutionConfigurationRest {
                 buildContentId,
                 user.getId(),
                 buildScript,
+                buildConfigurationId,
                 name,
                 scmRepoURL,
                 scmRevision,

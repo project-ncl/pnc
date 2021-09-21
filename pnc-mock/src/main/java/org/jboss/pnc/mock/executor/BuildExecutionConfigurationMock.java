@@ -36,6 +36,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private String buildContentId;
     private String userId;
     private String buildScript;
+    private String buildConfigurationId;
     private String name;
     private String scmRepoURL;
     private String scmRevision;
@@ -109,6 +110,11 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public void setBuildScript(String buildScript) {
         this.buildScript = buildScript;
+    }
+
+    @Override
+    public String getBuildConfigurationId() {
+        return buildConfigurationId;
     }
 
     @Override

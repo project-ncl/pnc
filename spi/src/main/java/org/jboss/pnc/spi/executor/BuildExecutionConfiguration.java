@@ -39,6 +39,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     String getBuildScript();
 
+    String getBuildConfigurationId();
+
     String getName(); // used to be buildConfiguration.name
 
     String getScmRepoURL();
@@ -68,6 +70,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String buildContentId,
             String userId,
             String buildScript,
+            String buildConfigurationId,
             String name,
             String scmRepoURL,
             String scmRevision,
@@ -89,6 +92,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
                 buildContentId,
                 userId,
                 buildScript,
+                buildConfigurationId,
                 name,
                 scmRepoURL,
                 scmRevision,
@@ -113,6 +117,7 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String buildContentId,
             String userId,
             String buildScript,
+            String buildConfigurationId,
             String name,
             String scmRepoURL,
             String scmRevision,
@@ -167,6 +172,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public String getBuildScript() {
                 return buildScript;
+            }
+
+            @Override
+            public String getBuildConfigurationId() {
+                return buildConfigurationId;
             }
 
             @Override

@@ -37,6 +37,7 @@ public class BuildExecutionConfigurationMock {
                 "1",
                 "mvn clean install",
                 "configuration name",
+                "12",
                 "https://pathToRepo.git",
                 "f18de64523d5054395d82e24d4e28473a05a3880",
                 "1.0.0.redhat-1",
