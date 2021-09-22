@@ -176,10 +176,10 @@ public class TemporaryBuildsCleaner {
                             buildRecord,
                             artifact.getDescriptiveString()));
 
-            if (!artifact.getDistributedInProductMilestones().isEmpty()) {
+            if (!artifact.getDeliveredInProductMilestones().isEmpty()) {
                 log.error(
-                        "Temporary artifact was distributed in milestone! Artifact: " + artifact.toString()
-                                + "\n Milestones: " + artifact.getDistributedInProductMilestones().toString());
+                        "Temporary artifact was delivered in milestone! Artifact: " + artifact + "\n Milestones: "
+                                + artifact.getDeliveredInProductMilestones());
                 continue;
             }
 

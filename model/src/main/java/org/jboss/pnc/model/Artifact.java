@@ -182,8 +182,8 @@ public class Artifact implements GenericEntity<Integer> {
      * The product milestone releases which distribute this artifact
      */
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @ManyToMany(mappedBy = "distributedArtifacts")
-    private Set<ProductMilestone> distributedInProductMilestones;
+    @ManyToMany(mappedBy = "deliveredArtifacts")
+    private Set<ProductMilestone> deliveredInProductMilestones;
 
     /**
      * User who created the artifact (either triggering the build or e.g. creating via Deliverable Analyzer)
@@ -227,7 +227,7 @@ public class Artifact implements GenericEntity<Integer> {
      */
     Artifact() {
         dependantBuildRecords = new HashSet<>();
-        distributedInProductMilestones = new HashSet<>();
+        deliveredInProductMilestones = new HashSet<>();
         creationTime = Date.from(Instant.now());
         modificationTime = Date.from(Instant.now());
     }
@@ -448,22 +448,22 @@ public class Artifact implements GenericEntity<Integer> {
         this.importDate = importDate;
     }
 
-    public Set<ProductMilestone> getDistributedInProductMilestones() {
-        return distributedInProductMilestones;
+    public Set<ProductMilestone> getDeliveredInProductMilestones() {
+        return deliveredInProductMilestones;
     }
 
-    public void setDistributedInProductMilestones(Set<ProductMilestone> distributedInProductMilestones) {
-        this.distributedInProductMilestones = distributedInProductMilestones;
+    public void setDeliveredInProductMilestones(Set<ProductMilestone> deliveredInProductMilestones) {
+        this.deliveredInProductMilestones = deliveredInProductMilestones;
     }
 
-    public boolean addDistributedInProductMilestone(ProductMilestone productMilestone) {
-        productMilestone.getDistributedArtifacts().add(this);
-        return distributedInProductMilestones.add(productMilestone);
+    public boolean addDeliveredInProductMilestone(ProductMilestone productMilestone) {
+        productMilestone.getDeliveredArtifacts().add(this);
+        return deliveredInProductMilestones.add(productMilestone);
     }
 
-    public boolean removeDistributedInProductMilestone(ProductMilestone productMilestone) {
-        productMilestone.getDistributedArtifacts().remove(this);
-        return distributedInProductMilestones.remove(productMilestone);
+    public boolean removeDeliveredInProductMilestone(ProductMilestone productMilestone) {
+        productMilestone.getDeliveredArtifacts().remove(this);
+        return deliveredInProductMilestones.remove(productMilestone);
     }
 
     public Long getSize() {
@@ -623,7 +623,7 @@ public class Artifact implements GenericEntity<Integer> {
 
         private BuildRecord buildRecord;
 
-        private Set<ProductMilestone> distributedInProductMilestones;
+        private Set<ProductMilestone> deliveredInProductMilestones;
 
         private String originUrl;
 
@@ -641,7 +641,7 @@ public class Artifact implements GenericEntity<Integer> {
 
         private Builder() {
             dependantBuildRecords = new HashSet<>();
-            distributedInProductMilestones = new HashSet<>();
+            deliveredInProductMilestones = new HashSet<>();
         }
 
         public static Builder newBuilder() {
@@ -675,7 +675,7 @@ public class Artifact implements GenericEntity<Integer> {
                 artifact.setDependantBuildRecords(dependantBuildRecords);
             }
             artifact.setBuildRecord(buildRecord);
-            artifact.setDistributedInProductMilestones(distributedInProductMilestones);
+            artifact.setDeliveredInProductMilestones(deliveredInProductMilestones);
             artifact.setOriginUrl(originUrl);
             artifact.setImportDate(importDate);
             artifact.setCreationUser(creationUser);
@@ -762,8 +762,8 @@ public class Artifact implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder distributedInProductMilestones(Set<ProductMilestone> distributedInProductMilestones) {
-            this.distributedInProductMilestones = distributedInProductMilestones;
+        public Builder deliveredInProductMilestones(Set<ProductMilestone> deliveredInProductMilestones) {
+            this.deliveredInProductMilestones = deliveredInProductMilestones;
             return this;
         }
 

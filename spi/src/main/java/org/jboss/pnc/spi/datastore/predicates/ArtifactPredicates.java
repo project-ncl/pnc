@@ -61,9 +61,9 @@ public class ArtifactPredicates {
         };
     }
 
-    public static Predicate<Artifact> withDistributedInProductMilestone(Integer productMilestoneId) {
+    public static Predicate<Artifact> withDeliveredInProductMilestone(Integer productMilestoneId) {
         return (root, query, cb) -> {
-            Join<Artifact, ProductMilestone> productMilestones = root.join(Artifact_.distributedInProductMilestones);
+            Join<Artifact, ProductMilestone> productMilestones = root.join(Artifact_.deliveredInProductMilestones);
             return cb.equal(productMilestones.get(ProductMilestone_.id), productMilestoneId);
         };
     }
@@ -147,13 +147,6 @@ public class ArtifactPredicates {
 
     public static Predicate<Artifact> withSha1(Optional<String> sha1) {
         return ((root, query, cb) -> sha1.isPresent() ? cb.equal(root.get(Artifact_.sha1), sha1.get()) : cb.and());
-    }
-
-    public static Predicate<Artifact> withDistributedInMilestone(Integer productMilestoneId) {
-        return (root, query, cb) -> {
-            Join<Artifact, ProductMilestone> productMilestone = root.join(Artifact_.distributedInProductMilestones);
-            return cb.equal(productMilestone.get(org.jboss.pnc.model.ProductMilestone_.id), productMilestoneId);
-        };
     }
 
 }

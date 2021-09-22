@@ -20,7 +20,6 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
-import org.jboss.pnc.mapper.abstracts.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.ProductMilestone;
@@ -39,8 +38,11 @@ public interface ProductMilestoneMapper extends
         UpdatableEntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
 
     @Override
-    @Mapping(target = "distributedArtifacts", ignore = true)
+    @Mapping(target = "deliveredArtifacts", ignore = true)
     @Mapping(target = "performedBuilds", ignore = true)
+    @Mapping(
+            target = "deliveredArtifactsImporter",
+            expression = "java( userMapper.toEntity(dtoEntity.getDeliveredArtifactsImporter() == null ? dtoEntity.getDistributedArtifactsImporter() : dtoEntity.getDeliveredArtifactsImporter()) )")
     ProductMilestone toEntity(org.jboss.pnc.dto.ProductMilestone dtoEntity);
 
     @Override
@@ -48,20 +50,22 @@ public interface ProductMilestoneMapper extends
     @Mapping(target = "endDate", ignore = true) // set only when closing milestone by specific endpoint
     @Mapping(target = "productVersion", ignore = true)
     @Mapping(target = "productRelease", ignore = true) // set only on release creation
-    @Mapping(target = "distributedArtifacts", ignore = true)
+    @Mapping(target = "deliveredArtifacts", ignore = true)
     @Mapping(target = "performedBuilds", ignore = true)
+    @Mapping(target = "deliveredArtifactsImporter", ignore = true)
     void updateEntity(org.jboss.pnc.dto.ProductMilestone dtoEntity, @MappingTarget ProductMilestone target);
 
     @Override
     @Mapping(target = "productVersion", resultType = ProductVersionRef.class)
     @Mapping(target = "productRelease", resultType = ProductReleaseRef.class)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "performedBuilds", "distributedArtifacts" })
+    @Mapping(target = "distributedArtifactsImporter", source = "deliveredArtifactsImporter")
+    @BeanMapping(ignoreUnmappedSourceProperties = { "performedBuilds", "deliveredArtifacts" })
     org.jboss.pnc.dto.ProductMilestone toDTO(ProductMilestone dbEntity);
 
     @Override
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "productVersion", "productRelease", "performedBuilds",
-                    "distributedArtifacts" })
+                    "deliveredArtifacts" })
     ProductMilestoneRef toRef(ProductMilestone dbEntity);
 
     @Override

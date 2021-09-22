@@ -93,9 +93,9 @@ public class DeliverableAnalyzerResultProcessor {
                                 "Unknown build system type " + build.getBuildSystemType());
                 }
             }
-            build.getArtifacts().stream().map(artifactParser).forEach(milestone::addDistributedArtifact);
+            build.getArtifacts().stream().map(artifactParser).forEach(milestone::addDeliveredArtifact);
         }
-        milestone.setDistributedArtifactsImporter(user);
+        milestone.setDeliveredArtifactsImporter(user);
     }
 
     @SuppressWarnings("unchecked")

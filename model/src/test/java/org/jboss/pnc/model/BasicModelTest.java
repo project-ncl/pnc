@@ -260,7 +260,7 @@ public class BasicModelTest extends AbstractModelTest {
                 .importDate(Date.from(Instant.now()))
                 .targetRepository(targetRepository)
                 .build();
-        productMilestone1.addDistributedArtifact(artifact);
+        productMilestone1.addDeliveredArtifact(artifact);
         ProductRelease productRelease1 = ProductRelease.Builder.newBuilder()
                 .version("1.0.0.Beta1")
                 .productMilestone(productMilestone1)
@@ -279,7 +279,7 @@ public class BasicModelTest extends AbstractModelTest {
             tx.commit();
 
             ProductRelease release = em.find(ProductRelease.class, productRelease1.getId());
-            Assert.assertEquals(1, release.getProductMilestone().getDistributedArtifacts().size());
+            Assert.assertEquals(1, release.getProductMilestone().getDeliveredArtifacts().size());
         } catch (RuntimeException e) {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
