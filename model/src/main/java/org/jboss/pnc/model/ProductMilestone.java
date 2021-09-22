@@ -124,28 +124,28 @@ public class ProductMilestone implements GenericEntity<Integer> {
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany()
     @JoinTable(
-            name = "product_milestone_distributed_artifacts_map",
+            name = "product_milestone_delivered_artifacts_map",
             joinColumns = { @JoinColumn(
                     name = "product_milestone_id",
                     referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_product_milestone_distr_art_map_productmilestone")) },
+                    foreignKey = @ForeignKey(name = "fk_product_milestone_del_art_map_productmilestone")) },
             inverseJoinColumns = { @JoinColumn(
                     name = "artifact_id",
                     referencedColumnName = "id",
-                    foreignKey = @ForeignKey(name = "fk_product_milestone_distr_art_map_artifact")) },
-            indexes = { @Index(name = "idx_product_milestone_distr_art_map_artifact", columnList = "artifact_id"),
+                    foreignKey = @ForeignKey(name = "fk_product_milestone_del_art_map_artifact")) },
+            indexes = { @Index(name = "idx_product_milestone_del_art_map_artifact", columnList = "artifact_id"),
                     @Index(
-                            name = "idx_product_milestone_distr_art_map_productmilestone",
+                            name = "idx_product_milestone_del_art_map_productmilestone",
                             columnList = "product_milestone_id") })
-    private Set<Artifact> distributedArtifacts;
+    private Set<Artifact> deliveredArtifacts;
 
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_distributed_artifacts_importer_user"), updatable = false)
-    private User distributedArtifactsImporter;
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_delivered_artifacts_importer_user"), updatable = false)
+    private User deliveredArtifactsImporter;
 
     public ProductMilestone() {
         performedBuilds = new HashSet<>();
-        distributedArtifacts = new HashSet<>();
+        deliveredArtifacts = new HashSet<>();
     }
 
     @Override
@@ -231,28 +231,28 @@ public class ProductMilestone implements GenericEntity<Integer> {
         performedBuild.setProductMilestone(null);
     }
 
-    public Set<Artifact> getDistributedArtifacts() {
-        return distributedArtifacts;
+    public Set<Artifact> getDeliveredArtifacts() {
+        return deliveredArtifacts;
     }
 
-    public void setDistributedArtifacts(Set<Artifact> distributedArtifacts) {
-        this.distributedArtifacts = distributedArtifacts;
+    public void setDeliveredArtifacts(Set<Artifact> deliveredArtifacts) {
+        this.deliveredArtifacts = deliveredArtifacts;
     }
 
-    public boolean addDistributedArtifact(Artifact distributedArtifact) {
-        return distributedArtifacts.add(distributedArtifact);
+    public boolean addDeliveredArtifact(Artifact deliveredArtifact) {
+        return deliveredArtifacts.add(deliveredArtifact);
     }
 
-    public boolean removeDistributedArtifact(Artifact distributedArtifact) {
-        return this.distributedArtifacts.remove(distributedArtifact);
+    public boolean removeDeliveredArtifact(Artifact deliveredArtifacts) {
+        return this.deliveredArtifacts.remove(deliveredArtifacts);
     }
 
-    public User getDistributedArtifactsImporter() {
-        return distributedArtifactsImporter;
+    public User getDeliveredArtifactsImporter() {
+        return deliveredArtifactsImporter;
     }
 
-    public void setDistributedArtifactsImporter(User distributedArtifactsImporter) {
-        this.distributedArtifactsImporter = distributedArtifactsImporter;
+    public void setDeliveredArtifactsImporter(User deliveredArtifactsImporter) {
+        this.deliveredArtifactsImporter = deliveredArtifactsImporter;
     }
 
     /**
@@ -313,15 +313,15 @@ public class ProductMilestone implements GenericEntity<Integer> {
 
         private Set<BuildRecord> performedBuilds;
 
-        private Set<Artifact> distributedArtifacts;
+        private Set<Artifact> deliveredArtifact;
 
         private ProductRelease productRelease;
 
-        private User distributedArtifactsImporter;
+        private User deliveredArtifactsImporter;
 
         private Builder() {
             performedBuilds = new HashSet<>();
-            distributedArtifacts = new HashSet<>();
+            deliveredArtifact = new HashSet<>();
         }
 
         public static Builder newBuilder() {
@@ -342,14 +342,14 @@ public class ProductMilestone implements GenericEntity<Integer> {
             }
 
             productMilestone.setPerformedBuilds(performedBuilds);
-            productMilestone.setDistributedArtifacts(distributedArtifacts);
+            productMilestone.setDeliveredArtifacts(deliveredArtifact);
 
             if (productRelease != null) {
                 productRelease.setProductMilestone(productMilestone);
                 productMilestone.setProductRelease(productRelease);
             }
 
-            productMilestone.setDistributedArtifactsImporter(distributedArtifactsImporter);
+            productMilestone.setDeliveredArtifactsImporter(deliveredArtifactsImporter);
 
             return productMilestone;
         }
@@ -394,13 +394,13 @@ public class ProductMilestone implements GenericEntity<Integer> {
             return this;
         }
 
-        public Builder distributedArtifacts(Set<Artifact> distributedArtifacts) {
-            this.distributedArtifacts = distributedArtifacts;
+        public Builder distributedArtifacts(Set<Artifact> deliveredArtifact) {
+            this.deliveredArtifact = deliveredArtifact;
             return this;
         }
 
-        public Builder distributedArtifact(Artifact distributedArtifact) {
-            this.distributedArtifacts.add(distributedArtifact);
+        public Builder distributedArtifact(Artifact deliveredArtifact) {
+            this.deliveredArtifact.add(deliveredArtifact);
             return this;
         }
 
@@ -421,8 +421,8 @@ public class ProductMilestone implements GenericEntity<Integer> {
             return "";
         }
 
-        public Builder distributedArtifactsImporter(User distributedArtifactsImporter) {
-            this.distributedArtifactsImporter = distributedArtifactsImporter;
+        public Builder deliveredArtifactsImporter(User deliveredArtifactsImporter) {
+            this.deliveredArtifactsImporter = deliveredArtifactsImporter;
             return this;
         }
     }

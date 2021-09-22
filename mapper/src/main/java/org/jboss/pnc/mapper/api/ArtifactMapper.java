@@ -42,8 +42,8 @@ public interface ArtifactMapper
     @Mapping(target = "creationUser", qualifiedBy = Reference.class)
     @Mapping(target = "modificationUser", qualifiedBy = Reference.class)
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "distributedInProductMilestones", "identifierSha256", "built",
-                    "imported", "trusted", "descriptiveString", "dependantBuildRecords" })
+            ignoreUnmappedSourceProperties = { "deliveredInProductMilestones", "identifierSha256", "built", "imported",
+                    "trusted", "descriptiveString", "dependantBuildRecords" })
     org.jboss.pnc.dto.Artifact toDTO(Artifact dbEntity);
 
     @Override
@@ -51,7 +51,7 @@ public interface ArtifactMapper
     @Mapping(target = "publicUrl", ignore = true)
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "targetRepository", "buildRecords", "dependantBuildRecords",
-                    "importDate", "distributedInProductMilestones", "identifierSha256", "built", "imported", "trusted",
+                    "importDate", "deliveredInProductMilestones", "identifierSha256", "built", "imported", "trusted",
                     "descriptiveString", "creationUser", "modificationUser" })
     ArtifactRef toRef(Artifact dbEntity);
 
@@ -66,7 +66,7 @@ public interface ArtifactMapper
      * he thinks it is a new property
      */
     @Mapping(target = "dependantBuildRecord", ignore = true)
-    @Mapping(target = "distributedInProductMilestones", ignore = true)
+    @Mapping(target = "deliveredInProductMilestones", ignore = true)
     @BeanMapping(ignoreUnmappedSourceProperties = { "deployUrl", "publicUrl" })
     Artifact toEntity(org.jboss.pnc.dto.Artifact dtoEntity);
 

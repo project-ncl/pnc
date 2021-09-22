@@ -112,31 +112,31 @@ public class DeliverableAnalyzerResultProcessorTest {
 
         // verify that:
         // all artifacts were set as distributed
-        verify(milestone, times(14)).addDistributedArtifact(any());
+        verify(milestone, times(14)).addDeliveredArtifact(any());
         // unknown artifacts were converted and set as distributed
-        verify(milestone, times(2)).addDistributedArtifact(argThat(a -> {
+        verify(milestone, times(2)).addDeliveredArtifact(argThat(a -> {
             return a.getArtifactQuality().equals(ArtifactQuality.IMPORTED)
                     && a.getTargetRepository().getIdentifier().equals(DISTRIBUTION_ARCHIVE)
                     && a.getTargetRepository().getRepositoryType().equals(RepositoryType.DISTRIBUTION_ARCHIVE)
                     && a.getTargetRepository().getRepositoryPath().equals(distributionUrl);
         }));
         // brew unbuilt artifacts were converted and set as distributed
-        verify(milestone, times(2)).addDistributedArtifact(argThat(a -> {
+        verify(milestone, times(2)).addDeliveredArtifact(argThat(a -> {
             return a.getArtifactQuality().equals(ArtifactQuality.IMPORTED)
                     && a.getTargetRepository().getIdentifier().equals(INDY_MAVEN)
                     && a.getTargetRepository().getRepositoryType().equals(RepositoryType.MAVEN);
         }));
         // brew built artifacts (in brew build "second-build-ever") were converted and set as distributed
-        verify(milestone, times(2)).addDistributedArtifact(argThat(a -> {
+        verify(milestone, times(2)).addDeliveredArtifact(argThat(a -> {
             return a.getArtifactQuality().equals(ArtifactQuality.NEW)
                     && a.getTargetRepository().getIdentifier().equals(INDY_MAVEN)
                     && a.getTargetRepository().getRepositoryType().equals(RepositoryType.MAVEN)
                     && a.getTargetRepository().getRepositoryPath().contains("second-build-ever");
         }));
         // PNC artifacts were set as distributed
-        verify(milestone, times(artifacts.size())).addDistributedArtifact(argThat(a -> artifacts.contains(a)));
+        verify(milestone, times(artifacts.size())).addDeliveredArtifact(argThat(a -> artifacts.contains(a)));
         // user was set for milestone
-        verify(milestone).setDistributedArtifactsImporter(user);
+        verify(milestone).setDeliveredArtifactsImporter(user);
     }
 
     private List<Build> prepareBuilds() {

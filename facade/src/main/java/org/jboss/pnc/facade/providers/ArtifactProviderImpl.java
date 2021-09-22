@@ -77,7 +77,7 @@ import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDistributedInProductMilestone;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDeliveredInProductMilestone;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
@@ -315,7 +315,7 @@ public class ArtifactProviderImpl
                 pageSize,
                 sortingRsql,
                 query,
-                withDistributedInProductMilestone(productMilestoneMapper.getIdMapper().toEntity(milestoneId)));
+                withDeliveredInProductMilestone(productMilestoneMapper.getIdMapper().toEntity(milestoneId)));
     }
 
     @Override

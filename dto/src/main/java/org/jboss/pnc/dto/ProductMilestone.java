@@ -59,13 +59,20 @@ public class ProductMilestone extends ProductMilestoneRef {
     /**
      * The user who imported distributed artifacts for this milestone.
      */
+    @Deprecated
     private final User distributedArtifactsImporter;
+
+    /**
+     * The user who imported delivered artifacts for this milestone.
+     */
+    private final User deliveredArtifactsImporter;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private ProductMilestone(
             ProductVersionRef productVersion,
             ProductReleaseRef productRelease,
             User distributedArtifactsImporter,
+            User deliveredArtifactsImporter,
             String id,
             String version,
             Instant endDate,
@@ -75,6 +82,7 @@ public class ProductMilestone extends ProductMilestoneRef {
         this.productVersion = productVersion;
         this.productRelease = productRelease;
         this.distributedArtifactsImporter = distributedArtifactsImporter;
+        this.deliveredArtifactsImporter = deliveredArtifactsImporter;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

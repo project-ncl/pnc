@@ -180,7 +180,7 @@ public class BuildRecordPredicates {
         return (root, query, cb) -> {
             SetJoin<BuildRecord, Artifact> builtArtifacts = root.join(BuildRecord_.builtArtifacts);
             SetJoin<Artifact, ProductMilestone> productMilestones = builtArtifacts
-                    .join(Artifact_.distributedInProductMilestones);
+                    .join(Artifact_.deliveredInProductMilestones);
             return cb.equal(productMilestones.get(ProductMilestone_.id), productMilestoneId);
         };
     }
