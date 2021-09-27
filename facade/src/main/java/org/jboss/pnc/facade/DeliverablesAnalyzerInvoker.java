@@ -20,5 +20,5 @@ package org.jboss.pnc.facade;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
 
 public interface DeliverablesAnalyzerInvoker {
-    void startAnalysis(String milestoneId, DeliverablesAnalysisRequest request);
+    void startAnalysis(String milestoneId, DeliverablesAnalysisRequest request, String operationId);
 }

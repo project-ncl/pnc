@@ -27,6 +27,8 @@ import java.util.List;
  */
 public interface AnalysisStatusChangedEvent {
 
+    String getOperationId();
+
     AnalysisStatus getStatus();
 
     String getMilestoneId();

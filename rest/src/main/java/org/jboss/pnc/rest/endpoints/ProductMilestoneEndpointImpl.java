@@ -17,11 +17,23 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+
+import org.jboss.pnc.api.enums.OperationStatus;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
@@ -33,19 +45,13 @@ import org.jboss.pnc.facade.DeliverablesAnalyzerInvoker;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneCloseResultProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import java.util.Collections;
 
 @ApplicationScoped
 public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
@@ -67,6 +73,9 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
     private DeliverablesAnalyzerInvoker analyzerInvoker;
+
+    @Inject
+    private DeliverableAnalyzerOperationProvider delAnalyzerProvider;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -146,14 +155,44 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
+    public Page<DeliverableAnalyzerOperation> getAllDeliverableAnalyzerOperations(
+            String id,
+            PageParameters pageParams) {
+        return delAnalyzerProvider.getAllDeliverableAnalyzerOperationsForMilestone(
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ(),
+                id);
+    }
+
+    @Override
     public ValidationResponse validateVersion(VersionValidationRequest versionRequest) {
         return productMilestoneProvider
                 .validateVersion(versionRequest.getProductVersionId(), versionRequest.getVersion());
     }
 
     @Override
-    public void analyzeDeliverables(String id, DeliverablesAnalysisRequest request) {
+    public DeliverableAnalyzerOperation analyzeDeliverables(String id, DeliverablesAnalysisRequest request) {
         MDCUtils.addProcessContext(String.valueOf(Sequence.nextId()));
-        analyzerInvoker.startAnalysis(id, request);
+
+        // Creates the operation in the DB related to this deliverableAnalyzer execution
+        int i = 1;
+        Map<String, String> inputParams = new HashMap<String, String>();
+        for (String url : request.getSourcesLink()) {
+            inputParams.put("url-" + (i++), url);
+        }
+        String operationId = Sequence.nextBase32Id();
+        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.builder()
+                .id(operationId)
+                .parameters(inputParams)
+                .productMilestone(ProductMilestoneRef.refBuilder().id(id).build())
+                .status(OperationStatus.IN_PROGRESS)
+                .build();
+
+        delAnalyzerProvider.store(operation);
+        analyzerInvoker.startAnalysis(id, request, operationId);
+
+        return operation;
     }
 }

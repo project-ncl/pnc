@@ -27,11 +27,17 @@ import java.util.List;
  */
 public class DefaultAnalysisStatusChangedEvent implements AnalysisStatusChangedEvent {
 
+    private final String operationId;
     private final AnalysisStatus status;
     private final String milestoneId;
     private final List<String> sourcesLinks;
 
-    public DefaultAnalysisStatusChangedEvent(AnalysisStatus status, String milestoneId, List<String> sourcesLinks) {
+    public DefaultAnalysisStatusChangedEvent(
+            String operationId,
+            AnalysisStatus status,
+            String milestoneId,
+            List<String> sourcesLinks) {
+        this.operationId = operationId;
         this.status = status;
         this.milestoneId = milestoneId;
         this.sourcesLinks = sourcesLinks;
@@ -53,8 +59,13 @@ public class DefaultAnalysisStatusChangedEvent implements AnalysisStatusChangedE
     }
 
     @Override
+    public String getOperationId() {
+        return operationId;
+    }
+
+    @Override
     public String toString() {
-        return "DefaultAnalysisStatusChangedEvent{" + "status=" + status + ", milestoneId=" + milestoneId
-                + ", sourcesLinks=" + String.join(";", sourcesLinks) + '}';
+        return "DefaultAnalysisStatusChangedEvent{" + "operationId=" + operationId + ", status=" + status
+                + ", milestoneId=" + milestoneId + ", sourcesLinks=" + String.join(";", sourcesLinks) + '}';
     }
 }

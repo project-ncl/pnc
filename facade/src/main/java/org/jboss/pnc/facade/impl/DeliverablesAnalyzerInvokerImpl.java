@@ -72,7 +72,7 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
     }
 
     @Override
-    public void startAnalysis(String milestoneId, DeliverablesAnalysisRequest request) {
+    public void startAnalysis(String milestoneId, DeliverablesAnalysisRequest request, String operationId) {
         String accessToken = userService.currentUserToken();
 
         String actualEndpoint = String.format(callbackUrlTemplate, globalConfig.getPncUrl());
@@ -86,6 +86,7 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
 
         try (RestConnector restConnector = new RestConnector(bpmConfig)) {
             AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
+                    operationId,
                     milestoneId,
                     request.getSourcesLink(),
                     null);
@@ -94,9 +95,14 @@ public class DeliverablesAnalyzerInvokerImpl implements DeliverablesAnalyzerInvo
                     callback,
                     globalConfig.getDelAnalUrl());
 
-            restConnector.startProcess(bpmConfig.getAnalyzeDeliverablesBpmProcessId(), analyzeTask, accessToken);
+            restConnector.startProcess(
+                    bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
+                    analyzeTask,
+                    operationId,
+                    accessToken);
 
             AnalysisStatusChangedEvent analysisStatusChanged = new DefaultAnalysisStatusChangedEvent(
+                    operationId,
                     AnalysisStatus.STARTED,
                     milestoneId,
                     request.getSourcesLink());

@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
@@ -40,6 +41,7 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestoneCloseResultPage;
 
 import javax.validation.Valid;
@@ -345,6 +347,39 @@ public interface ProductMilestoneEndpoint {
             @Parameter(description = PM_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
+    static final String GET_ALL_DELIVERABLE_ANALYZER_OPERATIONS_FILTERED_DESC = "Gets all deliverable analyzer operations executed for this milestone.";
+
+    /**
+     * {@value GET_ALL_DELIVERABLE_ANALYZER_OPERATIONS_FILTERED_DESC}
+     *
+     * @param paginationParameters
+     * @param identifier {@value FILTER_IDENTIFIER_DESC}
+     * @param qualities {@value FILTER_QUALITY_DESC}
+     * @param repoType {@value FILTER_REPOSITORY_TYPE_DESC}
+     * @return
+     */
+    @Operation(
+            summary = GET_ALL_DELIVERABLE_ANALYZER_OPERATIONS_FILTERED_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(
+                                    schema = @Schema(implementation = DeliverableAnalyzerOperationPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/del-analyzer-operations")
+    Page<DeliverableAnalyzerOperation> getAllDeliverableAnalyzerOperations(
+            @Parameter(description = PM_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParameters);
+
     static final String VALIDATE_VERSION = "Validate product milestone version.";
 
     /**
@@ -398,7 +433,7 @@ public interface ProductMilestoneEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/analyze-deliverables")
-    void analyzeDeliverables(
+    DeliverableAnalyzerOperation analyzeDeliverables(
             @Parameter(description = PM_ID) @PathParam("id") String id,
             @Valid DeliverablesAnalysisRequest request);
 }

@@ -17,25 +17,32 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResponse;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
+import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.enums.AnalysisStatus;
+import org.jboss.pnc.facade.deliverables.AnalysisStatusChangedEvent;
 import org.jboss.pnc.facade.deliverables.DefaultAnalysisStatusChangedEvent;
 import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerResultProcessor;
+import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.rest.endpoints.internal.api.DeliverableAnalysisEndpoint;
-import org.jboss.pnc.facade.deliverables.AnalysisStatusChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @ApplicationScoped
 public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpoint {
@@ -49,27 +56,50 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
     private UserService userService;
 
     @Inject
+    private DeliverableAnalyzerOperationProvider delAnalyzerProvider;
+
+    @Inject
     private ProductMilestoneMapper milestoneMapper;
 
     @Inject
     private Event<AnalysisStatusChangedEvent> analysisStatusChangedEventNotifier;
 
     @Override
-    public void completeAnalysis(AnalysisResult result) {
+    public void completeAnalysis(AnalysisResponse response) {
         User user = userService.currentUser();
 
-        int milestoneId = milestoneMapper.getIdMapper().toEntity(result.getMilestoneId());
+        int milestoneId = milestoneMapper.getIdMapper().toEntity(response.getAnalysisResult().getMilestoneId());
         List<String> sourcesLinks = new ArrayList<>();
 
-        for (FinderResult finderResult : result.getResults()) {
+        for (FinderResult finderResult : response.getAnalysisResult().getResults()) {
             resultProcessor
                     .processDeliverables(milestoneId, finderResult.getBuilds(), finderResult.getUrl().toString(), user);
             sourcesLinks.add(finderResult.getUrl().toString());
         }
 
+        // Creates the operation in the DB related to this deliverableAnalyzer execution
+        int i = 1;
+        Map<String, String> inputParams = new HashMap<String, String>();
+        for (String url : sourcesLinks) {
+            inputParams.put("url-" + (i++), url);
+        }
+
+        Instant now = Instant.now();
+        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.builder()
+                .id(response.getOperationId())
+                .parameters(inputParams)
+                .productMilestone(
+                        ProductMilestoneRef.refBuilder().id(response.getAnalysisResult().getMilestoneId()).build())
+                .status(response.getStatus())
+                .endTime(now)
+                .build();
+
+        delAnalyzerProvider.saveOrUpdate(response.getOperationId(), operation);
+
         AnalysisStatusChangedEvent analysisStatusChanged = new DefaultAnalysisStatusChangedEvent(
+                response.getOperationId(),
                 AnalysisStatus.COMPLETED,
-                result.getMilestoneId(),
+                response.getAnalysisResult().getMilestoneId(),
                 sourcesLinks);
         analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
     }

@@ -28,6 +28,9 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class AnalyzeDeliverablesBpmRequest implements Serializable {
+    private static final long serialVersionUID = 2808475070463010184L;
+
+    private final String operationId;
     private final String milestoneId;
     private final List<String> urls;
     private final String config;

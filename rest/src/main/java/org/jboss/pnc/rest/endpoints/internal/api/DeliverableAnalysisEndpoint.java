@@ -21,7 +21,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
+
+import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResponse;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -48,6 +49,6 @@ public interface DeliverableAnalysisEndpoint {
     @POST
     @Path("/complete")
     @Consumes(MediaType.APPLICATION_JSON)
-    void completeAnalysis(@Parameter(description = "Analysis result") AnalysisResult result);
+    void completeAnalysis(@Parameter(description = "Analysis response") AnalysisResponse response);
 
 }
