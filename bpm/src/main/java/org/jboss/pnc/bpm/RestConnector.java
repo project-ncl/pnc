@@ -97,7 +97,7 @@ public class RestConnector implements Connector {
     public Long startProcess(String processId, Object requestObject, String correlationKey, String accessToken)
             throws ProcessManagerException {
         HttpPost request = endpointUrl.startProcessInstance(currentDeploymentId, processId, correlationKey);
-        log.debug("Staring new process using http endpoint: {}", request.getURI());
+        log.debug("Starting new process using http endpoint: {}", request.getURI());
 
         Map<String, Object> processParameters = new HashMap<>();
         processParameters.put("auth", Collections.singletonMap("token", accessToken));
