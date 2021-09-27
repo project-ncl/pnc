@@ -21,6 +21,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.api.enums.OperationStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.BuildType;
@@ -32,6 +33,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.TargetRepository;
@@ -43,6 +45,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
@@ -130,6 +133,9 @@ public class DatastoreTest {
     UserRepository userRepository;
 
     @Inject
+    DeliverableAnalyzerOperationRepository delAnalyzerRepository;
+
+    @Inject
     Datastore datastore;
 
     SequenceHandlerRepository sequenceHandlerRepository = new SequenceHandlerRepositoryMock();
@@ -183,6 +189,13 @@ public class DatastoreTest {
         buildConfig = buildConfigurationRepository.save(buildConfig);
         Assert.assertNotNull(buildConfig.getId());
         assertThat(buildConfig.getDefaultAlignmentParams().contains("-DdependencySource=REST"));
+
+        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(Sequence.nextBase32Id())
+                .startTime(new Date())
+                .status(OperationStatus.IN_PROGRESS)
+                .build();
+        operation = delAnalyzerRepository.save(operation);
     }
 
     /**
@@ -456,6 +469,16 @@ public class DatastoreTest {
                 RepositoryConfigurationPredicates.withExternalScmRepoUrl("ssh://internal.repo.com/"));
         // expect
         Assert.assertTrue("Repository configuration should not be found.", repositoryConfigurations.isEmpty());
+
+    }
+
+    @Test
+    @InSequence(5)
+    @Transactional
+    public void testOperationDatastore() throws Exception {
+
+        List<DeliverableAnalyzerOperation> operations = delAnalyzerRepository.queryAll();
+        Assert.assertTrue("No deliverable analyzer operations were found", operations.size() > 0);
 
     }
 
