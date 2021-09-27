@@ -40,7 +40,7 @@ public class DeliverableAnalyzerOperation extends Operation {
      * The product milestone for which this deliverable analyzer operation was performed.
      */
     @ManyToOne
-    @JoinColumn(foreignKey = @ForeignKey(name = "fk_operation_productMilestone"))
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_operation_productmilestone"))
     private ProductMilestone productMilestone;
 
     public DeliverableAnalyzerOperation() {
