@@ -18,10 +18,12 @@
 package org.jboss.pnc.mapper;
 
 import java.io.Serializable;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildPushResultRef;
@@ -41,11 +43,13 @@ import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.BuildPushResultMapper;
+import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.mapper.api.EnvironmentMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.mapper.api.IdEntity;
 import org.jboss.pnc.mapper.api.IdMapper;
+import org.jboss.pnc.mapper.api.OperationMapper;
 import org.jboss.pnc.mapper.api.ProductMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
@@ -62,7 +66,9 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.model.Operation;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
@@ -116,6 +122,10 @@ public class RefToReferenceMapper {
     private ProductMilestoneMapper productMilestoneMapper;
     @Inject
     private TargetRepositoryMapper targetRepositoryMapper;
+    @Inject
+    private OperationMapper operationMapper;
+    @Inject
+    private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
 
     public <ID extends Serializable, DB extends GenericEntity<ID>, REF extends DTOEntity> DB map(
             REF dtoEntity,
@@ -194,6 +204,16 @@ public class RefToReferenceMapper {
     @IdEntity
     public User toEntityReference(org.jboss.pnc.dto.User dtoEntity) {
         return map(dtoEntity, userMapper.getIdMapper(), User.class);
+    }
+
+    @IdEntity
+    public Operation toEntityReference(org.jboss.pnc.dto.Operation dtoEntity) {
+        return map(dtoEntity, operationMapper.getIdMapper(), Operation.class);
+    }
+
+    @IdEntity
+    public DeliverableAnalyzerOperation toEntityReference(org.jboss.pnc.dto.DeliverableAnalyzerOperation dtoEntity) {
+        return map(dtoEntity, deliverableAnalyzerOperationMapper.getIdMapper(), DeliverableAnalyzerOperation.class);
     }
 
 }
