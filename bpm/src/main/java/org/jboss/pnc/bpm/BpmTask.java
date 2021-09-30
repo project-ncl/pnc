@@ -113,7 +113,7 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         this.globalConfig = globalConfig;
     }
 
-    /* package */ void setBpmConfig(BpmModuleConfig config) {
+    public void setBpmConfig(BpmModuleConfig config) {
         this.config = config;
     }
 

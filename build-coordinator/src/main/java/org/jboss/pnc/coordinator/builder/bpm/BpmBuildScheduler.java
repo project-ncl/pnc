@@ -22,6 +22,7 @@ import org.jboss.pnc.bpm.BpmManager;
 import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.RestConnector;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.coordinator.builder.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -46,6 +47,8 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     private BpmModuleConfig bpmConfig;
 
+    private GlobalModuleGroup globalConfig;
+
     public static final String schedulerId = "bpm-build-scheduler";
     private Connector restConnector;
 
@@ -59,9 +62,10 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Inject
-    public BpmBuildScheduler(BpmManager manager, BpmModuleConfig bpmConfig) {
+    public BpmBuildScheduler(BpmManager manager, BpmModuleConfig bpmConfig, GlobalModuleGroup globalConfig) {
         this.manager = manager;
         this.bpmConfig = bpmConfig;
+        this.globalConfig = globalConfig;
     }
 
     @PostConstruct
@@ -80,6 +84,8 @@ public class BpmBuildScheduler implements BuildScheduler {
             Map<String, String> genericParameters = buildTask.getBuildConfigurationAudited().getGenericParameters();
             BpmBuildTask task = new BpmBuildTask(buildTask);
             if (useNewProcessForBuild(genericParameters, bpmConfig.isNewBpmForced())) {
+                task.setGlobalConfig(globalConfig);
+                task.setBpmConfig(bpmConfig);
                 restConnector.startProcess(
                         bpmConfig.getBpmNewBuildProcessName(),
                         task.getExtendedProcessParameters(),
