@@ -24,6 +24,7 @@ import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.bpm.model.mapper.RepositoryManagerResultMapper;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
@@ -200,7 +201,8 @@ public class CancelledBuildByBpmTest {
             BpmMock manager = new BpmMock();
             manager.setOnTaskStarted(onTaskStarted);
             BpmModuleConfig bpmConfig = Mockito.mock(BpmModuleConfig.class);
-            buildScheduler = new BpmBuildScheduler(manager, bpmConfig);
+            GlobalModuleGroup globalConfig = Mockito.mock(GlobalModuleGroup.class);
+            buildScheduler = new BpmBuildScheduler(manager, bpmConfig, globalConfig);
         }
 
         @Override
