@@ -375,7 +375,7 @@ public interface ProductMilestoneEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    @Path("/{id}/del-analyzer-operations")
+    @Path("/{id}/deliverables-analyzer-operations")
     Page<DeliverableAnalyzerOperation> getAllDeliverableAnalyzerOperations(
             @Parameter(description = PM_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
