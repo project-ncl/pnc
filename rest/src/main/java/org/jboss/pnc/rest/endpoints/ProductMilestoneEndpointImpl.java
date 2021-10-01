@@ -183,7 +183,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
             inputParams.put("url-" + (i++), url);
         }
         String operationId = Sequence.nextBase32Id();
-        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.builder()
+        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.delAnalyzerbuilder()
                 .id(operationId)
                 .parameters(inputParams)
                 .productMilestone(ProductMilestoneRef.refBuilder().id(id).build())

@@ -85,7 +85,7 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
         }
 
         Instant now = Instant.now();
-        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.builder()
+        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.delAnalyzerbuilder()
                 .id(response.getOperationId())
                 .parameters(inputParams)
                 .productMilestone(

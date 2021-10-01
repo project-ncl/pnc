@@ -27,15 +27,14 @@ import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 @Data
+@Jacksonized
 @Builder(builderClassName = "Builder", builderMethodName = "refBuilder")
-@JsonDeserialize(builder = OperationRef.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OperationRef implements DTOEntity {
 
@@ -61,10 +60,5 @@ public class OperationRef implements DTOEntity {
      * The status of the operation.
      */
     protected final OperationStatus status;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class Builder {
-    }
 
 }

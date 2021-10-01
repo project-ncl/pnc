@@ -28,18 +28,17 @@ import org.jboss.pnc.api.enums.OperationStatus;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
 
 @PatchSupport
 @Data
+@Jacksonized
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonDeserialize(builder = Operation.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Operation extends OperationRef {
 
@@ -54,7 +53,7 @@ public class Operation extends OperationRef {
     @PatchSupport({ ADD, REMOVE, REPLACE })
     protected final Map<String, String> parameters;
 
-    @lombok.Builder(builderClassName = "Builder", toBuilder = true, builderMethodName = "operationBuilder")
+    @lombok.Builder(builderClassName = "OperationBuilder", builderMethodName = "operationBuilder", toBuilder = true)
     protected Operation(
             User user,
             Map<String, String> parameters,
@@ -65,11 +64,6 @@ public class Operation extends OperationRef {
         super(id, startTime, endTime, status);
         this.user = user;
         this.parameters = parameters;
-    }
-
-    @JsonPOJOBuilder(withPrefix = "")
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Builder {
     }
 
 }

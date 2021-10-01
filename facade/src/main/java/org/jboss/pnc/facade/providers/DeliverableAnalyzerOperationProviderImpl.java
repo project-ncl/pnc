@@ -102,7 +102,17 @@ public class DeliverableAnalyzerOperationProviderImpl extends
         org.jboss.pnc.model.User currentUser = userService.currentUser();
         User user = userMapper.toDTO(currentUser);
         Instant now = Instant.now();
-        return super.store(restEntity.toBuilder().user(user).startTime(now).build());
+
+        return super.store(
+                DeliverableAnalyzerOperation.delAnalyzerbuilder()
+                        .id(restEntity.getId())
+                        .endTime(restEntity.getEndTime())
+                        .parameters(restEntity.getParameters())
+                        .productMilestone(restEntity.getProductMilestone())
+                        .status(restEntity.getStatus())
+                        .user(user)
+                        .startTime(now)
+                        .build());
     }
 
     @Override

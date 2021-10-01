@@ -23,17 +23,16 @@ import java.util.Map;
 import org.jboss.pnc.api.enums.OperationStatus;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
 
 @Data
+@Jacksonized
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-@JsonDeserialize(builder = DeliverableAnalyzerOperation.Builder.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DeliverableAnalyzerOperation extends Operation {
 
@@ -42,7 +41,7 @@ public class DeliverableAnalyzerOperation extends Operation {
      */
     protected final ProductMilestoneRef productMilestone;
 
-    @lombok.Builder(builderClassName = "DeliverableAnalyzerBuilder", toBuilder = true)
+    @lombok.Builder(builderClassName = "DeliverableAnalyzerOperationBuilder", builderMethodName = "delAnalyzerbuilder")
     private DeliverableAnalyzerOperation(
             User user,
             Map<String, String> parameters,
@@ -53,11 +52,6 @@ public class DeliverableAnalyzerOperation extends Operation {
             ProductMilestoneRef productMilestone) {
         super(user, parameters, id, startTime, endTime, status);
         this.productMilestone = productMilestone;
-    }
-
-    @JsonPOJOBuilder(withPrefix = "")
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class DeliverableAnalyzerBuilder extends Builder {
     }
 
 }

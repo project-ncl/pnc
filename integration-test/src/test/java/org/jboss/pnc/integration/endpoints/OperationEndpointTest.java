@@ -65,7 +65,7 @@ public class OperationEndpointTest {
         Map<String, String> operationParameters = new HashMap<String, String>();
         operationParameters.put("url-0", "https://github.com/project-ncl/pnc/archive/refs/tags/2.1.1.tar.gz");
         operationParameters.put("url-1", "https://github.com/project-ncl/pnc-common/archive/refs/tags/2.1.0.zip");
-        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.builder()
+        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.delAnalyzerbuilder()
                 .id(Sequence.nextBase32Id())
                 .startTime(Instant.now())
                 .status(OperationStatus.IN_PROGRESS)
@@ -102,7 +102,7 @@ public class OperationEndpointTest {
         Map<String, String> operationParameters = new HashMap<String, String>();
         operationParameters.put("url-0", "https://github.com/project-ncl/pnc/archive/refs/tags/2.1.1.tar.gz");
         operationParameters.put("url-1", "https://github.com/project-ncl/pnc-common/archive/refs/tags/2.1.0.zip");
-        DeliverableAnalyzerOperation startingOperation = DeliverableAnalyzerOperation.builder()
+        DeliverableAnalyzerOperation startingOperation = DeliverableAnalyzerOperation.delAnalyzerbuilder()
                 .id(Sequence.nextBase32Id())
                 .startTime(Instant.now())
                 .status(OperationStatus.IN_PROGRESS)
@@ -121,7 +121,7 @@ public class OperationEndpointTest {
 
         // Create a new object for the same operation with same id but different values
         operationParameters.put("url-3", "https://github.com/project-ncl/pnc-common/archive/refs/tags/2.0.0.zip");
-        DeliverableAnalyzerOperation finishedOperation = DeliverableAnalyzerOperation.builder()
+        DeliverableAnalyzerOperation finishedOperation = DeliverableAnalyzerOperation.delAnalyzerbuilder()
                 .id(startingOperation.getId())
                 .startTime(Instant.now())
                 .status(OperationStatus.SUCCESSFUL)
