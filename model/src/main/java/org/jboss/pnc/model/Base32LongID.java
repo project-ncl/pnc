@@ -83,6 +83,7 @@ public class Base32LongID implements Serializable {
      * @throws IOException
      */
     private void writeObject(java.io.ObjectOutputStream stream) throws IOException {
+        stream.defaultWriteObject();
         stream.writeLong(id);
     }
 
@@ -94,7 +95,7 @@ public class Base32LongID implements Serializable {
      * @throws ClassNotFoundException
      */
     private void readObject(java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+        stream.defaultReadObject();
         this.id = stream.readLong();
     }
-
 }
