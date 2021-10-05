@@ -86,6 +86,7 @@ public class BpmBuildScheduler implements BuildScheduler {
             if (useNewProcessForBuild(genericParameters, bpmConfig.isNewBpmForced())) {
                 task.setGlobalConfig(globalConfig);
                 task.setBpmConfig(bpmConfig);
+                task.setJsonEncodedProcessParameters(false);
                 restConnector.startProcess(
                         bpmConfig.getBpmNewBuildProcessName(),
                         task.getExtendedProcessParameters(),
