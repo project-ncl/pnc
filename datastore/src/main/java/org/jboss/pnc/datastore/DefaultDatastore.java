@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore;
 
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -162,9 +163,11 @@ public class DefaultDatastore implements Datastore {
         buildRecord = buildRecordRepository.save(buildRecord);
         logger.debug("Build record {} saved.", buildRecord.getId());
 
-        logger.trace("Setting artifacts as built.");
+        ArtifactQuality quality = buildRecord.isTemporaryBuild() ? ArtifactQuality.TEMPORARY : ArtifactQuality.NEW;
+        logger.trace("Setting artifacts as built and their quality to {}.", quality);
         for (Artifact builtArtifact : savedBuiltArtifacts) {
             builtArtifact.setBuildRecord(buildRecord);
+            builtArtifact.setArtifactQuality(quality);
         }
 
         return buildRecord;
