@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.commonjava.atlas.maven.ident.ref.InvalidRefException;
 import org.jboss.pnc.common.maven.Gav;
 import org.jboss.pnc.coordinator.maintenance.BlacklistAsyncInvoker;
 import org.jboss.pnc.dto.ArtifactRef;
@@ -257,9 +258,16 @@ public class ArtifactProviderImpl
     private String createBlacklistJSONPayload(org.jboss.pnc.dto.Artifact artifact) {
         switch (artifact.getTargetRepository().getRepositoryType()) {
             case MAVEN: {
-                Gav gav = Gav.parse(artifact.getIdentifier());
-                return String
-                        .format(MVN_BLACKLIST_JSON_PAYLOAD, gav.getGroupId(), gav.getArtifactId(), gav.getVersion());
+                try {
+                    Gav gav = Gav.parse(artifact.getIdentifier());
+                    return String.format(
+                            MVN_BLACKLIST_JSON_PAYLOAD,
+                            gav.getGroupId(),
+                            gav.getArtifactId(),
+                            gav.getVersion());
+                } catch (InvalidRefException e) {
+                    return null;
+                }
             }
             default:
                 return null;
