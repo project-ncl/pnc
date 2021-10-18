@@ -52,6 +52,8 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -88,6 +90,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha2
  */
 @PermitAll
 @Stateless
+@Slf4j
 @SuppressWarnings("deprecation")
 public class ArtifactProviderImpl
         extends AbstractUpdatableProvider<Integer, Artifact, org.jboss.pnc.dto.Artifact, ArtifactRef>
@@ -266,6 +269,9 @@ public class ArtifactProviderImpl
                             gav.getArtifactId(),
                             gav.getVersion());
                 } catch (InvalidRefException e) {
+                    log.info(
+                            "Gav coordinates could not be calculated for identifier '{}', the artifact will not be blocklisted in DA",
+                            artifact.getIdentifier());
                     return null;
                 }
             }
