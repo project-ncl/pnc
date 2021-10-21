@@ -31,3 +31,9 @@ COMMIT;
 BEGIN transaction;
     ALTER TABLE product_milestone_delivered_artifacts_map DROP CONSTRAINT fk_product_milestone_distributed_artifacts_map;
 COMMIT;
+
+-- [NCL-6790] - Extend BuildRecord model in Orchestrator to add a lastUpdated column
+BEGIN transaction;
+    ALTER TABLE buildrecord ADD COLUMN last_update_time timestamptz;
+    UPDATE buildrecord set last_update_time = COALESCE(endtime, starttime, submittime);
+COMMIT;
