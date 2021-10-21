@@ -327,7 +327,7 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     private BuildRecord noRebuildCause;
 
     @UpdateTimestamp
-    @Column(name = "last_update_time", columnDefinition = "timestamp with time zone")
+    @Column(columnDefinition = "timestamp with time zone")
     private Date lastUpdateTime;
 
     /**
