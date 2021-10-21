@@ -104,6 +104,11 @@ public class BuildRef implements DTOEntity {
      */
     protected final String buildOutputChecksum;
 
+    /**
+     * The time when the build was inserted or last updated
+     */
+    protected final Instant lastUpdateTime;
+
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {

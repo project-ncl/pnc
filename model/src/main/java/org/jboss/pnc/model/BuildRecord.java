@@ -21,6 +21,7 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.LazyGroup;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.jboss.pnc.common.security.Md5;
 import org.jboss.pnc.common.security.Sha256;
 import org.jboss.pnc.common.util.StringUtils;
@@ -324,6 +325,10 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_buildrecord_norebuildcause"), updatable = false)
     private BuildRecord noRebuildCause;
+
+    @UpdateTimestamp
+    @Column(name = "last_update_time", columnDefinition = "timestamp with time zone")
+    private Date lastUpdateTime;
 
     /**
      * Instantiates a new project build result.
@@ -858,6 +863,14 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
         this.noRebuildCause = noRebuildCause;
     }
 
+    public Date getLastUpdateTime() {
+        return lastUpdateTime;
+    }
+
+    public void setLastUpdateTime(Date lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -932,6 +945,8 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
         private BuildRecord noRebuildCause;
 
+        private Date lastUpdateTime;
+
         public Builder() {
             dependencies = new HashSet<>();
         }
@@ -957,6 +972,7 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
             buildRecord.setSubmitTime(submitTime);
             buildRecord.setStartTime(startTime);
             buildRecord.setEndTime(endTime);
+            buildRecord.setLastUpdateTime(lastUpdateTime);
             buildRecord.setUser(user);
             buildRecord.setScmRepoURL(scmRepoURL);
             buildRecord.setScmRevision(scmRevision);
@@ -1204,6 +1220,11 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
         public BuildRecord.Builder noRebuildCause(BuildRecord noRebuildCause) {
             this.noRebuildCause = noRebuildCause;
+            return this;
+        }
+
+        public BuildRecord.Builder lastUpdateTime(Date lastUpdateTime) {
+            this.lastUpdateTime = lastUpdateTime;
             return this;
         }
     }
