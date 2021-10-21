@@ -34,6 +34,6 @@ COMMIT;
 
 -- [NCL-6790] - Extend BuildRecord model in Orchestrator to add a lastUpdated column
 BEGIN transaction;
-    ALTER TABLE buildrecord ADD COLUMN last_update_time timestamptz;
+    ALTER TABLE buildrecord ADD COLUMN lastupdatetime timestamptz;
     UPDATE buildrecord set lastupdatetime = COALESCE(endtime, starttime, submittime);
 COMMIT;
