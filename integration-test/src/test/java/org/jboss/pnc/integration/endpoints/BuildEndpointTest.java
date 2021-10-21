@@ -403,7 +403,7 @@ public class BuildEndpointTest {
         Build updated = client.getSpecific(buildId);
 
         assertThat(updated.getId()).isEqualTo(buildId);
-        assertThat(updated).isEqualToIgnoringGivenFields(original, "status");
+        assertThat(updated).isEqualToIgnoringGivenFields(original, "status", "lastUpdateTime");
         assertThat(updated.getStatus()).isNotEqualTo(original.getStatus());
         assertThat(updated.getStatus()).isEqualTo(toUpdate.getStatus());
     }
