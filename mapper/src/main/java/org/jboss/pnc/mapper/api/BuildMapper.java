@@ -139,6 +139,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "submitTime", ignore = true)
     @Mapping(target = "startTime", ignore = true)
     @Mapping(target = "endTime", ignore = true)
+    @Mapping(target = "lastUpdateTime", ignore = true) // automatically handled by Hibernate
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "scmRepoURL", ignore = true)
     @Mapping(target = "scmRevision", ignore = true)
@@ -191,6 +192,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "scmRevision", ignore = true)
     @Mapping(target = "scmTag", ignore = true)
     @Mapping(target = "attributes", ignore = true)
+    @Mapping(target = "lastUpdateTime", ignore = true)
     @Mapping(target = "progress", source = "status")
     @Mapping(target = "buildOutputChecksum", ignore = true)
     @BeanMapping(

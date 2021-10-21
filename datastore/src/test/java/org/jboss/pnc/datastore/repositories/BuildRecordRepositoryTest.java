@@ -24,6 +24,7 @@ import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.datastore.DeploymentFactory;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
@@ -48,6 +49,8 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Jakub Bartecek
@@ -144,6 +147,35 @@ public class BuildRecordRepositoryTest {
         // then
         logger.debug("Builds {}", result);
         Assertions.assertThat(result.size()).isEqualTo(1);
+    }
+
+    @InSequence(5)
+    @Test
+    public void shouldHaveNotNullLastUpdateTime() {
+        // given
+        Date now = new Date();
+        String id = Sequence.nextBase32Id();
+        BuildRecord givenBr = initBuildRecordBuilder(id).endTime(now).temporaryBuild(true).build();
+        buildRecordRepository.save(givenBr);
+
+        // when
+        BuildRecord found = buildRecordRepository.queryById(new Base32LongID(id));
+
+        // then
+        Date firstLastUpdateTime = found.getLastUpdateTime();
+        assertNotNull(firstLastUpdateTime);
+
+        // Updating the build record
+        givenBr.setStatus(BuildStatus.CANCELLED);
+        buildRecordRepository.save(givenBr);
+
+        // Refetch the build record saved
+        found = buildRecordRepository.queryById(new Base32LongID(id));
+        Date secondLastUpdateTime = found.getLastUpdateTime();
+        assertNotNull(secondLastUpdateTime);
+
+        // Verify that the last update was changed
+        assertNotEquals(firstLastUpdateTime, secondLastUpdateTime);
     }
 
     private BuildRecord.Builder initBuildRecordBuilder(String id) {
