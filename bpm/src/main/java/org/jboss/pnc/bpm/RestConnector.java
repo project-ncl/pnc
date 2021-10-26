@@ -238,25 +238,34 @@ public class RestConnector implements Connector {
 
     private static class EndpointUrlResolver {
 
+        /**
+         * Base url of BPM. It shouldn't end with a trailing slash
+         */
         private final String baseUrl;
 
         public EndpointUrlResolver(String baseUrl) {
-            this.baseUrl = baseUrl;
+
+            // Remove trailing slash if present
+            if (baseUrl != null && baseUrl.endsWith("/")) {
+                this.baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+            } else {
+                this.baseUrl = baseUrl;
+            }
         }
 
         public HttpPost startProcessInstance(String deploymentId, String processId) {
-            return new HttpPost(baseUrl + "containers/" + deploymentId + "/processes/" + processId + "/instances");
+            return new HttpPost(baseUrl + "/containers/" + deploymentId + "/processes/" + processId + "/instances");
         }
 
         public HttpPost startProcessInstance(String deploymentId, String processId, String correlationKey) {
             return new HttpPost(
-                    baseUrl + "containers/" + deploymentId + "/processes/" + processId + "/instances/correlation/"
+                    baseUrl + "/containers/" + deploymentId + "/processes/" + processId + "/instances/correlation/"
                             + correlationKey);
         }
 
         public HttpPost processInstanceSignal(String deploymentId, String processInstanceId, String signal) {
             return new HttpPost(
-                    baseUrl + "containers/" + deploymentId + "/processes/instances/" + processInstanceId + "/signal/"
+                    baseUrl + "/containers/" + deploymentId + "/processes/instances/" + processInstanceId + "/signal/"
                             + signal);
         }
 
@@ -271,6 +280,5 @@ public class RestConnector implements Connector {
         public String queryProcessInstances(String processId) {
             return baseUrl + "/queries/processes/" + processId + "/instances";
         }
-
     }
 }
