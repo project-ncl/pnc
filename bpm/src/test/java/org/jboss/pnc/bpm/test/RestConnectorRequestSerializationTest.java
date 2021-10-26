@@ -54,7 +54,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RestConnectorRequestSerializationTest {
 
-    private static final String DEPLOYMENT_ID = "/testing";
+    private static final String DEPLOYMENT_ID = "testing";
 
     @Mock
     private BpmModuleConfig bpmConfig;
@@ -69,7 +69,7 @@ public class RestConnectorRequestSerializationTest {
         when(bpmConfig.getBpmNewBaseUrl()).thenReturn(wireMockServer.baseUrl());
         when(bpmConfig.getBpmNewDeploymentId()).thenReturn(DEPLOYMENT_ID);
         wireMockServer.stubFor(
-                post(urlMatching(DEPLOYMENT_ID + ".*")).willReturn(
+                post(urlMatching(".*" + DEPLOYMENT_ID + ".*")).willReturn(
                         aResponse().withStatus(201)
                                 .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
                                 .withBody("1")));
