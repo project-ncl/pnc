@@ -712,7 +712,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             Date lastupdatetime) {
 
         logger.debug(
-                "Executing getInsertedBuildRecordSinceLastUpdate with parameters pageIndex: {}, pageSize: {}, lastupdatetime: {}",
+                "Executing getAllBuildRecordInsightsSinceLastUpdate with parameters pageIndex: {}, pageSize: {}, lastupdatetime: {}",
                 pageIndex,
                 pageSize,
                 lastupdatetime);
