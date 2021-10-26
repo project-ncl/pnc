@@ -24,6 +24,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.enterprise.context.Dependent;
+
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -45,4 +47,23 @@ public interface BuildRecordSpringRepository
     @Query("SELECT DISTINCT br FROM BuildRecord br " + "JOIN br.builtArtifacts builtArtifacts "
             + "WHERE builtArtifacts.id IN (?1)")
     Set<BuildRecord> findByBuiltArtifacts(Set<Integer> dependenciesIds);
+
+    @Query(
+            value = "SELECT buildrecord_id, buildcontentid, submittime, starttime, endtime, lastupdatetime,"
+                    + " submit_year, submit_month, submit_quarter,"
+                    + " status, temporarybuild, autoalign, brewpullactive, buildtype,"
+                    + " executionrootname, executionrootversion, user_id, username,"
+                    + " buildconfiguration_id, buildconfiguration_rev, buildconfiguration_name,"
+                    + " buildconfigsetrecord_id, productmilestone_id, productmilestone_version,"
+                    + " project_id, project_name, productversion_id, product_version, product_id, product_name"
+                    + " FROM _archived_buildrecords WHERE lastupdatetime >= ?1 "
+                    + " ORDER BY lastupdatetime ASC LIMIT ?2 OFFSET ?3",
+            nativeQuery = true)
+    List<Object[]> getAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime, int pageSize, int offset);
+
+    @Query(
+            value = "SELECT COUNT(DISTINCT buildrecord_id) "
+                    + " FROM _archived_buildrecords WHERE lastupdatetime >= ?1 ",
+            nativeQuery = true)
+    Object[] countAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime);
 }

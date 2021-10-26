@@ -149,4 +149,15 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
     public List<BuildRecord> getBuildByCausingRecord(Base32LongID causingRecordId) {
         return null;
     }
+
+    @Override
+    public List<Object[]> getAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime, int pageSize, int offset) {
+        return null;
+    }
+
+    @Override
+    public Object[] countAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime) {
+        return null;
+    }
+
 }
