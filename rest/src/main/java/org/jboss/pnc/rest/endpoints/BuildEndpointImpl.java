@@ -17,6 +17,26 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.constants.Attributes;
@@ -25,6 +45,7 @@ import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.BuildRef;
+import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
@@ -37,7 +58,6 @@ import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -46,24 +66,6 @@ import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.lang.invoke.MethodHandles;
-import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  *
@@ -335,4 +337,14 @@ public class BuildEndpointImpl implements BuildEndpoint {
                 pageParams.getQ(),
                 timestamp);
     }
+
+    @Override
+    public Page<BuildRecordInsights> getAllBuildRecordInsightsOlderThanTimestamp(
+            int pageSize,
+            int pageIndex,
+            long timestamp) {
+
+        return provider.getAllBuildRecordInsightsSinceLastUpdate(pageIndex, pageSize, new Date(timestamp));
+    }
+
 }

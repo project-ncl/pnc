@@ -27,6 +27,7 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildPushResult;
+import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Graph;
@@ -42,6 +43,7 @@ import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerGraphs.BuildsGraph;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ArtifactPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildRecordInsightsPage;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.validation.Valid;
@@ -809,4 +811,39 @@ public interface BuildEndpoint {
     Page<Build> getAllIndependentTempBuildsOlderThanTimestamp(
             @Valid @BeanParam PageParameters pageParams,
             @Parameter(description = TIMESTAMP_PARAM) @QueryParam("timestamp") long timestamp);
+
+    static final String GET_ALL_BUILD_RECORD_INSIGHTS_OLDER_THAN_TIMESTAMP_DESC = "Returns a collection of build record insights"
+            + " older than timestamp";
+
+    /**
+     * {@value GET_ALL_BUILD_RECORD_INSIGHTS_OLDER_THAN_TIMESTAMP_DESC}
+     *
+     * @param pageSize {@value SwaggerConstants#PAGE_SIZE_DESCRIPTION}
+     * @param pageIndex {@value SwaggerConstants#PAGE_INDEX_DESCRIPTION}
+     * @param timestamp {@value TIMESTAMP_PARAM}
+     * @return
+     */
+    @Operation(
+            summary = GET_ALL_BUILD_RECORD_INSIGHTS_OLDER_THAN_TIMESTAMP_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = BuildRecordInsightsPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/build-insights-older-than-timestamp")
+    @TimedMetric
+    Page<BuildRecordInsights> getAllBuildRecordInsightsOlderThanTimestamp(
+            @Parameter(description = SwaggerConstants.PAGE_SIZE_DESCRIPTION) @QueryParam("pageSize") int pageSize,
+            @Parameter(description = SwaggerConstants.PAGE_INDEX_DESCRIPTION) @QueryParam("pageIndex") int pageIndex,
+            @Parameter(description = TIMESTAMP_PARAM) @QueryParam("timestamp") long timestamp);
+
 }

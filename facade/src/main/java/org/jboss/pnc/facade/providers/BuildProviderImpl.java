@@ -17,19 +17,70 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import lombok.Getter;
+import static java.lang.Math.min;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIds;
+import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDependency;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactProduced;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withAttribute;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIds;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutAttribute;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
+import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.TreeSet;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.ejb.EJBAccessException;
+import javax.ejb.Stateless;
+import javax.inject.Inject;
+
 import org.jboss.pnc.common.gerrit.Gerrit;
 import org.jboss.pnc.common.gerrit.GerritException;
 import org.jboss.pnc.common.graph.GraphBuilder;
 import org.jboss.pnc.common.graph.GraphUtils;
+import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildRef;
+import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
@@ -76,54 +127,9 @@ import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJBAccessException;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.TreeSet;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
-import static java.lang.Math.min;
-import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIds;
-import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.temporaryBuild;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactDependency;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withArtifactProduced;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withAttribute;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigSetRecordId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationIds;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withPerformedInMilestone;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withUserId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutAttribute;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
+import lombok.Getter;
 
 @PermitAll
 @Stateless
@@ -697,6 +703,110 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 buildPageInfo.getPageSize(),
                 hits,
                 resultList.stream().map(b -> mapper.toDTO(b)).collect(Collectors.toList()));
+    }
+
+    @Override
+    public Page<BuildRecordInsights> getAllBuildRecordInsightsSinceLastUpdate(
+            int pageIndex,
+            int pageSize,
+            Date lastupdatetime) {
+
+        logger.debug(
+                "Executing getInsertedBuildRecordSinceLastUpdate with parameters pageIndex: {}, pageSize: {}, lastupdatetime: {}",
+                pageIndex,
+                pageSize,
+                lastupdatetime);
+
+        Object[] buildRecordInsightsCount = buildRecordRepository
+                .countAllBuildRecordInsightsOlderThanTimestamp(lastupdatetime);
+
+        logger.debug("BuildRecordInsightsCount: {}", buildRecordInsightsCount[0]);
+        int count = ((Number) buildRecordInsightsCount[0]).intValue();
+        int totalPages = (int) Math.ceil((count) / (double) pageSize);
+        logger.debug("TotalPages of BuildRecordInsightsCount: {}", totalPages);
+
+        List<BuildRecordInsights> content = new ArrayList<BuildRecordInsights>();
+
+        if (count > 0) {
+            int offset = pageIndex * pageSize;
+
+            logger.debug("offset: {}", offset);
+
+            List<Object[]> rawBuildInsights = buildRecordRepository
+                    .getAllBuildRecordInsightsOlderThanTimestamp(lastupdatetime, pageSize, offset);
+            for (Object[] rawBuildInsight : rawBuildInsights) {
+
+                Long buildRecordId = (Long) rawBuildInsight[0];
+                String buildContentId = (String) rawBuildInsight[1];
+                buildContentId = StringUtils.isEmpty(buildContentId) ? LongBase32IdConverter.toString(buildRecordId)
+                        : buildContentId;
+                Date submitTime = (Date) rawBuildInsight[2];
+                Date startTime = (Date) rawBuildInsight[3];
+                Date endTime = (Date) rawBuildInsight[4];
+                Date lastTime = (Date) rawBuildInsight[5];
+                Integer submitYear = (Integer) rawBuildInsight[6];
+                Integer submitMonth = (Integer) rawBuildInsight[7];
+                Integer submitQuarter = (Integer) rawBuildInsight[8];
+                String status = (String) rawBuildInsight[9];
+                Boolean temporaryBuild = (Boolean) rawBuildInsight[10];
+                Boolean autoAlign = (Boolean) rawBuildInsight[11];
+                Boolean brewPullActive = (Boolean) rawBuildInsight[12];
+                String buildType = (String) rawBuildInsight[13];
+                String executionRootName = (String) rawBuildInsight[14];
+                String executionRootVersion = (String) rawBuildInsight[15];
+                Integer userId = (Integer) rawBuildInsight[16];
+                String username = (String) rawBuildInsight[17];
+                Integer buildConfigurationId = (Integer) rawBuildInsight[18];
+                Integer buildConfigurationRev = (Integer) rawBuildInsight[19];
+                String buildConfigurationName = (String) rawBuildInsight[20];
+                Integer buildConfigSetRecordId = (Integer) rawBuildInsight[21];
+                Integer productMilestoneId = (Integer) rawBuildInsight[22];
+                String productMilestoneVersion = (String) rawBuildInsight[23];
+                Integer projectId = (Integer) rawBuildInsight[24];
+                String projectName = (String) rawBuildInsight[25];
+                Integer productVersionId = (Integer) rawBuildInsight[26];
+                String productVersion = (String) rawBuildInsight[27];
+                Integer productId = (Integer) rawBuildInsight[28];
+                String productName = (String) rawBuildInsight[29];
+
+                BuildRecordInsights buildRecordInsights = BuildRecordInsights.builder()
+                        .buildId(buildRecordId)
+                        .buildContentId(buildContentId)
+                        .submitTime(TimeUtils.toInstant(submitTime))
+                        .startTime(TimeUtils.toInstant(startTime))
+                        .endTime(TimeUtils.toInstant(endTime))
+                        .lastUpdateTime(TimeUtils.toInstant(lastTime))
+                        .submitYear(submitYear)
+                        .submitMonth(submitMonth)
+                        .submitQuarter(submitQuarter)
+                        .status(status)
+                        .temporarybuild(temporaryBuild)
+                        .autoalign(autoAlign)
+                        .brewpullactive(brewPullActive)
+                        .buildType(buildType)
+                        .executionRootName(executionRootName)
+                        .executionRootVersion(executionRootVersion)
+                        .userId(userId)
+                        .username(username)
+                        .buildConfigurationId(buildConfigurationId)
+                        .buildConfigurationRev(buildConfigurationRev)
+                        .buildConfigurationName(buildConfigurationName)
+                        .buildConfigSetRecordId(buildConfigSetRecordId)
+                        .productMilestoneId(productMilestoneId)
+                        .productMilestoneVersion(productMilestoneVersion)
+                        .projectId(projectId)
+                        .projectName(projectName)
+                        .productVersionId(productVersionId)
+                        .productVersionVersion(productVersion)
+                        .productId(productId)
+                        .productName(productName)
+                        .build();
+
+                content.add(buildRecordInsights);
+            }
+        }
+
+        return new Page<>(pageIndex, pageSize, totalPages, count, content);
     }
 
     private DefaultPageInfo toPageInfo(BuildPageInfo buildPageInfo) {

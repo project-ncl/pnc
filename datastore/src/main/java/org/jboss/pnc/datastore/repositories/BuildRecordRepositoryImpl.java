@@ -182,4 +182,14 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     public List<BuildRecord> getBuildByCausingRecord(Base32LongID causingRecordId) {
         return queryWithPredicates(withCausingBuildRecordId(causingRecordId));
     }
+
+    @Override
+    public List<Object[]> getAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime, int pageSize, int offset) {
+        return repository.getAllBuildRecordInsightsOlderThanTimestamp(lastupdatetime, pageSize, offset);
+    }
+
+    @Override
+    public Object[] countAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime) {
+        return repository.countAllBuildRecordInsightsOlderThanTimestamp(lastupdatetime);
+    }
 }

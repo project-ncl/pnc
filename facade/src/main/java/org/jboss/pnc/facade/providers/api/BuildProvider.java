@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildRef;
+import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
@@ -29,6 +30,7 @@ import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.model.Base32LongID;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -121,4 +123,9 @@ public interface BuildProvider extends Provider<Base32LongID, org.jboss.pnc.mode
     RunningBuildCount getRunningCount();
 
     Set<String> getBuiltArtifactIds(String buildId);
+
+    Page<BuildRecordInsights> getAllBuildRecordInsightsSinceLastUpdate(
+            int pageIndex,
+            int pageSize,
+            Date lastupdatetime);
 }

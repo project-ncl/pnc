@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
@@ -87,4 +88,8 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
     Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId);
 
     List<BuildRecord> getBuildByCausingRecord(Base32LongID causingRecordId);
+
+    List<Object[]> getAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime, int pageSize, int offset);
+
+    Object[] countAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime);
 }
