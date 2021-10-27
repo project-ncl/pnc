@@ -812,8 +812,7 @@ public interface BuildEndpoint {
             @Valid @BeanParam PageParameters pageParams,
             @Parameter(description = TIMESTAMP_PARAM) @QueryParam("timestamp") long timestamp);
 
-    static final String GET_ALL_BUILD_RECORD_INSIGHTS_OLDER_THAN_TIMESTAMP_DESC = "Returns a collection of build record insights"
-            + " older than timestamp";
+    static final String GET_ALL_BUILD_RECORD_INSIGHTS_OLDER_THAN_TIMESTAMP_DESC = "Returns a collection of build record insights created or updated after timestamp";
 
     /**
      * {@value GET_ALL_BUILD_RECORD_INSIGHTS_OLDER_THAN_TIMESTAMP_DESC}
@@ -840,9 +839,9 @@ public interface BuildEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @GET
-    @Path("/build-insights-older-than-timestamp")
+    @Path("/build-insights-newer-than-timestamp")
     @TimedMetric
-    Page<BuildRecordInsights> getAllBuildRecordInsightsOlderThanTimestamp(
+    Page<BuildRecordInsights> getAllBuildRecordInsightsNewerThanTimestamp(
             @Parameter(description = SwaggerConstants.PAGE_SIZE_DESCRIPTION) @QueryParam("pageSize") int pageSize,
             @Parameter(description = SwaggerConstants.PAGE_INDEX_DESCRIPTION) @QueryParam("pageIndex") int pageIndex,
             @Parameter(description = TIMESTAMP_PARAM) @QueryParam("timestamp") long timestamp);

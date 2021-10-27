@@ -339,7 +339,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public Page<BuildRecordInsights> getAllBuildRecordInsightsOlderThanTimestamp(
+    public Page<BuildRecordInsights> getAllBuildRecordInsightsNewerThanTimestamp(
             int pageSize,
             int pageIndex,
             long timestamp) {
