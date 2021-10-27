@@ -825,6 +825,7 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = GET_ALL_BUILD_RECORD_INSIGHTS_OLDER_THAN_TIMESTAMP_DESC,
+            tags = "internal",
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
