@@ -718,7 +718,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 lastupdatetime);
 
         Object[] buildRecordInsightsCount = buildRecordRepository
-                .countAllBuildRecordInsightsOlderThanTimestamp(lastupdatetime);
+                .countAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime);
 
         logger.debug("BuildRecordInsightsCount: {}", buildRecordInsightsCount[0]);
         int count = ((Number) buildRecordInsightsCount[0]).intValue();
@@ -733,7 +733,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             logger.debug("offset: {}", offset);
 
             List<Object[]> rawBuildInsights = buildRecordRepository
-                    .getAllBuildRecordInsightsOlderThanTimestamp(lastupdatetime, pageSize, offset);
+                    .getAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime, pageSize, offset);
             for (Object[] rawBuildInsight : rawBuildInsights) {
 
                 Long buildRecordId = (Long) rawBuildInsight[0];

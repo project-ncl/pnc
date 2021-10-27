@@ -184,12 +184,12 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     }
 
     @Override
-    public List<Object[]> getAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime, int pageSize, int offset) {
-        return repository.getAllBuildRecordInsightsOlderThanTimestamp(lastupdatetime, pageSize, offset);
+    public List<Object[]> getAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime, int pageSize, int offset) {
+        return repository.getAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime, pageSize, offset);
     }
 
     @Override
-    public Object[] countAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime) {
-        return repository.countAllBuildRecordInsightsOlderThanTimestamp(lastupdatetime);
+    public Object[] countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime) {
+        return repository.countAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime);
     }
 }

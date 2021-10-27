@@ -89,7 +89,7 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
 
     List<BuildRecord> getBuildByCausingRecord(Base32LongID causingRecordId);
 
-    List<Object[]> getAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime, int pageSize, int offset);
+    List<Object[]> getAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime, int pageSize, int offset);
 
-    Object[] countAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime);
+    Object[] countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime);
 }
