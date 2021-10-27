@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.bpm;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * { "process-instance-id": 1, "process-id": "Employee_Rostering.Process1", "process-name": "Process1",
  * "process-version": "1.0", "process-instance-state": 1, "container-id": "employee-rostering", "initiator": "baAdmin",
@@ -29,7 +31,10 @@ package org.jboss.pnc.bpm;
 
 public class RestProcessInstance {
 
+    @JsonProperty("process-instance-id")
     private long id;
+
+    @JsonProperty("container-id")
     private String containerId;
 
     public long getId() {
