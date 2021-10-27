@@ -97,7 +97,7 @@ public class RestConnector implements Connector {
     public Long startProcess(String processId, Object requestObject, String correlationKey, String accessToken)
             throws ProcessManagerException {
         HttpPost request = endpointUrl.startProcessInstance(currentDeploymentId, processId, correlationKey);
-        log.debug("Staring new process using http endpoint: {}", request.getURI());
+        log.debug("Starting new process using http endpoint: {}", request.getURI());
 
         Map<String, Object> processParameters = new HashMap<>();
         processParameters.put("auth", Collections.singletonMap("token", accessToken));
@@ -197,7 +197,7 @@ public class RestConnector implements Connector {
                 log.info("Cancelled process instance id: {}", processInstance.getId());
                 return true;
             } else {
-                log.warn("Cannot cancel process instance, response status: " + statusCode);
+                log.warn("Cannot cancel process instance, response status: {}", statusCode);
                 return false;
             }
         } catch (IOException e) {
