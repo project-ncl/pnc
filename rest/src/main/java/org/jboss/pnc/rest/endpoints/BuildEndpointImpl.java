@@ -344,7 +344,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
             int pageIndex,
             long timestamp) {
 
-        return provider.getAllBuildRecordInsightsSinceLastUpdate(pageIndex, pageSize, new Date(timestamp));
+        return provider.getAllBuildRecordInsightsNewerThanTimestamp(pageIndex, pageSize, new Date(timestamp));
     }
 
 }

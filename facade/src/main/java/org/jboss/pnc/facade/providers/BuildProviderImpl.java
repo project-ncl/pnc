@@ -706,22 +706,20 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     }
 
     @Override
-    public Page<BuildRecordInsights> getAllBuildRecordInsightsSinceLastUpdate(
+    public Page<BuildRecordInsights> getAllBuildRecordInsightsNewerThanTimestamp(
             int pageIndex,
             int pageSize,
             Date lastupdatetime) {
 
         logger.debug(
-                "Executing getAllBuildRecordInsightsSinceLastUpdate with parameters pageIndex: {}, pageSize: {}, lastupdatetime: {}",
+                "Executing getAllBuildRecordInsightsNewerThanTimestamp with parameters pageIndex: {}, pageSize: {}, lastupdatetime: {}",
                 pageIndex,
                 pageSize,
                 lastupdatetime);
 
-        Object[] buildRecordInsightsCount = buildRecordRepository
-                .countAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime);
+        int count = buildRecordRepository.countAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime);
+        logger.debug("BuildRecordInsightsCount: {}", count);
 
-        logger.debug("BuildRecordInsightsCount: {}", buildRecordInsightsCount[0]);
-        int count = ((Number) buildRecordInsightsCount[0]).intValue();
         int totalPages = (int) Math.ceil((count) / (double) pageSize);
         logger.debug("TotalPages of BuildRecordInsightsCount: {}", totalPages);
 

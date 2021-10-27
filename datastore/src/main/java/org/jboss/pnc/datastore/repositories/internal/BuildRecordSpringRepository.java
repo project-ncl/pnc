@@ -65,5 +65,5 @@ public interface BuildRecordSpringRepository
             value = "SELECT COUNT(DISTINCT buildrecord_id) "
                     + " FROM _archived_buildrecords WHERE lastupdatetime >= ?1 ",
             nativeQuery = true)
-    Object[] countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime);
+    int countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime);
 }
