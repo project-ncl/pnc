@@ -124,7 +124,7 @@ public interface BuildProvider extends Provider<Base32LongID, org.jboss.pnc.mode
 
     Set<String> getBuiltArtifactIds(String buildId);
 
-    Page<BuildRecordInsights> getAllBuildRecordInsightsSinceLastUpdate(
+    Page<BuildRecordInsights> getAllBuildRecordInsightsNewerThanTimestamp(
             int pageIndex,
             int pageSize,
             Date lastupdatetime);

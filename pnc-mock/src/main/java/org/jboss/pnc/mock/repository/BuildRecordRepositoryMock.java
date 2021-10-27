@@ -156,8 +156,8 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
     }
 
     @Override
-    public Object[] countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime) {
-        return null;
+    public int countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime) {
+        return 0;
     }
 
 }

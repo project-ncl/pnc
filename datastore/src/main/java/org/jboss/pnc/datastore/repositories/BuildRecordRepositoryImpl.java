@@ -189,7 +189,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     }
 
     @Override
-    public Object[] countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime) {
+    public int countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime) {
         return repository.countAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime);
     }
 }

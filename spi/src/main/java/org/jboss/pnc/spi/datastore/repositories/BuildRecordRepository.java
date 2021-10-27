@@ -91,5 +91,5 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
 
     List<Object[]> getAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime, int pageSize, int offset);
 
-    Object[] countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime);
+    int countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime);
 }
