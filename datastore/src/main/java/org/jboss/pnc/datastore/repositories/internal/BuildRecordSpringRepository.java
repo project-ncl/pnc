@@ -59,11 +59,11 @@ public interface BuildRecordSpringRepository
                     + " FROM _archived_buildrecords WHERE lastupdatetime >= ?1 "
                     + " ORDER BY lastupdatetime ASC LIMIT ?2 OFFSET ?3",
             nativeQuery = true)
-    List<Object[]> getAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime, int pageSize, int offset);
+    List<Object[]> getAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime, int pageSize, int offset);
 
     @Query(
             value = "SELECT COUNT(DISTINCT buildrecord_id) "
                     + " FROM _archived_buildrecords WHERE lastupdatetime >= ?1 ",
             nativeQuery = true)
-    Object[] countAllBuildRecordInsightsOlderThanTimestamp(Date lastupdatetime);
+    Object[] countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime);
 }

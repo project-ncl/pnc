@@ -812,10 +812,10 @@ public interface BuildEndpoint {
             @Valid @BeanParam PageParameters pageParams,
             @Parameter(description = TIMESTAMP_PARAM) @QueryParam("timestamp") long timestamp);
 
-    static final String GET_ALL_BUILD_RECORD_INSIGHTS_OLDER_THAN_TIMESTAMP_DESC = "Returns a collection of build record insights created or updated after timestamp";
+    static final String GET_ALL_BUILD_RECORD_INSIGHTS_NEWER_THAN_TIMESTAMP_DESC = "Returns a collection of build record insights created or updated after timestamp";
 
     /**
-     * {@value GET_ALL_BUILD_RECORD_INSIGHTS_OLDER_THAN_TIMESTAMP_DESC}
+     * {@value GET_ALL_BUILD_RECORD_INSIGHTS_NEWER_THAN_TIMESTAMP_DESC}
      *
      * @param pageSize {@value SwaggerConstants#PAGE_SIZE_DESCRIPTION}
      * @param pageIndex {@value SwaggerConstants#PAGE_INDEX_DESCRIPTION}
@@ -823,7 +823,7 @@ public interface BuildEndpoint {
      * @return
      */
     @Operation(
-            summary = GET_ALL_BUILD_RECORD_INSIGHTS_OLDER_THAN_TIMESTAMP_DESC,
+            summary = GET_ALL_BUILD_RECORD_INSIGHTS_NEWER_THAN_TIMESTAMP_DESC,
             tags = "internal",
             responses = {
                     @ApiResponse(
