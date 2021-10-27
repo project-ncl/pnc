@@ -270,11 +270,11 @@ public class RestConnector implements Connector {
         }
 
         public HttpGet queryProcessInstance(String processInstanceId) {
-            return new HttpGet(baseUrl + "/server/queries/processes/instances/" + processInstanceId);
+            return new HttpGet(baseUrl + "/queries/processes/instances/" + processInstanceId);
         }
 
         public HttpGet queryProcessInstanceByCorrelation(String correlationKey) {
-            return new HttpGet(baseUrl + "/server/queries/processes/instance/correlation/" + correlationKey);
+            return new HttpGet(baseUrl + "/queries/processes/instance/correlation/" + correlationKey);
         }
 
         public String queryProcessInstances(String processId) {
