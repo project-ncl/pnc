@@ -166,6 +166,11 @@ public class DatastoreAdapter {
                     buildRecordBuilder.sshCommand(c.getCommand());
                     buildRecordBuilder.sshPassword(c.getPassword());
                 });
+
+                if (environmentDriverResult.getCompletionStatus() != null
+                        && environmentDriverResult.getCompletionStatus().isFailed()) {
+                    buildRecordStatus = FAILED;
+                }
             }
 
             List<Artifact> builtArtifacts = Collections.emptyList();
