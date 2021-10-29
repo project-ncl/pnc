@@ -137,7 +137,7 @@ public class DatastoreAdapter {
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
                 if (repourResult.getCompletionStatus() != null && repourResult.getCompletionStatus().isFailed()) {
                     buildRecordBuilder.appendLog(
-                            "\nBuild failed in midst of alignment, please check the Alignment tab for more information.\n");
+                            "\nBuild failed during the alignment phase, please check the 'Alignment Log' tab for more information.\n");
                     buildRecordStatus = FAILED;
                 }
             } else {
