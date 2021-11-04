@@ -156,8 +156,10 @@ public class RestConnector implements Connector {
             log.debug("Querying process instance using http endpoint: {}", request.getURI());
             Optional<RestProcessInstance> instance = doQueryProcessInstance(accessToken, request);
             if (instance.isPresent()) {
+                log.info("Found process instance id:{} invoking cancel.", instance.get().getId());
                 return doCancel(instance.get(), accessToken);
             } else {
+                log.debug("Did not found process instance for correlationKey: {} to invoke cancel.", correlationKey);
                 return false;
             }
         } catch (RestConnectorException e) {
