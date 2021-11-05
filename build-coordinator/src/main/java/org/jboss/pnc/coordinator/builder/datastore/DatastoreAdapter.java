@@ -135,10 +135,37 @@ public class DatastoreAdapter {
                 buildRecordBuilder.repourLog(repourResult.getLog());
                 buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
-                if (repourResult.getCompletionStatus() != null && repourResult.getCompletionStatus().isFailed()) {
-                    buildRecordBuilder.appendLog(
-                            "\nBuild failed during the alignment phase, please check the 'Alignment Log' tab for more information.\n");
-                    buildRecordStatus = FAILED;
+                CompletionStatus repourCompletionStatus = repourResult.getCompletionStatus();
+                if (repourCompletionStatus != null) {
+                    switch (repourCompletionStatus) {
+                        case SUCCESS:
+                        case NO_REBUILD_REQUIRED:
+                            break;
+                        case FAILED:
+                            buildRecordBuilder.appendLog(
+                                    "\nBuild failed during the alignment phase, please check the 'Alignment Log' tab for more information.\n");
+                            buildRecordStatus = FAILED;
+                            break;
+                        case CANCELLED:
+                            buildRecordBuilder.appendLog("\nBuild cancelled during alignment phase.\n");
+                            buildRecordStatus = CANCELLED;
+                            break;
+                        case TIMED_OUT:
+                            buildRecordBuilder.appendLog("\nBuild timed-out during alignment phase.\n");
+                            buildRecordStatus = SYSTEM_ERROR;
+                            break;
+                        case SYSTEM_ERROR:
+                            buildRecordBuilder.appendLog(
+                                    "\nBuild failed with SYSTEM_ERROR during the alignment phase, "
+                                            + "please check the 'Alignment Log' tab for more information.\n");
+                            buildRecordStatus = SYSTEM_ERROR;
+                            break;
+                        default:
+                            buildRecordBuilder.appendLog(
+                                    "\nInvalid status during the alignment phase, failing with SYSTEM_ERROR.\n");
+                            buildRecordStatus = SYSTEM_ERROR;
+                            break;
+                    }
                 }
             } else {
                 userLog.warn("Missing Repour Result!");
