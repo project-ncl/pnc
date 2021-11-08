@@ -37,6 +37,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.witho
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
 
+import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -734,7 +735,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                     .getAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime, pageSize, offset);
             for (Object[] rawBuildInsight : rawBuildInsights) {
 
-                Long buildRecordId = (Long) rawBuildInsight[0];
+                Long buildRecordId = ((BigInteger) rawBuildInsight[0]).longValue();
                 String buildContentId = (String) rawBuildInsight[1];
                 buildContentId = StringUtils.isEmpty(buildContentId) ? LongBase32IdConverter.toString(buildRecordId)
                         : buildContentId;
