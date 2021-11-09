@@ -78,8 +78,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * It stores also the buildDriverID that was used to run the build, the system Image where is was run in, and is mapped
  * to a BuildRecordSet, that encapsulates the set of buildRecord that compose a Product
  */
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+// TODO: re-enable cache once NCLSUP-444 is resolved
+// @Cacheable
+// @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity
 @Table(
         indexes = { @Index(name = "idx_buildrecord_user", columnList = "user_id"),
