@@ -225,7 +225,14 @@ public class CancelledBuildByBpmTest {
                 null,
                 "14",
                 "",
-                "10");
+                "10",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
     }
 
     private static class EventListener implements Event<BuildStatusChangedEvent> {

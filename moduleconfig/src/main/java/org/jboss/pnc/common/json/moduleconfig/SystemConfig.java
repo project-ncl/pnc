@@ -17,6 +17,12 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.Properties;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.slf4j.Logger;
@@ -73,6 +79,19 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private int messagingInternalQueueSize;
 
+    /**
+     * Kafka or Infinispan. Null or any other results in local "distribution"
+     */
+    private String distributedEventType;
+
+    private String kafkaBootstrapServers; // list of Kafka bootstrap servers; required
+    private String kafkaTopic; // the Kafka topic used to distribute events in JSON form; required
+    private int kafkaNumOfConsumers; // number of Kafka consumers consuming 'kafkaTopic', default is 1
+    private String kafkaProperties; // path to additional Kafka properties; e.g. security, ack, etc; optional
+
+    private String infinispanClusterName; // Infinispan cluster name; required
+    private String infinispanTransportProperties; // path to Infinispan transport properties; optional
+
     public SystemConfig(
             @JsonProperty("buildDriverId") String buildDriverId,
             @JsonProperty("buildSchedulerId") String buildSchedulerId,
@@ -86,7 +105,14 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("serviceTokenRefreshIfExpiresInSeconds") String serviceTokenRefreshIfExpiresInSeconds,
             @JsonProperty("temporaryBuildsLifeSpan") String temporaryBuildsLifeSpan,
             @JsonProperty("messageSenderId") String messageSenderId,
-            @JsonProperty("messagingInternalQueueSize") String messagingInternalQueueSize) {
+            @JsonProperty("messagingInternalQueueSize") String messagingInternalQueueSize,
+            @JsonProperty("distributedEventType") String distributedEventType,
+            @JsonProperty("kafkaBootstrapServers") String kafkaBootstrapServers,
+            @JsonProperty("kafkaTopic") String kafkaTopic,
+            @JsonProperty("kafkaNumOfConsumers") String kafkaNumOfConsumers,
+            @JsonProperty("kafkaProperties") String kafkaProperties,
+            @JsonProperty("infinispanClusterName") String infinispanClusterName,
+            @JsonProperty("infinispanTransportProperties") String infinispanTransportProperties) {
         this.buildDriverId = buildDriverId;
         this.buildSchedulerId = buildSchedulerId;
         this.authenticationProviderId = authenticationProviderId;
@@ -110,6 +136,25 @@ public class SystemConfig extends AbstractModuleConfig {
                 "messagingInternalQueueSize",
                 messagingInternalQueueSize,
                 1000);
+        this.distributedEventType = distributedEventType;
+        this.kafkaBootstrapServers = kafkaBootstrapServers;
+        this.kafkaTopic = kafkaTopic;
+        this.kafkaNumOfConsumers = toIntWithDefault("kafkaNumOfConsumers", kafkaNumOfConsumers, 1);
+        this.kafkaProperties = kafkaProperties;
+        this.infinispanClusterName = infinispanClusterName;
+        this.infinispanTransportProperties = infinispanTransportProperties;
+    }
+
+    public static Properties readProperties(String file) {
+        try {
+            Properties properties = new Properties();
+            try (InputStream stream = new FileInputStream(file)) {
+                properties.load(stream);
+            }
+            return properties;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public String getBuildDriverId() {
@@ -166,6 +211,34 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public int getMessagingInternalQueueSize() {
         return messagingInternalQueueSize;
+    }
+
+    public String getDistributedEventType() {
+        return distributedEventType;
+    }
+
+    public String getKafkaBootstrapServers() {
+        return kafkaBootstrapServers;
+    }
+
+    public String getKafkaTopic() {
+        return kafkaTopic;
+    }
+
+    public int getKafkaNumOfConsumers() {
+        return kafkaNumOfConsumers;
+    }
+
+    public String getKafkaProperties() {
+        return kafkaProperties;
+    }
+
+    public String getInfinispanClusterName() {
+        return infinispanClusterName;
+    }
+
+    public String getInfinispanTransportProperties() {
+        return infinispanTransportProperties;
     }
 
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {

@@ -17,12 +17,13 @@
  */
 package org.jboss.pnc.notification;
 
+import java.util.Objects;
+import javax.websocket.Session;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
-
-import javax.websocket.Session;
 
 public class SessionBasedAttachedClient implements AttachedClient {
 
@@ -48,11 +49,16 @@ public class SessionBasedAttachedClient implements AttachedClient {
     public void sendMessage(Object messageBody, MessageCallback callback) {
 
         String message;
-        try {
-            message = mapperProvider.getMapper().writeValueAsString(messageBody);
-        } catch (JsonProcessingException e) {
-            throw new IllegalArgumentException("Could not convert object to JSON", e);
+        if (messageBody instanceof String) {
+            message = (String) messageBody;
+        } else {
+            try {
+                message = mapperProvider.getMapper().writeValueAsString(messageBody);
+            } catch (JsonProcessingException e) {
+                throw new IllegalArgumentException("Could not convert object to JSON", e);
+            }
         }
+
         session.getAsyncRemote().sendText(message, sendResult -> {
             if (!sendResult.isOK()) {
                 callback.failed(SessionBasedAttachedClient.this, sendResult.getException());
@@ -71,15 +77,11 @@ public class SessionBasedAttachedClient implements AttachedClient {
 
         SessionBasedAttachedClient that = (SessionBasedAttachedClient) o;
 
-        if (session != null ? !session.equals(that.session) : that.session != null)
-            return false;
-
-        return true;
+        return Objects.equals(session, that.session);
     }
 
     @Override
     public int hashCode() {
-        int result = session != null ? session.hashCode() : 0;
-        return result;
+        return session != null ? session.hashCode() : 0;
     }
 }
