@@ -97,7 +97,14 @@ public class AbstractRepositoryManagerDriverTest {
                 null,
                 "14",
                 "",
-                "10");
+                "10",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
         GlobalModuleGroup globalConfig = new GlobalModuleGroup();
         globalConfig.setIndyUrl(fixture.getUrl());
         PNCModuleGroup pncGroup = new PNCModuleGroup();

@@ -95,6 +95,33 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-registry-utils-kafka</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.apicurio</groupId>
+            <artifactId>apicurio-registry-common</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-commons</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Incompatible JGroups version is pulled in as dependency ... -->
+        <!-- dependency>
+            <groupId>org.jgroups</groupId>
+            <artifactId>jgroups</artifactId>
+            <version>4.0.20.Final-redhat-00002</version>
+            <scope>provided</scope>
+        </dependency -->
+
         <!-- Build dependencies -->
         <dependency>
             <groupId>org.projectlombok</groupId>

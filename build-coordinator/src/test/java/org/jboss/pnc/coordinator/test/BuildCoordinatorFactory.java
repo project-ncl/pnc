@@ -96,7 +96,14 @@ public class BuildCoordinatorFactory {
                 null,
                 "3600",
                 "",
-                "10");
+                "10",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
     }
 
     public static class LocalBuildSchedulerMock extends LocalBuildScheduler {

@@ -17,30 +17,20 @@
  */
 package org.jboss.pnc.notification;
 
+import java.lang.invoke.MethodHandles;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+
 import org.jboss.pnc.common.concurrent.MDCExecutors;
-import org.jboss.pnc.dto.BuildPushResult;
-import org.jboss.pnc.dto.ProductMilestoneCloseResult;
-import org.jboss.pnc.dto.notification.BuildChangedNotification;
-import org.jboss.pnc.dto.notification.BuildPushResultNotification;
-import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
-import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
-import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
-import java.lang.invoke.MethodHandles;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Notification mechanism for Web Sockets. All implementation details should be placed in AttachedClient.
@@ -114,32 +104,4 @@ public class DefaultNotifier implements Notifier {
             }
         }
     }
-
-    public void collectBuildPushResultEvent(@Observes BuildPushResult buildPushResult) {
-        logger.trace("Observed new BuildPushResult event {}.", buildPushResult);
-        sendMessage(new BuildPushResultNotification(buildPushResult));
-        logger.trace("BuildPushResult event processed {}.", buildPushResult);
-    }
-
-    public void collectBuildStatusChangedEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
-        logger.trace("Observed new status changed event {}.", buildStatusChangedEvent);
-        sendMessage(
-                new BuildChangedNotification(
-                        buildStatusChangedEvent.getOldStatus(),
-                        buildStatusChangedEvent.getBuild()));
-        logger.trace("Status changed event processed {}.", buildStatusChangedEvent);
-    }
-
-    public void collectBuildSetStatusChangedEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
-        logger.trace("Observed new set status changed event {}.", buildSetStatusChangedEvent);
-        sendMessage(new GroupBuildChangedNotification(buildSetStatusChangedEvent.getGroupBuild()));
-        logger.trace("Set status changed event processed {}.", buildSetStatusChangedEvent);
-    }
-
-    public void collectProductMilestoneCloseResultEvent(@Observes ProductMilestoneCloseResult milestoneCloseResult) {
-        logger.trace("Observed new MilestoneCloseResult event {}.", milestoneCloseResult);
-        sendMessage(new ProductMilestoneCloseResultNotification(milestoneCloseResult));
-        logger.trace("ProductMilestoneCloseResult event processed {}.", milestoneCloseResult);
-    }
-
 }

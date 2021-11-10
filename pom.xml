@@ -129,6 +129,8 @@
     <!-- Package URL -->
     <version.com.github.package-url>1.3.1</version.com.github.package-url>
 
+    <version.apicurio-registry>1.3.2.Final</version.apicurio-registry>
+
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
 
@@ -1181,6 +1183,31 @@
         <artifactId>json-patch</artifactId>
         <version>${version.com.github.fge}</version>
       </dependency>
+
+      <!-- Cluster eventing -->
+
+      <dependency>
+        <groupId>io.apicurio</groupId>
+        <artifactId>apicurio-registry-utils-kafka</artifactId>
+        <version>${version.apicurio-registry}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.apicurio</groupId>
+        <artifactId>apicurio-registry-common</artifactId>
+        <version>${version.apicurio-registry}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.infinispan</groupId>
+        <artifactId>infinispan-commons</artifactId>
+        <version>${version.org.infinispan}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.infinispan</groupId>
+        <artifactId>infinispan-core</artifactId>
+        <version>${version.org.infinispan}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
