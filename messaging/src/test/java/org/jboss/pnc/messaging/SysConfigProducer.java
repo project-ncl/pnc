@@ -34,6 +34,26 @@ public class SysConfigProducer {
         // Mockito.when(systemConfig.getMessagingInternalQueueSize()).thenReturn(2);
         // return systemConfig;
 
-        return new SystemConfig(null, null, null, null, null, null, null, "10", null, null, null, "", "2");
+        return new SystemConfig(
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "10",
+                null,
+                null,
+                null,
+                "",
+                "2",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
     }
 }
