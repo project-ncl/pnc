@@ -194,9 +194,25 @@ public class DatastoreAdapter {
                     buildRecordBuilder.sshPassword(c.getPassword());
                 });
 
-                if (environmentDriverResult.getCompletionStatus() != null
-                        && environmentDriverResult.getCompletionStatus().isFailed()) {
-                    buildRecordStatus = FAILED;
+                if (environmentDriverResult.getCompletionStatus() != null) {
+                    switch (environmentDriverResult.getCompletionStatus()) {
+                        case SUCCESS:
+                        case NO_REBUILD_REQUIRED:
+                            break;
+                        case FAILED:
+                            buildRecordStatus = FAILED;
+                            break;
+                        case CANCELLED:
+                            buildRecordStatus = CANCELLED;
+                            break;
+                        case TIMED_OUT:
+                        case SYSTEM_ERROR:
+                            buildRecordStatus = SYSTEM_ERROR;
+                            break;
+                        default:
+                            buildRecordStatus = SYSTEM_ERROR;
+                            break;
+                    }
                 }
             }
 
@@ -206,8 +222,25 @@ public class DatastoreAdapter {
                 RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
 
                 buildRecordBuilder.appendLog(repositoryManagerResult.getLog());
-                if (repositoryManagerResult.getCompletionStatus().isFailed()) {
-                    buildRecordStatus = FAILED; // TODO, do not mix statuses
+                if (repositoryManagerResult.getCompletionStatus() != null) {
+                    switch (repositoryManagerResult.getCompletionStatus()) { // TODO, do not mix statuses
+                        case SUCCESS:
+                        case NO_REBUILD_REQUIRED:
+                            break;
+                        case FAILED:
+                            buildRecordStatus = FAILED;
+                            break;
+                        case CANCELLED:
+                            buildRecordStatus = CANCELLED;
+                            break;
+                        case TIMED_OUT:
+                        case SYSTEM_ERROR:
+                            buildRecordStatus = SYSTEM_ERROR;
+                            break;
+                        default:
+                            buildRecordStatus = SYSTEM_ERROR;
+                            break;
+                    }
                 }
 
                 builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
@@ -231,12 +264,22 @@ public class DatastoreAdapter {
             }
 
             if (NEW.equals(buildRecordStatus)) {
-                if (buildResult.getCompletionStatus().equals(CompletionStatus.CANCELLED)) {
-                    buildRecordStatus = CANCELLED;
-                } else if (buildResult.getCompletionStatus().equals(CompletionStatus.TIMED_OUT)) {
-                    buildRecordStatus = SYSTEM_ERROR;
-                    buildRecordBuilder.appendLog("-- Operation TIMED-OUT --");
-                    userLog.warn("Operation TIMED-OUT.");
+                switch (buildResult.getCompletionStatus()) {
+                    case SUCCESS:
+                    case NO_REBUILD_REQUIRED:
+                    case FAILED:
+                    case SYSTEM_ERROR:
+                        break;
+                    case CANCELLED:
+                        buildRecordStatus = CANCELLED;
+                        break;
+                    case TIMED_OUT:
+                        buildRecordStatus = SYSTEM_ERROR;
+                        buildRecordBuilder.appendLog("-- Operation TIMED-OUT --");
+                        userLog.warn("Operation TIMED-OUT.");
+                        break;
+                    default:
+                        break;
                 }
             }
 
