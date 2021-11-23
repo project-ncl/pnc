@@ -210,6 +210,8 @@ public class DatastoreAdapter {
                             buildRecordStatus = SYSTEM_ERROR;
                             break;
                         default:
+                            buildRecordBuilder.appendLog(
+                                    "\nInvalid status during the environment setup phase, failing with SYSTEM_ERROR.\n");
                             buildRecordStatus = SYSTEM_ERROR;
                             break;
                     }
@@ -238,6 +240,8 @@ public class DatastoreAdapter {
                             buildRecordStatus = SYSTEM_ERROR;
                             break;
                         default:
+                            buildRecordBuilder.appendLog(
+                                    "\nInvalid status during the promotion phase, failing with SYSTEM_ERROR.\n");
                             buildRecordStatus = SYSTEM_ERROR;
                             break;
                     }
@@ -279,6 +283,8 @@ public class DatastoreAdapter {
                         userLog.warn("Operation TIMED-OUT.");
                         break;
                     default:
+                        buildRecordBuilder.appendLog(
+                                "\nInvalid status detected in the final completion status, failing with SYSTEM_ERROR.\n");
                         break;
                 }
             }
