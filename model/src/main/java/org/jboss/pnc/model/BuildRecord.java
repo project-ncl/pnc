@@ -220,14 +220,16 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     /**
      * Artifacts which were produced by this build
      */
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    // TODO: re-enable cache once NCLSUP-444 is resolved
+    // @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildRecord")
     private Set<Artifact> builtArtifacts;
 
     /**
      * Artifacts which are required external dependencies of this build
      */
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    // TODO: re-enable cache once NCLSUP-444 is resolved
+    // @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @ManyToMany
     @JoinTable(
             name = "build_record_artifact_dependencies_map",
@@ -278,7 +280,8 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     /**
      * Example attributes POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
      */
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    // TODO: re-enable cache once NCLSUP-444 is resolved
+    // @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "buildRecord", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<BuildRecordAttribute> attributes = new HashSet<>();
 
