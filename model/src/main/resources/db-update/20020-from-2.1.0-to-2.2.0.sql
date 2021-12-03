@@ -37,3 +37,8 @@ BEGIN transaction;
     ALTER TABLE buildrecord ADD COLUMN lastupdatetime timestamptz;
     UPDATE buildrecord set lastupdatetime = COALESCE(endtime, starttime, submittime);
 COMMIT;
+-- [NCL-6790] - Update the _archived_buildrecords table (not mapped by Hibernate) to let the native queries work
+BEGIN transaction;
+    ALTER TABLE _archived_buildrecords ADD COLUMN lastupdatetime timestamptz;
+    UPDATE _archived_buildrecords set lastupdatetime = COALESCE(endtime, starttime, submittime);
+COMMIT;
