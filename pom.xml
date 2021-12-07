@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.jboss.bom</groupId> <!-- Use BOM as parent to have access to the properties -->
     <artifactId>jboss-eap-jakartaee8</artifactId>
-    <version>7.3.1.GA</version>
+    <version>7.3.9.GA</version>
   </parent>
 
   <groupId>org.jboss.pnc</groupId>
@@ -109,7 +109,7 @@
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.jbpm>6.2.0.Final</version.jbpm>
     <version.kie-services-client>6.5.0.Final</version.kie-services-client>
-    <version.keycloak>9.0.3.redhat-00002</version.keycloak>
+    <version.keycloak>15.0.2</version.keycloak>
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
     <version.swagger2>2.1.4</version.swagger2>
     <version.buildagent>1.0.0</version.buildagent>
@@ -214,7 +214,7 @@
       <dependency>
         <groupId>com.redhat.bom.rh-sso</groupId>
         <artifactId>rh-sso-adapter-bom</artifactId>
-        <version>7.4.0.GA</version> <!-- If you are changing this, change also version.keycloak!-->
+        <version>7.4.8.GA</version> <!-- If you are changing this, change also version.keycloak!-->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -301,7 +301,6 @@
       <dependency>
         <groupId>org.jboss.logmanager</groupId>
         <artifactId>jboss-logmanager</artifactId>
-        <version>${version.org.jboss.logmanager}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -313,7 +312,6 @@
       <dependency>
         <groupId>com.jcraft</groupId>
         <artifactId>jsch</artifactId>
-        <version>${version.com.jcraft.jsch}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -687,6 +685,11 @@
         <artifactId>jsoup</artifactId>
         <version>1.8.3</version> <!-- version required by indy-repository-manager tests -->
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jboss-transaction-spi</artifactId>
+        <version>7.6.1.Final</version>
       </dependency>
 
       <dependency>
@@ -1073,7 +1076,6 @@
       <dependency>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-dmr</artifactId>
-        <version>${version.org.jboss.jboss-dmr}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
