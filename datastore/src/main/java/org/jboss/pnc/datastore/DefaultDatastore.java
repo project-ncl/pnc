@@ -246,7 +246,8 @@ public class DefaultDatastore implements Datastore {
         for (Artifact artifact : artifacts) {
             TargetRepository targetRepository = artifact.getTargetRepository();
             logger.trace("Adding repository for artifact: {}.", artifact.toString());
-            if (!storedTargetRepositories.containsKey(targetRepository.getIdentifierPath())) {
+            if (!storedTargetRepositories.containsKey(targetRepository.getIdentifierPath())
+                    && !requiredTargetRepositories.containsKey(targetRepository.getIdentifierPath())) {
                 requiredTargetRepositories.put(targetRepository.getIdentifierPath(), targetRepository);
             }
         }
@@ -261,8 +262,10 @@ public class DefaultDatastore implements Datastore {
             }
 
             for (TargetRepository targetRepository : requiredTargetRepositories.values()) {
-                // NCL-5474: This can potentionally cause unique constraint violation if two builds finish at the same
-                // time, both with the same new target repository. This is unlikely to happen, so we take the risk.
+                // NCL-5474: This can potentionally cause unique constraint violation if two
+                // builds finish at the same
+                // time, both with the same new target repository. This is unlikely to happen,
+                // so we take the risk.
                 TargetRepository savedTargetRepository = targetRepositoryRepository.save(targetRepository);
                 storedTargetRepositories.put(targetRepository.getIdentifierPath(), savedTargetRepository);
             }
@@ -278,7 +281,8 @@ public class DefaultDatastore implements Datastore {
         if (artifactFromDb == null) {
             logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
 
-            // Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
+            // Relation owner (BuildRecord) must be saved first, the relation is saved when
+            // the BR is saved
             artifact.setDependantBuildRecords(Collections.emptySet());
             artifactFromDb = artifactRepository.save(artifact);
 
@@ -295,7 +299,8 @@ public class DefaultDatastore implements Datastore {
         // NONE OF THE ARTIFACTS CAN BE IN THE DB BECAUSE OF PER-BUILD REPOS
         logger.trace("Artifact is not in DB. Saving artifact {}.", artifact);
 
-        // Relation owner (BuildRecord) must be saved first, the relation is saved when the BR is saved
+        // Relation owner (BuildRecord) must be saved first, the relation is saved when
+        // the BR is saved
         artifact.setDependantBuildRecords(Collections.emptySet());
         Artifact artifactFromDb = artifactRepository.save(artifact);
 
@@ -534,7 +539,8 @@ public class DefaultDatastore implements Datastore {
 
         logger.debug("Retrieved dependencies size: {}", dependenciesId.size());
         if (processedDependenciesCache != null) {
-            // If the cache of already processed dependencies is not null, remove them from the list of dependencies
+            // If the cache of already processed dependencies is not null, remove them from
+            // the list of dependencies
             // still to be processed to avoid multiple iterated checks on same items
             dependenciesId.removeAll(processedDependenciesCache);
             logger.debug(
