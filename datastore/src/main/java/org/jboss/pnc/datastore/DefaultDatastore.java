@@ -141,6 +141,12 @@ public class DefaultDatastore implements Datastore {
             List<Artifact> dependencies) {
         BuildRecord buildRecord = buildRecordBuilder.build(true);
         logger.debug("Storing completed build {}.", buildRecord);
+        BuildRecord previouslySavedBuild = buildRecordRepository.queryById(buildRecord.getId());
+        if (previouslySavedBuild != null) {
+            throw new IllegalStateException(
+                    "When trying to save build " + buildRecord + " previously saved build with status "
+                            + previouslySavedBuild.getStatus() + " was found.");
+        }
         if (logger.isTraceEnabled()) {
             logger.trace("Build Log: {}.", buildRecord.getBuildLog());
         }
