@@ -98,7 +98,7 @@ public abstract class RepositoryMock<ID extends Serializable, EntityType extends
 
     @Override
     public EntityType queryById(ID id) {
-        return getOptionalById(id).orElseThrow(() -> new RuntimeException("Didn't find entity for id: " + id));
+        return getOptionalById(id).orElse(null);
     }
 
     @Override
