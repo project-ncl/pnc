@@ -105,6 +105,7 @@ public class BuildPusherRejectionsTest {
         // given
         BuildRecord record = new BuildRecord();
         record.setStatus(buildStatus);
+        record.setExecutionRootName("FOO");
         BuildRecord savedBuildRecord = buildRecordRepository.save(record);
 
         Artifact artifact = Artifact.builder().build();
