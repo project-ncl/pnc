@@ -544,9 +544,9 @@ public class BuildConfigurationProviderImpl extends
         BuildConfiguration newBuildConfigurationWithId = buildConfiguration.toBuilder()
                 .id(buildConfigurationId.toString())
                 .build();
-
         RepositoryCreationResponse rcResponse = scmRepositoryProvider.createSCMRepository(
                 request.getScmUrl(),
+                request.getBuildConfig().getScmRevision(),
                 request.getPreBuildSyncEnabled(),
                 JobNotificationType.BUILD_CONFIG_CREATION,
                 // wrap as the callback happens from the Bpm task completion

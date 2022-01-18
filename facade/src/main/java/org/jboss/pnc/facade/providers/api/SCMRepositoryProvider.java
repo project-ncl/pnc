@@ -53,10 +53,10 @@ public interface SCMRepositoryProvider
 
     /**
      * Starts the task of creating SCMRepository.If the SCM URL is external, the task creates new internal repository
-     * and does inital synchronization.
+     * and does initial synchronization.
      *
      * @param scmUrl The URL of the SCM repository.
-     * @param preBuildSyncEnabled If the SCM URL is external, this parameter specifies wheather the external repository
+     * @param preBuildSyncEnabled If the SCM URL is external, this parameter specifies whether the external repository
      *        should be synchronized into the internal one before build.
      * @param jobType Type of the job that requested the SCM repository creation (for notification purposes).
      * @param consumer Callback function that is called when SCM repository is created. The callback function takes SCM
@@ -65,6 +65,27 @@ public interface SCMRepositoryProvider
      */
     RepositoryCreationResponse createSCMRepository(
             String scmUrl,
+            Boolean preBuildSyncEnabled,
+            JobNotificationType jobType,
+            Consumer<RepositoryCreated> consumer,
+            Optional<BuildConfiguration> buildConfiguration);
+
+    /**
+     * Starts the task of creating SCMRepository.If the SCM URL is external, the task creates new internal repository
+     * and does initial synchronization.
+     *
+     * @param scmUrl The URL of the SCM repository.
+     * @param revision Revision to sync between the external and internal SCM repository
+     * @param preBuildSyncEnabled If the SCM URL is external, this parameter specifies whether the external repository
+     *        should be synchronized into the internal one before build.
+     * @param jobType Type of the job that requested the SCM repository creation (for notification purposes).
+     * @param consumer Callback function that is called when SCM repository is created. The callback function takes SCM
+     *        repository id as a parameter.
+     * @return id of the created
+     */
+    RepositoryCreationResponse createSCMRepository(
+            String scmUrl,
+            String revision,
             Boolean preBuildSyncEnabled,
             JobNotificationType jobType,
             Consumer<RepositoryCreated> consumer,
