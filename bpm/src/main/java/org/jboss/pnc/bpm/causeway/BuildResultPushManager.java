@@ -70,6 +70,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.jboss.pnc.api.constants.Attributes.BUILD_BREW_NAME;
 import static org.jboss.pnc.api.constants.BuildConfigurationParameterKeys.BREW_BUILD_NAME;
 
 /**
@@ -217,7 +218,13 @@ public class BuildResultPushManager {
                 .queryById(buildRecord.getBuildConfigurationAuditedIdRev());
         Map<String, String> genericParameters = buildConfigurationAudited.getGenericParameters();
         if (executionRootName == null) {
-            executionRootName = genericParameters.get(BREW_BUILD_NAME.name());
+            if (genericParameters.containsKey(BREW_BUILD_NAME)) {
+                executionRootName = genericParameters.get(BREW_BUILD_NAME.name());
+            } else {
+                throw new IllegalArgumentException(
+                        "Provided build " + buildRecord.getId() + " is missing brew name. Please set build attribute "
+                                + BUILD_BREW_NAME + ".");
+            }
         }
 
         Build build = getBuild(

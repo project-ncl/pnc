@@ -26,6 +26,7 @@ import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -51,6 +52,7 @@ import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,6 +65,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.jboss.pnc.api.constants.BuildConfigurationParameterKeys.BREW_BUILD_NAME;
 import static org.jboss.pnc.constants.MDCKeys.BUILD_ID_KEY;
 import static org.jboss.pnc.enums.ArtifactQuality.BLACKLISTED;
 import static org.jboss.pnc.enums.ArtifactQuality.DELETED;
@@ -167,6 +170,13 @@ public class BrewPusherImpl implements BrewPusher {
         userLog.info("Push started."); // TODO START timing event
         // collect and validate input data
         BuildRecord buildRecord = getLatestSuccessfullyExecutedBuildRecord(buildId);
+        if (buildRecord.getExecutionRootName() == null && !buildRecord.getBuildConfigurationAudited()
+                .getGenericParameters()
+                .containsKey(BREW_BUILD_NAME.name())) {
+            throw new InvalidEntityException(
+                    "Build " + buildId + " cannot be pushed to brew, because it is missing "
+                            + Attributes.BUILD_BREW_NAME + " attribute with brew name.");
+        }
         List<Artifact> artifacts = artifactRepository
                 .queryWithPredicates(ArtifactPredicates.withBuildRecordId(buildRecord.getId()));
         if (hasBadArtifactQuality(artifacts)) {
