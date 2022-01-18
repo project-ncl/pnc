@@ -189,6 +189,17 @@ public class SCMRepositoryProviderImpl
             JobNotificationType jobType,
             Consumer<RepositoryCreated> consumer,
             Optional<BuildConfiguration> buildConfiguration) {
+        return createSCMRepository(scmUrl, null, preBuildSyncEnabled, jobType, consumer, buildConfiguration);
+    }
+
+    @Override
+    public RepositoryCreationResponse createSCMRepository(
+            String scmUrl,
+            String revision,
+            Boolean preBuildSyncEnabled,
+            JobNotificationType jobType,
+            Consumer<RepositoryCreated> consumer,
+            Optional<BuildConfiguration> buildConfiguration) {
         log.trace(
                 "Received request to start RC creation with url autodetect: " + scmUrl + " (sync enabled? "
                         + preBuildSyncEnabled + ")");
@@ -210,7 +221,7 @@ public class SCMRepositoryProviderImpl
             validateRepositoryWithExternalURLDoesNotExist(scmUrl, null);
 
             boolean sync = preBuildSyncEnabled == null || preBuildSyncEnabled;
-            Integer taskId = startRCreationTask(scmUrl, sync, jobType, consumer, buildConfiguration);
+            Integer taskId = startRCreationTask(scmUrl, revision, sync, jobType, consumer, buildConfiguration);
 
             return new RepositoryCreationResponse(taskId);
         }
@@ -314,6 +325,7 @@ public class SCMRepositoryProviderImpl
      */
     private Integer startRCreationTask(
             String externalURL,
+            String revision,
             boolean preBuildSyncEnabled,
             JobNotificationType jobType,
             Consumer<RepositoryCreated> consumer,
@@ -330,7 +342,9 @@ public class SCMRepositoryProviderImpl
         if (bpmConfig.isNewBpmForced() || userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW)) {
             RepositoryCreationProcess.RepositoryCreationProcessBuilder repositoryCreationProcess = RepositoryCreationProcess
                     .builder()
-                    .repositoryConfiguration(repositoryConfiguration);
+                    .repositoryConfiguration(repositoryConfiguration)
+                    .revision(revision);
+
             buildConfiguration.ifPresent(bc -> repositoryCreationProcess.buildConfiguration(bc));
             task = new RepositoryCreationTask(repositoryCreationProcess.build(), userToken);
 
@@ -350,6 +364,7 @@ public class SCMRepositoryProviderImpl
         } else { // deprecated
             RepositoryCreationProcess repositoryCreationProcess = RepositoryCreationProcess.builder()
                     .repositoryConfiguration(repositoryConfiguration)
+                    .revision(revision)
                     .build();
             task = new RepositoryCreationTask(repositoryCreationProcess, userToken);
             task.setJobType(jobType);
