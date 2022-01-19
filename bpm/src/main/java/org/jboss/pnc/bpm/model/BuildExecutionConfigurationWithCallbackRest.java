@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
@@ -74,7 +75,8 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
             String tempBuildTimestamp,
             boolean brewPullActive,
             String completionCallbackUrl,
-            String defaultAlignmentParams) {
+            String defaultAlignmentParams,
+            AlignmentPreference alignmentPreference) {
         super(
                 id,
                 buildContentId,
@@ -97,7 +99,8 @@ public class BuildExecutionConfigurationWithCallbackRest extends BuildExecutionC
                 tempBuild,
                 tempBuildTimestamp,
                 brewPullActive,
-                defaultAlignmentParams);
+                defaultAlignmentParams,
+                alignmentPreference);
         this.completionCallbackUrl = completionCallbackUrl;
     }
 

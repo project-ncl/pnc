@@ -92,7 +92,8 @@ public class BpmBuildTask extends BpmTask {
                         buildTask.getBuildOptions().isTimestampAlignment(),
                         buildTask.getBuildSetTask().getStartTime()),
                 buildConfigurationAudited.isBrewPullActive(),
-                buildConfigurationAudited.getDefaultAlignmentParams());
+                buildConfigurationAudited.getDefaultAlignmentParams(),
+                buildTask.getBuildOptions().getAlignmentPreference());
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
     }

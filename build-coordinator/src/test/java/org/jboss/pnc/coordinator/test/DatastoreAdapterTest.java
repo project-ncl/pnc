@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.coordinator.test;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
@@ -195,7 +196,13 @@ public class DatastoreAdapterTest {
         buildConfiguration.setName("Configuration.");
         buildConfiguration.setProject(new Project());
 
-        BuildOptions buildOptions = new BuildOptions(false, true, false, false, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        BuildOptions buildOptions = new BuildOptions(
+                false,
+                true,
+                false,
+                false,
+                RebuildMode.IMPLICIT_DEPENDENCY_CHECK,
+                AlignmentPreference.PREFER_PERSISTENT);
         BuildTask buildTask = BuildTask.build(
                 BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 13),
                 buildOptions,

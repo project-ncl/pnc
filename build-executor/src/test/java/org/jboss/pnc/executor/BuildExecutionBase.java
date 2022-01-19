@@ -19,6 +19,7 @@
 package org.jboss.pnc.executor;
 
 import org.assertj.core.api.Assertions;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.executor.servicefactories.BuildDriverFactory;
@@ -163,7 +164,8 @@ class BuildExecutionBase {
                 false,
                 null,
                 buildConfiguration.isBrewPullActive(),
-                buildConfiguration.getDefaultAlignmentParams());
+                buildConfiguration.getDefaultAlignmentParams(),
+                AlignmentPreference.PREFER_TEMPORARY);
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");
     }

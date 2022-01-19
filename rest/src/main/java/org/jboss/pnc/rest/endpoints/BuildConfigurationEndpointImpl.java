@@ -40,7 +40,6 @@ import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.rest.api.endpoints.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
@@ -60,7 +59,6 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
@@ -310,7 +308,8 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
                 buildParams.isBuildDependencies(),
                 buildParams.isKeepPodOnFailure(),
                 false,
-                buildParams.getRebuildMode());
+                buildParams.getRebuildMode(),
+                buildParams.getAlignmentPreference());
         checkBuildOptionsValidity(buildOptions);
         return buildOptions;
     }

@@ -21,6 +21,7 @@ package org.jboss.pnc.executor;
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.util.ObjectWrapper;
@@ -178,7 +179,8 @@ public class BuildEnvironmentTest {
                 false,
                 null,
                 buildConfiguration.isBrewPullActive(),
-                buildConfiguration.getDefaultAlignmentParams());
+                buildConfiguration.getDefaultAlignmentParams(),
+                AlignmentPreference.PREFER_TEMPORARY);
 
         executor.startBuilding(buildExecutionConfiguration, onBuildExecutionStatusChangedEvent, "");
     }
