@@ -31,7 +31,6 @@ import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.rest.api.endpoints.GroupConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
@@ -172,7 +171,8 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
                 false,
                 false,
                 false,
-                buildParams.getRebuildMode());
+                buildParams.getRebuildMode(),
+                buildParams.getAlignmentPreference());
         checkBuildOptionsValidity(buildOptions);
         return buildOptions;
     }

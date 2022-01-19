@@ -19,6 +19,7 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
@@ -110,7 +111,13 @@ public class SingleProjectBuildTest extends ProjectBuilder {
     @Test
     public void buildWithAdvancedOptionsTest() throws Exception {
         // given
-        BuildOptions originalBuildOptions = new BuildOptions(true, true, true, true, RebuildMode.FORCE);
+        BuildOptions originalBuildOptions = new BuildOptions(
+                true,
+                true,
+                true,
+                true,
+                RebuildMode.FORCE,
+                AlignmentPreference.PREFER_PERSISTENT);
         DatastoreMock datastoreMock = new DatastoreMock();
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastoreMock);
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();

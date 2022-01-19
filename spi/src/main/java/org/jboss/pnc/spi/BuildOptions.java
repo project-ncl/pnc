@@ -17,13 +17,14 @@
  */
 package org.jboss.pnc.spi;
 
-import org.jboss.pnc.enums.RebuildMode;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.enums.RebuildMode;
 
 /**
  * Class used to store all available build options of a BuildConfiguration or BuildConfigurationSet
@@ -59,6 +60,8 @@ public class BuildOptions {
     private boolean timestampAlignment = false;
 
     private RebuildMode rebuildMode = RebuildMode.IMPLICIT_DEPENDENCY_CHECK;
+
+    private AlignmentPreference alignmentPreference;
 
     public boolean isImplicitDependenciesCheck() {
         return RebuildMode.IMPLICIT_DEPENDENCY_CHECK.equals(rebuildMode);

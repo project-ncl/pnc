@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.spi.executor;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
@@ -65,6 +66,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     String getDefaultAlignmentParams();
 
+    AlignmentPreference getAlignmentPreference();
+
     static BuildExecutionConfiguration build(
             String id,
             String buildContentId,
@@ -86,7 +89,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             boolean tempBuild,
             String tempBuildTimestamp,
             boolean brewPullActive,
-            String defaultAlignmentParams) {
+            String defaultAlignmentParams,
+            AlignmentPreference alignmentPreference) {
         return build(
                 id,
                 buildContentId,
@@ -109,7 +113,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
                 tempBuild,
                 tempBuildTimestamp,
                 brewPullActive,
-                defaultAlignmentParams);
+                defaultAlignmentParams,
+                alignmentPreference);
     }
 
     static BuildExecutionConfiguration build(
@@ -134,7 +139,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             boolean tempBuild,
             String tempBuildTimestamp,
             boolean brewPullActive,
-            String defaultAlignmentParams) {
+            String defaultAlignmentParams,
+            AlignmentPreference alignmentPreference) {
 
         List<ArtifactRepository> builtRepositories;
         if (artifactRepositories == null) {
@@ -262,6 +268,11 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public String getDefaultAlignmentParams() {
                 return defaultAlignmentParams;
+            }
+
+            @Override
+            public AlignmentPreference getAlignmentPreference() {
+                return alignmentPreference;
             }
         };
     }

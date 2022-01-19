@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.mock.executor;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -53,6 +54,7 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private boolean brewPullActive;
     private String tempBuildTimestamp;
     private String defaultAlignmentParams;
+    private AlignmentPreference alignmentPreference;
 
     public static BuildExecutionConfiguration mockConfig() {
         BuildExecutionConfigurationMock mock = new BuildExecutionConfigurationMock();
@@ -259,6 +261,10 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public String getDefaultAlignmentParams() {
         return defaultAlignmentParams;
+    }
+
+    public AlignmentPreference getAlignmentPreference() {
+        return alignmentPreference;
     }
 
     public void setDefaultAlignmentParams(String defaultAlignmentParams) {

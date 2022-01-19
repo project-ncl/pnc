@@ -88,4 +88,5 @@ public interface SwaggerConstants {
     public static final String BC_NAME_FILTER_DESC = "Filters builds by BuildConfig name in a revision used to trigger the build. Supports LIKE queries in style *name-part*";
     public static final String REQUIRES_ADMIN = "Requires user to have admin role.";
     public static final String CALLBACK_URL = "Optional Callback URL";
+    public static final String ALIGNMENT_PREFERENCE_DESC = "Defines temporary build dependency alignment preferences. Default: PREFER_TEMPORARY.";
 }

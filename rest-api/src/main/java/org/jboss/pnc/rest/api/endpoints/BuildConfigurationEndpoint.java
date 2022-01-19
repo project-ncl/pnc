@@ -292,7 +292,9 @@ public interface BuildConfigurationEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/build")
-    Build trigger(@Parameter(description = BC_ID) @PathParam("id") String id, @BeanParam BuildParameters buildParams);
+    Build trigger(
+            @Parameter(description = BC_ID) @PathParam("id") String id,
+            @Valid @BeanParam BuildParameters buildParams);
 
     static final String GET_BUILDS_DESC = "Get all builds associated with this build config.";
 
@@ -619,7 +621,7 @@ public interface BuildConfigurationEndpoint {
     Build triggerRevision(
             @Parameter(description = BC_ID) @PathParam("id") String id,
             @Parameter(description = REV) @PathParam("rev") int rev,
-            @BeanParam BuildParameters buildParams);
+            @Valid @BeanParam BuildParameters buildParams);
 
     static final String RESTORE_REVISION_DESC = "Restores a build config to a specific audited revision";
 

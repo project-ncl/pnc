@@ -261,7 +261,7 @@ public interface GroupConfigurationEndpoint {
     @Consumes(MediaType.APPLICATION_JSON)
     GroupBuild trigger(
             @Parameter(description = GC_ID) @PathParam("id") String id,
-            @BeanParam GroupBuildParameters buildParams,
+            @Valid @BeanParam GroupBuildParameters buildParams,
             @Parameter(description = GROUP_BUILD_REQUEST) GroupBuildRequest request);
 
     static final String GET_BUILD_CONFIGS_DESC = "Gets the build configs for the group config.";

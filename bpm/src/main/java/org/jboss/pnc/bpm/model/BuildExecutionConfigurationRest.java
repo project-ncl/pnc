@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.enums.BuildType;
@@ -81,6 +82,8 @@ public class BuildExecutionConfigurationRest {
 
     protected String defaultAlignmentParams;
 
+    protected AlignmentPreference alignmentPreference;
+
     public static BuildExecutionConfigurationRest valueOf(String serialized) throws IOException {
         TypeReference<BuildExecutionConfigurationRest> type = new TypeReference<BuildExecutionConfigurationRest>() {
         };
@@ -109,6 +112,7 @@ public class BuildExecutionConfigurationRest {
         tempBuildTimestamp = buildExecutionConfiguration.getTempBuildTimestamp();
         brewPullActive = buildExecutionConfiguration.isBrewPullActive();
         defaultAlignmentParams = buildExecutionConfiguration.getDefaultAlignmentParams();
+        alignmentPreference = buildExecutionConfiguration.getAlignmentPreference();
 
         artifactRepositories = new ArrayList<>();
         if (buildExecutionConfiguration.getArtifactRepositories() != null) {
@@ -144,7 +148,8 @@ public class BuildExecutionConfigurationRest {
                 tempBuild,
                 tempBuildTimestamp,
                 brewPullActive,
-                defaultAlignmentParams);
+                defaultAlignmentParams,
+                alignmentPreference);
     }
 
     @JsonIgnore

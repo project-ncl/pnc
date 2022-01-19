@@ -18,6 +18,7 @@
 package org.jboss.pnc.coordinator.builder;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -369,7 +370,13 @@ public class DefaultBuildCoordinatorTest {
         buildConfiguration.setRepositoryConfiguration(RepositoryConfigurationMock.newTestRepository());
         buildConfiguration.setBuildEnvironment(BuildEnvironmentMock.newTest());
 
-        BuildOptions buildOptions = new BuildOptions(false, true, false, false, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        BuildOptions buildOptions = new BuildOptions(
+                false,
+                true,
+                false,
+                false,
+                RebuildMode.IMPLICIT_DEPENDENCY_CHECK,
+                AlignmentPreference.PREFER_PERSISTENT);
         BuildTask buildTask = BuildTask.build(
                 BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 13),
                 buildOptions,

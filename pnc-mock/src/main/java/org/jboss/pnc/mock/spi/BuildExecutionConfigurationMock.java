@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mock.spi;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -53,6 +54,7 @@ public class BuildExecutionConfigurationMock {
                 false,
                 null,
                 false,
-                "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true");
+                "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
+                AlignmentPreference.PREFER_PERSISTENT);
     }
 }

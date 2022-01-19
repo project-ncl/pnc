@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.executor;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -53,6 +54,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     private final String tempBuildTimestamp;
     private final boolean brewPullActive;
     private final String defaultAlignmentParams;
+    private final AlignmentPreference alignmentPreference;
 
     public DefaultBuildExecutionConfiguration(
             String id,
@@ -76,7 +78,8 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
             boolean tempBuild,
             String tempBuildTimestamp,
             boolean brewPullActive,
-            String defaultAlignmentParams) {
+            String defaultAlignmentParams,
+            AlignmentPreference alignmentPreference) {
 
         this.id = id;
         this.buildContentId = buildContentId;
@@ -100,6 +103,7 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
         this.tempBuildTimestamp = tempBuildTimestamp;
         this.brewPullActive = brewPullActive;
         this.defaultAlignmentParams = defaultAlignmentParams;
+        this.alignmentPreference = alignmentPreference;
     }
 
     @Override
@@ -210,5 +214,10 @@ public class DefaultBuildExecutionConfiguration implements BuildExecutionConfigu
     @Override
     public String getDefaultAlignmentParams() {
         return defaultAlignmentParams;
+    }
+
+    @Override
+    public AlignmentPreference getAlignmentPreference() {
+        return alignmentPreference;
     }
 }

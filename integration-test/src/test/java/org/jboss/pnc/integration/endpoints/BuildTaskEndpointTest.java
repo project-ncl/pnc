@@ -32,6 +32,7 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.bpm.model.BuildDriverResultRest;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
@@ -111,7 +112,8 @@ public class BuildTaskEndpointTest {
                 false,
                 null,
                 false,
-                "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true");
+                "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
+                AlignmentPreference.PREFER_PERSISTENT);
 
         BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(
                 buildExecutionConfig);

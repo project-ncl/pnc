@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.bpm.test;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.enums.BuildType;
@@ -63,7 +64,8 @@ public class BuildExecutionConfigurationTest {
                 false,
                 null,
                 false,
-                "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true");
+                "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
+                AlignmentPreference.PREFER_PERSISTENT);
         BuildExecutionConfigurationRest buildExecutionConfigurationREST = new BuildExecutionConfigurationRest(
                 buildExecutionConfiguration);
 

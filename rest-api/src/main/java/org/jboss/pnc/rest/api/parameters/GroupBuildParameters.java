@@ -17,13 +17,15 @@
  */
 package org.jboss.pnc.rest.api.parameters;
 
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.QueryParam;
-
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.Data;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
+import org.jboss.pnc.rest.validation.GroupBuildParametersConstraint;
+
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.QueryParam;
 
 /**
  * This class represents a set of options of how a group build should be executed.
@@ -31,6 +33,7 @@ import org.jboss.pnc.rest.configuration.SwaggerConstants;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @Data
+@GroupBuildParametersConstraint
 public class GroupBuildParameters {
 
     /**
@@ -58,4 +61,22 @@ public class GroupBuildParameters {
     @QueryParam("timestampAlignment")
     @DefaultValue("false")
     boolean timestampAlignment;
+
+    /**
+     * {@value SwaggerConstants#ALIGNMENT_PREFERENCE_DESC}.
+     */
+    @Parameter(description = SwaggerConstants.ALIGNMENT_PREFERENCE_DESC)
+    @QueryParam("alignmentPreference")
+    AlignmentPreference alignmentPreference;
+
+    /**
+     * AlignmentPreference defaults to PREFER_TEMPORARY for temporary build.
+     */
+    public AlignmentPreference getAlignmentPreference() {
+        if (alignmentPreference == null && isTemporaryBuild()) {
+            return AlignmentPreference.PREFER_TEMPORARY;
+        } else {
+            return alignmentPreference;
+        }
+    }
 }
