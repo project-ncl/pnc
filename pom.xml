@@ -2,7 +2,7 @@
 <!--
 
     JBoss, Home of Professional Open Source.
-    Copyright 2014-2020 Red Hat, Inc., and individual contributors
+    Copyright 2014-2022 Red Hat, Inc., and individual contributors
     as indicated by the @author tags.
 
     Licensed under the Apache License, Version 2.0 (the "License");
@@ -1359,7 +1359,7 @@
           <version>2.11</version>
           <configuration>
             <properties>
-              <copyright-years>${project.inceptionYear}-2020</copyright-years>
+              <copyright-years>${project.inceptionYear}-2022</copyright-years>
             </properties>
             <header>${executionRoot}/.license-header.txt</header>
             <excludes>
