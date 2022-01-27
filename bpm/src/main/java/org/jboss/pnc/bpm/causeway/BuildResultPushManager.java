@@ -218,7 +218,7 @@ public class BuildResultPushManager {
                 .queryById(buildRecord.getBuildConfigurationAuditedIdRev());
         Map<String, String> genericParameters = buildConfigurationAudited.getGenericParameters();
         if (executionRootName == null) {
-            if (genericParameters.containsKey(BREW_BUILD_NAME)) {
+            if (genericParameters.containsKey(BREW_BUILD_NAME.name())) {
                 executionRootName = genericParameters.get(BREW_BUILD_NAME.name());
             } else {
                 throw new IllegalArgumentException(
