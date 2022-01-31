@@ -542,11 +542,11 @@ public class IndyRepositorySession implements RepositorySession {
      */
     private String getGenericHostedRepoName(String remoteName) {
         String hostedName;
-        if (remoteName.startsWith("r-")) {
+        if (remoteName.startsWith("r-") || remoteName.startsWith("g-")) {
             hostedName = "h-" + remoteName.substring(2);
         } else {
-            logger.warn(
-                    "Unexpected generic http remote repo name {}. Using it for hosted repo "
+            logger.error(
+                    "Unexpected generic-http remote repo/group name {}. Using it for hosted repo "
                             + "without change, but it probably doesn't exist.",
                     remoteName);
             hostedName = remoteName;
