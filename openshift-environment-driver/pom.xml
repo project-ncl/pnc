@@ -24,7 +24,7 @@
   <parent>
     <groupId>org.jboss.pnc</groupId>
     <artifactId>parent</artifactId>
-    <version>2.2.3-SNAPSHOT</version>
+    <version>2.2.3</version>
   </parent>
 
   <artifactId>openshift-environment-driver</artifactId>
