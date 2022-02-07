@@ -30,11 +30,8 @@ public class AnalyzeDeliverablesTask {
 
     private final Request callback;
 
-    private final String delAnalUrl;
-
-    public AnalyzeDeliverablesTask(AnalyzeDeliverablesBpmRequest request, Request callback, String delAnalUrl) {
+    public AnalyzeDeliverablesTask(AnalyzeDeliverablesBpmRequest request, Request callback) {
         this.request = request;
         this.callback = callback;
-        this.delAnalUrl = delAnalUrl;
     }
 }
