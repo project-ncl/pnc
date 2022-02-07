@@ -21,34 +21,17 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.arquillian.transaction.api.annotation.Transactional;
+import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildEnvironment;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.Project;
-import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.model.TargetRepository;
-import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
-import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
-import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
-import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
-import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
-import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
-import org.jboss.pnc.spi.datastore.repositories.UserRepository;
+import org.jboss.pnc.spi.datastore.repositories.*;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.Archive;
@@ -130,6 +113,12 @@ public class DatastoreTest {
     UserRepository userRepository;
 
     @Inject
+    OperationRepository operationRepository;
+
+    @Inject
+    DeliverableAnalyzerOperationRepository delAnalyzerRepository;
+
+    @Inject
     Datastore datastore;
 
     SequenceHandlerRepository sequenceHandlerRepository = new SequenceHandlerRepositoryMock();
@@ -183,6 +172,16 @@ public class DatastoreTest {
         buildConfig = buildConfigurationRepository.save(buildConfig);
         Assert.assertNotNull(buildConfig.getId());
         assertThat(buildConfig.getDefaultAlignmentParams().contains("-DdependencySource=REST"));
+
+        User user = User.Builder.newBuilder().username("pnc3").email("pnc3@redhat.com").build();
+        userRepository.save(user);
+        DeliverableAnalyzerOperation operation = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(Sequence.nextBase32Id())
+                .submitTime(new Date())
+                .progressStatus(ProgressStatus.IN_PROGRESS)
+                .user(user)
+                .build();
+        operation = delAnalyzerRepository.save(operation);
     }
 
     /**
@@ -457,6 +456,22 @@ public class DatastoreTest {
         // expect
         Assert.assertTrue("Repository configuration should not be found.", repositoryConfigurations.isEmpty());
 
+    }
+
+    @Test
+    @InSequence(5)
+    @Transactional
+    public void testDeliverableAnalyzerOperationDatastore() throws Exception {
+        List<DeliverableAnalyzerOperation> operations = delAnalyzerRepository.queryAll();
+        Assert.assertTrue("No deliverable analyzer operations were found", operations.size() > 0);
+    }
+
+    @Test
+    @InSequence(5)
+    @Transactional
+    public void testOperationDatastore() throws Exception {
+        List<Operation> operations = operationRepository.queryAll();
+        Assert.assertTrue("No operations were found", operations.size() > 0);
     }
 
     public List<RepositoryConfiguration> searchForRepositoryConfigurations(String scmUrl) {
