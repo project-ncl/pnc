@@ -20,6 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.mapper.Base32LongIdMapper;
 import org.jboss.pnc.mapper.IntIdMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.ProductMilestone;
@@ -36,6 +37,8 @@ import org.mapstruct.MappingTarget;
         uses = { RefToReferenceMapper.class, ProductVersionMapper.class, ProductReleaseMapper.class, UserMapper.class })
 public interface ProductMilestoneMapper extends
         UpdatableEntityMapper<Integer, ProductMilestone, org.jboss.pnc.dto.ProductMilestone, ProductMilestoneRef> {
+
+    IntIdMapper idMapper = new IntIdMapper();
 
     @Override
     @Mapping(target = "deliveredArtifacts", ignore = true)
@@ -70,6 +73,6 @@ public interface ProductMilestoneMapper extends
 
     @Override
     default IdMapper<Integer, String> getIdMapper() {
-        return new IntIdMapper();
+        return idMapper;
     }
 }
