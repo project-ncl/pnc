@@ -17,19 +17,15 @@
  */
 package org.jboss.pnc.facade.deliverables;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
 
-import org.jboss.pnc.api.deliverablesanalyzer.dto.Artifact;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.ArtifactType;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.Build;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.BuildSystemType;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.NPMArtifact;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.*;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.ProductMilestone;
@@ -41,7 +37,6 @@ import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -50,7 +45,6 @@ import org.mockito.stubbing.Answer;
 
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
-import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_NPM;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
@@ -58,7 +52,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DeliverableAnalyzerResultProcessorTest {
+public class DeliverableAnalyzerManagerTest {
 
     @Mock
     private ProductMilestoneRepository milestoneRepository;
@@ -68,9 +62,11 @@ public class DeliverableAnalyzerResultProcessorTest {
     private TargetRepositoryRepository targetRepositoryRepository;
     @Mock
     private ArtifactMapper artifactMapper;
+    @Mock
+    private UserService userService;
 
     @InjectMocks
-    private DeliverableAnalyzerResultProcessor processor;
+    private DeliverableAnalyzerManagerImpl processor;
 
     @Mock
     private ProductMilestone milestone;
@@ -78,6 +74,7 @@ public class DeliverableAnalyzerResultProcessorTest {
     int id = 100;
     private List<TargetRepository> repositories = new ArrayList<>();
     private List<org.jboss.pnc.model.Artifact> artifacts = new ArrayList<>();
+    private final static User USER = User.Builder.newBuilder().id(42).username("TheUser").build();
 
     @Before
     public void initMock() {
@@ -98,17 +95,18 @@ public class DeliverableAnalyzerResultProcessorTest {
             Integer id = invocation.getArgument(0);
             return artifacts.stream().filter(a -> id.equals(a.getId())).findAny().orElse(null);
         });
+        when((userService.currentUser())).thenReturn(USER);
     }
 
     @Test
-    public void testStore() {
+    public void testStore() throws MalformedURLException {
         // with
-        List<Build> builds = prepareBuilds();
+        Set<Build> builds = prepareBuilds();
         String distributionUrl = "https://example.com/distribution.zip";
-        User user = User.Builder.newBuilder().id(42).username("TheUser").build();
+        FinderResult result = FinderResult.builder().builds(builds).url(new URL(distributionUrl)).build();
 
         // when
-        processor.processDeliverables(1, builds, distributionUrl, user);
+        processor.completeAnalysis(1, Collections.singletonList(result));
 
         // verify that:
         // all artifacts were set as distributed
@@ -136,11 +134,11 @@ public class DeliverableAnalyzerResultProcessorTest {
         // PNC artifacts were set as distributed
         verify(milestone, times(artifacts.size())).addDeliveredArtifact(argThat(a -> artifacts.contains(a)));
         // user was set for milestone
-        verify(milestone).setDeliveredArtifactsImporter(user);
+        verify(milestone).setDeliveredArtifactsImporter(USER);
     }
 
-    private List<Build> prepareBuilds() {
-        List<Build> ret = new ArrayList<>();
+    private Set<Build> prepareBuilds() {
+        Set<Build> ret = new HashSet<>();
         ret.add(prepareUnknownBuild());
         ret.add(preparePncBuild("1"));
         ret.add(preparePncBuild("2"));

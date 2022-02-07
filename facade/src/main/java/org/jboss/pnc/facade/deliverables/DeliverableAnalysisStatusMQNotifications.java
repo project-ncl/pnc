@@ -36,25 +36,25 @@ import java.util.Optional;
  * @author jakubvanko
  */
 @Dependent
-public class AnalysisStatusMQNotifications {
+public class DeliverableAnalysisStatusMQNotifications {
 
-    private final String ATTRIBUTE_NAME = "analysis-state-change";
+    private final String ATTRIBUTE_NAME = "deliverable-analysis-state-change";
 
-    private final Logger logger = LoggerFactory.getLogger(AnalysisStatusMQNotifications.class);
+    private final Logger logger = LoggerFactory.getLogger(DeliverableAnalysisStatusMQNotifications.class);
     private final Optional<MessageSender> messageSender;
 
     @Inject
-    public AnalysisStatusMQNotifications(MessageSenderProvider messageSenderProvider) {
+    public DeliverableAnalysisStatusMQNotifications(MessageSenderProvider messageSenderProvider) {
         this.messageSender = messageSenderProvider.getMessageSender();
     }
 
-    public void observeEvent(@Observes AnalysisStatusChangedEvent event) {
+    public void observeEvent(@Observes DeliverableAnalysisStatusChangedEvent event) {
         logger.debug("Observed new analysis status changed event {}.", event);
         messageSender.ifPresent(ms -> send(ms, event));
         logger.debug("Analysis status changed event processed {}.", event);
     }
 
-    private void send(MessageSender ms, AnalysisStatusChangedEvent event) {
+    private void send(MessageSender ms, DeliverableAnalysisStatusChangedEvent event) {
         Message message = new AnalysisStatusMessage(
                 ATTRIBUTE_NAME,
                 event.getMilestoneId(),
@@ -63,9 +63,9 @@ public class AnalysisStatusMQNotifications {
         ms.sendToTopic(message, prepareHeaders(event));
     }
 
-    private Map<String, String> prepareHeaders(AnalysisStatusChangedEvent event) {
+    private Map<String, String> prepareHeaders(DeliverableAnalysisStatusChangedEvent event) {
         Map<String, String> headers = new HashMap<>();
-        headers.put("type", "AnalysisStateChange");
+        headers.put("type", "DeliverableAnalysisStateChange");
         headers.put("attribute", ATTRIBUTE_NAME);
         headers.put("milestoneId", event.getMilestoneId());
         headers.put("status", event.getStatus().toString());
