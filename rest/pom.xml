@@ -135,6 +135,7 @@
         <dependency>
             <groupId>org.jboss.pnc</groupId>
             <artifactId>pnc-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

@@ -28,6 +28,7 @@ import javax.ws.rs.core.Context;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductMilestoneRef;
@@ -39,6 +40,7 @@ import org.jboss.pnc.facade.DeliverableAnalyzerManager;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneCloseResultProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
@@ -66,6 +68,9 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Inject
     private DeliverableAnalyzerManager deliverableAnalyzerManager;
+
+    @Inject
+    private DeliverableAnalyzerOperationProvider delAnalyzerProvider;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -137,6 +142,18 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     @Override
     public Page<Artifact> getDeliveredArtifacts(String id, PageParameters pageParams) {
         return artifactProvider.getDeliveredArtifactsForMilestone(
+                pageParams.getPageIndex(),
+                pageParams.getPageSize(),
+                pageParams.getSort(),
+                pageParams.getQ(),
+                id);
+    }
+
+    @Override
+    public Page<DeliverableAnalyzerOperation> getAllDeliverableAnalyzerOperations(
+            String id,
+            PageParameters pageParams) {
+        return delAnalyzerProvider.getAllDeliverableAnalyzerOperationsForMilestone(
                 pageParams.getPageIndex(),
                 pageParams.getPageSize(),
                 pageParams.getSort(),

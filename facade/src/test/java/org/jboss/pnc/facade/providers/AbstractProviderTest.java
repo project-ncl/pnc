@@ -17,18 +17,33 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
 import org.jboss.pnc.facade.rsql.RSQLProducer;
-import org.jboss.pnc.mapper.abstracts.AbstractArtifactMapper;
 import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
 import org.jboss.pnc.mapper.ArtifactRevisionMapperImpl;
 import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
 import org.jboss.pnc.mapper.BuildConfigurationMapperImpl;
 import org.jboss.pnc.mapper.BuildConfigurationRevisionMapperImpl;
 import org.jboss.pnc.mapper.BuildMapperImpl;
+import org.jboss.pnc.mapper.CollectionMerger;
+import org.jboss.pnc.mapper.DeliverableAnalyzerOperationMapperImpl;
 import org.jboss.pnc.mapper.EnvironmentMapperImpl;
 import org.jboss.pnc.mapper.GroupBuildMapperImpl;
 import org.jboss.pnc.mapper.GroupConfigurationMapperImpl;
@@ -39,15 +54,19 @@ import org.jboss.pnc.mapper.ProductMilestoneMapperImpl;
 import org.jboss.pnc.mapper.ProductReleaseMapperImpl;
 import org.jboss.pnc.mapper.ProductVersionMapperImpl;
 import org.jboss.pnc.mapper.ProjectMapperImpl;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.mapper.ResultMapperImpl;
 import org.jboss.pnc.mapper.SCMRepositoryMapperImpl;
 import org.jboss.pnc.mapper.TargetRepositoryMapperImpl;
 import org.jboss.pnc.mapper.UserMapperImpl;
+import org.jboss.pnc.mapper.abstracts.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.abstracts.AbstractProductVersionMapper;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.mapper.api.EnvironmentMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
@@ -66,27 +85,11 @@ import org.jboss.pnc.spi.datastore.repositories.PageInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import javax.persistence.EntityManager;
-import org.jboss.pnc.mapper.CollectionMerger;
-import org.jboss.pnc.mapper.RefToReferenceMapper;
-import org.jboss.pnc.mapper.abstracts.AbstractProductVersionMapper;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import org.mockito.InjectMocks;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  *
@@ -162,6 +165,9 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     @Spy
     protected ResultMapper resultMapper = new ResultMapperImpl();
+
+    @Spy
+    protected DeliverableAnalyzerOperationMapper delAnalyzerOperationMapper = new DeliverableAnalyzerOperationMapperImpl();
 
     @Spy
     @InjectMocks
@@ -313,6 +319,22 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
         injectMethod("pageInfoProducer", provider(), pageInfoProducer, AbstractProvider.class);
         injectMethod("rsqlPredicateProducer", provider(), rsqlPredicateProducer, AbstractProvider.class);
+
+        injectMethod(
+                "productMilestoneMapper",
+                delAnalyzerOperationMapper,
+                productMilestoneMapper,
+                DeliverableAnalyzerOperationMapperImpl.class);
+        injectMethod(
+                "userMapper",
+                delAnalyzerOperationMapper,
+                userMapper,
+                DeliverableAnalyzerOperationMapperImpl.class);
+        injectMethod(
+                "refToReferenceMapper",
+                delAnalyzerOperationMapper,
+                refMapper,
+                DeliverableAnalyzerOperationMapperImpl.class);
     }
 
     protected abstract AbstractProvider provider();

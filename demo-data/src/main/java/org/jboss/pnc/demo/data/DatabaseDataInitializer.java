@@ -19,18 +19,21 @@ package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
 
+import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
 import org.jboss.pnc.enums.*;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
@@ -50,6 +53,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
@@ -164,6 +168,9 @@ public class DatabaseDataInitializer {
     private SequenceHandlerRepository sequenceHandlerRepository;
 
     @Inject
+    private DeliverableAnalyzerOperationRepository deliverableAnalyzerOperationRepository;
+
+    @Inject
     private Datastore datastore;
 
     @Inject
@@ -183,6 +190,13 @@ public class DatabaseDataInitializer {
     User demoUser;
 
     User pncAdminUser;
+
+    final int DAYS_IN_A_WEEK = 7;
+    final Date TODAY = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+    final Date ONE_WEEK_BEFORE_TODAY = Date
+            .from(LocalDateTime.now().minusDays(DAYS_IN_A_WEEK).atZone(ZoneId.systemDefault()).toInstant());
+    final Date ONE_WEEK_AFTER_TODAY = Date
+            .from(LocalDateTime.now().plusDays(DAYS_IN_A_WEEK).atZone(ZoneId.systemDefault()).toInstant());
 
     public void verifyData() {
         // Check number of entities in DB
@@ -292,13 +306,6 @@ public class DatabaseDataInitializer {
                         systemConfig.getBrewTagPattern())
                 .build();
         productVersion2 = productVersionRepository.save(productVersion2);
-
-        final int DAYS_IN_A_WEEK = 7;
-        final Date TODAY = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
-        final Date ONE_WEEK_BEFORE_TODAY = Date
-                .from(LocalDateTime.now().minusDays(DAYS_IN_A_WEEK).atZone(ZoneId.systemDefault()).toInstant());
-        final Date ONE_WEEK_AFTER_TODAY = Date
-                .from(LocalDateTime.now().plusDays(DAYS_IN_A_WEEK).atZone(ZoneId.systemDefault()).toInstant());
 
         demoProductMilestone1 = ProductMilestone.Builder.newBuilder()
                 .version(PNC_PRODUCT_MILESTONE1)
@@ -865,6 +872,27 @@ public class DatabaseDataInitializer {
         demoProductMilestone1.addDeliveredArtifact(builtArtifact5);
         demoProductMilestone1.addDeliveredArtifact(importedArtifact2);
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
+
+        Map<String, String> operationParameters = new HashMap<String, String>();
+        operationParameters.put("url-0", "https://github.com/project-ncl/pnc/archive/refs/tags/2.1.1.tar.gz");
+        DeliverableAnalyzerOperation operation1 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000001l))
+                .progressStatus(ProgressStatus.NEW)
+                .submitTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone1)
+                .operationParameters(operationParameters)
+                .build();
+        deliverableAnalyzerOperationRepository.save(operation1);
+
+        DeliverableAnalyzerOperation operation2 = DeliverableAnalyzerOperation.Builder.newBuilder()
+                .id(new Base32LongID(1000002l))
+                .progressStatus(ProgressStatus.IN_PROGRESS)
+                .submitTime(TODAY)
+                .user(demoUser)
+                .productMilestone(demoProductMilestone1)
+                .build();
+        deliverableAnalyzerOperationRepository.save(operation2);
     }
 
     private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl, String externalUrl) {
