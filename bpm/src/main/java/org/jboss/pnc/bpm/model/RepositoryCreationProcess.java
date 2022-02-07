@@ -38,7 +38,7 @@ import java.io.Serializable;
  */
 @JsonDeserialize(builder = RepositoryCreationProcess.RepositoryCreationProcessRestBuilder.class)
 @AllArgsConstructor
-@Builder
+@Builder(builderClassName = "RepositoryCreationProcessBuilder")
 @NoArgsConstructor
 @Setter
 public class RepositoryCreationProcess implements Serializable {
