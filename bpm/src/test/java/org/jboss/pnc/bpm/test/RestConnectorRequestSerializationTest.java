@@ -25,6 +25,7 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.bpm.RestConnector;
 import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
 import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.junit.Before;
@@ -83,7 +84,7 @@ public class RestConnectorRequestSerializationTest {
         MDC.put(MDCKeys.REQUEST_CONTEXT_KEY, "Hello");
 
         // when
-        connector.startProcess("analyzer", task, "accessToken");
+        connector.startProcess("analyzer", task, task.getRequest().getOperationId(), "accessToken");
 
         // then
         verify(postRequestedFor(urlMatching(".*/analyzer/.*")));
@@ -100,7 +101,7 @@ public class RestConnectorRequestSerializationTest {
         assertThat(body.get("initData").get("task")).isNotNull();
         assertThat(body.get("initData").get("task").get("request")).isNotNull();
         assertThat(body.get("initData").get("task").get("request").get("urls")).isNotEmpty();
-        assertThat(body.get("initData").get("task").get("request").get("config")).isNotNull();
+        assertThat(body.get("initData").get("task").get("request").get("operationId").toString()).isNotEmpty();
         assertThat(body.get("initData").get("task").get("callback")).isNotNull();
 
     }
@@ -111,14 +112,14 @@ public class RestConnectorRequestSerializationTest {
         List<String> urls = new ArrayList<>();
         urls.add(url1);
         urls.add(url2);
-        String config = "config";
-        AnalyzeDeliverablesBpmRequest request = new AnalyzeDeliverablesBpmRequest("id", urls, config);
+        String operationId = Sequence.nextBase32Id();
+        AnalyzeDeliverablesBpmRequest request = new AnalyzeDeliverablesBpmRequest(operationId, "id", urls);
         List<Request.Header> headers = new ArrayList<>();
         headers.add(new Request.Header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
 
         Request callback = new Request(Request.Method.POST, URI.create("http://mock.com/"), headers);
 
-        AnalyzeDeliverablesTask task = new AnalyzeDeliverablesTask(request, callback, "http://delanal.com/");
+        AnalyzeDeliverablesTask task = new AnalyzeDeliverablesTask(request, callback);
         return task;
     }
 }
