@@ -15,10 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade;
+package org.jboss.pnc.facade.deliverables;
 
-import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
+import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.enums.ProgressStatus;
 
-public interface DeliverablesAnalyzerInvoker {
-    void startAnalysis(String milestoneId, DeliverablesAnalysisRequest request);
+import java.util.List;
+
+/**
+ * @author jakubvanko
+ */
+public interface DeliverableAnalysisStatusChangedEvent {
+
+    String getOperationId();
+
+    ProgressStatus getStatus();
+
+    OperationResult getResult();
+
+    String getMilestoneId();
+
+    List<String> getSourcesLinks();
 }

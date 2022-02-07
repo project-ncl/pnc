@@ -17,30 +17,41 @@
  */
 package org.jboss.pnc.facade.deliverables;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import org.jboss.pnc.api.deliverablesanalyzer.dto.Artifact;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.ArtifactType;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.Build;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.NPMArtifact;
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.*;
+import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.enums.OperationResult;
+import org.jboss.pnc.api.enums.ProgressStatus;
+import org.jboss.pnc.bpm.RestConnector;
+import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
+import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
+import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.facade.OperationsManager;
+import org.jboss.pnc.facade.impl.OperationChangedEvent;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.TargetRepository;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
+import org.jboss.pnc.spi.exception.ProcessManagerException;
 
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
@@ -49,10 +60,11 @@ import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
  *
  * @author jbrazdil
  */
-@Transactional
 @ApplicationScoped
-public class DeliverableAnalyzerResultProcessor {
+@Slf4j
+public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.DeliverableAnalyzerManager {
     private static final String KOJI_PATH_MAVEN_PREFIX = "/api/content/maven/remote/koji-";
+    public static final String URL_PARAMETER_PREFIX = "url-";
 
     @Inject
     private ProductMilestoneRepository milestoneRepository;
@@ -61,18 +73,42 @@ public class DeliverableAnalyzerResultProcessor {
     @Inject
     private TargetRepositoryRepository targetRepositoryRepository;
     @Inject
+    private DeliverableAnalyzerOperationRepository deliverableAnalyzerOperationRepository;
+    @Inject
     private ArtifactMapper artifactMapper;
+    @Inject
+    private OperationsManager operationsManager;
+    @Inject
+    private UserService userService;
+    @Inject
+    private BpmModuleConfig bpmConfig;
+    @Inject
+    private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
+    @Inject
+    private Event<DeliverableAnalysisStatusChangedEvent> analysisStatusChangedEventNotifier;
 
-    /**
-     * Processes the result of anylysis of delivarables and stores the artifacts as distributed artifacts of Product
-     * Milestone.
-     *
-     * @param milestoneId Id of the milestone to which the distributed artifact will be stored.
-     * @param builds List of builds from the analyis result.
-     * @param distributionUrl URL of the distribution file.
-     * @param user User who initialized the import.
-     */
-    public void processDeliverables(int milestoneId, Collection<Build> builds, String distributionUrl, User user) {
+    @Override
+    public DeliverableAnalyzerOperation analyzeDeliverables(String id, List<String> sourcesLink) {
+        int i = 1;
+        Map<String, String> inputParams = new HashMap<>();
+        for (String url : sourcesLink) {
+            inputParams.put(URL_PARAMETER_PREFIX + (i++), url);
+        }
+
+        Base32LongID operationId = operationsManager.newDeliverableAnalyzerOperation(id, inputParams).getId();
+
+        try {
+            startAnalysis(id, sourcesLink, operationId);
+            return deliverableAnalyzerOperationMapper.toDTO(
+                    (org.jboss.pnc.model.DeliverableAnalyzerOperation) operationsManager
+                            .updateProgress(operationId, ProgressStatus.IN_PROGRESS));
+        } catch (RuntimeException ex) {
+            operationsManager.setResult(operationId, OperationResult.SYSTEM_ERROR);
+            throw ex;
+        }
+    }
+
+    private void processDeliverables(int milestoneId, Collection<Build> builds, String distributionUrl) {
         ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
         for (Build build : builds) {
             Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
@@ -95,7 +131,15 @@ public class DeliverableAnalyzerResultProcessor {
             }
             build.getArtifacts().stream().map(artifactParser).forEach(milestone::addDeliveredArtifact);
         }
-        milestone.setDeliveredArtifactsImporter(user);
+        milestone.setDeliveredArtifactsImporter(userService.currentUser());
+    }
+
+    @Override
+    @Transactional
+    public void completeAnalysis(int milestoneId, List<FinderResult> results) {
+        for (FinderResult finderResult : results) {
+            processDeliverables(milestoneId, finderResult.getBuilds(), finderResult.getUrl().toString());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -203,6 +247,56 @@ public class DeliverableAnalyzerResultProcessor {
                             + artifact.getArtifactType());
         }
         return artifact;
+    }
+
+    private void startAnalysis(String milestoneId, List<String> sourcesLink, Base32LongID operationId) {
+        Request callback = operationsManager.getOperationCallback(operationId);
+        String id = operationId.getId();
+        try (RestConnector restConnector = new RestConnector(bpmConfig)) {
+            AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(id, milestoneId, sourcesLink);
+            AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, callback);
+
+            restConnector.startProcess(
+                    bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
+                    analyzeTask,
+                    id,
+                    userService.currentUserToken());
+
+            DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
+                    .started(id, milestoneId, sourcesLink);
+            analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
+        } catch (ProcessManagerException e) {
+            log.error("Error trying to start analysis of deliverables task for milestone: {}", milestoneId, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void observeEvent(@Observes OperationChangedEvent event) {
+        if (event.getOperationClass() != org.jboss.pnc.model.DeliverableAnalyzerOperation.class) {
+            return;
+        }
+        log.debug("Observed deliverable analysis operation status changed event {}.", event);
+        if (event.getStatus() == ProgressStatus.FINISHED && event.getPreviousStatus() != ProgressStatus.FINISHED) {
+            org.jboss.pnc.model.DeliverableAnalyzerOperation operation = deliverableAnalyzerOperationRepository
+                    .queryById(event.getId());
+            onDeliverableAnalysisFinished(operation);
+        }
+    }
+
+    private void onDeliverableAnalysisFinished(org.jboss.pnc.model.DeliverableAnalyzerOperation operation) {
+        List<String> sourcesLinks = operation.getOperationParameters()
+                .entrySet()
+                .stream()
+                .filter(e -> e.getKey().startsWith(URL_PARAMETER_PREFIX))
+                .map(Map.Entry::getValue)
+                .collect(Collectors.toList());
+        DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
+                .finished(
+                        operation.getId().getId(),
+                        operation.getProductMilestone().getId().toString(),
+                        operation.getResult(),
+                        sourcesLinks);
+        analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
     }
 
 }
