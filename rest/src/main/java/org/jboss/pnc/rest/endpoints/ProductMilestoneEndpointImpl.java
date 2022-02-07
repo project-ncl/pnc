@@ -17,9 +17,15 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import java.util.Collections;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.Context;
+
 import org.jboss.pnc.auth.AuthenticationProvider;
-import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -29,7 +35,7 @@ import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
-import org.jboss.pnc.facade.DeliverablesAnalyzerInvoker;
+import org.jboss.pnc.facade.DeliverableAnalyzerManager;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
@@ -39,13 +45,6 @@ import org.jboss.pnc.rest.api.endpoints.ProductMilestoneEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.Context;
-import java.util.Collections;
 
 @ApplicationScoped
 public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
@@ -66,7 +65,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     private AuthenticationProvider authenticationProvider;
 
     @Inject
-    private DeliverablesAnalyzerInvoker analyzerInvoker;
+    private DeliverableAnalyzerManager deliverableAnalyzerManager;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -152,8 +151,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     }
 
     @Override
-    public void analyzeDeliverables(String id, DeliverablesAnalysisRequest request) {
-        MDCUtils.addProcessContext(String.valueOf(Sequence.nextId()));
-        analyzerInvoker.startAnalysis(id, request);
+    public DeliverableAnalyzerOperation analyzeDeliverables(String id, DeliverablesAnalysisRequest request) {
+        return deliverableAnalyzerManager.analyzeDeliverables(id, request.getSourcesLink());
     }
 }

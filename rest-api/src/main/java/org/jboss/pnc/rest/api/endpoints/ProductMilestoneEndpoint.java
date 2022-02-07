@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
@@ -398,7 +399,7 @@ public interface ProductMilestoneEndpoint {
     @POST
     @RespondWithStatus(Response.Status.ACCEPTED)
     @Path("/{id}/analyze-deliverables")
-    void analyzeDeliverables(
+    DeliverableAnalyzerOperation analyzeDeliverables(
             @Parameter(description = PM_ID) @PathParam("id") String id,
             @Valid DeliverablesAnalysisRequest request);
 }
