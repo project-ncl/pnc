@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildProgress;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.processor.annotation.PatchSupport;
@@ -110,6 +111,7 @@ public class Build extends BuildRef {
             BuildStatus status,
             String buildContentId,
             Boolean temporaryBuild,
+            AlignmentPreference alignmentPreference,
             String scmUrl,
             String scmRevision,
             String scmTag,
@@ -127,6 +129,7 @@ public class Build extends BuildRef {
                 status,
                 buildContentId,
                 temporaryBuild,
+                alignmentPreference,
                 scmUrl,
                 scmRevision,
                 scmTag,
