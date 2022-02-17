@@ -17,11 +17,10 @@
  */
 package org.jboss.pnc.model;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.LazyGroup;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.security.Md5;
 import org.jboss.pnc.common.security.Sha256;
 import org.jboss.pnc.common.util.StringUtils;
@@ -30,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.Basic;
-import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -126,6 +124,10 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     @NotNull
     @Column(updatable = false)
     private boolean temporaryBuild;
+
+    @Enumerated(EnumType.STRING)
+    @Column(updatable = false)
+    private AlignmentPreference alignmentPreference;
 
     /**
      * The time which the build was submitted to the system.
@@ -705,6 +707,14 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
         this.temporaryBuild = temporaryBuild;
     }
 
+    public AlignmentPreference getAlignmentPreference() {
+        return alignmentPreference;
+    }
+
+    private void setAlignmentPreference(AlignmentPreference alignmentPreference) {
+        this.alignmentPreference = alignmentPreference;
+    }
+
     public String getBuildLogMd5() {
         return buildLogMd5;
     }
@@ -897,6 +907,8 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
         private Boolean temporaryBuild;
 
+        AlignmentPreference alignmentPreference;
+
         private Date submitTime;
 
         private Date startTime;
@@ -996,6 +1008,7 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
                 temporaryBuild = true;
             }
             buildRecord.setTemporaryBuild(temporaryBuild);
+            buildRecord.setAlignmentPreference(alignmentPreference);
 
             if (!temporaryBuild) {
                 buildRecord.setProductMilestone(productMilestone);
@@ -1073,6 +1086,11 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
         public Builder temporaryBuild(boolean temporaryBuild) {
             this.temporaryBuild = temporaryBuild;
+            return this;
+        }
+
+        public BuildRecord.Builder alignmentPreference(AlignmentPreference alignmentPreference) {
+            this.alignmentPreference = alignmentPreference;
             return this;
         }
 

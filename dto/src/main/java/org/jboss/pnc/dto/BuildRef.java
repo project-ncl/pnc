@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildProgress;
@@ -83,6 +84,11 @@ public class BuildRef implements DTOEntity {
      * Whether the build is temporary or not.
      */
     protected final Boolean temporaryBuild;
+
+    /**
+     * AlignmentPreference that was used for the build.
+     */
+    protected final AlignmentPreference alignmentPreference;
 
     /**
      * Url to the SCM repository with the sources being built.

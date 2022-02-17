@@ -431,6 +431,7 @@ public class DatastoreAdapter {
                 .startTime(buildTask.getStartTime())
                 .productMilestone(buildTask.getProductMilestone())
                 .temporaryBuild(buildOptions.isTemporaryBuild())
+                .alignmentPreference(buildOptions.getAlignmentPreference())
                 .noRebuildCause(buildTask.getNoRebuildCause());
 
         if (buildTask.getEndTime() == null) {
