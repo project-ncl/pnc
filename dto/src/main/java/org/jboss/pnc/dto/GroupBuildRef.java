@@ -17,21 +17,19 @@
  */
 package org.jboss.pnc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Builder;
+import lombok.Data;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildStatus;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
-
 import java.time.Instant;
-
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-
-import lombok.Builder;
-import lombok.Data;
 
 /**
  * Build of a group config.
@@ -70,6 +68,11 @@ public class GroupBuildRef implements DTOEntity {
      * Is this group build temporary?
      */
     protected final Boolean temporaryBuild;
+
+    /**
+     * AlignmentPreference that was used for the build.
+     */
+    protected final AlignmentPreference alignmentPreference;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

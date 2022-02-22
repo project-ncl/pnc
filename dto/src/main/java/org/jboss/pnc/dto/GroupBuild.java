@@ -18,15 +18,15 @@
 package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.jboss.pnc.enums.BuildStatus;
-
-import java.time.Instant;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.enums.BuildStatus;
+
+import java.time.Instant;
 
 /**
  * Build of a group config.
@@ -64,8 +64,9 @@ public class GroupBuild extends GroupBuildRef {
             Instant startTime,
             Instant endTime,
             BuildStatus status,
-            Boolean temporaryBuild) {
-        super(id, startTime, endTime, status, temporaryBuild);
+            Boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
+        super(id, startTime, endTime, status, temporaryBuild, alignmentPreference);
         this.groupConfig = groupConfig;
         this.user = user;
         this.productVersion = productVersion;

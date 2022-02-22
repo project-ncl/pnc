@@ -272,6 +272,7 @@ public class BuildTasksInitializer {
                 .startTime(new Date())
                 .status(org.jboss.pnc.enums.BuildStatus.BUILDING)
                 .temporaryBuild(buildOptions.isTemporaryBuild())
+                .alignmentPreference(buildOptions.getAlignmentPreference())
                 .build();
 
         final BuildConfigSetRecord configSetRecord;
