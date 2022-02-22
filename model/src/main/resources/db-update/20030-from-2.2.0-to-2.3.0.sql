@@ -19,4 +19,5 @@
 -- [NCL-6895] Temp build alignment preference
 BEGIN transaction;
     ALTER TABLE buildrecord ADD COLUMN alignmentpreference varchar(255);
+    ALTER TABLE buildconfigsetrecord ADD COLUMN alignmentpreference varchar(255);
 COMMIT;

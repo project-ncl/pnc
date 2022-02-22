@@ -17,11 +17,10 @@
  */
 package org.jboss.pnc.model;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.enums.BuildStatus;
 
 import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
@@ -45,10 +44,11 @@ import javax.persistence.PreRemove;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.jboss.pnc.enums.BuildStatus;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class contains a summary of the build results of the execution of a build config set. This includes the start
@@ -123,6 +123,9 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     @NotNull
     private boolean temporaryBuild;
+
+    @Enumerated(EnumType.STRING)
+    private AlignmentPreference alignmentPreference;
 
     /**
      * Example attributes POST_BUILD_REPO_VALIDATION: REPO_SYSTEM_ERROR
@@ -290,6 +293,14 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
         this.temporaryBuild = temporaryBuild;
     }
 
+    public AlignmentPreference getAlignmentPreference() {
+        return alignmentPreference;
+    }
+
+    public void setAlignmentPreference(AlignmentPreference alignmentPreference) {
+        this.alignmentPreference = alignmentPreference;
+    }
+
     public Map<String, String> getAttributes() {
         return attributes;
     }
@@ -340,6 +351,8 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
         private Boolean temporaryBuild;
 
+        private AlignmentPreference alignmentPreference;
+
         public Builder() {
             buildRecords = new HashSet<>();
         }
@@ -357,6 +370,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
             buildConfigSetRecord.setUser(user);
             buildConfigSetRecord.setStatus(status);
             buildConfigSetRecord.setTemporaryBuild(temporaryBuild);
+            buildConfigSetRecord.setAlignmentPreference(alignmentPreference);
 
             if (productVersion == null && buildConfigurationSet != null) {
                 productVersion = buildConfigurationSet.getProductVersion();
@@ -414,6 +428,11 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
         public Builder temporaryBuild(boolean temporaryBuild) {
             this.temporaryBuild = temporaryBuild;
+            return this;
+        }
+
+        public Builder alignmentPreference(AlignmentPreference alignmentPreference) {
+            this.alignmentPreference = alignmentPreference;
             return this;
         }
     }
