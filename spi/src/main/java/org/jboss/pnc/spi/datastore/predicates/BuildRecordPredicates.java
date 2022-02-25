@@ -131,10 +131,10 @@ public class BuildRecordPredicates {
      *
      * When (re)building a persistent build: - include only existing persistent builds having the same idRev
      *
-     * When (re)building a temporary build: - - if alignmentPreference == PREFER_PERSISTENT - if there are existing
+     * When (re)building a temporary build: - - if alignmentPreference == PREFER_PERSISTENT: if there are existing
      * *successful* persistent builds having the same idRev, ignore temporary builds - if there are no existing
      * *successful* persistent builds having the same idRev, include also *successful* temporary builds having the same
-     * idRev and alignmentPreference - if alignmentPreference == PREFER_TEMPORARY - if there are existing *successful*
+     * idRev and alignmentPreference; - if alignmentPreference == PREFER_TEMPORARY: if there are existing *successful*
      * temporary builds having the same idRev and alignmentPreference, ignore persistent builds - if there are no
      * existing *successful* temporary builds having the same idRev and alignmentPreference, include also *successful*
      * persistent builds having the same idRev
