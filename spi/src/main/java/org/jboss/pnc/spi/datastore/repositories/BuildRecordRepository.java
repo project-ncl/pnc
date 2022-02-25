@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Base32LongID;
@@ -55,33 +56,53 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
             List<Predicate<BuildRecord>> andPredicates,
             List<Predicate<BuildRecord>> orPredicates);
 
-    BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean buildTemporary);
+    BuildRecord getLatestSuccessfulBuildRecord(
+            Integer configurationId,
+            boolean buildTemporary,
+            AlignmentPreference alignmentPreference);
 
-    default BuildRecord getLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords, boolean buildTemporary) {
-        final boolean containsTemporary = buildRecords.stream().anyMatch(BuildRecord::isTemporaryBuild);
+    default BuildRecord getLatestSuccessfulBuildRecord(
+            List<BuildRecord> buildRecords,
+            boolean buildTemporary,
+            AlignmentPreference alignmentPreference) {
 
-        // Include temporary builds if you are building temporary and don't if building persistent
-        final boolean includeTemporary = buildTemporary;
-        // NCL-5192
-        // Exclude persistent builds if you are building temporary and there are some temporary builds built
-        final boolean excludePersistent = buildTemporary && containsTemporary;
-        final boolean includePersistent = !excludePersistent;
-
-        return buildRecords.stream()
+        // Get the latest successful persistent build record (of this build configuration)
+        final BuildRecord latestPersistent = buildRecords.stream()
                 .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
-                // First part includes temporary BRs and second part includes persistent BRs
-                .filter(
-                        record -> (includeTemporary && record.isTemporaryBuild())
-                                || (includePersistent && !record.isTemporaryBuild()))
+                .filter(record -> !record.isTemporaryBuild())
                 .max(Comparator.comparing(BuildRecord::getSubmitTime))
                 .orElse(null);
+
+        if (!buildTemporary) {
+            // I need only the persistent builds
+            return latestPersistent;
+        }
+
+        // Get the latest successful temporary build record (of this build configuration) with same alignment preference
+        final BuildRecord latestTemporary = buildRecords.stream()
+                .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
+                .filter(record -> record.isTemporaryBuild())
+                .filter(record -> alignmentPreference.equals(record.getAlignmentPreference()))
+                .max(Comparator.comparing(BuildRecord::getSubmitTime))
+                .orElse(null);
+
+        if (AlignmentPreference.PREFER_PERSISTENT.equals(alignmentPreference)) {
+            // Return the latest persistent if not null, otherwise the latest temporary
+            return latestPersistent != null ? latestPersistent : latestTemporary;
+        } else {
+            // Return the latest temporary if not null, otherwise the latest persistent
+            return latestTemporary != null ? latestTemporary : latestPersistent;
+        }
     }
 
     List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId);
 
     List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date);
 
-    BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild);
+    BuildRecord getLatestSuccessfulBuildRecord(
+            IdRev buildConfigurationAuditedIdRev,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference);
 
     List<BuildRecord> getLatestBuildsForBuildConfigs(List<Integer> configIds);
 

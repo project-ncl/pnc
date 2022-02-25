@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
@@ -339,14 +340,13 @@ public class DefaultDatastore implements Datastore {
      */
     @Override
     public BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigurationId) {
-        List<BuildConfigurationAudited> buildConfigRevs = buildConfigurationAuditedRepository
-                .findAllByIdOrderByRevDesc(buildConfigurationId);
-        if (buildConfigRevs.isEmpty()) {
+        BuildConfigurationAudited buildConfigRev = buildConfigurationAuditedRepository
+                .findLatestById(buildConfigurationId);
+        if (buildConfigRev == null) {
             logger.error("Did not find any BuildConfiguration revisions.");
-            return null;
         }
 
-        return buildConfigRevs.get(0);
+        return buildConfigRev;
     }
 
     @Override
@@ -382,18 +382,28 @@ public class DefaultDatastore implements Datastore {
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
+            AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache,
             Consumer<BuildRecord> nonRebuildCauseSetter) {
+
         IdRev idRev = buildConfigurationAudited.getIdRev();
+
+        // Find latest successful buildrecord with same BuildConfiguration Revision according to the preferences
+        // (persistent/temporary, prefer persistent/temporary)
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                .getLatestSuccessfulBuildRecord(idRev, temporaryBuild);
+                .getLatestSuccessfulBuildRecord(idRev, temporaryBuild, alignmentPreference);
         if (latestSuccessfulBuildRecord == null) {
+            // There is no successful build available for this BuildConfiguration Revision at all. (Re)build is
+            // required.
             logger.debug(
                     "Rebuild of buildConfiguration.idRev: {} required as there is no successful BuildRecord.",
                     idRev);
             return true;
         }
-        if (!isLatestSuccessBRFromThisBCA(buildConfigurationAudited, temporaryBuild)) {
+        // Get the latest successful build record (according to preferences) for this BuildConfiguration
+        // (any revision), and verify that it's the same revision as requested here. If they are not the same
+        // (e.g. if a new build was done successfully from a new revision), (re)build is required.
+        if (!isLatestSuccessBRFromThisBCA(buildConfigurationAudited, temporaryBuild, alignmentPreference)) {
             return true;
         }
         if (checkImplicitDependencies) {
@@ -401,6 +411,7 @@ public class DefaultDatastore implements Datastore {
             boolean rebuild = hasARebuiltImplicitDependency(
                     latestSuccessfulBuildRecord,
                     temporaryBuild,
+                    alignmentPreference,
                     processedDependenciesCache);
             logger.debug(
                     "Implicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.",
@@ -412,7 +423,11 @@ public class DefaultDatastore implements Datastore {
         }
         // check explicit dependencies
         Set<BuildConfiguration> dependencies = buildConfigurationAudited.getBuildConfiguration().getDependencies();
-        boolean rebuild = hasARebuiltExplicitDependency(latestSuccessfulBuildRecord, dependencies, temporaryBuild);
+        boolean rebuild = hasARebuiltExplicitDependency(
+                latestSuccessfulBuildRecord,
+                dependencies,
+                temporaryBuild,
+                alignmentPreference);
         logger.debug(
                 "Explicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.",
                 idRev,
@@ -431,6 +446,7 @@ public class DefaultDatastore implements Datastore {
                 task.getBuildConfigurationAudited(),
                 task.getBuildOptions().isImplicitDependenciesCheck(),
                 task.getBuildOptions().isTemporaryBuild(),
+                task.getBuildOptions().getAlignmentPreference(),
                 processedDependenciesCache);
     }
 
@@ -441,9 +457,10 @@ public class DefaultDatastore implements Datastore {
      */
     private boolean isLatestSuccessBRFromThisBCA(
             BuildConfigurationAudited buildConfigurationAudited,
-            boolean temporaryBuild) {
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                .getLatestSuccessfulBuildRecord(buildConfigurationAudited.getId(), temporaryBuild);
+                .getLatestSuccessfulBuildRecord(buildConfigurationAudited.getId(), temporaryBuild, alignmentPreference);
         if (latestSuccessfulBuildRecord == null) {
             if (!temporaryBuild) { // When building temporary, there might be only persistent builds done before.
                 logger.warn(
@@ -473,12 +490,13 @@ public class DefaultDatastore implements Datastore {
     private boolean hasARebuiltImplicitDependency(
             BuildRecord latestSuccessfulBuildRecord,
             boolean temporaryBuild,
+            AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache) {
         Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(
                 latestSuccessfulBuildRecord,
                 processedDependenciesCache);
         return lastBuiltFrom.stream().anyMatch(br -> {
-            if (hasNewerVersion(br, temporaryBuild)) {
+            if (hasNewerVersion(br, temporaryBuild, alignmentPreference)) {
                 logger.debug(
                         "Latest successful BuildRecord: {} has implicitly dependent BR: {} that requires rebuild.",
                         latestSuccessfulBuildRecord.getId(),
@@ -495,10 +513,13 @@ public class DefaultDatastore implements Datastore {
     private boolean hasARebuiltExplicitDependency(
             BuildRecord latestSuccessfulBuildRecord,
             Set<BuildConfiguration> dependencies,
-            boolean temporaryBuild) {
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
         for (BuildConfiguration dependencyBuildConfiguration : dependencies) {
-            BuildRecord dependencyLatestSuccessfulBuildRecord = buildRecordRepository
-                    .getLatestSuccessfulBuildRecord(dependencyBuildConfiguration.getId(), temporaryBuild);
+            BuildRecord dependencyLatestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(
+                    dependencyBuildConfiguration.getId(),
+                    temporaryBuild,
+                    alignmentPreference);
             if (dependencyLatestSuccessfulBuildRecord == null) {
                 return true;
             }
@@ -514,9 +535,14 @@ public class DefaultDatastore implements Datastore {
     /**
      * @return true if there is newer successful BuildRecord for the same buildConfiguration.idRev
      */
-    private boolean hasNewerVersion(BuildRecord buildRecord, boolean temporaryBuild) {
-        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                .getLatestSuccessfulBuildRecord(buildRecord.getBuildConfigurationAuditedIdRev(), temporaryBuild);
+    private boolean hasNewerVersion(
+            BuildRecord buildRecord,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
+        BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(
+                buildRecord.getBuildConfigurationAuditedIdRev(),
+                temporaryBuild,
+                alignmentPreference);
         if (latestSuccessfulBuildRecord == null) {
             logger.error(
                     "Something went wrong, the buildRecord {} should be successful (to this latest or the BuildRecord that produced artifacts.).",

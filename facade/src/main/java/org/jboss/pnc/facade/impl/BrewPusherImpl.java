@@ -250,8 +250,10 @@ public class BrewPusherImpl implements BrewPusher {
         } else if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
             // if status is NO_REBUILD_REQUIRED, find the last BuildRecord with status SUCCESS for the same idRev.
             IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
-            BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                    .getLatestSuccessfulBuildRecord(idRev, buildRecord.isTemporaryBuild());
+            BuildRecord latestSuccessfulBuildRecord = buildRecordRepository.getLatestSuccessfulBuildRecord(
+                    idRev,
+                    buildRecord.isTemporaryBuild(),
+                    buildRecord.getAlignmentPreference());
             if (latestSuccessfulBuildRecord != null) {
                 return latestSuccessfulBuildRecord;
             } else {

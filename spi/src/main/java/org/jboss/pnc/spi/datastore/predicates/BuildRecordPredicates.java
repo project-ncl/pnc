@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
@@ -102,6 +103,7 @@ public class BuildRecordPredicates {
      * @param temporary if requested (re)build is temporary
      * @return Predicate that filters out builds according to description
      */
+    @Deprecated
     public static Predicate<BuildRecord> includeTemporary(IdRev idRev, boolean temporary) {
         return (root, query, cb) -> {
             if (temporary) {
@@ -120,6 +122,88 @@ public class BuildRecordPredicates {
                 return cb
                         .or(cb.isTrue(root.get(BuildRecord_.temporaryBuild)), cb.lessThanOrEqualTo(temporaryCount, 0L));
             }
+            return cb.isFalse(root.get(BuildRecord_.temporaryBuild));
+        };
+    }
+
+    /**
+     * Changed behavior after NCL-6895 Dry-Run implementation
+     *
+     * When (re)building a persistent build: - include only existing persistent builds having the same idRev
+     *
+     * When (re)building a temporary build: - - if alignmentPreference == PREFER_PERSISTENT - if there are existing
+     * *successful* persistent builds having the same idRev, ignore temporary builds - if there are no existing
+     * *successful* persistent builds having the same idRev, include also *successful* temporary builds having the same
+     * idRev and alignmentPreference - if alignmentPreference == PREFER_TEMPORARY - if there are existing *successful*
+     * temporary builds having the same idRev and alignmentPreference, ignore persistent builds - if there are no
+     * existing *successful* temporary builds having the same idRev and alignmentPreference, include also *successful*
+     * persistent builds having the same idRev
+     *
+     * @param idRev the revision of the build to (re)build
+     * @param temporary if requested (re)build is temporary
+     * @param alignmentPreference the alignmentPreference specified in case of temporary builds
+     *
+     * @return Predicate that filters out builds according to description
+     */
+    public static Predicate<BuildRecord> includeTemporary(
+            IdRev idRev,
+            boolean temporary,
+            AlignmentPreference alignmentPreference) {
+        return (root, query, cb) -> {
+            if (temporary) {
+                if (AlignmentPreference.PREFER_TEMPORARY.equals(alignmentPreference)) {
+                    // Create subquery that counts number of successful temporary builds for the same
+                    // BuildConfigurationAudited.idRev and AlignmentPreference
+                    Subquery<Long> temporaryCount = query.subquery(Long.class);
+                    Root<BuildRecord> subRoot = temporaryCount.from(BuildRecord.class);
+                    temporaryCount.select(cb.count(subRoot.get(BuildRecord_.id)));
+                    temporaryCount.where(
+                            cb.and(
+                                    cb.isTrue(subRoot.get(BuildRecord_.temporaryBuild)),
+                                    cb.equal(subRoot.get(BuildRecord_.status), BuildStatus.SUCCESS),
+                                    cb.equal(subRoot.get(BuildRecord_.buildConfigurationId), idRev.getId()),
+                                    cb.equal(subRoot.get(BuildRecord_.buildConfigurationRev), idRev.getRev()),
+                                    cb.equal(subRoot.get(BuildRecord_.alignmentPreference), alignmentPreference)));
+
+                    return cb.or(
+                            // Pick temporary builds with same alignmentPreference
+                            cb.and(
+                                    cb.isTrue(root.get(BuildRecord_.temporaryBuild)),
+                                    cb.equal(root.get(BuildRecord_.alignmentPreference), alignmentPreference)),
+                            // Pick persistent builds if no successful temporary builds with same idRev and
+                            // alignmentPreference are found
+                            cb.and(
+                                    // This is needed so we don't pick temporary builds with same idRev but different
+                                    // alignmentPreference
+                                    cb.isFalse(root.get(BuildRecord_.temporaryBuild)),
+                                    cb.lessThanOrEqualTo(temporaryCount, 0L)));
+                } else {
+                    // Create subquery that counts number of successful persistent builds for the same
+                    // BuildConfigurationAudited.idRev
+                    Subquery<Long> persistentCount = query.subquery(Long.class);
+                    Root<BuildRecord> subRoot = persistentCount.from(BuildRecord.class);
+                    persistentCount.select(cb.count(subRoot.get(BuildRecord_.id)));
+                    persistentCount.where(
+                            cb.and(
+                                    cb.isFalse(subRoot.get(BuildRecord_.temporaryBuild)),
+                                    cb.equal(subRoot.get(BuildRecord_.status), BuildStatus.SUCCESS),
+                                    cb.equal(subRoot.get(BuildRecord_.buildConfigurationId), idRev.getId()),
+                                    cb.equal(subRoot.get(BuildRecord_.buildConfigurationRev), idRev.getRev())));
+
+                    return cb.or(
+                            // Pick persistent builds
+                            cb.isFalse(root.get(BuildRecord_.temporaryBuild)),
+                            // Pick temporary builds with same idRev and alignmentPreference if no successful persistent
+                            // builds with same idRev are found
+                            cb.and(
+                                    // This is needed so we don't pick temporary builds with same idRev but different
+                                    // alignmentPreference
+                                    cb.isTrue(root.get(BuildRecord_.temporaryBuild)),
+                                    cb.equal(root.get(BuildRecord_.alignmentPreference), alignmentPreference),
+                                    cb.lessThanOrEqualTo(persistentCount, 0L)));
+                }
+            }
+            // Include only persistent builds
             return cb.isFalse(root.get(BuildRecord_.temporaryBuild));
         };
     }

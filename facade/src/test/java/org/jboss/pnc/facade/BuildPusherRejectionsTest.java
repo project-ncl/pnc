@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -52,6 +53,7 @@ import static org.jboss.pnc.enums.BuildStatus.FAILED;
 import static org.jboss.pnc.enums.BuildStatus.NO_REBUILD_REQUIRED;
 import static org.jboss.pnc.enums.BuildStatus.SUCCESS;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -114,8 +116,11 @@ public class BuildPusherRejectionsTest {
 
         when(globalModuleGroup.getPncUrl()).thenReturn("http://localhost/");
         when(artifactRepository.queryWithPredicates(any())).thenReturn(Collections.singletonList(artifact));
-        when(buildRecordRepository.getLatestSuccessfulBuildRecord(any(IdRev.class), any(Boolean.class)))
-                .thenReturn(null);
+        when(
+                buildRecordRepository.getLatestSuccessfulBuildRecord(
+                        any(IdRev.class),
+                        any(Boolean.class),
+                        nullable(AlignmentPreference.class))).thenReturn(null);
 
         // then
         thrown.expect(expected);

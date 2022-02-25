@@ -20,4 +20,6 @@
 BEGIN transaction;
     ALTER TABLE buildrecord ADD COLUMN alignmentpreference varchar(255);
     ALTER TABLE buildconfigsetrecord ADD COLUMN alignmentpreference varchar(255);
+    UPDATE buildrecord SET alignmentpreference = 'PREFER_TEMPORARY' WHERE temporarybuild IS TRUE AND alignmentpreference IS NULL;
+    UPDATE buildconfigsetrecord SET alignmentpreference = 'PREFER_TEMPORARY' WHERE temporarybuild IS TRUE AND alignmentpreference IS NULL;
 COMMIT;

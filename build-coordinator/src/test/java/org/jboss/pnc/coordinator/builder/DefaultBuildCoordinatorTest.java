@@ -84,6 +84,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -164,7 +165,9 @@ public class DefaultBuildCoordinatorTest {
                         any(BuildConfigurationAudited.class),
                         any(Boolean.class),
                         any(Boolean.class),
+                        nullable(AlignmentPreference.class),
                         anySet())).thenReturn(true);
+
         when(datastore.saveBuildConfigSetRecord(any())).thenAnswer(new SaveBuildConfigSetRecordAnswer());
 
         USER.setId(1);
@@ -225,6 +228,7 @@ public class DefaultBuildCoordinatorTest {
                         any(BuildConfigurationAudited.class),
                         any(Boolean.class),
                         any(Boolean.class),
+                        nullable(AlignmentPreference.class),
                         anySet())).thenReturn(false);
 
         BuildConfigurationAudited bca1 = new BuildConfigurationAudited();

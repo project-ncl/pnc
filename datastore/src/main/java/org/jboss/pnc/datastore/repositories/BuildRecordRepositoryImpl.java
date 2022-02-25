@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
 import org.jboss.pnc.datastore.repositories.internal.PageableMapper;
@@ -128,9 +129,12 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     }
 
     @Override
-    public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean temporaryBuild) {
+    public BuildRecord getLatestSuccessfulBuildRecord(
+            Integer configurationId,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
         List<BuildRecord> buildRecords = queryWithBuildConfigurationId(configurationId);
-        return getLatestSuccessfulBuildRecord(buildRecords, temporaryBuild);
+        return getLatestSuccessfulBuildRecord(buildRecords, temporaryBuild, alignmentPreference);
     }
 
     @Override
@@ -148,16 +152,20 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     }
 
     @Override
-    public BuildRecord getLatestSuccessfulBuildRecord(IdRev idRev, boolean temporaryBuild) {
+    public BuildRecord getLatestSuccessfulBuildRecord(
+            IdRev idRev,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
         PageInfo pageInfo = new DefaultPageInfo(0, 1);
-        SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.id.getName());
+        // Sort by endTime DESC as the ID are not meaningful anymore with Base32Long ids
+        SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.endTime.getName());
 
         List<BuildRecord> buildRecords = queryWithPredicates(
                 pageInfo,
                 sortInfo,
                 withBuildConfigurationIdRev(idRev),
                 withSuccess(),
-                includeTemporary(idRev, temporaryBuild));
+                includeTemporary(idRev, temporaryBuild, alignmentPreference));
 
         if (buildRecords.size() == 0) {
             return null;

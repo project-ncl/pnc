@@ -18,6 +18,7 @@
 
 package org.jboss.pnc.coordinator.builder;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
@@ -121,6 +122,7 @@ public class BuildTasksInitializer {
                                     buildOptions.isImplicitDependenciesCheck(),
                                     buildOptions.isForceRebuild(),
                                     buildOptions.isTemporaryBuild(),
+                                    buildOptions.getAlignmentPreference(),
                                     processedDependenciesCache));
         }
     }
@@ -148,6 +150,7 @@ public class BuildTasksInitializer {
             boolean checkImplicitDependencies,
             boolean forceRebuild,
             boolean temporaryBuild,
+            AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache) {
         if (visited.contains(buildConfiguration)) {
             return toBuild.contains(buildConfigurationAudited);
@@ -158,6 +161,7 @@ public class BuildTasksInitializer {
                 buildConfigurationAudited,
                 checkImplicitDependencies,
                 temporaryBuild,
+                alignmentPreference,
                 processedDependenciesCache);
         for (BuildConfiguration dependency : buildConfiguration.getDependencies()) {
             boolean dependencyRequiresRebuild = collectDependentConfigurations(
@@ -168,11 +172,12 @@ public class BuildTasksInitializer {
                     checkImplicitDependencies,
                     forceRebuild,
                     temporaryBuild,
+                    alignmentPreference,
                     processedDependenciesCache);
 
             requiresRebuild = requiresRebuild || dependencyRequiresRebuild;
-
         }
+
         log.debug("Configuration {} requires rebuild: {}", buildConfiguration.getId(), requiresRebuild);
         if (requiresRebuild) {
             toBuild.add(buildConfigurationAudited);

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mock.repository;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
@@ -71,21 +72,49 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
     }
 
     @Override
-    public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean temporaryBuild) {
+    public BuildRecord getLatestSuccessfulBuildRecord(
+            Integer configurationId,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
         List<BuildRecord> buildRecords = queryAll();
-        return getLatestSuccessfulBuildRecord(configurationId, buildRecords, temporaryBuild);
+        return getLatestSuccessfulBuildRecord(configurationId, buildRecords, temporaryBuild, alignmentPreference);
     }
 
     public static BuildRecord getLatestSuccessfulBuildRecord(
             Integer configurationId,
             List<BuildRecord> buildRecords,
-            boolean temporaryBuild) {
-        return buildRecords.stream()
-                .filter(br -> br.getBuildConfigurationId().equals(configurationId))
-                .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
-                .filter(br -> !(!temporaryBuild && br.isTemporaryBuild()))
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
+
+        // Get the latest successful persistent build record (of this build configuration)
+        final BuildRecord latestPersistent = buildRecords.stream()
+                .filter(record -> record.getBuildConfigurationId().equals(configurationId))
+                .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
+                .filter(record -> !record.isTemporaryBuild())
                 .max(Comparator.comparing(BuildRecord::getSubmitTime))
                 .orElse(null);
+
+        if (!temporaryBuild) {
+            // I need only the persistent builds
+            return latestPersistent;
+        }
+
+        // Get the latest successful temporary build record (of this build configuration) with same alignment preference
+        final BuildRecord latestTemporary = buildRecords.stream()
+                .filter(record -> record.getBuildConfigurationId().equals(configurationId))
+                .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
+                .filter(record -> record.isTemporaryBuild())
+                .filter(record -> alignmentPreference.equals(record.getAlignmentPreference()))
+                .max(Comparator.comparing(BuildRecord::getSubmitTime))
+                .orElse(null);
+
+        if (AlignmentPreference.PREFER_PERSISTENT.equals(alignmentPreference)) {
+            // Return the latest persistent if not null, otherwise the latest temporary
+            return latestPersistent != null ? latestPersistent : latestTemporary;
+        } else {
+            // Return the latest temporary if not null, otherwise the latest persistent
+            return latestTemporary != null ? latestTemporary : latestPersistent;
+        }
     }
 
     @Override
@@ -101,20 +130,53 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
     }
 
     @Override
-    public BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild) {
-        return getLatestSuccessfulBuildRecord(buildConfigurationAuditedIdRev, data);
+    public BuildRecord getLatestSuccessfulBuildRecord(
+            IdRev buildConfigurationAuditedIdRev,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
+        return getLatestSuccessfulBuildRecord(
+                buildConfigurationAuditedIdRev,
+                data,
+                temporaryBuild,
+                alignmentPreference);
     }
 
     public static BuildRecord getLatestSuccessfulBuildRecord(
             IdRev buildConfigurationAuditedIdRev,
-            List<BuildRecord> buildRecords) {
-        Optional<BuildRecord> first = buildRecords.stream()
-                .filter(buildRecord -> buildRecord.getStatus().equals(BuildStatus.SUCCESS))
-                .filter(
-                        buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev()
-                                .equals(buildConfigurationAuditedIdRev))
-                .max(Comparator.comparing(BuildRecord::getSubmitTime));
-        return first.orElse(null);
+            List<BuildRecord> buildRecords,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
+
+        // Get the latest successful persistent build record (of this build configuration revision)
+        final BuildRecord latestPersistent = buildRecords.stream()
+                .filter(record -> record.getBuildConfigurationAuditedIdRev().equals(buildConfigurationAuditedIdRev))
+                .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
+                .filter(record -> !record.isTemporaryBuild())
+                .max(Comparator.comparing(BuildRecord::getSubmitTime))
+                .orElse(null);
+
+        if (!temporaryBuild) {
+            // I need only the persistent builds
+            return latestPersistent;
+        }
+
+        // Get the latest successful temporary build record (of this build configuration revision) with same alignment
+        // preference
+        final BuildRecord latestTemporary = buildRecords.stream()
+                .filter(record -> record.getBuildConfigurationAuditedIdRev().equals(buildConfigurationAuditedIdRev))
+                .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
+                .filter(record -> record.isTemporaryBuild())
+                .filter(record -> alignmentPreference.equals(record.getAlignmentPreference()))
+                .max(Comparator.comparing(BuildRecord::getSubmitTime))
+                .orElse(null);
+
+        if (AlignmentPreference.PREFER_PERSISTENT.equals(alignmentPreference)) {
+            // Return the latest persistent if not null, otherwise the latest temporary
+            return latestPersistent != null ? latestPersistent : latestTemporary;
+        } else {
+            // Return the latest temporary if not null, otherwise the latest persistent
+            return latestTemporary != null ? latestTemporary : latestPersistent;
+        }
     }
 
     @Override
