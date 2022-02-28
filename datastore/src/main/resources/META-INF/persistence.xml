@@ -31,7 +31,7 @@
          <!-- Properties for Hibernate -->
           <property name="hibernate.dialect" value="@persistence.hibernate.dialect@"/>
           <property name="hibernate.hbm2ddl.auto" value="@persistence.hibernate.hbm2ddl.auto@"/>
-          <property name="hibernate.show_sql" value="false"/>
+          <property name="hibernate.show_sql" value="true"/>
           <property name="hibernate.format_sql" value="true"/>
           <property name="hibernate.jdbc.use_streams_for_binary" value="true"/>
           <!-- required by: BuildConfigurationRepositoryImpl.save to increment revision of parent entity when child is updated -->
