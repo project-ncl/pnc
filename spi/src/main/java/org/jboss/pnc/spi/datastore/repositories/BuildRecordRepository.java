@@ -58,7 +58,8 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
     BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean buildTemporary);
 
     default BuildRecord getLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords, boolean buildTemporary) {
-        final boolean containsTemporary = buildRecords.stream().anyMatch(BuildRecord::isTemporaryBuild);
+        final boolean containsTemporary = buildRecords.stream()
+                .anyMatch(record -> (record.isTemporaryBuild() && record.getStatus() == BuildStatus.SUCCESS));
 
         // Include temporary builds if you are building temporary and don't if building persistent
         final boolean includeTemporary = buildTemporary;
