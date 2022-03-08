@@ -134,6 +134,12 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     }
 
     @Override
+    public BuildRecord getLatestSuccessfulBuildRecordWithBuildConfig(Integer configurationId, boolean temporaryBuild) {
+        List<BuildRecord> buildRecords = queryWithBuildConfigurationId(configurationId);
+        return getLatestSuccessfulBuildRecordFromList(buildRecords, temporaryBuild);
+    }
+
+    @Override
     public List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId) {
         return queryWithPredicates(withBuildConfigurationId(configurationId));
     }
@@ -158,6 +164,25 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
                 withBuildConfigurationIdRev(idRev),
                 withSuccess(),
                 includeTemporary(idRev, temporaryBuild));
+
+        if (buildRecords.size() == 0) {
+            return null;
+        } else {
+            return buildRecords.get(0);
+        }
+    }
+
+    @Override
+    public BuildRecord getLatestSuccessfulBuildRecordWithRevision(IdRev idRev, boolean temporaryBuild) {
+        PageInfo pageInfo = new DefaultPageInfo(0, 1);
+        SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.submitTime.getName());
+
+        List<BuildRecord> buildRecords = queryWithPredicates(
+                pageInfo,
+                sortInfo,
+                withBuildConfigurationIdRev(idRev),
+                withSuccess(),
+                includeTemporary(temporaryBuild));
 
         if (buildRecords.size() == 0) {
             return null;
