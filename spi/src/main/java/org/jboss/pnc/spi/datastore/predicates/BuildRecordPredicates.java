@@ -124,6 +124,20 @@ public class BuildRecordPredicates {
         };
     }
 
+    /**
+     * (related to NCL-6957)
+     *
+     * When (re)building a temporary build: include either persistent and temporary builds 
+     * 
+     * When (re)building a persistent build: include only persistent builds
+     * 
+     * @param temporary if requested (re)build is temporary
+     * @return Predicate that filters out builds according to description
+     */
+    public static Predicate<BuildRecord> includeTemporary(boolean temporary) {
+        return (root, query, cb) -> (temporary) ? cb.and() : cb.isFalse(root.get(BuildRecord_.temporaryBuild));
+    }
+
     public static Predicate<BuildRecord> withBuildConfigSetId(Integer buildConfigSetId) {
         return (root, query, cb) -> {
 

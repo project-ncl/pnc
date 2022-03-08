@@ -76,6 +76,12 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
         return getLatestSuccessfulBuildRecord(configurationId, buildRecords, temporaryBuild);
     }
 
+    @Override
+    public BuildRecord getLatestSuccessfulBuildRecordWithBuildConfig(Integer configurationId, boolean temporaryBuild) {
+        List<BuildRecord> buildRecords = queryAll();
+        return getLatestSuccessfulBuildRecordFromList(configurationId, buildRecords, temporaryBuild);
+    }
+
     public static BuildRecord getLatestSuccessfulBuildRecord(
             Integer configurationId,
             List<BuildRecord> buildRecords,
@@ -84,6 +90,18 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
                 .filter(br -> br.getBuildConfigurationId().equals(configurationId))
                 .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
                 .filter(br -> !(!temporaryBuild && br.isTemporaryBuild()))
+                .max(Comparator.comparing(BuildRecord::getSubmitTime))
+                .orElse(null);
+    }
+
+    public static BuildRecord getLatestSuccessfulBuildRecordFromList(
+            Integer configurationId,
+            List<BuildRecord> buildRecords,
+            boolean temporaryBuild) {
+        return buildRecords.stream()
+                .filter(br -> br.getBuildConfigurationId().equals(configurationId))
+                .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
+                .filter(br -> (temporaryBuild && br.isTemporaryBuild()) || !br.isTemporaryBuild())
                 .max(Comparator.comparing(BuildRecord::getSubmitTime))
                 .orElse(null);
     }
@@ -105,6 +123,13 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
         return getLatestSuccessfulBuildRecord(buildConfigurationAuditedIdRev, data);
     }
 
+    @Override
+    public BuildRecord getLatestSuccessfulBuildRecordWithRevision(
+            IdRev buildConfigurationAuditedIdRev,
+            boolean temporaryBuild) {
+        return getLatestSuccessfulBuildRecord(buildConfigurationAuditedIdRev, data, temporaryBuild);
+    }
+
     public static BuildRecord getLatestSuccessfulBuildRecord(
             IdRev buildConfigurationAuditedIdRev,
             List<BuildRecord> buildRecords) {
@@ -113,6 +138,22 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
                 .filter(
                         buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev()
                                 .equals(buildConfigurationAuditedIdRev))
+                .max(Comparator.comparing(BuildRecord::getSubmitTime));
+        return first.orElse(null);
+    }
+
+    public static BuildRecord getLatestSuccessfulBuildRecord(
+            IdRev buildConfigurationAuditedIdRev,
+            List<BuildRecord> buildRecords,
+            boolean temporaryBuild) {
+        Optional<BuildRecord> first = buildRecords.stream()
+                .filter(buildRecord -> buildRecord.getStatus().equals(BuildStatus.SUCCESS))
+                .filter(
+                        buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev()
+                                .equals(buildConfigurationAuditedIdRev))
+                .filter(
+                        buildRecord -> (temporaryBuild && buildRecord.isTemporaryBuild())
+                                || !buildRecord.isTemporaryBuild())
                 .max(Comparator.comparing(BuildRecord::getSubmitTime));
         return first.orElse(null);
     }

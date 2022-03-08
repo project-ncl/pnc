@@ -54,12 +54,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIdentifierInAndBuilt;
-import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256InAndBuilt;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
 import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 
@@ -384,18 +382,22 @@ public class DefaultDatastore implements Datastore {
             boolean temporaryBuild,
             Set<Integer> processedDependenciesCache,
             Consumer<BuildRecord> nonRebuildCauseSetter) {
+
         IdRev idRev = buildConfigurationAudited.getIdRev();
+        // Step 1 - Check the existence of a build with the same revision
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                .getLatestSuccessfulBuildRecord(idRev, temporaryBuild);
+                .getLatestSuccessfulBuildRecordWithRevision(idRev, temporaryBuild);
         if (latestSuccessfulBuildRecord == null) {
             logger.debug(
                     "Rebuild of buildConfiguration.idRev: {} required as there is no successful BuildRecord.",
                     idRev);
             return true;
         }
+        // Step 2 - Check the existence of more recent builds with different revision
         if (!isLatestSuccessBRFromThisBCA(buildConfigurationAudited, temporaryBuild)) {
             return true;
         }
+        // Step 3 - check implicit dependencies
         if (checkImplicitDependencies) {
             logger.debug("Checking if BCA: {} has implicit dependencies that need rebuild", idRev);
             boolean rebuild = hasARebuiltImplicitDependency(
@@ -410,7 +412,7 @@ public class DefaultDatastore implements Datastore {
                 return true;
             }
         }
-        // check explicit dependencies
+        // Step 4 - check explicit dependencies
         Set<BuildConfiguration> dependencies = buildConfigurationAudited.getBuildConfiguration().getDependencies();
         boolean rebuild = hasARebuiltExplicitDependency(latestSuccessfulBuildRecord, dependencies, temporaryBuild);
         logger.debug(
@@ -443,7 +445,7 @@ public class DefaultDatastore implements Datastore {
             BuildConfigurationAudited buildConfigurationAudited,
             boolean temporaryBuild) {
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                .getLatestSuccessfulBuildRecord(buildConfigurationAudited.getId(), temporaryBuild);
+                .getLatestSuccessfulBuildRecordWithBuildConfig(buildConfigurationAudited.getId(), temporaryBuild);
         if (latestSuccessfulBuildRecord == null) {
             if (!temporaryBuild) { // When building temporary, there might be only persistent builds done before.
                 logger.warn(
