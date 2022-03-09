@@ -338,14 +338,13 @@ public class DefaultDatastore implements Datastore {
      */
     @Override
     public BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigurationId) {
-        List<BuildConfigurationAudited> buildConfigRevs = buildConfigurationAuditedRepository
-                .findAllByIdOrderByRevDesc(buildConfigurationId);
-        if (buildConfigRevs.isEmpty()) {
+        BuildConfigurationAudited buildConfigRev = buildConfigurationAuditedRepository
+                .findLatestById(buildConfigurationId);
+        if (buildConfigRev == null) {
             logger.error("Did not find any BuildConfiguration revisions.");
-            return null;
         }
 
-        return buildConfigRevs.get(0);
+        return buildConfigRev;
     }
 
     @Override
