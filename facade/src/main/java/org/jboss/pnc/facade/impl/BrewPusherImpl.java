@@ -248,12 +248,11 @@ public class BrewPusherImpl implements BrewPusher {
         if (BuildStatus.SUCCESS.equals(buildRecord.getStatus())) {
             return buildRecord;
         } else if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
-            // if status is NO_REBUILD_REQUIRED, find the last BuildRecord with status SUCCESS for the same idRev.
-            IdRev idRev = buildRecord.getBuildConfigurationAuditedIdRev();
-            BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                    .getAnyLatestSuccessfulBuildRecordWithRevision(idRev, buildRecord.isTemporaryBuild());
-            if (latestSuccessfulBuildRecord != null) {
-                return latestSuccessfulBuildRecord;
+            // if status is NO_REBUILD_REQUIRED, find the associated BuildRecord which was linked as the no rebuild
+            // cause
+            BuildRecord noRebuildCause = buildRecord.getNoRebuildCause();
+            if (noRebuildCause != null) {
+                return noRebuildCause;
             } else {
                 String message = "There is no SUCCESS build before NO_REBUILD_REQUIRED.";
                 log.error(message);
