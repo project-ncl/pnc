@@ -386,7 +386,7 @@ public class DefaultDatastore implements Datastore {
         IdRev idRev = buildConfigurationAudited.getIdRev();
         // Step 1 - Check the existence of a build with the same revision
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                .getLatestSuccessfulBuildRecordWithRevision(idRev, temporaryBuild);
+                .getAnyLatestSuccessfulBuildRecordWithRevision(idRev, temporaryBuild);
         if (latestSuccessfulBuildRecord == null) {
             logger.debug(
                     "Rebuild of buildConfiguration.idRev: {} required as there is no successful BuildRecord.",
@@ -445,7 +445,7 @@ public class DefaultDatastore implements Datastore {
             BuildConfigurationAudited buildConfigurationAudited,
             boolean temporaryBuild) {
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                .getLatestSuccessfulBuildRecordWithBuildConfig(buildConfigurationAudited.getId(), temporaryBuild);
+                .getAnyLatestSuccessfulBuildRecordWithBuildConfig(buildConfigurationAudited.getId(), temporaryBuild);
         if (latestSuccessfulBuildRecord == null) {
             if (!temporaryBuild) { // When building temporary, there might be only persistent builds done before.
                 logger.warn(

@@ -77,7 +77,9 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
     }
 
     @Override
-    public BuildRecord getLatestSuccessfulBuildRecordWithBuildConfig(Integer configurationId, boolean temporaryBuild) {
+    public BuildRecord getAnyLatestSuccessfulBuildRecordWithBuildConfig(
+            Integer configurationId,
+            boolean temporaryBuild) {
         List<BuildRecord> buildRecords = queryAll();
         return getLatestSuccessfulBuildRecordFromList(configurationId, buildRecords, temporaryBuild);
     }
@@ -124,7 +126,7 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
     }
 
     @Override
-    public BuildRecord getLatestSuccessfulBuildRecordWithRevision(
+    public BuildRecord getAnyLatestSuccessfulBuildRecordWithRevision(
             IdRev buildConfigurationAuditedIdRev,
             boolean temporaryBuild) {
         return getLatestSuccessfulBuildRecord(buildConfigurationAuditedIdRev, data, temporaryBuild);

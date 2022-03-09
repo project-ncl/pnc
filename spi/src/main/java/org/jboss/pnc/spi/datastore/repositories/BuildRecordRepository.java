@@ -78,9 +78,9 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
                 .orElse(null);
     }
 
-    BuildRecord getLatestSuccessfulBuildRecordWithBuildConfig(Integer configurationId, boolean temporaryBuild);
+    BuildRecord getAnyLatestSuccessfulBuildRecordWithBuildConfig(Integer configurationId, boolean temporaryBuild);
 
-    default BuildRecord getLatestSuccessfulBuildRecordFromList(List<BuildRecord> buildRecords, boolean temporaryBuild) {
+    default BuildRecord getAnyLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords, boolean temporaryBuild) {
         return buildRecords.stream()
                 .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
                 // First part includes temporary BRs and second part includes persistent BRs
@@ -95,7 +95,7 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
 
     BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild);
 
-    BuildRecord getLatestSuccessfulBuildRecordWithRevision(
+    BuildRecord getAnyLatestSuccessfulBuildRecordWithRevision(
             IdRev buildConfigurationAuditedIdRev,
             boolean temporaryBuild);
 
