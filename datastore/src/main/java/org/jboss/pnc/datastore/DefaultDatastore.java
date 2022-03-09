@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
@@ -380,6 +381,7 @@ public class DefaultDatastore implements Datastore {
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
+            AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache,
             Consumer<BuildRecord> nonRebuildCauseSetter) {
 
@@ -403,6 +405,7 @@ public class DefaultDatastore implements Datastore {
             boolean rebuild = hasARebuiltImplicitDependency(
                     latestSuccessfulBuildRecord,
                     temporaryBuild,
+                    alignmentPreference,
                     processedDependenciesCache);
             logger.debug(
                     "Implicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.",
@@ -433,6 +436,7 @@ public class DefaultDatastore implements Datastore {
                 task.getBuildConfigurationAudited(),
                 task.getBuildOptions().isImplicitDependenciesCheck(),
                 task.getBuildOptions().isTemporaryBuild(),
+                task.getBuildOptions().getAlignmentPreference(),
                 processedDependenciesCache);
     }
 
@@ -475,12 +479,13 @@ public class DefaultDatastore implements Datastore {
     private boolean hasARebuiltImplicitDependency(
             BuildRecord latestSuccessfulBuildRecord,
             boolean temporaryBuild,
+            AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache) {
         Collection<BuildRecord> lastBuiltFrom = getRecordsUsedFor(
                 latestSuccessfulBuildRecord,
                 processedDependenciesCache);
         return lastBuiltFrom.stream().anyMatch(br -> {
-            if (hasNewerVersion(br, temporaryBuild)) {
+            if (hasNewerVersion(br, temporaryBuild, alignmentPreference)) {
                 logger.debug(
                         "Latest successful BuildRecord: {} has implicitly dependent BR: {} that requires rebuild.",
                         latestSuccessfulBuildRecord.getId(),
@@ -516,9 +521,15 @@ public class DefaultDatastore implements Datastore {
     /**
      * @return true if there is newer successful BuildRecord for the same buildConfiguration.idRev
      */
-    private boolean hasNewerVersion(BuildRecord buildRecord, boolean temporaryBuild) {
+    private boolean hasNewerVersion(
+            BuildRecord buildRecord,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                .getLatestSuccessfulBuildRecord(buildRecord.getBuildConfigurationAuditedIdRev(), temporaryBuild);
+                .getPreferredLatestSuccessfulBuildRecordWithRevision(
+                        buildRecord.getBuildConfigurationAuditedIdRev(),
+                        temporaryBuild,
+                        alignmentPreference);
         if (latestSuccessfulBuildRecord == null) {
             logger.error(
                     "Something went wrong, the buildRecord {} should be successful (to this latest or the BuildRecord that produced artifacts.).",

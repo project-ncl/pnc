@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.mock.repository;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
@@ -132,6 +133,18 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
         return getLatestSuccessfulBuildRecord(buildConfigurationAuditedIdRev, data, temporaryBuild);
     }
 
+    @Override
+    public BuildRecord getPreferredLatestSuccessfulBuildRecordWithRevision(
+            IdRev buildConfigurationAuditedIdRev,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
+        return getLatestSuccessfulBuildRecord(
+                buildConfigurationAuditedIdRev,
+                data,
+                temporaryBuild,
+                alignmentPreference);
+    }
+
     public static BuildRecord getLatestSuccessfulBuildRecord(
             IdRev buildConfigurationAuditedIdRev,
             List<BuildRecord> buildRecords) {
@@ -158,6 +171,40 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
                                 || !buildRecord.isTemporaryBuild())
                 .max(Comparator.comparing(BuildRecord::getSubmitTime));
         return first.orElse(null);
+    }
+
+    public static BuildRecord getLatestSuccessfulBuildRecord(
+            IdRev buildConfigurationAuditedIdRev,
+            List<BuildRecord> buildRecords,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
+
+        Optional<BuildRecord> latestPersistent = buildRecords.stream()
+                .filter(buildRecord -> buildRecord.getStatus().equals(BuildStatus.SUCCESS))
+                .filter(
+                        buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev()
+                                .equals(buildConfigurationAuditedIdRev))
+                .filter(buildRecord -> !buildRecord.isTemporaryBuild())
+                .max(Comparator.comparing(BuildRecord::getSubmitTime));
+
+        Optional<BuildRecord> latestTemporary = buildRecords.stream()
+                .filter(buildRecord -> buildRecord.getStatus().equals(BuildStatus.SUCCESS))
+                .filter(
+                        buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev()
+                                .equals(buildConfigurationAuditedIdRev))
+                .filter(buildRecord -> buildRecord.isTemporaryBuild())
+                .max(Comparator.comparing(BuildRecord::getSubmitTime));
+
+        if (temporaryBuild) {
+            if (AlignmentPreference.PREFER_TEMPORARY.equals(alignmentPreference)) {
+
+                return latestTemporary.orElse(latestPersistent.orElse(null));
+            } else {
+                return latestPersistent.orElse(latestTemporary.orElse(null));
+            }
+        }
+
+        return latestPersistent.orElse(null);
     }
 
     @Override

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
@@ -288,7 +289,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     buildSetTask,
                     buildConfigurationSet,
                     buildOptions.isImplicitDependenciesCheck(),
-                    buildOptions.isTemporaryBuild());
+                    buildOptions.isTemporaryBuild(),
+                    buildOptions.getAlignmentPreference());
         }
 
         checkForCyclicDependencies(buildSetTask);
@@ -299,7 +301,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             BuildSetTask buildSetTask,
             BuildConfigurationSet buildConfigurationSet,
             boolean checkImplicitDependencies,
-            boolean temporaryBuild) {
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
         Set<BuildConfiguration> buildConfigurations = buildConfigurationSet.getBuildConfigurations();
         int requiresRebuild = buildConfigurations.size();
         log.debug("There are {} configurations in a set {}.", requiresRebuild, buildConfigurationSet.getId());
@@ -312,6 +315,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     buildConfigurationAudited,
                     checkImplicitDependencies,
                     temporaryBuild,
+                    alignmentPreference,
                     processedDependenciesCache)) {
                 requiresRebuild--;
             }

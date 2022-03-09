@@ -114,7 +114,7 @@ public class BuildPusherRejectionsTest {
 
         when(globalModuleGroup.getPncUrl()).thenReturn("http://localhost/");
         when(artifactRepository.queryWithPredicates(any())).thenReturn(Collections.singletonList(artifact));
-        when(buildRecordRepository.getLatestSuccessfulBuildRecord(any(IdRev.class), any(Boolean.class)))
+        when(buildRecordRepository.getAnyLatestSuccessfulBuildRecordWithRevision(any(IdRev.class), any(Boolean.class)))
                 .thenReturn(null);
 
         // then

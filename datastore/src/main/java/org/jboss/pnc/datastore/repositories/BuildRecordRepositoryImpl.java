@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
 import org.jboss.pnc.datastore.repositories.internal.PageableMapper;
@@ -185,6 +186,28 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
                 withBuildConfigurationIdRev(idRev),
                 withSuccess(),
                 includeTemporary(temporaryBuild));
+
+        if (buildRecords.size() == 0) {
+            return null;
+        } else {
+            return buildRecords.get(0);
+        }
+    }
+
+    @Override
+    public BuildRecord getPreferredLatestSuccessfulBuildRecordWithRevision(
+            IdRev idRev,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
+        PageInfo pageInfo = new DefaultPageInfo(0, 1);
+        SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.submitTime.getName());
+
+        List<BuildRecord> buildRecords = queryWithPredicates(
+                pageInfo,
+                sortInfo,
+                withBuildConfigurationIdRev(idRev),
+                withSuccess(),
+                includeTemporary(idRev, temporaryBuild, alignmentPreference));
 
         if (buildRecords.size() == 0) {
             return null;

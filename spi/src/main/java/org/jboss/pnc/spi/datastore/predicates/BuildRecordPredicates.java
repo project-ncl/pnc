@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
@@ -136,6 +137,66 @@ public class BuildRecordPredicates {
      */
     public static Predicate<BuildRecord> includeTemporary(boolean temporary) {
         return (root, query, cb) -> (temporary) ? cb.and() : cb.isFalse(root.get(BuildRecord_.temporaryBuild));
+    }
+
+    /**
+     * Changed behavior after NCL-6895 Dry-Run implementation
+     *
+     * When (re)building a persistent build: - include only existing persistent builds having the same idRev
+     *
+     * When (re)building a temporary PREFER_PERSISTENT build: if there are existing successful persistent builds having
+     * the same idRev, ignore temporary builds, otherwise include also successful temporary builds having the same idRev
+     * 
+     * When (re)building a temporary PREFER_TEMPORARY build: if there are existing successful temporary builds having
+     * the same idRev, ignore persistent builds, otherwise include also successful persistent builds having the same
+     * idRev
+     *
+     * @param idRev the revision of the build to (re)build
+     * @param temporary if requested (re)build is temporary
+     * @param alignmentPreference the alignmentPreference specified in case of temporary builds
+     *
+     * @return Predicate that filters out builds according to description
+     */
+    public static Predicate<BuildRecord> includeTemporary(
+            IdRev idRev,
+            boolean temporary,
+            AlignmentPreference alignmentPreference) {
+        return (root, query, cb) -> {
+            if (temporary) {
+                if (AlignmentPreference.PREFER_TEMPORARY.equals(alignmentPreference)) {
+                    Subquery<Long> temporaryCount = query.subquery(Long.class);
+                    Root<BuildRecord> subRoot = temporaryCount.from(BuildRecord.class);
+                    temporaryCount.select(cb.count(subRoot.get(BuildRecord_.id)));
+                    temporaryCount.where(
+                            cb.and(
+                                    cb.isTrue(subRoot.get(BuildRecord_.temporaryBuild)),
+                                    cb.equal(subRoot.get(BuildRecord_.status), BuildStatus.SUCCESS),
+                                    cb.equal(subRoot.get(BuildRecord_.buildConfigurationId), idRev.getId()),
+                                    cb.equal(subRoot.get(BuildRecord_.buildConfigurationRev), idRev.getRev())));
+
+                    return cb.or(
+                            cb.isTrue(root.get(BuildRecord_.temporaryBuild)),
+                            cb.lessThanOrEqualTo(temporaryCount, 0L));
+
+                } else {
+                    Subquery<Long> persistentCount = query.subquery(Long.class);
+                    Root<BuildRecord> subRoot = persistentCount.from(BuildRecord.class);
+                    persistentCount.select(cb.count(subRoot.get(BuildRecord_.id)));
+                    persistentCount.where(
+                            cb.and(
+                                    cb.isFalse(subRoot.get(BuildRecord_.temporaryBuild)),
+                                    cb.equal(subRoot.get(BuildRecord_.status), BuildStatus.SUCCESS),
+                                    cb.equal(subRoot.get(BuildRecord_.buildConfigurationId), idRev.getId()),
+                                    cb.equal(subRoot.get(BuildRecord_.buildConfigurationRev), idRev.getRev())));
+
+                    return cb.or(
+                            cb.isFalse(root.get(BuildRecord_.temporaryBuild)),
+                            cb.lessThanOrEqualTo(persistentCount, 0L));
+                }
+            }
+            // Include only persistent builds
+            return cb.isFalse(root.get(BuildRecord_.temporaryBuild));
+        };
     }
 
     public static Predicate<BuildRecord> withBuildConfigSetId(Integer buildConfigSetId) {
