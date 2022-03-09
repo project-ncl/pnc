@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Base32LongID;
@@ -98,6 +99,11 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
     BuildRecord getAnyLatestSuccessfulBuildRecordWithRevision(
             IdRev buildConfigurationAuditedIdRev,
             boolean temporaryBuild);
+
+    BuildRecord getPreferredLatestSuccessfulBuildRecordWithRevision(
+            IdRev buildConfigurationAuditedIdRev,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference);
 
     List<BuildRecord> getLatestBuildsForBuildConfigs(List<Integer> configIds);
 

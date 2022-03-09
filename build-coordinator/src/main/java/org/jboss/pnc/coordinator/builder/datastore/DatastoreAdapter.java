@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.coordinator.builder.datastore;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
@@ -467,11 +468,13 @@ public class DatastoreAdapter {
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
+            AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache) {
         return datastore.requiresRebuild(
                 buildConfigurationAudited,
                 checkImplicitDependencies,
                 temporaryBuild,
+                alignmentPreference,
                 processedDependenciesCache);
     }
 
@@ -480,6 +483,7 @@ public class DatastoreAdapter {
                 task.getBuildConfigurationAudited(),
                 task.getBuildOptions().isImplicitDependenciesCheck(),
                 task.getBuildOptions().isTemporaryBuild(),
+                task.getBuildOptions().getAlignmentPreference(),
                 processedDependenciesCache,
                 task::setNoRebuildCause);
     }

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore;
 
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -117,11 +118,13 @@ public interface Datastore {
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
+            AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache) {
         return requiresRebuild(
                 buildConfigurationAudited,
                 checkImplicitDependencies,
                 temporaryBuild,
+                alignmentPreference,
                 processedDependenciesCache,
                 ign -> {});
     }
@@ -140,6 +143,7 @@ public interface Datastore {
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
+            AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache,
             Consumer<BuildRecord> nonRebuildCauseSetter);
 
