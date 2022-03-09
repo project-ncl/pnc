@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.impl;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
@@ -54,7 +55,6 @@ import java.util.Map;
 
 @Slf4j
 @ApplicationScoped
-@Transactional
 public class OperationsManagerImpl implements OperationsManager {
     private String callbackUrlTemplate = "%s/operations/%s/complete";
     @Inject
@@ -67,9 +67,19 @@ public class OperationsManagerImpl implements OperationsManager {
     private GlobalModuleGroup globalConfig;
     @Inject
     private Event<OperationChangedEvent> analysisStatusChangedEventNotifier;
+    @Inject
+    private OperationsManagerImpl self;
 
     @Override
     public Operation updateProgress(Base32LongID id, ProgressStatus status) {
+        Tuple tuple = self._updateProgress(id, status);
+        analysisStatusChangedEventNotifier.fire(new OperationChangedEvent(tuple.operation, tuple.previousProgress));
+        return tuple.operation;
+    }
+
+    @Transactional
+    // must be public (and not protected), otherwise Weld doesn't know how to create proxy properly
+    public Tuple _updateProgress(Base32LongID id, ProgressStatus status) {
         Operation operation = repository.queryById(id);
         if (operation.getEndTime() != null) {
             throw new InvalidEntityException("Operation " + operation + " is already finished!");
@@ -80,12 +90,20 @@ public class OperationsManagerImpl implements OperationsManager {
         }
         ProgressStatus previousProgress = operation.getProgressStatus();
         operation.setProgressStatus(status);
-        analysisStatusChangedEventNotifier.fire(new OperationChangedEvent(operation, previousProgress));
-        return operation;
+        log.warn("ending _updateProgress");
+        return new Tuple(operation, previousProgress);
     }
 
     @Override
     public Operation setResult(Base32LongID id, OperationResult result) {
+        Tuple tuple = self._setResult(id, result);
+        analysisStatusChangedEventNotifier.fire(new OperationChangedEvent(tuple.operation, tuple.previousProgress));
+        return tuple.operation;
+    }
+
+    @Transactional
+    // must be public (and not protected), otherwise Weld doesn't know how to create proxy properly
+    public Tuple _setResult(Base32LongID id, OperationResult result) {
         Operation operation = repository.queryById(id);
         if (operation.getEndTime() != null) {
             throw new InvalidEntityException("Operation " + operation + " is already finished!");
@@ -94,8 +112,8 @@ public class OperationsManagerImpl implements OperationsManager {
         ProgressStatus previousProgress = operation.getProgressStatus();
         operation.setResult(result);
         operation.setEndTime(Date.from(Instant.now()));
-        analysisStatusChangedEventNotifier.fire(new OperationChangedEvent(operation, previousProgress));
-        return operation;
+        log.warn("Ending _setResult");
+        return new Tuple(operation, previousProgress);
     }
 
     @Override
@@ -119,9 +137,15 @@ public class OperationsManagerImpl implements OperationsManager {
                 .user(userService.currentUser())
                 .id(operationId)
                 .build();
-        repository.save(operation);
+        operation = self.saveToDb(operation);
         analysisStatusChangedEventNotifier.fire(new OperationChangedEvent(operation, null));
         return operation;
+    }
+
+    @Transactional
+    // must be public (and not protected), otherwise Weld doesn't know how to create proxy properly
+    public <T extends Operation> T saveToDb(T operation) {
+        return (T) repository.save(operation);
     }
 
     @Override
@@ -156,5 +180,12 @@ public class OperationsManagerImpl implements OperationsManager {
 
     private Base32LongID parseId(String operationId) {
         return OperationMapper.idMapper.toEntity(operationId);
+    }
+
+    @AllArgsConstructor
+    // must be public (and not protected), otherwise Weld doesn't know how to create proxy properly
+    public static class Tuple {
+        private final Operation operation;
+        private final ProgressStatus previousProgress;
     }
 }
