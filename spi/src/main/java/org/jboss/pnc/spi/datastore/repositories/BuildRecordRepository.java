@@ -79,20 +79,29 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
                 .orElse(null);
     }
 
-    BuildRecord getAnyLatestSuccessfulBuildRecordWithBuildConfig(Integer configurationId, boolean temporaryBuild);
-
     List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId);
 
     List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date);
 
     BuildRecord getLatestSuccessfulBuildRecord(IdRev buildConfigurationAuditedIdRev, boolean temporaryBuild);
 
+    // Used in Step 1 in DefaultDataStore -> requiresRebuild
     BuildRecord getAnyLatestSuccessfulBuildRecordWithRevision(
             IdRev buildConfigurationAuditedIdRev,
             boolean temporaryBuild);
 
+    // Used in Step 2 in DefaultDataStore -> requiresRebuild
+    BuildRecord getAnyLatestSuccessfulBuildRecordWithBuildConfig(Integer configurationId, boolean temporaryBuild);
+
+    // Used in Step 3 in DefaultDataStore -> requiresRebuild
     BuildRecord getPreferredLatestSuccessfulBuildRecordWithRevision(
             IdRev buildConfigurationAuditedIdRev,
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference);
+
+    // Used in Step 4 in DefaultDataStore -> requiresRebuild
+    BuildRecord getPreferredLatestSuccessfulBuildRecordWithBuildConfig(
+            Integer configurationId,
             boolean temporaryBuild,
             AlignmentPreference alignmentPreference);
 

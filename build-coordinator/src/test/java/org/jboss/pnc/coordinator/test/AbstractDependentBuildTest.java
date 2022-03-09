@@ -373,7 +373,8 @@ public abstract class AbstractDependentBuildTest {
         BuildRecord record;
 
         public void dependOn(BuildConfiguration... dependencies) {
-            record = buildRecordRepository.getLatestSuccessfulBuildRecord(config.getId(), false);
+            record = buildRecordRepository
+                    .getPreferredLatestSuccessfulBuildRecordWithBuildConfig(config.getId(), false, null);
 
             Set<Artifact> artifacts = Stream.of(dependencies)
                     .map(this::mockArtifactBuiltWith)
@@ -383,7 +384,8 @@ public abstract class AbstractDependentBuildTest {
         }
 
         private Artifact mockArtifactBuiltWith(BuildConfiguration config) {
-            BuildRecord record = buildRecordRepository.getLatestSuccessfulBuildRecord(config.getId(), false);
+            BuildRecord record = buildRecordRepository
+                    .getPreferredLatestSuccessfulBuildRecordWithBuildConfig(config.getId(), false, null);
 
             Artifact artifact = Artifact.Builder.newBuilder()
                     .id(artifactsIdSequence.incrementAndGet())
