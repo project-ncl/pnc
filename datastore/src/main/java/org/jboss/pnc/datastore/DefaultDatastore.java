@@ -416,7 +416,11 @@ public class DefaultDatastore implements Datastore {
         }
         // Step 4 - check explicit dependencies
         Set<BuildConfiguration> dependencies = buildConfigurationAudited.getBuildConfiguration().getDependencies();
-        boolean rebuild = hasARebuiltExplicitDependency(latestSuccessfulBuildRecord, dependencies, temporaryBuild);
+        boolean rebuild = hasARebuiltExplicitDependency(
+                latestSuccessfulBuildRecord,
+                dependencies,
+                temporaryBuild,
+                alignmentPreference);
         logger.debug(
                 "Explicit dependency check for rebuild of buildConfiguration.idRev: {} required: {}.",
                 idRev,
@@ -501,10 +505,14 @@ public class DefaultDatastore implements Datastore {
     private boolean hasARebuiltExplicitDependency(
             BuildRecord latestSuccessfulBuildRecord,
             Set<BuildConfiguration> dependencies,
-            boolean temporaryBuild) {
+            boolean temporaryBuild,
+            AlignmentPreference alignmentPreference) {
         for (BuildConfiguration dependencyBuildConfiguration : dependencies) {
             BuildRecord dependencyLatestSuccessfulBuildRecord = buildRecordRepository
-                    .getLatestSuccessfulBuildRecord(dependencyBuildConfiguration.getId(), temporaryBuild);
+                    .getPreferredLatestSuccessfulBuildRecordWithBuildConfig(
+                            dependencyBuildConfiguration.getId(),
+                            temporaryBuild,
+                            alignmentPreference);
             if (dependencyLatestSuccessfulBuildRecord == null) {
                 return true;
             }
