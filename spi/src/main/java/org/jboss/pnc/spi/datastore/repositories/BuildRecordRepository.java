@@ -81,15 +81,6 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
 
     BuildRecord getAnyLatestSuccessfulBuildRecordWithBuildConfig(Integer configurationId, boolean temporaryBuild);
 
-    default BuildRecord getAnyLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords, boolean temporaryBuild) {
-        return buildRecords.stream()
-                .filter(record -> record.getStatus() == BuildStatus.SUCCESS)
-                // First part includes temporary BRs and second part includes persistent BRs
-                .filter(record -> (temporaryBuild && record.isTemporaryBuild()) || !record.isTemporaryBuild())
-                .max(Comparator.comparing(BuildRecord::getSubmitTime))
-                .orElse(null);
-    }
-
     List<BuildRecord> queryWithBuildConfigurationId(Integer configurationId);
 
     List<BuildRecord> findIndependentTemporaryBuildsOlderThan(Date date);

@@ -82,7 +82,7 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
             Integer configurationId,
             boolean temporaryBuild) {
         List<BuildRecord> buildRecords = queryAll();
-        return getLatestSuccessfulBuildRecordFromList(configurationId, buildRecords, temporaryBuild);
+        return getLatestSuccessfulBuildRecord(configurationId, buildRecords, temporaryBuild);
     }
 
     public static BuildRecord getLatestSuccessfulBuildRecord(
@@ -93,18 +93,6 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
                 .filter(br -> br.getBuildConfigurationId().equals(configurationId))
                 .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
                 .filter(br -> !(!temporaryBuild && br.isTemporaryBuild()))
-                .max(Comparator.comparing(BuildRecord::getSubmitTime))
-                .orElse(null);
-    }
-
-    public static BuildRecord getLatestSuccessfulBuildRecordFromList(
-            Integer configurationId,
-            List<BuildRecord> buildRecords,
-            boolean temporaryBuild) {
-        return buildRecords.stream()
-                .filter(br -> br.getBuildConfigurationId().equals(configurationId))
-                .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
-                .filter(br -> (temporaryBuild && br.isTemporaryBuild()) || !br.isTemporaryBuild())
                 .max(Comparator.comparing(BuildRecord::getSubmitTime))
                 .orElse(null);
     }
@@ -166,9 +154,7 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
                 .filter(
                         buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev()
                                 .equals(buildConfigurationAuditedIdRev))
-                .filter(
-                        buildRecord -> (temporaryBuild && buildRecord.isTemporaryBuild())
-                                || !buildRecord.isTemporaryBuild())
+                .filter(buildRecord -> temporaryBuild || !buildRecord.isTemporaryBuild())
                 .max(Comparator.comparing(BuildRecord::getSubmitTime));
         return first.orElse(null);
     }
