@@ -116,6 +116,7 @@ public class OperationsManagerImpl implements OperationsManager {
                 .submitTime(Date.from(Instant.now()))
                 .productMilestone(milestone)
                 .operationParameters(inputParams)
+                .user(userService.currentUser())
                 .id(operationId)
                 .build();
         repository.save(operation);
