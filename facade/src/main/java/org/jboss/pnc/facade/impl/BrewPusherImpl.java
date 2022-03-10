@@ -256,7 +256,6 @@ public class BrewPusherImpl implements BrewPusher {
             } else {
                 String message = "There is no SUCCESS build before NO_REBUILD_REQUIRED.";
                 log.error(message);
-                // In case of temporary builds it can happen. The SUCCESS build might be already garbage-collected.
                 throw new InconsistentDataException(message);
             }
         } else {
