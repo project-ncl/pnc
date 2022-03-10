@@ -98,7 +98,7 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
         return buildRecords.stream()
                 .filter(br -> br.getBuildConfigurationId().equals(configurationId))
                 .filter(br -> br.getStatus().equals(BuildStatus.SUCCESS))
-                .filter(br -> !(!temporaryBuild && br.isTemporaryBuild()))
+                .filter(br -> temporaryBuild || !br.isTemporaryBuild())
                 .max(Comparator.comparing(BuildRecord::getSubmitTime))
                 .orElse(null);
     }
