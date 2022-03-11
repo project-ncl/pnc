@@ -30,6 +30,7 @@ import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
+import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.rest.api.endpoints.GroupConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -159,7 +160,7 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
 
             return groupBuildProvider.getSpecific(Integer.toString(groupBuildId));
         } catch (BuildConflictException ex) {
-            throw new ConflictedEntryException(ex.getMessage(), null, ex.getBuildTaskId());
+            throw new AlreadyRunningException(ex, ex.getBuildTaskId());
         } catch (CoreException ex) {
             throw new RuntimeException(ex);
         }
