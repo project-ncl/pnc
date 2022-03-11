@@ -245,22 +245,24 @@ public class BrewPusherImpl implements BrewPusher {
         if (buildRecord == null) {
             throw new EmptyEntityException("Build record not found.");
         }
-        if (BuildStatus.SUCCESS.equals(buildRecord.getStatus())) {
-            return buildRecord;
-        } else if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildRecord.getStatus())) {
-            // if status is NO_REBUILD_REQUIRED, find the associated BuildRecord which was linked as the no rebuild
-            // cause
-            BuildRecord noRebuildCause = buildRecord.getNoRebuildCause();
-            if (noRebuildCause != null) {
-                return noRebuildCause;
-            } else {
-                String message = "There is no SUCCESS build before NO_REBUILD_REQUIRED.";
-                log.error(message);
-                throw new InconsistentDataException(message);
-            }
-        } else {
-            // Build status is not SUCCESS or NO_REBUILD_REQUIRED.
-            throw new OperationNotAllowedException("Not allowed to push failed build.");
+
+        switch (buildRecord.getStatus()) {
+            case SUCCESS:
+                return buildRecord;
+            case NO_REBUILD_REQUIRED:
+                // if status is NO_REBUILD_REQUIRED, find the associated BuildRecord which was linked as the no rebuild
+                // cause
+                BuildRecord noRebuildCause = buildRecord.getNoRebuildCause();
+                if (noRebuildCause != null) {
+                    return noRebuildCause;
+                } else {
+                    String message = "There is no SUCCESS build before NO_REBUILD_REQUIRED.";
+                    log.error(message);
+                    throw new InconsistentDataException(message);
+                }
+            default:
+                // Build status is not SUCCESS or NO_REBUILD_REQUIRED.
+                throw new OperationNotAllowedException("Not allowed to push failed build.");
         }
     }
 
