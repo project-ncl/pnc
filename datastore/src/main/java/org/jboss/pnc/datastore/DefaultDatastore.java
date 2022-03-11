@@ -533,8 +533,8 @@ public class DefaultDatastore implements Datastore {
             boolean temporaryBuild,
             AlignmentPreference alignmentPreference) {
         BuildRecord latestSuccessfulBuildRecord = buildRecordRepository
-                .getPreferredLatestSuccessfulBuildRecordWithRevision(
-                        buildRecord.getBuildConfigurationAuditedIdRev(),
+                .getPreferredLatestSuccessfulBuildRecordWithBuildConfig(
+                        buildRecord.getBuildConfigurationId(),
                         temporaryBuild,
                         alignmentPreference);
         if (latestSuccessfulBuildRecord == null) {
