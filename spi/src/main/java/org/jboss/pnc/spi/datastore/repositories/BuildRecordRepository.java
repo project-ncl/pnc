@@ -93,13 +93,12 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
     // Used in Step 2 in DefaultDataStore -> requiresRebuild
     BuildRecord getAnyLatestSuccessfulBuildRecordWithBuildConfig(Integer configurationId, boolean temporaryBuild);
 
-    // Used in Step 3 in DefaultDataStore -> requiresRebuild
     BuildRecord getPreferredLatestSuccessfulBuildRecordWithRevision(
             IdRev buildConfigurationAuditedIdRev,
             boolean temporaryBuild,
             AlignmentPreference alignmentPreference);
 
-    // Used in Step 4 in DefaultDataStore -> requiresRebuild
+    // Used in Steps 3 and 4 in DefaultDataStore -> requiresRebuild
     BuildRecord getPreferredLatestSuccessfulBuildRecordWithBuildConfig(
             Integer configurationId,
             boolean temporaryBuild,
