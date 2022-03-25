@@ -977,11 +977,12 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         }
 
         if (!StringUtils.isEmpty(pageInfo.getBuildConfigName())) {
-            if (pageInfo.getBuildConfigName().contains("*")) {
+            if (pageInfo.getBuildConfigName().contains("*") || pageInfo.getBuildConfigName().contains("%")) {
                 predicate = predicate.and(
                         t -> t.getBuildConfigurationAudited()
                                 .getName()
-                                .matches(pageInfo.getBuildConfigName().replaceAll("\\*", ".*")));
+                                .matches(
+                                        pageInfo.getBuildConfigName().replaceAll("\\*", ".*").replaceAll("\\%", ".*")));
             } else {
                 predicate = predicate
                         .and(t -> pageInfo.getBuildConfigName().equals(t.getBuildConfigurationAudited().getName()));

@@ -350,6 +350,43 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     }
 
     @Test
+    public void testFailFilterLikeRunningBuildsByBuildConfigNameWithWildcard() {
+        // Given
+        mockBuildRecord();
+        mockBuildTask();
+
+        String givenBcName = "VeryLongAndComplicatedBcName";
+        String givenBcNamePattern = "LongAndComplicated%";
+        BuildTask givenBT = mockBuildTask(givenBcName);
+
+        // When
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 2, "", "", false, true, givenBcNamePattern);
+        Page<Build> builds = provider.getBuilds(pageInfo);
+
+        // Then
+        assertEquals(0, builds.getTotalHits());
+    }
+
+    @Test
+    public void testFilterLikeRunningBuildsByBuildConfigNameAsReceivedFromUI() {
+        // Given
+        mockBuildRecord();
+        mockBuildTask();
+
+        String givenBcName = "VeryLongAndComplicatedBcName";
+        // UI filters always append and prepend %
+        String givenBcNamePattern = "%LongAndComplicated*%";
+        BuildTask givenBT = mockBuildTask(givenBcName);
+
+        // When
+        BuildPageInfo pageInfo = new BuildPageInfo(0, 2, "", "", false, true, givenBcNamePattern);
+        Page<Build> builds = provider.getBuilds(pageInfo);
+
+        // Then
+        assertEquals(1, builds.getTotalHits());
+    }
+
+    @Test
     public void testFilterFinishedBuildsByBuildConfigName() {
         // Given
         Base32LongID givenIdAndBcName = new Base32LongID(85792L);
