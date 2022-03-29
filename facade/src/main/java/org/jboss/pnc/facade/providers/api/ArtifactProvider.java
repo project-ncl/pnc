@@ -57,6 +57,13 @@ public interface ArtifactProvider
             String query,
             String buildId);
 
+    Page<Artifact> getArtifactsForTargetRepository(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Integer targetRepositoryId);
+
     Page<Artifact> getDependantArtifactsForBuild(
             int pageIndex,
             int pageSize,

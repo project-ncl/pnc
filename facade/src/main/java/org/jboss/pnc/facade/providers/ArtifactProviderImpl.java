@@ -84,6 +84,7 @@ import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDeli
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withMd5;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha1;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withSha256;
+import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withTargetRepositoryId;
 
 /**
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
@@ -303,6 +304,17 @@ public class ArtifactProviderImpl
     }
 
     @Override
+    public Page<org.jboss.pnc.dto.Artifact> getArtifactsForTargetRepository(
+            int pageIndex,
+            int pageSize,
+            String sortingRsql,
+            String query,
+            Integer targetRepositoryId) {
+
+        return queryForCollection(pageIndex, pageSize, sortingRsql, query, withTargetRepositoryId(targetRepositoryId));
+    }
+
+    @Override
     public Page<org.jboss.pnc.dto.Artifact> getDependantArtifactsForBuild(
             int pageIndex,
             int pageSize,
@@ -497,4 +509,5 @@ public class ArtifactProviderImpl
                     artifact.getId());
         }
     }
+
 }
