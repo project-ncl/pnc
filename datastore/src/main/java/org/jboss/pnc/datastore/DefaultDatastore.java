@@ -207,7 +207,9 @@ public class DefaultDatastore implements Datastore {
 
         Set<Artifact.IdentifierSha256> artifactConstraints = new HashSet<>();
         for (Artifact artifact : artifacts) {
-            artifactConstraints.add(new Artifact.IdentifierSha256(artifact.getIdentifier(), artifact.getSha256()));
+            if (!isGenericProxy(artifact)) { // There are thousands of duplicate artifacts that we don't want to cache
+                artifactConstraints.add(new Artifact.IdentifierSha256(artifact.getIdentifier(), artifact.getSha256()));
+            }
         }
 
         fetchOrSaveRequiredTargetRepositories(artifacts, storedTargetRepositories);
@@ -230,7 +232,7 @@ public class DefaultDatastore implements Datastore {
                     storedTargetRepositories.get(artifact.getTargetRepository().getIdentifierPath()));
 
             Artifact artifactFromDb;
-            if (RepositoryType.GENERIC_PROXY.equals(artifact.getTargetRepository().getRepositoryType())) {
+            if (isGenericProxy(artifact)) {
                 artifactFromDb = saveHttpArtifact(artifact);
             } else {
                 artifactFromDb = getOrSaveRepositoryArtifact(artifact, artifactCache);
@@ -241,6 +243,10 @@ public class DefaultDatastore implements Datastore {
 
         logger.debug("Artifacts saved: {}.", artifacts);
         return savedArtifacts;
+    }
+
+    private boolean isGenericProxy(Artifact artifact) {
+        return RepositoryType.GENERIC_PROXY.equals(artifact.getTargetRepository().getRepositoryType());
     }
 
     private void fetchOrSaveRequiredTargetRepositories(
