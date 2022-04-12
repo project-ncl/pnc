@@ -207,7 +207,8 @@ public class DefaultDatastore implements Datastore {
 
         Set<Artifact.IdentifierSha256> artifactConstraints = new HashSet<>();
         for (Artifact artifact : artifacts) {
-            if (!isGenericProxy(artifact)) { // There are thousands of duplicate artifacts that we don't want to cache
+            // None of the generic proxy artifacts can be in the db because of per-build repos
+            if (!isGenericProxy(artifact)) {
                 artifactConstraints.add(new Artifact.IdentifierSha256(artifact.getIdentifier(), artifact.getSha256()));
             }
         }
