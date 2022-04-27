@@ -110,7 +110,11 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     }
 
     private void processDeliverables(int milestoneId, Collection<Build> builds, String distributionUrl) {
-        log.debug("Processing deliverables of milestone {} in {} builds. Distribution URL: {}", milestoneId, builds.size(), distributionUrl);
+        log.debug(
+                "Processing deliverables of milestone {} in {} builds. Distribution URL: {}",
+                milestoneId,
+                builds.size(),
+                distributionUrl);
         ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
         for (Build build : builds) {
             log.debug("Processing build {}", build);
