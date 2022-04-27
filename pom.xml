@@ -32,7 +32,7 @@
   <artifactId>parent</artifactId>
   <version>2.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-
+  <!-- help -->
   <name>pnc</name>
   <description>A system for managing, executing, and tracking builds.</description>
   <url>https://github.com/project-ncl</url>
