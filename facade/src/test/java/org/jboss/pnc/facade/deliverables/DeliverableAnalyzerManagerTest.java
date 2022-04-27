@@ -102,8 +102,13 @@ public class DeliverableAnalyzerManagerTest {
     public void testStore() throws MalformedURLException {
         // with
         Set<Build> builds = prepareBuilds();
+        Set<Artifact> nfArtifacts = prepareNotFoundArtifacts();
         String distributionUrl = "https://example.com/distribution.zip";
-        FinderResult result = FinderResult.builder().builds(builds).url(new URL(distributionUrl)).build();
+        FinderResult result = FinderResult.builder()
+                .builds(builds)
+                .notFoundArtifacts(nfArtifacts)
+                .url(new URL(distributionUrl))
+                .build();
 
         // when
         processor.completeAnalysis(1, Collections.singletonList(result));
@@ -139,7 +144,6 @@ public class DeliverableAnalyzerManagerTest {
 
     private Set<Build> prepareBuilds() {
         Set<Build> ret = new HashSet<>();
-        ret.add(prepareUnknownBuild());
         ret.add(preparePncBuild("1"));
         ret.add(preparePncBuild("2"));
         ret.add(prepareBrewBuild(1, "first-build-ever"));
@@ -147,11 +151,11 @@ public class DeliverableAnalyzerManagerTest {
         return ret;
     }
 
-    private Build prepareUnknownBuild() {
+    private Set<Artifact> prepareNotFoundArtifacts() {
         Set<Artifact> artifacts = new HashSet<>();
         artifacts.add(prepareUnknownArtifact("foo-bar-baz.xml"));
         artifacts.add(prepareUnknownArtifact("bazBarBoo.tar.gz"));
-        return Build.builder().artifacts(artifacts).build();
+        return artifacts;
     }
 
     private Build prepareBrewBuild(long id, String nvr) {

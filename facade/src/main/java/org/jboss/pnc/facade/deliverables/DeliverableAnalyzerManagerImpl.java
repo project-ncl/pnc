@@ -109,7 +109,11 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
     }
 
-    private void processDeliverables(int milestoneId, Collection<Build> builds, String distributionUrl) {
+    private void processDeliverables(
+            int milestoneId,
+            Collection<Build> builds,
+            String distributionUrl,
+            Collection<Artifact> notFoundArtifacts) {
         log.debug(
                 "Processing deliverables of milestone {} in {} builds. Distribution URL: {}",
                 milestoneId,
@@ -120,23 +124,26 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             log.debug("Processing build {}", build);
             Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
             if (build.getBuildSystemType() == null) {
-                TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
-                artifactParser = art -> findOrCreateArtifact(art, distributionRepository);
-            } else {
-                switch (build.getBuildSystemType()) {
-                    case PNC:
-                        artifactParser = this::getPncArtifact;
-                        break;
-                    case BREW:
-                        TargetRepository brewRepository = getBrewRepository(build);
-                        artifactParser = art -> findOrCreateArtifact(assertBrewArtifacts(art), brewRepository);
-                        break;
-                    default:
-                        throw new UnsupportedOperationException(
-                                "Unknown build system type " + build.getBuildSystemType());
-                }
+                throw new IllegalArgumentException("Build system type not set.");
+            }
+            switch (build.getBuildSystemType()) {
+                case PNC:
+                    artifactParser = this::getPncArtifact;
+                    break;
+                case BREW:
+                    TargetRepository brewRepository = getBrewRepository(build);
+                    artifactParser = art -> findOrCreateArtifact(assertBrewArtifacts(art), brewRepository);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unknown build system type " + build.getBuildSystemType());
             }
             build.getArtifacts().stream().map(artifactParser).forEach(milestone::addDeliveredArtifact);
+        }
+        if (!notFoundArtifacts.isEmpty()) {
+            TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
+            notFoundArtifacts.stream()
+                    .map(art -> findOrCreateArtifact(art, distributionRepository))
+                    .forEach(milestone::addDeliveredArtifact);
         }
         milestone.setDeliveredArtifactsImporter(userService.currentUser());
     }
@@ -146,7 +153,11 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     public void completeAnalysis(int milestoneId, List<FinderResult> results) {
         log.info("Processing deliverables of milestone {} in {} results.", milestoneId, results.size());
         for (FinderResult finderResult : results) {
-            processDeliverables(milestoneId, finderResult.getBuilds(), finderResult.getUrl().toString());
+            processDeliverables(
+                    milestoneId,
+                    finderResult.getBuilds(),
+                    finderResult.getUrl().toString(),
+                    finderResult.getNotFoundArtifacts());
         }
     }
 
