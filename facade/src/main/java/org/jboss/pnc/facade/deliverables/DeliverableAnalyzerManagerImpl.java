@@ -98,6 +98,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         Base32LongID operationId = operationsManager.newDeliverableAnalyzerOperation(id, inputParams).getId();
 
         try {
+            log.info("Starting analysis of deliverables for milestone {} from urls: {}.", id, sourcesLink);
             startAnalysis(id, sourcesLink, operationId);
             return deliverableAnalyzerOperationMapper.toDTO(
                     (org.jboss.pnc.model.DeliverableAnalyzerOperation) operationsManager
@@ -109,8 +110,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     }
 
     private void processDeliverables(int milestoneId, Collection<Build> builds, String distributionUrl) {
+        log.debug("Processing deliverables of milestone {} in {} builds. Distribution URL: {}", milestoneId, builds.size(), distributionUrl);
         ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
         for (Build build : builds) {
+            log.debug("Processing build {}", build);
             Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
             if (build.getBuildSystemType() == null) {
                 TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
@@ -137,6 +140,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     @Override
     @Transactional
     public void completeAnalysis(int milestoneId, List<FinderResult> results) {
+        log.info("Processing deliverables of milestone {} in {} results.", milestoneId, results.size());
         for (FinderResult finderResult : results) {
             processDeliverables(milestoneId, finderResult.getBuilds(), finderResult.getUrl().toString());
         }
