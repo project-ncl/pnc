@@ -40,12 +40,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.IS_NULL;
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.LIKE;
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.NOT_LIKE;
+import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.WILDCARD_MULTIPLE_CHARACTERS;
+import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.WILDCARD_SINGLE_CHARACTER;
 
 /**
  *
@@ -55,6 +56,7 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
         extends RSQLNodeTraveller<javax.persistence.criteria.Predicate> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    public static final char ESCAPE_CHAR = '\\';
 
     private final Root<DB> root;
     private final CriteriaBuilder cb;
@@ -114,9 +116,13 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
             List<Object> castArguments = castArguments(arguments, path);
             return cb.not(path.in(castArguments));
         } else if (LIKE.equals(operator)) {
-            return cb.like(cb.lower(path), preprocessLikeOperatorArgument(arguments.get(0).toLowerCase()));
+            return cb.like(cb.lower(path), preprocessLikeOperatorArgument(arguments.get(0).toLowerCase()), ESCAPE_CHAR);
         } else if (NOT_LIKE.equals(operator)) {
-            return cb.not(cb.like(cb.lower(path), preprocessLikeOperatorArgument(arguments.get(0).toLowerCase())));
+            return cb.not(
+                    cb.like(
+                            cb.lower(path),
+                            preprocessLikeOperatorArgument(arguments.get(0).toLowerCase()),
+                            ESCAPE_CHAR));
         } else if (IS_NULL.equals(operator)) {
             if (Boolean.parseBoolean(arguments.get(0))) {
                 return cb.isNull(path);
@@ -158,7 +164,9 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
     }
 
     private String preprocessLikeOperatorArgument(String argument) {
-        return argument.replaceAll("\\?", "_").replaceAll("\\*", "%");
+        return argument.replaceAll("_", ESCAPE_CHAR + "_")
+                .replaceAll("\\" + WILDCARD_SINGLE_CHARACTER, "_")
+                .replaceAll("\\" + WILDCARD_MULTIPLE_CHARACTERS, "%");
     }
 
     private List<Object> castArguments(List<String> arguments, Path path) {

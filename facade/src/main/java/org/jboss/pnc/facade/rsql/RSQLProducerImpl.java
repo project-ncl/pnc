@@ -24,7 +24,6 @@ import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLOperators;
 import org.jboss.pnc.datastore.limits.rsql.EmptySortInfo;
 import org.jboss.pnc.datastore.predicates.rsql.EmptyRSQLPredicate;
-import org.jboss.pnc.facade.rsql.converter.Value;
 import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -56,8 +55,19 @@ public class RSQLProducerImpl implements RSQLProducer {
     private final RSQLParser predicateParser;
     private final RSQLParser sortParser;
 
-    private final static Pattern likePattern = Pattern.compile("(\\%[a-zA-Z0-9\\s]+\\%)");
-    final static String UNKNOWN_PART_PLACEHOLDER = "_";
+    private final static Pattern likePattern = Pattern.compile("(%[a-zA-Z0-9\\s]+%)");
+    /**
+     * RSQL wildcard character to replace single character.
+     */
+    final static String WILDCARD_SINGLE_CHARACTER = "?";
+    /**
+     * RSQL wildcard character to replace multiple characters.
+     */
+    final static String WILDCARD_MULTIPLE_CHARACTERS = "*";
+    /**
+     * RSQL wildcard character to replace multiple characters.
+     */
+    final static String WILDCARD_MULTIPLE_CHARACTERS_DB = "%";
     private static final String FIXED_START_OF_SORTING_EXPRESSION = "sort";
 
     final static ComparisonOperator LIKE = new ComparisonOperator("=like=", "=LIKE=");
@@ -143,7 +153,7 @@ public class RSQLProducerImpl implements RSQLProducer {
         String result = rsql;
         Matcher matcher = likePattern.matcher(rsql);
         while (matcher.find()) {
-            result = rsql.replaceAll(matcher.group(1), matcher.group(1).replaceAll("\\s", UNKNOWN_PART_PLACEHOLDER));
+            result = rsql.replaceAll(matcher.group(1), matcher.group(1).replaceAll("\\s", WILDCARD_SINGLE_CHARACTER));
         }
         return result;
     }
