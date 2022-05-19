@@ -27,6 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 import cz.jirutka.rsql.parser.ast.AndNode;
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
@@ -107,11 +108,9 @@ class StreamRSQLNodeTraveller extends RSQLNodeTraveller<Boolean> {
                 Number argumentNumber = numberFormat.parse(argument);
                 return numberFormat.parse(propertyValue).intValue() <= argumentNumber.intValue();
             } else if (node.getOperator().equals(RSQLProducerImpl.LIKE)) {
-                argument = argument.replaceAll(RSQLProducerImpl.UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
-                return propertyValue.matches(argument);
+                return propertyValue.matches(preprocessLikeOperatorArgument(argument));
             } else if (node.getOperator().equals(RSQLProducerImpl.NOT_LIKE)) {
-                argument = argument.replaceAll(RSQLProducerImpl.UNKNOWN_PART_PLACEHOLDER, ".*").replaceAll("%", ".*");
-                return !propertyValue.matches(argument);
+                return !propertyValue.matches(preprocessLikeOperatorArgument(argument));
             } else if (node.getOperator().equals(RSQLOperators.IN)) {
                 return node.getArguments().contains(propertyValue);
             } else if (node.getOperator().equals(RSQLOperators.NOT_IN)) {
@@ -129,4 +128,9 @@ class StreamRSQLNodeTraveller extends RSQLNodeTraveller<Boolean> {
         }
     }
 
+    private String preprocessLikeOperatorArgument(String argument) {
+        return argument.replaceAll(Pattern.quote(RSQLProducerImpl.WILDCARD_MULTIPLE_CHARACTERS_DB), ".*")
+                .replaceAll(Pattern.quote(RSQLProducerImpl.WILDCARD_MULTIPLE_CHARACTERS), ".*")
+                .replaceAll(Pattern.quote(RSQLProducerImpl.WILDCARD_SINGLE_CHARACTER), ".");
+    }
 }
