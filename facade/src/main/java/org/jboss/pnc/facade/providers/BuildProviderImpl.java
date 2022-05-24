@@ -947,17 +947,24 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         return predicates.toArray(new Predicate[0]);
     }
 
-    private Predicate<BuildRecord> getPredicateWithBuildConfigName(String buildConfigName) {
+    private Predicate<BuildRecord> getPredicateWithBuildConfigName(final String buildConfigName) {
         Function<List<IdRev>, Predicate<BuildRecord>> predicateFunction;
-        if (buildConfigName.startsWith("!")) {
-            buildConfigName = buildConfigName.substring(1);
+        String justBuildConfigName = buildConfigName;
+        if (justBuildConfigName.startsWith("!")) {
+            justBuildConfigName = justBuildConfigName.substring(1);
             predicateFunction = BuildRecordPredicates::exceptBuildConfigurationIdRev;
         } else {
             predicateFunction = BuildRecordPredicates::withBuildConfigurationIdRev;
         }
 
-        List<IdRev> buildConfigurationAuditedIdRevs = buildConfigurationAuditedRepository
-                .searchIdRevForBuildConfigurationName(buildConfigName);
+        String name = justBuildConfigName.replaceAll("[*]", "%").replaceAll("[?]", "_");
+
+        List<BuildConfigurationAudited> buildConfigurationsAudited = buildConfigurationAuditedRepository
+                .searchForBuildConfigurationName(name);
+        List<IdRev> buildConfigurationAuditedIdRevs = buildConfigurationsAudited.stream()
+                .filter(getBCAPredicateWithBuildConfigName(justBuildConfigName)) // with stripped "!"
+                .map(BuildConfigurationAudited::getIdRev)
+                .collect(Collectors.toList());
 
         if (!buildConfigurationAuditedIdRevs.isEmpty()) {
             return predicateFunction.apply(buildConfigurationAuditedIdRevs);
@@ -977,16 +984,9 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         }
 
         if (!StringUtils.isEmpty(pageInfo.getBuildConfigName())) {
-            if (pageInfo.getBuildConfigName().contains("*") || pageInfo.getBuildConfigName().contains("%")) {
-                predicate = predicate.and(
-                        t -> t.getBuildConfigurationAudited()
-                                .getName()
-                                .matches(
-                                        pageInfo.getBuildConfigName().replaceAll("\\*", ".*").replaceAll("\\%", ".*")));
-            } else {
-                predicate = predicate
-                        .and(t -> pageInfo.getBuildConfigName().equals(t.getBuildConfigurationAudited().getName()));
-            }
+            predicate = predicate.and(
+                    t -> getBCAPredicateWithBuildConfigName(pageInfo.getBuildConfigName())
+                            .test(t.getBuildConfigurationAudited()));
         }
 
         return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(Objects::nonNull)
@@ -995,6 +995,28 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 .filter(streamPredicate)
                 .sorted(comparing)
                 .collect(Collectors.toList());
+    }
+
+    private java.util.function.Predicate<BuildConfigurationAudited> getBCAPredicateWithBuildConfigName(
+            String buildConfigName) {
+        boolean negate = false;
+        if (buildConfigName.startsWith("!")) {
+            buildConfigName = buildConfigName.substring(1);
+            negate = true;
+        }
+
+        java.util.function.Predicate<BuildConfigurationAudited> predicate;
+        if (buildConfigName.contains("*") || buildConfigName.contains("%") || buildConfigName.contains("?")) {
+            String name = buildConfigName.replaceAll("[*%]", ".*").replaceAll("[?]", ".");
+            predicate = bca -> bca.getName().matches(name);
+        } else {
+            String name = buildConfigName;
+            predicate = bca -> name.equals(bca.getName());
+        }
+        if (negate) {
+            predicate = predicate.negate();
+        }
+        return predicate;
     }
 
     private Optional<Build> readLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate) {
