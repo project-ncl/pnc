@@ -294,6 +294,50 @@ public class BuildEndpointTest {
     }
 
     @Test
+    public void shouldNotUseUnderscoreAsWildcard() throws Exception {
+        // With
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        String buildConfigName = DatabaseDataInitializer.PNC_PROJECT_BUILD_CFG_ID;
+        assertThat(buildConfigName).contains("-");
+        String underscoredName = buildConfigName.replaceAll("-", "_");
+
+        // Asserting
+        BuildsFilterParameters filter = new BuildsFilterParameters();
+        filter.setBuildConfigName("*" + buildConfigName.substring(1, buildConfigName.length() - 2) + "*");
+
+        List<String> buildConfigNamesDash = client.getAll(filter, null)
+                .getAll()
+                .stream()
+                .map(Build::getBuildConfigRevision)
+                .map(BuildConfigurationRevisionRef::getName)
+                .collect(Collectors.toList());
+
+        System.out.println(buildConfigNamesDash);
+
+        assertThat(buildConfigNamesDash).hasSize(2); // from DatabaseDataInitializer
+        assertThat(buildConfigNamesDash).contains(buildConfigName);
+        assertThat(buildConfigNamesDash).contains(buildConfigName);
+        assertThat(buildConfigNamesDash).doesNotContain(underscoredName);
+
+        // When
+        filter.setBuildConfigName("*" + underscoredName.substring(1, underscoredName.length() - 2) + "*");
+
+        List<String> buildConfigNamesUnderscore = client.getAll(filter, null)
+                .getAll()
+                .stream()
+                .map(Build::getBuildConfigRevision)
+                .map(BuildConfigurationRevisionRef::getName)
+                .collect(Collectors.toList());
+
+        System.out.println(buildConfigNamesUnderscore);
+
+        // Then
+        assertThat(buildConfigNamesUnderscore).hasSize(0); // from DatabaseDataInitializer
+        assertThat(buildConfigNamesUnderscore).doesNotContain(buildConfigName);
+        assertThat(buildConfigNamesUnderscore).doesNotContain(underscoredName);
+    }
+
+    @Test
     public void shouldFilterByNotExistingBuildConfigurationName() throws Exception {
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
         String buildConfigName = "SomeRandomName";
