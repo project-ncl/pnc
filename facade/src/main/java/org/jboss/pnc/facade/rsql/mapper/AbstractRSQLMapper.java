@@ -21,6 +21,7 @@ import org.jboss.pnc.facade.rsql.RSQLException;
 import org.jboss.pnc.facade.rsql.RSQLSelectorPath;
 import org.jboss.pnc.facade.rsql.converter.CastValueConverter;
 import org.jboss.pnc.facade.rsql.converter.ValueConverter;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.GenericEntity;
 
 import javax.inject.Inject;
@@ -78,7 +79,7 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
 
     protected <X extends GenericEntity<?>> Path<?> mapEntity(
             From<?, DB> from,
-            SingularAttribute<DB, X> entity,
+            SingularAttribute<? super DB, X> entity,
             RSQLSelectorPath selector) {
         Class<X> bindableJavaType = entity.getBindableJavaType();
         From<DB, X> join = from.join(entity);
@@ -100,7 +101,7 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
         if (toAttribute(name) != null) {
             return toAttribute(name).getName();
         }
-        SingularAttribute<DB, ? extends GenericEntity<?>> entity = toEntity(name);
+        SingularAttribute<? super DB, ? extends GenericEntity<?>> entity = toEntity(name);
         if (entity != null) {
             Class<? extends GenericEntity<?>> bindableType = entity.getBindableJavaType();
             return entity.getName() + "." + mapper.toPath(bindableType, selector.next());
@@ -118,10 +119,10 @@ public abstract class AbstractRSQLMapper<ID extends Serializable, DB extends Gen
         return defaultConverter;
     }
 
-    protected abstract SingularAttribute<DB, ? extends GenericEntity<?>> toEntity(String name);
+    protected abstract SingularAttribute<? super DB, ? extends GenericEntity<?>> toEntity(String name);
 
     protected abstract SetAttribute<DB, ? extends GenericEntity<?>> toEntitySet(String name);
 
-    protected abstract SingularAttribute<DB, ?> toAttribute(String name);
+    protected abstract SingularAttribute<? super DB, ?> toAttribute(String name);
 
 }
