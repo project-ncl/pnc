@@ -30,10 +30,10 @@ public interface DeliverableAnalyzerManager {
      * Start an analysis of deliverables for given milestones. The deliverables are provided as links to archives.
      * 
      * @param id The milestone id.
-     * @param sourcesLink List of URLs to deliverable archives.
+     * @param deliverablesUrls List of URLs to deliverable archives.
      * @return Operation started for the analysis.
      */
-    DeliverableAnalyzerOperation analyzeDeliverables(String id, List<String> sourcesLink);
+    DeliverableAnalyzerOperation analyzeDeliverables(String id, List<String> deliverablesUrls);
 
     /**
      * Processes the result of anylysis of delivarables and stores the artifacts as distributed artifacts of Product

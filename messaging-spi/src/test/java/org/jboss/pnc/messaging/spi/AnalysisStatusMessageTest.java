@@ -38,15 +38,19 @@ public class AnalysisStatusMessageTest {
 
     @Test
     public void analysisStatusMessageShouldReturnCorrectJSON() {
-        List<String> sourcesLinks = new ArrayList<>();
-        sourcesLinks.add("test-link1");
-        sourcesLinks.add("test-link2");
+        List<String> deliverablesUrls = new ArrayList<>();
+        deliverablesUrls.add("test-link1");
+        deliverablesUrls.add("test-link2");
 
-        Message message = new AnalysisStatusMessage("test-attribute", "test-milestone-id", "test-status", sourcesLinks);
+        Message message = new AnalysisStatusMessage(
+                "test-attribute",
+                "test-milestone-id",
+                "test-status",
+                deliverablesUrls);
 
         assertThat(message.toJson()).isEqualTo(
                 "{\"attribute\":\"test-attribute\"," + "\"milestoneId\":\"test-milestone-id\","
-                        + "\"status\":\"test-status\",\"sourcesLinks" + "\":[\"test-link1\",\"test-link2\"]}");
+                        + "\"status\":\"test-status\",\"deliverablesUrls" + "\":[\"test-link1\",\"test-link2\"]}");
     }
 
 }

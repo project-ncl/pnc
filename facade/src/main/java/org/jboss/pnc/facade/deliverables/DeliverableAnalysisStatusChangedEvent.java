@@ -35,5 +35,5 @@ public interface DeliverableAnalysisStatusChangedEvent {
 
     String getMilestoneId();
 
-    List<String> getSourcesLinks();
+    List<String> getDeliverablesUrls();
 }

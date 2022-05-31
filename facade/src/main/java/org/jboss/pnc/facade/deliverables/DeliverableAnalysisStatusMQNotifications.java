@@ -59,7 +59,7 @@ public class DeliverableAnalysisStatusMQNotifications {
                 ATTRIBUTE_NAME,
                 event.getMilestoneId(),
                 event.getStatus().toString(),
-                event.getSourcesLinks());
+                event.getDeliverablesUrls());
         ms.sendToTopic(message, prepareHeaders(event));
     }
 
