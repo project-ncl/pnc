@@ -169,6 +169,6 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Override
     public DeliverableAnalyzerOperation analyzeDeliverables(String id, DeliverablesAnalysisRequest request) {
-        return deliverableAnalyzerManager.analyzeDeliverables(id, request.getSourcesLink());
+        return deliverableAnalyzerManager.analyzeDeliverables(id, request.getDeliverablesUrls());
     }
 }

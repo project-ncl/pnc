@@ -32,13 +32,13 @@ public class AnalysisStatusMessage implements Message {
     private final String attribute;
     private final String milestoneId;
     private final String status;
-    private final List<String> sourcesLinks;
+    private final List<String> deliverablesUrls;
 
-    public AnalysisStatusMessage(String attribute, String milestoneId, String status, List<String> sourcesLinks) {
+    public AnalysisStatusMessage(String attribute, String milestoneId, String status, List<String> deliverablesUrls) {
         this.attribute = attribute;
         this.milestoneId = milestoneId;
         this.status = status;
-        this.sourcesLinks = sourcesLinks;
+        this.deliverablesUrls = deliverablesUrls;
     }
 
     @Override

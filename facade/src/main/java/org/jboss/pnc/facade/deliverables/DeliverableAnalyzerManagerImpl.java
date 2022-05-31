@@ -88,18 +88,18 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private Event<DeliverableAnalysisStatusChangedEvent> analysisStatusChangedEventNotifier;
 
     @Override
-    public DeliverableAnalyzerOperation analyzeDeliverables(String id, List<String> sourcesLink) {
+    public DeliverableAnalyzerOperation analyzeDeliverables(String id, List<String> deliverablesUrls) {
         int i = 1;
         Map<String, String> inputParams = new HashMap<>();
-        for (String url : sourcesLink) {
+        for (String url : deliverablesUrls) {
             inputParams.put(URL_PARAMETER_PREFIX + (i++), url);
         }
 
         Base32LongID operationId = operationsManager.newDeliverableAnalyzerOperation(id, inputParams).getId();
 
         try {
-            log.info("Starting analysis of deliverables for milestone {} from urls: {}.", id, sourcesLink);
-            startAnalysis(id, sourcesLink, operationId);
+            log.info("Starting analysis of deliverables for milestone {} from urls: {}.", id, deliverablesUrls);
+            startAnalysis(id, deliverablesUrls, operationId);
             return deliverableAnalyzerOperationMapper.toDTO(
                     (org.jboss.pnc.model.DeliverableAnalyzerOperation) operationsManager
                             .updateProgress(operationId, ProgressStatus.IN_PROGRESS));
@@ -268,11 +268,14 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return artifact;
     }
 
-    private void startAnalysis(String milestoneId, List<String> sourcesLink, Base32LongID operationId) {
+    private void startAnalysis(String milestoneId, List<String> deliverablesUrls, Base32LongID operationId) {
         Request callback = operationsManager.getOperationCallback(operationId);
         String id = operationId.getId();
         try (RestConnector restConnector = new RestConnector(bpmConfig)) {
-            AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(id, milestoneId, sourcesLink);
+            AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
+                    id,
+                    milestoneId,
+                    deliverablesUrls);
             AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, callback);
 
             restConnector.startProcess(
@@ -282,7 +285,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     userService.currentUserToken());
 
             DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
-                    .started(id, milestoneId, sourcesLink);
+                    .started(id, milestoneId, deliverablesUrls);
             analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
         } catch (ProcessManagerException e) {
             log.error("Error trying to start analysis of deliverables task for milestone: {}", milestoneId, e);
@@ -303,7 +306,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     }
 
     private void onDeliverableAnalysisFinished(org.jboss.pnc.model.DeliverableAnalyzerOperation operation) {
-        List<String> sourcesLinks = operation.getOperationParameters()
+        List<String> deliverablesUrls = operation.getOperationParameters()
                 .entrySet()
                 .stream()
                 .filter(e -> e.getKey().startsWith(URL_PARAMETER_PREFIX))
@@ -314,7 +317,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                         operation.getId().getId(),
                         operation.getProductMilestone().getId().toString(),
                         operation.getResult(),
-                        sourcesLinks);
+                        deliverablesUrls);
         analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
     }
 

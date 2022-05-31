@@ -33,49 +33,49 @@ public class DefaultDeliverableAnalysisStatusChangedEvent implements Deliverable
     private final ProgressStatus status;
     private final OperationResult result;
     private final String milestoneId;
-    private final List<String> sourcesLinks;
+    private final List<String> deliverablesUrls;
 
     public DefaultDeliverableAnalysisStatusChangedEvent(
             String operationId,
             ProgressStatus status,
             OperationResult result,
             String milestoneId,
-            List<String> sourcesLinks) {
+            List<String> deliverablesUrls) {
         this.operationId = operationId;
         this.status = status;
         this.result = result;
         this.milestoneId = milestoneId;
-        this.sourcesLinks = sourcesLinks;
+        this.deliverablesUrls = deliverablesUrls;
     }
 
     public static DefaultDeliverableAnalysisStatusChangedEvent started(
             String operationId,
             String milestoneId,
-            List<String> sourcesLinks) {
+            List<String> deliverablesUrls) {
         return new DefaultDeliverableAnalysisStatusChangedEvent(
                 operationId,
                 ProgressStatus.IN_PROGRESS,
                 null,
                 milestoneId,
-                sourcesLinks);
+                deliverablesUrls);
     }
 
     public static DefaultDeliverableAnalysisStatusChangedEvent finished(
             String operationId,
             String milestoneId,
             OperationResult result,
-            List<String> sourcesLinks) {
+            List<String> deliverablesUrls) {
         return new DefaultDeliverableAnalysisStatusChangedEvent(
                 operationId,
                 ProgressStatus.FINISHED,
                 result,
                 milestoneId,
-                sourcesLinks);
+                deliverablesUrls);
     }
 
     @Override
     public String toString() {
         return "DefaultAnalysisStatusChangedEvent{" + "status=" + status + ", milestoneId=" + milestoneId
-                + ", sourcesLinks=" + String.join(";", sourcesLinks) + '}';
+                + ", deliverablesUrls=" + String.join(";", deliverablesUrls) + '}';
     }
 }

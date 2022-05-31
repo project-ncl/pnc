@@ -30,5 +30,5 @@ import java.util.List;
 @Builder(builderClassName = "Builder")
 public class DeliverablesAnalysisRequest {
     @NotEmpty
-    private final List<@URL String> sourcesLink;
+    private final List<@URL String> deliverablesUrls;
 }
