@@ -63,8 +63,8 @@ public class User implements GenericEntity<Integer> {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
     private Integer id;
 
+    // [NCLSUP-598] Do not use email validation @Email since emails used for Krb service account are malformed emails
     @Column(unique = true)
-    @Email
     @Size(max = 255)
     private String email;
 
@@ -81,9 +81,10 @@ public class User implements GenericEntity<Integer> {
     @Transient
     private String loginToken;
 
+    // [NCLSUP-598] Krb service account usernames are quite long
     @Column(unique = true)
     @NotNull
-    @Size(max = 50)
+    @Size(max = 255)
     private String username;
 
     @OneToMany(mappedBy = "user")
