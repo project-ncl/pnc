@@ -40,6 +40,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.IS_NULL;
@@ -164,7 +165,7 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
     }
 
     private String preprocessLikeOperatorArgument(String argument) {
-        return argument.replaceAll("_", ESCAPE_CHAR + "_")
+        return argument.replaceAll("_", Matcher.quoteReplacement(ESCAPE_CHAR + "_"))
                 .replaceAll("\\" + WILDCARD_SINGLE_CHARACTER, "_")
                 .replaceAll("\\" + WILDCARD_MULTIPLE_CHARACTERS, "%");
     }

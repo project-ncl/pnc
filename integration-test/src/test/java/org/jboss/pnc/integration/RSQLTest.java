@@ -209,8 +209,7 @@ public class RSQLTest {
                 { "Dependency Analysis", "Project Newcastle Demo Project 1" },
                 { "Dependency Analysis", "Project Newcastle Demo Project 1" },
                 { "Pnc Build Agent", "Project Newcastle Demo Project 1" },
-                { "Pnc Build Agent", "Project Newcastle Demo Project 1" }, { "termd" }, { "Causeway" },
-                { "Causeway" } };
+                { "Pnc Build Agent", "Project Newcastle Demo Project 1" }, { "termd" }, {}, { "Causeway" } };
 
         for (int i = 0; i < queries.length; i++) {
             RemoteCollection<Project> projects = projectClient.getAll(Optional.of(sortQury), Optional.of(queries[i]));
@@ -229,7 +228,7 @@ public class RSQLTest {
                 { "Causeway", "Pnc Build Agent", "termd" }, { "Causeway", "Dependency Analysis", "termd" },
                 { "Causeway", "Dependency Analysis", "termd" },
                 { "Causeway", "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1" },
-                { "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1", "termd" },
+                { "Causeway", "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1", "termd" },
                 { "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1", "termd" } };
 
         for (int i = 0; i < queries.length; i++) {
