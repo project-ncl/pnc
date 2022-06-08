@@ -73,6 +73,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -893,5 +894,20 @@ public class BuildConfigurationEndpointTest {
         BuildConfiguration refresh = bcClient.getSpecific(gc.getId());
 
         assertThat(refresh.getDependencies().keySet()).doesNotContain(toRemove.getId());
+    }
+
+    @Test
+    public void testRSQLUnderscoreIsNotAWildcardCharacter() throws ClientException {
+        BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
+
+        RemoteCollection<BuildConfigurationWithLatestBuild> allWithLatestBuild = client
+                .getAllWithLatestBuild(Optional.empty(), Optional.of("name=like=\"pnc-%\""));
+
+        assertThat(allWithLatestBuild).hasSize(2);
+
+        RemoteCollection<BuildConfigurationWithLatestBuild> allWithLatestBuildUnderscore = client
+                .getAllWithLatestBuild(Optional.empty(), Optional.of("name=like=\"pn_-%\""));
+
+        assertThat(allWithLatestBuildUnderscore).hasSize(0);
     }
 }
