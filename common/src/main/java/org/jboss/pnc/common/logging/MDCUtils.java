@@ -17,8 +17,8 @@
  */
 package org.jboss.pnc.common.logging;
 
+import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.common.util.StringUtils;
-import org.jboss.pnc.constants.MDCKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
