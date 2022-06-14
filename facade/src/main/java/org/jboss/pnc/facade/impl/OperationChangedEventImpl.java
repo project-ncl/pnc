@@ -23,11 +23,10 @@ import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.Operation;
-
-import java.util.Map;
+import org.jboss.pnc.spi.events.OperationChangedEvent;
 
 @Value
-public class OperationChangedEvent {
+public class OperationChangedEventImpl implements OperationChangedEvent {
 
     private final Base32LongID id;
     private final Class operationClass;
@@ -35,7 +34,7 @@ public class OperationChangedEvent {
     private final ProgressStatus status;
     private final OperationResult result;
 
-    public OperationChangedEvent(Operation operation, ProgressStatus previousStatus) {
+    public OperationChangedEventImpl(Operation operation, ProgressStatus previousStatus) {
         this.id = operation.getId();
         this.operationClass = Hibernate.getClass(operation);
         this.previousStatus = previousStatus;

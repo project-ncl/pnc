@@ -39,6 +39,7 @@ import org.jboss.pnc.model.Operation;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.repositories.OperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.slf4j.MDC;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -73,7 +74,7 @@ public class OperationsManagerImpl implements OperationsManager {
     @Override
     public Operation updateProgress(Base32LongID id, ProgressStatus status) {
         Tuple tuple = self._updateProgress(id, status);
-        analysisStatusChangedEventNotifier.fire(new OperationChangedEvent(tuple.operation, tuple.previousProgress));
+        analysisStatusChangedEventNotifier.fire(new OperationChangedEventImpl(tuple.operation, tuple.previousProgress));
         return tuple.operation;
     }
 
@@ -97,7 +98,7 @@ public class OperationsManagerImpl implements OperationsManager {
     @Override
     public Operation setResult(Base32LongID id, OperationResult result) {
         Tuple tuple = self._setResult(id, result);
-        analysisStatusChangedEventNotifier.fire(new OperationChangedEvent(tuple.operation, tuple.previousProgress));
+        analysisStatusChangedEventNotifier.fire(new OperationChangedEventImpl(tuple.operation, tuple.previousProgress));
         return tuple.operation;
     }
 
@@ -138,7 +139,7 @@ public class OperationsManagerImpl implements OperationsManager {
                 .id(operationId)
                 .build();
         operation = self.saveToDb(operation);
-        analysisStatusChangedEventNotifier.fire(new OperationChangedEvent(operation, null));
+        analysisStatusChangedEventNotifier.fire(new OperationChangedEventImpl(operation, null));
         return operation;
     }
 
