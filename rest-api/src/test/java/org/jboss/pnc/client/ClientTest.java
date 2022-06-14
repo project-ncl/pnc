@@ -19,11 +19,9 @@ package org.jboss.pnc.client;
 
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import io.undertow.Undertow;
-import io.undertow.server.HttpHandler;
-import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderValues;
+import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.constants.MDCKeys;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;

@@ -44,7 +44,6 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecordPushResult;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.datastore.InconsistentDataException;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
@@ -52,7 +51,6 @@ import org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordPushResultRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +64,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.jboss.pnc.api.constants.BuildConfigurationParameterKeys.BREW_BUILD_NAME;
-import static org.jboss.pnc.constants.MDCKeys.BUILD_ID_KEY;
+import static org.jboss.pnc.api.constants.MDCKeys.BUILD_ID_KEY;
 import static org.jboss.pnc.enums.ArtifactQuality.BLACKLISTED;
 import static org.jboss.pnc.enums.ArtifactQuality.DELETED;
 
