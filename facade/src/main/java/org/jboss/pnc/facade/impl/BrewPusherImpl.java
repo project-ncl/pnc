@@ -114,7 +114,7 @@ public class BrewPusherImpl implements BrewPusher {
         for (BuildRecord buildRecord : buildRecords) {
             Long buildPushResultId = Sequence.nextId();
             MDCUtils.addProcessContext(buildPushResultId.toString());
-            MDCUtils.addCustomContext(BUILD_ID_KEY, buildRecord.getId().getId());
+            MDCUtils.addCustomContext(BUILD_ID_KEY, buildRecord.getId().getLongId());
             try {
                 results.add(doPushBuild(buildRecord.getId(), buildPushParameters, buildPushResultId));
             } catch (OperationNotAllowedException | AlreadyRunningException e) {
@@ -151,7 +151,7 @@ public class BrewPusherImpl implements BrewPusher {
         }
         Long buildPushResultId = Sequence.nextId();
         MDCUtils.addProcessContext(buildPushResultId.toString());
-        MDCUtils.addCustomContext(BUILD_ID_KEY, id.getId());
+        MDCUtils.addCustomContext(BUILD_ID_KEY, id.getLongId());
         try {
             return doPushBuild(id, buildPushParameters, buildPushResultId);
         } finally {
@@ -270,7 +270,7 @@ public class BrewPusherImpl implements BrewPusher {
         Optional<InProgress.Context> pushContext = buildResultPushManager.getContext(id);
         if (pushContext.isPresent()) {
             MDCUtils.addProcessContext(pushContext.get().getPushResultId());
-            MDCUtils.addCustomContext(BUILD_ID_KEY, id.getId());
+            MDCUtils.addCustomContext(BUILD_ID_KEY, id.getLongId());
             userLog.info("Build push cancel requested.");
             try {
                 return buildResultPushManager.cancelInProgressPush(id);
@@ -287,7 +287,7 @@ public class BrewPusherImpl implements BrewPusher {
     public BuildPushResult brewPushComplete(String buildId, BuildPushResult buildPushResult) {
         Base32LongID id = BuildMapper.idMapper.toEntity(buildId);
         MDCUtils.addProcessContext(buildPushResult.getId());
-        MDCUtils.addCustomContext(BUILD_ID_KEY, id.getId());
+        MDCUtils.addCustomContext(BUILD_ID_KEY, id.getLongId());
         try {
             log.info(
                     "Received completion notification for BuildRecord.id: {}. Object received: {}.",
