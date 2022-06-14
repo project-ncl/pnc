@@ -144,9 +144,24 @@ public class MDCUtils {
         return headers;
     }
 
-    public static void addCustomContext(String key, String value) {
+    public static void addCustomContext(String key, Object value) {
+        if (value == null) {
+            logger.warn("Setting null for MDC: {}.", key);
+            return;
+        }
+        String stringValue;
+        if (value instanceof Long) {
+            stringValue = Long.toString((Long) value);
+        } else if (value instanceof Integer) {
+            stringValue = Integer.toString((Integer) value);
+        } else if (value instanceof String) {
+            stringValue = (String) value;
+        } else {
+            logger.error("Unsupported MDC value type.");
+            return;
+        }
         Map<String, String> context = getContextMap();
-        context.put(key, value);
+        context.put(key, stringValue);
         MDC.setContextMap(context);
     }
 
