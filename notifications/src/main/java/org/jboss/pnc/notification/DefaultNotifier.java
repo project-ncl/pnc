@@ -23,9 +23,12 @@ import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.BuildPushResultNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
+import org.jboss.pnc.dto.notification.OperationNotification;
 import org.jboss.pnc.dto.notification.ProductMilestoneCloseResultNotification;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.jboss.pnc.spi.notifications.AttachedClient;
 import org.jboss.pnc.spi.notifications.MessageCallback;
 import org.jboss.pnc.spi.notifications.Notifier;
@@ -36,7 +39,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import java.lang.invoke.MethodHandles;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ScheduledExecutorService;
@@ -140,6 +142,24 @@ public class DefaultNotifier implements Notifier {
         logger.trace("Observed new MilestoneCloseResult event {}.", milestoneCloseResult);
         sendMessage(new ProductMilestoneCloseResultNotification(milestoneCloseResult));
         logger.trace("ProductMilestoneCloseResult event processed {}.", milestoneCloseResult);
+    }
+
+    public void collectOperationChangedEvent(@Observes OperationChangedEvent operationChangedEvent) {
+        logger.trace("Observed new OperationChangedEvent event {}.", operationChangedEvent);
+        String notificationType;
+        if (operationChangedEvent.getOperationClass() == DeliverableAnalyzerOperation.class) {
+            notificationType = "DELIVEABLES_ANALYIS";
+        } else {
+            notificationType = "UNKNOWN-OPERATION";
+        }
+        sendMessage(
+                new OperationNotification(
+                        notificationType,
+                        operationChangedEvent.getId().toString(),
+                        operationChangedEvent.getStatus(),
+                        operationChangedEvent.getPreviousStatus(),
+                        operationChangedEvent.getResult()));
+        logger.trace("OperationChangedEvent event processed {}.", operationChangedEvent);
     }
 
 }
