@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.deliverables;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
@@ -39,6 +40,7 @@ import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.OperationsManager;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
@@ -120,6 +122,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 builds.size(),
                 distributionUrl);
         ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
+        Consumer<org.jboss.pnc.model.Artifact> artifactUpdater = artifactUpdater(
+                "Added as delivered artifact for milestone " + milestoneId);
         for (Build build : builds) {
             log.debug("Processing build {}", build);
             Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
@@ -137,15 +141,28 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 default:
                     throw new UnsupportedOperationException("Unknown build system type " + build.getBuildSystemType());
             }
-            build.getArtifacts().stream().map(artifactParser).forEach(milestone::addDeliveredArtifact);
+            build.getArtifacts()
+                    .stream()
+                    .map(artifactParser)
+                    .peek(artifactUpdater)
+                    .forEach(milestone::addDeliveredArtifact);
         }
         if (!notFoundArtifacts.isEmpty()) {
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
             notFoundArtifacts.stream()
                     .map(art -> findOrCreateArtifact(art, distributionRepository))
+                    .peek(artifactUpdater)
                     .forEach(milestone::addDeliveredArtifact);
         }
         milestone.setDeliveredArtifactsImporter(userService.currentUser());
+    }
+
+    public Consumer<org.jboss.pnc.model.Artifact> artifactUpdater(String message) {
+        User user = userService.currentUser();
+        return a -> {
+            a.setQualityLevelReason(message);
+            a.setModificationUser(user);
+        };
     }
 
     @Override
