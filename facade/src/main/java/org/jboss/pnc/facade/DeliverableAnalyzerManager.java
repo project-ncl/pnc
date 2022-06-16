@@ -43,4 +43,11 @@ public interface DeliverableAnalyzerManager {
      * @param results List of the build finder results.
      */
     void completeAnalysis(int milestoneId, List<FinderResult> results);
+
+    /**
+     * Clear the milestone of all delivered artifacts.
+     *
+     * @param milestoneId Id of the milestone which should be cleared.
+     */
+    void clear(int milestoneId);
 }

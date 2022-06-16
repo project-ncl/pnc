@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -50,5 +51,13 @@ public interface DeliverableAnalysisEndpoint {
     @Path("/complete")
     @Consumes(MediaType.APPLICATION_JSON)
     void completeAnalysis(@Parameter(description = "Analysis response") AnalysisResult response);
+
+    @Operation(
+            summary = "Clear list of delivered artifacts from milestone.",
+            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success") })
+    @DELETE
+    @Path("/clear-milestone/{milestoneId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    void completeAnalysis(@Parameter(description = "milestoneId") String milestoneId);
 
 }
