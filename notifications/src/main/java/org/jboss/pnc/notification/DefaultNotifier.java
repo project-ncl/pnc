@@ -148,7 +148,7 @@ public class DefaultNotifier implements Notifier {
         logger.trace("Observed new OperationChangedEvent event {}.", operationChangedEvent);
         String notificationType;
         if (operationChangedEvent.getOperationClass() == DeliverableAnalyzerOperation.class) {
-            notificationType = "DELIVEABLES_ANALYIS";
+            notificationType = "DELIVERABLES_ANALYSIS";
         } else {
             notificationType = "UNKNOWN-OPERATION";
         }
