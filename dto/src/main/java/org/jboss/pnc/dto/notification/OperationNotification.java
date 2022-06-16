@@ -79,6 +79,9 @@ public class OperationNotification extends Notification {
     }
 
     private static JobNotificationProgress convert(ProgressStatus status) {
+        if (status == null) {
+            return null;
+        }
         switch (status) {
             case NEW:
             case PENDING:
