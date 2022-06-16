@@ -21,6 +21,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -57,6 +59,7 @@ import org.jboss.pnc.spi.exception.ProcessManagerException;
 
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 
 /**
  *
@@ -64,6 +67,7 @@ import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
  */
 @ApplicationScoped
 @Slf4j
+@PermitAll
 public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.DeliverableAnalyzerManager {
     private static final String KOJI_PATH_MAVEN_PREFIX = "/api/content/maven/remote/koji-";
     public static final String URL_PARAMETER_PREFIX = "url-";
@@ -176,6 +180,15 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     finderResult.getUrl().toString(),
                     finderResult.getNotFoundArtifacts());
         }
+    }
+
+    @Override
+    @RolesAllowed(SYSTEM_USER)
+    @Transactional
+    public void clear(int id) {
+        ProductMilestone milestone = milestoneRepository.queryById(id);
+        milestone.getDeliveredArtifacts().forEach(artifactUpdater("Removed from deliverables of milestone " + id));
+        milestone.getDeliveredArtifacts().clear();
     }
 
     @SuppressWarnings("unchecked")

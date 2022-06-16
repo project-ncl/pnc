@@ -40,4 +40,10 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
         resultProcessor.completeAnalysis(milestoneId, response.getResults());
     }
 
+    @Override
+    public void completeAnalysis(String milestoneId) {
+        int id = milestoneMapper.getIdMapper().toEntity(milestoneId);
+        resultProcessor.clear(id);
+    }
+
 }
