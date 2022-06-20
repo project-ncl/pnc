@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -38,7 +39,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
  *
  * @author Honza Brázdil
  */
-@Tag(name = "Internal")
+@Tag(name = SwaggerConstants.TAG_INTERNAL)
 @Path("/deliverable-analysis")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

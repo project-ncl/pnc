@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -40,7 +41,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 /**
  * @author pkocandr
  */
-@Tag(name = "Internal")
+@Tag(name = SwaggerConstants.TAG_INTERNAL)
 @Path("/build-maintenance")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

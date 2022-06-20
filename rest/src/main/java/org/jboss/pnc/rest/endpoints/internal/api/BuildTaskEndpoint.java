@@ -26,6 +26,7 @@ import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationWithCallbackRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -45,7 +46,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DES
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
-@Tag(name = "Internal")
+@Tag(name = SwaggerConstants.TAG_INTERNAL)
 @Path("/build-tasks")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

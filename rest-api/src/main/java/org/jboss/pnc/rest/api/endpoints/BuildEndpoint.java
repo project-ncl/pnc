@@ -175,7 +175,7 @@ public interface BuildEndpoint {
     @Operation(
             summary = "[role:admin] " + DELETE_DESC,
             description = DELETE_DESC2,
-            tags = "internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = { @ApiResponse(responseCode = ACCEPTED_CODE, description = ACCEPTED_DESCRIPTION),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
@@ -199,7 +199,7 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = "[role:admin] " + UPDATE_DESC,
-            tags = "internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -258,7 +258,7 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = "[role:admin] " + SET_BUILT_ARTIFACTS,
-            tags = "internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -352,7 +352,7 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = "[role:admin] " + SET_DEPENDANT_ARTIFACTS_DESC,
-            tags = "internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
@@ -541,7 +541,7 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = COMPLETE_PUSH_DESC,
-            tags = "Internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -824,7 +824,7 @@ public interface BuildEndpoint {
      */
     @Operation(
             summary = GET_ALL_BUILD_RECORD_INSIGHTS_NEWER_THAN_TIMESTAMP_DESC,
-            tags = "internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

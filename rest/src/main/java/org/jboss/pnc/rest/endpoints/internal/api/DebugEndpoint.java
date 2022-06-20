@@ -28,12 +28,13 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 1/25/17 Time: 2:25 PM
  */
 @Hidden
-@Tag(name = "Internal")
+@Tag(name = SwaggerConstants.TAG_INTERNAL)
 @Path("/debug")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)

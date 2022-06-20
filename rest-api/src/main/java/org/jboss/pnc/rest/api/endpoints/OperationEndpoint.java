@@ -45,6 +45,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.DeliverableAnalyzerOperationPage;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
@@ -80,7 +81,7 @@ public interface OperationEndpoint {
      */
     @Operation(
             summary = COMPLETE_OPERATION_DESC,
-            tags = "internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -108,7 +109,7 @@ public interface OperationEndpoint {
      */
     @Operation(
             summary = "[role:admin] " + UPDATE_DEL_ANALYZER_DESC,
-            tags = "internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,

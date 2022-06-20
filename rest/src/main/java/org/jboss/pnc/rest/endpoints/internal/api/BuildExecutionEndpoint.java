@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -35,7 +36,7 @@ import javax.ws.rs.core.Response;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPTION;
 
-@Tag(name = "Internal")
+@Tag(name = SwaggerConstants.TAG_INTERNAL)
 @Path("/build-execution")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
