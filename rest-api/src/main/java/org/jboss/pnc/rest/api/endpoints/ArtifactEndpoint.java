@@ -192,7 +192,7 @@ public interface ArtifactEndpoint {
      */
     @Operation(
             summary = "[role:admin] " + CREATE_DESC,
-            tags = "internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,
@@ -224,7 +224,7 @@ public interface ArtifactEndpoint {
      */
     @Operation(
             summary = "[role:admin] " + UPDATE_DESC,
-            tags = "internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,

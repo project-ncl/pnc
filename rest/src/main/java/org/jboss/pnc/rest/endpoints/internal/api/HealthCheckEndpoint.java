@@ -20,6 +20,7 @@ package org.jboss.pnc.rest.endpoints.internal.api;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -30,7 +31,7 @@ import javax.ws.rs.core.Response;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 
-@Tag(name = "Internal")
+@Tag(name = SwaggerConstants.TAG_INTERNAL)
 @Path("/health")
 @Produces(MediaType.APPLICATION_JSON)
 public interface HealthCheckEndpoint {

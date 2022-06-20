@@ -41,6 +41,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 @Tag(name = "Cache statistics")
 @Path("/cache")
@@ -162,7 +163,7 @@ public interface CacheEndpoint {
      */
     @Operation(
             summary = CLEAR_CACHE_DESC,
-            tags = "internal",
+            tags = SwaggerConstants.TAG_INTERNAL,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,

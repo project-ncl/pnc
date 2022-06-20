@@ -25,6 +25,7 @@ import static org.jboss.pnc.rest.configuration.Constants.MAX_PAGE_SIZE;
  * @author Sebastian Laskawiec
  */
 public interface SwaggerConstants {
+    public static final String TAG_INTERNAL = "Internal";
 
     public static final String SUCCESS_DESCRIPTION = "Success with results";
     public static final String SUCCESS_CODE = "200";
