@@ -29,6 +29,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -58,7 +59,6 @@ public interface DeliverableAnalysisEndpoint {
             responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success") })
     @DELETE
     @Path("/clear-milestone/{milestoneId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    void completeAnalysis(@Parameter(description = "milestoneId") String milestoneId);
+    void clearAnalysis(@Parameter(description = "Milestone ID.") @PathParam("milestoneId") String milestoneId);
 
 }
