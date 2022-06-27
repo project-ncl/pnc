@@ -91,7 +91,6 @@ public class OperationsManagerImpl implements OperationsManager {
         }
         ProgressStatus previousProgress = operation.getProgressStatus();
         operation.setProgressStatus(status);
-        log.warn("ending _updateProgress");
         return new Tuple(operation, previousProgress);
     }
 
@@ -113,7 +112,6 @@ public class OperationsManagerImpl implements OperationsManager {
         ProgressStatus previousProgress = operation.getProgressStatus();
         operation.setResult(result);
         operation.setEndTime(Date.from(Instant.now()));
-        log.warn("Ending _setResult");
         return new Tuple(operation, previousProgress);
     }
 
