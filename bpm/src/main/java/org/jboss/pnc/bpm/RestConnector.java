@@ -163,7 +163,7 @@ public class RestConnector implements Connector {
                 return false;
             }
         } catch (RestConnectorException e) {
-            log.error("Cannot query process instance.");
+            log.error("Cannot query process instance.", e);
             return false;
         }
     }
@@ -180,7 +180,7 @@ public class RestConnector implements Connector {
                 return false;
             }
         } catch (RestConnectorException e) {
-            log.error("Cannot query process instance.");
+            log.error("Cannot query process instance.", e);
             return false;
         }
     }
