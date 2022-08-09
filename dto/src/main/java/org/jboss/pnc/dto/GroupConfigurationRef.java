@@ -27,6 +27,8 @@ import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.processor.annotation.PatchSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
 
@@ -55,6 +57,7 @@ public class GroupConfigurationRef implements DTOEntity {
      */
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NotBlank
     protected final String name;
 
     @JsonPOJOBuilder(withPrefix = "")
