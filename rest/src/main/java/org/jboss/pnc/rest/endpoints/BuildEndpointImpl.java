@@ -22,6 +22,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -298,7 +299,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
         }
 
         return outputStream -> {
-            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
             writer.write(repourLog);
             writer.flush();
         };
@@ -312,7 +313,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
         }
 
         return outputStream -> {
-            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
             writer.write(buildLog);
             writer.flush();
         };
