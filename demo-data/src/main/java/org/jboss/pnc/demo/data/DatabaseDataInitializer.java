@@ -669,7 +669,7 @@ public class DatabaseDataInitializer {
                     .dependency(importedArtifact2)
                     .user(pncAdminUser)
                     .repourLog("This is a wannabe alignment log.")
-                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
+                    .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog. 📦")
                     .status(BuildStatus.SUCCESS)
                     .productMilestone(demoProductMilestone1)
                     .sshCommand("ssh worker@localhost -P 9999")

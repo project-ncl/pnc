@@ -558,6 +558,18 @@ public class BuildEndpointTest {
     }
 
     @Test
+    public void shouldGetBuildLogsWithUTFCharacter() throws ClientException, IOException {
+        // when
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        Optional<InputStream> stream = client.getBuildLogs(buildId);
+
+        // then
+        assertThat(stream).isPresent();
+        String log = IoUtils.readStreamAsString(stream.get());
+        assertThat(log).contains("📦");// from DatabaseDataInitializer
+    }
+
+    @Test
     public void shouldFailToGetSshCredentialsForUserThatDidntTrigger() {
         BuildClient client = new BuildClient(RestClientConfiguration.getConfiguration(Credentials.USER2));
 
