@@ -56,7 +56,7 @@ public class ProjectRef implements DTOEntity {
      * Project name. Typically in the form ${organization}/${repository}.
      */
     @PatchSupport({ REPLACE })
-    @NotBlank
+    @NotBlank(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String name;
 
     /**

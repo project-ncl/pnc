@@ -56,8 +56,7 @@ public class GroupConfigurationRef implements DTOEntity {
      * Name of the group config.
      */
     @PatchSupport({ REPLACE })
-    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    @NotBlank
+    @NotBlank(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String name;
 
     @JsonPOJOBuilder(withPrefix = "")

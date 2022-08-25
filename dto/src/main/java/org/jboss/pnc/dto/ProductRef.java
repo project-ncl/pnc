@@ -58,8 +58,7 @@ public class ProductRef implements DTOEntity {
      * Product name.
      */
     @PatchSupport({ REPLACE })
-    @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    @NotBlank
+    @NotBlank(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String name;
 
     /**
