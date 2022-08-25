@@ -173,6 +173,19 @@ public class ProjectEndpointTest {
     }
 
     @Test
+    public void shouldFailBecauseProjectCanNotHaveBlankName() throws ClientException {
+
+        // given
+        Project project = Project.builder().name("    ").build();
+
+        // then
+
+        assertThatThrownBy(() -> client.createNew(project))
+                .withFailMessage("We shouldn't be able to create projects with same name")
+                .isInstanceOf(ClientException.class);
+    }
+
+    @Test
     public void shouldNotAllowChangingTheListOfConfigurationFromProject() throws ClientException {
 
         // when
