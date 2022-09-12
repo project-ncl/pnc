@@ -475,7 +475,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         log.debug("Cancelling Build Configuration Set: {}", buildSetTaskId);
         getSubmittedBuildTasks().stream()
                 .filter(Objects::nonNull)
-                .filter(t -> t.getBuildSetTask() != null && t.getBuildSetTask().getId().equals(buildSetTaskId))
+                .filter(
+                        t -> t.getBuildSetTask() != null && t.getBuildSetTask().getId() != null
+                                && t.getBuildSetTask().getId().equals(buildSetTaskId))
                 .forEach(buildTask -> {
                     try {
                         MDCUtils.addBuildContext(getMDCMeta(buildTask));
