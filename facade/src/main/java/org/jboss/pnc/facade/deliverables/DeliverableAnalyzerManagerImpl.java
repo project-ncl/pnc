@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.facade.deliverables;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -224,10 +226,14 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         builder.sha1(art.getSha1());
         builder.sha256(art.getSha256());
         builder.size(art.getSize());
-        builder.filename(art.getFilename());
         if (art.getArtifactType() == null) {
+            Path path = Paths.get(art.getFilename());
+            builder.filename(path.getFileName().toString());
             builder.identifier(art.getFilename());
-        } else
+            Path directory = path.getParent();
+            builder.deployPath(directory == null ? null : directory.toString());
+        } else {
+            builder.filename(art.getFilename());
             switch (art.getArtifactType()) {
                 case MAVEN:
                     builder.identifier(fill((MavenArtifact) art));
@@ -236,6 +242,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     builder.identifier(fill((NPMArtifact) art));
                     break;
             }
+        }
         if (art.isBuiltFromSource()) {
             builder.artifactQuality(ArtifactQuality.NEW);
         } else {
