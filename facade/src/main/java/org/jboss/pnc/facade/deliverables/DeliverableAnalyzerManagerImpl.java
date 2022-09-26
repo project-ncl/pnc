@@ -168,6 +168,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return a -> {
             a.setQualityLevelReason(message);
             a.setModificationUser(user);
+            a.setModificationTime(new Date());
         };
     }
 
