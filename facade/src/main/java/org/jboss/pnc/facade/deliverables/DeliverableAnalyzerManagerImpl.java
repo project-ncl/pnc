@@ -130,17 +130,21 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
         Consumer<org.jboss.pnc.model.Artifact> artifactUpdater = artifactUpdater(
                 "Added as delivered artifact for milestone " + milestoneId);
+        ArtifactStats stats = new ArtifactStats();
         for (Build build : builds) {
             log.debug("Processing build {}", build);
             Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
+            Consumer<Artifact> statCounter;
             if (build.getBuildSystemType() == null) {
                 throw new IllegalArgumentException("Build system type not set.");
             }
             switch (build.getBuildSystemType()) {
                 case PNC:
+                    statCounter = stats.pncCounter();
                     artifactParser = this::getPncArtifact;
                     break;
                 case BREW:
+                    statCounter = stats.brewCounter();
                     TargetRepository brewRepository = getBrewRepository(build);
                     artifactParser = art -> findOrCreateArtifact(assertBrewArtifacts(art), brewRepository);
                     break;
@@ -149,17 +153,20 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             }
             build.getArtifacts()
                     .stream()
+                    .peek(statCounter)
                     .map(artifactParser)
                     .peek(artifactUpdater)
                     .forEach(milestone::addDeliveredArtifact);
         }
         if (!notFoundArtifacts.isEmpty()) {
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
+            stats.notFoundArtifactsCount = notFoundArtifacts.size();
             notFoundArtifacts.stream()
                     .map(art -> findOrCreateArtifact(art, distributionRepository))
                     .peek(artifactUpdater)
                     .forEach(milestone::addDeliveredArtifact);
         }
+        stats.log(distributionUrl);
         milestone.setDeliveredArtifactsImporter(userService.currentUser());
     }
 
@@ -358,4 +365,47 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         analysisStatusChangedEventNotifier.fire(analysisStatusChanged);
     }
 
+    private class ArtifactStats {
+        int totalArtifacts = 0;
+        int pncArtifactsCount = 0;
+        int pncNotBuiltArtifactsCount = 0;
+        int brewArtifactsCount = 0;
+        int brewNotBuiltArtifactsCount = 0;
+        int notFoundArtifactsCount = 0;
+
+        public Consumer<Artifact> pncCounter() {
+            return a -> {
+                totalArtifacts++;
+                pncArtifactsCount++;
+                if (!a.isBuiltFromSource()) {
+                    pncNotBuiltArtifactsCount++;
+                }
+            };
+        }
+
+        public Consumer<Artifact> brewCounter() {
+            return a -> {
+                totalArtifacts++;
+                brewArtifactsCount++;
+                if (!a.isBuiltFromSource()) {
+                    brewNotBuiltArtifactsCount++;
+                }
+            };
+        }
+
+        public void log(String distributionUrl) {
+            log.info("Processed {} artifacts from deliverables at {}: ", totalArtifacts, distributionUrl);
+            log.info(
+                    "  PNC artifacts: {} ({} artifacts not built from source), BREW artifacts: {} ({} artifacts not built from source), not found artifacts: {} ",
+                    pncArtifactsCount,
+                    pncNotBuiltArtifactsCount,
+                    brewArtifactsCount,
+                    brewNotBuiltArtifactsCount,
+                    notFoundArtifactsCount);
+            int totalNotBuild = pncNotBuiltArtifactsCount + brewNotBuiltArtifactsCount + notFoundArtifactsCount;
+            if (totalNotBuild > 0) {
+                log.info("  There are total {} artifacts not built from source!", totalNotBuild);
+            }
+        }
+    }
 }
