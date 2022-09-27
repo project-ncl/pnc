@@ -31,6 +31,10 @@ import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.config.SaslConfigs;
+import org.apache.kafka.common.security.auth.SecurityProtocol;
+import org.apache.kafka.common.security.plain.PlainLoginModule;
+import org.apache.kafka.common.security.scram.ScramLoginModule;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -54,12 +58,6 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
 
     @Override
     public void start() {
-        String bootstrapServers = Objects.requireNonNull(config.getKafkaBootstrapServers());
-        int numOfConsumers = config.getKafkaNumOfConsumers();
-        // Each consumer has its own UNIQUE group, so they all consume all messages.
-        // If possible, use repeatable (but UNIQUE) string, e.g. for a restarted node.
-        String groupId = UUID.randomUUID().toString(); // we use UUID for now, should be OK
-
         Properties properties;
         String kafkaProperties = config.getKafkaProperties();
         if (kafkaProperties != null) {
@@ -68,17 +66,17 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
             properties = new Properties();
         }
 
-        properties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-
         StringSerializer serializer = new StringSerializer();
-        Properties producerProperties = new Properties();
+        Properties producerProperties = forProducer(config);
         producerProperties.putAll(properties);
+
         producer = new AsyncProducer<>(producerProperties, serializer, serializer);
 
-        Properties consumerProperties = new Properties();
-        consumerProperties.putAll(properties);
-        consumerProperties.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        int numOfConsumers = config.getKafkaNumOfConsumers();
         StringDeserializer deserializer = new StringDeserializer();
+        Properties consumerProperties = forConsumer(config);
+        consumerProperties.putAll(properties);
+
         consumer = new ConsumerContainer.DynamicPool<>(
                 consumerProperties,
                 deserializer,
@@ -97,5 +95,87 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
     public void close() {
         IoUtil.closeIgnore(producer);
         IoUtil.closeIgnore(consumer);
+    }
+
+    public Properties forConsumer(SystemConfig config) {
+
+        // Each consumer has its own UNIQUE group, so they all consume all messages.
+        // If possible, use repeatable (but UNIQUE) string, e.g. for a restarted node.
+        String groupId = UUID.randomUUID().toString(); // we use UUID for now, should be OK
+
+        Properties consumerProps = baseProperties(config);
+        consumerProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        return consumerProps;
+    }
+
+    public Properties forProducer(SystemConfig config) {
+        Properties producerProps = baseProperties(config);
+
+        producerProps.put(CommonClientConfigs.RETRIES_CONFIG, config.getKafkaNumOfRetries());
+        producerProps.put(CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG, config.getKafkaRetryBackoffMillis());
+
+        return producerProps;
+    }
+
+    private Properties baseProperties(SystemConfig config) {
+
+        Properties baseProperties = new Properties();
+        String bootstrapServers = Objects.requireNonNull(config.getKafkaBootstrapServers());
+
+        baseProperties.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        baseProperties.putAll(configureSecurity(config));
+
+        return baseProperties;
+    }
+
+    private Properties configureSecurity(SystemConfig config) {
+        Properties securityProperties = new Properties();
+
+        if (config.getKafkaSecurityProtocol() == null) {
+            return securityProperties;
+        }
+
+        if (config.getKafkaSecurityProtocol() != null) {
+            securityProperties.put(
+                    CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,
+                    SecurityProtocol.forName(config.getKafkaSecurityProtocol()));
+        }
+
+        if (isSasl(SecurityProtocol.forName(config.getKafkaSecurityProtocol()))) {
+            if (config.getKafkaSecurityUser() != null && config.getKafkaSecurityPassword() != null) {
+
+                securityProperties.put(SaslConfigs.SASL_MECHANISM, config.getKafkaSecuritySaslMechanism());
+                securityProperties.put(
+                        SaslConfigs.SASL_JAAS_CONFIG,
+                        String.format(
+                                "%s required username='%s' password='%s';",
+                                getLoginModule(config.getKafkaSecuritySaslMechanism()).getName(),
+                                config.getKafkaSecurityUser(),
+                                config.getKafkaSecurityPassword()));
+
+            } else if (config.getKafkaSecuritySaslJaasConf() != null) {
+
+                securityProperties.put(SaslConfigs.SASL_MECHANISM, config.getKafkaSecuritySaslMechanism());
+                securityProperties.put(SaslConfigs.SASL_JAAS_CONFIG, config.getKafkaSecuritySaslJaasConf());
+            }
+        }
+
+        return securityProperties;
+    }
+
+    private boolean isSasl(SecurityProtocol securityProtocol) {
+        return securityProtocol == SecurityProtocol.SASL_PLAINTEXT || securityProtocol == SecurityProtocol.SASL_SSL;
+    }
+
+    private Class getLoginModule(String saslMechanism) {
+        switch (saslMechanism.toUpperCase()) {
+            case "PLAIN":
+                return PlainLoginModule.class;
+            case "SCRAM-SHA-256":
+            case "SCRAM-SHA-512":
+                return ScramLoginModule.class;
+            default:
+                throw new IllegalArgumentException("Unsupported SASL mechanism " + saslMechanism);
+        }
     }
 }
