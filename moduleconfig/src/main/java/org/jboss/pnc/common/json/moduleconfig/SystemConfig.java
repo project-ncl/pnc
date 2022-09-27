@@ -87,8 +87,16 @@ public class SystemConfig extends AbstractModuleConfig {
     private String kafkaBootstrapServers; // list of Kafka bootstrap servers; required
     private String kafkaTopic; // the Kafka topic used to distribute events in JSON form; required
     private int kafkaNumOfConsumers; // number of Kafka consumers consuming 'kafkaTopic', default is 1
+    private int kafkaNumOfRetries; // number of retries the client will attempt to resend requests, default is 0
+    private int kafkaRetryBackoffMillis; // amount of time to wait before attempting to retry a failed request, default
+                                         // is 0
+    private String kafkaSecurityProtocol; // org.apache.kafka.common.security.auth.SecurityProtocol; one of PLAINTEXT |
+                                          // SASL_PLAINTEXT | SASL_SSL | SSL
+    private String kafkaSecuritySaslMechanism; // SASL mechanism configuration
+    private String kafkaSecuritySaslJaasConf; // JAAS login context parameters for SASL connections
+    private String kafkaSecurityUser;
+    private String kafkaSecurityPassword;
     private String kafkaProperties; // path to additional Kafka properties; e.g. security, ack, etc; optional
-
     private String infinispanClusterName; // Infinispan cluster name; required
     private String infinispanTransportProperties; // path to Infinispan transport properties; optional
 
@@ -110,6 +118,13 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("kafkaBootstrapServers") String kafkaBootstrapServers,
             @JsonProperty("kafkaTopic") String kafkaTopic,
             @JsonProperty("kafkaNumOfConsumers") String kafkaNumOfConsumers,
+            @JsonProperty("kafkaNumOfRetries") String kafkaNumOfRetries,
+            @JsonProperty("kafkaRetryBackoffMillis") String kafkaRetryBackoffMillis,
+            @JsonProperty("kafkaSecurityProtocol") String kafkaSecurityProtocol,
+            @JsonProperty("kafkaSecuritySaslMechanism") String kafkaSecuritySaslMechanism,
+            @JsonProperty("kafkaSecuritySaslJaasConf") String kafkaSecuritySaslJaasConf,
+            @JsonProperty("kafkaSecurityUser") String kafkaSecurityUser,
+            @JsonProperty("kafkaSecurityPassword") String kafkaSecurityPassword,
             @JsonProperty("kafkaProperties") String kafkaProperties,
             @JsonProperty("infinispanClusterName") String infinispanClusterName,
             @JsonProperty("infinispanTransportProperties") String infinispanTransportProperties) {
@@ -137,9 +152,17 @@ public class SystemConfig extends AbstractModuleConfig {
                 messagingInternalQueueSize,
                 1000);
         this.distributedEventType = distributedEventType;
+
         this.kafkaBootstrapServers = kafkaBootstrapServers;
         this.kafkaTopic = kafkaTopic;
         this.kafkaNumOfConsumers = toIntWithDefault("kafkaNumOfConsumers", kafkaNumOfConsumers, 1);
+        this.kafkaNumOfRetries = toIntWithDefault("kafkaNumOfRetries", kafkaNumOfRetries, 0);
+        this.kafkaRetryBackoffMillis = toIntWithDefault("kafkaRetryBackoffMillis", kafkaRetryBackoffMillis, 0);
+        this.kafkaSecurityProtocol = kafkaSecurityProtocol;
+        this.kafkaSecuritySaslMechanism = kafkaSecuritySaslMechanism;
+        this.kafkaSecuritySaslJaasConf = kafkaSecuritySaslJaasConf;
+        this.kafkaSecurityUser = kafkaSecurityUser;
+        this.kafkaSecurityPassword = kafkaSecurityPassword;
         this.kafkaProperties = kafkaProperties;
         this.infinispanClusterName = infinispanClusterName;
         this.infinispanTransportProperties = infinispanTransportProperties;
@@ -227,6 +250,34 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public int getKafkaNumOfConsumers() {
         return kafkaNumOfConsumers;
+    }
+
+    public int getKafkaNumOfRetries() {
+        return kafkaNumOfRetries;
+    }
+
+    public int getKafkaRetryBackoffMillis() {
+        return kafkaRetryBackoffMillis;
+    }
+
+    public String getKafkaSecurityProtocol() {
+        return kafkaSecurityProtocol;
+    }
+
+    public String getKafkaSecuritySaslMechanism() {
+        return kafkaSecuritySaslMechanism;
+    }
+
+    public String getKafkaSecuritySaslJaasConf() {
+        return kafkaSecuritySaslJaasConf;
+    }
+
+    public String getKafkaSecurityUser() {
+        return kafkaSecurityUser;
+    }
+
+    public String getKafkaSecurityPassword() {
+        return kafkaSecurityPassword;
     }
 
     public String getKafkaProperties() {
