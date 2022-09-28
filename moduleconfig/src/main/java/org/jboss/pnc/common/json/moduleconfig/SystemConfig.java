@@ -84,20 +84,27 @@ public class SystemConfig extends AbstractModuleConfig {
      */
     private String distributedEventType;
 
-    private String kafkaBootstrapServers; // list of Kafka bootstrap servers; required
+    private String kafkaBootstrapServers; // list of Kafka bootstrap servers; ; required if distributedEventType is
+                                          // "kafka"
     private String kafkaTopic; // the Kafka topic used to distribute events in JSON form; required
     private int kafkaNumOfConsumers; // number of Kafka consumers consuming 'kafkaTopic', default is 1
     private int kafkaNumOfRetries; // number of retries the client will attempt to resend requests, default is 0
     private int kafkaRetryBackoffMillis; // amount of time to wait before attempting to retry a failed request, default
                                          // is 0
     private String kafkaSecurityProtocol; // org.apache.kafka.common.security.auth.SecurityProtocol; one of PLAINTEXT |
-                                          // SASL_PLAINTEXT | SASL_SSL | SSL
-    private String kafkaSecuritySaslMechanism; // SASL mechanism configuration
-    private String kafkaSecuritySaslJaasConf; // JAAS login context parameters for SASL connections
-    private String kafkaSecurityUser;
-    private String kafkaSecurityPassword;
+                                          // SASL_PLAINTEXT | SASL_SSL | SSL; optional
+    private String kafkaSecuritySaslMechanism; // SASL mechanism configuration; optional
+    private String kafkaSecuritySaslJaasConf; // JAAS login context parameters for SASL connections; either
+                                              // kafkaSecuritySaslJaasConf or (kafkaSecurityUser and
+                                              // kafkaSecurityPassword) are required if kafkaSecuritySaslMechanism is
+                                              // specified
+    private String kafkaSecurityUser; // either kafkaSecuritySaslJaasConf or (kafkaSecurityUser and
+                                      // kafkaSecurityPassword) are required if kafkaSecuritySaslMechanism is specified
+    private String kafkaSecurityPassword; // either kafkaSecuritySaslJaasConf or (kafkaSecurityUser and
+                                          // kafkaSecurityPassword) are required if kafkaSecuritySaslMechanism is
+                                          // specified
     private String kafkaProperties; // path to additional Kafka properties; e.g. security, ack, etc; optional
-    private String infinispanClusterName; // Infinispan cluster name; required
+    private String infinispanClusterName; // Infinispan cluster name; required if distributedEventType is "infinispan"
     private String infinispanTransportProperties; // path to Infinispan transport properties; optional
 
     public SystemConfig(
@@ -152,7 +159,6 @@ public class SystemConfig extends AbstractModuleConfig {
                 messagingInternalQueueSize,
                 1000);
         this.distributedEventType = distributedEventType;
-
         this.kafkaBootstrapServers = kafkaBootstrapServers;
         this.kafkaTopic = kafkaTopic;
         this.kafkaNumOfConsumers = toIntWithDefault("kafkaNumOfConsumers", kafkaNumOfConsumers, 1);
