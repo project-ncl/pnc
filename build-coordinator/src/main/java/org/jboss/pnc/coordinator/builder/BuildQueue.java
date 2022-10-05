@@ -222,6 +222,7 @@ public class BuildQueue {
 
     public void take(Consumer<BuildTask> consumer) throws InterruptedException {
         Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
+        log.debug("About to take a new task; copyOfContextMap is {}", copyOfContextMap);
         MDCAwareElement<BuildTask> element = take();
         log.info("Got task: {}, will start processing", element);
         Map<String, String> elementContextMap = element.getContextMap();
