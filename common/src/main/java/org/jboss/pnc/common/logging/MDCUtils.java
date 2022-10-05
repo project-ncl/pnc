@@ -129,6 +129,9 @@ public class MDCUtils {
         mappings.put(MDCKeys.PROCESS_CONTEXT_KEY, "log-process-context");
         mappings.put(MDCKeys.TMP_KEY, "log-tmp");
         mappings.put(MDCKeys.EXP_KEY, "log-exp");
+        mappings.put(MDCKeys.TRACE_ID_KEY, "trace-id");
+        mappings.put(MDCKeys.SPAN_ID_KEY, "span-id");
+        mappings.put(MDCKeys.PARENT_ID_KEY, "parent-id");
         return mappings;
     }
 
