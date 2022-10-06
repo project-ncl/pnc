@@ -20,12 +20,12 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
+import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
-import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverResultMock;
+import org.jboss.pnc.mock.spi.EnvironmentDriverResultMock;
 import org.jboss.pnc.mock.model.MockUser;
-import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
-import org.jboss.pnc.mock.repour.RepourResultMock;
+import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
+import org.jboss.pnc.mock.spi.RepourResultMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;

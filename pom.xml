@@ -71,10 +71,7 @@
     <module>messaging-spi</module>
     <module>messaging</module>
     <module>ear-package</module>
-    <module>termd-build-driver</module>
-    <module>indy-repository-manager</module>
     <module>build-coordinator</module>
-    <module>build-executor</module>
     <module>model</module>
     <module>dto</module>
     <module>facade</module>
@@ -83,7 +80,6 @@
     <module>notifications</module>
     <module>spi</module>
     <module>web</module>
-    <module>openshift-environment-driver</module>
     <module>demo-data</module>
     <module>integration-test</module>
     <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->

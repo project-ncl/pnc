@@ -20,10 +20,11 @@ package org.jboss.pnc.integration.setup;
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
 import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.integration.mock.client.KeycloakServiceClientMock;
-import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
+import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
+import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.mock.model.builders.ArtifactBuilder;
-import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
+import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -89,6 +90,8 @@ public class Deployments {
 
         addTestPersistenceXml(ear);
         ear.setApplicationXML("application.xml");
+
+        addLocalBuildScheduler(ear);
 
         addKeycloakServiceClientMock(ear);
         addAssertJ(ear, resolver);
@@ -186,6 +189,19 @@ public class Deployments {
         jar.addClass(ArtifactBuilder.class);
 
         jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
+
+        logger.info(jar.toString(true));
+
+        enterpriseArchive.addAsModule(jar);
+
+    }
+
+    public static void addLocalBuildScheduler(EnterpriseArchive enterpriseArchive) {
+        JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, COORDINATOR_JAR);
+
+        jar.addClass(LocalBuildScheduler.class);
+
+        jar.addAsManifestResource("beans-use-local-scheduler.xml", "beans.xml");
 
         logger.info(jar.toString(true));
 

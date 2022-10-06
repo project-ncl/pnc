@@ -20,11 +20,11 @@ package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
-import org.jboss.pnc.coordinator.builder.BuildScheduler;
+import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
+import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.coordinator.builder.local.LocalBuildScheduler;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
@@ -32,8 +32,11 @@ import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.executor.BuildExecutor;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
 /**
@@ -114,11 +117,13 @@ public class BuildCoordinatorFactory {
                 null);
     }
 
+    @Alternative
+    @ApplicationScoped
     public static class LocalBuildSchedulerMock extends LocalBuildScheduler {
 
-        @Override
-        public String getId() {
-            return "local-build-scheduler-mock";
+        @Inject
+        public LocalBuildSchedulerMock(BuildExecutor buildExecutor, BuildCoordinator buildCoordinator) {
+            super(buildExecutor, buildCoordinator);
         }
 
         public void setBuildCoordinator(BuildCoordinator buildCoordinator) {
@@ -129,5 +134,4 @@ public class BuildCoordinatorFactory {
             buildExecutor = new BuildExecutorMock();
         }
     };
-
 }

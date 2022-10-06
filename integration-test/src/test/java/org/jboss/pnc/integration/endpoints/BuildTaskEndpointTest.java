@@ -18,35 +18,27 @@
 package org.jboss.pnc.integration.endpoints;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
 import org.assertj.core.api.Assertions;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
-import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.bpm.model.BuildDriverResultRest;
-import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.BuildType;
-import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
+import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.termdbuilddriver.DefaultBuildDriverResult;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Assert;
@@ -59,11 +51,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 
@@ -86,73 +74,9 @@ public class BuildTaskEndpointTest {
     }
 
     @Test
-    public void shouldTriggerBuildExecution() throws RemoteResourceException {
-        HttpPost request = new HttpPost(url + BASE_REST_PATH + "/build-tasks/execute-build");
-        request.addHeader(Credentials.USER.createAuthHeader(BasicHeader::new));
-
-        BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfiguration.build(
-                "1",
-                "test-content-id",
-                "1",
-                "mvn clean install",
-                "12",
-                "jboss-modules",
-                "scm-url",
-                "f18de64523d5054395d82e24d4e28473a05a3880",
-                "1.0.0.redhat-1",
-                "origin-scm-url",
-                false,
-                "dummy-docker-image-id",
-                "dummy.repo.url/repo",
-                SystemImageType.DOCKER_IMAGE,
-                BuildType.MVN,
-                false,
-                null,
-                new HashMap<>(),
-                false,
-                null,
-                false,
-                "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
-                AlignmentPreference.PREFER_PERSISTENT);
-
-        BuildExecutionConfigurationRest buildExecutionConfigurationRest = new BuildExecutionConfigurationRest(
-                buildExecutionConfig);
-
-        List<NameValuePair> requestParameters = new ArrayList<>();
-        requestParameters
-                .add(new BasicNameValuePair("buildExecutionConfiguration", buildExecutionConfigurationRest.toString()));
-
-        try {
-            request.setEntity(new UrlEncodedFormEntity(requestParameters));
-        } catch (UnsupportedEncodingException e) {
-            log.error("Cannot prepare request.", e);
-            Assert.fail("Cannot prepare request." + e.getMessage());
-        }
-
-        log.info("Executing request {} with parameters: {}", request.getRequestLine(), requestParameters);
-
-        int statusCode = -1;
-        try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
-            try (CloseableHttpResponse response = httpClient.execute(request)) {
-                statusCode = response.getStatusLine().getStatusCode();
-                Assert.assertEquals(
-                        "Received error response code. Response: " + printEntity(response),
-                        200,
-                        statusCode);
-            }
-        } catch (IOException e) {
-            Assertions.fail("Cannot invoke remote endpoint.", e);
-        }
-    }
-
-    @Test
     public void shouldAcceptCompletionResultAsSingleJson() throws RemoteResourceException {
         // given
-        BuildDriverResult buildDriverResult = new DefaultBuildDriverResult(
-                "The log!",
-                BuildStatus.SYSTEM_ERROR,
-                java.util.Optional.of("12345"));
-
+        BuildDriverResult buildDriverResult = BuildDriverResultMock.mockResult(BuildStatus.SYSTEM_ERROR);
         BuildDriverResultRest buildDriverResultRest = new BuildDriverResultRest(buildDriverResult);
         BuildResultRest buildResultRest = new BuildResultRest();
         buildResultRest.setBuildDriverResult(buildDriverResultRest);

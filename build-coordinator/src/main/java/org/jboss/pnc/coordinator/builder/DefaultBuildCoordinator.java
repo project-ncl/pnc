@@ -45,6 +45,7 @@ import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;

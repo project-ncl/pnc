@@ -29,7 +29,7 @@ import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.model.BuildEnvironmentMock;
 import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.model.RepositoryConfigurationMock;
-import org.jboss.pnc.mock.repour.RepourResultMock;
+import org.jboss.pnc.mock.spi.RepourResultMock;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
