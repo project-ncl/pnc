@@ -53,4 +53,9 @@ class MDCAwareElement<E> {
     public int hashCode() {
         return Objects.hash(element);
     }
+
+    @Override
+    public String toString() {
+        return "Element:" + element + "; contextMap:" + contextMap;
+    }
 }
