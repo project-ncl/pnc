@@ -18,7 +18,7 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.coordinator.builder.BuildScheduler;
+import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -140,11 +140,6 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
                 return false;
             }
             return buildTask.get().getStatus().equals(BuildCoordinationStatus.BUILDING);
-        }
-
-        @Override
-        public String getId() {
-            return "MockBuildScheduler";
         }
 
         @Override

@@ -18,20 +18,14 @@
 
 package org.jboss.pnc.coordinator.builder;
 
-import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
-import org.jboss.pnc.coordinator.builder.local.LocalBuildScheduler;
+import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.lang.invoke.MethodHandles;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -41,8 +35,6 @@ public class BuildSchedulerFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static final String DEFAULT_SCHEDULER_ID = LocalBuildScheduler.ID;
-
     private BuildScheduler configuredBuildScheduler;
 
     @Deprecated // CDI workaround
@@ -50,27 +42,12 @@ public class BuildSchedulerFactory {
     }
 
     @Inject
-    public BuildSchedulerFactory(Instance<BuildScheduler> availableSchedulers, Configuration configuration)
-            throws CoreException {
-        AtomicReference<String> schedulerId = new AtomicReference<>(null);
-        try {
-            schedulerId.set(
-                    configuration.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)).getBuildSchedulerId());
-        } catch (ConfigurationParseException e) {
-            logger.warn("Unable parse config. Using default scheduler");
-            schedulerId.set(DEFAULT_SCHEDULER_ID);
-        }
-        availableSchedulers.forEach(scheduler -> setMatchingScheduler(scheduler, schedulerId.get()));
-        if (configuredBuildScheduler == null) {
-            throw new CoreException(
-                    "Cannot get BuildScheduler, check configurations and make sure a scheduler with configured id is available for injection. configured id: "
-                            + schedulerId);
-        }
-    }
+    public BuildSchedulerFactory(BuildScheduler buildScheduler) throws CoreException {
 
-    private void setMatchingScheduler(BuildScheduler scheduler, String schedulerId) {
-        if (scheduler.getId().equals(schedulerId)) {
-            configuredBuildScheduler = scheduler;
+        configuredBuildScheduler = buildScheduler;
+
+        if (configuredBuildScheduler == null) {
+            throw new CoreException("Cannot get BuildScheduler");
         }
     }
 

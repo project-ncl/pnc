@@ -18,16 +18,18 @@
 
 package org.jboss.pnc.bpm.test;
 
-import org.jboss.pnc.bpm.model.mapper.RepositoryManagerResultMapper;
 import org.jboss.pnc.bpm.model.RepositoryManagerResultRest;
+import org.jboss.pnc.bpm.model.mapper.RepositoryManagerResultMapper;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.mapper.abstracts.AbstractArtifactMapper;
-import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
-import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
-import org.jboss.pnc.mapper.api.UserMapper;
-import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
+import org.jboss.pnc.mapper.AbstractArtifactMapperImpl;
+import org.jboss.pnc.mapper.RefToReferenceMapper;
+import org.jboss.pnc.mapper.abstracts.AbstractArtifactMapper;
+import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.TargetRepositoryMapper;
+import org.jboss.pnc.mapper.api.UserMapper;
+import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.junit.Assert;
 import org.junit.Before;
@@ -42,8 +44,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import org.jboss.pnc.mapper.RefToReferenceMapper;
-import org.jboss.pnc.mapper.api.BuildMapper;
 
 import static org.mockito.Mockito.when;
 

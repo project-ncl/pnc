@@ -24,7 +24,7 @@ import org.jboss.pnc.bpm.RestConnector;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.coordinator.builder.BuildScheduler;
+import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 
@@ -49,13 +49,7 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     private GlobalModuleGroup globalConfig;
 
-    public static final String schedulerId = "bpm-build-scheduler";
     private Connector restConnector;
-
-    @Override
-    public String getId() {
-        return schedulerId;
-    }
 
     @Deprecated
     public BpmBuildScheduler() { // CDI workaround

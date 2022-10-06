@@ -18,24 +18,15 @@
 
 package org.jboss.pnc.mock.spi;
 
-import org.jboss.pnc.mock.builddriver.BuildDriverResultMock;
-import org.jboss.pnc.mock.environmentdriver.EnvironmentDriverResultMock;
-import org.jboss.pnc.mock.executor.BuildExecutionConfigurationMock;
-import org.jboss.pnc.mock.executor.BuildProcessExceptionMock;
-import org.jboss.pnc.mock.repositorymanager.RepositoryManagerResultMock;
-import org.jboss.pnc.mock.repour.RepourResultMock;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
-import org.jboss.pnc.spi.environment.DestroyableEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 
 import java.util.Optional;
-import java.util.concurrent.CompletionException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -46,7 +37,6 @@ public class BuildResultMock {
         BuildExecutionConfiguration buildExecutionConfig = BuildExecutionConfigurationMock.mockConfig();
         BuildDriverResult buildDriverResult = BuildDriverResultMock.mockResult(status);
         RepositoryManagerResult repositoryManagerResult = RepositoryManagerResultMock.mockResult();
-        ExecutorException exception = buildException();
 
         CompletionStatus completionStatus;
         if (status.completedSuccessfully()) {
@@ -65,12 +55,4 @@ public class BuildResultMock {
                 Optional.of(EnvironmentDriverResultMock.mock()),
                 Optional.of(RepourResultMock.mock()));
     }
-
-    private static ExecutorException buildException() {
-        DestroyableEnvironment destroyableEnvironment = DestroyableEnvironmentMock.build();
-        return new ExecutorException(
-                "",
-                new CompletionException(new BuildProcessExceptionMock(new Exception(""), destroyableEnvironment)));
-    }
-
 }

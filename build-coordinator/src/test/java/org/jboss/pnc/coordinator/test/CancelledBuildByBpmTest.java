@@ -28,7 +28,7 @@ import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
-import org.jboss.pnc.coordinator.builder.BuildScheduler;
+import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.bpm.BpmBuildScheduler;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
@@ -63,16 +63,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.event.Event;
-import javax.enterprise.event.NotificationOptions;
-import javax.enterprise.util.TypeLiteral;
-
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
@@ -133,7 +127,8 @@ public class CancelledBuildByBpmTest {
 
         BlockingQueue<BuildStatusChangedEvent> receivedStatuses = new ArrayBlockingQueue<>(5);
         Consumer<BuildStatusChangedEvent> onStatusUpdate = receivedStatuses::add;
-        EventListener buildStatusChangedEventNotifier = new EventListener(onStatusUpdate);
+        BuildStatusChangedEventListener buildStatusChangedEventNotifier = new BuildStatusChangedEventListener(
+                onStatusUpdate);
 
         BlockingQueue<BpmTask> task = new ArrayBlockingQueue<>(5);
         Consumer<BpmTask> onBpmTaskCreated = task::add;
@@ -241,45 +236,6 @@ public class CancelledBuildByBpmTest {
                 null,
                 null,
                 null);
-    }
-
-    private static class EventListener implements Event<BuildStatusChangedEvent> {
-
-        Consumer<BuildStatusChangedEvent> onEvent;
-
-        public EventListener(Consumer<BuildStatusChangedEvent> onEvent) {
-            this.onEvent = onEvent;
-        }
-
-        @Override
-        public void fire(BuildStatusChangedEvent event) {
-            onEvent.accept(event);
-        }
-
-        @Override
-        public <U extends BuildStatusChangedEvent> CompletionStage<U> fireAsync(U event) {
-            return null;
-        }
-
-        @Override
-        public <U extends BuildStatusChangedEvent> CompletionStage<U> fireAsync(U event, NotificationOptions options) {
-            return null;
-        }
-
-        @Override
-        public Event<BuildStatusChangedEvent> select(Annotation... qualifiers) {
-            return null;
-        }
-
-        @Override
-        public <U extends BuildStatusChangedEvent> Event<U> select(Class<U> subtype, Annotation... qualifiers) {
-            return null;
-        }
-
-        @Override
-        public <U extends BuildStatusChangedEvent> Event<U> select(TypeLiteral<U> subtype, Annotation... qualifiers) {
-            return null;
-        }
     }
 
 }

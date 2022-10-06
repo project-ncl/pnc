@@ -71,10 +71,7 @@
     <module>messaging-spi</module>
     <module>messaging</module>
     <module>ear-package</module>
-    <module>termd-build-driver</module>
-    <module>indy-repository-manager</module>
     <module>build-coordinator</module>
-    <module>build-executor</module>
     <module>model</module>
     <module>dto</module>
     <module>facade</module>
@@ -83,7 +80,6 @@
     <module>notifications</module>
     <module>spi</module>
     <module>web</module>
-    <module>openshift-environment-driver</module>
     <module>demo-data</module>
     <module>integration-test</module>
     <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
@@ -148,7 +144,7 @@
 
     <!-- Integration tests -->
     <app.server>jboss-eap</app.server>
-    <jboss.version>7.3</jboss.version>
+    <jboss.version>7.4</jboss.version>
     <default.management.port>9999</default.management.port>
     <test.server.unpack.dir>${project.basedir}/target</test.server.unpack.dir>
     <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>

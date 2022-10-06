@@ -24,7 +24,7 @@ import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
 import org.jboss.pnc.coordinator.builder.BuildQueue;
-import org.jboss.pnc.coordinator.builder.BuildScheduler;
+import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
@@ -320,11 +320,6 @@ public abstract class AbstractDependentBuildTest {
             builtTasks.add(buildTask);
             BuildResult result = buildResult();
             coordinator.completeBuild(buildTask, result);
-        }
-
-        @Override
-        public String getId() {
-            return "MockBuildScheduler";
         }
 
         @Override
