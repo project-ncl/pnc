@@ -19,16 +19,11 @@ package org.jboss.pnc.common.json.moduleprovider;
 
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
-import org.jboss.pnc.common.json.moduleconfig.AuthenticationModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
-import org.jboss.pnc.common.json.moduleconfig.JenkinsBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
-import org.jboss.pnc.common.json.moduleconfig.OpenshiftBuildAgentConfig;
-import org.jboss.pnc.common.json.moduleconfig.OpenshiftEnvironmentDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.common.json.moduleconfig.TermdBuildDriverModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
 
 /**
@@ -41,20 +36,10 @@ public class PncConfigProvider<T extends AbstractModuleConfig> extends AbstractC
 
     public PncConfigProvider(Class<T> type) {
         setType(type);
-        addModuleConfig(
-                new ProviderNameType(JenkinsBuildDriverModuleConfig.class, JenkinsBuildDriverModuleConfig.MODULE_NAME));
-        addModuleConfig(
-                new ProviderNameType(TermdBuildDriverModuleConfig.class, TermdBuildDriverModuleConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(SystemConfig.class, SystemConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(IndyRepoDriverModuleConfig.class, IndyRepoDriverModuleConfig.MODULE_NAME));
-        addModuleConfig(new ProviderNameType(AuthenticationModuleConfig.class, AuthenticationModuleConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(BpmModuleConfig.class, BpmModuleConfig.MODULE_NAME));
-        addModuleConfig(
-                new ProviderNameType(
-                        OpenshiftEnvironmentDriverModuleConfig.class,
-                        OpenshiftEnvironmentDriverModuleConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(UIModuleConfig.class, UIModuleConfig.MODULE_NAME));
-        addModuleConfig(new ProviderNameType(OpenshiftBuildAgentConfig.class, OpenshiftBuildAgentConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(DemoDataConfig.class, DemoDataConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(AlignmentConfig.class, AlignmentConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(ScmModuleConfig.class, ScmModuleConfig.MODULE_NAME));

@@ -17,16 +17,16 @@
  */
 package org.jboss.pnc.common.json.moduleconfig;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jboss.pnc.common.json.AbstractModuleConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Properties;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import org.jboss.pnc.common.json.AbstractModuleConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SystemConfig extends AbstractModuleConfig {
 
@@ -34,22 +34,7 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private final static Logger log = LoggerFactory.getLogger(SystemConfig.class);
 
-    private String buildDriverId;
-
-    private String buildSchedulerId;
-
     private final String authenticationProviderId;
-
-    /**
-     * Number of threads that are used to run executor operations (setting up the repos, configuring the build,
-     * triggering the build, collecting the results)
-     */
-    private String executorThreadPoolSize;
-
-    /**
-     * Number of threads that are used to run the build and listen for completion.
-     */
-    private String builderThreadPoolSize;
 
     /**
      * number of threads that are taking a build task to be build and starting the building process (their job finishes
@@ -110,11 +95,7 @@ public class SystemConfig extends AbstractModuleConfig {
     private String infinispanTransportProperties; // path to Infinispan transport properties; optional
 
     public SystemConfig(
-            @JsonProperty("buildDriverId") String buildDriverId,
-            @JsonProperty("buildSchedulerId") String buildSchedulerId,
             @JsonProperty("authenticationProviderId") String authenticationProviderId,
-            @JsonProperty("executorThreadPoolSize") String executorThreadPoolSize,
-            @JsonProperty("builderThreadPoolSize") String builderThreadPoolSize,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
             @JsonProperty("brewTagPattern") String brewTagPattern,
             @JsonProperty("coordinatorMaxConcurrentBuilds") String coordinatorMaxConcurrentBuilds,
@@ -138,11 +119,7 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("kafkaProperties") String kafkaProperties,
             @JsonProperty("infinispanClusterName") String infinispanClusterName,
             @JsonProperty("infinispanTransportProperties") String infinispanTransportProperties) {
-        this.buildDriverId = buildDriverId;
-        this.buildSchedulerId = buildSchedulerId;
         this.authenticationProviderId = authenticationProviderId;
-        this.executorThreadPoolSize = executorThreadPoolSize;
-        this.builderThreadPoolSize = builderThreadPoolSize;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault(
                 "coordinatorMaxConcurrentBuilds",
@@ -188,26 +165,6 @@ public class SystemConfig extends AbstractModuleConfig {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    public String getBuildDriverId() {
-        return buildDriverId;
-    }
-
-    public String getBuildSchedulerId() {
-        return buildSchedulerId;
-    }
-
-    public String getExecutorThreadPoolSize() {
-        return executorThreadPoolSize;
-    }
-
-    public String getBuilderThreadPoolSize() {
-        return builderThreadPoolSize;
-    }
-
-    public void setBuilderThreadPoolSize(String builderThreadPoolSize) {
-        this.builderThreadPoolSize = builderThreadPoolSize;
     }
 
     public int getCoordinatorThreadPoolSize() {
@@ -327,12 +284,21 @@ public class SystemConfig extends AbstractModuleConfig {
 
     @Override
     public String toString() {
-        return "SystemConfig [" + (buildDriverId != null ? "buildDriverId=" + buildDriverId + ", " : "")
-                + (buildSchedulerId != null ? "buildSchedulerId=" + buildSchedulerId + ", " : "")
-                + (authenticationProviderId != null ? "authenticationProviderId=" + authenticationProviderId + ", "
-                        : "")
-                + (executorThreadPoolSize != null ? "executorThreadPoolSize=" + executorThreadPoolSize + ", " : "")
-                + (builderThreadPoolSize != null ? "builderThreadPoolSize=" + builderThreadPoolSize : "") + "]";
+        return "SystemConfig{" + "authenticationProviderId='" + authenticationProviderId + '\''
+                + ", coordinatorThreadPoolSize=" + coordinatorThreadPoolSize + ", brewTagPattern='" + brewTagPattern
+                + '\'' + ", coordinatorMaxConcurrentBuilds=" + coordinatorMaxConcurrentBuilds
+                + ", keycloakServiceAccountConfig=" + keycloakServiceAccountConfig
+                + ", serviceTokenRefreshIfExpiresInSeconds=" + serviceTokenRefreshIfExpiresInSeconds
+                + ", temporaryBuildsLifeSpan=" + temporaryBuildsLifeSpan + ", messageSenderId='" + messageSenderId
+                + '\'' + ", messagingInternalQueueSize=" + messagingInternalQueueSize + ", distributedEventType='"
+                + distributedEventType + '\'' + ", kafkaBootstrapServers='" + kafkaBootstrapServers + '\''
+                + ", kafkaTopic='" + kafkaTopic + '\'' + ", kafkaNumOfConsumers=" + kafkaNumOfConsumers
+                + ", kafkaNumOfRetries=" + kafkaNumOfRetries + ", kafkaRetryBackoffMillis=" + kafkaRetryBackoffMillis
+                + ", kafkaSecurityProtocol='" + kafkaSecurityProtocol + '\'' + ", kafkaSecuritySaslMechanism='"
+                + kafkaSecuritySaslMechanism + '\'' + ", kafkaSecuritySaslJaasConf='" + kafkaSecuritySaslJaasConf + '\''
+                + ", kafkaSecurityUser='" + kafkaSecurityUser + '\'' + ", kafkaSecurityPassword='"
+                + kafkaSecurityPassword + '\'' + ", kafkaProperties='" + kafkaProperties + '\''
+                + ", infinispanClusterName='" + infinispanClusterName + '\'' + ", infinispanTransportProperties='"
+                + infinispanTransportProperties + '\'' + '}';
     }
-
 }

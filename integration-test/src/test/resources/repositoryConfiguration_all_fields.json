@@ -1,6 +1,0 @@
-{
-    "id": ${_id},
-    "internalUrl": "${_internalUrl}",
-    "externalUrl": "${_externalUrl}",
-    "preBuildSyncEnabled": ${_preBuildSyncEnabled}
-}

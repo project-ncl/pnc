@@ -1,1 +1,0 @@
-{"@class":"ModuleConfigJson","name":"pnc-config","configs":[{"@module-config":"jenkins-build-driver","username":"user","password":"pass"},{"@module-config":"maven-repo-driver","baseUrl":"http://something/base"}]}

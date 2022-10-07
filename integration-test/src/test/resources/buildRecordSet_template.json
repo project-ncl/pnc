@@ -1,4 +1,0 @@
-{
-    "performedInProductMilestoneId": ${_performedInProductMilestoneId},
-    "buildRecordIds": [${_buildRecordIds}]
-}

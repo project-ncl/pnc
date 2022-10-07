@@ -18,29 +18,6 @@
             "externalKafkaStoreUrl": "http://1.2.3.8",
             "externalPncUrl": "http://1.2.3.9",
             "externalRepourUrl": "http://1.2.3.10"
-        },
-        {
-            "@module-group": "pnc",
-            "configs": [
-                {
-                    "@module-config": "jenkins-build-driver",
-                    "username": "user",
-                    "password": "pass"
-                },
-                {
-                    "@module-config": "termd-build-driver"
-                },
-                {
-                    "@module-config": "indy-repo-driver",
-                    "defaultRequestTimeout": 100,
-                    "buildRepositoryAllowSnapshots": true,
-                    "ignored-path-patterns": {
-                        "promotion": {
-                            "maven": [".*/maven-metadata\\.xml$", ".*\\.sha1$"]
-                        }
-                    }
-                }
-            ]
         }
     ]
 }

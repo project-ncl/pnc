@@ -1,5 +1,0 @@
-{
-    "version": "${_productReleaseVersion}",
-    "productVersionId": ${_productVersionId},
-    "productMilestoneId": ${_productMilestoneId}
-}
