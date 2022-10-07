@@ -38,8 +38,13 @@ import org.apache.kafka.common.security.scram.ScramLoginModule;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KafkaDistributedEventHandler extends AbstractDistributedEventHandler {
+
+    private final static Logger log = LoggerFactory.getLogger(KafkaDistributedEventHandler.class);
+
     private ProducerActions<String, String> producer;
     private ConsumerContainer.DynamicPool<String, String> consumer;
 
@@ -53,11 +58,15 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
 
     @Override
     public void sendEvent(Object event) {
-        producer.apply(new ProducerRecord<>(topic, toMessage(event)));
+        String message = toMessage(event);
+        log.debug("Send event {}", message);
+        producer.apply(new ProducerRecord<>(topic, message));
     }
 
     @Override
     public void start() {
+        log.debug("Starting configuration of KafkaDistributedEventHandler...");
+
         Properties properties;
         String kafkaProperties = config.getKafkaProperties();
         if (kafkaProperties != null) {
@@ -85,9 +94,12 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
                 numOfConsumers,
                 Oneof2.first(this::consume),
                 new ConsumerSkipRecordsSerializationExceptionHandler());
+
+        log.debug("Completed configuration of KafkaDistributedEventHandler");
     }
 
     private void consume(ConsumerRecord<String, String> cr) {
+        log.debug("Consume and send message {}", cr.value());
         sendMessage(cr.value());
     }
 
