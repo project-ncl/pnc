@@ -18,50 +18,13 @@
             "configs": [
                 {
                     "@module-config": "system-config",
-                    "buildDriverId": "termd-build-driver",
-                    "buildSchedulerId": "local-build-scheduler",
                     "authenticationProviderId": "JAAS",
-                    "executorThreadPoolSize": "1",
-                    "builderThreadPoolSize": "1",
                     "coordinatorThreadPoolSize": "1",
                     "coordinatorMaxConcurrentBuilds": "1"
                 },
                 {
                     "@module-config": "demo-data-config",
                     "importDemoData": true
-                },
-                {
-                    "@module-config": "termd-build-driver",
-                    "internalCancelTimeoutMillis": "3000"
-                },
-                {
-                    "@module-config": "indy-repo-driver"
-                },
-                {
-                    "@module-config": "openshift-environment-driver",
-                    "proxyServer": "${env.PNC_DOCKER_PROXY_SERVER}",
-                    "proxyPort": "${env.PNC_DOCKER_PROXY_PORT}",
-                    "firewallAllowedDestinations": "${env.PNC_FIREWALL_ALLOWED_DESTINATIONS}",
-                    "allowedHttpOutgoingDestinations": [],
-                    "restEndpointUrl": "${env.PNC_REST_ENDPOINT_URL}",
-                    "restAuthToken": "${env.PNC_REST_AUTH_TOKEN}",
-                    "buildAgentHost": "${env.PNC_BUILD_AGENT_HOST}",
-                    "buildAgentBindPath": "${env.PNC_BUILD_AGENT_BIND_PATH}",
-                    "podNamespace": "${env.PNC_POD_NAMESPACE}",
-                    "containerPort": "${env.PNC_CONTAINER_PORT}",
-                    "imageId": "${env.PNC_BUILDER_IMAGE_ID}",
-                    "disabled": "false",
-                    "keepBuildAgentInstance": true,
-                    "exposeBuildAgentOnPublicUrl": false,
-                    "creationPodRetry": "12",
-                    "pollingMonitorTimeout": "600",
-                    "pollingMonitorCheckInterval": "1"
-                },
-                {
-                    "@module-config": "authentication-config",
-                    "username": "${env.PNC_EXT_OAUTH_USERNAME}",
-                    "password": "${env.PNC_EXT_OAUTH_PASSWORD}",
-                    "baseAuthUrl": "${env.PNC_EXT_REST_BASE_URL}"
                 },
                 {
                     "@module-config": "bpm-config",

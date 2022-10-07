@@ -87,17 +87,13 @@ public class BuildCoordinatorFactory {
 
     private SystemConfig createConfiguration() {
         return new SystemConfig(
-                "ProperDriver",
-                "local-build-scheduler",
                 "NO_AUTH",
-                "10",
-                "10",
                 "10",
                 "${product_short_name}-${product_version}-pnc",
                 "10",
                 null,
-                null,
                 "3600",
+                "14",
                 "",
                 "10",
                 null,

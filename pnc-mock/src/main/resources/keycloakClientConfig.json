@@ -1,7 +1,7 @@
 {
     "realm": "pncredhat",
     "realm-public-key": "Abc123...",
-    "auth-server-url": "https://pnc-keycloak-vip.host.stage.eng.bos.redhat.com/auth",
+    "auth-server-url": "https://keycloak.host.com/auth",
     "ssl-required": "none",
     "resource": "pnc-orchestrator",
     "credentials": {
