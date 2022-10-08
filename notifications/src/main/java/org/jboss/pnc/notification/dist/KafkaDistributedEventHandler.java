@@ -160,7 +160,7 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
         if (config.getKafkaSecurityProtocol() != null) {
             securityProperties.put(
                     CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,
-                    SecurityProtocol.forName(config.getKafkaSecurityProtocol()));
+                    SecurityProtocol.forName(config.getKafkaSecurityProtocol()).name);
         }
 
         if (isSasl(SecurityProtocol.forName(config.getKafkaSecurityProtocol()))) {
