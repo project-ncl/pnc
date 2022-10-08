@@ -110,6 +110,7 @@ public class BuildCoordinatorFactory {
                 null,
                 null,
                 null,
+                null,
                 null);
     }
 

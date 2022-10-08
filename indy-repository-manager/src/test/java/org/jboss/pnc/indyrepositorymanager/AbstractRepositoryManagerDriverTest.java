@@ -111,6 +111,7 @@ public class AbstractRepositoryManagerDriverTest {
                 null,
                 null,
                 null,
+                null,
                 null);
         GlobalModuleGroup globalConfig = new GlobalModuleGroup();
         globalConfig.setIndyUrl(fixture.getUrl());
