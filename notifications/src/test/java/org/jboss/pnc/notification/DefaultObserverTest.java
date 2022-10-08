@@ -98,6 +98,7 @@ public class DefaultObserverTest {
                 null,
                 null,
                 null,
+                null,
                 null);
     }
 
@@ -129,6 +130,7 @@ public class DefaultObserverTest {
                 null,
                 null,
                 null,
+                null,
                 null);
     }
 
@@ -148,6 +150,7 @@ public class DefaultObserverTest {
                 "",
                 "10",
                 "infinispan",
+                null,
                 null,
                 null,
                 null,

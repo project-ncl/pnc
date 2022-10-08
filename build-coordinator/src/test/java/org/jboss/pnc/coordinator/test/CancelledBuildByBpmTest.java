@@ -239,6 +239,7 @@ public class CancelledBuildByBpmTest {
                 null,
                 null,
                 null,
+                null,
                 null);
     }
 

@@ -80,7 +80,7 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
         Properties producerProperties = forProducer(config);
         producerProperties.putAll(properties);
 
-        log.debug("Producer properties: {}", producerProperties);
+        log.debug("Producer properties: {}", obfuscateSensibleData(producerProperties));
 
         producer = new AsyncProducer<>(producerProperties, serializer, serializer);
 
@@ -89,7 +89,7 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
         Properties consumerProperties = forConsumer(config);
         consumerProperties.putAll(properties);
 
-        log.debug("Consumer properties: {}", consumerProperties);
+        log.debug("Consumer properties: {}", obfuscateSensibleData(consumerProperties));
 
         consumer = new ConsumerContainer.DynamicPool<>(
                 consumerProperties,
@@ -99,8 +99,6 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
                 numOfConsumers,
                 Oneof2.first(this::consume),
                 new ConsumerSkipRecordsSerializationExceptionHandler());
-
-        log.debug("Completed configuration of KafkaDistributedEventHandler");
     }
 
     private void consume(ConsumerRecord<String, String> cr) {
@@ -110,6 +108,7 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
 
     @Override
     public void close() {
+        log.debug("Closing producer and consumer...");
         IoUtil.closeIgnore(producer);
         IoUtil.closeIgnore(consumer);
     }
@@ -128,11 +127,15 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
     }
 
     public Properties forProducer(SystemConfig config) {
+        String clientId = UUID.randomUUID().toString();
         Properties producerProps = baseProperties(config);
 
         producerProps.put(CommonClientConfigs.RETRIES_CONFIG, config.getKafkaNumOfRetries());
         producerProps.put(CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG, config.getKafkaRetryBackoffMillis());
-        producerProps.put(ProducerConfig.ACKS_CONFIG, "all");
+        if (config.getKafkaAcks() != null) {
+            producerProps.put(ProducerConfig.ACKS_CONFIG, config.getKafkaAcks());
+        }
+        producerProps.put(ProducerConfig.CLIENT_ID_CONFIG, clientId);
         producerProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         producerProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
@@ -199,5 +202,17 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
             default:
                 throw new IllegalArgumentException("Unsupported SASL mechanism " + saslMechanism);
         }
+    }
+
+    private Properties obfuscateSensibleData(Properties properties) {
+        Properties obfuscatedProps = new Properties();
+        obfuscatedProps.putAll(properties);
+
+        if (obfuscatedProps.containsKey(SaslConfigs.SASL_JAAS_CONFIG)) {
+            String clearJaasConfig = obfuscatedProps.getProperty(SaslConfigs.SASL_JAAS_CONFIG);
+            String obfuscatedJaasConfig = clearJaasConfig.replaceAll("(password)='[^&]+'", "$1='***'");
+            obfuscatedProps.put(SaslConfigs.SASL_JAAS_CONFIG, obfuscatedJaasConfig);
+        }
+        return obfuscatedProps;
     }
 }

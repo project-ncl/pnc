@@ -91,6 +91,8 @@ public class SystemConfig extends AbstractModuleConfig {
     private int kafkaNumOfRetries; // number of retries the client will attempt to resend requests, default is 0
     private int kafkaRetryBackoffMillis; // amount of time to wait before attempting to retry a failed request, default
                                          // is 0
+    private String kafkaAcks; // The number of acknowledgments the producer requires the leader to have received before
+                              // considering a request complete; one of "all", "-1", "0", "1"
     private String kafkaSecurityProtocol; // org.apache.kafka.common.security.auth.SecurityProtocol; one of PLAINTEXT |
                                           // SASL_PLAINTEXT | SASL_SSL | SSL; optional
     private String kafkaSecuritySaslMechanism; // SASL mechanism configuration; optional
@@ -127,6 +129,7 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("kafkaNumOfConsumers") String kafkaNumOfConsumers,
             @JsonProperty("kafkaNumOfRetries") String kafkaNumOfRetries,
             @JsonProperty("kafkaRetryBackoffMillis") String kafkaRetryBackoffMillis,
+            @JsonProperty("kafkaAcks") String kafkaAcks,
             @JsonProperty("kafkaSecurityProtocol") String kafkaSecurityProtocol,
             @JsonProperty("kafkaSecuritySaslMechanism") String kafkaSecuritySaslMechanism,
             @JsonProperty("kafkaSecuritySaslJaasConf") String kafkaSecuritySaslJaasConf,
@@ -164,6 +167,7 @@ public class SystemConfig extends AbstractModuleConfig {
         this.kafkaNumOfConsumers = toIntWithDefault("kafkaNumOfConsumers", kafkaNumOfConsumers, 1);
         this.kafkaNumOfRetries = toIntWithDefault("kafkaNumOfRetries", kafkaNumOfRetries, 0);
         this.kafkaRetryBackoffMillis = toIntWithDefault("kafkaRetryBackoffMillis", kafkaRetryBackoffMillis, 0);
+        this.kafkaAcks = kafkaAcks;
         this.kafkaSecurityProtocol = kafkaSecurityProtocol;
         this.kafkaSecuritySaslMechanism = kafkaSecuritySaslMechanism;
         this.kafkaSecuritySaslJaasConf = kafkaSecuritySaslJaasConf;
@@ -264,6 +268,10 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public int getKafkaRetryBackoffMillis() {
         return kafkaRetryBackoffMillis;
+    }
+
+    public String getKafkaAcks() {
+        return kafkaAcks;
     }
 
     public String getKafkaSecurityProtocol() {
