@@ -170,7 +170,7 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
                 securityProperties.put(
                         SaslConfigs.SASL_JAAS_CONFIG,
                         String.format(
-                                "%s required username=\"%s\" password=\"%s\";",
+                                "%s required username='%s' password='%s';",
                                 getLoginModule(config.getKafkaSecuritySaslMechanism()).getName(),
                                 config.getKafkaSecurityUser(),
                                 config.getKafkaSecurityPassword()));
