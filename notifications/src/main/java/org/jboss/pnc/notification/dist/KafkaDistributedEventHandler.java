@@ -79,12 +79,16 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
         Properties producerProperties = forProducer(config);
         producerProperties.putAll(properties);
 
+        log.debug("Producer properties: {}", producerProperties);
+
         producer = new AsyncProducer<>(producerProperties, serializer, serializer);
 
         int numOfConsumers = config.getKafkaNumOfConsumers();
         StringDeserializer deserializer = new StringDeserializer();
         Properties consumerProperties = forConsumer(config);
         consumerProperties.putAll(properties);
+
+        log.debug("Consumer properties: {}", consumerProperties);
 
         consumer = new ConsumerContainer.DynamicPool<>(
                 consumerProperties,
