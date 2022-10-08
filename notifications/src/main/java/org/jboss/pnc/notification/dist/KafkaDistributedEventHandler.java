@@ -30,6 +30,7 @@ import io.apicurio.registry.utils.kafka.ProducerActions;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.security.auth.SecurityProtocol;
@@ -121,6 +122,8 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
 
         Properties consumerProps = baseProperties(config);
         consumerProps.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        consumerProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        consumerProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         return consumerProps;
     }
 
@@ -129,6 +132,9 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
 
         producerProps.put(CommonClientConfigs.RETRIES_CONFIG, config.getKafkaNumOfRetries());
         producerProps.put(CommonClientConfigs.RETRY_BACKOFF_MS_CONFIG, config.getKafkaRetryBackoffMillis());
+        producerProps.put(ProducerConfig.ACKS_CONFIG, "all");
+        producerProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        producerProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
         return producerProps;
     }
@@ -164,7 +170,7 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
                 securityProperties.put(
                         SaslConfigs.SASL_JAAS_CONFIG,
                         String.format(
-                                "%s required username='%s' password='%s';",
+                                "%s required username=\"%s\" password=\"%s\";",
                                 getLoginModule(config.getKafkaSecuritySaslMechanism()).getName(),
                                 config.getKafkaSecurityUser(),
                                 config.getKafkaSecurityPassword()));
