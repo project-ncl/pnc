@@ -102,7 +102,7 @@ public class BuildQueue {
         }
         MDCAwareElement element = new MDCAwareElement(task);
         unfinishedTasks.add(element);
-        log.debug("adding task: {}", task);
+        log.debug("adding task: {} with MDCAwareElement: {}", task, element);
         readyTasks.add(element);
         return true;
     }
@@ -116,7 +116,7 @@ public class BuildQueue {
     public synchronized void addWaitingTask(BuildTask task, Runnable taskReadyCallback) {
         MDCAwareElement element = new MDCAwareElement(task);
         unfinishedTasks.add(element);
-        log.debug("adding waiting task: {}", task);
+        log.debug("adding waiting task: {} with MDCAwareElement: {}", task, element);
         waitingTasksWithCallbacks.put(element, taskReadyCallback);
     }
 
@@ -216,13 +216,14 @@ public class BuildQueue {
         // SkippingBuiltConfigsTest.shouldNotTriggerTheSameBuildConfigurationViaDependency
         // to avoid race condition getUnfinishedTask is used instead of getTask
         MDCAwareElement<BuildTask> element = readyTasks.take();
+        log.debug("Took task with associated MDCAware element: {}", element);
         tasksInProgress.add(element);
         return element;
     }
 
     public void take(Consumer<BuildTask> consumer) throws InterruptedException {
-        Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
-        log.debug("About to take a new task; copyOfContextMap is {}", copyOfContextMap);
+        Map<String, String> stashedContextMap = MDC.getCopyOfContextMap();
+        log.debug("About to take a new task; stashedContextMap is {}", stashedContextMap);
         MDCAwareElement<BuildTask> element = take();
         log.info("Got task: {}, will start processing", element);
         Map<String, String> elementContextMap = element.getContextMap();
@@ -238,8 +239,8 @@ public class BuildQueue {
                 elementContextMap.keySet().forEach(MDC::remove);
             }
             // restore context
-            if (copyOfContextMap != null) {
-                MDC.setContextMap(copyOfContextMap);
+            if (stashedContextMap != null) {
+                MDC.setContextMap(stashedContextMap);
             }
         }
     }
