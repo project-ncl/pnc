@@ -127,7 +127,6 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
     }
 
     public Properties forProducer(SystemConfig config) {
-        String clientId = UUID.randomUUID().toString();
         Properties producerProps = baseProperties(config);
 
         producerProps.put(CommonClientConfigs.RETRIES_CONFIG, config.getKafkaNumOfRetries());
@@ -135,7 +134,6 @@ public class KafkaDistributedEventHandler extends AbstractDistributedEventHandle
         if (config.getKafkaAcks() != null) {
             producerProps.put(ProducerConfig.ACKS_CONFIG, config.getKafkaAcks());
         }
-        producerProps.put(ProducerConfig.CLIENT_ID_CONFIG, clientId);
         producerProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         producerProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
