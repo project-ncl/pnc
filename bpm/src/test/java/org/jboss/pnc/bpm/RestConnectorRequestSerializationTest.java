@@ -15,14 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.bpm.test;
+package org.jboss.pnc.bpm;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.bpm.RestConnector;
 import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
 import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
 import org.jboss.pnc.common.concurrent.Sequence;

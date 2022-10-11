@@ -19,10 +19,8 @@ package org.jboss.pnc.common.json.moduleconfig;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
-import org.jboss.pnc.common.util.StringUtils;
 
 import java.net.MalformedURLException;
 
@@ -30,40 +28,6 @@ import java.net.MalformedURLException;
 public class BpmModuleConfig extends AbstractModuleConfig {
 
     public static final String MODULE_NAME = "bpm-config";
-
-    /**
-     * Username to authenticate against remote BPM server for build signal callbacks
-     */
-    @Getter
-    @Setter
-    private String username;
-
-    /**
-     * Password to authenticate against remote BPM server for build signal callbacks
-     */
-    @Getter
-    @Setter
-    private String password;
-
-    @Deprecated
-    private final String jenkinsBaseUrl;
-
-    @Getter
-    private String deploymentId;
-
-    @Getter
-    private String componentBuildProcessId;
-
-    private String releaseProcessId;
-
-    @Getter
-    private String bcCreationProcessId;
-
-    @Getter
-    private String communityBuild;
-
-    @Getter
-    private String versionAdjust;
 
     @Getter
     private int httpConnectionRequestTimeout;
@@ -99,23 +63,10 @@ public class BpmModuleConfig extends AbstractModuleConfig {
     @Getter
     private final String analyzeDeliverablesBpmProcessId;
 
-    @Getter
-    private final boolean newBpmForced;
-
     public BpmModuleConfig(
-            @JsonProperty("username") String username,
-            @JsonProperty("password") String password,
-            @JsonProperty("deploymentId") String deploymentId,
-            @JsonProperty("componentBuildProcessId") String componentBuildProcessId,
-            @JsonProperty("releaseProcessId") String releaseProcessId,
-            @JsonProperty("bcCreationProcessId") String bcCreationProcessId,
-            @JsonProperty("jenkinsBaseUrl") String jenkinsBaseUrl,
-            @JsonProperty("communityBuild") String communityBuild,
-            @JsonProperty("versionAdjust") String versionAdjust,
             @JsonProperty("connectionRequestTimeout") Integer httpConnectionRequestTimeout,
             @JsonProperty("connectTimeout") Integer httpConnectTimeout,
             @JsonProperty("socketTimeout") Integer httpSocketTimeout,
-            @JsonProperty("newBpmForced") String newBpmForced,
             @JsonProperty("bpmNewBaseUrl") String bpmNewBaseUrl,
             @JsonProperty("bpmNewDeploymentId") String bpmNewDeploymentId,
             @JsonProperty("bpmNewBuildProcessName") String bpmNewBuildProcessName,
@@ -125,15 +76,6 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("bpmNewReleaseProcessId") String bpmNewReleaseProcessId,
             @JsonProperty("analyzeDeliverablesBpmProcessId") String analyzeDeliverablesBpmProcessId)
             throws MalformedURLException {
-        this.username = username;
-        this.password = password;
-        this.deploymentId = deploymentId;
-        this.componentBuildProcessId = componentBuildProcessId;
-        this.releaseProcessId = releaseProcessId;
-        this.bcCreationProcessId = bcCreationProcessId;
-        this.jenkinsBaseUrl = jenkinsBaseUrl;
-        this.communityBuild = communityBuild;
-        this.versionAdjust = versionAdjust;
         this.analyzeDeliverablesBpmProcessId = analyzeDeliverablesBpmProcessId;
         if (httpConnectionRequestTimeout == null) {
             this.httpConnectionRequestTimeout = 5000; // default to 5 sec
@@ -150,11 +92,6 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         } else {
             this.httpSocketTimeout = httpSocketTimeout;
         }
-        if (StringUtils.isEmpty(newBpmForced)) {
-            this.newBpmForced = false;
-        } else {
-            this.newBpmForced = Boolean.parseBoolean(newBpmForced);
-        }
         this.bpmNewBaseUrl = bpmNewBaseUrl;
         this.bpmNewDeploymentId = bpmNewDeploymentId;
         this.bpmNewBuildProcessName = bpmNewBuildProcessName;
@@ -164,12 +101,4 @@ public class BpmModuleConfig extends AbstractModuleConfig {
         this.bpmNewReleaseProcessId = bpmNewReleaseProcessId;
     }
 
-    public String getMilestoneReleaseProcessId() {
-        return releaseProcessId;
-    }
-
-    @Deprecated
-    public String getJenkinsBaseUrl() {
-        return jenkinsBaseUrl;
-    }
 }

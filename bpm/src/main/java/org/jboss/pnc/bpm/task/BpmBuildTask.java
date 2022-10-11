@@ -19,7 +19,6 @@ package org.jboss.pnc.bpm.task;
 
 import lombok.ToString;
 import org.jboss.pnc.bpm.BpmTask;
-import org.jboss.pnc.bpm.ConnectorSelector;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.ComponentBuildParameters;
 import org.jboss.pnc.common.util.TimeUtils;
@@ -30,7 +29,6 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 /**
  * @author Jakub Senko
@@ -57,8 +55,8 @@ public class BpmBuildTask extends BpmTask {
                 globalConfig.getExternalIndyUrl(),
                 globalConfig.getExternalRepourUrl(),
                 globalConfig.getExternalDaUrl(),
-                Boolean.valueOf(Optional.ofNullable(config.getCommunityBuild()).orElse("true")),
-                Boolean.valueOf(Optional.ofNullable(config.getVersionAdjust()).orElse("false")),
+                false,
+                false,
                 getBuildExecutionConfiguration(buildTask));
     }
 
@@ -96,14 +94,5 @@ public class BpmBuildTask extends BpmTask {
                 buildTask.getBuildOptions().getAlignmentPreference());
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
-    }
-
-    @Override
-    public String getProcessId() {
-        if (ConnectorSelector.useNewProcess(this, config.isNewBpmForced())) {
-            return config.getBpmNewBuildProcessName();
-        } else {
-            return config.getComponentBuildProcessId();
-        }
     }
 }

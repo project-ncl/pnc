@@ -27,7 +27,6 @@ import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
-import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.slf4j.Logger;
@@ -53,7 +52,7 @@ public class DefaultCausewayClient implements CausewayClient {
     }
 
     @Inject
-    public DefaultCausewayClient(GlobalModuleGroup globalConfig, BpmModuleConfig bpmModuleConfig) {
+    public DefaultCausewayClient(GlobalModuleGroup globalConfig) {
         String causewayBaseUrl = globalConfig.getExternalCausewayUrl();
         buildPushEndpoint = causewayBaseUrl + "/import/build";
         untagEndpoint = causewayBaseUrl + "/untag/build";

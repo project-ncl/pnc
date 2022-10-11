@@ -17,9 +17,7 @@
  */
 package org.jboss.pnc.bpm.task;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.ToString;
-
 import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.enums.JobNotificationType;
@@ -51,25 +49,12 @@ public class RepositoryCreationTask extends BpmTask {
 
     @Override
     protected Serializable getProcessParameters() throws CoreException {
-        try {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("pncBaseUrl", globalConfig.getPncUrl());
-            params.put("repourBaseUrl", globalConfig.getExternalRepourUrl());
-            params.put("jobType", jobType.toString());
-            if (isJsonEncodedProcessParameters()) {
-                params.put("taskData", MAPPER.writeValueAsString(repositoryCreationProcessRest));
-            } else {
-                params.put("taskData", repositoryCreationProcessRest);
-            }
-            return params;
-        } catch (JsonProcessingException e) {
-            throw new CoreException("Could not get the parameters.", e);
-        }
-    }
-
-    @Override
-    public String getProcessId() {
-        return config.getBcCreationProcessId();
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("pncBaseUrl", globalConfig.getPncUrl());
+        params.put("repourBaseUrl", globalConfig.getExternalRepourUrl());
+        params.put("jobType", jobType.toString());
+        params.put("taskData", repositoryCreationProcessRest);
+        return params;
     }
 
     public void setJobType(JobNotificationType jobType) {

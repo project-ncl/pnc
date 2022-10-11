@@ -18,14 +18,10 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.bpm.BpmEventType;
-import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.RestConnector;
-import org.jboss.pnc.bpm.model.BpmStringMapNotificationRest;
-import org.jboss.pnc.bpm.model.RepositoryCloneSuccess;
+import org.jboss.pnc.bpm.ConnectorFactory;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.common.Configuration;
-import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -65,13 +61,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import static org.jboss.pnc.constants.Patterns.INTERNAL_REPOSITORY_NAME;
 import static org.jboss.pnc.enums.JobNotificationType.SCM_REPOSITORY_CREATION;
-import static org.jboss.pnc.facade.providers.api.UserRoles.WORK_WITH_TECH_PREVIEW;
 import static org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates.withExactInternalScmRepoUrl;
 
 @PermitAll
@@ -97,8 +93,8 @@ public class SCMRepositoryProviderImpl
     @Inject
     private Notifier notifier;
 
-    @Inject
-    private BpmManager bpmManager;
+    @Deprecated // use stateless approach
+    private AtomicInteger nextTaskId = new AtomicInteger(1);
 
     @Inject
     private BpmModuleConfig bpmConfig;
@@ -111,6 +107,9 @@ public class SCMRepositoryProviderImpl
 
     @Inject
     private BuildConfigurationProvider buildConfigurationProvider;
+
+    @Inject
+    ConnectorFactory connectorFactory;
 
     @Inject
     public SCMRepositoryProviderImpl(
@@ -341,51 +340,24 @@ public class SCMRepositoryProviderImpl
                 .build();
 
         RepositoryCreationTask task;
-        if (bpmConfig.isNewBpmForced() || userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW)) {
-            RepositoryCreationProcess.RepositoryCreationProcessBuilder repositoryCreationProcess = RepositoryCreationProcess
-                    .builder()
-                    .repositoryConfiguration(repositoryConfiguration)
-                    .revision(revision);
+        RepositoryCreationProcess.RepositoryCreationProcessBuilder repositoryCreationProcess = RepositoryCreationProcess
+                .builder()
+                .repositoryConfiguration(repositoryConfiguration)
+                .revision(revision);
 
-            buildConfiguration.ifPresent(bc -> repositoryCreationProcess.buildConfiguration(bc));
-            task = new RepositoryCreationTask(repositoryCreationProcess.build(), userToken);
+        buildConfiguration.ifPresent(bc -> repositoryCreationProcess.buildConfiguration(bc));
+        task = new RepositoryCreationTask(repositoryCreationProcess.build(), userToken);
 
-            task.setTaskId(bpmManager.getNextTaskId());
-            task.setGlobalConfig(globalConfig);
-            task.setJsonEncodedProcessParameters(false);
-            task.setJobType(jobType);
-            RestConnector restConnector = new RestConnector(bpmConfig);
-            try {
-                Map<String, Object> processParameters = task.getExtendedProcessParameters();
-                restConnector.startProcess(bpmConfig.getNewBcCreationProcessId(), processParameters, userToken);
-            } catch (CoreException e) {
-                throw new RuntimeException("Could not get process parameters: " + task, e);
-            } catch (ProcessManagerException e) {
-                throw new RuntimeException("Could not start BPM task using REST connector: " + task, e);
-            }
-        } else { // deprecated
-            RepositoryCreationProcess repositoryCreationProcess = RepositoryCreationProcess.builder()
-                    .repositoryConfiguration(repositoryConfiguration)
-                    .revision(revision)
-                    .build();
-            task = new RepositoryCreationTask(repositoryCreationProcess, userToken);
-            task.setJobType(jobType);
-
-            Consumer<RepositoryCloneSuccess> successListener = event -> onRepoCloneSuccess(
-                    event.getData().getInternalUrl(),
-                    task.getTaskId(),
-                    consumer,
-                    jobType,
-                    externalURL,
-                    preBuildSyncEnabled);
-            task.addListener(BpmEventType.RC_REPO_CLONE_SUCCESS, MDCWrappers.wrap(successListener));
-            addErrorListeners(jobType, task);
-
-            try {
-                bpmManager.startTask(task);
-            } catch (CoreException e) {
-                throw new RuntimeException("Could not start BPM task: " + task, e);
-            }
+        task.setTaskId(nextTaskId.getAndIncrement()); // TODO why do we need this ID
+        task.setGlobalConfig(globalConfig);
+        task.setJobType(jobType);
+        try {
+            Map<String, Object> processParameters = task.getExtendedProcessParameters();
+            connectorFactory.get().startProcess(bpmConfig.getNewBcCreationProcessId(), processParameters, userToken);
+        } catch (CoreException e) {
+            throw new RuntimeException("Could not get process parameters: " + task, e);
+        } catch (ProcessManagerException e) {
+            throw new RuntimeException("Could not start BPM task using REST connector: " + task, e);
         }
         return task.getTaskId();
     }
@@ -456,21 +428,5 @@ public class SCMRepositoryProviderImpl
             RepositoryCreated notification = new RepositoryCreated(taskId, Integer.parseInt(scmRepo.getId()));
             consumer.accept(notification);
         }
-    }
-
-    private void addErrorListeners(JobNotificationType jobType, RepositoryCreationTask task) {
-        Consumer<BpmStringMapNotificationRest> doNotifySMNError = MDCWrappers.wrap(
-                (e) -> notifier.sendMessage(
-                        mapError(jobType, e, task.getTaskId() == null ? null : task.getTaskId().toString())));
-        task.addListener(BpmEventType.RC_REPO_CREATION_ERROR, doNotifySMNError);
-        task.addListener(BpmEventType.RC_REPO_CLONE_ERROR, doNotifySMNError);
-    }
-
-    private RepositoryCreationFailure mapError(
-            JobNotificationType jobType,
-            BpmStringMapNotificationRest notification,
-            String taskId) {
-        log.debug("Received BPM event error: " + notification);
-        return new RepositoryCreationFailure(jobType, notification.getEventType(), notification.getData(), taskId);
     }
 }

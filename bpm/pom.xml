@@ -97,10 +97,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.kie.remote</groupId>
-      <artifactId>kie-remote-client</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.commonjava.atlas</groupId>
       <artifactId>atlas-npm-identities</artifactId>
     </dependency>

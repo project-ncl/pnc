@@ -47,9 +47,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,7 +77,6 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
     @Before
     public void setup() {
         when(userService.currentUserToken()).thenReturn("eyUserToken");
-        when(bpmModuleConfig.isNewBpmForced()).thenReturn(true);
 
         ProductMilestoneFactory.getInstance().setIdSupplier(() -> entityId.getAndIncrement());
 
@@ -240,7 +237,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         provider.cancelMilestoneCloseProcess(mock.getId().toString());
 
         // then
-        verify(releaseManager, times(1)).cancel(any(), anyString(), anyBoolean());
+        verify(releaseManager, times(1)).cancel(any(), anyString());
     }
 
     @Test
@@ -289,7 +286,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
         provider.closeMilestone(mock.getId().toString());
 
         // then
-        verify(releaseManager, times(1)).startRelease(any(), any(), eq(true), any());
+        verify(releaseManager, times(1)).startRelease(any(), any(), any());
     }
 
     private org.jboss.pnc.dto.ProductMilestone createNewProductMilestoneDTO(

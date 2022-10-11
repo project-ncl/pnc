@@ -18,9 +18,7 @@
 
 package org.jboss.pnc.coordinator.builder.bpm;
 
-import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.Connector;
-import org.jboss.pnc.bpm.RestConnector;
+import org.jboss.pnc.bpm.ConnectorFactory;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -32,10 +30,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.Map;
-import java.util.Optional;
-
-import static org.jboss.pnc.bpm.ConnectorSelector.useNewProcessForBuild;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -43,52 +37,41 @@ import static org.jboss.pnc.bpm.ConnectorSelector.useNewProcessForBuild;
 @ApplicationScoped
 public class BpmBuildScheduler implements BuildScheduler {
 
-    private BpmManager manager;
-
     private BpmModuleConfig bpmConfig;
 
     private GlobalModuleGroup globalConfig;
 
-    private Connector restConnector;
+    private ConnectorFactory connectorFactory;
 
     @Deprecated
     public BpmBuildScheduler() { // CDI workaround
     }
 
     @Inject
-    public BpmBuildScheduler(BpmManager manager, BpmModuleConfig bpmConfig, GlobalModuleGroup globalConfig) {
-        this.manager = manager;
+    public BpmBuildScheduler(BpmModuleConfig bpmConfig, GlobalModuleGroup globalConfig) {
         this.bpmConfig = bpmConfig;
         this.globalConfig = globalConfig;
     }
 
     @PostConstruct
     public void init() {
-        restConnector = new RestConnector(bpmConfig);
     }
 
     @PreDestroy
     private void dispose() {
-        restConnector.close();
     }
 
     @Override
     public void startBuilding(BuildTask buildTask) throws CoreException {
         try {
-            Map<String, String> genericParameters = buildTask.getBuildConfigurationAudited().getGenericParameters();
             BpmBuildTask task = new BpmBuildTask(buildTask);
-            if (useNewProcessForBuild(genericParameters, bpmConfig.isNewBpmForced())) {
-                task.setGlobalConfig(globalConfig);
-                task.setBpmConfig(bpmConfig);
-                task.setJsonEncodedProcessParameters(false);
-                restConnector.startProcess(
-                        bpmConfig.getBpmNewBuildProcessName(),
-                        task.getExtendedProcessParameters(),
-                        buildTask.getId(),
-                        task.getAccessToken());
-            } else {
-                manager.startTask(task);
-            }
+            task.setGlobalConfig(globalConfig);
+            connectorFactory.get()
+                    .startProcess(
+                            bpmConfig.getBpmNewBuildProcessName(),
+                            task.getExtendedProcessParameters(),
+                            buildTask.getId(),
+                            buildTask.getUser().getLoginToken());
         } catch (Exception e) {
             throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
         }
@@ -96,22 +79,7 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Override
     public boolean cancel(BuildTask buildTask) {
-        Map<String, String> genericParameters = buildTask.getBuildConfigurationAudited().getGenericParameters();
         BpmBuildTask task = new BpmBuildTask(buildTask);
-        if (useNewProcessForBuild(genericParameters, bpmConfig.isNewBpmForced())) {
-            return restConnector.cancelByCorrelation(buildTask.getId(), task.getAccessToken());
-        } else {
-            Optional<BpmBuildTask> taskOptional = manager.getActiveTasks()
-                    .stream()
-                    .filter(bpmTask -> bpmTask instanceof BpmBuildTask)
-                    .map(bpmTask -> (BpmBuildTask) bpmTask)
-                    .filter(bpmTask -> bpmTask.getBuildTask().getId().equals(buildTask.getId()))
-                    .findAny();
-            if (taskOptional.isPresent()) {
-                return manager.cancelTask(taskOptional.get());
-            } else {
-                return false;
-            }
-        }
+        return connectorFactory.get().cancelByCorrelation(buildTask.getId(), task.getAccessToken());
     }
 }

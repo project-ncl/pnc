@@ -17,11 +17,9 @@
  */
 package org.jboss.pnc.bpm.causeway;
 
-import org.jboss.pnc.bpm.BpmEventType;
-import org.jboss.pnc.bpm.BpmManager;
-import org.jboss.pnc.bpm.BpmTask;
+import org.jboss.pnc.bpm.Connector;
+import org.jboss.pnc.bpm.ConnectorFactory;
 import org.jboss.pnc.bpm.NoEntityException;
-import org.jboss.pnc.bpm.RestConnector;
 import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
@@ -54,7 +52,6 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
@@ -70,8 +67,6 @@ public class ProductMilestoneReleaseManager {
     private static final Logger log = LoggerFactory.getLogger(ProductMilestoneReleaseManager.class);
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.milestone");
 
-    private BpmManager bpmManager;
-
     private ProductVersionRepository productVersionRepository;
     private BuildRecordRepository buildRecordRepository;
     private ProductMilestoneReleaseRepository productMilestoneReleaseRepository;
@@ -82,6 +77,7 @@ public class ProductMilestoneReleaseManager {
     private ProductMilestoneCloseResultMapper mapper;
     private GlobalModuleGroup globalConfig;
     private BpmModuleConfig bpmConfig;
+    private ConnectorFactory connectorFactory;
 
     @Deprecated // for ejb
     public ProductMilestoneReleaseManager() {
@@ -90,7 +86,6 @@ public class ProductMilestoneReleaseManager {
     @Inject
     public ProductMilestoneReleaseManager(
             ProductMilestoneReleaseRepository productMilestoneReleaseRepository,
-            BpmManager bpmManager,
             ProductVersionRepository productVersionRepository,
             BuildRecordRepository buildRecordRepository,
             ProductMilestoneRepository milestoneRepository,
@@ -98,9 +93,9 @@ public class ProductMilestoneReleaseManager {
             ProductMilestoneCloseResultMapper mapper,
             Event<ProductMilestoneCloseResult> productMilestoneCloseResultEvent,
             GlobalModuleGroup globalConfig,
-            BpmModuleConfig bpmConfig) {
+            BpmModuleConfig bpmConfig,
+            ConnectorFactory connectorFactory) {
         this.productMilestoneReleaseRepository = productMilestoneReleaseRepository;
-        this.bpmManager = bpmManager;
         this.productVersionRepository = productVersionRepository;
         this.buildRecordRepository = buildRecordRepository;
         this.milestoneRepository = milestoneRepository;
@@ -109,6 +104,7 @@ public class ProductMilestoneReleaseManager {
         this.productMilestoneCloseResultEvent = productMilestoneCloseResultEvent;
         this.globalConfig = globalConfig;
         this.bpmConfig = bpmConfig;
+        this.connectorFactory = connectorFactory;
     }
 
     /**
@@ -122,32 +118,16 @@ public class ProductMilestoneReleaseManager {
     public ProductMilestoneRelease startRelease(
             ProductMilestone milestone,
             String accessToken,
-            boolean useRhpam,
             Long milestoneReleaseId) {
 
         ProductMilestoneRelease release;
-        if (useRhpam) {
-            release = triggerRHPAMRelease(milestone, accessToken, milestoneReleaseId);
-        } else {
-            release = triggerRelease(milestone, accessToken, milestoneReleaseId);
-        }
+        release = triggerRelease(milestone, accessToken, milestoneReleaseId);
         return productMilestoneReleaseRepository.save(release);
     }
 
-    public void cancel(ProductMilestone milestoneInDb, String accessToken, boolean useRHPAM) {
-        if (!useRHPAM) {
-            Collection<BpmTask> activeTasks = bpmManager.getActiveTasks();
-            Optional<MilestoneReleaseTask> milestoneReleaseTask = activeTasks.stream()
-                    .map(task -> (MilestoneReleaseTask) task)
-                    .filter(task -> task.getMilestone().getId().equals(milestoneInDb.getId()))
-                    .findAny();
-            if (milestoneReleaseTask.isPresent()) {
-                bpmManager.cancelTask(milestoneReleaseTask.get());
-            }
-        } else {
-            RestConnector restConnector = new RestConnector(bpmConfig);
-            restConnector.cancelByCorrelation(Numbers.decimalToBase32(milestoneInDb.getId()), accessToken);
-        }
+    public void cancel(ProductMilestone milestoneInDb, String accessToken) {
+        Connector restConnector = connectorFactory.get();
+        restConnector.cancelByCorrelation(Numbers.decimalToBase32(milestoneInDb.getId()), accessToken);
 
         ProductMilestoneRelease milestoneRelease = productMilestoneReleaseRepository
                 .findLatestByMilestone(milestoneInDb);
@@ -175,7 +155,7 @@ public class ProductMilestoneReleaseManager {
      * @param accessToken access token to use to submit request
      * @param milestoneReleaseId the milestone id
      */
-    private ProductMilestoneRelease triggerRHPAMRelease(
+    private ProductMilestoneRelease triggerRelease(
             ProductMilestone milestone,
             String accessToken,
             Long milestoneReleaseId) {
@@ -185,11 +165,9 @@ public class ProductMilestoneReleaseManager {
         release.setStartingDate(new Date());
         release.setMilestone(milestone);
 
-        try (RestConnector restConnector = new RestConnector(bpmConfig)) {
+        try (Connector restConnector = connectorFactory.get()) {
             MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone, accessToken);
-            releaseTask.setTaskId(bpmManager.getNextTaskId());
             releaseTask.setGlobalConfig(globalConfig);
-            releaseTask.setJsonEncodedProcessParameters(false);
             restConnector.startProcess(
                     bpmConfig.getBpmNewReleaseProcessId(),
                     releaseTask.getExtendedProcessParameters(),
@@ -212,34 +190,6 @@ public class ProductMilestoneReleaseManager {
      */
     public void productMilestoneCloseCompleted(MilestoneReleaseResultRest milestoneReleaseResult) {
         onPushResult(milestoneReleaseResult.getMilestoneId(), milestoneReleaseResult);
-    }
-
-    @Deprecated
-    private ProductMilestoneRelease triggerRelease(
-            ProductMilestone milestone,
-            String accessToken,
-            Long milestoneReleaseId) {
-        ProductMilestoneRelease release = new ProductMilestoneRelease();
-        release.setId(milestoneReleaseId);
-        release.setStartingDate(new Date());
-        release.setMilestone(milestone);
-        try {
-            MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone, accessToken);
-            Integer id = milestone.getId();
-            releaseTask.<MilestoneReleaseResultRest> addListener(BpmEventType.BREW_IMPORT, r -> onPushResult(id, r));
-            release.setStatus(MilestoneCloseStatus.IN_PROGRESS);
-            bpmManager.startTask(releaseTask);
-            userLog.info("Release process started.");
-            productMilestoneCloseResultEvent.fire(mapper.toDTO(release));
-            return release;
-        } catch (CoreException e) {
-            log.error("Error trying to start brew push task for milestone: {}", milestone.getId(), e);
-            userLog.error("Release process creation failed.", e);
-            release.setStatus(MilestoneCloseStatus.SYSTEM_ERROR);
-            release.setEndDate(new Date());
-            productMilestoneCloseResultEvent.fire(mapper.toDTO(release));
-            return release;
-        }
     }
 
     private void onPushResult(Integer milestoneId, MilestoneReleaseResultRest result) {

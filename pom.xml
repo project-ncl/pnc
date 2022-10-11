@@ -87,7 +87,6 @@
     <module>processor</module>
     <module>rest-client</module>
     <module>mapper</module>
-    <module>bpm-mock</module>
   </modules>
 
   <properties>
@@ -104,7 +103,6 @@
     <version.mockito>3.8.0</version.mockito>
     <version.catch-exception>1.2.0</version.catch-exception>
     <version.jbpm>6.2.0.Final</version.jbpm>
-    <version.kie-services-client>6.5.0.Final</version.kie-services-client>
     <version.keycloak>9.0.3.redhat-00002</version.keycloak>
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
     <version.swagger2>2.1.4</version.swagger2>
@@ -562,13 +560,6 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
-        <artifactId>bpm-mock</artifactId>
-        <version>${project.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
         <artifactId>processor</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -810,54 +801,6 @@
         <groupId>org.jbpm</groupId>
         <artifactId>jbpm-test</artifactId>
         <version>${version.jbpm}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.kie.remote</groupId>
-        <artifactId>kie-remote-client</artifactId>
-        <version>${version.kie-services-client}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-transports-http</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-simple</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxws</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-databinding-jaxb</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.hornetq</groupId>
-            <artifactId>hornetq-core-client</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-asl</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
       <dependency>

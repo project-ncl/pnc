@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.bpm.test;
+package org.jboss.pnc.bpm;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
