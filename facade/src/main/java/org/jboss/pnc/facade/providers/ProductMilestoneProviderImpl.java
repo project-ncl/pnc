@@ -19,7 +19,6 @@ package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -79,7 +78,6 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.enums.ValidationErrorType.DUPLICATION;
 import static org.jboss.pnc.enums.ValidationErrorType.FORMAT;
-import static org.jboss.pnc.facade.providers.api.UserRoles.WORK_WITH_TECH_PREVIEW;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionId;
 import static org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates.withProductVersionIdAndVersion;
 
@@ -100,9 +98,6 @@ public class ProductMilestoneProviderImpl extends
 
     @Inject
     private EntityManager em;
-
-    @Inject
-    private BpmModuleConfig bpmConfig;
 
     @Inject
     public ProductMilestoneProviderImpl(
@@ -189,12 +184,9 @@ public class ProductMilestoneProviderImpl extends
                 return milestoneReleaseMapper.toDTO(inProgress.get());
             } else {
                 log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
-                boolean useRHPAM = bpmConfig.isNewBpmForced()
-                        || userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW);
-                log.debug("Using RHPAM server: {}", useRHPAM);
 
                 ProductMilestoneRelease milestoneReleaseDb = releaseManager
-                        .startRelease(milestoneInDb, userService.currentUserToken(), useRHPAM, milestoneReleaseId);
+                        .startRelease(milestoneInDb, userService.currentUserToken(), milestoneReleaseId);
                 ProductMilestoneCloseResult milestoneCloseResult = milestoneReleaseMapper.toDTO(milestoneReleaseDb);
                 return milestoneCloseResult;
             }
@@ -210,16 +202,13 @@ public class ProductMilestoneProviderImpl extends
             userLog.info("Milestone is already closed.");
             throw new RepositoryViolationException("Milestone is already closed!");
         } else {
-            boolean useRHPAM = bpmConfig.isNewBpmForced() || userService.hasLoggedInUserRole(WORK_WITH_TECH_PREVIEW);
-            log.debug("Using RHPAM server: {}", useRHPAM);
-
             if (releaseManager.noReleaseInProgress(milestoneInDb)) {
                 userLog.warn(
                         "Milestone's 'end date' set and no release in progress! Cannot run cancel process for given id");
                 throw new EmptyEntityException("No running cancel process for given id.");
             } else {
                 userLog.info("Cancelling milestone release process ...");
-                releaseManager.cancel(milestoneInDb, userService.currentUserToken(), useRHPAM);
+                releaseManager.cancel(milestoneInDb, userService.currentUserToken());
             }
         }
     }

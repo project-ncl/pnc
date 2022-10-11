@@ -17,26 +17,17 @@
  */
 package org.jboss.pnc.facade.deliverables;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.*;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.Artifact;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.ArtifactType;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.Build;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.NPMArtifact;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
-import org.jboss.pnc.bpm.RestConnector;
+import org.jboss.pnc.bpm.ConnectorFactory;
 import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
 import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -44,20 +35,40 @@ import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.OperationsManager;
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
+import org.jboss.pnc.spi.events.OperationChangedEvent;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
+
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
@@ -94,6 +105,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
     @Inject
     private Event<DeliverableAnalysisStatusChangedEvent> analysisStatusChangedEventNotifier;
+    @Inject
+    private ConnectorFactory connectorFactory;
 
     @Override
     public DeliverableAnalyzerOperation analyzeDeliverables(String id, List<String> deliverablesUrls) {
@@ -316,18 +329,19 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private void startAnalysis(String milestoneId, List<String> deliverablesUrls, Base32LongID operationId) {
         Request callback = operationsManager.getOperationCallback(operationId);
         String id = operationId.getId();
-        try (RestConnector restConnector = new RestConnector(bpmConfig)) {
+        try {
             AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
                     id,
                     milestoneId,
                     deliverablesUrls);
             AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, callback);
 
-            restConnector.startProcess(
-                    bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
-                    analyzeTask,
-                    id,
-                    userService.currentUserToken());
+            connectorFactory.get()
+                    .startProcess(
+                            bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
+                            analyzeTask,
+                            id,
+                            userService.currentUserToken());
 
             DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
                     .started(id, milestoneId, deliverablesUrls);

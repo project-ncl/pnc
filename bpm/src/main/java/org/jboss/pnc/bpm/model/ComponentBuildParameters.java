@@ -49,13 +49,15 @@ public class ComponentBuildParameters implements Serializable {
     @Getter
     private String daBaseUrl;
 
+    @Deprecated // not used anymore
     @NotNull
     @Getter
-    private Boolean communityBuild;
+    private Boolean communityBuild = false;
 
+    @Deprecated // not used anymore
     @NotNull
     @Getter
-    private Boolean versionAdjust;
+    private Boolean versionAdjust = false;
 
     @NotNull
     @Getter

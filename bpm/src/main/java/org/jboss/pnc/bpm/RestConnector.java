@@ -85,7 +85,7 @@ public class RestConnector implements Connector {
      */
     private String currentDeploymentId;
 
-    public RestConnector(BpmModuleConfig bpmConfig) {
+    RestConnector(BpmModuleConfig bpmConfig) {
         httpConfig = new HttpConfig(
                 bpmConfig.getHttpConnectionRequestTimeout(),
                 bpmConfig.getHttpConnectTimeout(),

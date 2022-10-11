@@ -15,15 +15,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.bpm.test;
+package org.jboss.pnc.bpm;
 
-import org.jboss.pnc.bpm.BpmEventType;
-import org.jboss.pnc.bpm.BpmManager;
+import org.jboss.pnc.bpm.ConnectorFactory;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
-import org.jboss.pnc.bpm.task.MilestoneReleaseTask;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.enums.BuildPushStatus;
@@ -31,25 +29,32 @@ import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.enums.ReleaseStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneCloseResultMapper;
-import org.jboss.pnc.mock.repository.*;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.mock.common.BpmModuleConfigMock;
+import org.jboss.pnc.mock.common.GlobalModuleGroupMock;
+import org.jboss.pnc.mock.repository.BuildRecordPushResultRepositoryMock;
+import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
+import org.jboss.pnc.mock.repository.ProductMilestoneReleaseRepositoryMock;
+import org.jboss.pnc.mock.repository.ProductMilestoneRepositoryMock;
+import org.jboss.pnc.mock.repository.ProductVersionRepositoryMock;
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecordPushResult;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductMilestoneRelease;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
-import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import javax.enterprise.event.Event;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com
@@ -58,8 +63,7 @@ public class ProductMilestoneReleaseManagerTest {
 
     private static final String BREW_URL_PATTERN = "http://brew.example.com/build/%d/";
 
-    @Mock
-    private BpmManager bpmManager;
+    private AtomicInteger sequence = new AtomicInteger();
 
     @Mock
     private Event<ProductMilestoneCloseResult> productMilestoneCloseResultEvent;
@@ -73,30 +77,30 @@ public class ProductMilestoneReleaseManagerTest {
     private BuildRecordPushResultRepositoryMock buildRecordPushResultRepository;
 
     private ProductMilestoneReleaseManager releaseManager;
-    private final BpmTaskCapture taskCapture = new BpmTaskCapture();
 
     private int milestoneIdSequence = 0;
 
     @Before
-    public void setUp() throws CoreException {
+    public void setUp() throws Exception {
         milestoneRepository = new ProductMilestoneRepositoryMock();
         productMilestoneReleaseRepository = new ProductMilestoneReleaseRepositoryMock();
         buildRecordRepository = new BuildRecordRepositoryMock();
         buildRecordPushResultRepository = new BuildRecordPushResultRepositoryMock();
 
         MockitoAnnotations.initMocks(this);
-        when(bpmManager.startTask(any())).then(taskCapture);
+        ConnectorFactory connectorFactory = new ConnectorFactory(null);
+        connectorFactory.setUseMock(true);
         releaseManager = new ProductMilestoneReleaseManager(
                 productMilestoneReleaseRepository,
-                bpmManager,
                 new ProductVersionRepositoryMock(),
                 buildRecordRepository,
                 milestoneRepository,
                 buildRecordPushResultRepository,
                 mapper,
                 productMilestoneCloseResultEvent,
-                null,
-                null);
+                GlobalModuleGroupMock.get(),
+                BpmModuleConfigMock.get(),
+                connectorFactory);
     }
 
     @Test
@@ -108,7 +112,7 @@ public class ProductMilestoneReleaseManagerTest {
         // when
         release(milestone, brewBuildId, record);
         // then
-        assertPushResultLinkedToRecord(record, brewBuildId, brewUrl(brewBuildId));
+        assertPushResultLinkedToRecord(record.getId(), brewBuildId, brewUrl(brewBuildId));
     }
 
     @Test
@@ -124,7 +128,7 @@ public class ProductMilestoneReleaseManagerTest {
         // then
         for (int i = 0; i < 2; i++) {
             BuildRecord record = records[i];
-            assertPushResultLinkedToRecord(record, brewBuildId + i, brewUrl(brewBuildId + i));
+            assertPushResultLinkedToRecord(record.getId(), brewBuildId + i, brewUrl(brewBuildId + i));
         }
     }
 
@@ -140,6 +144,7 @@ public class ProductMilestoneReleaseManagerTest {
 
         buildResults.add(buildImportResultRest(BuildImportStatus.SUCCESSFUL, buildRecord1.getId(), 1));
         buildResults.add(buildImportResultRest(BuildImportStatus.FAILED, buildRecord2.getId(), 2));
+        result.setMilestoneId(milestone.getId());
         result.setBuilds(buildResults);
         result.setReleaseStatus(ReleaseStatus.IMPORT_ERROR);
 
@@ -175,28 +180,37 @@ public class ProductMilestoneReleaseManagerTest {
      * Start a milestone release and process the callback
      */
     private void release(ProductMilestone milestone, int brewBuildId, BuildRecord... records) {
-        releaseManager.startRelease(milestone, null, false, Sequence.nextId());
+        int milestoneId = sequence.getAndIncrement();
+        releaseManager.startRelease(milestone, null, (long) milestoneId);
         List<ProductMilestoneRelease> releases = productMilestoneReleaseRepository.queryAll();
         assertThat(releases).hasSize(1);
-        taskCapture.task.notify(BpmEventType.BREW_IMPORT, successfulReleaseResult(brewBuildId, records));
+        MilestoneReleaseResultRest milestoneReleaseResult = successfulReleaseResult(milestoneId, brewBuildId, records);
+        releaseManager.productMilestoneCloseCompleted(milestoneReleaseResult);
     }
 
     private void release(ProductMilestone milestone, MilestoneReleaseResultRest releaseResultRest) {
-        releaseManager.startRelease(milestone, null, false, Sequence.nextId());
+        releaseManager.startRelease(milestone, null, Long.valueOf(releaseResultRest.getMilestoneId()));
         List<ProductMilestoneRelease> releases = productMilestoneReleaseRepository.queryAll();
         assertThat(releases).hasSize(1);
-        taskCapture.task.notify(BpmEventType.BREW_IMPORT, releaseResultRest);
+        releaseManager.productMilestoneCloseCompleted(releaseResultRest);
     }
 
-    private void assertPushResultLinkedToRecord(BuildRecord record, Integer expectedBrewId, String expectedBrewLink) {
-        BuildRecordPushResult pushResult = buildRecordPushResultRepository.getLatestForBuildRecord(record.getId());
+    private void assertPushResultLinkedToRecord(
+            Base32LongID recordId,
+            Integer expectedBrewId,
+            String expectedBrewLink) {
+        BuildRecordPushResult pushResult = buildRecordPushResultRepository.getLatestForBuildRecord(recordId);
         assertThat(pushResult).isNotNull();
         assertThat(pushResult.getBrewBuildId()).isEqualTo(expectedBrewId);
         assertThat(pushResult.getBrewBuildUrl()).isEqualTo(expectedBrewLink);
     }
 
-    private MilestoneReleaseResultRest successfulReleaseResult(int brewBuildId, BuildRecord... records) {
+    private MilestoneReleaseResultRest successfulReleaseResult(
+            int milestoneId,
+            int brewBuildId,
+            BuildRecord... records) {
         MilestoneReleaseResultRest result = new MilestoneReleaseResultRest();
+        result.setMilestoneId(milestoneId);
         List<BuildImportResultRest> buildResults = new ArrayList<>();
 
         for (int i = 0; i < records.length; i++) {
@@ -228,16 +242,5 @@ public class ProductMilestoneReleaseManagerTest {
         record.setId(new Base32LongID(Sequence.nextId()));
         buildRecordRepository.save(record);
         return record;
-    }
-
-    private static class BpmTaskCapture implements Answer<Boolean> {
-        private MilestoneReleaseTask task;
-
-        @Override
-        public Boolean answer(InvocationOnMock invocation) {
-            task = invocation.getArgument(0);
-            return true;
-        }
-
     }
 }

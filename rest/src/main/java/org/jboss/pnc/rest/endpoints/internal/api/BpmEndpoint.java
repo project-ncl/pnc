@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest.endpoints.internal.api;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseResultRest;
@@ -28,7 +27,6 @@ import org.jboss.pnc.rest.configuration.SwaggerConstants;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -44,14 +42,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface BpmEndpoint {
-
-    @Operation(
-            summary = "Notify PNC about a BPM task event. Accepts polymorphic JSON {\"eventType\": \"string\"} based on \"eventType\" field.",
-            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success") })
-    @POST
-    @Path("/tasks/{taskId}/notify")
-    @Consumes(MediaType.APPLICATION_JSON)
-    void notifyTask(@Parameter(description = "BPM task ID") @PathParam("taskId") int taskId);
 
     @Operation(summary = "", responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = "Success") })
     @POST

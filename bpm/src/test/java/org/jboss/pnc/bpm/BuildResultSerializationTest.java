@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.bpm.test;
+package org.jboss.pnc.bpm;
 
 import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.bpm.model.mapper.RepositoryManagerResultMapper;

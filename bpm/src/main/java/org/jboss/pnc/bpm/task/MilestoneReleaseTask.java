@@ -52,9 +52,4 @@ public class MilestoneReleaseTask extends BpmTask {
                 globalConfig.getPncUrl(),
                 globalConfig.getExternalCausewayUrl());
     }
-
-    @Override
-    public String getProcessId() {
-        return config.getMilestoneReleaseProcessId();
-    }
 }
