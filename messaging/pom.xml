@@ -86,6 +86,12 @@
       <artifactId>messaging-spi</artifactId>
     </dependency>
 
+    <!-- OTEL Dependencies for Instrumentation -->
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-context</artifactId>
+    </dependency>
+
   </dependencies>
 
 
