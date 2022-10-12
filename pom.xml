@@ -339,6 +339,23 @@
         <scope>provided</scope>
       </dependency>
 
+      <!-- OTEL Dependencies for Instrumentation -->
+      <!-- BOMs -->
+      <dependency>
+        <groupId>io.opentelemetry.instrumentation</groupId>
+        <artifactId>opentelemetry-instrumentation-bom</artifactId>
+        <version>1.18.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>io.opentelemetry.instrumentation</groupId>
+        <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+        <version>1.18.0-alpha</version>
+      </dependency>
+
+
       <!-- Project modules, to support cross-module dependencies -->
       <dependency>
         <groupId>org.jboss.pnc</groupId>
