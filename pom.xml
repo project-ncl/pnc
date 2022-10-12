@@ -148,7 +148,7 @@
 
     <!-- Integration tests -->
     <app.server>jboss-eap</app.server>
-    <jboss.version>7.3</jboss.version>
+    <jboss.version>7.4</jboss.version>
     <default.management.port>9999</default.management.port>
     <test.server.unpack.dir>${project.basedir}/target</test.server.unpack.dir>
     <test.server.build.dir>${test.server.unpack.dir}/${app.server}-${jboss.version}</test.server.build.dir>
