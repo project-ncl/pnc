@@ -30,6 +30,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import io.opentelemetry.context.Context;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -83,17 +85,17 @@ public class MDCThreadPoolExecutor implements ExecutorService {
 
     @Override
     public <T> Future<T> submit(Callable<T> task) {
-        return executorService.submit(MDCWrappers.wrap(task));
+        return executorService.submit(MDCWrappers.wrap(Context.current().wrap(task)));
     }
 
     @Override
     public <T> Future<T> submit(Runnable task, T result) {
-        return executorService.submit(MDCWrappers.wrap(task), result);
+        return executorService.submit(MDCWrappers.wrap(Context.current().wrap(task)), result);
     }
 
     @Override
     public Future<?> submit(Runnable task) {
-        return executorService.submit(MDCWrappers.wrap(task));
+        return executorService.submit(MDCWrappers.wrap(Context.current().wrap(task)));
     }
 
     @Override
@@ -120,7 +122,7 @@ public class MDCThreadPoolExecutor implements ExecutorService {
 
     @Override
     public void execute(Runnable command) {
-        executorService.execute(MDCWrappers.wrap(command));
+        executorService.execute(MDCWrappers.wrap(Context.current().wrap(command)));
     }
 
     @Override
