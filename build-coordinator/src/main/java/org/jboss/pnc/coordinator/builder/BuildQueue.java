@@ -25,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -96,6 +98,7 @@ public class BuildQueue {
      *
      * @param task task to be enqueued
      */
+    @WithSpan()
     public synchronized boolean addReadyTask(BuildTask task) {
         if (!task.readyToBuild()) {
             throw new IllegalArgumentException("a not ready task added to the queue: " + task);
@@ -113,6 +116,7 @@ public class BuildQueue {
      * @param task task that is not ready to build
      * @param taskReadyCallback a callback to be invoked when the task becomes ready
      */
+    @WithSpan()
     public synchronized void addWaitingTask(BuildTask task, Runnable taskReadyCallback) {
         MDCAwareElement element = new MDCAwareElement(task);
         unfinishedTasks.add(element);
@@ -125,6 +129,7 @@ public class BuildQueue {
      *
      * @param taskSet task set to be built
      */
+    @WithSpan()
     public synchronized void enqueueTaskSet(BuildSetTask taskSet) {
         log.debug("adding task set: {}", taskSet);
         taskSets.add(taskSet);
@@ -135,6 +140,7 @@ public class BuildQueue {
      *
      * @param taskSet processed task set
      */
+    @WithSpan()
     public synchronized void removeSet(BuildSetTask taskSet) {
         log.debug("removing task set: {}", taskSet);
         taskSets.remove(taskSet);
@@ -146,6 +152,7 @@ public class BuildQueue {
      *
      * @param task task to be removed
      */
+    @WithSpan()
     public synchronized void removeTask(BuildTask task) {
         log.debug("removing task: {}", task);
         MDCAwareElement element = new MDCAwareElement(task);
@@ -169,6 +176,7 @@ public class BuildQueue {
      * Trigger searching for ready tasks in the waiting queue. This method should be invoked if one task has finished
      * and there's a possibility that other tasks became ready to be built.
      */
+    @WithSpan()
     public synchronized void executeNewReadyTasks() {
         List<MDCAwareElement<BuildTask>> newReadyTasks = extractReadyTasks();
         log.debug("starting new ready tasks. New ready tasks: {}", newReadyTasks);
