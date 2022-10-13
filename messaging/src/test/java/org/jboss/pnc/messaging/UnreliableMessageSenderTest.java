@@ -25,6 +25,7 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.messaging.spi.MessageSender;
+import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.Archive;
@@ -61,8 +62,7 @@ public class UnreliableMessageSenderTest extends BaseMessageSenderTest {
                 .addClass(AbstractModuleConfig.class)
                 .addClass(KeycloakClientConfig.class)
                 .addClass(SysConfigProducer.class)
-                .addClass(Context.class)
-                .addClass(ContextStorage.class)
+                .addPackages(true, Context.class.getPackage())
                 .addClass(MDCThreadPoolExecutor.class)
                 .addClass(MDCWrappers.class);
     }
