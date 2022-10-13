@@ -86,6 +86,13 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             // user not found, continue ...
         }
 
+        // Adding OTEL information from headers into MDC
+        String traceId = requestContext.getHeaderString("trace-id");
+        String spanId = requestContext.getHeaderString("span-id");
+        String traceFlags = requestContext.getHeaderString("trace-flags");
+        String traceState = requestContext.getHeaderString("trace-state");
+        MDCUtils.addTraceContext(traceId, spanId, traceFlags, traceState);
+
         UriInfo uriInfo = requestContext.getUriInfo();
         Request request = requestContext.getRequest();
         logger.info("Requested {} {}.", request.getMethod(), uriInfo.getRequestUri());

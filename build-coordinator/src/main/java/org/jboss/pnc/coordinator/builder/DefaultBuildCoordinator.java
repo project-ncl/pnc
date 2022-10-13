@@ -62,6 +62,10 @@ import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.TraceFlags;
+import io.opentelemetry.api.trace.TraceState;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -378,6 +382,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         // completion notification
         MDCUtils.removeBuildContext();
         MDCUtils.addBuildContext(getMDCMeta(buildTask));
+        MDCUtils.addTraceContext(
+                Span.current().getSpanContext().getTraceId(),
+                Span.current().getSpanContext().getSpanId(),
+                Span.current().getSpanContext().getTraceFlags().toString(),
+                Span.current().getSpanContext().getTraceState().toString());
         try {
             if (isBuildConfigurationAlreadyInQueue(buildTask)) {
                 log.debug("Skipping buildTask {}, its buildConfiguration is already in the buildQueue.", buildTask);
@@ -410,6 +419,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
         } finally {
             MDCUtils.removeBuildContext();
+            MDCUtils.removeTraceContext();
         }
     }
 
@@ -482,12 +492,18 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 .forEach(buildTask -> {
                     try {
                         MDCUtils.addBuildContext(getMDCMeta(buildTask));
+                        MDCUtils.addTraceContext(
+                                Span.current().getSpanContext().getTraceId(),
+                                Span.current().getSpanContext().getSpanId(),
+                                Span.current().getSpanContext().getTraceFlags().toString(),
+                                Span.current().getSpanContext().getTraceState().toString());
                         log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
                         cancel(buildTask.getId());
                     } catch (CoreException e) {
                         log.error("Unable to cancel the build [" + buildTask.getId() + "].", e);
                     } finally {
                         MDCUtils.removeBuildContext();
+                        MDCUtils.removeTraceContext();
                     }
                 });
         record.setStatus(BuildStatus.CANCELLED);

@@ -32,6 +32,8 @@ import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.opentelemetry.api.trace.Span;
+
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -82,6 +84,11 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                     temporaryBuild,
                     ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
                     userService.currentUser().getId().toString());
+            MDCUtils.addTraceContext(
+                    Span.current().getSpanContext().getTraceId(),
+                    Span.current().getSpanContext().getSpanId(),
+                    Span.current().getSpanContext().getTraceFlags().toString(),
+                    Span.current().getSpanContext().getTraceState().toString());
             try {
                 if (buildTask.getStatus().isCompleted()) {
                     logger.warn(
@@ -105,6 +112,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                 return Response.ok().build();
             } finally {
                 MDCUtils.removeBuildContext();
+                MDCUtils.removeTraceContext();
             }
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity("No active build with id: " + buildId).build();
