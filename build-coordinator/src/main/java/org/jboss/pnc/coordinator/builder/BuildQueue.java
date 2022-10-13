@@ -25,6 +25,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.TraceFlags;
+import io.opentelemetry.api.trace.TraceState;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 import javax.annotation.PostConstruct;
@@ -98,14 +102,26 @@ public class BuildQueue {
      *
      * @param task task to be enqueued
      */
-    @WithSpan()
-    public synchronized boolean addReadyTask(BuildTask task) {
+    @WithSpan("addReadyTask")
+    public synchronized boolean addReadyTask(@SpanAttribute(value = "task") BuildTask task) {
         if (!task.readyToBuild()) {
             throw new IllegalArgumentException("a not ready task added to the queue: " + task);
         }
+        String traceId = Span.current().getSpanContext().getTraceId();
+        String spanId = Span.current().getSpanContext().getSpanId();
+        TraceFlags traceFlags = Span.current().getSpanContext().getTraceFlags();
+        TraceState traceState = Span.current().getSpanContext().getTraceState();
+
         MDCAwareElement element = new MDCAwareElement(task);
         unfinishedTasks.add(element);
-        log.debug("adding task: {} with MDCAwareElement: {}", task, element);
+        log.debug(
+                "adding task: {} with MDCAwareElement: {}; traceId: {} spanId: {} traceFlags: {} traceState: {}",
+                task,
+                element,
+                traceId,
+                spanId,
+                traceFlags,
+                traceState);
         readyTasks.add(element);
         return true;
     }
