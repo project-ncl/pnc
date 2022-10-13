@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.opentelemetry.context.Context;
+import io.opentelemetry.context.ContextStorage;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -61,6 +62,7 @@ public class UnreliableMessageSenderTest extends BaseMessageSenderTest {
                 .addClass(KeycloakClientConfig.class)
                 .addClass(SysConfigProducer.class)
                 .addClass(Context.class)
+                .addClass(ContextStorage.class)
                 .addClass(MDCThreadPoolExecutor.class)
                 .addClass(MDCWrappers.class);
     }
