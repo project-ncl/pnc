@@ -21,6 +21,8 @@ package org.jboss.pnc.spi.coordinator;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 /**
  * BuildScheduler is used to direct the build to by scheduler defined execution engine. Example: BuildCoordinator uses
  * BuildScheduler to start the builds and depending on BuildScheduler implementation builds can be pushed to BPM engine
@@ -29,7 +31,10 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface BuildScheduler {
+
+    @WithSpan()
     void startBuilding(BuildTask buildTask) throws CoreException, ExecutorException;
 
+    @WithSpan()
     boolean cancel(BuildTask buildTask) throws CoreException;
 }

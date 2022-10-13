@@ -28,15 +28,19 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public interface BuildCoordinator {
 
+    @WithSpan()
     BuildSetTask build(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions)
             throws BuildConflictException, CoreException;
 
+    @WithSpan()
     BuildSetTask build(BuildConfigurationAudited buildConfiguration, User user, BuildOptions buildOptions)
             throws BuildConflictException, CoreException;
 
@@ -47,6 +51,7 @@ public interface BuildCoordinator {
     BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)
             throws CoreException;
 
+    @WithSpan()
     BuildSetTask build(
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
@@ -57,6 +62,7 @@ public interface BuildCoordinator {
 
     List<BuildTask> getSubmittedBuildTasks();
 
+    @WithSpan()
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
 
     /**
@@ -66,12 +72,16 @@ public interface BuildCoordinator {
      * @return True if the cancel request is successfully accepted, false if if there is no running build with such ID
      * @throws CoreException Thrown if cancellation fails due to any internal error
      */
+    @WithSpan()
     boolean cancel(String buildTaskId) throws CoreException;
 
+    @WithSpan()
     boolean cancelSet(int buildSetTaskId) throws CoreException;
 
+    @WithSpan()
     void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);
 
+    @WithSpan()
     void start();
 
     Optional<BuildTaskContext> getMDCMeta(String buildTaskId);
