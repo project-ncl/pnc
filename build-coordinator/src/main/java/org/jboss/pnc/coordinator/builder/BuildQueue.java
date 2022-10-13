@@ -102,7 +102,7 @@ public class BuildQueue {
      *
      * @param task task to be enqueued
      */
-    @WithSpan("addReadyTask")
+    @WithSpan()
     public synchronized boolean addReadyTask(@SpanAttribute(value = "task") BuildTask task) {
         if (!task.readyToBuild()) {
             throw new IllegalArgumentException("a not ready task added to the queue: " + task);

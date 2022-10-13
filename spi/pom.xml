@@ -91,6 +91,12 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- OTEL Dependencies for Instrumentation -->
+    <dependency>
+      <groupId>io.opentelemetry.instrumentation</groupId>
+      <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+    </dependency>
+
     <!-- TODO only here as lombok is too eager to do everything-->
     <dependency>
       <groupId>org.hibernate</groupId>
