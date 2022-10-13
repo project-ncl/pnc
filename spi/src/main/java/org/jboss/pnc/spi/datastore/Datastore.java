@@ -27,6 +27,8 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,7 @@ public interface Datastore {
      * @param artifacts The artifacts to check
      * @return A Map containing the conflicting artifact and an error message, empty if there are no conflicts
      */
+    @WithSpan()
     Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts);
 
     /**
@@ -56,11 +59,13 @@ public interface Datastore {
      * @return The updated BuildRecord
      * @throws DatastoreException Thrown if database is unable to process the request.
      */
+    @WithSpan()
     BuildRecord storeCompletedBuild(
             BuildRecord.Builder buildRecordBuilder,
             List<Artifact> builtArtifacts,
             List<Artifact> dependencies) throws DatastoreException;
 
+    @WithSpan()
     BuildRecord storeRecordForNoRebuild(BuildRecord buildRecord);
 
     /**
@@ -69,6 +74,7 @@ public interface Datastore {
      * @param username Username of the user.
      * @return User entity.
      */
+    @WithSpan()
     User retrieveUserByUsername(String username);
 
     /**
@@ -76,6 +82,7 @@ public interface Datastore {
      *
      * @param user User entity.
      */
+    @WithSpan()
     void createNewUser(User user);
 
     /**
@@ -85,6 +92,7 @@ public interface Datastore {
      * @return The updated BuildConfigSetRecord
      * @throws DatastoreException If there is a problem saving to the datastore
      */
+    @WithSpan()
     BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigSetRecord buildConfigSetRecord) throws DatastoreException;
 
     /**
@@ -93,6 +101,7 @@ public interface Datastore {
      * @param buildConfigId The id of the config to check
      * @return The latest audited version of the build configuration
      */
+    @WithSpan()
     BuildConfigurationAudited getLatestBuildConfigurationAudited(Integer buildConfigId);
 
     /**
@@ -101,8 +110,10 @@ public interface Datastore {
      * @param buildConfigurationId The id of the config to check
      * @return The latest audited version of the build configuration with fetched dependency tree of the related BC
      */
+    @WithSpan()
     BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(Integer buildConfigurationId);
 
+    @WithSpan()
     BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId);
 
     /**
@@ -114,6 +125,7 @@ public interface Datastore {
      * @param temporaryBuild true if requested build is going to be temporary
      * @return
      */
+    @WithSpan()
     default boolean requiresRebuild(
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
@@ -139,6 +151,7 @@ public interface Datastore {
      * @param nonRebuildCauseSetter this Consumer is used for setting a reference of BuildRecord causing not rebuilding
      * @return
      */
+    @WithSpan()
     boolean requiresRebuild(
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
@@ -150,5 +163,6 @@ public interface Datastore {
     @Deprecated
     boolean requiresRebuild(BuildTask task, Set<Integer> processedDependenciesCache);
 
+    @WithSpan()
     Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet);
 }
