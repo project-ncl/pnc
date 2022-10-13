@@ -90,6 +90,31 @@ public class MDCUtils {
         MDC.setContextMap(context);
     }
 
+    public static void addTraceContext(String traceId, String spanId, String traceFlags, String traceState) {
+        Map<String, String> context = getContextMap();
+        if (traceId != null) {
+            context.put(MDCKeys.TRACE_ID_KEY, traceId);
+        }
+        if (spanId != null) {
+            context.put(MDCKeys.SPAN_ID_KEY, spanId);
+        }
+        if (traceFlags != null) {
+            context.put(MDCKeys.TRACE_FLAGS_KEY, traceFlags);
+        }
+        if (traceState != null) {
+            context.put(MDCKeys.TRACE_STATE_KEY, traceState);
+        }
+
+        MDC.setContextMap(context);
+    }
+
+    public static void removeTraceContext() {
+        MDC.remove(MDCKeys.TRACE_ID_KEY);
+        MDC.remove(MDCKeys.SPAN_ID_KEY);
+        MDC.remove(MDCKeys.TRACE_FLAGS_KEY);
+        MDC.remove(MDCKeys.TRACE_STATE_KEY);
+    }
+
     private static Map<String, String> getContextMap() {
         Map<String, String> context = MDC.getCopyOfContextMap();
         if (context == null) {
