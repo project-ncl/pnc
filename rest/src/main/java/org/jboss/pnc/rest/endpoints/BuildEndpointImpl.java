@@ -68,6 +68,8 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.opentelemetry.api.trace.Span;
+
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -270,6 +272,11 @@ public class BuildEndpointImpl implements BuildEndpoint {
             Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(buildId);
             if (mdcMeta.isPresent()) {
                 MDCUtils.addBuildContext(mdcMeta.get());
+                MDCUtils.addTraceContext(
+                        Span.current().getSpanContext().getTraceId(),
+                        Span.current().getSpanContext().getSpanId(),
+                        Span.current().getSpanContext().getTraceFlags().toString(),
+                        Span.current().getSpanContext().getTraceState().toString());
             } else {
                 logger.warn("Unable to retrieve MDC meta. There is no running build for buildTaskId: {}.", buildId);
             }
@@ -283,6 +290,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
             throw new RuntimeException("Unable to cancel the build [" + buildId + "].");
         } finally {
             MDCUtils.removeBuildContext();
+            MDCUtils.removeTraceContext();
         }
     }
 

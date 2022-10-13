@@ -106,8 +106,8 @@
 
     <!-- OTEL Dependencies for Instrumentation -->
     <dependency>
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-context</artifactId>
+      <groupId>io.opentelemetry.instrumentation</groupId>
+      <artifactId>opentelemetry-instrumentation-annotations</artifactId>
     </dependency>
 
   </dependencies>

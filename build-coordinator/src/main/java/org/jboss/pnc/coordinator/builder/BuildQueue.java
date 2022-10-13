@@ -120,8 +120,8 @@ public class BuildQueue {
                 element,
                 traceId,
                 spanId,
-                traceFlags,
-                traceState);
+                traceFlags.toString(),
+                traceState.toString());
         readyTasks.add(element);
         return true;
     }
