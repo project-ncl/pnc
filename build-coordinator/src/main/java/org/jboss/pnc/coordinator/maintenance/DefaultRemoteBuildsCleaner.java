@@ -145,12 +145,16 @@ public class DefaultRemoteBuildsCleaner implements RemoteBuildsCleaner {
         try {
             IndyStoresClientModule indyStores = indy.stores();
             if (pkgKey != null) {
-                StoreKey tempHostedKey = new StoreKey(pkgKey, StoreType.hosted, tempBuildPromotionGroup);
                 // delete artifacts from consolidated repository
-                BatchDeleteRequest request = new BatchDeleteRequest();
-                request.setTrackingID(buildContentId);
-                request.setStoreKey(tempHostedKey);
-                indy.module(IndyFoloAdminClientModule.class).deleteFilesFromStoreByTrackingID(request);
+                // (failed builds are not promoted and don't have artifacts in consolidated repository)
+                if (buildRecord.getStatus().completedSuccessfully()) {
+                    StoreKey tempHostedKey = new StoreKey(pkgKey, StoreType.hosted, tempBuildPromotionGroup);
+
+                    BatchDeleteRequest request = new BatchDeleteRequest();
+                    request.setTrackingID(buildContentId);
+                    request.setStoreKey(tempHostedKey);
+                    indy.module(IndyFoloAdminClientModule.class).deleteFilesFromStoreByTrackingID(request);
+                }
 
                 // delete the content
                 StoreKey storeKey = new StoreKey(pkgKey, StoreType.hosted, buildContentId);
