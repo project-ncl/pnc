@@ -33,8 +33,13 @@ import java.util.Set;
 public interface BuildRecordSpringRepository
         extends JpaRepository<BuildRecord, Base32LongID>, JpaSpecificationExecutor<BuildRecord> {
 
-    @Query("SELECT br FROM BuildRecord br WHERE br.submitTime = (SELECT max(brr.submitTime) FROM BuildRecord brr"
-            + " WHERE br.buildConfigurationId = brr.buildConfigurationId) AND br.buildConfigurationId IN ?1")
+    @Query(
+            value = "SELECT * FROM buildrecord br" + " INNER JOIN ("
+                    + "   SELECT buildconfiguration_id, max(submittime) AS max_submit" + "   FROM buildrecord"
+                    + "   GROUP BY buildconfiguration_id" + " ) brr"
+                    + " ON  br.buildconfiguration_id = brr.buildconfiguration_id"
+                    + " AND br.submittime = brr.max_submit" + " AND br.buildconfiguration_id IN (?1)",
+            nativeQuery = true)
     List<BuildRecord> getLatestBuildsByBuildConfigIds(List<Integer> configIds);
 
     @Query("select br from BuildRecord br fetch all properties where br.id = ?1")
