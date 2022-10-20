@@ -24,6 +24,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import io.opentelemetry.context.Context;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -33,12 +35,14 @@ public class MDCScheduledThreadPoolExecutor extends MDCThreadPoolExecutor implem
 
     public MDCScheduledThreadPoolExecutor(int corePoolSize, ThreadFactory threadFactory) {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(corePoolSize, threadFactory);
-        super.executorService = scheduledThreadPoolExecutor;
+        super.executorService = Context
+                .taskWrapping(scheduledThreadPoolExecutor);
     }
 
     public MDCScheduledThreadPoolExecutor(int corePoolSize) {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(corePoolSize);
-        super.executorService = scheduledThreadPoolExecutor;
+        super.executorService = Context
+                .taskWrapping(scheduledThreadPoolExecutor);
     }
 
     @Override

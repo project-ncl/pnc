@@ -27,6 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import io.opentelemetry.api.trace.Span;
+
 import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -86,13 +88,22 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             // user not found, continue ...
         }
 
-        // Adding OTEL information from headers into MDC
+        // Adding OTEL information into MDC (from headers if available)
         String traceId = requestContext.getHeaderString("trace-id");
-        String spanId = requestContext.getHeaderString("span-id");
-        String traceFlags = requestContext.getHeaderString("trace-flags");
-        String traceState = requestContext.getHeaderString("trace-state");
-        MDCUtils.addTraceContext(traceId, spanId, traceFlags, traceState);
-
+        if (traceId == null) {
+            MDCUtils.addTraceContext(
+                    Span.current().getSpanContext().getTraceId(),
+                    Span.current().getSpanContext().getSpanId(),
+                    Span.current().getSpanContext().getTraceFlags().toString(),
+                    Span.current().getSpanContext().getTraceState().toString());
+        }
+        else {
+            String spanId = requestContext.getHeaderString("span-id");
+            String traceFlags = requestContext.getHeaderString("trace-flags");
+            String traceState = requestContext.getHeaderString("trace-state");
+            MDCUtils.addTraceContext(traceId, spanId, traceFlags, traceState);
+        }
+        
         UriInfo uriInfo = requestContext.getUriInfo();
         Request request = requestContext.getRequest();
         logger.info("Requested {} {}.", request.getMethod(), uriInfo.getRequestUri());
