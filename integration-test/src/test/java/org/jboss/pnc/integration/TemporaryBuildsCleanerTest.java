@@ -27,7 +27,6 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
-import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Artifact;
@@ -78,7 +77,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.integration.setup.Deployments.addBuildExecutorMock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -148,11 +146,8 @@ public class TemporaryBuildsCleanerTest {
 
         JavaArchive coordinator = enterpriseArchive.getAsType(JavaArchive.class, Deployments.COORDINATOR_JAR);
         coordinator.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
-        coordinator.addClass(RemoteBuildsCleanerMock.class);
 
-        addBuildExecutorMock(enterpriseArchive);
-
-        logger.info(enterpriseArchive.toString(true));
+        logger.info("Deployment:" + enterpriseArchive.toString(true));
         return enterpriseArchive;
     }
 

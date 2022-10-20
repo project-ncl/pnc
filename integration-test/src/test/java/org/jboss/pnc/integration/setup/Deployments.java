@@ -18,7 +18,7 @@
 package org.jboss.pnc.integration.setup;
 
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
-import org.jboss.pnc.executor.DefaultBuildExecutor;
+import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.mock.client.KeycloakServiceClientMock;
 import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
@@ -50,7 +50,6 @@ public class Deployments {
 
     public static final Logger logger = LoggerFactory.getLogger(Deployments.class);
 
-    public static final String EXECUTOR_JAR = "/build-executor.jar";
     public static final String AUTH_JAR = "/auth.jar";
     public static final String COORDINATOR_JAR = "/build-coordinator.jar";
     public static final String CAUSEWAY_CLIENT_JAR = "/causeway-client.jar";
@@ -92,7 +91,8 @@ public class Deployments {
         ear.setApplicationXML("application.xml");
 
         addLocalBuildScheduler(ear);
-
+        addBuildExecutorMock(ear);
+        addRemoteBuildCleanerMock(ear);
         addKeycloakServiceClientMock(ear);
         addAssertJ(ear, resolver);
 
@@ -179,9 +179,7 @@ public class Deployments {
     }
 
     public static void addBuildExecutorMock(EnterpriseArchive enterpriseArchive) {
-        JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, EXECUTOR_JAR);
-
-        jar.deleteClass(DefaultBuildExecutor.class);
+        JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, COORDINATOR_JAR);
 
         jar.addPackage(BuildExecutorMock.class.getPackage());
         jar.addClass(BuildDriverResultMock.class);
@@ -207,5 +205,10 @@ public class Deployments {
 
         enterpriseArchive.addAsModule(jar);
 
+    }
+
+    public static void addRemoteBuildCleanerMock(EnterpriseArchive ear) {
+        JavaArchive coordinator = ear.getAsType(JavaArchive.class, COORDINATOR_JAR);
+        coordinator.addClass(RemoteBuildsCleanerMock.class);
     }
 }

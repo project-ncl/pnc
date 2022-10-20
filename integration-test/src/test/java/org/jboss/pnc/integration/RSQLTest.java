@@ -17,21 +17,23 @@
  */
 package org.jboss.pnc.integration;
 
-import static io.restassured.RestAssured.given;
 import io.restassured.http.ContentType;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.client.BuildClient;
+import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.ProjectClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.BuildConfiguration;
+import org.jboss.pnc.dto.Project;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Test;
@@ -40,20 +42,18 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
-import static java.util.Optional.empty;
 import java.util.stream.Collectors;
 
+import static io.restassured.RestAssured.given;
+import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import org.jboss.pnc.client.BuildConfigurationClient;
-import org.jboss.pnc.client.ProjectClient;
-import org.jboss.pnc.demo.data.DatabaseDataInitializer;
-import org.jboss.pnc.dto.BuildConfiguration;
-import org.jboss.pnc.dto.Project;
 import static org.jboss.pnc.integration.setup.IntegrationTestEnv.getHttpPort;
 import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
-import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>

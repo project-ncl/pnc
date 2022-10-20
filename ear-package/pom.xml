@@ -69,19 +69,7 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>termd-build-driver</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>indy-repository-manager</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
       <artifactId>build-coordinator</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>build-executor</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -95,10 +83,6 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>spi</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>openshift-environment-driver</artifactId>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
@@ -148,6 +132,10 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>notifications</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.build-agent</groupId>
+      <artifactId>client</artifactId>
     </dependency>
   </dependencies>
 
@@ -229,19 +217,7 @@
             </jarModule>
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
-              <artifactId>indy-repository-manager</artifactId>
-              <includeInApplicationXml>true</includeInApplicationXml>
-              <bundleDir>/</bundleDir>
-            </jarModule>
-            <jarModule>
-              <groupId>org.jboss.pnc</groupId>
               <artifactId>build-coordinator</artifactId>
-              <includeInApplicationXml>true</includeInApplicationXml>
-              <bundleDir>/</bundleDir>
-            </jarModule>
-            <jarModule>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>build-executor</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
@@ -254,12 +230,6 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>spi</artifactId>
-              <includeInApplicationXml>true</includeInApplicationXml>
-              <bundleDir>/</bundleDir>
-            </jarModule>
-            <jarModule>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>openshift-environment-driver</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
@@ -278,12 +248,6 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>messaging-spi</artifactId>
-              <includeInApplicationXml>true</includeInApplicationXml>
-              <bundleDir>/</bundleDir>
-            </jarModule>
-            <jarModule>
-              <groupId>org.jboss.pnc</groupId>
-              <artifactId>termd-build-driver</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
@@ -332,6 +296,12 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>notifications</artifactId>
+              <includeInApplicationXml>true</includeInApplicationXml>
+              <bundleDir>/</bundleDir>
+            </jarModule>
+            <jarModule>
+              <groupId>org.jboss.pnc.build-agent</groupId>
+              <artifactId>client</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>

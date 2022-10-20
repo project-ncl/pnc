@@ -80,7 +80,6 @@ public class BuildTest {
     @Deployment
     public static EnterpriseArchive deploy() {
         final EnterpriseArchive ear = Deployments.testEarForInContainerTest(BuildTest.class);
-        Deployments.addBuildExecutorMock(ear);
         JavaArchive coordinatorJar = ear.getAsType(JavaArchive.class, Deployments.COORDINATOR_JAR);
         coordinatorJar.addAsManifestResource("beans-use-mock-remote-clients-and-local-scheduler.xml", "beans.xml");
         coordinatorJar.addClass(RemoteBuildsCleanerMock.class);

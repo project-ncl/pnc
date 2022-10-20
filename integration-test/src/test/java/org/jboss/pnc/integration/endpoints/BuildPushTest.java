@@ -47,7 +47,6 @@ import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jboss.pnc.integration.setup.Deployments.addBuildExecutorMock;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -67,8 +66,6 @@ public class BuildPushTest {
         processManager.addClass(CausewayClientMock.class);
 
         processManager.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
-
-        addBuildExecutorMock(enterpriseArchive);
 
         return enterpriseArchive;
     }

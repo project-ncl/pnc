@@ -23,6 +23,5 @@
     <exclude name="org.jboss.pnc.auth.DefaultKeycloakServiceClient" />
     <exclude name="org.jboss.pnc.causewayclient.DefaultCausewayClient" />
     <exclude name="org.jboss.pnc.coordinator.maintenance.DefaultRemoteBuildsCleaner" />
-    <exclude name="org.jboss.pnc.executor.DefaultBuildExecutor" />
   </scan>
 </beans>
