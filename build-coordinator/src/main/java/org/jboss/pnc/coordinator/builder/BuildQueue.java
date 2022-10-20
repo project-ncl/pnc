@@ -107,21 +107,9 @@ public class BuildQueue {
         if (!task.readyToBuild()) {
             throw new IllegalArgumentException("a not ready task added to the queue: " + task);
         }
-        String traceId = Span.current().getSpanContext().getTraceId();
-        String spanId = Span.current().getSpanContext().getSpanId();
-        TraceFlags traceFlags = Span.current().getSpanContext().getTraceFlags();
-        TraceState traceState = Span.current().getSpanContext().getTraceState();
-
         MDCAwareElement element = new MDCAwareElement(task);
         unfinishedTasks.add(element);
-        log.debug(
-                "adding task: {} with MDCAwareElement: {}; traceId: {} spanId: {} traceFlags: {} traceState: {}",
-                task,
-                element,
-                traceId,
-                spanId,
-                traceFlags.toString(),
-                traceState.toString());
+        log.debug("adding task: {} with MDCAwareElement: {}", task, element);
         readyTasks.add(element);
         return true;
     }
