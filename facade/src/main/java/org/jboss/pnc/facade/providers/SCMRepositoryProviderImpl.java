@@ -291,7 +291,8 @@ public class SCMRepositoryProviderImpl
         RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
                 .queryByInternalScm(internalUrl);
         if (repositoryConfiguration != null && !repositoryConfiguration.getId().equals(ignoreId)) {
-            String message = "SCM Repository already exists (id: " + repositoryConfiguration.getId() + ")";
+            String message = "SCM Repository with internal URL '" + internalUrl + "'already exists (id: "
+                    + repositoryConfiguration.getId() + ")";
             throw new ConflictedEntryException(
                     message,
                     RepositoryConfiguration.class,
@@ -304,7 +305,8 @@ public class SCMRepositoryProviderImpl
         RepositoryConfiguration repositoryConfiguration = repositoryConfigurationRepository
                 .queryByExternalScm(externalUrl);
         if (repositoryConfiguration != null && !repositoryConfiguration.getId().equals(ignoreId)) {
-            String message = "SCM Repository already exists (id: " + repositoryConfiguration.getId() + ")";
+            String message = "SCM Repository with external URL '" + externalUrl + "' already exists (id: "
+                    + repositoryConfiguration.getId() + ")";
             throw new ConflictedEntryException(
                     message,
                     RepositoryConfiguration.class,
