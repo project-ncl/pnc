@@ -48,7 +48,8 @@ public class MDCThreadPoolExecutor implements ExecutorService {
             long keepAliveTime,
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue) {
-        this.executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
+        this.executorService = Context
+                .taskWrapping(new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue));
     }
 
     public MDCThreadPoolExecutor(
@@ -58,13 +59,8 @@ public class MDCThreadPoolExecutor implements ExecutorService {
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue,
             ThreadFactory threadFactory) {
-        this.executorService = new ThreadPoolExecutor(
-                corePoolSize,
-                maximumPoolSize,
-                keepAliveTime,
-                unit,
-                workQueue,
-                threadFactory);
+        this.executorService = Context.taskWrapping(
+                new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory));
     }
 
     public MDCThreadPoolExecutor(
@@ -74,28 +70,23 @@ public class MDCThreadPoolExecutor implements ExecutorService {
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue,
             RejectedExecutionHandler handler) {
-        this.executorService = new ThreadPoolExecutor(
-                corePoolSize,
-                maximumPoolSize,
-                keepAliveTime,
-                unit,
-                workQueue,
-                handler);
+        this.executorService = Context.taskWrapping(
+                new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler));
     }
 
     @Override
     public <T> Future<T> submit(Callable<T> task) {
-        return executorService.submit(MDCWrappers.wrap(Context.current().wrap(task)));
+        return executorService.submit(MDCWrappers.wrap(task));
     }
 
     @Override
     public <T> Future<T> submit(Runnable task, T result) {
-        return executorService.submit(MDCWrappers.wrap(Context.current().wrap(task)), result);
+        return executorService.submit(MDCWrappers.wrap(task), result);
     }
 
     @Override
     public Future<?> submit(Runnable task) {
-        return executorService.submit(MDCWrappers.wrap(Context.current().wrap(task)));
+        return executorService.submit(MDCWrappers.wrap(task));
     }
 
     @Override
@@ -122,7 +113,7 @@ public class MDCThreadPoolExecutor implements ExecutorService {
 
     @Override
     public void execute(Runnable command) {
-        executorService.execute(MDCWrappers.wrap(Context.current().wrap(command)));
+        executorService.execute(MDCWrappers.wrap(command));
     }
 
     @Override
