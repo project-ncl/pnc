@@ -17,34 +17,32 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.ProductClient;
+import org.jboss.pnc.client.ProductReleaseClient;
+import org.jboss.pnc.client.ProductVersionClient;
+import org.jboss.pnc.dto.Product;
+import org.jboss.pnc.dto.ProductMilestone;
+import org.jboss.pnc.dto.ProductRelease;
+import org.jboss.pnc.dto.ProductVersion;
+import org.jboss.pnc.enums.SupportLevel;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
-
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.jboss.pnc.client.ProductClient;
-import org.jboss.pnc.client.ProductVersionClient;
-import org.jboss.pnc.dto.Product;
-import org.jboss.pnc.dto.ProductMilestone;
-import org.jboss.pnc.dto.ProductRelease;
-import org.jboss.pnc.dto.ProductVersion;
-import org.junit.BeforeClass;
-
 import java.util.Set;
-import org.jboss.pnc.client.ProductReleaseClient;
-import org.jboss.pnc.enums.SupportLevel;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>

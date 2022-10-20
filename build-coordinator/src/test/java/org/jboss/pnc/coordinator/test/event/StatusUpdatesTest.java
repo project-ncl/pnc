@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.coordinator.test.event;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
@@ -32,23 +31,23 @@ import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotification
 import org.jboss.pnc.coordinator.test.BuildCoordinatorDeployments;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.indyrepositorymanager.IndyRepositoryManagerResult;
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
+import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
+import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
@@ -59,7 +58,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -201,10 +199,6 @@ public class StatusUpdatesTest {
     }
 
     private BuildResult createBuildResult() {
-        IndyRepositoryManagerResult repoManagerResult = new IndyRepositoryManagerResult(
-                Collections.emptyList(),
-                Collections.emptyList(),
-                RandomStringUtils.randomNumeric(4));
         BuildDriverResult driverResult = new BuildDriverResult() {
             @Override
             public String getBuildLog() {
@@ -227,7 +221,7 @@ public class StatusUpdatesTest {
                 "",
                 Optional.empty(),
                 Optional.of(driverResult),
-                Optional.of(repoManagerResult),
+                Optional.of(RepositoryManagerResultMock.mockResult(false)),
                 Optional.empty(),
                 Optional.empty());
     }

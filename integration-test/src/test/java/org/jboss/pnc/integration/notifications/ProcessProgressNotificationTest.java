@@ -79,11 +79,13 @@ public class ProcessProgressNotificationTest {
 
     @Deployment(name = "WebSocketsNotificationTest")
     public static EnterpriseArchive deploy() {
-        return Deployments.testEarForInContainerTest(
+        EnterpriseArchive ear = Deployments.testEarForInContainerTest(
                 Collections.singletonList(NotificationsEndpoint.class.getPackage()),
                 Arrays.asList(BuildMock.class.getPackage()),
                 ProcessProgressNotificationTest.class,
                 NotificationCollector.class);
+        logger.info("Deployment:" + ear.toString(true));
+        return ear;
     }
 
     @Before

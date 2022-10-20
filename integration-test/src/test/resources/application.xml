@@ -52,13 +52,7 @@
     <java>datastore.jar</java>
   </module>
   <module>
-    <java>indy-repository-manager.jar</java>
-  </module>
-  <module>
     <java>build-coordinator.jar</java>
-  </module>
-  <module>
-    <java>build-executor.jar</java>
   </module>
   <module>
     <java>model.jar</java>
@@ -70,19 +64,16 @@
     <java>spi.jar</java>
   </module>
   <module>
-    <java>openshift-environment-driver.jar</java>
-  </module>
-  <module>
     <java>demo-data.jar</java>
   </module>
   <module>
     <java>messaging-spi.jar</java>
   </module>
   <module>
-    <java>termd-build-driver.jar</java>
+    <java>causeway-client.jar</java>
   </module>
   <module>
-    <java>causeway-client.jar</java>
+    <java>client.jar</java>
   </module>
   <module>
     <java>pncmetrics.jar</java>

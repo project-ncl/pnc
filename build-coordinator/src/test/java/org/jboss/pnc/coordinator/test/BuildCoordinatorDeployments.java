@@ -32,8 +32,6 @@ import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.coordinator.test.mock.EntityManagerMock;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
-import org.jboss.pnc.executor.DefaultBuildExecutionSession;
-import org.jboss.pnc.executor.DefaultBuildExecutor;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
@@ -49,8 +47,6 @@ import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.ArchivePath;
-import org.jboss.shrinkwrap.api.Filter;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.slf4j.Logger;
@@ -94,14 +90,6 @@ public class BuildCoordinatorDeployments {
     }
 
     private static JavaArchive defaultLibs() {
-        Filter<ArchivePath> filter = path -> {
-            String packageStylePath = path.get().replaceAll("/", ".").replaceAll("\\.class$", "").substring(1);
-            log.debug("Checking path: {}.", packageStylePath);
-            if (packageStylePath.equals(DefaultBuildExecutor.class.getName())) {
-                return false;
-            }
-            return true;
-        };
 
         JavaArchive jar = ShrinkWrap.create(JavaArchive.class)
                 .addClass(Configuration.class)
@@ -112,10 +100,9 @@ public class BuildCoordinatorDeployments {
                 .addClass(BuildCoordinatorFactory.class)
                 .addClass(BuildConfigurationAuditedRepositoryMock.class)
                 .addClass(EntityManagerMock.class)
-                .addPackages(false, filter, BuildResultMapper.class.getPackage())
+                .addPackages(false, BuildResultMapper.class.getPackage())
                 .addPackages(
                         true,
-                        filter,
                         BuildCoordinator.class.getPackage(),
                         DefaultBuildCoordinator.class.getPackage(),
                         BuildSetStatusNotifications.class.getPackage(),
@@ -128,7 +115,6 @@ public class BuildCoordinatorDeployments {
                         BuildCoordinationStatus.class.getPackage(),
                         DefaultBuildStatusChangedEvent.class.getPackage(),
                         BuildExecutorMock.class.getPackage(),
-                        DefaultBuildExecutionSession.class.getPackage(),
                         MessageSender.class.getPackage(),
                         SystemConfig.class.getPackage(),
                         ModuleConfigFactory.class.getPackage(),

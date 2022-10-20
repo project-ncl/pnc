@@ -87,7 +87,6 @@
     <module>processor</module>
     <module>rest-client</module>
     <module>mapper</module>
-    <module>bpm-mock</module>
   </modules>
 
   <properties>
@@ -549,12 +548,6 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>processor</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc</groupId>
-        <artifactId>termd-build-driver</artifactId>
         <version>${project.version}</version>
       </dependency>
 

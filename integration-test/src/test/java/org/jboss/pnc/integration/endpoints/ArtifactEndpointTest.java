@@ -29,9 +29,9 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.MilestoneInfo;
-import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
@@ -46,15 +46,14 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ClientErrorException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

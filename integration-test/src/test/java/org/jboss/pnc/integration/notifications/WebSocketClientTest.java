@@ -81,9 +81,7 @@ public class WebSocketClientTest {
 
     @Deployment
     public static EnterpriseArchive deploy() {
-        EnterpriseArchive ear = Deployments.testEar();
-        Deployments.addBuildExecutorMock(ear);
-        return ear;
+        return Deployments.testEar();
     }
 
     @Test

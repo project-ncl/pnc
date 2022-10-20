@@ -140,22 +140,6 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>build-executor</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
-      <artifactId>indy-repository-manager</artifactId>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>ch.qos.logback</groupId>
-          <artifactId>logback-classic</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
       <artifactId>test-common</artifactId>
       <scope>test</scope>
     </dependency>
