@@ -272,11 +272,11 @@ public class BuildEndpointImpl implements BuildEndpoint {
             Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(buildId);
             if (mdcMeta.isPresent()) {
                 MDCUtils.addBuildContext(mdcMeta.get());
-                MDCUtils.addTraceContext(
-                        Span.current().getSpanContext().getTraceId(),
-                        Span.current().getSpanContext().getSpanId(),
-                        Span.current().getSpanContext().getTraceFlags().toString(),
-                        Span.current().getSpanContext().getTraceState().toString());
+                // MDCUtils.addTraceContext(
+                // Span.current().getSpanContext().getTraceId(),
+                // Span.current().getSpanContext().getSpanId(),
+                // Span.current().getSpanContext().getTraceFlags().toString(),
+                // Span.current().getSpanContext().getTraceState().toString());
             } else {
                 logger.warn("Unable to retrieve MDC meta. There is no running build for buildTaskId: {}.", buildId);
             }
@@ -290,7 +290,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
             throw new RuntimeException("Unable to cancel the build [" + buildId + "].");
         } finally {
             MDCUtils.removeBuildContext();
-            MDCUtils.removeTraceContext();
+            // MDCUtils.removeTraceContext();
         }
     }
 

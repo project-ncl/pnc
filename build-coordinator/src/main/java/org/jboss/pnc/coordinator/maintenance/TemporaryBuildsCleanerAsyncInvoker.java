@@ -18,6 +18,7 @@
 package org.jboss.pnc.coordinator.maintenance;
 
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
+import org.jboss.pnc.common.util.otel.TraceContextCopier;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -31,6 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -64,7 +67,9 @@ public class TemporaryBuildsCleanerAsyncInvoker {
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
 
         executorService = Executors.newSingleThreadExecutor(
-                new NamedThreadFactory("build-coordinator.TemporaryBuildsCleanerAsyncInvoker"));
+                new NamedThreadFactory(
+                        "build-coordinator.TemporaryBuildsCleanerAsyncInvoker",
+                        List.of(new TraceContextCopier())));
     }
 
     /**

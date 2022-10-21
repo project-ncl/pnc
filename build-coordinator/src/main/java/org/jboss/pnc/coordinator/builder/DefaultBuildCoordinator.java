@@ -28,6 +28,7 @@ import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.jboss.pnc.common.util.ProcessStageUtils;
 import org.jboss.pnc.common.util.Quicksort;
+import org.jboss.pnc.common.util.otel.TraceContextCopier;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.dto.Build;
@@ -382,11 +383,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         // completion notification
         MDCUtils.removeBuildContext();
         MDCUtils.addBuildContext(getMDCMeta(buildTask));
-        MDCUtils.addTraceContext(
-                Span.current().getSpanContext().getTraceId(),
-                Span.current().getSpanContext().getSpanId(),
-                Span.current().getSpanContext().getTraceFlags().toString(),
-                Span.current().getSpanContext().getTraceState().toString());
+        // MDCUtils.addTraceContext(
+        // Span.current().getSpanContext().getTraceId(),
+        // Span.current().getSpanContext().getSpanId(),
+        // Span.current().getSpanContext().getTraceFlags().toString(),
+        // Span.current().getSpanContext().getTraceState().toString());
         try {
             if (isBuildConfigurationAlreadyInQueue(buildTask)) {
                 log.debug("Skipping buildTask {}, its buildConfiguration is already in the buildQueue.", buildTask);
@@ -419,7 +420,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
         } finally {
             MDCUtils.removeBuildContext();
-            MDCUtils.removeTraceContext();
+            // MDCUtils.removeTraceContext();
         }
     }
 
@@ -492,18 +493,18 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 .forEach(buildTask -> {
                     try {
                         MDCUtils.addBuildContext(getMDCMeta(buildTask));
-                        MDCUtils.addTraceContext(
-                                Span.current().getSpanContext().getTraceId(),
-                                Span.current().getSpanContext().getSpanId(),
-                                Span.current().getSpanContext().getTraceFlags().toString(),
-                                Span.current().getSpanContext().getTraceState().toString());
+                        // MDCUtils.addTraceContext(
+                        // Span.current().getSpanContext().getTraceId(),
+                        // Span.current().getSpanContext().getSpanId(),
+                        // Span.current().getSpanContext().getTraceFlags().toString(),
+                        // Span.current().getSpanContext().getTraceState().toString());
                         log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
                         cancel(buildTask.getId());
                     } catch (CoreException e) {
                         log.error("Unable to cancel the build [" + buildTask.getId() + "].", e);
                     } finally {
                         MDCUtils.removeBuildContext();
-                        MDCUtils.removeTraceContext();
+                        // MDCUtils.removeTraceContext();
                     }
                 });
         record.setStatus(BuildStatus.CANCELLED);
@@ -943,8 +944,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void startThreads() {
         int threadPoolSize = systemConfig.getCoordinatorThreadPoolSize();
-        ExecutorService executorService = MDCExecutors
-                .newFixedThreadPool(threadPoolSize, new NamedThreadFactory("build-coordinator-queue-processor"));
+        ExecutorService executorService = MDCExecutors.newFixedThreadPool(
+                threadPoolSize,
+                new NamedThreadFactory("build-coordinator-queue-processor", List.of(new TraceContextCopier())));
         for (int i = 0; i < threadPoolSize; i++) {
             executorService.execute(this::takeAndProcessTask);
         }

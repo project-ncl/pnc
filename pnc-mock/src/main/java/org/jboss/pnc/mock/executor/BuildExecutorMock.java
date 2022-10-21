@@ -20,6 +20,7 @@ package org.jboss.pnc.mock.executor;
 
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
+import org.jboss.pnc.common.util.otel.TraceContextCopier;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -54,7 +56,7 @@ public class BuildExecutorMock implements BuildExecutor {
     private final Map<String, BuildExecutionSession> runningExecutions = new HashMap<>();
 
     private final ExecutorService executor = MDCExecutors
-            .newFixedThreadPool(4, new NamedThreadFactory("build-executor-mock"));
+            .newFixedThreadPool(4, new NamedThreadFactory("build-executor-mock", List.of(new TraceContextCopier())));
 
     private final Map<String, CompletableFuture<Integer>> runningFutures = new HashMap<>();
 

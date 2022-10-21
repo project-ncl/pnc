@@ -88,20 +88,8 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             // user not found, continue ...
         }
 
-        // Adding OTEL information into MDC (from headers if available)
-        String traceId = requestContext.getHeaderString("trace-id");
-        if (traceId == null) {
-            MDCUtils.addTraceContext(
-                    Span.current().getSpanContext().getTraceId(),
-                    Span.current().getSpanContext().getSpanId(),
-                    Span.current().getSpanContext().getTraceFlags().toString(),
-                    Span.current().getSpanContext().getTraceState().toString());
-        } else {
-            String spanId = requestContext.getHeaderString("span-id");
-            String traceFlags = requestContext.getHeaderString("trace-flags");
-            String traceState = requestContext.getHeaderString("trace-state");
-            MDCUtils.addTraceContext(traceId, spanId, traceFlags, traceState);
-        }
+        // Propagate OTEL headers
+        propagateOTELHeaders(requestContext);
 
         UriInfo uriInfo = requestContext.getUriInfo();
         Request request = requestContext.getRequest();
@@ -169,5 +157,19 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             logger.error("Error logging REST request.", e);
         }
         return b.toString();
+    }
+
+    private void propagateOTELHeaders(ContainerRequestContext requestContext) {
+        // Adding OTEL information into MDC (from headers if available)
+        String traceId = requestContext.getHeaderString("trace-id");
+        if (traceId != null) {
+            // A trace should be associated with span and trace flags plus status (ignored atm)
+            String spanId = requestContext.getHeaderString("span-id");
+            if (spanId == null) {
+                // Some vendors use parent-id instead (https://www.w3.org/TR/trace-context/#parent-id)
+                spanId = requestContext.getHeaderString("parent-id");
+            }
+            MDCUtils.addTraceContext(traceId, spanId, null, null);
+        }
     }
 }
