@@ -330,11 +330,13 @@ public class BuildTasksInitializer {
                                 temporaryBuildLifespanDays,
                                 buildOptions.isTemporaryBuild()),
                         user.getId().toString());
+
                 // MDCUtils.addTraceContext(
                 // Span.current().getSpanContext().getTraceId(),
                 // Span.current().getSpanContext().getSpanId(),
                 // Span.current().getSpanContext().getTraceFlags().toString(),
                 // Span.current().getSpanContext().getTraceState().toString());
+
                 try {
                     Optional<String> requestContext = MDCUtils.getRequestContext();
                     buildTask = BuildTask.build(
@@ -353,6 +355,7 @@ public class BuildTasksInitializer {
                             buildConfigAudited);
                 } finally {
                     MDCUtils.removeBuildContext();
+
                     // MDCUtils.removeTraceContext();
                 }
             }

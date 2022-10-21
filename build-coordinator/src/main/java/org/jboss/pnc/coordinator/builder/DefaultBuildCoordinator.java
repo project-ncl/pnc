@@ -388,6 +388,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         // Span.current().getSpanContext().getSpanId(),
         // Span.current().getSpanContext().getTraceFlags().toString(),
         // Span.current().getSpanContext().getTraceState().toString());
+
         try {
             if (isBuildConfigurationAlreadyInQueue(buildTask)) {
                 log.debug("Skipping buildTask {}, its buildConfiguration is already in the buildQueue.", buildTask);
@@ -498,6 +499,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                         // Span.current().getSpanContext().getSpanId(),
                         // Span.current().getSpanContext().getTraceFlags().toString(),
                         // Span.current().getSpanContext().getTraceState().toString());
+
                         log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
                         cancel(buildTask.getId());
                     } catch (CoreException e) {
@@ -505,6 +507,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     } finally {
                         MDCUtils.removeBuildContext();
                         // MDCUtils.removeTraceContext();
+
                     }
                 });
         record.setStatus(BuildStatus.CANCELLED);
