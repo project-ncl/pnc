@@ -136,11 +136,6 @@
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>bpm-mock</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-mock</artifactId>
       <scope>test</scope>
     </dependency>

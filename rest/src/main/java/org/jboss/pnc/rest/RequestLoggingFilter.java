@@ -96,14 +96,13 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
                     Span.current().getSpanContext().getSpanId(),
                     Span.current().getSpanContext().getTraceFlags().toString(),
                     Span.current().getSpanContext().getTraceState().toString());
-        }
-        else {
+        } else {
             String spanId = requestContext.getHeaderString("span-id");
             String traceFlags = requestContext.getHeaderString("trace-flags");
             String traceState = requestContext.getHeaderString("trace-state");
             MDCUtils.addTraceContext(traceId, spanId, traceFlags, traceState);
         }
-        
+
         UriInfo uriInfo = requestContext.getUriInfo();
         Request request = requestContext.getRequest();
         logger.info("Requested {} {}.", request.getMethod(), uriInfo.getRequestUri());
