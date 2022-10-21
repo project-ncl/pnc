@@ -84,11 +84,11 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                     temporaryBuild,
                     ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
                     userService.currentUser().getId().toString());
-            MDCUtils.addTraceContext(
-                    Span.current().getSpanContext().getTraceId(),
-                    Span.current().getSpanContext().getSpanId(),
-                    Span.current().getSpanContext().getTraceFlags().toString(),
-                    Span.current().getSpanContext().getTraceState().toString());
+            // MDCUtils.addTraceContext(
+            // Span.current().getSpanContext().getTraceId(),
+            // Span.current().getSpanContext().getSpanId(),
+            // Span.current().getSpanContext().getTraceFlags().toString(),
+            // Span.current().getSpanContext().getTraceState().toString());
             try {
                 if (buildTask.getStatus().isCompleted()) {
                     logger.warn(
@@ -112,7 +112,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                 return Response.ok().build();
             } finally {
                 MDCUtils.removeBuildContext();
-                MDCUtils.removeTraceContext();
+                // MDCUtils.removeTraceContext();
             }
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity("No active build with id: " + buildId).build();

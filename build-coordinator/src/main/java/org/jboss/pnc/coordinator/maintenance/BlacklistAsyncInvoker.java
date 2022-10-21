@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.coordinator.maintenance;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -27,6 +28,7 @@ import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.HttpUtils;
+import org.jboss.pnc.common.util.otel.TraceContextCopier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +57,8 @@ public class BlacklistAsyncInvoker {
         this.globalModuleGroupConfiguration = globalModuleGroupConfiguration;
         this.keycloakServiceClient = keycloakServiceClient;
 
-        executorService = Executors
-                .newSingleThreadExecutor(new NamedThreadFactory("build-coordinator.BlacklistAsyncInvoker"));
+        executorService = Executors.newSingleThreadExecutor(
+                new NamedThreadFactory("build-coordinator.BlacklistAsyncInvoker", List.of(new TraceContextCopier())));
     }
 
     public void notifyBlacklistToDA(String jsonPayload) {

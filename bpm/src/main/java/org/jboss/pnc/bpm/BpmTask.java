@@ -199,19 +199,19 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         });
 
         // Setting OTEL data from MDC
-        MDCUtils.getCustomContext(MDCKeys.TRACE_ID_KEY).ifPresent(v -> {
+        MDCUtils.getCustomContext("trace__id").ifPresent(v -> {
             log.debug("Setting otel parameter traceId: {}", v);
             actualParameters.put("traceId", v);
         });
-        MDCUtils.getCustomContext(MDCKeys.SPAN_ID_KEY).ifPresent(v -> {
+        MDCUtils.getCustomContext("span__id").ifPresent(v -> {
             log.debug("Setting otel parameter spanId: {}", v);
             actualParameters.put("spanId", v);
         });
-        MDCUtils.getCustomContext(MDCKeys.TRACE_FLAGS_KEY).ifPresent(v -> {
+        MDCUtils.getCustomContext("trace__flags").ifPresent(v -> {
             log.debug("Setting otel parameter traceFlags: {}", v);
             actualParameters.put("traceFlags", v);
         });
-        MDCUtils.getCustomContext(MDCKeys.TRACE_STATE_KEY).ifPresent(v -> {
+        MDCUtils.getCustomContext("trace__state").ifPresent(v -> {
             log.debug("Setting otel parameter traceState: {}", v);
             actualParameters.put("traceState", v);
         });

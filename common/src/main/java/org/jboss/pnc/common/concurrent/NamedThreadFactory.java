@@ -17,8 +17,13 @@
  */
 package org.jboss.pnc.common.concurrent;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.jboss.pnc.common.util.otel.ContextCopier;
 
 /**
  * A thread factory that names threads.
@@ -32,16 +37,30 @@ public class NamedThreadFactory implements ThreadFactory {
     private final String name;
     private final int pool;
 
+    private final List<ContextCopier> contextCopiers;
+
     /**
      * @param name name of the thread pool
      */
-    public NamedThreadFactory(String name) {
+    public NamedThreadFactory(String name, final Collection<ContextCopier> contextCopiers) {
         this.name = name;
         this.pool = poolNumber.getAndIncrement();
+        this.contextCopiers = new ArrayList<>(contextCopiers);
+        this.contextCopiers.forEach(ContextCopier::copy);
     }
 
     @Override
     public Thread newThread(Runnable r) {
-        return new Thread(r, "[" + pool + "]" + name + "-" + threadNumber.getAndIncrement());
+        return new Thread(
+                makeRunnableContextCopying(r),
+                "[" + pool + "]" + name + "-" + threadNumber.getAndIncrement());
+    }
+
+    private Runnable makeRunnableContextCopying(final Runnable r) {
+
+        return () -> {
+            contextCopiers.forEach(ContextCopier::apply);
+            r.run();
+        };
     }
 }
