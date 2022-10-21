@@ -35,14 +35,12 @@ public class MDCScheduledThreadPoolExecutor extends MDCThreadPoolExecutor implem
 
     public MDCScheduledThreadPoolExecutor(int corePoolSize, ThreadFactory threadFactory) {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(corePoolSize, threadFactory);
-        super.executorService = Context
-                .taskWrapping(scheduledThreadPoolExecutor);
+        super.executorService = Context.taskWrapping(scheduledThreadPoolExecutor);
     }
 
     public MDCScheduledThreadPoolExecutor(int corePoolSize) {
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(corePoolSize);
-        super.executorService = Context
-                .taskWrapping(scheduledThreadPoolExecutor);
+        super.executorService = Context.taskWrapping(scheduledThreadPoolExecutor);
     }
 
     @Override
