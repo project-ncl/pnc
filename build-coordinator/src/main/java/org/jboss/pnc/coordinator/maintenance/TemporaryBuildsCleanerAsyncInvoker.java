@@ -67,9 +67,7 @@ public class TemporaryBuildsCleanerAsyncInvoker {
         this.buildConfigSetRecordRepository = buildConfigSetRecordRepository;
 
         executorService = Executors.newSingleThreadExecutor(
-                new NamedThreadFactory(
-                        "build-coordinator.TemporaryBuildsCleanerAsyncInvoker",
-                        List.of(new TraceContextCopier())));
+                new NamedThreadFactory("build-coordinator.TemporaryBuildsCleanerAsyncInvoker"));
     }
 
     /**
