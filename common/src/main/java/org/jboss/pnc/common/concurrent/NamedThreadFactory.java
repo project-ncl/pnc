@@ -42,6 +42,16 @@ public class NamedThreadFactory implements ThreadFactory {
     /**
      * @param name name of the thread pool
      */
+    public NamedThreadFactory(String name) {
+        this.name = name;
+        this.pool = poolNumber.getAndIncrement();
+        this.contextCopiers = new ArrayList<>();
+    }
+
+    /**
+     * @param name name of the thread pool
+     * @param contextCopiers list of implementations of interface contextCopiers
+     */
     public NamedThreadFactory(String name, final Collection<ContextCopier> contextCopiers) {
         this.name = name;
         this.pool = poolNumber.getAndIncrement();
