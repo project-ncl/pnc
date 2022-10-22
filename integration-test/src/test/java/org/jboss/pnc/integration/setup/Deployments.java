@@ -190,8 +190,7 @@ public class Deployments {
         jar.addClass(RepositoryManagerResultMock.class);
         jar.addClass(ArtifactBuilder.class);
         jar.addClass(NamedThreadFactory.class);
-        jar.addPackage(TraceContextCopier.class.getPackage());
-        jar.addPackage(Span.class.getPackage());
+        jar.addClass(TraceContextCopier.class);
         jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
         logger.info(jar.toString(true));
@@ -205,8 +204,7 @@ public class Deployments {
 
         jar.addClass(LocalBuildScheduler.class);
         jar.addClass(NamedThreadFactory.class);
-        jar.addPackage(TraceContextCopier.class.getPackage());
-        jar.addPackage(Span.class.getPackage());
+        jar.addClass(TraceContextCopier.class);
 
         jar.addAsManifestResource("beans-use-local-scheduler.xml", "beans.xml");
 
@@ -220,7 +218,6 @@ public class Deployments {
         JavaArchive coordinator = ear.getAsType(JavaArchive.class, COORDINATOR_JAR);
         coordinator.addClass(RemoteBuildsCleanerMock.class);
         coordinator.addClass(NamedThreadFactory.class);
-        coordinator.addPackage(TraceContextCopier.class.getPackage());
-        coordinator.addPackage(Span.class.getPackage());
+        coordinator.addClass(TraceContextCopier.class);
     }
 }
