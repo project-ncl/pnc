@@ -18,6 +18,7 @@
 package org.jboss.pnc.integration.setup;
 
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
+import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.util.otel.TraceContextCopier;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.mock.client.KeycloakServiceClientMock;
@@ -98,7 +99,6 @@ public class Deployments {
         addRemoteBuildCleanerMock(ear);
         addKeycloakServiceClientMock(ear);
         addAssertJ(ear, resolver);
-        addOtelResources(ear);
 
         logger.info("Ear archive listing: {}", ear.toString(true));
 
@@ -189,7 +189,9 @@ public class Deployments {
         jar.addClass(BuildDriverResultMock.class);
         jar.addClass(RepositoryManagerResultMock.class);
         jar.addClass(ArtifactBuilder.class);
-
+        jar.addClass(NamedThreadFactory.class);
+        jar.addPackage(TraceContextCopier.class.getPackage());
+        jar.addPackage(Span.class.getPackage());
         jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
         logger.info(jar.toString(true));
@@ -198,16 +200,13 @@ public class Deployments {
 
     }
 
-    public static void addOtelResources(EnterpriseArchive enterpriseArchive) {
-        JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, COORDINATOR_JAR);
-        jar.addPackage(TraceContextCopier.class.getPackage());
-        jar.addPackage(Span.class.getPackage());
-    }
-
     public static void addLocalBuildScheduler(EnterpriseArchive enterpriseArchive) {
         JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, COORDINATOR_JAR);
 
         jar.addClass(LocalBuildScheduler.class);
+        jar.addClass(NamedThreadFactory.class);
+        jar.addPackage(TraceContextCopier.class.getPackage());
+        jar.addPackage(Span.class.getPackage());
 
         jar.addAsManifestResource("beans-use-local-scheduler.xml", "beans.xml");
 
@@ -220,5 +219,8 @@ public class Deployments {
     public static void addRemoteBuildCleanerMock(EnterpriseArchive ear) {
         JavaArchive coordinator = ear.getAsType(JavaArchive.class, COORDINATOR_JAR);
         coordinator.addClass(RemoteBuildsCleanerMock.class);
+        coordinator.addClass(NamedThreadFactory.class);
+        coordinator.addPackage(TraceContextCopier.class.getPackage());
+        coordinator.addPackage(Span.class.getPackage());
     }
 }
