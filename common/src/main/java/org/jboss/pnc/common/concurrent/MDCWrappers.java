@@ -41,11 +41,9 @@ public class MDCWrappers {
             Map previous = MDC.getCopyOfContextMap();
             log.debug("Wrap -> previous context from MDC.getCopyOfContextMap: {}", previous);
             if (context == null) {
-                log.debug("BEFORE RUNNING: Wrap -> MDC.clear()");
                 MDC.clear();
                 log.debug("  BEFORE RUNNING AFTER MDC.clear(): {}", MDC.getCopyOfContextMap());
             } else {
-                log.debug("BEFORE RUNNING: Wrap -> MDC.setContextMap({})", context);
                 MDC.setContextMap(context);
                 log.debug("  BEFORE RUNNING AFTER MDC.setContextMap({})", MDC.getCopyOfContextMap());
             }
@@ -54,11 +52,9 @@ public class MDCWrappers {
                 runnable.run();
             } finally {
                 if (previous == null) {
-                    log.debug("AFTER RUNNING: Wrap -> MDC.clear()");
                     MDC.clear();
                     log.debug("  AFTER RUNNING AFTER MDC.clear(): {}", MDC.getCopyOfContextMap());
                 } else {
-                    log.debug("AFTER RUNNING: Wrap -> MDC.setContextMap({})", previous);
                     MDC.setContextMap(previous);
                     log.debug("  AFTER RUNNING AFTER MDC.setContextMap({})", MDC.getCopyOfContextMap());
                 }
@@ -74,11 +70,9 @@ public class MDCWrappers {
             Map previous = MDC.getCopyOfContextMap();
             log.debug("Wrap -> previous context from MDC.getCopyOfContextMap: {}", previous);
             if (context == null) {
-                log.debug("BEFORE RUNNING: Wrap -> MDC.clear()");
                 MDC.clear();
                 log.debug("  BEFORE RUNNING AFTER MDC.clear(): {}", MDC.getCopyOfContextMap());
             } else {
-                log.debug("BEFORE RUNNING: Wrap -> MDC.setContextMap({})", context);
                 MDC.setContextMap(context);
                 log.debug("  BEFORE RUNNING AFTER MDC.setContextMap({})", MDC.getCopyOfContextMap());
             }
@@ -87,11 +81,9 @@ public class MDCWrappers {
                 return callable.call();
             } finally {
                 if (previous == null) {
-                    log.debug("AFTER RUNNING: Wrap -> MDC.clear()");
                     MDC.clear();
                     log.debug("  AFTER RUNNING AFTER MDC.clear(): {}", MDC.getCopyOfContextMap());
                 } else {
-                    log.debug("AFTER RUNNING: Wrap -> MDC.setContextMap({})", previous);
                     MDC.setContextMap(previous);
                     log.debug("  AFTER RUNNING AFTER MDC.setContextMap({})", MDC.getCopyOfContextMap());
                 }
@@ -107,11 +99,9 @@ public class MDCWrappers {
             Map previous = MDC.getCopyOfContextMap();
             log.debug("Wrap -> previous context from MDC.getCopyOfContextMap: {}", previous);
             if (context == null) {
-                log.debug("BEFORE RUNNING: Wrap -> MDC.clear()");
                 MDC.clear();
                 log.debug("  BEFORE RUNNING AFTER MDC.clear(): {}", MDC.getCopyOfContextMap());
             } else {
-                log.debug("BEFORE RUNNING: Wrap -> MDC.setContextMap({})", context);
                 MDC.setContextMap(context);
                 log.debug("  BEFORE RUNNING AFTER MDC.setContextMap({})", MDC.getCopyOfContextMap());
             }
@@ -120,11 +110,9 @@ public class MDCWrappers {
                 consumer.accept(t);
             } finally {
                 if (previous == null) {
-                    log.debug("AFTER RUNNING: Wrap -> MDC.clear()");
                     MDC.clear();
                     log.debug("  AFTER RUNNING AFTER MDC.clear(): {}", MDC.getCopyOfContextMap());
                 } else {
-                    log.debug("AFTER RUNNING: Wrap -> MDC.setContextMap({})", previous);
                     MDC.setContextMap(previous);
                     log.debug("  AFTER RUNNING AFTER MDC.setContextMap({})", MDC.getCopyOfContextMap());
                 }
