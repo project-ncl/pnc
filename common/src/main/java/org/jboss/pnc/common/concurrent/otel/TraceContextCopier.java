@@ -51,7 +51,12 @@ public class TraceContextCopier implements ContextCopier {
 
     @Override
     public void apply() {
-        log.debug("MDCUtils.addTraceContext traceId: {}, spanId: {}, traceFlags: {}, traceState: {}", traceId, spanId, traceFlags, traceState);
+        log.debug(
+                "MDCUtils.addTraceContext traceId: {}, spanId: {}, traceFlags: {}, traceState: {}",
+                traceId,
+                spanId,
+                traceFlags,
+                traceState);
         MDCUtils.addTraceContext(traceId, spanId, traceFlags, traceState);
     }
 
