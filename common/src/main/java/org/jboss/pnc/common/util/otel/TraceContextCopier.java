@@ -18,7 +18,6 @@
 package org.jboss.pnc.common.util.otel;
 
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.slf4j.MDC;
 
 import io.opentelemetry.api.trace.Span;
 

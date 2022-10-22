@@ -18,6 +18,7 @@
 package org.jboss.pnc.integration.setup;
 
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
+import org.jboss.pnc.common.util.otel.TraceContextCopier;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.mock.client.KeycloakServiceClientMock;
 import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
@@ -34,6 +35,8 @@ import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.opentelemetry.api.trace.Span;
 
 import java.io.File;
 import java.util.Arrays;
@@ -95,6 +98,7 @@ public class Deployments {
         addRemoteBuildCleanerMock(ear);
         addKeycloakServiceClientMock(ear);
         addAssertJ(ear, resolver);
+        addOtelResources(ear);
 
         logger.info("Ear archive listing: {}", ear.toString(true));
 
@@ -192,6 +196,12 @@ public class Deployments {
 
         enterpriseArchive.addAsModule(jar);
 
+    }
+
+    public static void addOtelResources(EnterpriseArchive enterpriseArchive) {
+        JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, COORDINATOR_JAR);
+        jar.addPackage(TraceContextCopier.class.getPackage());
+        jar.addPackage(Span.class.getPackage());
     }
 
     public static void addLocalBuildScheduler(EnterpriseArchive enterpriseArchive) {
