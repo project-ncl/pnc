@@ -20,15 +20,15 @@ package org.jboss.pnc.coordinator.builder;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
-import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.common.concurrent.otel.TraceAwareNamedThreadFactory;
+import org.jboss.pnc.common.concurrent.otel.TraceContextCopier;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.jboss.pnc.common.util.ProcessStageUtils;
 import org.jboss.pnc.common.util.Quicksort;
-import org.jboss.pnc.common.util.otel.TraceContextCopier;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.dto.Build;
@@ -946,7 +946,9 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         int threadPoolSize = systemConfig.getCoordinatorThreadPoolSize();
         ExecutorService executorService = MDCExecutors.newFixedThreadPool(
                 threadPoolSize,
-                new NamedThreadFactory("build-coordinator-queue-processor", List.of(new TraceContextCopier())));
+                new TraceAwareNamedThreadFactory(
+                        "build-coordinator-queue-processor",
+                        List.of(new TraceContextCopier())));
         for (int i = 0; i < threadPoolSize; i++) {
             executorService.execute(this::takeAndProcessTask);
         }

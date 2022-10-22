@@ -17,15 +17,8 @@
  */
 package org.jboss.pnc.common.concurrent;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.jboss.pnc.common.util.otel.ContextCopier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A thread factory that names threads.
@@ -39,47 +32,16 @@ public class NamedThreadFactory implements ThreadFactory {
     private final String name;
     private final int pool;
 
-    private final List<ContextCopier> contextCopiers;
-
-    private final Logger log = LoggerFactory.getLogger(NamedThreadFactory.class);
-
-
     /**
      * @param name name of the thread pool
      */
     public NamedThreadFactory(String name) {
-        log.debug("NamedThreadFactory constructor(String name)");
         this.name = name;
         this.pool = poolNumber.getAndIncrement();
-        this.contextCopiers = new ArrayList<>();
-    }
-
-    /**
-     * @param name name of the thread pool
-     * @param contextCopiers list of implementations of interface contextCopiers
-     */
-    public NamedThreadFactory(String name, final Collection<ContextCopier> contextCopiers) {
-        log.debug("NamedThreadFactory constructor(String name, final Collection<ContextCopier> contextCopiers)");
-        this.name = name;
-        this.pool = poolNumber.getAndIncrement();
-        this.contextCopiers = new ArrayList<>(contextCopiers);
-        this.contextCopiers.forEach(ContextCopier::copy);
     }
 
     @Override
     public Thread newThread(Runnable r) {
-        return new Thread(
-                makeRunnableContextCopying(r),
-                "[" + pool + "]" + name + "-" + threadNumber.getAndIncrement());
-    }
-
-    private Runnable makeRunnableContextCopying(final Runnable r) {
-
-        return () -> {
-            log.debug("NamedThreadFactory makeRunnableContextCopying before foreach");
-            contextCopiers.forEach(ContextCopier::apply);
-            r.run();
-            log.debug("NamedThreadFactory makeRunnableContextCopying after foreach");
-        };
+        return new Thread(r, "[" + pool + "]" + name + "-" + threadNumber.getAndIncrement());
     }
 }

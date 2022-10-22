@@ -18,8 +18,8 @@
 package org.jboss.pnc.integration.setup;
 
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
-import org.jboss.pnc.common.concurrent.NamedThreadFactory;
-import org.jboss.pnc.common.util.otel.TraceContextCopier;
+import org.jboss.pnc.common.concurrent.otel.TraceAwareNamedThreadFactory;
+import org.jboss.pnc.common.concurrent.otel.TraceContextCopier;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.mock.client.KeycloakServiceClientMock;
 import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
@@ -189,7 +189,7 @@ public class Deployments {
         jar.addClass(BuildDriverResultMock.class);
         jar.addClass(RepositoryManagerResultMock.class);
         jar.addClass(ArtifactBuilder.class);
-        jar.addClass(NamedThreadFactory.class);
+        jar.addClass(TraceAwareNamedThreadFactory.class);
         jar.addClass(TraceContextCopier.class);
         jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
@@ -203,7 +203,7 @@ public class Deployments {
         JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, COORDINATOR_JAR);
 
         jar.addClass(LocalBuildScheduler.class);
-        jar.addClass(NamedThreadFactory.class);
+        jar.addClass(TraceAwareNamedThreadFactory.class);
         jar.addClass(TraceContextCopier.class);
 
         jar.addAsManifestResource("beans-use-local-scheduler.xml", "beans.xml");
@@ -217,7 +217,7 @@ public class Deployments {
     public static void addRemoteBuildCleanerMock(EnterpriseArchive ear) {
         JavaArchive coordinator = ear.getAsType(JavaArchive.class, COORDINATOR_JAR);
         coordinator.addClass(RemoteBuildsCleanerMock.class);
-        coordinator.addClass(NamedThreadFactory.class);
+        coordinator.addClass(TraceAwareNamedThreadFactory.class);
         coordinator.addClass(TraceContextCopier.class);
     }
 }

@@ -24,6 +24,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.jboss.pnc.common.concurrent.otel.TraceAwareNamedThreadFactory;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -49,7 +51,7 @@ public class MDCExecutors {
 
     public static ScheduledExecutorService newScheduledThreadPool(
             int corePoolSize,
-            NamedThreadFactory namedThreadFactory) {
+            TraceAwareNamedThreadFactory namedThreadFactory) {
         return new MDCScheduledThreadPoolExecutor(corePoolSize, namedThreadFactory);
     }
 }

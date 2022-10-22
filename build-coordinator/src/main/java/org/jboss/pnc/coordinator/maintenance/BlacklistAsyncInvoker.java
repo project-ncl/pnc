@@ -25,10 +25,10 @@ import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import org.jboss.pnc.auth.KeycloakServiceClient;
-import org.jboss.pnc.common.concurrent.NamedThreadFactory;
+import org.jboss.pnc.common.concurrent.otel.TraceAwareNamedThreadFactory;
+import org.jboss.pnc.common.concurrent.otel.TraceContextCopier;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.HttpUtils;
-import org.jboss.pnc.common.util.otel.TraceContextCopier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +58,9 @@ public class BlacklistAsyncInvoker {
         this.keycloakServiceClient = keycloakServiceClient;
 
         executorService = Executors.newSingleThreadExecutor(
-                new NamedThreadFactory("build-coordinator.BlacklistAsyncInvoker", List.of(new TraceContextCopier())));
+                new TraceAwareNamedThreadFactory(
+                        "build-coordinator.BlacklistAsyncInvoker",
+                        List.of(new TraceContextCopier())));
     }
 
     public void notifyBlacklistToDA(String jsonPayload) {
