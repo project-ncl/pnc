@@ -24,14 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class MDCUtils {
+public class MDCUtils extends org.jboss.pnc.common.log.MDCUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(MDCUtils.class);
 
@@ -48,12 +46,10 @@ public class MDCUtils {
             Boolean temporaryBuild,
             Instant temporaryBuildExpireDate,
             String userId) {
-        Map<String, String> context = getContextMap();
-        addProcessContext(processContext, context);
-        context.put(MDCKeys.USER_ID_KEY, userId);
-        context.put(MDCKeys.TMP_KEY, temporaryBuild.toString());
-        context.put(MDCKeys.EXP_KEY, temporaryBuildExpireDate.toString());
-        MDC.setContextMap(context);
+        addProcessContext(processContext);
+        MDC.put(MDCKeys.USER_ID_KEY, userId);
+        MDC.put(MDCKeys.TMP_KEY, temporaryBuild.toString());
+        MDC.put(MDCKeys.EXP_KEY, temporaryBuildExpireDate.toString());
     }
 
     public static void removeBuildContext() {
@@ -64,87 +60,32 @@ public class MDCUtils {
     }
 
     public static void addProcessContext(String processContext) {
-        Map<String, String> context = getContextMap();
-        addProcessContext(processContext, context);
-        MDC.setContextMap(context);
-    }
-
-    private static void addProcessContext(String processContext, Map<String, String> map) {
-        String current = map.get(MDCKeys.PROCESS_CONTEXT_KEY);
+        String current = MDC.get(MDCKeys.PROCESS_CONTEXT_KEY);
         if (StringUtils.isEmpty(current)) {
-            map.put(MDCKeys.PROCESS_CONTEXT_KEY, processContext);
+            MDC.put(MDCKeys.PROCESS_CONTEXT_KEY, processContext);
         } else {
             logger.warn("Did not set new processContext [{}] as value already exists [{}].", processContext, current);
         }
     }
 
-    public static void addRequestContext(String requestContext) {
-        Map<String, String> context = getContextMap();
-        context.put(MDCKeys.REQUEST_CONTEXT_KEY, requestContext);
-        MDC.setContextMap(context);
-    }
-
     public static void addUserId(String userId) {
-        Map<String, String> context = getContextMap();
-        context.put(MDCKeys.USER_ID_KEY, userId);
-        MDC.setContextMap(context);
-    }
-
-    private static Map<String, String> getContextMap() {
-        Map<String, String> context = MDC.getCopyOfContextMap();
-        if (context == null) {
-            context = new HashMap<>();
-        }
-        return context;
+        MDC.put(MDCKeys.USER_ID_KEY, userId);
     }
 
     public static Optional<String> getRequestContext() {
-        return Optional.ofNullable(getContextMap().get(MDCKeys.REQUEST_CONTEXT_KEY));
+        return Optional.ofNullable(MDC.get(MDCKeys.REQUEST_CONTEXT_KEY));
     }
 
     public static Optional<String> getProcessContext() {
-        return Optional.ofNullable(getContextMap().get(MDCKeys.PROCESS_CONTEXT_KEY));
+        return Optional.ofNullable(MDC.get(MDCKeys.PROCESS_CONTEXT_KEY));
     }
 
     public static Optional<String> getUserId() {
-        return Optional.ofNullable(getContextMap().get(MDCKeys.USER_ID_KEY));
-    }
-
-    public static Optional<String> getCustomContext(String key) {
-        return Optional.ofNullable(getContextMap().get(key));
-    }
-
-    public static void clear() {
-        MDC.clear();
+        return Optional.ofNullable(MDC.get(MDCKeys.USER_ID_KEY));
     }
 
     public static void removeProcessContext() {
         MDC.remove(MDCKeys.PROCESS_CONTEXT_KEY);
-    }
-
-    public static Map<String, String> getMDCToHeaderMappings() {
-        Map<String, String> mappings = new HashMap<>();
-        mappings.put(MDCKeys.USER_ID_KEY, "log-user-id");
-        mappings.put(MDCKeys.REQUEST_CONTEXT_KEY, "log-request-context");
-        mappings.put(MDCKeys.PROCESS_CONTEXT_KEY, "log-process-context");
-        mappings.put(MDCKeys.TMP_KEY, "log-tmp");
-        mappings.put(MDCKeys.EXP_KEY, "log-exp");
-        mappings.put(MDCKeys.TRACE_ID_KEY, "trace-id");
-        mappings.put(MDCKeys.SPAN_ID_KEY, "span-id");
-        mappings.put(MDCKeys.PARENT_ID_KEY, "parent-id");
-        return mappings;
-    }
-
-    public static Map<String, String> getMdcAsHeadersMap() {
-        Map<String, String> headers = new HashMap<>();
-        Map<String, String> mdcContextMap = getContextMap();
-        getMDCToHeaderMappings().forEach((mdcName, headerName) -> {
-            String mdcEntry = mdcContextMap.get(mdcName);
-            if (!StringUtils.isEmpty(mdcEntry)) {
-                headers.put(headerName, mdcEntry);
-            }
-        });
-        return headers;
     }
 
     public static void addCustomContext(String key, Object value) {
@@ -152,20 +93,7 @@ public class MDCUtils {
             logger.warn("Setting null for MDC: {}.", key);
             return;
         }
-        String stringValue;
-        if (value instanceof Long) {
-            stringValue = Long.toString((Long) value);
-        } else if (value instanceof Integer) {
-            stringValue = Integer.toString((Integer) value);
-        } else if (value instanceof String) {
-            stringValue = (String) value;
-        } else {
-            logger.error("Unsupported MDC value type.");
-            return;
-        }
-        Map<String, String> context = getContextMap();
-        context.put(key, stringValue);
-        MDC.setContextMap(context);
+        MDC.put(key, value.toString());
     }
 
     public static void removeCustomContext(String key) {

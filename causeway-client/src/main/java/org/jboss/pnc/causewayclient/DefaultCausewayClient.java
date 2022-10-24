@@ -25,7 +25,6 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
-import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -72,10 +71,7 @@ public class DefaultCausewayClient implements CausewayClient {
             Request request = Request.Post(url)
                     .addHeader(authHeader)
                     .bodyString(jsonMessage, ContentType.APPLICATION_JSON);
-            MDCUtils.getUserId().ifPresent(v -> request.addHeader("log-user-id", v));
-            MDCUtils.getRequestContext().ifPresent(v -> request.addHeader("log-request-context", v));
-            MDCUtils.getProcessContext().ifPresent(v -> request.addHeader("log-process-context", v));
-            MDCUtils.getCustomContext(MDCKeys.BUILD_ID_KEY).ifPresent(v -> request.addHeader("log-build-id", v));
+            MDCUtils.getHeadersFromMDC().forEach(request::addHeader);
             response = request.execute().returnResponse();
         } catch (IOException e) {
             logger.error("Failed to invoke remote Causeway.", e);

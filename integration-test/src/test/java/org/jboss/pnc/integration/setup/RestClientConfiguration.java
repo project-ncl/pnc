@@ -38,7 +38,7 @@ public class RestClientConfiguration {
         builder.host("localhost");
         builder.port(IntegrationTestEnv.getHttpPort());
 
-        builder.mdcToHeadersMappings(MDCUtils.getMDCToHeaderMappings());
+        builder.addDefaultMdcToHeadersMappings();
 
         return builder.build();
     }

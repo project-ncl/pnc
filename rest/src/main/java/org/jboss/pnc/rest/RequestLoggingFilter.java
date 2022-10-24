@@ -59,19 +59,8 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
-        MDCUtils.clear();
         requestContext.setProperty(REQUEST_EXECUTION_START, System.currentTimeMillis());
-
-        String logRequestContext = requestContext.getHeaderString("log-request-context");
-        if (logRequestContext == null) {
-            logRequestContext = RandomUtils.randString(12);
-        }
-        MDCUtils.addRequestContext(logRequestContext);
-
-        String logProcessContext = requestContext.getHeaderString("log-process-context");
-        if (logProcessContext != null) {
-            MDCUtils.addProcessContext(logProcessContext);
-        }
+        MDCUtils.setMDCFromRequestContext(requestContext);
 
         User user = null;
         try {
