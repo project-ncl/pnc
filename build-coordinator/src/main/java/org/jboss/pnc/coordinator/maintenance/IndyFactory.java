@@ -78,7 +78,7 @@ public class IndyFactory {
                     siteConfig,
                     authenticator,
                     new IndyObjectMapper(true),
-                    MDCUtils.getMDCToHeaderMappings(),
+                    MDCUtils.HEADER_KEY_MAPPING,
                     modules);
         } catch (IndyClientException e) {
             throw new IllegalStateException("Failed to create Indy client: " + e.getMessage(), e);

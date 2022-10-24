@@ -61,7 +61,6 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.net.URI;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -201,14 +200,11 @@ public class BuildResultPushManager {
         Set<Dependency> dependencies = collectDependencies(dependencyEntities);
         Set<BuiltArtifact> builtArtifacts = collectBuiltArtifacts(builtArtifactEntities, buildType);
 
-        Map<String, String> callbackHeaders = Collections.singletonMap(
-                MDCUtils.getMDCToHeaderMappings().get(MDCKeys.PROCESS_CONTEXT_KEY),
-                pushResultId.toString());
         Request callbackTarget = Request.builder()
                 .method(Request.Method.POST)
                 .authTokenHeader(authToken)
                 .uri(callBackUrl)
-                .header(MDCUtils.getMDCToHeaderMappings().get(MDCKeys.PROCESS_CONTEXT_KEY), pushResultId.toString())
+                .header(MDCUtils.HEADER_KEY_MAPPING.get(MDCKeys.PROCESS_CONTEXT_KEY), pushResultId.toString())
                 .build();
 
         String executionRootName = buildRecord.getExecutionRootName();

@@ -54,7 +54,7 @@ public class ClientTest {
 
         Undertow server = Undertow.builder().addHttpListener(8080, "localhost").setHandler(exchange -> {
             requestsReceived.incrementAndGet();
-            String headerName = MDCUtils.getMDCToHeaderMappings().get(MDCKeys.REQUEST_CONTEXT_KEY);
+            String headerName = MDCUtils.HEADER_KEY_MAPPING.get(MDCKeys.REQUEST_CONTEXT_KEY);
             HeaderValues strings = exchange.getRequestHeaders().get(headerName);
             if (strings != null) {
                 headerReceived.set(strings.getFirst());
