@@ -106,6 +106,8 @@ public class RestConnector implements Connector {
 
         Map<String, Map<String, Object>> body = Collections.singletonMap("initData", processParameters);
 
+        log.debug("Sending MDCParameters: {}", processParameters.get("mdc"));
+
         HttpEntity requestEntity;
         try {
             requestEntity = new StringEntity(JsonOutputConverterMapper.apply(body));

@@ -57,7 +57,7 @@ public class TraceContextCopier implements ContextCopier {
                 spanId,
                 traceFlags,
                 traceState);
-        MDCUtils.addTraceContext(traceId, spanId, traceFlags, traceState);
+        MDCUtils.addTraceContext(traceId, spanId, traceFlags, null);
     }
 
 }

@@ -37,6 +37,10 @@ public class MDCParameters {
 
     public final String buildId;
 
+    public final String traceId;
+
+    public final String spanId;
+
     @JsonProperty(MDCKeys.REQUEST_TOOK)
     public final String request_took;
 
@@ -52,5 +56,7 @@ public class MDCParameters {
         this.buildId = MDC.get(MDCKeys.BUILD_ID_KEY);
         this.request_took = MDC.get(MDCKeys.REQUEST_TOOK);
         this.response_status = MDC.get(MDCKeys.RESPONSE_STATUS);
+        this.traceId = MDC.get("trace__id");
+        this.spanId = MDC.get("span__id");
     }
 }

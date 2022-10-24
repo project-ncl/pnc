@@ -17,12 +17,32 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
+import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
+import org.jboss.pnc.common.concurrent.NamedThreadFactory;
 import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.common.concurrent.otel.TraceAwareNamedThreadFactory;
-import org.jboss.pnc.common.concurrent.otel.TraceContextCopier;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -62,30 +82,6 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.TraceFlags;
-import io.opentelemetry.api.trace.TraceState;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
 /**
  *
@@ -944,11 +940,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void startThreads() {
         int threadPoolSize = systemConfig.getCoordinatorThreadPoolSize();
-        ExecutorService executorService = MDCExecutors.newFixedThreadPool(
-                threadPoolSize,
-                new TraceAwareNamedThreadFactory(
-                        "build-coordinator-queue-processor",
-                        List.of(new TraceContextCopier())));
+        ExecutorService executorService = MDCExecutors
+                .newFixedThreadPool(threadPoolSize, new NamedThreadFactory("build-coordinator-queue-processor"));
         for (int i = 0; i < threadPoolSize; i++) {
             executorService.execute(this::takeAndProcessTask);
         }
