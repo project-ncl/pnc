@@ -87,6 +87,7 @@
     <module>processor</module>
     <module>rest-client</module>
     <module>mapper</module>
+    <module>bpm-mock</module>
   </modules>
 
   <properties>
