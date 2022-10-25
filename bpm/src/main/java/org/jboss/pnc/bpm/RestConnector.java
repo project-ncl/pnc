@@ -100,7 +100,7 @@ public class RestConnector implements Connector {
         return startProcess(processId, requestObject, Sequence.nextBase32Id(), accessToken);
     }
 
-    @WithSpan()
+    @WithSpan(value = "RestConnector.startProcess")
     public Long startProcess(
             @SpanAttribute(value = "processId") String processId,
             @SpanAttribute(value = "requestObject") Object requestObject,

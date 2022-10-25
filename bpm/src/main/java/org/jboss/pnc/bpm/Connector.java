@@ -19,8 +19,6 @@ package org.jboss.pnc.bpm;
 
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 
-import io.opentelemetry.instrumentation.annotations.WithSpan;
-
 import java.io.Closeable;
 
 /**
@@ -34,7 +32,6 @@ public interface Connector extends Closeable {
     @Deprecated
     Long startProcess(String processId, Object processParameters, String accessToken) throws ProcessManagerException;
 
-    @WithSpan()
     Long startProcess(String processId, Object requestObject, String correlationKey, String accessToken)
             throws ProcessManagerException;
 
