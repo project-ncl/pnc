@@ -118,7 +118,7 @@ public class BuildQueue {
      * @param taskReadyCallback a callback to be invoked when the task becomes ready
      */
     @WithSpan()
-    public synchronized void addWaitingTask(BuildTask task, Runnable taskReadyCallback) {
+    public synchronized void addWaitingTask(@SpanAttribute(value = "task") BuildTask task, Runnable taskReadyCallback) {
         MDCAwareElement element = new MDCAwareElement(task);
         unfinishedTasks.add(element);
         log.debug("adding waiting task: {} with contextMap: {}", task, element.getContextMap());
@@ -131,7 +131,7 @@ public class BuildQueue {
      * @param taskSet task set to be built
      */
     @WithSpan()
-    public synchronized void enqueueTaskSet(BuildSetTask taskSet) {
+    public synchronized void enqueueTaskSet(@SpanAttribute(value = "taskSet") BuildSetTask taskSet) {
         log.debug("adding task set: {}", taskSet);
         taskSets.add(taskSet);
     }
@@ -142,7 +142,7 @@ public class BuildQueue {
      * @param taskSet processed task set
      */
     @WithSpan()
-    public synchronized void removeSet(BuildSetTask taskSet) {
+    public synchronized void removeSet(@SpanAttribute(value = "taskSet") BuildSetTask taskSet) {
         log.debug("removing task set: {}", taskSet);
         taskSets.remove(taskSet);
     }
@@ -154,7 +154,7 @@ public class BuildQueue {
      * @param task task to be removed
      */
     @WithSpan()
-    public synchronized void removeTask(BuildTask task) {
+    public synchronized void removeTask(@SpanAttribute(value = "task") BuildTask task) {
         log.debug("removing task: {}", task);
         MDCAwareElement element = new MDCAwareElement(task);
         if (tasksInProgress.remove(element)) {

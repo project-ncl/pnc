@@ -45,6 +45,9 @@ import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,8 +100,12 @@ public class RestConnector implements Connector {
         return startProcess(processId, requestObject, Sequence.nextBase32Id(), accessToken);
     }
 
-    public Long startProcess(String processId, Object requestObject, String correlationKey, String accessToken)
-            throws ProcessManagerException {
+    @WithSpan()
+    public Long startProcess(
+            @SpanAttribute(value = "processId") String processId,
+            @SpanAttribute(value = "requestObject") Object requestObject,
+            @SpanAttribute(value = "correlationKey") String correlationKey,
+            String accessToken) throws ProcessManagerException {
         HttpPost request = endpointUrl.startProcessInstance(currentDeploymentId, processId, correlationKey);
         log.debug("Starting new process using http endpoint: {}", request.getURI());
 
