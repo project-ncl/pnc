@@ -25,7 +25,6 @@ import org.jboss.pnc.common.json.AbstractModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.messaging.spi.MessageSender;
-import org.jboss.pnc.messaging.spi.MessagingRuntimeException;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.Archive;
@@ -38,7 +37,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.opentelemetry.context.Context;
-import io.opentelemetry.context.ContextStorage;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;

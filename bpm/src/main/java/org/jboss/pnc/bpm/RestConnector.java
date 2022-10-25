@@ -33,10 +33,13 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
+import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
@@ -106,8 +109,6 @@ public class RestConnector implements Connector {
 
         Map<String, Map<String, Object>> body = Collections.singletonMap("initData", processParameters);
 
-        log.debug("Sending MDCParameters: {}", processParameters.get("mdc"));
-
         HttpEntity requestEntity;
         try {
             requestEntity = new StringEntity(JsonOutputConverterMapper.apply(body));
@@ -136,6 +137,16 @@ public class RestConnector implements Connector {
         request.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
         request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+        // Adding OTEL headers for distributed tracing
+        MDCUtils.getCustomContext(MDCKeys.SLF4J_TRACE_ID_KEY).ifPresent(v -> {
+            log.debug("Setting {} header: {}", MDCKeys.SLF4J_TRACE_ID_KEY, v);
+            request.addHeader(MDCHeaderKeys.SLF4J_TRACE_ID.getHeaderName(), v);
+        });
+        MDCUtils.getCustomContext(MDCKeys.SLF4J_SPAN_ID_KEY).ifPresent(v -> {
+            log.debug("Setting {} header: {}", MDCKeys.SLF4J_SPAN_ID_KEY, v);
+            request.addHeader(MDCHeaderKeys.SLF4J_SPAN_ID.getHeaderName(), v);
+        });
     }
 
     private RequestConfig.Builder httpClientConfig() {

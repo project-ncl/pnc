@@ -21,8 +21,6 @@ import org.jboss.pnc.spi.builddriver.exception.BuildDriverException;
 import org.jboss.pnc.spi.environment.RunningEnvironment;
 import org.jboss.pnc.spi.executor.BuildExecutionSession;
 
-import io.opentelemetry.instrumentation.annotations.WithSpan;
-
 import java.util.function.Consumer;
 
 /**
@@ -32,7 +30,6 @@ public interface BuildDriver {
 
     String getDriverId();
 
-    @WithSpan()
     RunningBuild startProjectBuild(
             BuildExecutionSession buildExecutionSession,
             RunningEnvironment runningEnvironment,

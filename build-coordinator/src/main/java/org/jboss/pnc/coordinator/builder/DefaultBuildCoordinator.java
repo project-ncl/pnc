@@ -17,27 +17,6 @@
  */
 package org.jboss.pnc.coordinator.builder;
 
-import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
@@ -82,6 +61,26 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
 /**
  *
@@ -379,11 +378,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         // completion notification
         MDCUtils.removeBuildContext();
         MDCUtils.addBuildContext(getMDCMeta(buildTask));
-        // MDCUtils.addTraceContext(
-        // Span.current().getSpanContext().getTraceId(),
-        // Span.current().getSpanContext().getSpanId(),
-        // Span.current().getSpanContext().getTraceFlags().toString(),
-        // Span.current().getSpanContext().getTraceState().toString());
         try {
             if (isBuildConfigurationAlreadyInQueue(buildTask)) {
                 log.debug("Skipping buildTask {}, its buildConfiguration is already in the buildQueue.", buildTask);
@@ -416,7 +410,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
         } finally {
             MDCUtils.removeBuildContext();
-            // MDCUtils.removeTraceContext();
         }
     }
 
@@ -489,18 +482,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 .forEach(buildTask -> {
                     try {
                         MDCUtils.addBuildContext(getMDCMeta(buildTask));
-                        // MDCUtils.addTraceContext(
-                        // Span.current().getSpanContext().getTraceId(),
-                        // Span.current().getSpanContext().getSpanId(),
-                        // Span.current().getSpanContext().getTraceFlags().toString(),
-                        // Span.current().getSpanContext().getTraceState().toString());
                         log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
                         cancel(buildTask.getId());
                     } catch (CoreException e) {
                         log.error("Unable to cancel the build [" + buildTask.getId() + "].", e);
                     } finally {
                         MDCUtils.removeBuildContext();
-                        // MDCUtils.removeTraceContext();
                     }
                 });
         record.setStatus(BuildStatus.CANCELLED);

@@ -37,8 +37,6 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.opentelemetry.api.trace.Span;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -330,11 +328,6 @@ public class BuildTasksInitializer {
                                 temporaryBuildLifespanDays,
                                 buildOptions.isTemporaryBuild()),
                         user.getId().toString());
-                // MDCUtils.addTraceContext(
-                // Span.current().getSpanContext().getTraceId(),
-                // Span.current().getSpanContext().getSpanId(),
-                // Span.current().getSpanContext().getTraceFlags().toString(),
-                // Span.current().getSpanContext().getTraceState().toString());
                 try {
                     Optional<String> requestContext = MDCUtils.getRequestContext();
                     buildTask = BuildTask.build(
@@ -353,7 +346,6 @@ public class BuildTasksInitializer {
                             buildConfigAudited);
                 } finally {
                     MDCUtils.removeBuildContext();
-                    // MDCUtils.removeTraceContext();
                 }
             }
             buildSetTask.addBuildTask(buildTask);

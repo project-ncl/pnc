@@ -21,8 +21,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-
-import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.bpm.model.BpmEvent;
 import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -196,16 +194,6 @@ public abstract class BpmTask implements Comparable<BpmTask> {
         MDCUtils.getProcessContext().ifPresent(v -> {
             log.debug("Setting process parameter logProcessContext: {}", v);
             actualParameters.put("logProcessContext", v);
-        });
-
-        // Setting OTEL data from MDC
-        MDCUtils.getCustomContext("trace_id").ifPresent(v -> {
-            log.debug("Setting otel parameter traceId: {}", v);
-            actualParameters.put("traceId", v);
-        });
-        MDCUtils.getCustomContext("span_id").ifPresent(v -> {
-            log.debug("Setting otel parameter spanId: {}", v);
-            actualParameters.put("spanId", v);
         });
         return actualParameters;
     }

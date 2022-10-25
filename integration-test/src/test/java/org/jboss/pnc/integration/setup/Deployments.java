@@ -18,8 +18,6 @@
 package org.jboss.pnc.integration.setup;
 
 import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
-import org.jboss.pnc.common.concurrent.otel.TraceAwareNamedThreadFactory;
-import org.jboss.pnc.common.concurrent.otel.TraceContextCopier;
 import org.jboss.pnc.integration.mock.RemoteBuildsCleanerMock;
 import org.jboss.pnc.integration.mock.client.KeycloakServiceClientMock;
 import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
@@ -36,8 +34,6 @@ import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.opentelemetry.api.trace.Span;
 
 import java.io.File;
 import java.util.Arrays;
@@ -189,8 +185,7 @@ public class Deployments {
         jar.addClass(BuildDriverResultMock.class);
         jar.addClass(RepositoryManagerResultMock.class);
         jar.addClass(ArtifactBuilder.class);
-        jar.addClass(TraceAwareNamedThreadFactory.class);
-        jar.addClass(TraceContextCopier.class);
+
         jar.addAsManifestResource("beans-use-mock-remote-clients.xml", "beans.xml");
 
         logger.info(jar.toString(true));
@@ -203,8 +198,6 @@ public class Deployments {
         JavaArchive jar = enterpriseArchive.getAsType(JavaArchive.class, COORDINATOR_JAR);
 
         jar.addClass(LocalBuildScheduler.class);
-        jar.addClass(TraceAwareNamedThreadFactory.class);
-        jar.addClass(TraceContextCopier.class);
 
         jar.addAsManifestResource("beans-use-local-scheduler.xml", "beans.xml");
 
@@ -217,7 +210,5 @@ public class Deployments {
     public static void addRemoteBuildCleanerMock(EnterpriseArchive ear) {
         JavaArchive coordinator = ear.getAsType(JavaArchive.class, COORDINATOR_JAR);
         coordinator.addClass(RemoteBuildsCleanerMock.class);
-        coordinator.addClass(TraceAwareNamedThreadFactory.class);
-        coordinator.addClass(TraceContextCopier.class);
     }
 }

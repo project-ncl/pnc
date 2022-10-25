@@ -164,7 +164,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
         // Adding OTEL information into MDC (from headers if available)
         String traceId = requestContext.getHeaderString("trace-id");
         if (traceId != null) {
-            logger.trace("Trace received from containerRequestContext: {}.", traceId);
+            logger.debug("Trace received from containerRequestContext: {}.", traceId);
 
             // A trace should be associated with span and trace flags plus status (ignored atm)
             String spanId = requestContext.getHeaderString("span-id");
@@ -172,14 +172,13 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
                 // Some vendors use parent-id instead (https://www.w3.org/TR/trace-context/#parent-id)
                 spanId = requestContext.getHeaderString("parent-id");
             }
-            MDCUtils.addTraceContext(traceId, spanId, null, null);
+            MDCUtils.addTraceContext(traceId, spanId, null);
         } else {
             SpanContext spanContext = Span.current().getSpanContext();
             MDCUtils.addTraceContext(
                     spanContext.getTraceId(),
                     spanContext.getSpanId(),
-                    spanContext.getTraceFlags().asHex(),
-                    null);
+                    spanContext.getTraceFlags().asHex());
         }
     }
 }

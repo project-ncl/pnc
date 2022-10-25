@@ -21,8 +21,6 @@ package org.jboss.pnc.spi.executor;
 import org.jboss.pnc.spi.events.BuildExecutionStatusChangedEvent;
 import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
-import io.opentelemetry.instrumentation.annotations.WithSpan;
-
 import java.util.function.Consumer;
 
 /**
@@ -30,19 +28,15 @@ import java.util.function.Consumer;
  */
 public interface BuildExecutor {
 
-    @WithSpan()
     BuildExecutionSession startBuilding(
             BuildExecutionConfiguration buildExecutionConfiguration,
             Consumer<BuildExecutionStatusChangedEvent> onBuildExecutionStatusChangedEvent,
             String accessToken) throws ExecutorException;
 
-    @WithSpan()
     BuildExecutionSession getRunningExecution(String buildExecutionTaskId);
 
-    @WithSpan()
     void shutdown();
 
-    @WithSpan()
     void cancel(String executionConfigurationId) throws ExecutorException;
 
 }

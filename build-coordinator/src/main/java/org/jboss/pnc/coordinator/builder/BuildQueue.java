@@ -25,9 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.TraceFlags;
-import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 
@@ -109,7 +106,7 @@ public class BuildQueue {
         }
         MDCAwareElement element = new MDCAwareElement(task);
         unfinishedTasks.add(element);
-        log.debug("adding task: {} with MDCAwareElement: {}", task, element);
+        log.debug("adding task: {} with contextMap: {}", task, element.getContextMap());
         readyTasks.add(element);
         return true;
     }
@@ -124,7 +121,7 @@ public class BuildQueue {
     public synchronized void addWaitingTask(BuildTask task, Runnable taskReadyCallback) {
         MDCAwareElement element = new MDCAwareElement(task);
         unfinishedTasks.add(element);
-        log.debug("adding waiting task: {} with MDCAwareElement: {}", task, element);
+        log.debug("adding waiting task: {} with contextMap: {}", task, element.getContextMap());
         waitingTasksWithCallbacks.put(element, taskReadyCallback);
     }
 
@@ -228,14 +225,13 @@ public class BuildQueue {
         // SkippingBuiltConfigsTest.shouldNotTriggerTheSameBuildConfigurationViaDependency
         // to avoid race condition getUnfinishedTask is used instead of getTask
         MDCAwareElement<BuildTask> element = readyTasks.take();
-        log.debug("Took task with associated MDCAware element: {}", element);
         tasksInProgress.add(element);
         return element;
     }
 
     public void take(Consumer<BuildTask> consumer) throws InterruptedException {
-        Map<String, String> stashedContextMap = MDC.getCopyOfContextMap();
-        log.debug("About to take a new task; stashedContextMap is {}", stashedContextMap);
+        Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
+        log.debug("About to take a new task; copyOfContextMap is {}", copyOfContextMap);
         MDCAwareElement<BuildTask> element = take();
         log.info("Got task: {}, will start processing", element);
         Map<String, String> elementContextMap = element.getContextMap();
@@ -251,8 +247,8 @@ public class BuildQueue {
                 elementContextMap.keySet().forEach(MDC::remove);
             }
             // restore context
-            if (stashedContextMap != null) {
-                MDC.setContextMap(stashedContextMap);
+            if (copyOfContextMap != null) {
+                MDC.setContextMap(copyOfContextMap);
             }
         }
     }

@@ -25,6 +25,7 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 import org.jboss.pnc.api.causeway.dto.push.BuildImportRequest;
 import org.jboss.pnc.api.causeway.dto.untag.UntagRequest;
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
@@ -76,6 +77,14 @@ public class DefaultCausewayClient implements CausewayClient {
             MDCUtils.getRequestContext().ifPresent(v -> request.addHeader("log-request-context", v));
             MDCUtils.getProcessContext().ifPresent(v -> request.addHeader("log-process-context", v));
             MDCUtils.getCustomContext(MDCKeys.BUILD_ID_KEY).ifPresent(v -> request.addHeader("log-build-id", v));
+
+            // Adding OTEL headers for distributed tracing
+            MDCUtils.getCustomContext(MDCKeys.SLF4J_TRACE_ID_KEY).ifPresent(v -> {
+                request.addHeader(MDCHeaderKeys.SLF4J_TRACE_ID.getHeaderName(), v);
+            });
+            MDCUtils.getCustomContext(MDCKeys.SLF4J_SPAN_ID_KEY).ifPresent(v -> {
+                request.addHeader(MDCHeaderKeys.SLF4J_SPAN_ID.getHeaderName(), v);
+            });
             response = request.execute().returnResponse();
         } catch (IOException e) {
             logger.error("Failed to invoke remote Causeway.", e);

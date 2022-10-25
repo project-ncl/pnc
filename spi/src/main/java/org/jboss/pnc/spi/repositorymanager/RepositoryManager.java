@@ -23,8 +23,6 @@ import org.jboss.pnc.spi.repositorymanager.model.RepositorySession;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryDeletion;
 import org.jboss.pnc.spi.repositorymanager.model.RunningRepositoryPromotion;
 
-import io.opentelemetry.instrumentation.annotations.WithSpan;
-
 import java.util.Map;
 
 /**
@@ -46,7 +44,6 @@ public interface RepositoryManager {
      * @throws RepositoryManagerException If there is a problem creating the repository even after defined number of
      *         retries
      */
-    @WithSpan()
     RepositorySession createBuildRepositoryWithRetries(
             BuildExecution buildExecution,
             String accessToken,
@@ -68,7 +65,6 @@ public interface RepositoryManager {
      * @return The new repository session
      * @throws RepositoryManagerException If there is a problem creating the repository
      */
-    @WithSpan()
     RepositorySession createBuildRepository(
             BuildExecution buildExecution,
             String accessToken,
@@ -87,7 +83,6 @@ public interface RepositoryManager {
      * @return repository manager result
      * @throws RepositoryManagerException in case of an error when collecting the build artifacts and dependencies
      */
-    @WithSpan()
     RepositoryManagerResult collectRepoManagerResult(String id) throws RepositoryManagerException;
 
     /**
@@ -103,7 +98,6 @@ public interface RepositoryManager {
      *
      * @throws RepositoryManagerException If there is a problem promoting the build
      */
-    @WithSpan()
     RunningRepositoryPromotion promoteBuild(
             BuildRecord buildRecord,
             String pakageType,
@@ -122,11 +116,9 @@ public interface RepositoryManager {
      *
      * @throws RepositoryManagerException If there is a problem deleting the build
      */
-    @WithSpan()
     RunningRepositoryDeletion deleteBuild(BuildRecord buildRecord, String pakageType, String accessToken)
             throws RepositoryManagerException;
 
-    @WithSpan()
     boolean canManage(RepositoryType managerType);
 
 }

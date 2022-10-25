@@ -90,25 +90,18 @@ public class MDCUtils {
         MDC.setContextMap(context);
     }
 
-    public static void addTraceContext(String traceId, String spanId, String traceFlags, String traceState) {
+    public static void addTraceContext(String traceId, String spanId, String traceFlags) {
         Map<String, String> context = getContextMap();
         if (traceId != null) {
-            context.put("trace_id", traceId);
+            context.put(MDCKeys.SLF4J_TRACE_ID_KEY, traceId);
         }
         if (spanId != null) {
-            context.put("span_id", spanId);
+            context.put(MDCKeys.SLF4J_SPAN_ID_KEY, spanId);
         }
         if (traceFlags != null) {
-            context.put("trace_flags", traceFlags);
+            context.put(MDCKeys.SLF4J_TRACE_FLAGS_KEY, traceFlags);
         }
-
         MDC.setContextMap(context);
-    }
-
-    public static void removeTraceContext() {
-        MDC.remove("trace_id");
-        MDC.remove("span_id");
-        MDC.remove("trace_flags");
     }
 
     private static Map<String, String> getContextMap() {
@@ -150,9 +143,8 @@ public class MDCUtils {
         mappings.put(MDCKeys.PROCESS_CONTEXT_KEY, "log-process-context");
         mappings.put(MDCKeys.TMP_KEY, "log-tmp");
         mappings.put(MDCKeys.EXP_KEY, "log-exp");
-        mappings.put(MDCKeys.TRACE_ID_KEY, "trace-id");
-        mappings.put(MDCKeys.SPAN_ID_KEY, "span-id");
-        mappings.put(MDCKeys.PARENT_ID_KEY, "parent-id");
+        mappings.put(MDCKeys.SLF4J_TRACE_ID_KEY, "trace-id");
+        mappings.put(MDCKeys.SLF4J_SPAN_ID_KEY, "span-id");
         return mappings;
     }
 

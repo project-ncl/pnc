@@ -59,7 +59,7 @@ public class MDCParameters {
         this.buildId = MDC.get(MDCKeys.BUILD_ID_KEY);
         this.request_took = MDC.get(MDCKeys.REQUEST_TOOK);
         this.response_status = MDC.get(MDCKeys.RESPONSE_STATUS);
-        this.traceId = MDC.get("trace_id");
-        this.spanId = MDC.get("span_id");
+        this.traceId = MDC.get(MDCKeys.SLF4J_TRACE_ID_KEY);
+        this.spanId = MDC.get(MDCKeys.SLF4J_SPAN_ID_KEY);
     }
 }

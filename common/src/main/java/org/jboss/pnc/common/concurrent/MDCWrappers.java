@@ -53,7 +53,6 @@ public class MDCWrappers {
 
     public static <T> Callable<T> wrap(final Callable<T> callable) {
         final Map<String, String> context = MDC.getCopyOfContextMap();
-
         return () -> {
             Map<String, String> previous = MDC.getCopyOfContextMap();
             if (context == null) {
@@ -75,7 +74,6 @@ public class MDCWrappers {
 
     public static <T> Consumer<T> wrap(final Consumer<T> consumer) {
         final Map<String, String> context = MDC.getCopyOfContextMap();
-
         return (t) -> {
             Map<String, String> previous = MDC.getCopyOfContextMap();
             if (context == null) {
