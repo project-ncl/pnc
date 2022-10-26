@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.coordinator.builder.bpm;
 
-import org.jboss.pnc.bpm.ConnectorFactory;
+import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -26,8 +26,6 @@ import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -41,7 +39,7 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     private GlobalModuleGroup globalConfig;
 
-    private ConnectorFactory connectorFactory;
+    private Connector connector;
 
     @Deprecated
     public BpmBuildScheduler() { // CDI workaround
@@ -53,25 +51,16 @@ public class BpmBuildScheduler implements BuildScheduler {
         this.globalConfig = globalConfig;
     }
 
-    @PostConstruct
-    public void init() {
-    }
-
-    @PreDestroy
-    private void dispose() {
-    }
-
     @Override
     public void startBuilding(BuildTask buildTask) throws CoreException {
         try {
             BpmBuildTask task = new BpmBuildTask(buildTask);
             task.setGlobalConfig(globalConfig);
-            connectorFactory.get()
-                    .startProcess(
-                            bpmConfig.getBpmNewBuildProcessName(),
-                            task.getExtendedProcessParameters(),
-                            buildTask.getId(),
-                            buildTask.getUser().getLoginToken());
+            connector.startProcess(
+                    bpmConfig.getBpmNewBuildProcessName(),
+                    task.getExtendedProcessParameters(),
+                    buildTask.getId(),
+                    buildTask.getUser().getLoginToken());
         } catch (Exception e) {
             throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
         }
@@ -80,6 +69,6 @@ public class BpmBuildScheduler implements BuildScheduler {
     @Override
     public boolean cancel(BuildTask buildTask) {
         BpmBuildTask task = new BpmBuildTask(buildTask);
-        return connectorFactory.get().cancelByCorrelation(buildTask.getId(), task.getAccessToken());
+        return connector.cancelByCorrelation(buildTask.getId(), task.getAccessToken());
     }
 }

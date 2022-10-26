@@ -48,8 +48,6 @@ public class ComponentBuildParametersSerialization {
                 "http://aproxBaseUrl",
                 "http://repourBaseUrl",
                 "http://daBaseUrl",
-                false,
-                true,
                 buildExecutionConfigurationRest);
 
         String string = MAPPER.writeValueAsString(processParameters);

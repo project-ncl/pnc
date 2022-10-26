@@ -292,7 +292,8 @@ public class BuildTest {
     // NCL-5192
     // Replicates NCL-5192 through explicit dependency instead of implicit
     @Test
-    public void dontRebuildTemporaryBuildWhenThereIsNewerPersistentOnSameRev() throws ClientException {
+    public void dontRebuildTemporaryBuildWhenThereIsNewerPersistentOnSameRev()
+            throws ClientException, InterruptedException {
         BuildConfiguration parent = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==pnc-build-agent-0.4"))
                 .iterator()
@@ -316,6 +317,7 @@ public class BuildTest {
                 .description("Random Description so it rebuilds")
                 .buildScript("mvn" + "   clean deploy -DskipTests=true")
                 .build();
+        Thread.sleep(1L);
         buildConfigurationClient.update(updatedDependency.getId(), updatedDependency);
         assertThat(oldLastModDateDependency).isNotEqualTo(updatedDependency.getModificationTime());
 
