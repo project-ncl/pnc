@@ -25,6 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
+
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -96,13 +99,14 @@ public class BuildQueue {
      *
      * @param task task to be enqueued
      */
-    public synchronized boolean addReadyTask(BuildTask task) {
+    @WithSpan()
+    public synchronized boolean addReadyTask(@SpanAttribute(value = "task") BuildTask task) {
         if (!task.readyToBuild()) {
             throw new IllegalArgumentException("a not ready task added to the queue: " + task);
         }
         MDCAwareElement element = new MDCAwareElement(task);
         unfinishedTasks.add(element);
-        log.debug("adding task: {}", task);
+        log.debug("adding task: {} with contextMap: {}", task, element.getContextMap());
         readyTasks.add(element);
         return true;
     }
@@ -113,10 +117,11 @@ public class BuildQueue {
      * @param task task that is not ready to build
      * @param taskReadyCallback a callback to be invoked when the task becomes ready
      */
-    public synchronized void addWaitingTask(BuildTask task, Runnable taskReadyCallback) {
+    @WithSpan()
+    public synchronized void addWaitingTask(@SpanAttribute(value = "task") BuildTask task, Runnable taskReadyCallback) {
         MDCAwareElement element = new MDCAwareElement(task);
         unfinishedTasks.add(element);
-        log.debug("adding waiting task: {}", task);
+        log.debug("adding waiting task: {} with contextMap: {}", task, element.getContextMap());
         waitingTasksWithCallbacks.put(element, taskReadyCallback);
     }
 
@@ -125,7 +130,8 @@ public class BuildQueue {
      *
      * @param taskSet task set to be built
      */
-    public synchronized void enqueueTaskSet(BuildSetTask taskSet) {
+    @WithSpan()
+    public synchronized void enqueueTaskSet(@SpanAttribute(value = "taskSet") BuildSetTask taskSet) {
         log.debug("adding task set: {}", taskSet);
         taskSets.add(taskSet);
     }
@@ -135,7 +141,8 @@ public class BuildQueue {
      *
      * @param taskSet processed task set
      */
-    public synchronized void removeSet(BuildSetTask taskSet) {
+    @WithSpan()
+    public synchronized void removeSet(@SpanAttribute(value = "taskSet") BuildSetTask taskSet) {
         log.debug("removing task set: {}", taskSet);
         taskSets.remove(taskSet);
     }
@@ -146,7 +153,8 @@ public class BuildQueue {
      *
      * @param task task to be removed
      */
-    public synchronized void removeTask(BuildTask task) {
+    @WithSpan()
+    public synchronized void removeTask(@SpanAttribute(value = "task") BuildTask task) {
         log.debug("removing task: {}", task);
         MDCAwareElement element = new MDCAwareElement(task);
         if (tasksInProgress.remove(element)) {
@@ -169,6 +177,7 @@ public class BuildQueue {
      * Trigger searching for ready tasks in the waiting queue. This method should be invoked if one task has finished
      * and there's a possibility that other tasks became ready to be built.
      */
+    @WithSpan()
     public synchronized void executeNewReadyTasks() {
         List<MDCAwareElement<BuildTask>> newReadyTasks = extractReadyTasks();
         log.debug("starting new ready tasks. New ready tasks: {}", newReadyTasks);
