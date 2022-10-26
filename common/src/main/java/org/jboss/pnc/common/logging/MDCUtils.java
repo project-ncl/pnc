@@ -72,6 +72,18 @@ public class MDCUtils extends org.jboss.pnc.common.log.MDCUtils {
         MDC.put(MDCKeys.USER_ID_KEY, userId);
     }
 
+    public static void addTraceContext(String traceId, String spanId, String traceFlags) {
+        if (traceId != null) {
+            MDC.put(MDCKeys.SLF4J_TRACE_ID_KEY, traceId);
+        }
+        if (spanId != null) {
+            MDC.put(MDCKeys.SLF4J_SPAN_ID_KEY, spanId);
+        }
+        if (traceFlags != null) {
+            MDC.put(MDCKeys.SLF4J_TRACE_FLAGS_KEY, traceFlags);
+        }
+    }
+
     public static Optional<String> getRequestContext() {
         return Optional.ofNullable(MDC.get(MDCKeys.REQUEST_CONTEXT_KEY));
     }
