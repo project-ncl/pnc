@@ -53,6 +53,8 @@ import io.opentelemetry.api.trace.StatusCode;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -106,10 +108,11 @@ public class RestConnector implements Connector {
         return startProcess(processId, requestObject, Sequence.nextBase32Id(), accessToken);
     }
 
+    @WithSpan(value = "RestConnector.startProcess")
     public Long startProcess(String processId, Object requestObject, String correlationKey, String accessToken)
             throws ProcessManagerException {
 
-        // Manually creating a new Span to show the HTTP POST request to BPM engine
+        // Manually creating a new Span to show the HTTP POST request to BPM
         OpenTelemetry globalOpenTelemetry = GlobalOpenTelemetry.get();
         Tracer tracer = globalOpenTelemetry.getTracer("");
 
@@ -120,6 +123,8 @@ public class RestConnector implements Connector {
                 .startSpan();
         span.setAttribute("processId", processId);
         span.setAttribute("correlationKey", correlationKey);
+
+        log.debug("About to create a new span :{} from parentSpan :{}", span, parentSpan);
 
         // put the span into the current Context
         try (Scope scope = span.makeCurrent()) {
