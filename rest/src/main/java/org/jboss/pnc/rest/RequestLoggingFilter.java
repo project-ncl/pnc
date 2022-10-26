@@ -27,6 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
+
 import javax.inject.Inject;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -74,6 +77,9 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
         } catch (Exception e) {
             // user not found, continue ...
         }
+
+        // Propagate OTEL headers
+        propagateOTELHeaders(requestContext);
 
         UriInfo uriInfo = requestContext.getUriInfo();
         Request request = requestContext.getRequest();
@@ -141,5 +147,27 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             logger.error("Error logging REST request.", e);
         }
         return b.toString();
+    }
+
+    private void propagateOTELHeaders(ContainerRequestContext requestContext) {
+        // Adding OTEL information into MDC (from headers if available)
+        String traceId = requestContext.getHeaderString("trace-id");
+        if (traceId != null) {
+            logger.debug("Trace received from containerRequestContext: {}.", traceId);
+
+            // A trace should be associated with span and trace flags plus status (ignored atm)
+            String spanId = requestContext.getHeaderString("span-id");
+            if (spanId == null) {
+                // Some vendors use parent-id instead (https://www.w3.org/TR/trace-context/#parent-id)
+                spanId = requestContext.getHeaderString("parent-id");
+            }
+            MDCUtils.addTraceContext(traceId, spanId, null);
+        } else {
+            SpanContext spanContext = Span.current().getSpanContext();
+            MDCUtils.addTraceContext(
+                    spanContext.getTraceId(),
+                    spanContext.getSpanId(),
+                    spanContext.getTraceFlags().asHex());
+        }
     }
 }
