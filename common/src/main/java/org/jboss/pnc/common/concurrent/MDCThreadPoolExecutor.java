@@ -30,6 +30,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import io.opentelemetry.context.Context;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -46,7 +48,8 @@ public class MDCThreadPoolExecutor implements ExecutorService {
             long keepAliveTime,
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue) {
-        this.executorService = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
+        this.executorService = Context
+                .taskWrapping(new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue));
     }
 
     public MDCThreadPoolExecutor(
@@ -56,13 +59,8 @@ public class MDCThreadPoolExecutor implements ExecutorService {
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue,
             ThreadFactory threadFactory) {
-        this.executorService = new ThreadPoolExecutor(
-                corePoolSize,
-                maximumPoolSize,
-                keepAliveTime,
-                unit,
-                workQueue,
-                threadFactory);
+        this.executorService = Context.taskWrapping(
+                new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory));
     }
 
     public MDCThreadPoolExecutor(
@@ -72,13 +70,8 @@ public class MDCThreadPoolExecutor implements ExecutorService {
             TimeUnit unit,
             BlockingQueue<Runnable> workQueue,
             RejectedExecutionHandler handler) {
-        this.executorService = new ThreadPoolExecutor(
-                corePoolSize,
-                maximumPoolSize,
-                keepAliveTime,
-                unit,
-                workQueue,
-                handler);
+        this.executorService = Context.taskWrapping(
+                new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler));
     }
 
     @Override

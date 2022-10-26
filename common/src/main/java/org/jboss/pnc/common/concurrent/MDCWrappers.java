@@ -33,7 +33,7 @@ public class MDCWrappers {
     public static Runnable wrap(final Runnable runnable) {
         final Map<String, String> context = MDC.getCopyOfContextMap();
         return () -> {
-            Map previous = MDC.getCopyOfContextMap();
+            Map<String, String> previous = MDC.getCopyOfContextMap();
             if (context == null) {
                 MDC.clear();
             } else {
@@ -54,7 +54,7 @@ public class MDCWrappers {
     public static <T> Callable<T> wrap(final Callable<T> callable) {
         final Map<String, String> context = MDC.getCopyOfContextMap();
         return () -> {
-            Map previous = MDC.getCopyOfContextMap();
+            Map<String, String> previous = MDC.getCopyOfContextMap();
             if (context == null) {
                 MDC.clear();
             } else {
@@ -75,7 +75,7 @@ public class MDCWrappers {
     public static <T> Consumer<T> wrap(final Consumer<T> consumer) {
         final Map<String, String> context = MDC.getCopyOfContextMap();
         return (t) -> {
-            Map previous = MDC.getCopyOfContextMap();
+            Map<String, String> previous = MDC.getCopyOfContextMap();
             if (context == null) {
                 MDC.clear();
             } else {
