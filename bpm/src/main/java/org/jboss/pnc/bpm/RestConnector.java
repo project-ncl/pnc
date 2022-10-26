@@ -48,8 +48,11 @@ import org.slf4j.LoggerFactory;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
 import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.TraceFlags;
+import io.opentelemetry.api.trace.TraceState;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
@@ -109,22 +112,14 @@ public class RestConnector implements Connector {
     }
 
     @WithSpan(value = "RestConnector.startProcess")
-    public Long startProcess(String processId, Object requestObject, String correlationKey, String accessToken)
-            throws ProcessManagerException {
+    public Long startProcess(
+            @SpanAttribute(value = "processId") String processId,
+            Object requestObject,
+            @SpanAttribute(value = "correlationKey") String correlationKey,
+            String accessToken) throws ProcessManagerException {
 
-        // Manually creating a new Span to show the HTTP POST request to BPM
-        OpenTelemetry globalOpenTelemetry = GlobalOpenTelemetry.get();
-        Tracer tracer = globalOpenTelemetry.getTracer("");
-
-        Span parentSpan = Span.current();
-        Span span = tracer.spanBuilder("RestConnector.startProcess")
-                .setParent(Context.current().with(parentSpan))
-                .setSpanKind(SpanKind.SERVER)
-                .startSpan();
-        span.setAttribute("processId", processId);
-        span.setAttribute("correlationKey", correlationKey);
-
-        log.debug("About to create a new span :{} from parentSpan :{}", span, parentSpan);
+        // Create a parent child span with values from MDC
+        Span span = createOTELChildSpan(processId, correlationKey);
 
         // put the span into the current Context
         try (Scope scope = span.makeCurrent()) {
@@ -169,6 +164,38 @@ public class RestConnector implements Connector {
         } finally {
             span.end(); // closing the scope does not end the span, this has to be done manually
         }
+    }
+
+    private Span createOTELChildSpan(String processId, String correlationKey) {
+
+        // Manually creating a new Span to show the HTTP POST request to BPM
+        OpenTelemetry globalOpenTelemetry = GlobalOpenTelemetry.get();
+        Tracer tracer = globalOpenTelemetry.getTracer("");
+
+        String traceIdHex = Span.current().getSpanContext().getTraceId();
+        String spanIdHex = Span.current().getSpanContext().getSpanId();
+        if (MDCUtils.getCustomContext(MDCKeys.SLF4J_TRACE_ID_KEY).isPresent()) {
+            traceIdHex = MDCUtils.getCustomContext(MDCKeys.SLF4J_TRACE_ID_KEY).get();
+        }
+        ;
+        if (MDCUtils.getCustomContext(MDCKeys.SLF4J_SPAN_ID_KEY).isPresent()) {
+            spanIdHex = MDCUtils.getCustomContext(MDCKeys.SLF4J_SPAN_ID_KEY).get();
+        }
+        ;
+
+        SpanContext myParentContext = SpanContext
+                .create(traceIdHex, spanIdHex, TraceFlags.getSampled(), TraceState.getDefault());
+
+        Span span = tracer.spanBuilder("RestConnector.startProcess")
+                .setParent(Context.current().with(Span.wrap(myParentContext)))
+                .setSpanKind(SpanKind.SERVER)
+                .startSpan();
+        span.setAttribute("processId", processId);
+        span.setAttribute("correlationKey", correlationKey);
+
+        log.debug("Create a new span :{} from myParentContext :{}", span, myParentContext);
+
+        return span;
     }
 
     private void configureRequest(String accessToken, HttpRequestBase request) {
