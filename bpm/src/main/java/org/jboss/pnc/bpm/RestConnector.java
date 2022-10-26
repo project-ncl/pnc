@@ -121,11 +121,17 @@ public class RestConnector implements Connector {
         log.debug("globalOpenTelemetry: {}", globalOpenTelemetry);
         log.debug("tracer: {}", tracer);
 
-        Span span = tracer.spanBuilder("RestConnector.startProcess").setSpanKind(SpanKind.CLIENT).startSpan();
-
+        Span parentSpan = Span.current();
+        Span span = tracer.spanBuilder("RestConnector.startProcess")
+                .setParent(Context.current().with(parentSpan))
+                .setSpanKind(SpanKind.SERVER)
+                .startSpan();
         span.setAttribute("processId", processId);
         span.setAttribute("requestObject", String.valueOf(requestObject));
         span.setAttribute("correlationKey", correlationKey);
+
+        log.debug("parentSpan: {}", parentSpan);
+        log.debug("span: {}", span);
 
         // put the span into the current Context
         try (Scope scope = span.makeCurrent()) {
