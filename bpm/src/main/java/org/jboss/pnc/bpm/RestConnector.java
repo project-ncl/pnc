@@ -45,6 +45,14 @@ import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
 import io.opentelemetry.instrumentation.annotations.SpanAttribute;
 import io.opentelemetry.instrumentation.annotations.WithSpan;
 
@@ -106,36 +114,61 @@ public class RestConnector implements Connector {
             @SpanAttribute(value = "requestObject") Object requestObject,
             @SpanAttribute(value = "correlationKey") String correlationKey,
             String accessToken) throws ProcessManagerException {
-        HttpPost request = endpointUrl.startProcessInstance(currentDeploymentId, processId, correlationKey);
-        log.debug("Starting new process using http endpoint: {}", request.getURI());
 
-        Map<String, Object> processParameters = new HashMap<>();
-        processParameters.put("auth", Collections.singletonMap("token", accessToken));
-        processParameters.put("mdc", new MDCParameters());
-        processParameters.put("task", requestObject);
+        OpenTelemetry globalOpenTelemetry = GlobalOpenTelemetry.get();
+        Tracer tracer = globalOpenTelemetry.getTracer("");
 
-        Map<String, Map<String, Object>> body = Collections.singletonMap("initData", processParameters);
+        log.debug("globalOpenTelemetry: {}", globalOpenTelemetry);
+        log.debug("tracer: {}", tracer);
 
-        HttpEntity requestEntity;
-        try {
-            requestEntity = new StringEntity(JsonOutputConverterMapper.apply(body));
-        } catch (UnsupportedEncodingException e) {
-            throw new ProcessManagerException("Cannot prepare BPM REST call.", e);
-        }
-        request.setEntity(requestEntity);
-        configureRequest(accessToken, request);
-        try (CloseableHttpResponse response = httpClient.execute(request)) {
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == 201) {
-                Long processInstanceId = JsonOutputConverterMapper
-                        .readValue(response.getEntity().getContent(), Long.class);
-                log.info("Started new process instance with id: {}", processInstanceId);
-                return processInstanceId;
-            } else {
-                throw new ProcessManagerException("Cannot start new process instance, response status: " + statusCode);
+        Span span = tracer.spanBuilder("RestConnector.startProcess").setSpanKind(SpanKind.CLIENT).startSpan();
+
+        span.setAttribute("processId", processId);
+        span.setAttribute("requestObject", String.valueOf(requestObject));
+        span.setAttribute("correlationKey", correlationKey);
+
+        // put the span into the current Context
+        try (Scope scope = span.makeCurrent()) {
+            // app code
+            HttpPost request = endpointUrl.startProcessInstance(currentDeploymentId, processId, correlationKey);
+            log.debug("Starting new process using http endpoint: {}", request.getURI());
+
+            Map<String, Object> processParameters = new HashMap<>();
+            processParameters.put("auth", Collections.singletonMap("token", accessToken));
+            processParameters.put("mdc", new MDCParameters());
+            processParameters.put("task", requestObject);
+
+            Map<String, Map<String, Object>> body = Collections.singletonMap("initData", processParameters);
+
+            HttpEntity requestEntity;
+            try {
+                requestEntity = new StringEntity(JsonOutputConverterMapper.apply(body));
+            } catch (UnsupportedEncodingException e) {
+                span.setStatus(StatusCode.ERROR, "Cannot prepare BPM REST call.");
+                throw new ProcessManagerException("Cannot prepare BPM REST call.", e);
             }
-        } catch (IOException e) {
-            throw new ProcessManagerException("Cannot start new process instance.", e);
+            request.setEntity(requestEntity);
+            configureRequest(accessToken, request);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode == 201) {
+                    Long processInstanceId = JsonOutputConverterMapper
+                            .readValue(response.getEntity().getContent(), Long.class);
+                    log.info("Started new process instance with id: {}", processInstanceId);
+                    return processInstanceId;
+                } else {
+                    span.setStatus(
+                            StatusCode.ERROR,
+                            "Cannot start new process instance, response status: " + statusCode);
+                    throw new ProcessManagerException(
+                            "Cannot start new process instance, response status: " + statusCode);
+                }
+            } catch (IOException e) {
+                span.setStatus(StatusCode.ERROR, "Cannot start new process instance.");
+                throw new ProcessManagerException("Cannot start new process instance.", e);
+            }
+        } finally {
+            span.end(); // closing the scope does not end the span, this has to be done manually
         }
     }
 
