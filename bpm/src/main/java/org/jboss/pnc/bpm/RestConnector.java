@@ -17,6 +17,19 @@
  */
 package org.jboss.pnc.bpm;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.TraceFlags;
+import io.opentelemetry.api.trace.TraceState;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.auth.AuthScope;
@@ -45,20 +58,9 @@ import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanContext;
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.api.trace.StatusCode;
-import io.opentelemetry.api.trace.TraceFlags;
-import io.opentelemetry.api.trace.TraceState;
-import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.context.Context;
-import io.opentelemetry.context.Scope;
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
-
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,6 +73,7 @@ import java.util.Optional;
 /**
  * @author Matej Lazar
  */
+@ApplicationScoped
 public class RestConnector implements Connector {
 
     private static final Logger log = LoggerFactory.getLogger(RestConnector.class);
@@ -85,6 +88,7 @@ public class RestConnector implements Connector {
      */
     private String currentDeploymentId;
 
+    @Inject
     RestConnector(BpmModuleConfig bpmConfig) {
         httpConfig = new HttpConfig(
                 bpmConfig.getHttpConnectionRequestTimeout(),
@@ -103,6 +107,11 @@ public class RestConnector implements Connector {
         }
         httpClient = httpClientBuilder.build();
         currentDeploymentId = bpmConfig.getBpmNewDeploymentId();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        close();
     }
 
     @Override

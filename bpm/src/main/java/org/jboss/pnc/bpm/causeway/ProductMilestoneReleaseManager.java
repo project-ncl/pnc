@@ -18,7 +18,6 @@
 package org.jboss.pnc.bpm.causeway;
 
 import org.jboss.pnc.bpm.Connector;
-import org.jboss.pnc.bpm.ConnectorFactory;
 import org.jboss.pnc.bpm.NoEntityException;
 import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
@@ -77,7 +76,7 @@ public class ProductMilestoneReleaseManager {
     private ProductMilestoneCloseResultMapper mapper;
     private GlobalModuleGroup globalConfig;
     private BpmModuleConfig bpmConfig;
-    private ConnectorFactory connectorFactory;
+    private Connector connector;
 
     @Deprecated // for ejb
     public ProductMilestoneReleaseManager() {
@@ -94,7 +93,7 @@ public class ProductMilestoneReleaseManager {
             Event<ProductMilestoneCloseResult> productMilestoneCloseResultEvent,
             GlobalModuleGroup globalConfig,
             BpmModuleConfig bpmConfig,
-            ConnectorFactory connectorFactory) {
+            Connector connector) {
         this.productMilestoneReleaseRepository = productMilestoneReleaseRepository;
         this.productVersionRepository = productVersionRepository;
         this.buildRecordRepository = buildRecordRepository;
@@ -104,7 +103,7 @@ public class ProductMilestoneReleaseManager {
         this.productMilestoneCloseResultEvent = productMilestoneCloseResultEvent;
         this.globalConfig = globalConfig;
         this.bpmConfig = bpmConfig;
-        this.connectorFactory = connectorFactory;
+        this.connector = connector;
     }
 
     /**
@@ -126,8 +125,7 @@ public class ProductMilestoneReleaseManager {
     }
 
     public void cancel(ProductMilestone milestoneInDb, String accessToken) {
-        Connector restConnector = connectorFactory.get();
-        restConnector.cancelByCorrelation(Numbers.decimalToBase32(milestoneInDb.getId()), accessToken);
+        connector.cancelByCorrelation(Numbers.decimalToBase32(milestoneInDb.getId()), accessToken);
 
         ProductMilestoneRelease milestoneRelease = productMilestoneReleaseRepository
                 .findLatestByMilestone(milestoneInDb);
@@ -165,10 +163,10 @@ public class ProductMilestoneReleaseManager {
         release.setStartingDate(new Date());
         release.setMilestone(milestone);
 
-        try (Connector restConnector = connectorFactory.get()) {
+        try {
             MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone, accessToken);
             releaseTask.setGlobalConfig(globalConfig);
-            restConnector.startProcess(
+            connector.startProcess(
                     bpmConfig.getBpmNewReleaseProcessId(),
                     releaseTask.getExtendedProcessParameters(),
                     Numbers.decimalToBase32(milestoneReleaseId),

@@ -18,7 +18,7 @@
 
 package org.jboss.pnc.coordinator.test;
 
-import org.jboss.pnc.bpm.ConnectorFactory;
+import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
@@ -134,7 +134,7 @@ public class BuildCoordinatorDeployments {
 
     private static JavaArchive bpmArchive() {
         return ShrinkWrap.create(JavaArchive.class)
-                .addPackages(false, ConnectorFactory.class.getPackage(), BpmBuildTask.class.getPackage());
+                .addPackages(false, Connector.class.getPackage(), BpmBuildTask.class.getPackage());
     }
 
 }

@@ -55,8 +55,6 @@ public class BpmBuildTask extends BpmTask {
                 globalConfig.getExternalIndyUrl(),
                 globalConfig.getExternalRepourUrl(),
                 globalConfig.getExternalDaUrl(),
-                false,
-                false,
                 getBuildExecutionConfiguration(buildTask));
     }
 

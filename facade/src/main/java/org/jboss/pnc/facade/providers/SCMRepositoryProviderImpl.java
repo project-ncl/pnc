@@ -18,7 +18,7 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.bpm.BpmEventType;
-import org.jboss.pnc.bpm.ConnectorFactory;
+import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.common.Configuration;
@@ -109,7 +109,7 @@ public class SCMRepositoryProviderImpl
     private BuildConfigurationProvider buildConfigurationProvider;
 
     @Inject
-    ConnectorFactory connectorFactory;
+    Connector connector;
 
     @Inject
     public SCMRepositoryProviderImpl(
@@ -353,7 +353,7 @@ public class SCMRepositoryProviderImpl
         task.setJobType(jobType);
         try {
             Map<String, Object> processParameters = task.getExtendedProcessParameters();
-            connectorFactory.get().startProcess(bpmConfig.getNewBcCreationProcessId(), processParameters, userToken);
+            connector.startProcess(bpmConfig.getNewBcCreationProcessId(), processParameters, userToken);
         } catch (CoreException e) {
             throw new RuntimeException("Could not get process parameters: " + task, e);
         } catch (ProcessManagerException e) {

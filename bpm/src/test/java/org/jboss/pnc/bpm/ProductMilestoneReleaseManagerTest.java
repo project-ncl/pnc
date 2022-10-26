@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.bpm;
 
-import org.jboss.pnc.bpm.ConnectorFactory;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.bpm.model.causeway.BuildImportResultRest;
 import org.jboss.pnc.bpm.model.causeway.BuildImportStatus;
@@ -44,6 +43,7 @@ import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -88,8 +88,7 @@ public class ProductMilestoneReleaseManagerTest {
         buildRecordPushResultRepository = new BuildRecordPushResultRepositoryMock();
 
         MockitoAnnotations.initMocks(this);
-        ConnectorFactory connectorFactory = new ConnectorFactory(null);
-        connectorFactory.setUseMock(true);
+        Connector connector = new MockConnector();
         releaseManager = new ProductMilestoneReleaseManager(
                 productMilestoneReleaseRepository,
                 new ProductVersionRepositoryMock(),
@@ -100,7 +99,7 @@ public class ProductMilestoneReleaseManagerTest {
                 productMilestoneCloseResultEvent,
                 GlobalModuleGroupMock.get(),
                 BpmModuleConfigMock.get(),
-                connectorFactory);
+                connector);
     }
 
     @Test
@@ -242,5 +241,42 @@ public class ProductMilestoneReleaseManagerTest {
         record.setId(new Base32LongID(Sequence.nextId()));
         buildRecordRepository.save(record);
         return record;
+    }
+
+    /**
+     * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+     */
+    public static class MockConnector implements Connector {
+        @Override
+        public Long startProcess(String processId, Object processParameters, String accessToken)
+                throws ProcessManagerException {
+            return 1L;
+        }
+
+        @Override
+        public Long startProcess(String processId, Object requestObject, String correlationKey, String accessToken)
+                throws ProcessManagerException {
+            return 1L;
+        }
+
+        @Override
+        public boolean isProcessInstanceCompleted(Long processInstanceId) {
+            return false;
+        }
+
+        @Override
+        public boolean cancelByCorrelation(String correlationKey, String accessToken) {
+            return false;
+        }
+
+        @Override
+        public boolean cancel(Long processInstanceId, String accessToken) {
+            return false;
+        }
+
+        @Override
+        public void close() {
+
+        }
     }
 }

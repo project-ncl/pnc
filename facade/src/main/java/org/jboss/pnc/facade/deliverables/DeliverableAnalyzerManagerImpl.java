@@ -27,7 +27,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.NPMArtifact;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
-import org.jboss.pnc.bpm.ConnectorFactory;
+import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
 import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -106,7 +106,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     @Inject
     private Event<DeliverableAnalysisStatusChangedEvent> analysisStatusChangedEventNotifier;
     @Inject
-    private ConnectorFactory connectorFactory;
+    private Connector connector;
 
     @Override
     public DeliverableAnalyzerOperation analyzeDeliverables(String id, List<String> deliverablesUrls) {
@@ -336,12 +336,11 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     deliverablesUrls);
             AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, callback);
 
-            connectorFactory.get()
-                    .startProcess(
-                            bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
-                            analyzeTask,
-                            id,
-                            userService.currentUserToken());
+            connector.startProcess(
+                    bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
+                    analyzeTask,
+                    id,
+                    userService.currentUserToken());
 
             DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
                     .started(id, milestoneId, deliverablesUrls);
