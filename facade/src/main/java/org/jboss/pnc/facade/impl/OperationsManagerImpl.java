@@ -161,6 +161,8 @@ public class OperationsManagerImpl implements OperationsManager {
     private void addMDCHeaders(List<Request.Header> headers) {
         headersFromMdc(headers, MDCHeaderKeys.REQUEST_CONTEXT);
         headersFromMdc(headers, MDCHeaderKeys.PROCESS_CONTEXT);
+        headersFromMdc(headers, MDCHeaderKeys.SLF4J_TRACE_ID);
+        headersFromMdc(headers, MDCHeaderKeys.SLF4J_SPAN_ID);
     }
 
     private void addCommonHeaders(List<Request.Header> headers, String accessToken) {

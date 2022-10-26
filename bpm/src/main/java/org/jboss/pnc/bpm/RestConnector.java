@@ -33,14 +33,31 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
+import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.api.trace.TraceFlags;
+import io.opentelemetry.api.trace.TraceState;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -94,39 +111,90 @@ public class RestConnector implements Connector {
         return startProcess(processId, requestObject, Sequence.nextBase32Id(), accessToken);
     }
 
-    public Long startProcess(String processId, Object requestObject, String correlationKey, String accessToken)
-            throws ProcessManagerException {
-        HttpPost request = endpointUrl.startProcessInstance(currentDeploymentId, processId, correlationKey);
-        log.debug("Starting new process using http endpoint: {}", request.getURI());
+    @WithSpan(value = "RestConnector.startProcess")
+    public Long startProcess(
+            @SpanAttribute(value = "processId") String processId,
+            Object requestObject,
+            @SpanAttribute(value = "correlationKey") String correlationKey,
+            String accessToken) throws ProcessManagerException {
 
-        Map<String, Object> processParameters = new HashMap<>();
-        processParameters.put("auth", Collections.singletonMap("token", accessToken));
-        processParameters.put("mdc", new MDCParameters());
-        processParameters.put("task", requestObject);
+        // Create a parent child span with values from MDC
+        Span span = createOTELChildSpan(processId, correlationKey);
 
-        Map<String, Map<String, Object>> body = Collections.singletonMap("initData", processParameters);
+        // put the span into the current Context
+        try (Scope scope = span.makeCurrent()) {
+            HttpPost request = endpointUrl.startProcessInstance(currentDeploymentId, processId, correlationKey);
+            log.debug("Starting new process using http endpoint: {}", request.getURI());
 
-        HttpEntity requestEntity;
-        try {
-            requestEntity = new StringEntity(JsonOutputConverterMapper.apply(body));
-        } catch (UnsupportedEncodingException e) {
-            throw new ProcessManagerException("Cannot prepare BPM REST call.", e);
-        }
-        request.setEntity(requestEntity);
-        configureRequest(accessToken, request);
-        try (CloseableHttpResponse response = httpClient.execute(request)) {
-            int statusCode = response.getStatusLine().getStatusCode();
-            if (statusCode == 201) {
-                Long processInstanceId = JsonOutputConverterMapper
-                        .readValue(response.getEntity().getContent(), Long.class);
-                log.info("Started new process instance with id: {}", processInstanceId);
-                return processInstanceId;
-            } else {
-                throw new ProcessManagerException("Cannot start new process instance, response status: " + statusCode);
+            Map<String, Object> processParameters = new HashMap<>();
+            processParameters.put("auth", Collections.singletonMap("token", accessToken));
+            processParameters.put("mdc", new MDCParameters());
+            processParameters.put("task", requestObject);
+
+            Map<String, Map<String, Object>> body = Collections.singletonMap("initData", processParameters);
+
+            HttpEntity requestEntity;
+            try {
+                requestEntity = new StringEntity(JsonOutputConverterMapper.apply(body));
+            } catch (UnsupportedEncodingException e) {
+                span.setStatus(StatusCode.ERROR, "Cannot prepare BPM REST call.");
+                throw new ProcessManagerException("Cannot prepare BPM REST call.", e);
             }
-        } catch (IOException e) {
-            throw new ProcessManagerException("Cannot start new process instance.", e);
+            request.setEntity(requestEntity);
+            configureRequest(accessToken, request);
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                int statusCode = response.getStatusLine().getStatusCode();
+                if (statusCode == 201) {
+                    Long processInstanceId = JsonOutputConverterMapper
+                            .readValue(response.getEntity().getContent(), Long.class);
+                    log.info("Started new process instance with id: {}", processInstanceId);
+                    return processInstanceId;
+                } else {
+                    span.setStatus(
+                            StatusCode.ERROR,
+                            "Cannot start new process instance, response status: " + statusCode);
+                    throw new ProcessManagerException(
+                            "Cannot start new process instance, response status: " + statusCode);
+                }
+            } catch (IOException e) {
+                span.setStatus(StatusCode.ERROR, "Cannot start new process instance.");
+                throw new ProcessManagerException("Cannot start new process instance.", e);
+            }
+        } finally {
+            span.end(); // closing the scope does not end the span, this has to be done manually
         }
+    }
+
+    private Span createOTELChildSpan(String processId, String correlationKey) {
+
+        // Manually creating a new Span to show the HTTP POST request to BPM
+        OpenTelemetry globalOpenTelemetry = GlobalOpenTelemetry.get();
+        Tracer tracer = globalOpenTelemetry.getTracer("");
+
+        String traceIdHex = Span.current().getSpanContext().getTraceId();
+        String spanIdHex = Span.current().getSpanContext().getSpanId();
+        if (MDCUtils.getCustomContext(MDCKeys.SLF4J_TRACE_ID_KEY).isPresent()) {
+            traceIdHex = MDCUtils.getCustomContext(MDCKeys.SLF4J_TRACE_ID_KEY).get();
+        }
+        ;
+        if (MDCUtils.getCustomContext(MDCKeys.SLF4J_SPAN_ID_KEY).isPresent()) {
+            spanIdHex = MDCUtils.getCustomContext(MDCKeys.SLF4J_SPAN_ID_KEY).get();
+        }
+        ;
+
+        SpanContext myParentContext = SpanContext
+                .create(traceIdHex, spanIdHex, TraceFlags.getSampled(), TraceState.getDefault());
+
+        Span span = tracer.spanBuilder("RestConnector.startProcess")
+                .setParent(Context.current().with(Span.wrap(myParentContext)))
+                .setSpanKind(SpanKind.CLIENT)
+                .startSpan();
+        span.setAttribute("processId", processId);
+        span.setAttribute("correlationKey", correlationKey);
+
+        log.debug("Create a new span :{} from myParentContext :{}", span, myParentContext);
+
+        return span;
     }
 
     private void configureRequest(String accessToken, HttpRequestBase request) {
@@ -134,6 +202,16 @@ public class RestConnector implements Connector {
         request.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
         request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+        // Adding OTEL headers for distributed tracing
+        MDCUtils.getCustomContext(MDCKeys.SLF4J_TRACE_ID_KEY).ifPresent(v -> {
+            log.debug("Setting {} header: {}", MDCKeys.SLF4J_TRACE_ID_KEY, v);
+            request.addHeader(MDCHeaderKeys.SLF4J_TRACE_ID.getHeaderName(), v);
+        });
+        MDCUtils.getCustomContext(MDCKeys.SLF4J_SPAN_ID_KEY).ifPresent(v -> {
+            log.debug("Setting {} header: {}", MDCKeys.SLF4J_SPAN_ID_KEY, v);
+            request.addHeader(MDCHeaderKeys.SLF4J_SPAN_ID.getHeaderName(), v);
+        });
     }
 
     private RequestConfig.Builder httpClientConfig() {
