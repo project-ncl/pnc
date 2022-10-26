@@ -36,6 +36,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.opentelemetry.context.Context;
+
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;
@@ -58,6 +60,7 @@ public class UnreliableMessageSenderTest extends BaseMessageSenderTest {
                 .addClass(AbstractModuleConfig.class)
                 .addClass(KeycloakClientConfig.class)
                 .addClass(SysConfigProducer.class)
+                .addPackages(true, Context.class.getPackage())
                 .addClass(MDCThreadPoolExecutor.class)
                 .addClass(MDCWrappers.class);
     }
