@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.jboss.bom</groupId> <!-- Use BOM as parent to have access to the properties -->
     <artifactId>jboss-eap-jakartaee8</artifactId>
-    <version>7.3.1.GA</version>
+    <version>7.4.6.GA</version>
   </parent>
 
   <groupId>org.jboss.pnc</groupId>
@@ -223,19 +223,19 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
+        <version>${version.com.fasterxml.jackson.core.jackson-core}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-databind</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
+        <version>${version.com.fasterxml.jackson.core.jackson-databind}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-annotations</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
+        <version>${version.com.fasterxml.jackson.core.jackson-annotations}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -296,12 +296,6 @@
         <groupId>io.undertow</groupId>
         <artifactId>undertow-core</artifactId>
         <version>${version.io.undertow}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss.logmanager</groupId>
-        <artifactId>jboss-logmanager</artifactId>
-        <version>${version.org.jboss.logmanager}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -963,13 +957,13 @@
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jdk8</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
+        <version>${version.com.fasterxml.jackson.datatype}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-jsr310</artifactId>
-        <version>${version.com.fasterxml.jackson.core}</version>
+        <version>${version.com.fasterxml.jackson.datatype}</version>
         <scope>provided</scope>
       </dependency>
 
@@ -1024,12 +1018,6 @@
         <groupId>org.jboss.spec.javax.annotation</groupId>
         <artifactId>jboss-annotations-api_1.3_spec</artifactId>
         <version>${version.org.jboss.spec.javax.annotation}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.jboss</groupId>
-        <artifactId>jboss-dmr</artifactId>
-        <version>${version.org.jboss.jboss-dmr}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1129,7 +1117,7 @@
       <dependency>
         <groupId>org.infinispan</groupId>
         <artifactId>infinispan-hibernate-cache-v53</artifactId>
-        <version>${version.org.infinispan}</version>
+        <version>${version.org.infinispan.infinispan-core}</version>
       </dependency>
 
       <dependency>
@@ -1154,12 +1142,12 @@
       <dependency>
         <groupId>org.infinispan</groupId>
         <artifactId>infinispan-commons</artifactId>
-        <version>${version.org.infinispan}</version>
+        <version>${version.org.infinispan.infinispan-commons}</version>
       </dependency>
       <dependency>
         <groupId>org.infinispan</groupId>
         <artifactId>infinispan-core</artifactId>
-        <version>${version.org.infinispan}</version>
+        <version>${version.org.infinispan.infinispan-core}</version>
       </dependency>
 
     </dependencies>
