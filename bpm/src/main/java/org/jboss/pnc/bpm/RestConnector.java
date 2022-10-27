@@ -173,14 +173,12 @@ public class RestConnector implements Connector {
 
         String traceIdHex = Span.current().getSpanContext().getTraceId();
         String spanIdHex = Span.current().getSpanContext().getSpanId();
-        if (MDCUtils.getCustomContext(MDCKeys.SLF4J_TRACE_ID_KEY).isPresent()) {
-            traceIdHex = MDCUtils.getCustomContext(MDCKeys.SLF4J_TRACE_ID_KEY).get();
+        if (MDCUtils.getTraceId().isPresent()) {
+            traceIdHex = MDCUtils.getTraceId().get();
         }
-        ;
-        if (MDCUtils.getCustomContext(MDCKeys.SLF4J_SPAN_ID_KEY).isPresent()) {
-            spanIdHex = MDCUtils.getCustomContext(MDCKeys.SLF4J_SPAN_ID_KEY).get();
+        if (MDCUtils.getSpanId().isPresent()) {
+            spanIdHex = MDCUtils.getSpanId().get();
         }
-        ;
 
         SpanContext myParentContext = SpanContext
                 .create(traceIdHex, spanIdHex, TraceFlags.getSampled(), TraceState.getDefault());
@@ -204,11 +202,11 @@ public class RestConnector implements Connector {
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
 
         // Adding OTEL headers for distributed tracing
-        MDCUtils.getCustomContext(MDCKeys.SLF4J_TRACE_ID_KEY).ifPresent(v -> {
+        MDCUtils.getTraceId().ifPresent(v -> {
             log.debug("Setting {} header: {}", MDCKeys.SLF4J_TRACE_ID_KEY, v);
             request.addHeader(MDCHeaderKeys.SLF4J_TRACE_ID.getHeaderName(), v);
         });
-        MDCUtils.getCustomContext(MDCKeys.SLF4J_SPAN_ID_KEY).ifPresent(v -> {
+        MDCUtils.getSpanId().ifPresent(v -> {
             log.debug("Setting {} header: {}", MDCKeys.SLF4J_SPAN_ID_KEY, v);
             request.addHeader(MDCHeaderKeys.SLF4J_SPAN_ID.getHeaderName(), v);
         });

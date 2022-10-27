@@ -96,6 +96,14 @@ public class MDCUtils extends org.jboss.pnc.common.log.MDCUtils {
         return Optional.ofNullable(MDC.get(MDCKeys.USER_ID_KEY));
     }
 
+    public static Optional<String> getTraceId() {
+        return Optional.ofNullable(MDC.get(MDCKeys.SLF4J_TRACE_ID_KEY));
+    }
+
+    public static Optional<String> getSpanId() {
+        return Optional.ofNullable(MDC.get(MDCKeys.SLF4J_SPAN_ID_KEY));
+    }
+
     public static void removeProcessContext() {
         MDC.remove(MDCKeys.PROCESS_CONTEXT_KEY);
     }
