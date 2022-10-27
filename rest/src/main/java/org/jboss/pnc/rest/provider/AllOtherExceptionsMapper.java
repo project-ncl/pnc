@@ -22,6 +22,9 @@ import org.jboss.resteasy.spi.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.ForbiddenException;
+import javax.ws.rs.NotAllowedException;
+import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -52,16 +55,24 @@ public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
         if (e instanceof WebApplicationException) {
             response = ((WebApplicationException) e).getResponse();
             if (e instanceof NotFoundException) {
+                logger.info("Resource requested by a client was not found.", e);
                 return response; // In case of 404 we want to return the empty body.
+            } else if (e instanceof ForbiddenException) {
+                logger.warn("Access to a resource requested by a client has been forbidden.", e);
+            } else if (e instanceof NotAllowedException) {
+                logger.warn("Client requesting a resource method that is not allowed.", e);
+            } else if (e instanceof NotAuthorizedException) {
+                logger.warn("Request authorization failure.", e);
+            } else {
+                logger.warn("WebApplicationException occurred when processing REST response", e);
             }
-            logger.debug("An exception occurred when processing REST response", e);
         } else if (e instanceof Failure) { // Resteasy support
             Failure failure = ((Failure) e);
             if (failure.getErrorCode() > 0) {
                 status = failure.getErrorCode();
             }
             response = failure.getResponse();
-            logger.debug("An exception occurred when processing REST response", e);
+            logger.warn("Failure occurred when processing REST response", e);
         } else {
             logger.error("An exception occurred when processing REST response", e);
         }
