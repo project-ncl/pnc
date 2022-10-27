@@ -25,46 +25,6 @@
 
     <module-name>rest</module-name>
 
-    <!-- Allow logged users to access their data -->
-    <security-constraint>
-        <web-resource-collection>
-            <web-resource-name>Authorized users access to debug data</web-resource-name>
-            <url-pattern>/v2/builds/ssh-credentials/*</url-pattern>
-            <url-pattern>/v2/users/current</url-pattern>
-            <http-method>GET</http-method>
-        </web-resource-collection>
-        <auth-constraint>
-            <role-name>user</role-name>
-        </auth-constraint>
-    </security-constraint>
-
-    <!-- Allow all users to access the GET endpoints -->
-    <security-constraint>
-       <web-resource-collection>
-         <web-resource-name>All Access for users on GET</web-resource-name>
-         <url-pattern>/v2/*</url-pattern>
-         <http-method>GET</http-method>
-         <http-method>OPTIONS</http-method>
-       </web-resource-collection>
-    </security-constraint>
-
-    <!-- Allow all logged users to access the other endpoints -->
-    <security-constraint>
-       <web-resource-collection>
-         <web-resource-name>Authorized users Access</web-resource-name>
-         <url-pattern>/v2/*</url-pattern>
-         <http-method>DELETE</http-method>
-         <http-method>PUT</http-method>
-         <http-method>HEAD</http-method>
-         <http-method>TRACE</http-method>
-         <http-method>POST</http-method>
-         <http-method>PATCH</http-method>
-       </web-resource-collection>
-        <auth-constraint>
-            <role-name>user</role-name>
-        </auth-constraint>
-    </security-constraint>
-
     <login-config>
         <auth-method>KEYCLOAK</auth-method>
         <realm-name>this is ignored currently</realm-name>
@@ -75,5 +35,8 @@
     </security-role>
     <security-role>
         <role-name>user</role-name>
+    </security-role>
+    <security-role>
+        <role-name>system-user</role-name>
     </security-role>
 </web-app>

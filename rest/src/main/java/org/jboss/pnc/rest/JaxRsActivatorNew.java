@@ -125,6 +125,7 @@ public class JaxRsActivatorNew extends Application {
         addRespondWithStatusFilter(resources);
         addProviders(resources);
         resources.add(RequestLoggingFilter.class);
+        resources.add(SecurityConstraintFilter.class);
         return resources;
     }
 

@@ -17,10 +17,6 @@
  */
 package org.jboss.pnc.facade.util;
 
-import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
-import javax.enterprise.context.RequestScoped;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import org.jboss.pnc.auth.AuthenticationProvider;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.common.util.StringUtils;
@@ -28,6 +24,12 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.enterprise.context.RequestScoped;
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+
+import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName;
 
 /**
  *
@@ -37,6 +39,10 @@ import org.slf4j.LoggerFactory;
 public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
+    public static final String ROLE_USER = "user";
+    public static final String ROLE_ADMIN = "admin";
+    public static final String ROLE_SYSTEM_USER = "system-user";
 
     @Inject
     private AuthenticationProvider authenticationProvider;
