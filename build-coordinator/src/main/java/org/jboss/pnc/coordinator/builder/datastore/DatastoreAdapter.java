@@ -19,6 +19,7 @@ package org.jboss.pnc.coordinator.builder.datastore;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.coordinator.BuildCoordinationException;
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -48,6 +49,7 @@ import javax.inject.Inject;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -249,6 +251,9 @@ public class DatastoreAdapter {
                 }
 
                 builtArtifacts = repositoryManagerResult.getBuiltArtifacts();
+                if (buildTask.getBuildOptions().isTemporaryBuild()) {
+                    checkTemporaryArtifacts(builtArtifacts);
+                }
                 Map<Artifact, String> builtConflicts = datastore.checkForBuiltArtifacts(builtArtifacts);
                 if (builtConflicts.size() > 0) {
                     return storeResult(
@@ -311,6 +316,22 @@ public class DatastoreAdapter {
             return datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
         } catch (Exception e) {
             return storeResult(buildTask, Optional.of(buildResult), e);
+        }
+    }
+
+    /**
+     * Check if the artifact have correctly set the TEMPORARY quality, if not fix it and log as error.
+     */
+    private void checkTemporaryArtifacts(List<Artifact> artifacts) {
+        List<Artifact> badArtifacts = new ArrayList<>();
+        for (Artifact artifact : artifacts) {
+            if (artifact.getArtifactQuality() != ArtifactQuality.TEMPORARY) {
+                artifact.setArtifactQuality(ArtifactQuality.TEMPORARY);
+                badArtifacts.add(artifact);
+            }
+        }
+        if (!badArtifacts.isEmpty()) {
+            log.error("Temporary build produced artifact without TEMPORARY quality. Fixed artifacts: " + artifacts);
         }
     }
 
