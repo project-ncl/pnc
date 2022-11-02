@@ -46,9 +46,10 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Inject
-    public BpmBuildScheduler(BpmModuleConfig bpmConfig, GlobalModuleGroup globalConfig) {
+    public BpmBuildScheduler(BpmModuleConfig bpmConfig, GlobalModuleGroup globalConfig, Connector connector) {
         this.bpmConfig = bpmConfig;
         this.globalConfig = globalConfig;
+        this.connector = connector;
     }
 
     @Override
