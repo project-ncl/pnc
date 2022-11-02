@@ -168,11 +168,9 @@ public class DefaultDatastore implements Datastore {
         buildRecord = buildRecordRepository.save(buildRecord);
         logger.debug("Build record {} saved.", buildRecord.getId());
 
-        ArtifactQuality quality = buildRecord.isTemporaryBuild() ? ArtifactQuality.TEMPORARY : ArtifactQuality.NEW;
-        logger.trace("Setting artifacts as built and their quality to {}.", quality);
+        logger.trace("Setting artifacts as built.");
         for (Artifact builtArtifact : savedBuiltArtifacts) {
             builtArtifact.setBuildRecord(buildRecord);
-            builtArtifact.setArtifactQuality(quality);
         }
 
         return buildRecord;
