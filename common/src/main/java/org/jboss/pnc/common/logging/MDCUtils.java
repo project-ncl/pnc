@@ -28,6 +28,7 @@ import java.util.Optional;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ * @deprecated use MDCUtils from pnc-common
  */
 public class MDCUtils extends org.jboss.pnc.common.log.MDCUtils {
 

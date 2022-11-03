@@ -63,6 +63,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -922,7 +923,13 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     @PostConstruct
     public void start() {
+        log.info("The application is starting ...");
         startThreads();
+    }
+
+    @PreDestroy
+    public void destroy() {
+        log.info("The application is shutting down ...");
     }
 
     private void startThreads() {

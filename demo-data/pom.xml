@@ -72,7 +72,7 @@
       <artifactId>jboss-annotations-api_1.3_spec</artifactId>
       <scope>provided</scope>
     </dependency>
-    <!-- TODO only here as lombok is too eager to do everything-->
+    <!-- only here as lombok is too eager to do everything-->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>

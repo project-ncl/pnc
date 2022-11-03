@@ -86,7 +86,7 @@
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
     </dependency>
-    <!-- TODO only here as lombok is too eager to do everything-->
+    <!-- only here as lombok is too eager to do everything-->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
