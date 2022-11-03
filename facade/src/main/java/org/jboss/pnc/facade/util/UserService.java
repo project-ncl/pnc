@@ -93,7 +93,7 @@ public class UserService {
     private User getOrCreate(LoggedInUser loggedInUser, String username) {
         User user = repository.queryByPredicates(withUserName(username));
         if (user == null) {
-            logger.debug("User not in database yet, creating new user: {}.", loggedInUser);
+            logger.info("Adding new user to the local database: {}.", loggedInUser);
             String syncObject = username.intern();
             synchronized (syncObject) {
                 user = repository.queryByPredicates(withUserName(username));

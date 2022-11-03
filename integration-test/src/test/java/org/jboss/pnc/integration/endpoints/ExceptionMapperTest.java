@@ -39,9 +39,7 @@ import java.lang.invoke.MethodHandles;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
- * @author <a href="mailto:dbrazdil@redhat.com">Dominik Brazdil</a>
- *
- * @see org.jboss.pnc.demo.data.DatabaseDataInitializer
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -57,9 +55,8 @@ public class ExceptionMapperTest {
 
     @Test
     @InSequence(1)
-    public void shouldFailWith() throws InterruptedException {
+    public void shouldFailWithNotAuthorizedException() {
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asAnonymous());
-        // BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
         assertThatThrownBy(() -> {
             try {
                 client.createNew(BuildConfiguration.builder().build());

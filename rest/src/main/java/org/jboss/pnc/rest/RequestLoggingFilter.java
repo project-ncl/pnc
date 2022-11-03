@@ -19,6 +19,7 @@ package org.jboss.pnc.rest;
 
 import org.apache.commons.io.IOUtils;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
+import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.MapUtils;
 import org.jboss.pnc.facade.util.UserService;
@@ -30,12 +31,15 @@ import org.slf4j.MDC;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanContext;
 
+import javax.annotation.Priority;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.ContainerResponseContext;
 import javax.ws.rs.container.ContainerResponseFilter;
 import javax.ws.rs.container.PreMatching;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.SecurityContext;
@@ -52,6 +56,7 @@ import java.security.Principal;
  */
 @Provider
 @PreMatching
+@Priority(1)
 public class RequestLoggingFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
     private Logger logger = LoggerFactory.getLogger(RequestLoggingFilter.class);
@@ -60,8 +65,12 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
     @Inject
     UserService userService;
 
+    @Context
+    private HttpServletRequest httpServletRequest;
+
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
+        MDC.clear();
         requestContext.setProperty(REQUEST_EXECUTION_START, System.currentTimeMillis());
         MDCUtils.setMDCFromRequestContext(requestContext);
 
@@ -83,6 +92,16 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
 
         UriInfo uriInfo = requestContext.getUriInfo();
         Request request = requestContext.getRequest();
+
+        String forwardedFor = requestContext.getHeaderString("X-FORWARDED-FOR");
+        if (forwardedFor != null) {
+            MDC.put(MDCKeys.X_FORWARDED_FOR_KEY, forwardedFor);
+        }
+
+        if (httpServletRequest != null) {
+            MDC.put(MDCKeys.SRC_IP_KEY, httpServletRequest.getRemoteAddr());
+        }
+
         logger.info("Requested {} {}.", request.getMethod(), uriInfo.getRequestUri());
 
         if (logger.isTraceEnabled()) {
@@ -94,10 +113,9 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
     }
 
     @Override
-    public void filter(
-            ContainerRequestContext containerRequestContext,
-            ContainerResponseContext containerResponseContext) throws IOException {
-        Long startTime = (Long) containerRequestContext.getProperty(REQUEST_EXECUTION_START);
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
+            throws IOException {
+        Long startTime = (Long) requestContext.getProperty(REQUEST_EXECUTION_START);
 
         String took;
         if (startTime == null) {
@@ -108,8 +126,11 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
 
         try (MDC.MDCCloseable mdcTook = MDC.putCloseable("request.took", took);
                 MDC.MDCCloseable mdcStatus = MDC
-                        .putCloseable("response.status", Integer.toString(containerResponseContext.getStatus()));) {
-            logger.debug("Completed {}.", containerRequestContext.getUriInfo().getPath());
+                        .putCloseable("response.status", Integer.toString(responseContext.getStatus()));) {
+            logger.info(
+                    "Request {} completed with status {}.",
+                    requestContext.getUriInfo().getPath(),
+                    responseContext.getStatus());
         }
     }
 

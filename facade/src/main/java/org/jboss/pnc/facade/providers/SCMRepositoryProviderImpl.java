@@ -348,7 +348,7 @@ public class SCMRepositoryProviderImpl
         buildConfiguration.ifPresent(bc -> repositoryCreationProcess.buildConfiguration(bc));
         task = new RepositoryCreationTask(repositoryCreationProcess.build(), userToken);
 
-        task.setTaskId(nextTaskId.getAndIncrement()); // TODO why do we need this ID
+        task.setTaskId(nextTaskId.getAndIncrement());
         task.setGlobalConfig(globalConfig);
         task.setJobType(jobType);
         try {
