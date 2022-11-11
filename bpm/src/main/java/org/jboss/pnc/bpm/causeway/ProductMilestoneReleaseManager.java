@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 import java.util.function.Function;
@@ -164,11 +165,11 @@ public class ProductMilestoneReleaseManager {
         release.setMilestone(milestone);
 
         try {
-            MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone, accessToken);
+            MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone);
             releaseTask.setGlobalConfig(globalConfig);
             connector.startProcess(
                     bpmConfig.getBpmNewReleaseProcessId(),
-                    releaseTask.getExtendedProcessParameters(),
+                    Collections.singletonMap("processParameters", releaseTask.getProcessParameters()),
                     Numbers.decimalToBase32(milestoneReleaseId),
                     accessToken);
             return release;

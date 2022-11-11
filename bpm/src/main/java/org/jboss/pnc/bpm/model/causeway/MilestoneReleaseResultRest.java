@@ -38,11 +38,6 @@ public class MilestoneReleaseResultRest extends BpmEvent {
 
     private List<BuildImportResultRest> builds = new ArrayList<>();
 
-    @Override
-    public String getEventType() {
-        return "BREW_IMPORT";
-    }
-
     @JsonIgnore
     public boolean isSuccessful() {
         return !builds.isEmpty() && allBuildsSuccessful();
