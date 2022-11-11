@@ -18,9 +18,9 @@
 package org.jboss.pnc.bpm.task;
 
 import lombok.ToString;
-import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.ComponentBuildParameters;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
@@ -34,21 +34,20 @@ import java.io.Serializable;
  * @author Jakub Senko
  */
 @ToString(callSuper = true)
-public class BpmBuildTask extends BpmTask {
+public class BpmBuildTask {
 
     private final BuildTask buildTask;
+    private GlobalModuleGroup globalConfig;
 
     public BuildTask getBuildTask() {
         return buildTask;
     }
 
     public BpmBuildTask(BuildTask buildTask) {
-        super(buildTask.getUser().getLoginToken());
         this.buildTask = buildTask;
     }
 
-    @Override
-    protected Serializable getProcessParameters() throws CoreException {
+    public Serializable getProcessParameters() throws CoreException {
 
         return new ComponentBuildParameters(
                 globalConfig.getPncUrl(),
@@ -92,5 +91,13 @@ public class BpmBuildTask extends BpmTask {
                 buildTask.getBuildOptions().getAlignmentPreference());
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
+    }
+
+    public void setGlobalConfig(GlobalModuleGroup globalConfig) {
+        this.globalConfig = globalConfig;
+    }
+
+    public GlobalModuleGroup getGlobalConfig() {
+        return globalConfig;
     }
 }

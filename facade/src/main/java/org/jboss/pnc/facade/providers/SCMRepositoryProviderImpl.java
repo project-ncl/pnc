@@ -57,9 +57,12 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -346,43 +349,55 @@ public class SCMRepositoryProviderImpl
                 .revision(revision);
 
         buildConfiguration.ifPresent(bc -> repositoryCreationProcess.buildConfiguration(bc));
-        task = new RepositoryCreationTask(repositoryCreationProcess.build(), userToken);
+        task = new RepositoryCreationTask(repositoryCreationProcess.build());
 
-        task.setTaskId(nextTaskId.getAndIncrement());
+        int id = nextTaskId.getAndIncrement();
         task.setGlobalConfig(globalConfig);
         task.setJobType(jobType);
         try {
-            Map<String, Object> processParameters = task.getExtendedProcessParameters();
-            connector.startProcess(bpmConfig.getNewBcCreationProcessId(), processParameters, userToken);
+            Map<String, Serializable> parameters = new HashMap<>();
+            parameters.put("processParameters", task.getProcessParameters());
+            parameters.put("taskId", id);
+            connector.startProcess(
+                    bpmConfig.getNewBcCreationProcessId(),
+                    parameters,
+                    Objects.toString(id),
+                    userToken);
         } catch (CoreException e) {
             throw new RuntimeException("Could not get process parameters: " + task, e);
         } catch (ProcessManagerException e) {
             throw new RuntimeException("Could not start BPM task using REST connector: " + task, e);
         }
-        return task.getTaskId();
+        return id;
     }
 
     @Override
     public void repositoryCreationCompleted(RepositoryCreationResult result) {
         if (result.getStatus().isSuccess()) {
-            Consumer<RepositoryCreated> onRepositoryCreated = event -> {
-                log.debug("Repository created: {}", event);
+            RepositoryConfiguration existing = repository.queryByPredicates(withExactInternalScmRepoUrl(result.getInternalScmUrl()));
+            if (existing != null) {
+                RepositoryCreationFailure error = new RepositoryCreationFailure(
+                        result.getJobType(),
+                        RC_REPO_CREATION_CONFLICT,
+                        existing,
+                        result.getTaskId().toString());
+                notifier.sendMessage(error);
+            } else {
+                SCMRepository scmRepo = createSCMRepositoryFromValues(
+                        result.getExternalUrl(),
+                        result.getInternalScmUrl(),
+                        result.isPreBuildSyncEnabled());
+                RepositoryCreated notification = new RepositoryCreated(result.getTaskId(), Integer.parseInt(scmRepo.getId()));
+                log.debug("Repository created: {}", notification);
                 if (result.getJobType().equals(JobNotificationType.BUILD_CONFIG_CREATION)) {
                     buildConfigurationProvider.createBuildConfigurationWithRepository(
                             result.getTaskId().toString(),
-                            event.getRepositoryId(),
+                            notification.getRepositoryId(),
                             result.getBuildConfiguration());
 
                 }
-                notifySCMRepositoryCreated(event);
-            };
-            onRepoCloneSuccess(
-                    result.getInternalScmUrl(),
-                    result.getTaskId(),
-                    onRepositoryCreated,
-                    result.getJobType(),
-                    result.getExternalUrl(),
-                    result.isPreBuildSyncEnabled());
+                notifySCMRepositoryCreated(notification);
+            }
         } else {
             String eventType;
             if (!result.isRepoCreatedSuccessfully()) {
@@ -405,28 +420,6 @@ public class SCMRepositoryProviderImpl
                             eventType,
                             repositoryCreationProcess,
                             result.getTaskId().toString()));
-        }
-    }
-
-    private void onRepoCloneSuccess(
-            String internalScmUrl,
-            Integer taskId,
-            Consumer<RepositoryCreated> consumer,
-            JobNotificationType jobType,
-            String externalURL,
-            boolean preBuildSyncEnabled) {
-        RepositoryConfiguration existing = repository.queryByPredicates(withExactInternalScmRepoUrl(internalScmUrl));
-        if (existing != null) {
-            RepositoryCreationFailure error = new RepositoryCreationFailure(
-                    jobType,
-                    RC_REPO_CREATION_CONFLICT,
-                    existing,
-                    taskId.toString());
-            notifier.sendMessage(error);
-        } else {
-            SCMRepository scmRepo = createSCMRepositoryFromValues(externalURL, internalScmUrl, preBuildSyncEnabled);
-            RepositoryCreated notification = new RepositoryCreated(taskId, Integer.parseInt(scmRepo.getId()));
-            consumer.accept(notification);
         }
     }
 }

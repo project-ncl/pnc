@@ -31,6 +31,7 @@ import java.io.Serializable;
 @ToString
 public abstract class BpmEvent implements Serializable {
 
+    @Deprecated //not in use anymore, left here for backward compatibility
     @Getter
-    private String eventType;
+    private String eventType = "not-used";
 }

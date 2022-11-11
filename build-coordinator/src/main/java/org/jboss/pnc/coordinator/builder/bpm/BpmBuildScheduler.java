@@ -28,6 +28,7 @@ import org.jboss.pnc.spi.exception.CoreException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Collections;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -59,7 +60,7 @@ public class BpmBuildScheduler implements BuildScheduler {
             task.setGlobalConfig(globalConfig);
             connector.startProcess(
                     bpmConfig.getBpmNewBuildProcessName(),
-                    task.getExtendedProcessParameters(),
+                    Collections.singletonMap("processParameters", task.getProcessParameters()),
                     buildTask.getId(),
                     buildTask.getUser().getLoginToken());
         } catch (Exception e) {
@@ -69,7 +70,6 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Override
     public boolean cancel(BuildTask buildTask) {
-        BpmBuildTask task = new BpmBuildTask(buildTask);
-        return connector.cancelByCorrelation(buildTask.getId(), task.getAccessToken());
+        return connector.cancelByCorrelation(buildTask.getId(), buildTask.getUser().getLoginToken());
     }
 }

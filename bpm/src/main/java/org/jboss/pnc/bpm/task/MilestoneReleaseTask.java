@@ -19,9 +19,9 @@ package org.jboss.pnc.bpm.task;
 
 import lombok.Getter;
 import lombok.ToString;
-import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.MilestoneReleaseParameters;
 import org.jboss.pnc.bpm.model.causeway.MilestoneReleaseRest;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.exception.CoreException;
 
@@ -31,13 +31,13 @@ import java.io.Serializable;
  * @author Michal Szynkiewicz
  */
 @ToString(callSuper = true)
-public class MilestoneReleaseTask extends BpmTask {
+public class MilestoneReleaseTask {
 
     @Getter
     private final ProductMilestone milestone;
+    private GlobalModuleGroup globalConfig;
 
-    public MilestoneReleaseTask(ProductMilestone milestone, String accessToken) {
-        super(accessToken);
+    public MilestoneReleaseTask(ProductMilestone milestone) {
         this.milestone = milestone;
     }
 
@@ -45,11 +45,18 @@ public class MilestoneReleaseTask extends BpmTask {
         return new MilestoneReleaseRest(milestone.getId());
     }
 
-    @Override
-    protected Serializable getProcessParameters() throws CoreException {
+    public Serializable getProcessParameters() throws CoreException {
         return new MilestoneReleaseParameters(
                 createMilestoneRest(milestone),
                 globalConfig.getPncUrl(),
                 globalConfig.getExternalCausewayUrl());
+    }
+
+    public void setGlobalConfig(GlobalModuleGroup globalConfig) {
+        this.globalConfig = globalConfig;
+    }
+
+    public GlobalModuleGroup getGlobalConfig() {
+        return globalConfig;
     }
 }

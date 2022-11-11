@@ -18,8 +18,8 @@
 package org.jboss.pnc.bpm.task;
 
 import lombok.ToString;
-import org.jboss.pnc.bpm.BpmTask;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
@@ -32,32 +32,39 @@ import java.util.HashMap;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 @ToString(callSuper = true)
-public class RepositoryCreationTask extends BpmTask {
+public class RepositoryCreationTask {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryCreationTask.class);
 
     /**
      * The RepositoryCreationRest.BuildConfigurationRest
      */
-    private final RepositoryCreationProcess repositoryCreationProcessRest;
+    private final RepositoryCreationProcess repositoryCreationProcess;
     private JobNotificationType jobType;
+    private GlobalModuleGroup globalConfig;
 
-    public RepositoryCreationTask(RepositoryCreationProcess repositoryCreationProcessRest, String accessToken) {
-        super(accessToken);
-        this.repositoryCreationProcessRest = repositoryCreationProcessRest;
+    public RepositoryCreationTask(RepositoryCreationProcess repositoryCreationProcess) {
+        this.repositoryCreationProcess = repositoryCreationProcess;
     }
 
-    @Override
-    protected Serializable getProcessParameters() throws CoreException {
+    public Serializable getProcessParameters() throws CoreException {
         HashMap<String, Object> params = new HashMap<>();
         params.put("pncBaseUrl", globalConfig.getPncUrl());
         params.put("repourBaseUrl", globalConfig.getExternalRepourUrl());
         params.put("jobType", jobType.toString());
-        params.put("taskData", repositoryCreationProcessRest);
+        params.put("taskData", repositoryCreationProcess);
         return params;
     }
 
     public void setJobType(JobNotificationType jobType) {
         this.jobType = jobType;
+    }
+
+    public void setGlobalConfig(GlobalModuleGroup globalConfig) {
+        this.globalConfig = globalConfig;
+    }
+
+    public GlobalModuleGroup getGlobalConfig() {
+        return globalConfig;
     }
 }
