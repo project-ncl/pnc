@@ -17,6 +17,8 @@
  */
 package org.jboss.pnc.bpm.task;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
@@ -35,6 +37,11 @@ import java.util.HashMap;
 public class RepositoryCreationTask {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryCreationTask.class);
+
+    @Getter
+    @Setter
+    @Deprecated
+    private Integer taskId;
 
     /**
      * The RepositoryCreationRest.BuildConfigurationRest
