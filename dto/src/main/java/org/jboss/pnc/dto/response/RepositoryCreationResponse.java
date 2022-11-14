@@ -39,7 +39,7 @@ public class RepositoryCreationResponse {
      * Id of the task that will create and sync the repository. When the repository doesn't require sync, this is null
      * and {@link #getRepository()} is returned instead.
      */
-    private Integer taskId;
+    private Long taskId;
 
     /**
      * The created SCM Repistory config. When the repository require sync, this is null and {@link #getTaskId()} is
@@ -47,7 +47,7 @@ public class RepositoryCreationResponse {
      */
     private SCMRepository repository;
 
-    public RepositoryCreationResponse(int taskId) {
+    public RepositoryCreationResponse(long taskId) {
         this.taskId = taskId;
     }
 
@@ -56,7 +56,7 @@ public class RepositoryCreationResponse {
     }
 
     @lombok.Builder(builderClassName = "Builder")
-    private RepositoryCreationResponse(Integer taskId, SCMRepository repository) {
+    private RepositoryCreationResponse(Long taskId, SCMRepository repository) {
         this.taskId = taskId;
         this.repository = repository;
     }
