@@ -22,6 +22,7 @@ import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
 import org.jboss.pnc.bpm.task.RepositoryCreationTask;
 import org.jboss.pnc.common.Configuration;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
@@ -64,7 +65,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -94,9 +94,6 @@ public class SCMRepositoryProviderImpl
 
     @Inject
     private Notifier notifier;
-
-    @Deprecated // use stateless approach
-    private AtomicInteger nextTaskId = new AtomicInteger(1);
 
     @Inject
     private BpmModuleConfig bpmConfig;
@@ -232,7 +229,7 @@ public class SCMRepositoryProviderImpl
             validateRepositoryWithExternalURLDoesNotExist(scmUrl, null);
 
             boolean sync = preBuildSyncEnabled == null || preBuildSyncEnabled;
-            Integer taskId = startRCreationTask(scmUrl, revision, sync, jobType, buildConfiguration);
+            Long taskId = startRCreationTask(scmUrl, revision, sync, jobType, buildConfiguration);
 
             return new RepositoryCreationResponse(taskId);
         }
@@ -338,7 +335,7 @@ public class SCMRepositoryProviderImpl
      * @param buildConfiguration required when repository is created as part of BC creation process
      * @return
      */
-    private Integer startRCreationTask(
+    private Long startRCreationTask(
             String externalURL,
             String revision,
             boolean preBuildSyncEnabled,
@@ -361,7 +358,7 @@ public class SCMRepositoryProviderImpl
         buildConfiguration.ifPresent(bc -> repositoryCreationProcess.buildConfiguration(bc));
         task = new RepositoryCreationTask(repositoryCreationProcess.build());
 
-        int id = nextTaskId.getAndIncrement();
+        long id = Sequence.nextId();
         task.setGlobalConfig(globalConfig);
         task.setJobType(jobType);
         try {
