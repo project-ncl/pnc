@@ -65,7 +65,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -169,12 +168,18 @@ public class SCMRepositoryProviderImpl
 
     @Override
     public RepositoryCreationResponse createSCMRepository(String scmUrl, Boolean preBuildSyncEnabled) {
-        return createSCMRepository(
+        RepositoryCreationResponse scmRepository = createSCMRepository(
                 scmUrl,
                 preBuildSyncEnabled,
                 SCM_REPOSITORY_CREATION,
-                this::notifySCMRepositoryCreated,
                 Optional.empty());
+        // if it is an internal only repository, it should be created at this point and notification is sent now,
+        // otherwise the notification is sent on when the callback of cloning is processed
+        if (scmRepository.getTaskId() == null) {
+            notifySCMRepositoryCreated(
+                    new RepositoryCreated(null, Integer.valueOf(scmRepository.getRepository().getId())));
+        }
+        return scmRepository;
     }
 
     private void notifySCMRepositoryCreated(RepositoryCreated event) {
@@ -184,14 +189,22 @@ public class SCMRepositoryProviderImpl
             notifier.sendMessage(new SCMRepositoryCreationSuccess(repository, taskId));
     }
 
-    @Override
+    /**
+     * Starts the task of creating SCMRepository.If the SCM URL is external, the task creates new internal repository
+     * and does initial synchronization.
+     *
+     * @param scmUrl The URL of the SCM repository.
+     * @param preBuildSyncEnabled If the SCM URL is external, this parameter specifies whether the external repository
+     *        should be synchronized into the internal one before build.
+     * @param jobType Type of the job that requested the SCM repository creation (for notification purposes).
+     * @return id of the created
+     */
     public RepositoryCreationResponse createSCMRepository(
             String scmUrl,
             Boolean preBuildSyncEnabled,
             JobNotificationType jobType,
-            Consumer<RepositoryCreated> consumer,
             Optional<BuildConfiguration> buildConfiguration) {
-        return createSCMRepository(scmUrl, null, preBuildSyncEnabled, jobType, consumer, buildConfiguration);
+        return createSCMRepository(scmUrl, null, preBuildSyncEnabled, jobType, buildConfiguration);
     }
 
     @Override
@@ -200,7 +213,6 @@ public class SCMRepositoryProviderImpl
             String revision,
             Boolean preBuildSyncEnabled,
             JobNotificationType jobType,
-            Consumer<RepositoryCreated> consumer,
             Optional<BuildConfiguration> buildConfiguration) {
         log.trace(
                 "Received request to start RC creation with url autodetect: " + scmUrl + " (sync enabled? "
@@ -208,22 +220,19 @@ public class SCMRepositoryProviderImpl
         if (StringUtils.isEmpty(scmUrl))
             throw new InvalidEntityException("You must specify the SCM URL.");
 
-        if (scmUrl.contains(config.getInternalScmAuthority())) {
-
+        if (scmUrl.contains(config.getInternalScmAuthority())) { // is internal repository
             // validation phase
             validateInternalRepository(scmUrl);
             validateRepositoryWithInternalURLDoesNotExist(scmUrl, null);
 
             SCMRepository scmRepository = createSCMRepositoryFromValues(null, scmUrl, false);
-
-            consumer.accept(new RepositoryCreated(null, Integer.valueOf(scmRepository.getId())));
             return new RepositoryCreationResponse(scmRepository);
-
         } else {
+            // External repository needs to be cloned first. Starting the process ...
             validateRepositoryWithExternalURLDoesNotExist(scmUrl, null);
 
             boolean sync = preBuildSyncEnabled == null || preBuildSyncEnabled;
-            Integer taskId = startRCreationTask(scmUrl, revision, sync, jobType, consumer, buildConfiguration);
+            Integer taskId = startRCreationTask(scmUrl, revision, sync, jobType, buildConfiguration);
 
             return new RepositoryCreationResponse(taskId);
         }
@@ -241,20 +250,23 @@ public class SCMRepositoryProviderImpl
         }
     }
 
+    /**
+     * Crates and store SCMRepository to DB.
+     */
     private SCMRepository createSCMRepositoryFromValues(
             String externalScmUrl,
             String internalScmUrl,
             boolean preBuildSyncEnabled) {
 
-        RepositoryConfiguration.Builder built = RepositoryConfiguration.Builder.newBuilder()
+        RepositoryConfiguration.Builder rcBuilder = RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl(internalScmUrl)
                 .preBuildSyncEnabled(preBuildSyncEnabled);
 
         if (externalScmUrl != null) {
-            built.externalUrl(externalScmUrl);
+            rcBuilder.externalUrl(externalScmUrl);
         }
 
-        RepositoryConfiguration entity = repository.save(built.build());
+        RepositoryConfiguration entity = repository.save(rcBuilder.build());
         log.info("Created SCM repository: {}.", entity.toString());
         return mapper.toDTO(entity);
     }
@@ -323,7 +335,6 @@ public class SCMRepositoryProviderImpl
      * @param externalURL
      * @param preBuildSyncEnabled
      * @param jobType
-     * @param consumer
      * @param buildConfiguration required when repository is created as part of BC creation process
      * @return
      */
@@ -332,7 +343,6 @@ public class SCMRepositoryProviderImpl
             String revision,
             boolean preBuildSyncEnabled,
             JobNotificationType jobType,
-            Consumer<RepositoryCreated> consumer,
             Optional<BuildConfiguration> buildConfiguration) {
         String userToken = userService.currentUserToken();
 
@@ -358,11 +368,7 @@ public class SCMRepositoryProviderImpl
             Map<String, Serializable> parameters = new HashMap<>();
             parameters.put("processParameters", task.getProcessParameters());
             parameters.put("taskId", id);
-            connector.startProcess(
-                    bpmConfig.getNewBcCreationProcessId(),
-                    parameters,
-                    Objects.toString(id),
-                    userToken);
+            connector.startProcess(bpmConfig.getNewBcCreationProcessId(), parameters, Objects.toString(id), userToken);
         } catch (CoreException e) {
             throw new RuntimeException("Could not get process parameters: " + task, e);
         } catch (ProcessManagerException e) {
@@ -374,7 +380,8 @@ public class SCMRepositoryProviderImpl
     @Override
     public void repositoryCreationCompleted(RepositoryCreationResult result) {
         if (result.getStatus().isSuccess()) {
-            RepositoryConfiguration existing = repository.queryByPredicates(withExactInternalScmRepoUrl(result.getInternalScmUrl()));
+            RepositoryConfiguration existing = repository
+                    .queryByPredicates(withExactInternalScmRepoUrl(result.getInternalScmUrl()));
             if (existing != null) {
                 RepositoryCreationFailure error = new RepositoryCreationFailure(
                         result.getJobType(),
@@ -387,7 +394,9 @@ public class SCMRepositoryProviderImpl
                         result.getExternalUrl(),
                         result.getInternalScmUrl(),
                         result.isPreBuildSyncEnabled());
-                RepositoryCreated notification = new RepositoryCreated(result.getTaskId(), Integer.parseInt(scmRepo.getId()));
+                RepositoryCreated notification = new RepositoryCreated(
+                        result.getTaskId(),
+                        Integer.parseInt(scmRepo.getId()));
                 log.debug("Repository created: {}", notification);
                 if (result.getJobType().equals(JobNotificationType.BUILD_CONFIG_CREATION)) {
                     buildConfigurationProvider.createBuildConfigurationWithRepository(

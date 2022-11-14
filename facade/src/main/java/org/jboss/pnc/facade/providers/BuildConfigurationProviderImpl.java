@@ -17,9 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.common.concurrent.MDCWrappers;
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -549,15 +547,11 @@ public class BuildConfigurationProviderImpl extends
                 request.getBuildConfig().getScmRevision(),
                 request.getPreBuildSyncEnabled(),
                 JobNotificationType.BUILD_CONFIG_CREATION,
-                // wrap as the callback happens from the Bpm task completion
-                // consumer is deprecated with new stateless approach
-                MDCWrappers.wrap(event -> {
-                    createBuildConfigurationWithRepository(
-                            event.getTaskId() == null ? null : event.getTaskId().toString(),
-                            event.getRepositoryId(),
-                            newBuildConfigurationWithId);
-                }),
                 Optional.of(newBuildConfigurationWithId));
+        createBuildConfigurationWithRepository(
+                rcResponse.getTaskId() == null ? null : rcResponse.getTaskId().toString(),
+                Integer.parseInt(rcResponse.getRepository().getId()),
+                newBuildConfigurationWithId);
 
         BuildConfigCreationResponse response;
         if (rcResponse.getTaskId() == null) {

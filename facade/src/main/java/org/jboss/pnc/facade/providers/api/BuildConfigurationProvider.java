@@ -94,5 +94,12 @@ public interface BuildConfigurationProvider
 
     Optional<BuildConfiguration> restoreRevision(String id, int rev);
 
+    /**
+     * Method is expecting that the {@link org.jboss.pnc.model.RepositoryConfiguration} defined by scmRepositoryId already exists in the database.
+     *
+     * @param taskId
+     * @param scmRepositoryId
+     * @param configuration
+     */
     void createBuildConfigurationWithRepository(String taskId, int scmRepositoryId, BuildConfiguration configuration);
 }
