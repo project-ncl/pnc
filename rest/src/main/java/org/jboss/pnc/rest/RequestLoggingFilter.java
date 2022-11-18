@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest;
 
 import org.apache.commons.io.IOUtils;
-import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.common.util.MapUtils;
@@ -72,13 +71,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
         MDC.clear();
         requestContext.setProperty(REQUEST_EXECUTION_START, System.currentTimeMillis());
         MDCUtils.setMDCFromRequestContext(requestContext);
-        MDCUtils.addMDCFromOtelHeadersWithFallback(
-                requestContext,
-                MDCHeaderKeys.SLF4J_TRACE_ID,
-                MDCHeaderKeys.SLF4J_SPAN_ID,
-                MDCHeaderKeys.SLF4J_TRACE_FLAGS,
-                MDCHeaderKeys.SLF4J_TRACE_STATE,
-                Span.current().getSpanContext());
+        MDCUtils.addMDCFromOtelHeadersWithFallback(requestContext, Span.current().getSpanContext(), true);
 
         User user = null;
         try {
@@ -133,7 +126,8 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             logger.info(
                     "Request {} completed with status {}.",
                     requestContext.getUriInfo().getPath(),
-                    responseContext.getStatus());        }
+                    responseContext.getStatus());
+        }
     }
 
     private String getUserPrincipalName(ContainerRequestContext context) {
