@@ -18,8 +18,9 @@
 package org.jboss.pnc.rest;
 
 import org.apache.commons.io.IOUtils;
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
-import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.common.util.MapUtils;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.User;
@@ -71,7 +72,13 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
         MDC.clear();
         requestContext.setProperty(REQUEST_EXECUTION_START, System.currentTimeMillis());
         MDCUtils.setMDCFromRequestContext(requestContext);
-        MDCUtils.addTraceContext(requestContext, Span.current().getSpanContext());
+        MDCUtils.addMDCFromOtelHeadersWithFallback(
+                requestContext,
+                MDCHeaderKeys.SLF4J_TRACE_ID,
+                MDCHeaderKeys.SLF4J_SPAN_ID,
+                MDCHeaderKeys.SLF4J_TRACE_FLAGS,
+                MDCHeaderKeys.SLF4J_TRACE_STATE,
+                Span.current().getSpanContext());
 
         User user = null;
         try {
@@ -79,7 +86,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             if (user != null) {
                 Integer userId = user.getId();
                 if (userId != null) {
-                    MDCUtils.addUserId(Integer.toString(userId));
+                    org.jboss.pnc.common.logging.MDCUtils.addUserId(Integer.toString(userId));
                 }
             }
         } catch (Exception e) {
