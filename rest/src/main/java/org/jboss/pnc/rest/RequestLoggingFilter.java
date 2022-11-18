@@ -127,14 +127,13 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
             took = Long.toString(System.currentTimeMillis() - startTime);
         }
 
-        try (MDC.MDCCloseable mdcTook = MDC.putCloseable("request.took", took);
+        try (MDC.MDCCloseable mdcTook = MDC.putCloseable(MDCKeys.REQUEST_TOOK, took);
                 MDC.MDCCloseable mdcStatus = MDC
-                        .putCloseable("response.status", Integer.toString(responseContext.getStatus()));) {
+                        .putCloseable(MDCKeys.RESPONSE_STATUS, Integer.toString(responseContext.getStatus()));) {
             logger.info(
                     "Request {} completed with status {}.",
                     requestContext.getUriInfo().getPath(),
-                    responseContext.getStatus());
-        }
+                    responseContext.getStatus());        }
     }
 
     private String getUserPrincipalName(ContainerRequestContext context) {
