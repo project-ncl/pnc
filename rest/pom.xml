@@ -121,6 +121,13 @@
             <artifactId>swagger-annotations</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <!-- OTEL dependencies -->
+        <dependency>
+          <groupId>com.redhat.resilience.otel</groupId>
+          <artifactId>opentelemetry-ext-cli-java</artifactId>
+        </dependency>
+
         <!-- Enterprise dependencies -->
         <dependency>
             <groupId>org.jboss.spec.javax.ejb</groupId>

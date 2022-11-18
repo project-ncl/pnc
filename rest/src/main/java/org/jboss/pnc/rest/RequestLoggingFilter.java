@@ -18,7 +18,6 @@
 package org.jboss.pnc.rest;
 
 import org.apache.commons.io.IOUtils;
-import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.MapUtils;
@@ -29,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanContext;
 
 import javax.annotation.Priority;
 import javax.inject.Inject;
@@ -73,6 +71,7 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
         MDC.clear();
         requestContext.setProperty(REQUEST_EXECUTION_START, System.currentTimeMillis());
         MDCUtils.setMDCFromRequestContext(requestContext);
+        MDCUtils.addTraceContext(requestContext, Span.current().getSpanContext());
 
         User user = null;
         try {
@@ -86,9 +85,6 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
         } catch (Exception e) {
             // user not found, continue ...
         }
-
-        // Propagate OTEL headers
-        handleOTELHeaders(requestContext);
 
         UriInfo uriInfo = requestContext.getUriInfo();
         Request request = requestContext.getRequest();
@@ -170,25 +166,4 @@ public class RequestLoggingFilter implements ContainerRequestFilter, ContainerRe
         return b.toString();
     }
 
-    private void handleOTELHeaders(ContainerRequestContext requestContext) {
-        // Adding OTEL information into MDC (from headers if available)
-        String traceId = requestContext.getHeaderString(MDCHeaderKeys.TRACE_ID.getMdcKey());
-        if (traceId != null) {
-            logger.debug("Trace received from containerRequestContext: {}.", traceId);
-
-            // A trace should be associated with span and trace flags plus status (ignored atm)
-            String spanId = requestContext.getHeaderString(MDCHeaderKeys.SPAN_ID.getMdcKey());
-            if (spanId == null) {
-                // Some vendors use parent-id instead (https://www.w3.org/TR/trace-context/#parent-id)
-                spanId = requestContext.getHeaderString(MDCHeaderKeys.PARENT_ID.getMdcKey());
-            }
-            MDCUtils.addTraceContext(traceId, spanId, null);
-        } else {
-            SpanContext spanContext = Span.current().getSpanContext();
-            MDCUtils.addTraceContext(
-                    spanContext.getTraceId(),
-                    spanContext.getSpanId(),
-                    spanContext.getTraceFlags().asHex());
-        }
-    }
 }

@@ -17,19 +17,19 @@
  */
 package org.jboss.pnc.bpm;
 
-import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.trace.Span;
-import io.opentelemetry.api.trace.SpanContext;
-import io.opentelemetry.api.trace.SpanKind;
-import io.opentelemetry.api.trace.StatusCode;
-import io.opentelemetry.api.trace.TraceFlags;
-import io.opentelemetry.api.trace.TraceState;
-import io.opentelemetry.api.trace.Tracer;
-import io.opentelemetry.context.Context;
-import io.opentelemetry.context.Scope;
-import io.opentelemetry.instrumentation.annotations.SpanAttribute;
-import io.opentelemetry.instrumentation.annotations.WithSpan;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.annotation.PreDestroy;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.auth.AuthScope;
@@ -52,23 +52,22 @@ import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.common.otel.OtelUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.spi.exception.ProcessManagerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.SpanContext;
+import io.opentelemetry.api.trace.SpanKind;
+import io.opentelemetry.api.trace.StatusCode;
+import io.opentelemetry.context.Scope;
+import io.opentelemetry.instrumentation.annotations.SpanAttribute;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 
 /**
  * @author Matej Lazar
@@ -128,7 +127,18 @@ public class RestConnector implements Connector {
             String accessToken) throws ProcessManagerException {
 
         // Create a parent child span with values from MDC
-        Span span = createOTELChildSpan(processId, correlationKey);
+        SpanBuilder spanBuilder = OtelUtils.buildChildSpan(
+                GlobalOpenTelemetry.get().getTracer(""),
+                "RestConnector.startProcess",
+                SpanKind.CLIENT,
+                MDC.get(MDCKeys.SLF4J_TRACE_ID_KEY),
+                MDC.get(MDCKeys.SLF4J_SPAN_ID_KEY),
+                MDC.get(MDCKeys.SLF4J_TRACE_FLAGS_KEY),
+                MDC.get(MDCKeys.SLF4J_TRACE_STATE_KEY),
+                Span.current().getSpanContext(),
+                Map.of("processId", processId, "correlationKey", correlationKey));
+        Span span = spanBuilder.startSpan();
+        log.debug("Started a new span :{}", span);
 
         // put the span into the current Context
         try (Scope scope = span.makeCurrent()) {
@@ -151,6 +161,8 @@ public class RestConnector implements Connector {
             }
             request.setEntity(requestEntity);
             configureRequest(accessToken, request);
+            configureRequestOTELHeaders(request, span.getSpanContext());
+
             try (CloseableHttpResponse response = httpClient.execute(request)) {
                 int statusCode = response.getStatusLine().getStatusCode();
                 if (statusCode == 201) {
@@ -174,51 +186,30 @@ public class RestConnector implements Connector {
         }
     }
 
-    private Span createOTELChildSpan(String processId, String correlationKey) {
-
-        // Manually creating a new Span to show the HTTP POST request to BPM
-        OpenTelemetry globalOpenTelemetry = GlobalOpenTelemetry.get();
-        Tracer tracer = globalOpenTelemetry.getTracer("");
-
-        String traceIdHex = Span.current().getSpanContext().getTraceId();
-        String spanIdHex = Span.current().getSpanContext().getSpanId();
-        if (MDCUtils.getTraceId().isPresent()) {
-            traceIdHex = MDCUtils.getTraceId().get();
-        }
-        if (MDCUtils.getSpanId().isPresent()) {
-            spanIdHex = MDCUtils.getSpanId().get();
-        }
-
-        SpanContext myParentContext = SpanContext
-                .create(traceIdHex, spanIdHex, TraceFlags.getSampled(), TraceState.getDefault());
-
-        Span span = tracer.spanBuilder("RestConnector.startProcess")
-                .setParent(Context.current().with(Span.wrap(myParentContext)))
-                .setSpanKind(SpanKind.CLIENT)
-                .startSpan();
-        span.setAttribute("processId", processId);
-        span.setAttribute("correlationKey", correlationKey);
-
-        log.debug("Create a new span :{} from myParentContext :{}", span, myParentContext);
-
-        return span;
-    }
-
     private void configureRequest(String accessToken, HttpRequestBase request) {
         request.setConfig(httpClientConfig().build());
         request.addHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
         request.addHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+    }
 
-        // Adding OTEL headers for distributed tracing
-        MDCUtils.getTraceId().ifPresent(v -> {
-            log.debug("Setting {} header: {}", MDCKeys.SLF4J_TRACE_ID_KEY, v);
-            request.addHeader(MDCHeaderKeys.SLF4J_TRACE_ID.getHeaderName(), v);
+    private void configureRequestOTELHeaders(HttpRequestBase request, SpanContext spanContext) {
+        Map<String, String> traceParentHeaders = OtelUtils.createTraceParentHeader(spanContext);
+        Map<String, String> traceStateHeaders = OtelUtils.createTraceStateHeader(spanContext);
+
+        traceParentHeaders.forEach((key, value) -> {
+            log.debug("Setting {}: {}", key, value);
+            request.addHeader(key, value);
         });
-        MDCUtils.getSpanId().ifPresent(v -> {
-            log.debug("Setting {} header: {}", MDCKeys.SLF4J_SPAN_ID_KEY, v);
-            request.addHeader(MDCHeaderKeys.SLF4J_SPAN_ID.getHeaderName(), v);
+        traceStateHeaders.forEach((key, value) -> {
+            log.debug("Setting {}: {}", key, value);
+            request.addHeader(key, value);
         });
+
+        log.debug("Setting {} header: {}", MDCHeaderKeys.SLF4J_TRACE_ID.getHeaderName(), spanContext.getTraceId());
+        request.addHeader(MDCHeaderKeys.SLF4J_TRACE_ID.getHeaderName(), spanContext.getTraceId());
+        log.debug("Setting {} header: {}", MDCHeaderKeys.SLF4J_SPAN_ID.getHeaderName(), spanContext.getSpanId());
+        request.addHeader(MDCHeaderKeys.SLF4J_SPAN_ID.getHeaderName(), spanContext.getSpanId());
     }
 
     private RequestConfig.Builder httpClientConfig() {

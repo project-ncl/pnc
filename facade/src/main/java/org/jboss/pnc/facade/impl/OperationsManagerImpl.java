@@ -153,6 +153,8 @@ public class OperationsManagerImpl implements OperationsManager {
         List<Request.Header> headers = new ArrayList<>();
         addCommonHeaders(headers, accessToken);
         addMDCHeaders(headers);
+        addOTELHeaders(headers);
+
         String actualEndpoint = String.format(callbackUrlTemplate, globalConfig.getPncUrl(), operationId.getId());
         URI callbackURI = URI.create(actualEndpoint);
         return new Request(Request.Method.POST, callbackURI, headers);
@@ -172,9 +174,18 @@ public class OperationsManagerImpl implements OperationsManager {
         }
     }
 
+    private void addOTELHeaders(List<Request.Header> headers) {
+
+        Map<String, String> otelHeaders = MDCUtils.getOtelHeadersFromMDC();
+        otelHeaders.forEach((key, value) -> {
+            log.debug("Setting {}: {}", key, value);
+            headers.add(new Request.Header(key, value));
+        });
+    }
+
     private void headersFromMdc(List<Request.Header> headers, MDCHeaderKeys headerKey) {
         String mdcValue = MDC.get(headerKey.getMdcKey());
-        if (mdcValue != null && mdcValue.isEmpty()) {
+        if (mdcValue != null && !mdcValue.isEmpty()) {
             headers.add(new Request.Header(headerKey.getHeaderName(), mdcValue.trim()));
         }
     }
