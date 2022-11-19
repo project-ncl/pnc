@@ -18,20 +18,13 @@
 package org.jboss.pnc.common.logging;
 
 import org.jboss.pnc.api.constants.MDCKeys;
-import org.jboss.pnc.common.otel.OtelUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import io.opentelemetry.api.trace.SpanContext;
-
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.ws.rs.container.ContainerRequestContext;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -78,44 +71,6 @@ public class MDCUtils extends org.jboss.pnc.common.log.MDCUtils {
 
     public static void addUserId(String userId) {
         MDC.put(MDCKeys.USER_ID_KEY, userId);
-    }
-
-    public static void addTraceContext(ContainerRequestContext requestContext, SpanContext currentSpanContext) {
-
-        SpanContext extractedSpanContext = OtelUtils.extractSpanContextFromHeaders(requestContext);
-
-        if (extractedSpanContext != null && extractedSpanContext.isValid()) {
-            MDC.put(MDCKeys.SLF4J_TRACE_ID_KEY, extractedSpanContext.getTraceId());
-            MDC.put(MDCKeys.SLF4J_SPAN_ID_KEY, extractedSpanContext.getSpanId());
-            MDC.put(MDCKeys.SLF4J_TRACE_FLAGS_KEY, extractedSpanContext.getTraceFlags().asHex());
-            MDC.put(
-                    MDCKeys.SLF4J_TRACE_STATE_KEY,
-                    extractedSpanContext.getTraceState()
-                            .asMap()
-                            .entrySet()
-                            .stream()
-                            .map(Objects::toString)
-                            .collect(Collectors.joining(",")));
-        } else {
-            MDC.put(MDCKeys.SLF4J_TRACE_ID_KEY, currentSpanContext.getTraceId());
-            MDC.put(MDCKeys.SLF4J_SPAN_ID_KEY, currentSpanContext.getSpanId());
-            MDC.put(MDCKeys.SLF4J_TRACE_FLAGS_KEY, currentSpanContext.getTraceFlags().asHex());
-            MDC.put(
-                    MDCKeys.SLF4J_TRACE_STATE_KEY,
-                    currentSpanContext.getTraceState()
-                            .asMap()
-                            .entrySet()
-                            .stream()
-                            .map(Objects::toString)
-                            .collect(Collectors.joining(",")));
-        }
-
-        logger.debug(
-                "Trace ID: {}, Span ID: {}, TraceFlags ID: {}, TraceState: {}",
-                MDC.get(MDCKeys.SLF4J_TRACE_ID_KEY),
-                MDC.get(MDCKeys.SLF4J_SPAN_ID_KEY),
-                MDC.get(MDCKeys.SLF4J_TRACE_FLAGS_KEY),
-                MDC.get(MDCKeys.SLF4J_TRACE_STATE_KEY));
     }
 
     public static Optional<String> getRequestContext() {
