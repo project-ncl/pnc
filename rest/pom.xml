@@ -124,8 +124,9 @@
 
         <!-- OTEL dependencies -->
         <dependency>
-          <groupId>com.redhat.resilience.otel</groupId>
-          <artifactId>opentelemetry-ext-cli-java</artifactId>
+            <groupId>com.redhat.resilience.otel</groupId>
+            <artifactId>opentelemetry-ext-cli-java</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Enterprise dependencies -->
