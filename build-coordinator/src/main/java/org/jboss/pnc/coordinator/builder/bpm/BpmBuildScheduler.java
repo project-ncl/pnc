@@ -56,8 +56,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     @Override
     public void startBuilding(BuildTask buildTask) throws CoreException {
         try {
-            BpmBuildTask task = new BpmBuildTask(buildTask);
-            task.setGlobalConfig(globalConfig);
+            BpmBuildTask task = new BpmBuildTask(buildTask, globalConfig);
             connector.startProcess(
                     bpmConfig.getBpmNewBuildProcessName(),
                     Collections.singletonMap("processParameters", task.getProcessParameters()),

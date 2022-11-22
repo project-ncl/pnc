@@ -165,8 +165,7 @@ public class ProductMilestoneReleaseManager {
         release.setMilestone(milestone);
 
         try {
-            MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone);
-            releaseTask.setGlobalConfig(globalConfig);
+            MilestoneReleaseTask releaseTask = new MilestoneReleaseTask(milestone, globalConfig);
             connector.startProcess(
                     bpmConfig.getBpmNewReleaseProcessId(),
                     Collections.singletonMap("processParameters", releaseTask.getProcessParameters()),

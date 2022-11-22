@@ -356,11 +356,9 @@ public class SCMRepositoryProviderImpl
                 .revision(revision);
 
         buildConfiguration.ifPresent(bc -> repositoryCreationProcess.buildConfiguration(bc));
-        task = new RepositoryCreationTask(repositoryCreationProcess.build());
+        task = new RepositoryCreationTask(repositoryCreationProcess.build(), jobType, globalConfig);
 
         long id = Sequence.nextId();
-        task.setGlobalConfig(globalConfig);
-        task.setJobType(jobType);
         try {
             Map<String, Serializable> parameters = new HashMap<>();
             parameters.put("processParameters", task.getProcessParameters());

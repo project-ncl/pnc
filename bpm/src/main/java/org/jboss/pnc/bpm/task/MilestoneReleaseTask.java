@@ -30,15 +30,16 @@ import java.io.Serializable;
 /**
  * @author Michal Szynkiewicz
  */
-@ToString(callSuper = true)
+@ToString
 public class MilestoneReleaseTask {
 
     @Getter
     private final ProductMilestone milestone;
-    private GlobalModuleGroup globalConfig;
+    private final GlobalModuleGroup globalConfig;
 
-    public MilestoneReleaseTask(ProductMilestone milestone) {
+    public MilestoneReleaseTask(ProductMilestone milestone, GlobalModuleGroup globalConfig) {
         this.milestone = milestone;
+        this.globalConfig = globalConfig;
     }
 
     private MilestoneReleaseRest createMilestoneRest(ProductMilestone milestone) {
@@ -51,11 +52,6 @@ public class MilestoneReleaseTask {
                 globalConfig.getPncUrl(),
                 globalConfig.getExternalCausewayUrl());
     }
-
-    public void setGlobalConfig(GlobalModuleGroup globalConfig) {
-        this.globalConfig = globalConfig;
-    }
-
     public GlobalModuleGroup getGlobalConfig() {
         return globalConfig;
     }
