@@ -33,18 +33,19 @@ import java.io.Serializable;
 /**
  * @author Jakub Senko
  */
-@ToString(callSuper = true)
+@ToString
 public class BpmBuildTask {
 
     private final BuildTask buildTask;
-    private GlobalModuleGroup globalConfig;
+    private final GlobalModuleGroup globalConfig;
 
     public BuildTask getBuildTask() {
         return buildTask;
     }
 
-    public BpmBuildTask(BuildTask buildTask) {
+    public BpmBuildTask(BuildTask buildTask, GlobalModuleGroup globalConfig) {
         this.buildTask = buildTask;
+        this.globalConfig = globalConfig;
     }
 
     public Serializable getProcessParameters() throws CoreException {
@@ -91,10 +92,6 @@ public class BpmBuildTask {
                 buildTask.getBuildOptions().getAlignmentPreference());
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
-    }
-
-    public void setGlobalConfig(GlobalModuleGroup globalConfig) {
-        this.globalConfig = globalConfig;
     }
 
     public GlobalModuleGroup getGlobalConfig() {

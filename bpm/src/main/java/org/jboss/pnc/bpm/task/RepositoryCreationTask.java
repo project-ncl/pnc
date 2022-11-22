@@ -33,7 +33,7 @@ import java.util.HashMap;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-@ToString(callSuper = true)
+@ToString
 public class RepositoryCreationTask {
 
     private static final Logger logger = LoggerFactory.getLogger(RepositoryCreationTask.class);
@@ -47,11 +47,16 @@ public class RepositoryCreationTask {
      * The RepositoryCreationRest.BuildConfigurationRest
      */
     private final RepositoryCreationProcess repositoryCreationProcess;
-    private JobNotificationType jobType;
-    private GlobalModuleGroup globalConfig;
+    private final JobNotificationType jobType;
+    private final GlobalModuleGroup globalConfig;
 
-    public RepositoryCreationTask(RepositoryCreationProcess repositoryCreationProcess) {
+    public RepositoryCreationTask(
+            RepositoryCreationProcess repositoryCreationProcess,
+            JobNotificationType jobType,
+            GlobalModuleGroup globalConfig) {
         this.repositoryCreationProcess = repositoryCreationProcess;
+        this.jobType = jobType;
+        this.globalConfig = globalConfig;
     }
 
     public Serializable getProcessParameters() throws CoreException {
@@ -61,14 +66,6 @@ public class RepositoryCreationTask {
         params.put("jobType", jobType.toString());
         params.put("taskData", repositoryCreationProcess);
         return params;
-    }
-
-    public void setJobType(JobNotificationType jobType) {
-        this.jobType = jobType;
-    }
-
-    public void setGlobalConfig(GlobalModuleGroup globalConfig) {
-        this.globalConfig = globalConfig;
     }
 
     public GlobalModuleGroup getGlobalConfig() {
