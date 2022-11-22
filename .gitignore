@@ -25,3 +25,6 @@ indy-repository-manager/org.commonjava.indy.folo.model.TrackedContentEntry
 
 # From formatter-maven-plugin
 .cache
+
+# Mac
+.DS_Store

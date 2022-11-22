@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+// mstodo remove in the future and verify not used anymore
 @ApplicationScoped
 public class BuildSetStatusNotifications {
 
@@ -83,7 +84,7 @@ public class BuildSetStatusNotifications {
     private void removeListenersOfCompletedTasks(
             BuildSetCallBack buildSetCallBack,
             BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
-        if (buildSetStatusChangedEvent.getNewStatus().isCompleted()) {
+        if (buildSetStatusChangedEvent.getNewStatus().isFinal()) {
             log.debug(
                     "Removing subscriber for buildSetConfigurationId {}.",
                     buildSetCallBack.getBuildSetConfigurationId());

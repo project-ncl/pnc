@@ -18,6 +18,7 @@
 package org.jboss.pnc.enums;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 
 import static org.jboss.pnc.enums.BuildProgress.FINISHED;
 import static org.jboss.pnc.enums.BuildProgress.IN_PROGRESS;
@@ -138,6 +139,16 @@ public enum BuildStatus {
     private BuildStatus(BuildProgress progress, boolean completedSuccessfully) {
         this.completedSuccessfully = completedSuccessfully;
         this.progress = progress;
+    }
+
+    public static EnumSet<BuildStatus> unfinished() {
+        EnumSet<BuildStatus> result = EnumSet.noneOf(BuildStatus.class);
+        for (BuildStatus value : values()) {
+            if (value.progress != FINISHED) {
+                result.add(value);
+            }
+        }
+        return result;
     }
 
     /**

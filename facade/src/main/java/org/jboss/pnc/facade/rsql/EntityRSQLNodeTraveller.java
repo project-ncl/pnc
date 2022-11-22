@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.IS_NULL;
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.LIKE;
@@ -171,7 +172,8 @@ class EntityRSQLNodeTraveller<DB extends GenericEntity<Integer>>
     }
 
     private List<Object> castArguments(List<String> arguments, Path path) {
-        return arguments.stream().map(a -> valueConverter.convert(getValue(path, a))).collect(Collectors.toList());
+        Stream<Object> objectStream = arguments.stream().map(a -> valueConverter.convert(getValue(path, a)));
+        return objectStream.collect(Collectors.toList());
     }
 
 }

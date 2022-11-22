@@ -22,6 +22,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:06 PM
@@ -32,5 +33,11 @@ public class BuildConfigSetRecordRepositoryMock extends IntIdRepositoryMock<Buil
     @Override
     public List<BuildConfigSetRecord> findTemporaryBuildConfigSetRecordsOlderThan(Date date) {
         return null;
+    }
+
+    @Override
+    public List<BuildConfigSetRecord> findBuildConfigSetRecordsInProgress() {
+        System.out.println("finding build in progress in " + this.hashCode()); // mstodo remove
+        return data.stream().filter(r -> !r.getStatus().isFinal()).collect(Collectors.toList());
     }
 }

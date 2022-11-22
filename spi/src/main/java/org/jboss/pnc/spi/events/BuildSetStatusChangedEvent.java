@@ -18,7 +18,7 @@
 package org.jboss.pnc.spi.events;
 
 import org.jboss.pnc.dto.GroupBuild;
-import org.jboss.pnc.spi.BuildSetStatus;
+import org.jboss.pnc.enums.BuildStatus;
 
 import java.util.Date;
 
@@ -29,12 +29,12 @@ public interface BuildSetStatusChangedEvent {
 
     /**
      * May return null if this is the first status change.
-     * 
+     *
      * @return The status of the build set before the change
      */
-    BuildSetStatus getOldStatus();
+    BuildStatus getOldStatus();
 
-    BuildSetStatus getNewStatus();
+    BuildStatus getNewStatus();
 
     GroupBuild getGroupBuild();
 

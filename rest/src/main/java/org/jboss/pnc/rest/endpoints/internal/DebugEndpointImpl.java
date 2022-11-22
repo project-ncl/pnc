@@ -17,13 +17,13 @@
  */
 package org.jboss.pnc.rest.endpoints.internal;
 
-import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.notifications.buildTask.MessageSenderProvider;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.rest.endpoints.internal.api.DebugEndpoint;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
+import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -32,7 +32,6 @@ import javax.inject.Inject;
 import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-
 import java.util.Optional;
 
 /**
@@ -42,7 +41,7 @@ import java.util.Optional;
 public class DebugEndpointImpl implements DebugEndpoint {
 
     @Inject
-    private BuildQueue buildQueue;
+    private BuildTaskRepository taskRepository;
 
     @Inject
     private MessageSenderProvider messageSenderProvider;
@@ -52,7 +51,7 @@ public class DebugEndpointImpl implements DebugEndpoint {
 
     @Override
     public String getBuildQueueInfo() {
-        return buildQueue.getDebugInfo();
+        return taskRepository.getDebugInfo();
     }
 
     @Override

@@ -19,16 +19,18 @@
 package org.jboss.pnc.mock.coordinator;
 
 import org.jboss.pnc.common.logging.BuildTaskContext;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -36,12 +38,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
-
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 @Alternative
@@ -57,25 +59,28 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
-    public BuildSetTask build(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions) {
+    public BuildSetTask buildConfig(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions) {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }
 
     @Override
-    public BuildSetTask build(BuildConfigurationAudited buildConfiguration, User user, BuildOptions buildOptions) {
+    public BuildSetTask buildConfigurationAudited(
+            BuildConfigurationAudited buildConfiguration,
+            User user,
+            BuildOptions buildOptions) {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }
 
     @Override
-    public BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions) {
+    public BuildSetTask buildSet(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions) {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
     }
 
     @Override
-    public BuildSetTask build(
+    public BuildSetTask buildSet(
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
@@ -94,6 +99,19 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
+    public List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId) {
+        return activeTasks.stream()
+                .filter(
+                        buildTask -> buildTask.getBuildSetTask().getBuildConfigSetRecord().isPresent()
+                                && buildTask.getBuildSetTask()
+                                        .getBuildConfigSetRecord()
+                                        .get()
+                                        .getId()
+                                        .equals(buildConfigSetRecordId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void completeBuild(BuildTask buildTask, BuildResult buildResult) {
 
     }
@@ -104,7 +122,7 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
-    public boolean cancelSet(int buildTaskSetId) {
+    public boolean cancelSet(int buildConfigSetRecordId) {
         return false;
     }
 
@@ -121,12 +139,15 @@ public class BuildCoordinatorMock implements BuildCoordinator {
     }
 
     @Override
-    public void start() {
-        logger.info("Called start threads");
+    public Optional<BuildTaskContext> getMDCMeta(String buildTaskId) {
+        return Optional.empty();
     }
 
     @Override
-    public Optional<BuildTaskContext> getMDCMeta(String buildTaskId) {
-        return Optional.empty();
+    public void updateBuildConfigSetRecordStatus(
+            BuildConfigSetRecord setRecord,
+            BuildStatus status,
+            String description) {
+
     }
 }

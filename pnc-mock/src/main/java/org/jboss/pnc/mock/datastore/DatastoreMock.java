@@ -27,6 +27,7 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,8 +43,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-
-import org.mockito.Mockito;
+import java.util.stream.Collectors;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-11-24.
@@ -84,7 +84,11 @@ public class DatastoreMock implements Datastore {
                         "Unique constraint violation, the record with id [" + buildRecord.getId()
                                 + "] already exists.");
             }
+            if (buildRecord.getBuildConfigSetRecord() != null) {
+                buildRecord.getBuildConfigSetRecord().getBuildRecords().add(buildRecord);
+            }
             buildRecords.add(buildRecord);
+            log.debug("[{}]Build records after storing: {}", this.hashCode(), buildRecords);
         }
         return buildRecord;
     }
@@ -103,6 +107,7 @@ public class DatastoreMock implements Datastore {
     }
 
     public List<BuildRecord> getBuildRecords() {
+        log.info("[{}]Getting build records {}", this.hashCode(), buildRecords); // mstodo remove
         return new ArrayList<>(buildRecords); // avoid concurrent modification exception
     }
 
@@ -170,6 +175,11 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
+    public Collection<BuildConfigSetRecord> findBuildConfigSetRecordsInProgress() {
+        return buildConfigSetRecords.stream().filter(r -> !r.getStatus().isFinal()).collect(Collectors.toList());
+    }
+
+    @Override
     public boolean requiresRebuild(
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
@@ -185,6 +195,7 @@ public class DatastoreMock implements Datastore {
     }
 
     public void clear() {
+        log.info("Clearing build records");
         buildRecords.clear();
         buildConfigSetRecords.clear();
         buildConfigurations.clear();

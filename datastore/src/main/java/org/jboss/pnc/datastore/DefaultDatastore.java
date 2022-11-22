@@ -18,7 +18,6 @@
 package org.jboss.pnc.datastore;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -45,7 +44,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Collections;
@@ -377,6 +375,11 @@ public class DefaultDatastore implements Datastore {
         return new HashSet<>(
                 buildConfigurationRepository
                         .queryWithPredicates(withBuildConfigurationSetId(buildConfigurationSet.getId())));
+    }
+
+    @Override
+    public Collection<BuildConfigSetRecord> findBuildConfigSetRecordsInProgress() {
+        return buildConfigSetRecordRepository.findBuildConfigSetRecordsInProgress();
     }
 
     @Override
