@@ -18,11 +18,13 @@
 package org.jboss.pnc.spi.coordinator;
 
 import org.jboss.pnc.common.logging.BuildTaskContext;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -34,20 +36,22 @@ import java.util.Optional;
 
 public interface BuildCoordinator {
 
-    BuildSetTask build(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions)
+    BuildSetTask buildConfig(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions)
             throws BuildConflictException, CoreException;
 
-    BuildSetTask build(BuildConfigurationAudited buildConfiguration, User user, BuildOptions buildOptions)
-            throws BuildConflictException, CoreException;
+    BuildSetTask buildConfigurationAudited(
+            BuildConfigurationAudited buildConfiguration,
+            User user,
+            BuildOptions buildOptions) throws BuildConflictException, CoreException;
 
     /**
      * @deprecated It's used in the tests only
      */
     @Deprecated
-    BuildSetTask build(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)
+    BuildSetTask buildSet(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)
             throws CoreException;
 
-    BuildSetTask build(
+    BuildSetTask buildSet(
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
@@ -56,6 +60,8 @@ public interface BuildCoordinator {
     Optional<BuildTask> getSubmittedBuildTask(String buildId);
 
     List<BuildTask> getSubmittedBuildTasks();
+
+    List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId);
 
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
 
@@ -68,11 +74,12 @@ public interface BuildCoordinator {
      */
     boolean cancel(String buildTaskId) throws CoreException;
 
-    boolean cancelSet(int buildSetTaskId) throws CoreException;
+    boolean cancelSet(int buildConfigSetRecordId) throws CoreException;
 
     void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);
 
-    void start();
+    void updateBuildConfigSetRecordStatus(BuildConfigSetRecord setRecord, BuildStatus status, String description)
+            throws CoreException;
 
     Optional<BuildTaskContext> getMDCMeta(String buildTaskId);
 }

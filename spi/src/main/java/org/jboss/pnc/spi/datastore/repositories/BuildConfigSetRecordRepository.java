@@ -28,4 +28,6 @@ import java.util.List;
  */
 public interface BuildConfigSetRecordRepository extends Repository<BuildConfigSetRecord, Integer> {
     List<BuildConfigSetRecord> findTemporaryBuildConfigSetRecordsOlderThan(Date date);
+
+    List<BuildConfigSetRecord> findBuildConfigSetRecordsInProgress();
 }

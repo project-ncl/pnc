@@ -64,6 +64,7 @@ public class GroupBuildChangedNotification extends Notification {
         this.groupBuild = groupBuild;
     }
 
+    // mstodo could be problem
     public static JobNotificationProgress getProgress(BuildStatus status) {
         if (BuildStatus.NEW.equals(status)) {
             return PENDING;

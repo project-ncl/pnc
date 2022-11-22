@@ -29,7 +29,6 @@ import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.mock.dto.BuildMock;
 import org.jboss.pnc.rest.endpoints.notifications.NotificationsEndpoint;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
-import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
@@ -136,8 +135,8 @@ public class WebSocketsNotificationTest {
                 .build();
 
         BuildSetStatusChangedEvent buildStatusChangedEvent = new DefaultBuildSetStatusChangedEvent(
-                BuildSetStatus.NEW,
-                BuildSetStatus.DONE,
+                BuildStatus.NEW,
+                BuildStatus.SUCCESS,
                 groupBuild,
                 "description");
         String groupBuildString = mapperProvider.getMapper().writeValueAsString(groupBuild);

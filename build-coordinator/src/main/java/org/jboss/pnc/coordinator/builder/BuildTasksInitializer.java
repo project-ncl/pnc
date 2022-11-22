@@ -28,15 +28,16 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.model.utils.ContentIdentityManager;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -53,9 +54,9 @@ public class BuildTasksInitializer {
 
     private final Logger log = LoggerFactory.getLogger(BuildTasksInitializer.class);
 
-    private DatastoreAdapter datastoreAdapter; // TODO remove datastore dependency
+    private final DatastoreAdapter datastoreAdapter; // TODO remove datastore dependency
 
-    private long temporaryBuildLifespanDays;
+    private final long temporaryBuildLifespanDays;
 
     public BuildTasksInitializer(DatastoreAdapter datastoreAdapter, long temporaryBuildLifespanDays) {
         this.datastoreAdapter = datastoreAdapter;
@@ -67,7 +68,7 @@ public class BuildTasksInitializer {
             User user,
             BuildOptions buildOptions,
             Supplier<String> buildTaskIdProvider,
-            Set<BuildTask> submittedBuildTasks) {
+            Collection<BuildTask> submittedBuildTasks) {
 
         BuildSetTask buildSetTask = BuildSetTask.Builder.newBuilder()
                 .buildOptions(buildOptions)
@@ -202,7 +203,7 @@ public class BuildTasksInitializer {
             User user,
             BuildOptions buildOptions,
             Supplier<String> buildTaskIdProvider,
-            Set<BuildTask> submittedBuildTasks) throws CoreException {
+            Collection<BuildTask> submittedBuildTasks) throws CoreException {
 
         return createBuildSetTask(
                 buildConfigurationSet,
@@ -236,7 +237,7 @@ public class BuildTasksInitializer {
             User user,
             BuildOptions buildOptions,
             Supplier<String> buildTaskIdProvider,
-            Set<BuildTask> submittedBuildTasks) throws CoreException {
+            Collection<BuildTask> submittedBuildTasks) throws CoreException {
         BuildSetTask buildSetTask = initBuildSetTask(buildConfigurationSet, user, buildOptions);
 
         Set<BuildConfigurationAudited> buildConfigurationAuditeds = new HashSet<>();
@@ -280,16 +281,8 @@ public class BuildTasksInitializer {
                 .alignmentPreference(buildOptions.getAlignmentPreference())
                 .build();
 
-        final BuildConfigSetRecord configSetRecord;
-        try {
-            configSetRecord = saveBuildConfigSetRecord(buildConfigSetRecord);
-        } catch (DatastoreException e) {
-            log.error("Failed to store build config set record: " + e);
-            throw new CoreException(e);
-        }
-
         return BuildSetTask.Builder.newBuilder()
-                .buildConfigSetRecord(configSetRecord)
+                .buildConfigSetRecord(buildConfigSetRecord)
                 .buildOptions(buildOptions)
                 .build();
     }
@@ -306,7 +299,7 @@ public class BuildTasksInitializer {
             Supplier<String> buildTaskIdProvider,
             ProductMilestone productMilestone,
             Set<BuildConfigurationAudited> toBuild,
-            Set<BuildTask> alreadySubmittedBuildTasks,
+            Collection<BuildTask> alreadySubmittedBuildTasks,
             BuildOptions buildOptions) {
         for (BuildConfigurationAudited buildConfigAudited : toBuild) {
             Optional<BuildTask> taskOptional = alreadySubmittedBuildTasks.stream()
@@ -339,7 +332,7 @@ public class BuildTasksInitializer {
                             buildSetTask.getStartTime(),
                             productMilestone,
                             buildContentId,
-                            requestContext);
+                            requestContext.orElse(null));
                     log.debug(
                             "Created new buildTask {} for BuildConfigurationAudited {}.",
                             buildTask,

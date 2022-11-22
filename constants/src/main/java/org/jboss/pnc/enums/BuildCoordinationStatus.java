@@ -18,6 +18,8 @@
 package org.jboss.pnc.enums;
 
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Represents the status of BuildTask in the coordinator. Status is used in dependency resolution and external status
@@ -151,4 +153,29 @@ public enum BuildCoordinationStatus {
         }
     }
 
+    public static Set<BuildCoordinationStatus> inProgressStates() {
+        EnumSet<BuildCoordinationStatus> result = EnumSet.noneOf(BuildCoordinationStatus.class);
+        for (BuildCoordinationStatus value : values()) {
+            if (!value.isFinal) {
+                result.add(value);
+            }
+        }
+
+        return result;
+    }
+
+    public static EnumSet<BuildCoordinationStatus> successfulFinishStates() {
+        EnumSet<BuildCoordinationStatus> result = EnumSet.noneOf(BuildCoordinationStatus.class);
+        for (BuildCoordinationStatus value : values()) {
+            if (value.isCompleted() && !value.hasFailed()) {
+                result.add(value);
+            }
+        }
+
+        return result;
+    }
+
+    public static EnumSet<BuildCoordinationStatus> buildingState() {
+        return EnumSet.of(BUILDING);
+    }
 }

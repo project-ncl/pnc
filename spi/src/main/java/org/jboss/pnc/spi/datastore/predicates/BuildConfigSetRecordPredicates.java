@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -27,6 +28,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 import java.util.Date;
+import java.util.EnumSet;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildConfigSetRecord} entity.
@@ -62,5 +64,9 @@ public class BuildConfigSetRecordPredicates {
             subQuery.select(cb.max(subRoot.get(BuildConfigSetRecord_.id))).where(subSelect);
             return cb.equal(root.get(BuildConfigSetRecord_.id), cb.any(subQuery));
         };
+    }
+
+    public static Predicate<BuildConfigSetRecord> inStates(EnumSet<BuildStatus> inProgressStates) {
+        return (root, query, cb) -> root.get(BuildConfigSetRecord_.id).in(inProgressStates);
     }
 }

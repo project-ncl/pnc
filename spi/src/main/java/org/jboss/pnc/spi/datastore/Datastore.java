@@ -151,4 +151,6 @@ public interface Datastore {
     boolean requiresRebuild(BuildTask task, Set<Integer> processedDependenciesCache);
 
     Set<BuildConfiguration> getBuildConfigurations(BuildConfigurationSet buildConfigurationSet);
+
+    Collection<BuildConfigSetRecord> findBuildConfigSetRecordsInProgress();
 }

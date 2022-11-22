@@ -55,6 +55,7 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -157,6 +158,7 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
     }
 
     @Override
+    @Transactional
     public Build trigger(String id, BuildParameters buildParams) {
         try {
             return triggerBuild(id, OptionalInt.empty(), buildParams);

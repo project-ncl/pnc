@@ -19,7 +19,6 @@ package org.jboss.pnc.facade.impl;
 
 import com.google.common.base.Preconditions;
 import org.jboss.pnc.common.logging.BuildTaskContext;
-import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildStatusNotifications;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
@@ -28,7 +27,6 @@ import org.jboss.pnc.facade.providers.GenericSettingProvider;
 import org.jboss.pnc.facade.util.HibernateLazyInitializer;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
-import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -73,9 +71,6 @@ public class BuildTriggererImpl implements BuildTriggerer {
     private UserService user;
 
     @Inject
-    private BuildSetStatusNotifications buildSetStatusNotifications;
-
-    @Inject
     private BuildStatusNotifications buildStatusNotifications;
 
     @Inject
@@ -115,7 +110,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
 
         BuildSetTask result = doTriggerGroupBuild(groupConfigId, revs, buildOptions);
-        return result.getId();
+        return result.getBuildConfigSetRecord().get().getId();
     }
 
     @Override
@@ -142,7 +137,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
                     "Can't find Build Configuration with id=" + buildConfigId + ", rev="
                             + buildConfigurationRevision.getAsInt());
 
-            buildSetTask = buildCoordinator.build(
+            buildSetTask = buildCoordinator.buildConfigurationAudited(
                     hibernateLazyInitializer
                             .initializeBuildConfigurationAuditedBeforeTriggeringIt(buildConfigurationAudited),
                     user.currentUser(),
@@ -153,7 +148,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
                     buildConfiguration != null,
                     "Can't find Build Configuration with id=" + buildConfigId);
 
-            buildSetTask = buildCoordinator.build(
+            buildSetTask = buildCoordinator.buildConfig(
                     hibernateLazyInitializer.initializeBuildConfigurationBeforeTriggeringIt(buildConfiguration),
                     user.currentUser(),
                     buildOptions);
@@ -178,7 +173,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
         List<BuildConfigurationRevisionRef> revisions = revs.map(GroupBuildRequest::getBuildConfigurationRevisions)
                 .orElse(Collections.emptyList());
 
-        BuildSetTask buildSetTask = buildCoordinator.build(
+        BuildSetTask buildSetTask = buildCoordinator.buildSet(
                 hibernateLazyInitializer.initializeBuildConfigurationSetBeforeTriggeringIt(buildConfigurationSet),
                 loadAuditedsFromDB(buildConfigurationSet, revisions),
                 user.currentUser(),

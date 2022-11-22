@@ -18,15 +18,9 @@
 package org.jboss.pnc.spi.coordinator;
 
 import lombok.Getter;
-
-import org.jboss.pnc.common.pnc.LongBase32IdConverter;
-import org.jboss.pnc.model.BuildConfigSetRecord;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.model.User;
+import lombok.Setter;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.BuildOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,51 +37,76 @@ public class BuildTask {
 
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-task");
 
+    @Getter
     private final String id;
-    private final BuildConfigurationAudited buildConfigurationAudited; // TODO decouple DB entity
+
+    @Getter
+    private final BuildConfigurationAudited buildConfigurationAudited;
 
     @Getter
     private final BuildOptions buildOptions;
 
+    @Getter
     private final User user;
+
+    @Getter
     private final Date submitTime;
 
+    @Getter
     private final String contentId;
 
+    @Getter
+    @Setter
     private Date startTime;
+
+    @Getter
+    @Setter
     private Date endTime;
 
+    @Getter
+    @Setter
     private BuildCoordinationStatus status = BuildCoordinationStatus.NEW;
+
+    /**
+     * Description of current status. Eg. WAITING: there is no available executor; FAILED: exceptionMessage
+     */
+    @Getter
+    @Setter
     private String statusDescription;
 
     /**
      * A list of builds waiting for this build to complete.
      */
+    @Getter
     private final Set<BuildTask> dependants = new HashSet<>();
 
     /**
      * The builds which must be completed before this build can start
      */
+    @Getter
     private Set<BuildTask> dependencies = new HashSet<>();
 
+    @Getter
     private final BuildSetTask buildSetTask;
 
-    private ProductMilestone productMilestone;
-
-    private boolean hasFailed = false;
+    @Getter
+    private final ProductMilestone productMilestone;
 
     // called when all dependencies are built
+    @Getter
     private final Integer buildConfigSetRecordId;
 
     /**
      * This BR is set when Build Task is not required to be built.
      */
+    @Getter
+    @Setter
     private BuildRecord noRebuildCause;
 
     /**
      * Request that started the builds
      */
-    private Optional<String> requestContext;
+    private final String requestContext;
 
     private BuildTask(
             BuildConfigurationAudited buildConfigurationAudited,
@@ -99,7 +118,7 @@ public class BuildTask {
             Integer buildConfigSetRecordId,
             ProductMilestone productMilestone,
             String contentId,
-            Optional<String> requestContext) {
+            String requestContext) {
 
         this.id = id;
         this.buildConfigurationAudited = buildConfigurationAudited;
@@ -115,19 +134,6 @@ public class BuildTask {
         this.requestContext = requestContext;
     }
 
-    public void setStatus(BuildCoordinationStatus status) {
-        this.status = status;
-        setHasFailed(status.hasFailed());
-    }
-
-    public ProductMilestone getProductMilestone() {
-        return productMilestone;
-    }
-
-    public Set<BuildTask> getDependencies() {
-        return dependencies;
-    }
-
     public void addDependency(BuildTask buildTask) {
         if (!dependencies.contains(buildTask)) {
             dependencies.add(buildTask);
@@ -135,26 +141,11 @@ public class BuildTask {
         }
     }
 
-    public Set<BuildTask> getDependants() {
-        return dependants;
-    }
-
-    /**
-     * @return current status
-     */
-    public BuildCoordinationStatus getStatus() {
-        return status;
-    }
-
-    /**
-     * @return Description of current status. Eg. WAITING: there is no available executor; FAILED: exceptionMessage
-     */
-    public String getStatusDescription() {
-        return statusDescription;
-    }
-
-    public BuildConfigurationAudited getBuildConfigurationAudited() {
-        return buildConfigurationAudited;
+    public void addDependant(BuildTask buildTask) {
+        if (!dependants.contains(buildTask)) {
+            dependants.add(buildTask);
+            buildTask.addDependency(this);
+        }
     }
 
     /**
@@ -199,15 +190,12 @@ public class BuildTask {
                 .contains(buildTask.getBuildConfigurationAudited().getBuildConfiguration());
     }
 
-    public void addDependant(BuildTask buildTask) {
-        if (!dependants.contains(buildTask)) {
-            dependants.add(buildTask);
-            buildTask.addDependency(this);
-        }
+    public Optional<String> getRequestContext() {
+        return Optional.ofNullable(requestContext);
     }
 
-    public Optional<String> getRequestContext() {
-        return requestContext;
+    public boolean hasFailed() {
+        return status.hasFailed();
     }
 
     /**
@@ -222,76 +210,19 @@ public class BuildTask {
             return false;
         }
         BuildTask buildTask = (BuildTask) o;
-        return buildConfigurationAudited.equals(buildTask.getBuildConfigurationAudited());
+
+        return getBuildConfigurationAudited().equals(buildTask.getBuildConfigurationAudited());
     }
 
     @Override
     public int hashCode() {
-        return buildConfigurationAudited.hashCode();
-    }
-
-    public void setStatusDescription(String statusDescription) {
-        this.statusDescription = statusDescription;
-    }
-
-    public boolean hasFailed() {
-        return this.hasFailed;
-    }
-
-    void setHasFailed(boolean hasFailed) {
-        this.hasFailed = hasFailed;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public Date getSubmitTime() {
-        return submitTime;
-    }
-
-    public Date getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public BuildSetTask getBuildSetTask() {
-        return buildSetTask;
-    }
-
-    /**
-     * Check if this build is ready to build, for example if all dependency builds are complete.
-     *
-     * @return true if already built, false otherwise
-     */
-    public boolean readyToBuild() {
-        for (BuildTask buildTask : dependencies) {
-            if (!buildTask.getStatus().isCompleted()) {
-                return false;
-            }
-        }
-        return true;
+        return getBuildConfigurationAudited().hashCode();
     }
 
     @Override
     public String toString() {
-        return "Build Task id:" + id + ", name: " + buildConfigurationAudited.getName() + ", project name: "
-                + buildConfigurationAudited.getProject().getName() + ", status: " + status;
+        return "Build Task id:" + id + ", name: " + getBuildConfigurationAudited().getName() + ", project name: "
+                + getBuildConfigurationAudited().getProject().getName() + ", status: " + status;
     }
 
     public static BuildTask build(
@@ -303,7 +234,7 @@ public class BuildTask {
             Date submitTime,
             ProductMilestone productMilestone,
             String contentId,
-            Optional<String> requestContext) {
+            String requestContext) {
 
         Integer buildConfigSetRecordId = null;
         if (buildSetTask != null) {
@@ -332,21 +263,5 @@ public class BuildTask {
                 milestone,
                 contentId,
                 requestContext);
-    }
-
-    public Integer getBuildConfigSetRecordId() {
-        return buildConfigSetRecordId;
-    }
-
-    public String getContentId() {
-        return contentId;
-    }
-
-    public BuildRecord getNoRebuildCause() {
-        return noRebuildCause;
-    }
-
-    public void setNoRebuildCause(BuildRecord noRebuildCause) {
-        this.noRebuildCause = noRebuildCause;
     }
 }
