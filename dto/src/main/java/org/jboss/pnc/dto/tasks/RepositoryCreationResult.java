@@ -37,7 +37,7 @@ public class RepositoryCreationResult {
     protected final String internalScmUrl;
     protected final String externalUrl;
     protected final boolean preBuildSyncEnabled;
-    protected final Integer taskId;
+    protected final Long taskId;
     protected final JobNotificationType jobType;
     protected final BuildConfiguration buildConfiguration;
 
