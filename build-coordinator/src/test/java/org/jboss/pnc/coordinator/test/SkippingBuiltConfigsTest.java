@@ -17,15 +17,6 @@
  */
 package org.jboss.pnc.coordinator.test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
@@ -42,6 +33,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 2:51 PM
@@ -79,7 +79,6 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
 
     @Test
     public void shouldNotBuildTheSameBuildConfigurationTwice() throws Exception {
-        coordinator.start();
         buildRecordRepository.clear();
         // given
         BuildConfiguration testConfiguration = config("shouldNotBuildTheSameBuildConfigurationTwice");
@@ -87,11 +86,9 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         buildOptions.setBuildDependencies(false);
 
         // when
-        coordinator.build(testConfiguration, user, buildOptions);
-        waitForEmptyBuildQueue();
+        coordinator.buildConfig(testConfiguration, user, buildOptions);
 
-        coordinator.build(testConfiguration, user, buildOptions);
-        waitForEmptyBuildQueue();
+        coordinator.buildConfig(testConfiguration, user, buildOptions);
 
         // then
         // there should be one non build
@@ -108,7 +105,6 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
 
     @Test
     public void shouldTriggerTheSameBuildConfigurationWithNewRevision() throws Exception {
-        coordinator.start();
         buildRecordRepository.clear();
         // given
         BuildConfiguration testConfiguration = config("shouldRejectBCWithNewRevision");
@@ -116,26 +112,24 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         buildOptions.setBuildDependencies(false);
 
         // when
-        coordinator.build(testConfiguration, user, buildOptions);
+        coordinator.buildConfig(testConfiguration, user, buildOptions);
         BuildConfiguration updatedConfiguration = updateConfiguration(testConfiguration);
 
         BuildSetTask buildSetTask;
         boolean rejected = false;
         try {
-            buildSetTask = coordinator.build(updatedConfiguration, user, buildOptions);
+            buildSetTask = coordinator.buildConfig(updatedConfiguration, user, buildOptions);
         } catch (BuildConflictException e) {
             rejected = true;
         }
 
         // then
         Assert.assertFalse("The task was rejected.", rejected);
-        waitForEmptyBuildQueue();
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(2);
     }
 
     @Test
     public void shouldNotTriggerTheSameBuildConfigurationViaDependency() throws Exception {
-        coordinator.start();
         buildRecordRepository.clear();
         // given
         BuildConfiguration configurationA = config("configurationA");
@@ -144,18 +138,16 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         BuildOptions buildOptions = new BuildOptions();
 
         // when
-        coordinator.build(configurationB, user, buildOptions);
-        Thread.sleep(50);
-        coordinator.build(configurationA, user, buildOptions);
+        coordinator.buildConfig(configurationB, user, buildOptions);
+
+        coordinator.buildConfig(configurationA, user, buildOptions);
 
         // then
-        waitForEmptyBuildQueue();
         Assert.assertEquals("There should be 2 build records.", 2, buildRecordRepository.queryAll().size());
     }
 
     @Test
     public void shouldBuildConfigurationAndUnbuiltDependency() throws Exception {
-        coordinator.start();
         buildRecordRepository.clear();
         // given
         BuildConfiguration testConfiguration = config("shouldBuildConfigurationAndUnbuiltDependency");
@@ -164,8 +156,7 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         BuildOptions buildOptions = new BuildOptions();
 
         // when
-        coordinator.build(testConfiguration, user, buildOptions);
-        waitForEmptyBuildQueue();
+        coordinator.buildConfig(testConfiguration, user, buildOptions);
 
         // then
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(2);
@@ -173,7 +164,6 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
 
     @Test
     public void shouldNotRebuildAlreadyBuiltDependency() throws Exception {
-        coordinator.start();
         buildRecordRepository.clear();
         // given
         BuildConfiguration testConfiguration = config("shouldNotRebuildAlreadyBuiltDependency");
@@ -181,13 +171,12 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         testConfiguration.addDependency(dependency);
         BuildOptions buildOptions = new BuildOptions();
 
-        coordinator.build(dependency, user, buildOptions);
-        waitForEmptyBuildQueue();
+        coordinator.buildConfig(dependency, user, buildOptions);
+
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(1);
 
         // when
-        coordinator.build(testConfiguration, user, buildOptions);
-        waitForEmptyBuildQueue();
+        coordinator.buildConfig(testConfiguration, user, buildOptions);
 
         // then
         assertThat(getNonRejectedBuildRecords().size()).isEqualTo(2);
@@ -200,11 +189,9 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         buildOptions.setRebuildMode(RebuildMode.FORCE);
 
         // when
-        coordinator.build(configA, user, buildOptions);
-        waitForEmptyBuildQueue();
+        coordinator.buildConfig(configA, user, buildOptions);
 
-        coordinator.build(configA, user, buildOptions);
-        waitForEmptyBuildQueue();
+        coordinator.buildConfig(configA, user, buildOptions);
 
         // then
         List<BuildRecord> buildRecords = getNonRejectedBuildRecords();
@@ -216,12 +203,10 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
     public void shouldNotBuildTheSameBuildConfigurationSetTwice() throws Exception {
         // when
         BuildOptions buildOptions1 = new BuildOptions();
-        coordinator.build(configSet, user, buildOptions1); // first build
-        waitForEmptyBuildQueue();
+        coordinator.buildSet(configSet, user, buildOptions1); // first build
 
         BuildOptions buildOptions2 = new BuildOptions();
-        coordinator.build(configSet, user, buildOptions2); // rebuild build
-        waitForEmptyBuildQueue();
+        coordinator.buildSet(configSet, user, buildOptions2); // rebuild build
 
         // then
         List<BuildRecord> buildRecords = getNonRejectedBuildRecords();
@@ -234,11 +219,10 @@ public class SkippingBuiltConfigsTest extends AbstractDependentBuildTest {
         // when
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
-        coordinator.build(configSet, user, buildOptions); // first build
-        waitForEmptyBuildQueue();
+        coordinator.buildSet(configSet, user, buildOptions); // first build
 
-        coordinator.build(configSet, user, buildOptions); // forced rebuild build
-        waitForEmptyBuildQueue();
+        coordinator.buildSet(configSet, user, buildOptions); // forced rebuild build
+
         // then
         List<BuildRecord> buildRecords = getNonRejectedBuildRecords();
         logRecords(buildRecords);

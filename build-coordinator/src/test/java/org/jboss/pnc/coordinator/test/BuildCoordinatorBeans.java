@@ -17,18 +17,24 @@
  */
 package org.jboss.pnc.coordinator.test;
 
-import org.jboss.pnc.coordinator.builder.BuildQueue;
+import org.jboss.pnc.coordinator.builder.SetRecordUpdateJob;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 4/26/16 Time: 9:29 AM
  */
 public class BuildCoordinatorBeans {
-    public final BuildQueue queue;
+    public final BuildTaskRepository taskRepository;
     public final BuildCoordinator coordinator;
+    public final SetRecordUpdateJob setJob;
 
-    public BuildCoordinatorBeans(BuildQueue queue, BuildCoordinator coordinator) {
-        this.queue = queue;
+    public BuildCoordinatorBeans(
+            BuildTaskRepository taskRepository,
+            BuildCoordinator coordinator,
+            SetRecordUpdateJob setJob) {
+        this.taskRepository = taskRepository;
         this.coordinator = coordinator;
+        this.setJob = setJob;
     }
 }

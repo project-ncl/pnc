@@ -37,9 +37,9 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -59,20 +59,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -87,10 +77,7 @@ import static org.jboss.pnc.common.util.RandomUtils.randInt;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -161,6 +148,14 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         });
 
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(runningBuilds);
+        when(buildCoordinator.getSubmittedBuildTasksBySetId(anyInt())).thenAnswer(inv -> {
+            int bcsrid = inv.getArgument(0);
+            return runningBuilds.stream()
+                    .filter(
+                            task -> task.getBuildConfigSetRecordId() != null
+                                    && task.getBuildConfigSetRecordId().equals(bcsrid))
+                    .collect(Collectors.toList());
+        });
         when(sortInfoProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
         when(rsqlPredicateProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
 
@@ -563,19 +558,22 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     @Test
     public void shouldGetGraphWithDependencies() {
         // With
-        Integer buildSetTaskId = 1;
+        Integer configSetRecordId = 1;
         BuildSetTask buildSetTask = mock(BuildSetTask.class);
-        when(buildSetTask.getId()).thenReturn(buildSetTaskId);
+        BuildConfigSetRecord setRecord = mock(BuildConfigSetRecord.class);
+        Optional<BuildConfigSetRecord> optional = Optional.of(setRecord);
+        when(setRecord.getId()).thenReturn(configSetRecordId);
+        when(buildSetTask.getBuildConfigSetRecord()).thenReturn(optional);
 
         BuildTask task = mockBuildTaskWithSet(buildSetTask);
         BuildTask taskDep = mockBuildTaskWithSet(buildSetTask);
         BuildTask taskDepDep = mockBuildTaskWithSet(buildSetTask);
 
-        when(task.getDependencies()).thenReturn(asSet(taskDep));
-        when(taskDep.getDependencies()).thenReturn(asSet(taskDepDep));
+        when(task.getDependencies()).thenReturn(Collections.singleton(taskDep));
+        when(taskDep.getDependencies()).thenReturn(Collections.singleton(taskDepDep));
 
         // When
-        Graph<Build> graph = provider.getBuildGraphForGroupBuild(Integer.toString(buildSetTaskId));
+        Graph<Build> graph = provider.getBuildGraphForGroupBuild(Long.toString(configSetRecordId));
 
         // Then
         assertThat(graph.getVertices()).hasSize(3);
@@ -713,7 +711,9 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
 
     private BuildTask mockBuildTaskWithSet(BuildSetTask buildSetTask) {
         BuildTask task = mockBuildTask();
-        when(task.getBuildSetTask()).thenReturn(buildSetTask);
+        BuildConfigSetRecord record = buildSetTask.getBuildConfigSetRecord().get();
+        Integer id = record.getId();
+        when(task.getBuildConfigSetRecordId()).thenReturn(id);
         when(task.getUser()).thenReturn(mock(User.class));
         return task;
     }

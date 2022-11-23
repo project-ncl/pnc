@@ -26,6 +26,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
+import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.mock.model.BuildEnvironmentMock;
 import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.model.RepositoryConfigurationMock;
@@ -39,13 +40,11 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.coordinator.*;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
-import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
@@ -133,9 +132,8 @@ public class DefaultBuildCoordinatorTest {
     @Mock
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
     @Mock
-    private BuildSchedulerFactory buildSchedulerFactory;
+    private BuildScheduler buildScheduler;
 
-    private BuildQueue buildQueue;
     @Mock
     private SystemConfig systemConfig;
     @Mock
@@ -158,8 +156,7 @@ public class DefaultBuildCoordinatorTest {
         when(systemConfig.getTemporaryBuildsLifeSpan()).thenReturn(14);
         when(systemConfig.getCoordinatorThreadPoolSize()).thenReturn(1);
         when(systemConfig.getCoordinatorMaxConcurrentBuilds()).thenReturn(10);
-        buildQueue = new BuildQueue(systemConfig);
-        buildQueue.initSemaphore();
+        BuildTaskRepository taskRepository = new BuildTaskRepositoryMock();
         when(
                 datastore.requiresRebuild(
                         any(BuildConfigurationAudited.class),
@@ -175,8 +172,8 @@ public class DefaultBuildCoordinatorTest {
                 datastoreAdapter,
                 buildStatusChangedEventNotifier,
                 buildSetStatusChangedEventNotifier,
-                buildSchedulerFactory,
-                buildQueue,
+                buildScheduler,
+                taskRepository,
                 systemConfig,
                 groupBuildMapper,
                 buildMapper);
@@ -216,8 +213,8 @@ public class DefaultBuildCoordinatorTest {
                 .id(1)
                 .build();
 
-        BuildSetTask bsTask = coordinator.build(bcSet, USER, BUILD_OPTIONS);
-        assertThat(bsTask.getBuildConfigSetRecord().get().getStatus()).isEqualTo(BuildStatus.NO_REBUILD_REQUIRED);
+        BuildSetTask bsTask = coordinator.buildSet(bcSet, USER, BUILD_OPTIONS);
+        assertThat(bsTask.getBuildConfigSetRecord().get().getStatus()).isEqualTo(BuildStatus.REJECTED);
     }
 
     @Test
@@ -253,8 +250,8 @@ public class DefaultBuildCoordinatorTest {
         Set<BuildRecord> storedRecords = new HashSet<>();
         when(datastore.storeRecordForNoRebuild(any())).thenAnswer(new SaveRecordForNoRebuildAnswer(storedRecords));
 
-        BuildSetTask bsTask = coordinator.build(BCS, USER, BUILD_OPTIONS);
-        coordinator.start();
+        BuildSetTask bsTask = coordinator.buildSet(BCS, USER, BUILD_OPTIONS);
+
         assertThat(bsTask.getBuildConfigSetRecord().get().getStatus()).isEqualTo(BuildStatus.NO_REBUILD_REQUIRED);
 
         Wait.forCondition(() -> storedRecords.size() == 2, 3, ChronoUnit.SECONDS);
@@ -268,7 +265,7 @@ public class DefaultBuildCoordinatorTest {
         BuildConfigurationAudited bca = mockDatastoreWithBCAudited(BC_1, 5);
         BuildConfigurationAudited bcaDep = mockDatastoreWithBCAudited(BC_2, 2);
 
-        BuildSetTask buildSetTask = coordinator.build(BC_1, USER, BUILD_OPTIONS);
+        BuildSetTask buildSetTask = coordinator.buildConfig(BC_1, USER, BUILD_OPTIONS);
 
         assertEquals(2, buildSetTask.getBuildTasks().size());
         assertNotNull(buildSetTask.getBuildTask(bca));
@@ -285,7 +282,7 @@ public class DefaultBuildCoordinatorTest {
         BuildConfigurationAudited reqBCA = toBuildConfigurationAudited(BC_1, 4);
         reqBCA.setName("build-config-changed");
 
-        BuildSetTask buildSetTask = coordinator.build(reqBCA, USER, BUILD_OPTIONS);
+        BuildSetTask buildSetTask = coordinator.buildConfigurationAudited(reqBCA, USER, BUILD_OPTIONS);
 
         assertEquals(2, buildSetTask.getBuildTasks().size());
         BuildTask buildTask = buildSetTask.getBuildTask(reqBCA);
@@ -305,7 +302,7 @@ public class DefaultBuildCoordinatorTest {
 
         when(datastore.getBuildConfigurations(BCS)).thenReturn(BCS.getBuildConfigurations());
 
-        BuildSetTask buildSetTask = coordinator.build(BCS, USER, BUILD_OPTIONS);
+        BuildSetTask buildSetTask = coordinator.buildSet(BCS, USER, BUILD_OPTIONS);
 
         assertEquals(2, buildSetTask.getBuildTasks().size());
         assertNotNull(buildSetTask.getBuildTask(bca));
@@ -326,7 +323,7 @@ public class DefaultBuildCoordinatorTest {
         when(datastore.getBuildConfigurations(BCS)).thenReturn(BCS.getBuildConfigurations());
 
         Map<Integer, BuildConfigurationAudited> overrides = Collections.singletonMap(1, reqBCA);
-        BuildSetTask buildSetTask = coordinator.build(BCS, overrides, USER, BUILD_OPTIONS);
+        BuildSetTask buildSetTask = coordinator.buildSet(BCS, overrides, USER, BUILD_OPTIONS);
 
         assertEquals(2, buildSetTask.getBuildTasks().size());
         BuildTask buildTask = buildSetTask.getBuildTask(reqBCA);
@@ -389,7 +386,7 @@ public class DefaultBuildCoordinatorTest {
                 new Date(),
                 null,
                 "context-id",
-                Optional.empty());
+                null);
 
         buildTask.setStatus(BuildCoordinationStatus.DONE);
         return buildTask;

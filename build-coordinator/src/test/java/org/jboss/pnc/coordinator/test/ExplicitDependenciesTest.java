@@ -17,9 +17,9 @@
  */
 package org.jboss.pnc.coordinator.test;
 
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.enums.RebuildMode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,13 +28,14 @@ import java.util.concurrent.TimeoutException;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class ExpliciteDependenciesTest extends AbstractDependentBuildTest {
+public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
 
     private BuildConfiguration a, b, c, d, e, f, g, h;
     private BuildConfiguration[] all;
 
     @Before
     public void setUp() throws TimeoutException, InterruptedException {
+
         // given
         d = config("d");
         c = config("c");

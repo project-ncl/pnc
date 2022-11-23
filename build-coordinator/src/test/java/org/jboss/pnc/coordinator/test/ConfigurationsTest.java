@@ -20,16 +20,16 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.BuildSetStatus;
-import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +37,6 @@ import org.junit.runner.RunWith;
 
 import javax.inject.Inject;
 import javax.persistence.PersistenceException;
-
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,7 +69,7 @@ public class ConfigurationsTest extends ProjectBuilder {
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setBuildDependencies(false);
 
-        BuildSetTask taskSet = buildCoordinator.build(buildConfiguration, user, buildOptions);
+        BuildSetTask taskSet = buildCoordinator.buildConfig(buildConfiguration, user, buildOptions);
         Set<BuildTask> buildTasks = taskSet.getBuildTasks();
         assertThat(buildTasks).hasSize(1);
         BuildTask buildTask = buildTasks.iterator().next();
@@ -91,8 +90,8 @@ public class ConfigurationsTest extends ProjectBuilder {
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
-        BuildSetTask buildSetTask = buildCoordinator.build(buildConfigurationSet, user, buildOptions);
-        Assert.assertEquals(BuildSetStatus.REJECTED, buildSetTask.getStatus());
+        BuildSetTask buildSetTask = buildCoordinator.buildSet(buildConfigurationSet, user, buildOptions);
+        Assert.assertEquals(BuildStatus.REJECTED, buildSetTask.getTaskStatus());
         Assert.assertTrue(
                 "Invalid status description: " + buildSetTask.getStatusDescription(),
                 buildSetTask.getStatusDescription().contains("Cycle dependencies found"));

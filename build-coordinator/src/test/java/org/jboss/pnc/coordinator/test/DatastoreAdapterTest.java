@@ -21,6 +21,9 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.spi.EnvironmentDriverResultMock;
 import org.jboss.pnc.mock.model.MockUser;
@@ -29,14 +32,11 @@ import org.jboss.pnc.mock.spi.RepourResultMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Project;
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.enums.RebuildMode;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -212,7 +212,7 @@ public class DatastoreAdapterTest {
                 new Date(),
                 null,
                 "context-id",
-                Optional.empty());
+                null);
 
         buildTask.setStatus(BuildCoordinationStatus.DONE);
         return buildTask;

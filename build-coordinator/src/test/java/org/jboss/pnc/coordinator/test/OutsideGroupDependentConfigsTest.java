@@ -83,7 +83,6 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
     public void shouldNotRebuildIfDependencyIsNotRebuilt()
             throws CoreException, TimeoutException, InterruptedException {
         build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
-        waitForEmptyBuildQueue();
         List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
         assertThat(configsWithTasks).isEmpty();
     }
@@ -93,7 +92,6 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
         insertNewBuildRecords(config1);
 
         build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
-        waitForEmptyBuildQueue();
         List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
         assertThat(configsWithTasks).hasSameElementsAs(Arrays.asList(configA, configB));
     }

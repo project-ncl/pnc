@@ -22,8 +22,8 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.util.ObjectWrapper;
-import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.coordinator.builder.BuildTasksInitializer;
+import org.jboss.pnc.coordinator.builder.SetRecordUpdateJob;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.coordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
@@ -38,13 +38,13 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -98,10 +98,13 @@ public class StatusUpdatesTest {
     DatastoreAdapter datastoreAdapter;
 
     @Inject
-    BuildQueue buildQueue;
+    BuildTaskRepository taskRepository;
 
     @Inject
     Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
+
+    @Inject
+    SetRecordUpdateJob setRecordUpdateJob;
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -126,14 +129,14 @@ public class StatusUpdatesTest {
             buildCoordinator.completeBuild(bt, createBuildResult());
         });
         this.waitForConditionWithTimeout(() -> buildTasks.stream().allMatch(task -> task.getStatus().isCompleted()), 4);
-
+        setRecordUpdateJob.updateConfigSetRecordsStatuses();
         Assert.assertNotNull("Did not receive build set status update.", receivedBuildSetStatusChangedEvent.get());
-        Assert.assertEquals(BuildSetStatus.DONE, receivedBuildSetStatusChangedEvent.get().getNewStatus());
+        Assert.assertTrue(receivedBuildSetStatusChangedEvent.get().getNewBuildStatus().isFinal());
     }
 
     @Test
     @InSequence(30)
-    public void BuildTaskCallbacksShouldBeCalled() throws DatastoreException, CoreException {
+    public void buildTaskCallbacksShouldBeCalled() throws DatastoreException, CoreException {
         User user = User.Builder.newBuilder().id(3).username("test-user-3").build();
         Set<BuildTask> buildTasks = initializeBuildTaskSet(configurationBuilder, user, (buildConfigSetRecord) -> {})
                 .getBuildTasks();
@@ -175,17 +178,20 @@ public class StatusUpdatesTest {
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
-        return buildTasksInitializer.createBuildSetTask(
+        BuildSetTask setTask = buildTasksInitializer.createBuildSetTask(
                 buildConfigurationSet,
                 user,
                 buildOptions,
-                () -> Sequence.nextBase32Id(),
-                buildQueue.getUnfinishedTasks());
+                Sequence::nextBase32Id,
+                taskRepository.getUnfinishedTasks());
+        buildCoordinator
+                .updateBuildConfigSetRecordStatus(setTask.getBuildConfigSetRecord().get(), BuildStatus.BUILDING, "");
+        return setTask;
     }
 
     /**
      * use Wait.forCondition
-     * 
+     *
      * @param sup
      * @param timeoutSeconds
      */
