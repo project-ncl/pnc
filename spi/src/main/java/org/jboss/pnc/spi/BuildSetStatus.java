@@ -17,6 +17,10 @@
  */
 package org.jboss.pnc.spi;
 
+import org.jboss.pnc.enums.BuildStatus;
+
+import java.util.Arrays;
+
 /**
  * Status represent the status of the BuildSet has in the BuildCoordinator.
  *
@@ -25,24 +29,39 @@ package org.jboss.pnc.spi;
 // mstodo can be removed
 public enum BuildSetStatus {
     NEW,
-    DONE(true),
-    REJECTED(true),
+    DONE(true, BuildStatus.SUCCESS),
+    REJECTED(true, BuildStatus.REJECTED),
     /**
      * No build config in the set requires a rebuild.
      */
-    NO_REBUILD_REQUIRED(true);
+    NO_REBUILD_REQUIRED(true, BuildStatus.NO_REBUILD_REQUIRED);
 
     private final boolean isFinal;
 
+    private final BuildStatus buildStatus;
+
     BuildSetStatus() {
         isFinal = false;
+        buildStatus = BuildStatus.NEW;
     }
 
-    BuildSetStatus(boolean isFinal) {
+    BuildSetStatus(boolean isFinal, BuildStatus status) {
         this.isFinal = isFinal;
+        this.buildStatus = status;
     }
 
     public boolean isCompleted() {
         return isFinal;
+    }
+
+    public BuildStatus buildStatus() {
+        return buildStatus;
+    }
+
+    public static BuildSetStatus fromBuildStatus(BuildStatus status) {
+        return Arrays.stream(BuildSetStatus.values())
+                .filter(setStatus -> setStatus.buildStatus().equals(status))
+                .findFirst()
+                .orElse(NEW);
     }
 }
