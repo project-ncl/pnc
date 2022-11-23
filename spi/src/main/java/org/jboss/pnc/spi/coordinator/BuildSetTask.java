@@ -23,6 +23,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,11 @@ public class BuildSetTask {
 
     @Getter
     @Setter
-    private BuildStatus status;
+    private BuildStatus taskStatus;
+
+    @Getter
+    @Setter
+    private BuildSetStatus status;
 
     @Getter
     @Setter
@@ -140,7 +145,7 @@ public class BuildSetTask {
 
     @Override
     public String toString() {
-        return "BuildSetTask{" + "status=" + status + ", statusDescription='" + statusDescription + '\''
-                + ", submitTime=" + getStartTime() + ", buildTasks=" + buildTasks + '}';
+        return "BuildSetTask{" + "status=" + (taskStatus == null ? status : taskStatus) + ", statusDescription='"
+                + statusDescription + '\'' + ", submitTime=" + getStartTime() + ", buildTasks=" + buildTasks + '}';
     }
 }
