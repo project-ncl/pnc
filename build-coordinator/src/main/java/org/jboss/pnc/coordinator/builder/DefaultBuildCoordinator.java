@@ -335,11 +335,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
 
             // save NRR records before doing a build
-            for (var buildTask : buildSetTask.getBuildTasks()) {
-                if (!buildSetTask.getBuildOptions().isForceRebuild()
-                        && !datastoreAdapter.requiresRebuild(buildTask, new HashSet<>())) {
-                    completeNoBuild(buildTask, CompletionStatus.NO_REBUILD_REQUIRED);
-                }
+            if (!buildSetTask.getBuildOptions().isForceRebuild()) {
+                createNRRRecords(buildSetTask);
             }
 
             if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildSetTask.getTaskStatus())) {
@@ -347,6 +344,35 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             }
 
             buildScheduler.startBuilding(buildSetTask);
+        }
+    }
+
+    private void createNRRRecords(BuildSetTask buildSetTask) {
+        Set<BuildTask> toBuild = new HashSet<>();
+        Set<BuildTask> notToBuild = new HashSet<>();
+
+        for (BuildTask task : buildSetTask.getBuildTasks()) {
+            if (!toBuild.contains(task) && !datastoreAdapter.requiresRebuild(task, new HashSet<>())) {
+                notToBuild.add(task);
+            } else {
+                markToBuild(task, toBuild, notToBuild);
+            }
+        }
+
+        notToBuild.forEach(task -> completeNoBuild(task, CompletionStatus.NO_REBUILD_REQUIRED));
+    }
+
+    private void markToBuild(BuildTask task, Set<BuildTask> toBuild, Set<BuildTask> notToBuild) {
+        toBuild.add(task);
+        notToBuild.remove(task);
+        markDependantsToBuild(task, toBuild, notToBuild);
+    }
+
+    private void markDependantsToBuild(BuildTask task, Set<BuildTask> toBuild, Set<BuildTask> notToBuild) {
+        for (BuildTask dependant : task.getDependants()) {
+            if (!toBuild.contains(dependant)) {
+                markToBuild(dependant, toBuild, notToBuild);
+            }
         }
     }
 
