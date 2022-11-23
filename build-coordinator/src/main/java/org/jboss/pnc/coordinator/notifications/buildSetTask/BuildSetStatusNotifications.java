@@ -84,7 +84,7 @@ public class BuildSetStatusNotifications {
     private void removeListenersOfCompletedTasks(
             BuildSetCallBack buildSetCallBack,
             BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
-        if (buildSetStatusChangedEvent.getNewStatus().isFinal()) {
+        if (buildSetStatusChangedEvent.getNewBuildStatus().isFinal()) {
             log.debug(
                     "Removing subscriber for buildSetConfigurationId {}.",
                     buildSetCallBack.getBuildSetConfigurationId());

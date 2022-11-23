@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.coordinator.events;
 
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 
 import java.util.Date;
@@ -32,6 +33,17 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
     private final BuildStatus newStatus;
     private final GroupBuild groupBuild;
     private final String description;
+
+    public DefaultBuildSetStatusChangedEvent(
+            BuildSetStatus oldStatus,
+            BuildSetStatus newStatus,
+            GroupBuild groupBuild,
+            String description) {
+        this.oldStatus = oldStatus.buildStatus();
+        this.newStatus = newStatus.buildStatus();
+        this.groupBuild = groupBuild;
+        this.description = description;
+    }
 
     public DefaultBuildSetStatusChangedEvent(
             BuildStatus oldStatus,
@@ -50,13 +62,23 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
     }
 
     @Override
-    public BuildStatus getOldStatus() {
-        return oldStatus;
+    public BuildSetStatus getOldStatus() {
+        return BuildSetStatus.fromBuildStatus(oldStatus);
     }
 
     @Override
-    public BuildStatus getNewStatus() {
-        return newStatus;
+    public BuildSetStatus getNewStatus() {
+        return BuildSetStatus.fromBuildStatus(oldStatus);
+    }
+
+    @Override
+    public BuildStatus getOldBuildStatus() {
+        return this.oldStatus;
+    }
+
+    @Override
+    public BuildStatus getNewBuildStatus() {
+        return this.newStatus;
     }
 
     @Override
