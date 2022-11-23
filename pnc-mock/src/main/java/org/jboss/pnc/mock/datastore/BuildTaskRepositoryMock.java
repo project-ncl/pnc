@@ -19,6 +19,7 @@ package org.jboss.pnc.mock.datastore;
 
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 
@@ -34,7 +35,6 @@ import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class BuildTaskRepositoryMock implements BuildTaskRepository {
-    private final AtomicLong taskIds = new AtomicLong(1L);
     private final Map<String, BuildTask> tasks = new ConcurrentHashMap<>();
 
     @Override
@@ -90,11 +90,19 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
 
     @Override
     public boolean isEmpty() {
-        return tasks.isEmpty();
+        return tasks.isEmpty() || tasks.values().stream().allMatch(task -> task.getStatus().isCompleted());
     }
 
     @Override
     public String getDebugInfo() {
         return "null";
+    }
+
+    public void addTask(BuildTask task) {
+        this.tasks.put(task.getId(), task);
+    }
+
+    public void removeTask(BuildTask task) {
+        this.tasks.remove(task.getId());
     }
 }

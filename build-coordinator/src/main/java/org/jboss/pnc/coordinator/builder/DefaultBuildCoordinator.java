@@ -54,6 +54,7 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +116,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             DatastoreAdapter datastoreAdapter,
             Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
             Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
-            BuildSchedulerFactory buildSchedulerFactory,
+            BuildScheduler buildScheduler,
             BuildTaskRepository taskRepository,
             SystemConfig systemConfig,
             GroupBuildMapper groupBuildMapper,
@@ -123,7 +124,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
-        this.buildScheduler = buildSchedulerFactory.getBuildScheduler();
+        this.buildScheduler = buildScheduler;
         this.systemConfig = systemConfig;
         this.taskRepository = taskRepository;
         this.buildTasksInitializer = new BuildTasksInitializer(
@@ -147,7 +148,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
      */
     @Override
     public BuildSetTask buildConfig(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions)
-            throws BuildConflictException {
+            throws BuildConflictException, CoreException {
         BuildConfigurationAudited buildConfigurationAudited = datastoreAdapter
                 .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
         return build0(user, buildOptions, buildConfigurationAudited);
@@ -156,7 +157,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private BuildSetTask build0(
             User user,
             BuildOptions buildOptions,
-            BuildConfigurationAudited buildConfigurationAudited) throws BuildConflictException {
+            BuildConfigurationAudited buildConfigurationAudited) throws BuildConflictException, CoreException {
         synchronized (buildMethodLock) {
             checkNotRunning(buildConfigurationAudited);
 
@@ -167,7 +168,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     this::buildRecordIdSupplier,
                     taskRepository.getUnfinishedTasks());
 
-            buildConfig(buildSetTask);
+            build(buildSetTask);
 
             return buildSetTask;
         }
@@ -198,7 +199,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     public BuildSetTask buildConfigurationAudited(
             BuildConfigurationAudited buildConfigurationAudited,
             User user,
-            BuildOptions buildOptions) throws BuildConflictException {
+            BuildOptions buildOptions) throws BuildConflictException, CoreException {
         return build0(user, buildOptions, buildConfigurationAudited);
     }
 
@@ -232,7 +233,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
             validateBuildConfigurationSetTask(buildConfigurationSet, buildOptions, buildSetTask);
 
-            buildConfig(buildSetTask);
+            build(buildSetTask);
 
             return buildSetTask;
         }
@@ -274,7 +275,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             // FIXME delete this while commiting, this alters BST status if determined
             validateBuildConfigurationSetTask(buildConfigurationSet, buildOptions, buildSetTask);
 
-            buildConfig(buildSetTask);
+            build(buildSetTask);
 
             return buildSetTask;
         }
@@ -328,7 +329,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    private void buildConfig(BuildSetTask buildSetTask) {
+    private void build(BuildSetTask buildSetTask) throws CoreException {
         synchronized (buildMethodLock) {
             if (BuildStatus.REJECTED.equals(buildSetTask.getStatus())) {
                 return;
@@ -336,7 +337,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
             // save NRR records before doing a build
             for (var buildTask : buildSetTask.getBuildTasks()) {
-                if (!datastoreAdapter.requiresRebuild(buildTask, new HashSet<>())) {
+                if (!buildSetTask.getBuildOptions().isForceRebuild()
+                        && !datastoreAdapter.requiresRebuild(buildTask, new HashSet<>())) {
                     completeNoBuild(buildTask, CompletionStatus.NO_REBUILD_REQUIRED);
                 }
             }
@@ -345,7 +347,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 return;
             }
 
-            // TODO make request to Rex
+            buildScheduler.startBuilding(buildSetTask);
         }
     }
 

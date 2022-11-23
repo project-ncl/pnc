@@ -29,7 +29,12 @@ import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
 public interface BuildScheduler {
-    void startBuilding(BuildTask buildTask) throws CoreException, ExecutorException;
+
+    // TODO remove after in-memory scheduling gets removed and Rex is stable
+    @Deprecated
+    void startBuilding(BuildTask buildTask) throws CoreException;
+
+    void startBuilding(BuildSetTask buildSetTask) throws CoreException;
 
     boolean cancel(BuildTask buildTask) throws CoreException;
 }
