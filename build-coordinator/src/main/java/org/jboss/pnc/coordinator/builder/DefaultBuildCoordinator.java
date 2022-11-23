@@ -54,7 +54,6 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -331,7 +330,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     private void build(BuildSetTask buildSetTask) throws CoreException {
         synchronized (buildMethodLock) {
-            if (BuildStatus.REJECTED.equals(buildSetTask.getStatus())) {
+            if (BuildStatus.REJECTED.equals(buildSetTask.getTaskStatus())) {
                 return;
             }
 
@@ -343,7 +342,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                 }
             }
 
-            if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildSetTask.getStatus())) {
+            if (BuildStatus.NO_REBUILD_REQUIRED.equals(buildSetTask.getTaskStatus())) {
                 return;
             }
 
@@ -517,7 +516,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             updateBuildConfigSetRecordStatus(buildConfigSetRecord.get(), status, description);
         }
 
-        buildSetTask.setStatus(status);
+        buildSetTask.setTaskStatus(status);
         buildSetTask.setStatusDescription(description);
     }
 
