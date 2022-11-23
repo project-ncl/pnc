@@ -228,7 +228,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     buildOptions,
                     this::buildRecordIdSupplier,
                     taskRepository.getUnfinishedTasks());
-            updateBuildSetTaskStatus(buildSetTask, BuildStatus.NEW);
+            updateBuildSetTaskStatus(buildSetTask, BuildStatus.BUILDING);
 
             validateBuildConfigurationSetTask(buildConfigurationSet, buildOptions, buildSetTask);
 
@@ -269,9 +269,8 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                     buildOptions,
                     this::buildRecordIdSupplier,
                     taskRepository.getUnfinishedTasks());
-            updateBuildSetTaskStatus(buildSetTask, BuildStatus.NEW);
+            updateBuildSetTaskStatus(buildSetTask, BuildStatus.BUILDING);
 
-            // FIXME delete this while commiting, this alters BST status if determined
             validateBuildConfigurationSetTask(buildConfigurationSet, buildOptions, buildSetTask);
 
             build(buildSetTask);
