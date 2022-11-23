@@ -23,8 +23,10 @@ import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.spi.coordinator.BuildScheduler;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -64,6 +66,13 @@ public class BpmBuildScheduler implements BuildScheduler {
                     buildTask.getUser().getLoginToken());
         } catch (Exception e) {
             throw new CoreException("Error while trying to startBuilding with BpmBuildScheduler.", e);
+        }
+    }
+
+    @Override
+    public void startBuilding(BuildSetTask buildSetTask) throws CoreException {
+        for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
+            startBuilding(buildTask);
         }
     }
 

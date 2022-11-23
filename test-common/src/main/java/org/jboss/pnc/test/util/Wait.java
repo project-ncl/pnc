@@ -48,7 +48,7 @@ public class Wait {
             Supplier<String> failedMessageProvider) throws InterruptedException, TimeoutException {
         LocalDateTime started = LocalDateTime.now();
         do {
-            Thread.sleep(100);
+            Thread.sleep(50);
             if (started.plus(timeout, timeUnit).isBefore(LocalDateTime.now())) {
                 throw new TimeoutException(
                         failedMessageProvider.get() + " Reached timeout " + timeout + " " + timeUnit);

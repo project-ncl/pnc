@@ -21,6 +21,7 @@ package org.jboss.pnc.mock.coordinator;
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.BuildResult;
@@ -111,6 +112,13 @@ public class LocalBuildScheduler implements BuildScheduler {
                     buildTask.getUser().getLoginToken());
         } catch (ExecutorException e) {
             throw new CoreException("Could not start build execution.", e);
+        }
+    }
+
+    @Override
+    public void startBuilding(BuildSetTask buildSetTask) throws CoreException {
+        for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
+            startBuilding(buildTask);
         }
     }
 

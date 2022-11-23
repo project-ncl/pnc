@@ -81,5 +81,7 @@ public interface BuildCoordinator {
     void updateBuildConfigSetRecordStatus(BuildConfigSetRecord setRecord, BuildStatus status, String description)
             throws CoreException;
 
+    void start();
+
     Optional<BuildTaskContext> getMDCMeta(String buildTaskId);
 }

@@ -150,4 +150,8 @@ public class BuildCoordinatorMock implements BuildCoordinator {
             String description) {
 
     }
+
+    @Override
+    public void start() {
+    }
 }
