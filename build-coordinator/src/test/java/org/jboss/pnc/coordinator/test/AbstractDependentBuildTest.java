@@ -22,15 +22,16 @@ import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.ConfigurationParseException;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
+import org.jboss.pnc.common.json.moduleprovider.PncConfigProvider;
+import org.jboss.pnc.coordinator.builder.BuildQueue;
+import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.coordinator.builder.DefaultBuildCoordinator;
-import org.jboss.pnc.coordinator.builder.SetRecordUpdateJob;
 import org.jboss.pnc.coordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.datastore.DefaultDatastore;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
-import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.mock.model.BuildEnvironmentMock;
 import org.jboss.pnc.mock.model.RepositoryConfigurationMock;
 import org.jboss.pnc.mock.repository.ArtifactRepositoryMock;
@@ -40,20 +41,29 @@ import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.TargetRepositoryRepositoryMock;
 import org.jboss.pnc.mock.repository.UserRepositoryMock;
-import org.jboss.pnc.model.*;
+import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.RepositoryConfiguration;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildScheduler;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
@@ -61,6 +71,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.event.Event;
 import java.lang.reflect.Field;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -68,6 +80,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -88,19 +101,17 @@ public abstract class AbstractDependentBuildTest {
     protected static final AtomicInteger configAuditedIdSequence = new AtomicInteger(0);
     protected static final AtomicInteger artifactsIdSequence = new AtomicInteger(0);
 
+    protected List<BuildTask> builtTasks;
+
     private BuildConfigurationAuditedRepositoryMock buildConfigurationAuditedRepository;
 
     protected BuildConfigurationRepositoryMock buildConfigurationRepository;
 
-    protected BuildTaskRepositoryMock taskRepository;
+    private BuildQueue buildQueue;
 
     protected BuildCoordinator coordinator;
     protected BuildRecordRepositoryMock buildRecordRepository;
-    protected MockBuildScheduler buildScheduler;
-
-    protected SetRecordUpdateJob updateSetJob;
-
-    protected BuildConfigSetRecordRepositoryMock buildConfigSetRecordRepository;
+    protected BuildSchedulerFactory buildSchedulerFactory;
 
     protected User user;
 
@@ -108,6 +119,8 @@ public abstract class AbstractDependentBuildTest {
     @SuppressWarnings("unchecked")
     public void initialize() throws DatastoreException, ConfigurationParseException {
         MockitoAnnotations.initMocks(this);
+
+        builtTasks = new ArrayList<>();
 
         user = new User();
         user.setId(375939);
@@ -120,13 +133,11 @@ public abstract class AbstractDependentBuildTest {
         when(systemConfig.getTemporaryBuildsLifeSpan()).thenReturn(1);
         when(config.getModuleConfig(any())).thenReturn(systemConfig);
 
-        taskRepository = new BuildTaskRepositoryMock();
+        buildQueue = new BuildQueue(config.getModuleConfig(new PncConfigProvider<>(SystemConfig.class)));
 
         if (buildConfigurationRepository == null) {
             buildConfigurationRepository = new BuildConfigurationRepositoryMock();
         }
-
-        buildConfigSetRecordRepository = new BuildConfigSetRecordRepositoryMock();
 
         buildRecordRepository = new BuildRecordRepositoryMock();
         buildConfigurationAuditedRepository = new BuildConfigurationAuditedRepositoryMock();
@@ -137,34 +148,26 @@ public abstract class AbstractDependentBuildTest {
                 buildRecordRepository,
                 buildConfigurationRepository,
                 buildConfigurationAuditedRepository,
-                buildConfigSetRecordRepository,
+                new BuildConfigSetRecordRepositoryMock(),
                 new UserRepositoryMock(),
                 targetRepositoryRepository);
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
-        if (buildScheduler == null) {
-            buildScheduler = new MockBuildScheduler();
-            buildScheduler.setKeepTasks(true);
+        if (buildSchedulerFactory == null) {
+            buildSchedulerFactory = new MockBuildSchedulerFactory();
         }
 
         coordinator = new DefaultBuildCoordinator(
                 datastoreAdapter,
                 mock(Event.class),
                 mock(Event.class),
-                buildScheduler,
-                taskRepository,
+                buildSchedulerFactory,
+                buildQueue,
                 systemConfig,
                 mock(GroupBuildMapper.class),
                 mock(BuildMapper.class));
-
-        updateSetJob = new SetRecordUpdateJob(taskRepository, datastore, coordinator);
-
-        buildScheduler.setCoordinator(coordinator);
-        buildScheduler.setTaskRepositoryMock(taskRepository);
-    }
-
-    protected void initSetRecordUpdateJob() {
-
+        buildQueue.initSemaphore();
+        coordinator.start();
     }
 
     protected void insertNewBuildRecords(BuildConfiguration... configs) {
@@ -197,20 +200,12 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected BuildConfiguration config(String name, BuildConfiguration... dependencies) {
-        return config(name, BuildStatus.SUCCESS, dependencies);
-    }
-
-    protected BuildConfiguration config(String name, BuildStatus finalStatus, BuildConfiguration... dependencies) {
-        BuildConfiguration config = buildConfig(name, finalStatus, dependencies);
+        BuildConfiguration config = buildConfig(name, dependencies);
         saveConfig(config);
         return config;
     }
 
     protected BuildConfiguration buildConfig(String name, BuildConfiguration... dependencies) {
-        return buildConfig(name, BuildStatus.SUCCESS, dependencies);
-    }
-
-    protected BuildConfiguration buildConfig(String name, BuildStatus finalStatus, BuildConfiguration... dependencies) {
         int id = configIdSequence.getAndIncrement();
         Project project = Project.Builder.newBuilder().id(1).name("Mock project").build();
 
@@ -220,7 +215,6 @@ public abstract class AbstractDependentBuildTest {
                 .project(project)
                 .repositoryConfiguration(RepositoryConfigurationMock.newTestRepository())
                 .buildEnvironment(BuildEnvironmentMock.newTest())
-                .buildScript(finalStatus.toString())
                 .build();
         Stream.of(dependencies).forEach(config::addDependency);
         return config;
@@ -229,10 +223,6 @@ public abstract class AbstractDependentBuildTest {
     protected void saveConfig(BuildConfiguration config) {
         buildConfigurationRepository.save(config);
         buildConfigurationAuditedRepository.save(auditedConfig(config));
-    }
-
-    protected void pokeSetJob() throws CoreException {
-        updateSetJob.updateConfigSetRecordsStatuses();
     }
 
     /**
@@ -265,6 +255,7 @@ public abstract class AbstractDependentBuildTest {
         buildOptions.setRebuildMode(rebuildMode);
 
         coordinator.buildSet(configSet, user, buildOptions);
+        coordinator.start();
     }
 
     protected void build(BuildConfiguration config) {
@@ -274,6 +265,7 @@ public abstract class AbstractDependentBuildTest {
 
     protected void build(BuildConfiguration config, BuildOptions buildOptions) {
         try {
+
             coordinator.buildConfig(config, user, buildOptions);
         } catch (BuildConflictException | CoreException e) {
             throw new RuntimeException("Failed to run a build of: " + config, e);
@@ -281,10 +273,7 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected BuildTask getBuildTaskById(String taskId) {
-        Optional<BuildTask> buildTask = taskRepository.getAll()
-                .stream()
-                .filter(bt -> bt.getId().equals(taskId))
-                .findAny();
+        Optional<BuildTask> buildTask = builtTasks.stream().filter(bt -> bt.getId().equals(taskId)).findAny();
         if (buildTask.isPresent()) {
             return buildTask.get();
         } else {
@@ -293,15 +282,13 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected Optional<BuildTask> getScheduledBuildTaskByConfigurationId(Integer configurationId) {
-        return taskRepository.getAll()
-                .stream()
+        return builtTasks.stream()
                 .filter(bt -> bt.getBuildConfigurationAudited().getBuildConfiguration().getId().equals(configurationId))
                 .findAny();
     }
 
     protected List<BuildConfiguration> getBuiltConfigs() {
-        return taskRepository.getAll()
-                .stream()
+        return builtTasks.stream()
                 .map(BuildTask::getBuildConfigurationAudited)
                 .map(BuildConfigurationAudited::getBuildConfiguration)
                 .collect(Collectors.toList());
@@ -313,13 +300,42 @@ public abstract class AbstractDependentBuildTest {
         return set;
     }
 
-    public static BuildResult buildResult() {
-        return buildResult(CompletionStatus.SUCCESS);
+    protected void waitForEmptyBuildQueue() throws InterruptedException, TimeoutException {
+        Supplier<String> errorMessage = () -> "Tired waiting for BuildQueue to be empty. There are still tasks in the queue:\n"
+                + buildQueue.getDebugInfo();
+        Wait.forCondition(() -> buildQueue.isEmpty(), 10, ChronoUnit.SECONDS, errorMessage);
     }
 
-    public static BuildResult buildResult(CompletionStatus status) {
+    private class MockBuildSchedulerFactory extends BuildSchedulerFactory {
+        @Override
+        public BuildScheduler getBuildScheduler() {
+            return new MockBuildScheduler();
+        }
+    }
+
+    private class MockBuildScheduler implements BuildScheduler {
+
+        @Override
+        public void startBuilding(BuildTask buildTask) throws CoreException {
+            builtTasks.add(buildTask);
+            BuildResult result = buildResult();
+            coordinator.completeBuild(buildTask, result);
+        }
+
+        @Override
+        public void startBuilding(BuildSetTask buildSetTask) throws CoreException {
+            throw new UnsupportedOperationException("Only to be used with remote build scheduler.");
+        }
+
+        @Override
+        public boolean cancel(BuildTask buildTask) throws CoreException {
+            return false;
+        }
+    }
+
+    protected static BuildResult buildResult() {
         return new BuildResult(
-                status,
+                CompletionStatus.SUCCESS,
                 Optional.empty(),
                 "",
                 Optional.of(mock(BuildExecutionConfiguration.class)),
@@ -346,6 +362,7 @@ public abstract class AbstractDependentBuildTest {
     }
 
     protected void expectBuilt(BuildConfiguration... configurations) throws InterruptedException, TimeoutException {
+        waitForEmptyBuildQueue();
         List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
         assertThat(configsWithTasks).hasSameElementsAs(Arrays.asList(configurations));
     }

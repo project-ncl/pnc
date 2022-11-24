@@ -77,6 +77,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     public void shouldBuildAllIfNotSuccessfullyBuilt() throws CoreException, TimeoutException, InterruptedException {
         build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
 
+        waitForEmptyBuildQueue();
+
         assertThat(getBuiltConfigs()).hasSameElementsAs(asList(configA, configB, configC, configD, configE));
     }
 
@@ -84,6 +86,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     public void shouldNotCreateTaskForNonDependentBuilt() throws CoreException, TimeoutException, InterruptedException {
         insertNewBuildRecords(configE);
         build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+
+        waitForEmptyBuildQueue();
 
         assertThat(getBuiltConfigs()).hasSameElementsAs(asList(configA, configB, configC, configD));
     }
@@ -94,6 +98,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
         insertNewBuildRecords(configE);
         build(configSet, RebuildMode.FORCE);
 
+        waitForEmptyBuildQueue();
+
         assertThat(getBuiltConfigs()).hasSameElementsAs(asList(configA, configB, configC, configD, configE));
     }
 
@@ -101,6 +107,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     public void shouldCreateTaskForDependentBuilt() throws CoreException, TimeoutException, InterruptedException {
         insertNewBuildRecords(configA, configC, configD, configE);
         build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+
+        waitForEmptyBuildQueue();
 
         assertThat(getBuiltConfigs()).hasSameElementsAs(asList(configB, configC, configD));
     }
@@ -113,6 +121,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
 
         build(configSet, RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
 
+        waitForEmptyBuildQueue();
+
         expectBuilt(configC);
     }
 
@@ -123,6 +133,8 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
         updateConfiguration(configB);
 
         build(configSet, RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
+
+        waitForEmptyBuildQueue();
 
         expectBuilt(configB, configC, configD);
     }

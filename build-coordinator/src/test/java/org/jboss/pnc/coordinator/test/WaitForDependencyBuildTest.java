@@ -18,24 +18,32 @@
 package org.jboss.pnc.coordinator.test;
 
 import org.jboss.pnc.common.json.ConfigurationParseException;
-import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.coordinator.builder.BuildSchedulerFactory;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.coordinator.BuildScheduler;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Ignore // SHOULD BE DONE IN INTEGRATION TESTS WITH REX
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
 public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
 
     private BuildConfiguration configParent;
@@ -45,6 +53,7 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
 
     @Before
     public void initialize() throws DatastoreException, ConfigurationParseException {
+        buildSchedulerFactory = new MockBuildSchedulerFactory();
         configDependency = buildConfig("Dependency");
         configParent = buildConfig("Parent", configDependency);
 
@@ -81,6 +90,7 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
 
         buildScheduler.completeBuild(parentBuildTask.getId());
 
+        waitForEmptyBuildQueue();
         List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
         assertThat(configsWithTasks).isEmpty();
     }
@@ -90,6 +100,57 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
                 .stream()
                 .filter(bt -> bt.getBuildConfigurationAudited().getId().equals(buildConfigurationId))
                 .findAny();
+    }
+
+    private class MockBuildSchedulerFactory extends BuildSchedulerFactory {
+        @Override
+        public BuildScheduler getBuildScheduler() {
+            return buildScheduler;
+        }
+    }
+
+    private class MockBuildSchedulerWithManualBuildCompletion implements BuildScheduler {
+
+        Map<String, Consumer<BuildResult>> scheduledTasks = new HashMap();
+
+        @Override
+        public void startBuilding(BuildTask buildTask) throws CoreException {
+            builtTasks.add(buildTask);
+            Consumer<BuildResult> onComplete = (buildResult -> {
+                coordinator.completeBuild(buildTask, buildResult);
+            });
+            scheduledTasks.put(buildTask.getId(), onComplete);
+        }
+
+        @Override
+        public void startBuilding(BuildSetTask buildSetTask) throws CoreException {
+            throw new UnsupportedOperationException("Only to be used with remote build scheduler.");
+        }
+
+        public void completeBuild(String taskId) {
+            BuildResult result = buildResult();
+            Consumer<BuildResult> buildResultConsumer = scheduledTasks.get(taskId);
+
+            if (buildResultConsumer == null) {
+                throw new RuntimeException("Cannot complete the build. Task with id: " + taskId + " does not exist.");
+            }
+            builtTasks.remove(getBuildTaskById(taskId));
+            scheduledTasks.remove(taskId);
+            buildResultConsumer.accept(result);
+        }
+
+        public boolean isBuilding(Integer configurationId) {
+            Optional<BuildTask> buildTask = getScheduledBuildTaskByConfigurationId(configurationId);
+            if (!buildTask.isPresent()) {
+                return false;
+            }
+            return buildTask.get().getStatus().equals(BuildCoordinationStatus.BUILDING);
+        }
+
+        @Override
+        public boolean cancel(BuildTask buildTask) throws CoreException {
+            return false;
+        }
     }
 
 }

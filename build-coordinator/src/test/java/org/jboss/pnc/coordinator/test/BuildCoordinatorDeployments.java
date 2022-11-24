@@ -34,12 +34,10 @@ import org.jboss.pnc.coordinator.test.mock.EntityManagerMock;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.messaging.spi.MessageSender;
-import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
-import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
@@ -131,8 +129,6 @@ public class BuildCoordinatorDeployments {
     private static JavaArchive datastoreArchive() {
         return ShrinkWrap.create(JavaArchive.class)
                 .addClass(DatastoreMock.class)
-                .addClass(BuildTaskRepositoryMock.class)
-                .addClass(BuildConfigSetRecordRepositoryMock.class)
                 .addPackages(true, DatastoreAdapter.class.getPackage());
     }
 

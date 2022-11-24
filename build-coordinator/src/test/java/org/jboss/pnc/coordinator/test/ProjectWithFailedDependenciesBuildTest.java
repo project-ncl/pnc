@@ -25,7 +25,6 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,7 +36,6 @@ import java.util.List;
  */
 
 @RunWith(Arquillian.class)
-@Ignore // SHOULD BE DONE IN INTEGRATION TESTS WITH REX
 public class ProjectWithFailedDependenciesBuildTest extends ProjectBuilder {
 
     @Inject
@@ -58,8 +56,7 @@ public class ProjectWithFailedDependenciesBuildTest extends ProjectBuilder {
         buildFailingProject(
                 configurationBuilder.buildConfigurationSetWithFailedDependencies(1),
                 1,
-                buildCoordinatorBeans.coordinator,
-                buildCoordinatorBeans.setJob);
+                buildCoordinatorBeans.coordinator);
     }
 
     @Test

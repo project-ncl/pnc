@@ -1,0 +1,54 @@
+{
+    "@class": "ModuleConfigJson",
+    "name": "pnc-config",
+    "configs": [
+        {
+            "@module-group": "global",
+            "bpmUrl": "${env.BPM_INSTANCE_URL}",
+            "daUrl": "${env.PNC_DA_URL}",
+            "indyUrl": "${env.PNC_APROX_URL}",
+            "pncUrl": "${env.PNC_URL}",
+            "repourUrl": "${env.PNC_REPOUR_URL}",
+
+            "externalDaUrl": "${env.PNC_UI_DA_URL}",
+            "externalIndyUrl": "${env.EXTERNAL_REPOSITORY_MVN_PATH}"
+        },
+        {
+            "@module-group": "pnc",
+            "configs": [
+                {
+                    "@module-config": "system-config",
+                    "authenticationProviderId": "JAAS",
+                    "coordinatorThreadPoolSize": "1",
+                    "coordinatorMaxConcurrentBuilds": "1"
+                },
+                {
+                    "@module-config": "demo-data-config",
+                    "importDemoData": true
+                },
+                {
+                    "@module-config": "bpm-config"
+                },
+                {
+                    "@module-config": "ui",
+                    "pncNotificationsUrl": "${env.PNC_UI_PNC_NOTIFICATIONS_URL}",
+                    "keycloak":
+                    {
+                        "url": "${env.PNC_UI_KEYCLOAK_URL}",
+                        "realm": "${env.PNC_UI_KEYCLOAK_REALM}",
+                        "clientId": "${env.PNC_UI_KEYCLOAK_CLIENT_ID}"
+                    }
+                },
+                {
+                    "@module-config": "scm-config",
+                    "internalScmAuthority": "git-repo-user@git-repo.devvm.devcloud.example.com:12839"
+                }
+            ]
+        },
+        {
+            "@module-group": "da",
+            "config": {
+            }
+        }
+    ]
+}

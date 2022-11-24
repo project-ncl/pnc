@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.coordinator.builder;
+package org.jboss.pnc.remotecoordinator.builder;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.enums.BuildStatus;

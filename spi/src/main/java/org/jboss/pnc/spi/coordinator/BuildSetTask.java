@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.coordinator;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -78,11 +79,60 @@ public class BuildSetTask {
         this.startTime = startTime;
     }
 
+    /**
+     * Notify the set that the state of one of it's tasks has changed.
+     *
+     */
+    @Deprecated
+    public void taskStatusUpdatedToFinalState() {
+        // If any of the build tasks have failed or all are complete, then the build set is done
+        if (buildTasks.stream().anyMatch(bt -> bt.getStatus().equals(BuildCoordinationStatus.CANCELLED))) {
+            log.debug("Marking build set as CANCELLED as one or more tasks were cancelled. BuildSetTask: {}", this);
+            if (log.isDebugEnabled()) {
+                logTasksStatus(buildTasks);
+            }
+            Optional.ofNullable(buildConfigSetRecord).ifPresent(r -> r.setStatus(BuildStatus.CANCELLED));
+            finishBuildSetTask();
+        } else if (buildTasks.stream().anyMatch(bt -> bt.getStatus().hasFailed())) {
+            log.debug("Marking build set as FAILED as one or more tasks failed. BuildSetTask: {}", this);
+            if (log.isDebugEnabled()) {
+                logTasksStatus(buildTasks);
+            }
+            Optional.ofNullable(buildConfigSetRecord).ifPresent(r -> r.setStatus(BuildStatus.FAILED));
+            finishBuildSetTask();
+        } else if (buildTasks.stream().allMatch(bt -> bt.getStatus().isCompleted())) {
+            log.debug("All builds in set completed. BuildSetTask: {}", this);
+            Optional.ofNullable(buildConfigSetRecord).ifPresent(r -> {
+                if (BuildStatus.NO_REBUILD_REQUIRED.equals(r.getStatus())) {
+                    log.debug("Build set already marked as NO_REBUILD_REQUIRED. BuildSetTask: {}", this);
+                } else {
+                    log.debug("Marking build set as SUCCESS. BuildSetTask: {}", this);
+                    r.setStatus(BuildStatus.SUCCESS);
+                }
+            });
+            finishBuildSetTask();
+        } else {
+            if (log.isTraceEnabled()) {
+                String running = buildTasks.stream()
+                        .filter(bt -> !bt.getStatus().isCompleted())
+                        .filter(bt -> !bt.getStatus().hasFailed())
+                        .map(BuildTask::getId)
+                        .collect(Collectors.joining(", "));
+                log.trace("There are still running or waiting builds [{}].", running);
+            }
+        }
+    }
+
     private void logTasksStatus(Set<BuildTask> buildTasks) {
         String taskStatuses = buildTasks.stream()
                 .map(bt -> "TaskId " + bt.getId() + ":" + bt.getStatus())
                 .collect(Collectors.joining("; "));
         log.debug("Tasks statuses: {}", taskStatuses);
+    }
+
+    @Deprecated
+    private void finishBuildSetTask() {
+        Optional.ofNullable(buildConfigSetRecord).ifPresent(r -> r.setEndTime(new Date()));
     }
 
     public void addBuildTask(BuildTask buildTask) {
@@ -100,6 +150,11 @@ public class BuildSetTask {
                 .filter((bt) -> bt.getBuildConfigurationAudited().equals(buildConfigurationAudited))
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Deprecated
+    public Integer getId() {
+        return Optional.ofNullable(buildConfigSetRecord).map(BuildConfigSetRecord::getId).orElse(null);
     }
 
     public Optional<BuildConfigSetRecord> getBuildConfigSetRecord() {

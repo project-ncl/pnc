@@ -30,7 +30,6 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.test.util.Wait;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -48,7 +47,6 @@ import java.util.stream.Collectors;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
-@Ignore // SHOULD BE DONE IN INTEGRATION TESTS WITH REX
 public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(ProjectWithDependenciesBuildTest.class);
@@ -85,10 +83,7 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
         // when
         BuildCoordinatorBeans coordinator = buildCoordinatorFactory.createBuildCoordinator(datastoreMock);
-        buildProjects(
-                configurationBuilder.buildConfigurationSet(BUILD_SET_ID),
-                coordinator.coordinator,
-                coordinator.setJob);
+        buildProjects(configurationBuilder.buildConfigurationSet(BUILD_SET_ID), coordinator.coordinator);
 
         // expect
         List<BuildRecord> buildRecords = datastoreMock.getBuildRecords();
@@ -114,10 +109,10 @@ public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
         String events = eventsReceived.stream().map(Object::toString).collect(Collectors.joining("; "));
         Assert.assertEquals("Invalid number of received events. Received events: " + events, 2, eventsReceived.size());
         Wait.forCondition(
-                coordinator.taskRepository::isEmpty,
+                coordinator.queue::isEmpty,
                 1,
                 ChronoUnit.SECONDS,
-                "Not empty build taskRepository: " + coordinator.taskRepository);
+                "Not empty build queue: " + coordinator.queue);
     }
 
     private void collectEvent(BuildSetStatusChangedEvent buildSetStatusChangedEvent) {

@@ -72,6 +72,7 @@
     <module>messaging</module>
     <module>ear-package</module>
     <module>build-coordinator</module>
+    <module>remote-build-coordinator</module>
     <module>model</module>
     <module>dto</module>
     <module>facade</module>
@@ -438,6 +439,12 @@
       <dependency>
         <groupId>org.jboss.pnc</groupId>
         <artifactId>build-coordinator</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
+        <artifactId>remote-build-coordinator</artifactId>
         <version>${project.version}</version>
       </dependency>
 

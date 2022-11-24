@@ -90,7 +90,7 @@ public interface SCMRepositoryProvider
 
     @Data
     public static class RepositoryCreated {
-        private final Integer taskId;
+        private final Long taskId;
         private final int repositoryId;
     }
 }

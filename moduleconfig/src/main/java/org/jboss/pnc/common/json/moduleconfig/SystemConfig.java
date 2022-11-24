@@ -94,6 +94,8 @@ public class SystemConfig extends AbstractModuleConfig {
     private String infinispanClusterName; // Infinispan cluster name; required if distributedEventType is "infinispan"
     private String infinispanTransportProperties; // path to Infinispan transport properties; optional
 
+    private final boolean legacyBuildCoordinator;
+
     public SystemConfig(
             @JsonProperty("authenticationProviderId") String authenticationProviderId,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
@@ -118,7 +120,8 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("kafkaSecurityPassword") String kafkaSecurityPassword,
             @JsonProperty("kafkaProperties") String kafkaProperties,
             @JsonProperty("infinispanClusterName") String infinispanClusterName,
-            @JsonProperty("infinispanTransportProperties") String infinispanTransportProperties) {
+            @JsonProperty("infinispanTransportProperties") String infinispanTransportProperties,
+            @JsonProperty("legacyBuildCoordinator") String legacyBuildCoordinator) {
         this.authenticationProviderId = authenticationProviderId;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault(
@@ -153,6 +156,7 @@ public class SystemConfig extends AbstractModuleConfig {
         this.kafkaProperties = kafkaProperties;
         this.infinispanClusterName = infinispanClusterName;
         this.infinispanTransportProperties = infinispanTransportProperties;
+        this.legacyBuildCoordinator = Boolean.valueOf(legacyBuildCoordinator);
     }
 
     public static Properties readProperties(String file) {
@@ -261,6 +265,10 @@ public class SystemConfig extends AbstractModuleConfig {
 
     public String getInfinispanTransportProperties() {
         return infinispanTransportProperties;
+    }
+
+    public boolean isLegacyBuildCoordinator() {
+        return legacyBuildCoordinator;
     }
 
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {

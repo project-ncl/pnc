@@ -58,6 +58,7 @@ public class SysConfigProducer {
                 null,
                 null,
                 null,
-                null);
+                null,
+                "true"); // TODO change to false
     }
 }
