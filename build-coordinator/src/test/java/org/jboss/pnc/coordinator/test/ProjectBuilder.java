@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.coordinator.test;
 
-import org.jboss.pnc.coordinator.builder.SetRecordUpdateJob;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -31,9 +30,10 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -109,7 +110,7 @@ public class ProjectBuilder {
             onStatusUpdate.accept(statusUpdate);
         };
 
-        // Defines a number of callbacks, which are executed after status update
+        // Defines a number of callbacks, which are executed after buildStatus update
         final Semaphore semaphore = registerReleaseListenersAndAcquireSemaphore(
                 onStatusUpdateInternal,
                 N_STATUS_UPDATES_PER_TASK);
@@ -133,15 +134,12 @@ public class ProjectBuilder {
         assertAllStatusUpdateReceived(receivedStatuses, buildTask.getId());
     }
 
-    void buildProjects(
-            BuildConfigurationSet buildConfigurationSet,
-            BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob) throws InterruptedException, CoreException, DatastoreException {
+    void buildProjects(BuildConfigurationSet buildConfigurationSet, BuildCoordinator buildCoordinator)
+            throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet);
         buildProjectsAndVerifyResult(
                 buildConfigurationSet,
                 buildCoordinator,
-                setJob,
                 nStatusUpdates,
                 this::verifySuccessfulBuild);
     }
@@ -149,21 +147,19 @@ public class ProjectBuilder {
     BuildSetTask buildProjects(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob,
             Consumer<BuildStatusChangedEvent> onStatusUpdate)
             throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet);
-        return buildProjects(buildConfigurationSet, buildCoordinator, setJob, nStatusUpdates, onStatusUpdate);
+        return buildProjects(buildConfigurationSet, buildCoordinator, nStatusUpdates, onStatusUpdate);
     }
 
     BuildSetTask buildProjects(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob,
             Consumer<BuildStatusChangedEvent> onStatusUpdate,
             int skippedUpdates) throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet) - skippedUpdates;
-        return buildProjects(buildConfigurationSet, buildCoordinator, setJob, nStatusUpdates, onStatusUpdate);
+        return buildProjects(buildConfigurationSet, buildCoordinator, nStatusUpdates, onStatusUpdate);
     }
 
     private int getNumberOfStatusUpdates(BuildConfigurationSet buildConfigurationSet) {
@@ -181,23 +177,20 @@ public class ProjectBuilder {
     void buildFailingProject(
             BuildConfigurationSet buildConfigurationSet,
             int numCompletedBuilds,
-            BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob) throws InterruptedException, CoreException, DatastoreException {
-        buildFailingProject(buildConfigurationSet, numCompletedBuilds, 1, buildCoordinator, setJob);
+            BuildCoordinator buildCoordinator) throws InterruptedException, CoreException, DatastoreException {
+        buildFailingProject(buildConfigurationSet, numCompletedBuilds, 1, buildCoordinator);
     }
 
     void buildFailingProject(
             BuildConfigurationSet buildConfigurationSet,
             int numCompletedBuilds,
             int numFailedBuilds,
-            BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob) throws InterruptedException, CoreException, DatastoreException {
+            BuildCoordinator buildCoordinator) throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * numCompletedBuilds
                 + N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS * numFailedBuilds;
         buildProjectsAndVerifyResult(
                 buildConfigurationSet,
                 buildCoordinator,
-                setJob,
                 nStatusUpdates,
                 this::verifyFailingProject);
     }
@@ -222,7 +215,6 @@ public class ProjectBuilder {
     private BuildSetTask buildProjectsAndWaitForUpdates(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob,
             int nStatusUpdates,
             Consumer<BuildStatusChangedEvent> onStatusUpdate,
             List<BuildStatusChangedEvent> receivedStatuses,
@@ -248,7 +240,7 @@ public class ProjectBuilder {
         log.debug(
                 "All status updates should be received. Semaphore has {} free entries.",
                 semaphore.availablePermits());
-        setJob.updateConfigSetRecordsStatuses();
+
         log.info("Waiting to receive all {} build set status updates...", BUILD_SET_STATUS_UPDATES);
         waitForStatusUpdates(BUILD_SET_STATUS_UPDATES, buildSetSemaphore, "build set task: " + buildSetTask);
         log.debug(
@@ -260,7 +252,6 @@ public class ProjectBuilder {
     private BuildSetTask buildProjects(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob,
             int nStatusUpdates,
             Consumer<BuildStatusChangedEvent> onStatusUpdate) throws InterruptedException, CoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
@@ -270,7 +261,6 @@ public class ProjectBuilder {
         return buildProjectsAndWaitForUpdates(
                 buildConfigurationSet,
                 buildCoordinator,
-                setJob,
                 nStatusUpdates,
                 onStatusUpdate,
                 receivedStatuses,
@@ -280,7 +270,6 @@ public class ProjectBuilder {
     private void buildProjectsAndVerifyResult(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob,
             int nStatusUpdates,
             Verifier verifier) throws InterruptedException, CoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
@@ -289,7 +278,6 @@ public class ProjectBuilder {
         BuildSetTask buildSetTask = buildProjectsAndWaitForUpdates(
                 buildConfigurationSet,
                 buildCoordinator,
-                setJob,
                 nStatusUpdates,
                 x -> {},
                 receivedStatuses,
@@ -318,7 +306,7 @@ public class ProjectBuilder {
             throws InterruptedException {
         final Semaphore semaphore = new Semaphore(nStatusUpdates);
         setStatusChangedReceiver.addBuildSetStatusChangedEventListener(statusUpdate -> {
-            log.debug("Received set status update {}.", statusUpdate.toString());
+            log.debug("Received status update {}.", statusUpdate.toString());
             events.add(statusUpdate);
             semaphore.release(1);
             log.debug("Semaphore released, there are {} free entries", semaphore.availablePermits());
@@ -341,10 +329,10 @@ public class ProjectBuilder {
     }
 
     private void assertBuildStartedSuccessfully(BuildSetTask buildSetTask) {
-        if (buildSetTask.getTaskStatus().isFinal() && !buildSetTask.getTaskStatus().completedSuccessfully()) {
+        List<BuildSetStatus> errorStates = Collections.singletonList(BuildSetStatus.REJECTED);
+        if (errorStates.contains(buildSetTask.getStatus())) {
             fail(
-                    "Build " + buildSetTask.getBuildConfigSetRecord().get().getId() + " has status:"
-                            + buildSetTask.getTaskStatus() + " with description: "
+                    "Build " + buildSetTask.getId() + " has status:" + buildSetTask.getStatus() + " with description: "
                             + buildSetTask.getStatusDescription());
         }
     }

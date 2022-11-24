@@ -206,6 +206,20 @@ public class BuildTask {
     }
 
     /**
+     * Check if this build is ready to build, for example if all dependency builds are complete.
+     *
+     * @return true if already built, false otherwise
+     */
+    public boolean readyToBuild() {
+        for (BuildTask buildTask : dependencies) {
+            if (!buildTask.getStatus().isCompleted()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * A build task is equal to another build task if they are using the same build configuration ID and version.
      */
     @Override

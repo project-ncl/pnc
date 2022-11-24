@@ -26,7 +26,6 @@ import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -71,9 +70,7 @@ public class BpmBuildScheduler implements BuildScheduler {
 
     @Override
     public void startBuilding(BuildSetTask buildSetTask) throws CoreException {
-        for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            startBuilding(buildTask);
-        }
+        throw new UnsupportedOperationException("Only to be used with remote build scheduler.");
     }
 
     @Override

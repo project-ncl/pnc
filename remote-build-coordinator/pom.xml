@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014-2022 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>parent</artifactId>
+    <groupId>org.jboss.pnc</groupId>
+    <version>2.5.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>remote-build-coordinator</artifactId>
+  <packaging>jar</packaging>
+
+  <description>Contains implementations of action-controllers, which include the business logic for orchestrating build requests and collect the results. Action controllers are used to isolate logic from the REST API, so it can be reused in embedded scenarios.</description>
+  
+  <dependencies>
+    <!-- Intermodule dependencies -->
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>moduleconfig</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>bpm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>messaging-spi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>auth</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>mapper</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>causeway-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.indy</groupId>
+      <artifactId>indy-promote-client-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.commonjava.indy</groupId>
+      <artifactId>indy-folo-client-java</artifactId>
+    </dependency>
+
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.enterprise</groupId>
+      <artifactId>jakarta.enterprise.cdi-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.inject</groupId>
+      <artifactId>jakarta.inject-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.spec.javax.ejb</groupId>
+      <artifactId>jboss-ejb-api_3.2_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.spec.javax.annotation</groupId>
+      <artifactId>jboss-annotations-api_1.3_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!-- only here as lombok is too eager to do everything-->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+
+    <!-- OTEL Dependencies for Instrumentation -->
+    <dependency>
+      <groupId>io.opentelemetry.instrumentation</groupId>
+      <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+    </dependency>
+
+
+    <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>datastore</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-mock</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>test-common</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-container</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.container</groupId>
+      <artifactId>arquillian-weld-se-embedded-1.1</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.weld</groupId>
+      <artifactId>weld-core-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.spec.javax.el</groupId>
+      <artifactId>jboss-el-api_3.0_spec</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-api-maven</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.descriptors</groupId>
+      <artifactId>shrinkwrap-descriptors-impl-javaee</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Test coverage -->
+    <dependency>
+      <groupId>org.jboss.arquillian.extension</groupId>
+      <artifactId>arquillian-jacoco</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jacoco</groupId>
+      <artifactId>org.jacoco.core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-common-core</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.logging</groupId>
+          <artifactId>jboss-logging-spi</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+
+    <!-- /Test coverage -->
+
+  </dependencies>
+</project>

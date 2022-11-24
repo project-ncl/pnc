@@ -20,16 +20,14 @@ package org.jboss.pnc.coordinator.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.coordinator.builder.SetRecordUpdateJob;
+import org.jboss.pnc.coordinator.builder.BuildQueue;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,13 +41,12 @@ import static org.jboss.pnc.common.Configuration.CONFIG_SYSPROP;
  */
 
 @RunWith(Arquillian.class)
-@Ignore // SHOULD BE DONE IN INTEGRATION TESTS WITH REX
 public class ProjectWithFailedTransitiveDependenciesBuildTest extends ProjectBuilder {
 
     @Inject
     BuildCoordinatorFactory buildCoordinatorFactory;
 
-    static BuildTaskRepository taskRepository;
+    static BuildQueue buildQueue;
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -65,17 +62,15 @@ public class ProjectWithFailedTransitiveDependenciesBuildTest extends ProjectBui
     @InSequence(10)
     public void buildFailingProjectTestCase() throws Exception {
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
-        BuildCoordinatorBeans beans = buildCoordinatorFactory.createBuildCoordinator(datastore);
-        BuildCoordinator coordinator = beans.coordinator;
-        SetRecordUpdateJob setJob = beans.setJob;
-        taskRepository = beans.taskRepository;
+        BuildCoordinatorBeans buildCoordinatorBeans = buildCoordinatorFactory.createBuildCoordinator(datastore);
+        BuildCoordinator coordinator = buildCoordinatorBeans.coordinator;
+        buildQueue = buildCoordinatorBeans.queue;
 
         buildFailingProject(
                 configurationBuilder.buildConfigurationSetWithFailedDependenciesAndDelay(1),
                 1,
                 2,
-                coordinator,
-                setJob);
+                coordinator);
     }
 
     @Test
@@ -92,7 +87,7 @@ public class ProjectWithFailedTransitiveDependenciesBuildTest extends ProjectBui
         Assert.assertTrue(buildConfigSetRecord.getEndTime().getTime() > buildConfigSetRecord.getStartTime().getTime());
         Assert.assertEquals(BuildStatus.FAILED, buildConfigSetRecord.getStatus());
 
-        Assert.assertTrue("Build taskRepository should be empty.", taskRepository.isEmpty());
+        Assert.assertTrue("Build queue should be empty.", buildQueue.isEmpty());
 
     }
 
