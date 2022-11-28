@@ -17,7 +17,8 @@
             "externalIndyUrl": "http://1.2.3.7",
             "externalKafkaStoreUrl": "http://1.2.3.8",
             "externalPncUrl": "http://1.2.3.9",
-            "externalRepourUrl": "http://1.2.3.10"
+            "externalRepourUrl": "http://1.2.3.10",
+            "externalUiLoggerUrl": "http://1.2.3.11"
         }
     ]
 }

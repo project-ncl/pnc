@@ -37,6 +37,7 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalKafkaStoreUrl;
     private String externalPncUrl;
     private String externalRepourUrl;
+    private String externalUiLoggerUrl;
 
     public String getBpmUrl() {
         return bpmUrl;
@@ -150,4 +151,11 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
         this.delAnalUrl = delAnalUrl;
     }
 
+    public String getExternalUiLoggerUrl() {
+        return externalUiLoggerUrl;
+    }
+
+    public void setExternalUiLoggerUrl(String externalUiLoggerUrl) {
+        this.externalUiLoggerUrl = externalUiLoggerUrl;
+    }
 }
