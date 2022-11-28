@@ -22,10 +22,7 @@ import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.coordinator.BuildScheduler;
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.*;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +39,7 @@ public class MockBuildScheduler implements BuildScheduler {
     @Setter(onMethod_ = { @Inject })
     protected BuildTaskRepositoryMock taskRepositoryMock;
 
-    @Setter(onMethod_ = { @Inject })
+    @Setter(onMethod_ = { @Inject, @RemoteBuildCoordinator })
     protected BuildCoordinator coordinator;
 
     @Setter

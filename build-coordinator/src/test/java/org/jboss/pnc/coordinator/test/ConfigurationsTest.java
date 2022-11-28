@@ -30,6 +30,7 @@ import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.DefaultBuildCoordinator;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -56,6 +57,7 @@ public class ConfigurationsTest extends ProjectBuilder {
     }
 
     @Inject
+    @DefaultBuildCoordinator
     BuildCoordinator buildCoordinator;
 
     @Test(expected = PersistenceException.class) // TODO test is not run as expected exception is thrown

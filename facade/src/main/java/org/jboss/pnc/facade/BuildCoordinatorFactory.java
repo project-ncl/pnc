@@ -22,11 +22,14 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.DefaultBuildCoordinator;
 import org.jboss.pnc.spi.coordinator.RemoteBuildCoordinator;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 
+@ApplicationScoped
 public class BuildCoordinatorFactory {
 
     @Inject
@@ -44,12 +47,14 @@ public class BuildCoordinatorFactory {
         }
     }
 
-    public static final class DefaultLiteral extends AnnotationLiteral<DefaultBuildCoordinator> implements DefaultBuildCoordinator {
+    public static final class DefaultLiteral extends AnnotationLiteral<DefaultBuildCoordinator>
+            implements DefaultBuildCoordinator {
         public static final DefaultLiteral INSTANCE = new DefaultLiteral();
         private static final long serialVersionUID = 1L;
     }
 
-    public static final class RemoteLiteral extends AnnotationLiteral<RemoteBuildCoordinator> implements RemoteBuildCoordinator {
+    public static final class RemoteLiteral extends AnnotationLiteral<RemoteBuildCoordinator>
+            implements RemoteBuildCoordinator {
         public static final RemoteLiteral INSTANCE = new RemoteLiteral();
         private static final long serialVersionUID = 1L;
     }

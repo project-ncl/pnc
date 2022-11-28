@@ -36,6 +36,7 @@ import org.jboss.pnc.spi.BuildSetStatus;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.DefaultBuildCoordinator;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -72,6 +73,7 @@ public class BuildCoordinationTest {
     private static final Logger log = LoggerFactory.getLogger(BuildCoordinationTest.class);
 
     @Inject
+    @DefaultBuildCoordinator
     BuildCoordinator buildCoordinator;
 
     @Inject

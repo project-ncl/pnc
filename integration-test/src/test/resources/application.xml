@@ -55,6 +55,9 @@
     <java>build-coordinator.jar</java>
   </module>
   <module>
+    <java>remote-build-coordinator.jar</java>
+  </module>
+  <module>
     <java>model.jar</java>
   </module>
   <module>
