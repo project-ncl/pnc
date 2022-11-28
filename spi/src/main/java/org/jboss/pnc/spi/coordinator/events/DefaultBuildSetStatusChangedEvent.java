@@ -39,7 +39,7 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
             BuildSetStatus newStatus,
             GroupBuild groupBuild,
             String description) {
-        this.oldStatus = oldStatus.buildStatus();
+        this.oldStatus = oldStatus == null ? null : oldStatus.buildStatus();
         this.newStatus = newStatus.buildStatus();
         this.groupBuild = groupBuild;
         this.description = description;
@@ -63,12 +63,12 @@ public class DefaultBuildSetStatusChangedEvent implements BuildSetStatusChangedE
 
     @Override
     public BuildSetStatus getOldStatus() {
-        return BuildSetStatus.fromBuildStatus(oldStatus);
+        return oldStatus == null ? null : BuildSetStatus.fromBuildStatus(oldStatus);
     }
 
     @Override
     public BuildSetStatus getNewStatus() {
-        return BuildSetStatus.fromBuildStatus(oldStatus);
+        return BuildSetStatus.fromBuildStatus(newStatus);
     }
 
     @Override
