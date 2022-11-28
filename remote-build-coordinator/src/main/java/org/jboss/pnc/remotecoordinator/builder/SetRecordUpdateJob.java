@@ -24,6 +24,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.RemoteBuildCoordinator;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -58,7 +59,7 @@ public class SetRecordUpdateJob {
     public SetRecordUpdateJob(
             BuildTaskRepository taskRepository,
             Datastore datastore,
-            BuildCoordinator buildCoordinator) {
+            @RemoteBuildCoordinator BuildCoordinator buildCoordinator) {
         this.taskRepository = taskRepository;
         this.datastore = datastore;
         this.buildCoordinator = buildCoordinator;

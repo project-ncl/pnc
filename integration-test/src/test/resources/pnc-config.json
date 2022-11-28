@@ -22,7 +22,8 @@
           "coordinatorThreadPoolSize": "1",
           "coordinatorMaxConcurrentBuilds": "10",
           "brewTagPattern" : "${product_short_name}-${product_version}-pnc",
-          "temporaryBuildsLifeSpan" : "14"
+          "temporaryBuildsLifeSpan" : "14",
+          "legacyBuildCoordinator" : "true"
         },
         {
           "@module-config": "demo-data-config",

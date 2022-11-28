@@ -119,7 +119,9 @@ public class BuildCoordinatorFactory {
     public static class LocalBuildSchedulerMock extends LocalBuildScheduler {
 
         @Inject
-        public LocalBuildSchedulerMock(BuildExecutor buildExecutor, BuildCoordinator buildCoordinator) {
+        public LocalBuildSchedulerMock(
+                BuildExecutor buildExecutor,
+                @org.jboss.pnc.spi.coordinator.DefaultBuildCoordinator BuildCoordinator buildCoordinator) {
             super(buildExecutor, buildCoordinator);
         }
 
