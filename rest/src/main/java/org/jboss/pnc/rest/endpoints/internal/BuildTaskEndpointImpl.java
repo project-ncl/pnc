@@ -23,11 +23,11 @@ import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.facade.BuildCoordinatorProvider;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.rest.endpoints.internal.api.BuildTaskEndpoint;
-import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(BuildTaskEndpointImpl.class);
 
     @Inject
-    private BuildCoordinator buildCoordinator;
+    private BuildCoordinatorProvider buildCoordinatorProvider;
 
     @Inject
     private BuildResultMapper mapper;
@@ -73,7 +73,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
         // check if task is already completed
         // required workaround as we don't remove the BpmTasks immediately after the completion
-        Optional<BuildTask> maybeBuildTask = buildCoordinator.getSubmittedBuildTask(buildId);
+        Optional<BuildTask> maybeBuildTask = buildCoordinatorProvider.getCoordinator().getSubmittedBuildTask(buildId);
         if (maybeBuildTask.isPresent()) {
             BuildTask buildTask = maybeBuildTask.get();
             boolean temporaryBuild = buildTask.getBuildOptions().isTemporaryBuild();
@@ -99,7 +99,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                 }
                 logger.debug("Completing buildTask [{}] ...", buildId);
 
-                buildCoordinator.completeBuild(buildTask, mapper.toEntity(buildResult));
+                buildCoordinatorProvider.getCoordinator().completeBuild(buildTask, mapper.toEntity(buildResult));
 
                 logger.debug("Completed buildTask [{}].", buildId);
                 return Response.ok().build();

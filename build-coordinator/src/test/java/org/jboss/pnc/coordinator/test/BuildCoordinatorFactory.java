@@ -30,6 +30,7 @@ import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.InMemory;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.executor.BuildExecutor;
@@ -119,9 +120,7 @@ public class BuildCoordinatorFactory {
     public static class LocalBuildSchedulerMock extends LocalBuildScheduler {
 
         @Inject
-        public LocalBuildSchedulerMock(
-                BuildExecutor buildExecutor,
-                @org.jboss.pnc.spi.coordinator.DefaultBuildCoordinator BuildCoordinator buildCoordinator) {
+        public LocalBuildSchedulerMock(BuildExecutor buildExecutor, @InMemory BuildCoordinator buildCoordinator) {
             super(buildExecutor, buildCoordinator);
         }
 

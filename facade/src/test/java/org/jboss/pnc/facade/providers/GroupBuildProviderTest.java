@@ -23,6 +23,7 @@ import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ResultStatus;
+import org.jboss.pnc.facade.BuildCoordinatorProvider;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -81,6 +82,10 @@ public class GroupBuildProviderTest extends AbstractIntIdProviderTest<BuildConfi
 
     @Mock
     private BuildCoordinator buildCoordinator;
+
+    @Spy
+    @InjectMocks
+    private BuildCoordinatorProvider buildCoordinatorProvider;
 
     @Mock
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;

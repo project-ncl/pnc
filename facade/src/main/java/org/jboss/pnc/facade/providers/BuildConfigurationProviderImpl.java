@@ -33,6 +33,7 @@ import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.JobNotificationType;
+import org.jboss.pnc.facade.BuildCoordinatorProvider;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
@@ -55,7 +56,6 @@ import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.RepositoryConfiguration;
-import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -110,7 +110,7 @@ public class BuildConfigurationProviderImpl extends
     private BuildRecordRepository buildRecordRepository;
 
     @Inject
-    private BuildCoordinator buildCoordinator;
+    private BuildCoordinatorProvider buildCoordinatorProvider;
 
     @Inject
     private BuildConfigurationRevisionMapper buildConfigurationRevisionMapper;
@@ -356,7 +356,7 @@ public class BuildConfigurationProviderImpl extends
                 .map(bc -> mapper.getIdMapper().toEntity(bc.getId()))
                 .collect(Collectors.toList());
         List<BuildRecord> latestBuilds = buildRecordRepository.getLatestBuildsForBuildConfigs(configIds);
-        List<BuildTask> runningBuilds = buildCoordinator.getSubmittedBuildTasks();
+        List<BuildTask> runningBuilds = buildCoordinatorProvider.getCoordinator().getSubmittedBuildTasks();
         List<BuildConfigurationWithLatestBuild> bcsWithLatest = new ArrayList<>();
         buildConfigs.getContent()
                 .forEach(bc -> bcsWithLatest.add(populateBuildConfigWithLatestBuild(bc, latestBuilds, runningBuilds)));

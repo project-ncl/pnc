@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  */
 public class BuildSetTask {
 
-    private final Logger log = LoggerFactory.getLogger(BuildCoordinator.class);
+    private final Logger log = LoggerFactory.getLogger(BuildSetTask.class);
 
     private BuildConfigSetRecord buildConfigSetRecord;
 

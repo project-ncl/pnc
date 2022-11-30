@@ -49,6 +49,7 @@ import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.InMemory;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
@@ -86,7 +87,7 @@ import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-20.
  */
-@org.jboss.pnc.spi.coordinator.DefaultBuildCoordinator
+@InMemory
 @ApplicationScoped
 public class DefaultBuildCoordinator implements BuildCoordinator {
 

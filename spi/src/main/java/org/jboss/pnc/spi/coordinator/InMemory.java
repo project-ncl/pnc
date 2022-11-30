@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
+import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Qualifier;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -30,5 +31,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Qualifier
 @Retention(RUNTIME)
 @Target({ METHOD, FIELD, PARAMETER, TYPE })
-public @interface DefaultBuildCoordinator {
+public @interface InMemory {
+
+    final class Literal extends AnnotationLiteral<InMemory> implements InMemory {
+        public static final Literal INSTANCE = new Literal();
+        private static final long serialVersionUID = 1L;
+    }
+
 }

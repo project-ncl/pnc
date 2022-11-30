@@ -19,18 +19,16 @@ package org.jboss.pnc.facade;
 
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.coordinator.DefaultBuildCoordinator;
-import org.jboss.pnc.spi.coordinator.RemoteBuildCoordinator;
+import org.jboss.pnc.spi.coordinator.InMemory;
+import org.jboss.pnc.spi.coordinator.Remote;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
-import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class BuildCoordinatorFactory {
+public class BuildCoordinatorProvider {
 
     @Inject
     SystemConfig config;
@@ -38,24 +36,18 @@ public class BuildCoordinatorFactory {
     @Inject
     Instance<BuildCoordinator> buildCoordinators;
 
-    @Produces
-    public BuildCoordinator createInstance() {
+    BuildCoordinator selectedCoordinator;
+
+    @PostConstruct
+    public void init() {
         if (config.isLegacyBuildCoordinator()) {
-            return buildCoordinators.select(DefaultLiteral.INSTANCE).get();
+            selectedCoordinator = buildCoordinators.select(InMemory.Literal.INSTANCE).get();
         } else {
-            return buildCoordinators.select(RemoteLiteral.INSTANCE).get();
+            selectedCoordinator = buildCoordinators.select(Remote.Literal.INSTANCE).get();
         }
     }
 
-    public static final class DefaultLiteral extends AnnotationLiteral<DefaultBuildCoordinator>
-            implements DefaultBuildCoordinator {
-        public static final DefaultLiteral INSTANCE = new DefaultLiteral();
-        private static final long serialVersionUID = 1L;
-    }
-
-    public static final class RemoteLiteral extends AnnotationLiteral<RemoteBuildCoordinator>
-            implements RemoteBuildCoordinator {
-        public static final RemoteLiteral INSTANCE = new RemoteLiteral();
-        private static final long serialVersionUID = 1L;
+    public BuildCoordinator getCoordinator() {
+        return selectedCoordinator;
     }
 }

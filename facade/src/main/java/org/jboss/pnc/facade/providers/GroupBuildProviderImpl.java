@@ -23,6 +23,7 @@ import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.BuildCoordinatorProvider;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.DTOValidationException;
@@ -31,7 +32,6 @@ import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mapper.api.ResultMapper;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
@@ -69,7 +69,7 @@ public class GroupBuildProviderImpl extends AbstractProvider<Integer, BuildConfi
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
 
     @Inject
-    private BuildCoordinator buildCoordinator;
+    private BuildCoordinatorProvider buildCoordinatorProvider;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -147,7 +147,7 @@ public class GroupBuildProviderImpl extends AbstractProvider<Integer, BuildConfi
     @Override
     public void cancel(String id) {
         try {
-            buildCoordinator.cancelSet(Integer.parseInt(id));
+            buildCoordinatorProvider.getCoordinator().cancelSet(Integer.parseInt(id));
         } catch (CoreException e) {
             throw new RuntimeException("Error when canceling buildConfigSetRecord with id: " + id, e);
         }

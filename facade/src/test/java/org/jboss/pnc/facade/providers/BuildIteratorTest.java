@@ -18,9 +18,11 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.facade.BuildCoordinatorProvider;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -37,7 +39,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 import static org.junit.Assert.assertEquals;
@@ -52,6 +53,12 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class BuildIteratorTest {
+
+    @Mock
+    private BuildCoordinator buildCoordinator;
+
+    @Mock
+    private BuildCoordinatorProvider buildCoordinatorProvider;
 
     @Mock
     private BuildRecordRepository repository;
