@@ -33,7 +33,7 @@ import java.util.Collections;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-//TODO rename to facade and also make it implement BuildTaskRepository for other communications
+// TODO rename to facade and also make it implement BuildTaskRepository for other communications
 @ApplicationScoped
 public class RemoteRexBuildScheduler implements RexBuildScheduler {
 

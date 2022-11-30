@@ -26,7 +26,6 @@ import org.jboss.pnc.dto.response.Graph;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Vertex;
 import org.jboss.pnc.enums.ResultStatus;
-import org.jboss.pnc.facade.BuildCoordinatorProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.CorruptedDataException;
@@ -104,9 +103,6 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
 
     @Mock
     private BuildCoordinator buildCoordinator;
-
-    @Mock
-    private BuildCoordinatorProvider buildCoordinatorProvider;
 
     @Mock
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
