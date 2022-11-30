@@ -22,32 +22,31 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.InMemory;
 import org.jboss.pnc.spi.coordinator.Remote;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Any;
+import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 @ApplicationScoped
-public class BuildCoordinatorProvider {
+public class BuildCoordinatorFactory {
 
     @Inject
     SystemConfig config;
 
+    @Any
     @Inject
     Instance<BuildCoordinator> buildCoordinators;
 
-    BuildCoordinator selectedCoordinator;
-
-    @PostConstruct
-    public void init() {
+    @Produces
+    @Default
+    @ApplicationScoped
+    public BuildCoordinator init() {
         if (config.isLegacyBuildCoordinator()) {
-            selectedCoordinator = buildCoordinators.select(InMemory.Literal.INSTANCE).get();
+            return buildCoordinators.select(InMemory.Literal.INSTANCE).get();
         } else {
-            selectedCoordinator = buildCoordinators.select(Remote.Literal.INSTANCE).get();
+            return buildCoordinators.select(Remote.Literal.INSTANCE).get();
         }
-    }
-
-    public BuildCoordinator getCoordinator() {
-        return selectedCoordinator;
     }
 }
