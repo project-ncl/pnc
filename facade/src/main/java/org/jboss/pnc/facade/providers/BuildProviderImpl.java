@@ -38,6 +38,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RunningBuildCount;
 import org.jboss.pnc.dto.response.SSHCredentials;
 import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.facade.BuildCoordinatorProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.util.GraphDtoBuilder;
@@ -163,7 +164,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             BuildConfigSetRecordRepository buildConfigSetRecordRepository,
             Gerrit gerrit,
             BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
-            BuildCoordinator buildCoordinator,
+            BuildCoordinatorProvider buildCoordinatorProvider,
             SortInfoProducer sortInfoProducer,
             UserService userService,
             TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker,
@@ -178,7 +179,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         this.gerrit = gerrit;
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
         this.buildMapper = mapper;
-        this.buildCoordinator = buildCoordinator;
+        this.buildCoordinator = buildCoordinatorProvider.getCoordinator();
         this.sortInfoProducer = sortInfoProducer;
         this.userService = userService;
         this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;

@@ -74,7 +74,7 @@ public class StatusUpdatesTest {
     private static final Logger log = LoggerFactory.getLogger(StatusUpdatesTest.class);
 
     @Inject
-    @RemoteBuildCoordinator
+    @Remote
     BuildCoordinator buildCoordinator;
 
     @Inject

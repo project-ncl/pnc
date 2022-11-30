@@ -16,17 +16,15 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.remotecoordinator.builder.bpm;
+package org.jboss.pnc.remotecoordinator.builder;
 
 import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
-import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.executor.exceptions.ExecutorException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -35,8 +33,9 @@ import java.util.Collections;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+//TODO rename to facade and also make it implement BuildTaskRepository for other communications
 @ApplicationScoped
-public class BpmBuildScheduler implements BuildScheduler {
+public class RemoteRexBuildScheduler implements RexBuildScheduler {
 
     private BpmModuleConfig bpmConfig;
 
@@ -45,11 +44,11 @@ public class BpmBuildScheduler implements BuildScheduler {
     private Connector connector;
 
     @Deprecated
-    public BpmBuildScheduler() { // CDI workaround
+    public RemoteRexBuildScheduler() { // CDI workaround
     }
 
     @Inject
-    public BpmBuildScheduler(BpmModuleConfig bpmConfig, GlobalModuleGroup globalConfig, Connector connector) {
+    public RemoteRexBuildScheduler(BpmModuleConfig bpmConfig, GlobalModuleGroup globalConfig, Connector connector) {
         this.bpmConfig = bpmConfig;
         this.globalConfig = globalConfig;
         this.connector = connector;
@@ -77,7 +76,7 @@ public class BpmBuildScheduler implements BuildScheduler {
     }
 
     @Override
-    public boolean cancel(BuildTask buildTask) {
+    public boolean cancel(BuildTask buildTask) throws CoreException {
         return connector.cancelByCorrelation(buildTask.getId(), buildTask.getUser().getLoginToken());
     }
 }

@@ -132,7 +132,7 @@ public class RemoteBuildCoordinatorTest {
     @Mock
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
     @Mock
-    private BuildScheduler buildScheduler;
+    private RexBuildScheduler buildScheduler;
 
     @Mock
     private SystemConfig systemConfig;

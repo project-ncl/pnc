@@ -19,15 +19,15 @@
 package org.jboss.pnc.remotecoordinator.test;
 
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.mock.coordinator.LocalBuildScheduler;
-import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
-import org.jboss.pnc.remotecoordinator.builder.SetRecordUpdateJob;
-import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
+import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
+import org.jboss.pnc.remotecoordinator.builder.SetRecordUpdateJob;
+import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.remotecoordinator.test.mock.LocalBuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;

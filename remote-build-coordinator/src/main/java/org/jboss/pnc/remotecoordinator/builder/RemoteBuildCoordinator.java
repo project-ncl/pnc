@@ -25,8 +25,6 @@ import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.monitor.PollingMonitor;
 import org.jboss.pnc.common.util.ProcessStageUtils;
-import org.jboss.pnc.remotecoordinator.BuildCoordinationException;
-import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
@@ -38,14 +36,16 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.remotecoordinator.BuildCoordinationException;
+import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.spi.coordinator.Remote;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
@@ -80,7 +80,7 @@ import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-20.
  */
-@org.jboss.pnc.spi.coordinator.RemoteBuildCoordinator
+@Remote
 @ApplicationScoped
 public class RemoteBuildCoordinator implements BuildCoordinator {
 
@@ -96,7 +96,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
-    private BuildScheduler buildScheduler;
+    private RexBuildScheduler buildScheduler;
 
     private BuildTaskRepository taskRepository;
 
@@ -116,7 +116,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             DatastoreAdapter datastoreAdapter,
             Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier,
             Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier,
-            BuildScheduler buildScheduler,
+            RexBuildScheduler buildScheduler,
             BuildTaskRepository taskRepository,
             SystemConfig systemConfig,
             GroupBuildMapper groupBuildMapper,

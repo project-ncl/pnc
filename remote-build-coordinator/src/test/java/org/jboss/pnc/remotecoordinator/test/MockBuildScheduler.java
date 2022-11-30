@@ -21,8 +21,12 @@ import lombok.Setter;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
+import org.jboss.pnc.remotecoordinator.builder.RexBuildScheduler;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.coordinator.*;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.Remote;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,16 +34,19 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
-import static org.jboss.pnc.spi.coordinator.CompletionStatus.*;
+import static org.jboss.pnc.spi.coordinator.CompletionStatus.CANCELLED;
+import static org.jboss.pnc.spi.coordinator.CompletionStatus.FAILED;
+import static org.jboss.pnc.spi.coordinator.CompletionStatus.NO_REBUILD_REQUIRED;
+import static org.jboss.pnc.spi.coordinator.CompletionStatus.SYSTEM_ERROR;
 
 @ApplicationScoped
 @Alternative
-public class MockBuildScheduler implements BuildScheduler {
+public class MockBuildScheduler implements RexBuildScheduler {
 
     @Setter(onMethod_ = { @Inject })
     protected BuildTaskRepositoryMock taskRepositoryMock;
 
-    @Setter(onMethod_ = { @Inject, @RemoteBuildCoordinator })
+    @Setter(onMethod_ = { @Inject, @Remote })
     protected BuildCoordinator coordinator;
 
     @Setter

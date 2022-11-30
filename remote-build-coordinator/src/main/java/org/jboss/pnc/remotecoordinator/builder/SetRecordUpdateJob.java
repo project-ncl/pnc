@@ -24,7 +24,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.coordinator.RemoteBuildCoordinator;
+import org.jboss.pnc.spi.coordinator.Remote;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -36,7 +36,6 @@ import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -59,7 +58,7 @@ public class SetRecordUpdateJob {
     public SetRecordUpdateJob(
             BuildTaskRepository taskRepository,
             Datastore datastore,
-            @RemoteBuildCoordinator BuildCoordinator buildCoordinator) {
+            @Remote BuildCoordinator buildCoordinator) {
         this.taskRepository = taskRepository;
         this.datastore = datastore;
         this.buildCoordinator = buildCoordinator;

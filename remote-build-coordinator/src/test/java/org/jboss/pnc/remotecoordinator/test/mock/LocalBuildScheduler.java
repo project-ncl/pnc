@@ -16,14 +16,14 @@
  * limitations under the License.
  */
 
-package org.jboss.pnc.mock.coordinator;
+package org.jboss.pnc.remotecoordinator.test.mock;
 
 import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
+import org.jboss.pnc.remotecoordinator.builder.RexBuildScheduler;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.InMemory;
@@ -45,7 +45,7 @@ import java.util.function.Consumer;
  */
 @ApplicationScoped
 @Alternative
-public class LocalBuildScheduler implements BuildScheduler {
+public class LocalBuildScheduler implements RexBuildScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(LocalBuildScheduler.class);
 
