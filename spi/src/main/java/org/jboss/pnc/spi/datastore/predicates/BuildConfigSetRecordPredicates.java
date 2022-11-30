@@ -67,6 +67,6 @@ public class BuildConfigSetRecordPredicates {
     }
 
     public static Predicate<BuildConfigSetRecord> inStates(EnumSet<BuildStatus> inProgressStates) {
-        return (root, query, cb) -> root.get(BuildConfigSetRecord_.id).in(inProgressStates);
+        return (root, query, cb) -> root.get(BuildConfigSetRecord_.status).in(inProgressStates);
     }
 }
