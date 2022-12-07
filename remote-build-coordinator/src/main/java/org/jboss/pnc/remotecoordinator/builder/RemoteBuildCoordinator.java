@@ -359,7 +359,12 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             }
         }
 
-        notToBuild.forEach(task -> completeNoBuild(task, CompletionStatus.NO_REBUILD_REQUIRED));
+        notToBuild.forEach(task -> {
+            completeNoBuild(task, CompletionStatus.NO_REBUILD_REQUIRED);
+
+            // NOTE: after removal NRR task can still be referenced as a dependency of other tasks
+            buildSetTask.getBuildTasks().remove(task);
+        });
     }
 
     private void markToBuild(BuildTask task, Set<BuildTask> toBuild, Set<BuildTask> notToBuild) {
