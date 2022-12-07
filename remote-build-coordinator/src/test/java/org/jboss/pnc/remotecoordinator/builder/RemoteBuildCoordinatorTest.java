@@ -164,6 +164,14 @@ public class RemoteBuildCoordinatorTest {
                         any(Boolean.class),
                         nullable(AlignmentPreference.class),
                         anySet())).thenReturn(true);
+        when(
+                datastore.requiresRebuild(
+                        any(BuildConfigurationAudited.class),
+                        any(Boolean.class),
+                        any(Boolean.class),
+                        nullable(AlignmentPreference.class),
+                        anySet(),
+                        any())).thenReturn(true);
         when(datastore.saveBuildConfigSetRecord(any())).thenAnswer(new SaveBuildConfigSetRecordAnswer());
 
         USER.setId(1);
@@ -226,6 +234,14 @@ public class RemoteBuildCoordinatorTest {
                         any(Boolean.class),
                         nullable(AlignmentPreference.class),
                         anySet())).thenReturn(false);
+        when(
+                datastore.requiresRebuild(
+                        any(BuildConfigurationAudited.class),
+                        any(Boolean.class),
+                        any(Boolean.class),
+                        nullable(AlignmentPreference.class),
+                        anySet(),
+                        any())).thenReturn(false);
 
         BuildConfigurationAudited bca1 = new BuildConfigurationAudited();
         IdRev idRev1 = new IdRev(BC_1.getId(), BC_1.getId() * 1000 + 1);
