@@ -873,7 +873,7 @@ public class DatabaseDataInitializer {
         demoProductMilestone1.addDeliveredArtifact(importedArtifact2);
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
 
-        Map<String, String> operationParameters = new HashMap<String, String>();
+        Map<String, String> operationParameters = new HashMap<>();
         operationParameters.put("url-0", "https://github.com/project-ncl/pnc/archive/refs/tags/2.1.1.tar.gz");
         DeliverableAnalyzerOperation operation1 = DeliverableAnalyzerOperation.Builder.newBuilder()
                 .id(new Base32LongID(1000001l))

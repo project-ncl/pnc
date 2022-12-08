@@ -28,6 +28,6 @@ import lombok.ToString;
  */
 @ToString
 public enum BpmEventType {
-    RC_REPO_CREATION_ERROR, RC_REPO_CLONE_ERROR;
+    RC_REPO_CREATION_ERROR, RC_REPO_CLONE_ERROR
 
 }

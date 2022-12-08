@@ -34,7 +34,7 @@ public class CompletableFutureUtils {
      * @return combined completable future
      */
     public static <T> CompletableFuture<T> allOfOrException(CompletableFuture<T>... futures) {
-        CompletableFuture<T> failure = new CompletableFuture<T>();
+        CompletableFuture<T> failure = new CompletableFuture<>();
         for (CompletableFuture<T> f : futures) {
             f.exceptionally(ex -> {
                 failure.completeExceptionally(ex);

@@ -85,7 +85,7 @@ public class BuildExecutionConfigurationRest {
     protected AlignmentPreference alignmentPreference;
 
     public static BuildExecutionConfigurationRest valueOf(String serialized) throws IOException {
-        TypeReference<BuildExecutionConfigurationRest> type = new TypeReference<BuildExecutionConfigurationRest>() {
+        TypeReference<BuildExecutionConfigurationRest> type = new TypeReference<>() {
         };
         return JsonOutputConverterMapper.getMapper().readValue(serialized, type);
     }

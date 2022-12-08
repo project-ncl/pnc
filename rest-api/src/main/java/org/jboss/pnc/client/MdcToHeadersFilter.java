@@ -53,6 +53,6 @@ public class MdcToHeadersFilter implements ClientRequestFilter {
             }
         }
         Map<String, String> otelHeaders = MDCUtils.getOtelHeadersFromMDC();
-        otelHeaders.forEach((k, v) -> headers.add(k, v));
+        otelHeaders.forEach(headers::add);
     }
 }

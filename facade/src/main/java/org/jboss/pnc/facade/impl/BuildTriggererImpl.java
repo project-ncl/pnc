@@ -225,7 +225,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     private String selectBuildRecordIdOf(Collection<BuildTask> buildTasks, int buildConfigId) throws CoreException {
         return buildTasks.stream()
                 .filter(t -> t.getBuildConfigurationAudited().getBuildConfiguration().getId().equals(buildConfigId))
-                .map(buildTask -> buildTask.getId())
+                .map(BuildTask::getId)
                 .findAny()
                 .orElseThrow(() -> new CoreException("No build id for the triggered configuration"));
     }
