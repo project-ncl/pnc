@@ -378,7 +378,7 @@ public class HttpUtil {
             }
         }
 
-        return uri + (uri.indexOf("?") == -1 ? "?" : "&") + query;
+        return uri + (!uri.contains("?") ? "?" : "&") + query;
     }
 
     public static String composeResourceUrl(String adminRoot, String realm, String uri) {

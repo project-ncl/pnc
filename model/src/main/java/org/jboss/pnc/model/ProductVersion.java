@@ -22,6 +22,7 @@ import static org.jboss.pnc.constants.Attributes.BREW_TAG_PREFIX;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -227,11 +228,7 @@ public class ProductVersion implements GenericEntity<Integer> {
     }
 
     public void setBuildConfigurations(Set<BuildConfiguration> buildConfigurations) {
-        if (buildConfigurations == null) {
-            this.buildConfigurations = new HashSet<>();
-        } else {
-            this.buildConfigurations = buildConfigurations;
-        }
+        this.buildConfigurations = Objects.requireNonNullElseGet(buildConfigurations, HashSet::new);
     }
 
     public void addBuildConfiguration(BuildConfiguration buildConfiguration) {

@@ -192,7 +192,7 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
                 .filter(
                         buildRecord -> buildRecord.getBuildConfigurationAuditedIdRev()
                                 .equals(buildConfigurationAuditedIdRev))
-                .filter(buildRecord -> buildRecord.isTemporaryBuild())
+                .filter(BuildRecord::isTemporaryBuild)
                 .max(Comparator.comparing(BuildRecord::getSubmitTime));
 
         if (temporaryBuild) {
@@ -222,7 +222,7 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
         Optional<BuildRecord> latestTemporary = buildRecords.stream()
                 .filter(buildRecord -> buildRecord.getStatus().equals(BuildStatus.SUCCESS))
                 .filter(buildRecord -> buildRecord.getBuildConfigurationId().equals(configurationId))
-                .filter(buildRecord -> buildRecord.isTemporaryBuild())
+                .filter(BuildRecord::isTemporaryBuild)
                 .max(Comparator.comparing(BuildRecord::getSubmitTime));
 
         if (temporaryBuild) {

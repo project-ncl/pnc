@@ -47,7 +47,7 @@ public abstract class AbstractAuditRepository<Entity extends GenericEntity<ID>, 
 
     protected Revision<Entity, ID> createRevision(Object returnedEntity) {
         Entity castedEntity = (Entity) returnedEntity;
-        return new Revision<Entity, ID>() {
+        return new Revision<>() {
             @Override
             public ID getId() {
                 return castedEntity.getId();

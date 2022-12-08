@@ -724,7 +724,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         int totalPages = (int) Math.ceil((count) / (double) pageSize);
         logger.debug("TotalPages of BuildRecordInsightsCount: {}", totalPages);
 
-        List<BuildRecordInsights> content = new ArrayList<BuildRecordInsights>();
+        List<BuildRecordInsights> content = new ArrayList<>();
 
         if (count > 0) {
             int offset = pageIndex * pageSize;
@@ -1104,17 +1104,17 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
         public BuildWithDependencies(BuildTask buildTask) {
             build = buildMapper.fromBuildTask(buildTask);
-            dependencies = buildTask.getDependencies().stream().map(bt -> bt.getId()).collect(Collectors.toSet());
-            dependants = buildTask.getDependants().stream().map(bt -> bt.getId()).collect(Collectors.toSet());
+            dependencies = buildTask.getDependencies().stream().map(BuildTask::getId).collect(Collectors.toSet());
+            dependants = buildTask.getDependants().stream().map(BuildTask::getId).collect(Collectors.toSet());
         }
 
         public BuildWithDependencies(BuildRecord buildRecord) {
             build = buildMapper.toDTO(buildRecord);
             dependencies = Arrays.stream(buildRecord.getDependencyBuildRecordIds())
-                    .map(i -> BuildMapper.idMapper.toDto(i))
+                    .map(BuildMapper.idMapper::toDto)
                     .collect(Collectors.toSet());
             dependants = Arrays.stream(buildRecord.getDependentBuildRecordIds())
-                    .map(i -> BuildMapper.idMapper.toDto(i))
+                    .map(BuildMapper.idMapper::toDto)
                     .collect(Collectors.toSet());
         }
     }
