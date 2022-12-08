@@ -355,7 +355,7 @@ public class SCMRepositoryProviderImpl
                 .repositoryConfiguration(repositoryConfiguration)
                 .revision(revision);
 
-        buildConfiguration.ifPresent(bc -> repositoryCreationProcess.buildConfiguration(bc));
+        buildConfiguration.ifPresent(repositoryCreationProcess::buildConfiguration);
         task = new RepositoryCreationTask(repositoryCreationProcess.build(), jobType, globalConfig);
 
         long id = Sequence.nextId();

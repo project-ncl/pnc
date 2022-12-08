@@ -23,6 +23,7 @@ import lombok.ToString;
 import org.jboss.pnc.common.json.AbstractModuleConfig;
 
 import java.net.MalformedURLException;
+import java.util.Objects;
 
 @ToString
 public class BpmModuleConfig extends AbstractModuleConfig {
@@ -77,21 +78,12 @@ public class BpmModuleConfig extends AbstractModuleConfig {
             @JsonProperty("analyzeDeliverablesBpmProcessId") String analyzeDeliverablesBpmProcessId)
             throws MalformedURLException {
         this.analyzeDeliverablesBpmProcessId = analyzeDeliverablesBpmProcessId;
-        if (httpConnectionRequestTimeout == null) {
-            this.httpConnectionRequestTimeout = 5000; // default to 5 sec
-        } else {
-            this.httpConnectionRequestTimeout = httpConnectionRequestTimeout;
-        }
-        if (httpConnectTimeout == null) {
-            this.httpConnectTimeout = 5000; // default to 5 sec
-        } else {
-            this.httpConnectTimeout = httpConnectTimeout;
-        }
-        if (httpSocketTimeout == null) {
-            this.httpSocketTimeout = 5000; // default to 5 sec
-        } else {
-            this.httpSocketTimeout = httpSocketTimeout;
-        }
+        // default to 5 sec
+        this.httpConnectionRequestTimeout = Objects.requireNonNullElse(httpConnectionRequestTimeout, 5000);
+        // default to 5 sec
+        this.httpConnectTimeout = Objects.requireNonNullElse(httpConnectTimeout, 5000);
+        // default to 5 sec
+        this.httpSocketTimeout = Objects.requireNonNullElse(httpSocketTimeout, 5000);
         this.bpmNewBaseUrl = bpmNewBaseUrl;
         this.bpmNewDeploymentId = bpmNewDeploymentId;
         this.bpmNewBuildProcessName = bpmNewBuildProcessName;
