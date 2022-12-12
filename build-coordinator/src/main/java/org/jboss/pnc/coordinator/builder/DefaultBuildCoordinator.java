@@ -69,6 +69,7 @@ import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -80,8 +81,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
+import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 
 /**
  *
@@ -932,7 +935,12 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     @Override
     public List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId) {
-        throw new UnsupportedOperationException("To be used only with the remote build coordinator.");
+        return nullableStreamOf(buildQueue.getSubmittedBuildTasks()).filter(Objects::nonNull)
+                .filter(
+                        t -> t.getBuildSetTask() != null
+                                && Integer.valueOf(buildConfigSetRecordId).equals(t.getBuildConfigSetRecordId()))
+                .sorted(Comparator.comparing(bt -> bt.getBuildConfigurationAudited().getName()))
+                .collect(Collectors.toList());
     }
 
     @PostConstruct
