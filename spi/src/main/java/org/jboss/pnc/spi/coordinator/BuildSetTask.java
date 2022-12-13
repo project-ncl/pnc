@@ -145,6 +145,7 @@ public class BuildSetTask {
      * @param buildConfigurationAudited A BuildConfigurationAudited entity
      * @return The build task with the matching configuration, or null if there is none
      */
+    @Deprecated // used only in the tests
     public BuildTask getBuildTask(BuildConfigurationAudited buildConfigurationAudited) {
         return buildTasks.stream()
                 .filter((bt) -> bt.getBuildConfigurationAudited().equals(buildConfigurationAudited))
