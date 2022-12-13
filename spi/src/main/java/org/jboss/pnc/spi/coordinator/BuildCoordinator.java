@@ -44,21 +44,19 @@ public interface BuildCoordinator {
             User user,
             BuildOptions buildOptions) throws BuildConflictException, CoreException;
 
-    /**
-     * @deprecated It's used in the tests only
-     */
-    @Deprecated
-    BuildSetTask buildSet(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)
-            throws CoreException;
-
     BuildSetTask buildSet(
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
-            BuildOptions buildOptions) throws CoreException;
+            BuildOptions buildOptions) throws CoreException, BuildConflictException;
 
     Optional<BuildTask> getSubmittedBuildTask(String buildId);
 
+    /**
+     * List all waiting, ready and in progress tasks
+     *
+     * @return list of all build tasks in the queue
+     */
     List<BuildTask> getSubmittedBuildTasks();
 
     List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId);

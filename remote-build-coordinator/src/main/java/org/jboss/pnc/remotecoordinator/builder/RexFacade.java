@@ -1,0 +1,290 @@
+/**
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2014-2022 Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.jboss.pnc.remotecoordinator.builder;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.http.entity.ContentType;
+import org.jboss.pnc.api.constants.HttpHeaders;
+import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.auth.LoggedInUser;
+import org.jboss.pnc.bpm.model.MDCParameters;
+import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
+import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.utils.ContentIdentityManager;
+import org.jboss.pnc.remotecoordinator.BpmEndpointUrlFactory;
+import org.jboss.pnc.rex.common.enums.Mode;
+import org.jboss.pnc.rex.dto.CreateTaskDTO;
+import org.jboss.pnc.rex.dto.EdgeDTO;
+import org.jboss.pnc.rex.dto.TaskDTO;
+import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
+import org.jboss.pnc.rex.rest.parameters.TaskFilterParameters;
+import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
+import org.jboss.pnc.spi.coordinator.BuildTaskRef;
+import org.jboss.pnc.spi.datastore.BuildTaskRepository;
+import org.jboss.pnc.spi.exception.CoreException;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.core.MediaType;
+import java.io.Serializable;
+import java.net.URI;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+@ApplicationScoped
+public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
+
+    public static final EnumSet<BuildCoordinationStatus> WAITING_STATES = EnumSet.of(
+            BuildCoordinationStatus.NEW,
+            BuildCoordinationStatus.ENQUEUED,
+            BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
+
+    public static final EnumSet<BuildCoordinationStatus> RUNNING_STATES = EnumSet.of(
+            BuildCoordinationStatus.BUILDING);
+
+    public static final EnumSet<BuildCoordinationStatus> FINISHED_STATES = EnumSet.of(
+            BuildCoordinationStatus.DONE,
+            BuildCoordinationStatus.SYSTEM_ERROR,
+            BuildCoordinationStatus.DONE_WITH_ERRORS,
+            BuildCoordinationStatus.CANCELLED,
+            BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES,
+            BuildCoordinationStatus.REJECTED_ALREADY_BUILT,
+            BuildCoordinationStatus.BUILD_COMPLETED,
+            BuildCoordinationStatus.REJECTED);
+    public static final EnumSet<BuildCoordinationStatus> UNFINISHED_STATES;
+
+    static {
+        UNFINISHED_STATES = EnumSet.copyOf(WAITING_STATES);
+        UNFINISHED_STATES.addAll(RUNNING_STATES);
+    }
+
+    private GlobalModuleGroup globalConfig;
+    private BpmModuleConfig bpmConfig;
+
+    Object rexClient = null;
+
+    LoggedInUser loggedInUser;
+
+    @Deprecated
+    public RexFacade() { // CDI workaround
+    }
+
+    @Inject
+    public RexFacade(GlobalModuleGroup globalConfig, BpmModuleConfig bpmConfig, LoggedInUser loggedInUser) {
+        this.globalConfig = globalConfig;
+        this.bpmConfig = bpmConfig;
+        this.loggedInUser = loggedInUser;
+    }
+
+    public void startBuilding(BuildTask buildTask) throws CoreException {
+        BpmEndpointUrlFactory bpmUrl = new BpmEndpointUrlFactory(bpmConfig.getBpmNewBaseUrl());
+
+        Set<@NotNull @Valid EdgeDTO> edges = new HashSet<>();
+        Map<@NotBlank String, @NotNull @Valid CreateTaskDTO> vertices = new HashMap<>();
+
+        boolean buildDependencies = buildTask.getBuildOptions().isBuildDependencies();
+
+        collectEdgesAndVertices(buildTask, bpmUrl, edges, vertices, buildDependencies);
+        CreateGraphRequest createGraphRequest = new CreateGraphRequest(edges, vertices);
+        rexClient.start(createGraphRequest);
+    }
+
+    private void collectEdgesAndVertices(
+            BuildTask buildTask,
+            BpmEndpointUrlFactory bpmUrl,
+            Set<@NotNull @Valid EdgeDTO> edges,
+            Map<@NotBlank String, @NotNull @Valid CreateTaskDTO> vertices,
+            boolean buildDependencies) throws CoreException {
+        vertices.put(buildTask.getId(), getCreateTaskDTO(bpmUrl, buildTask));
+        for (BuildTask dependency : buildTask.getDependencies()) {
+            if (buildDependencies) {
+                collectEdgesAndVertices(dependency, bpmUrl, edges, vertices, true);
+            }
+            //TODO Jan, is this ok ?
+            // Create edges also for the dependencies not present in the buildSetTask to link them to potentially
+            // already submitted tasks.
+            EdgeDTO edge = new EdgeDTO(buildTask.getId(), dependency.getId());
+            edges.add(edge);
+        }
+    }
+
+    @Override
+    public void startBuilding(BuildSetTask buildSetTask) throws CoreException {
+        BpmEndpointUrlFactory bpmUrl = new BpmEndpointUrlFactory(bpmConfig.getBpmNewBaseUrl());
+
+        Set<@NotNull @Valid EdgeDTO> edges = new HashSet<>();
+        Map<@NotBlank String, @NotNull @Valid CreateTaskDTO> vertices = new HashMap<>();
+
+        for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
+            vertices.put(buildTask.getId(), getCreateTaskDTO(bpmUrl, buildTask));
+            for (BuildTask dependency : buildTask.getDependencies()) {
+                //TODO is this ok ?
+                // Create edges also for the dependencies not present in the buildSetTask to link them to potentially
+                // already submitted tasks.
+                EdgeDTO edge = new EdgeDTO(buildTask.getId(), dependency.getId());
+                edges.add(edge);
+            }
+        }
+        CreateGraphRequest createGraphRequest = new CreateGraphRequest(edges, vertices);
+        rexClient.start(createGraphRequest, getLoginToken(buildSetTask));
+    }
+
+    @Override
+    public boolean cancel(BuildTask buildTask) throws CoreException {
+        return rexClient.cancel(buildTask.getId(), loggedInUser.getTokenString());
+    }
+
+    @Override
+    public List<BuildTask> getBuildTasksByBCSRId(Integer buildConfigSetRecordId) {
+        // used by getBuildIdsInTheGroup
+        return null;
+    }
+
+    private Set<TaskDTO> getBuildTasksInState(EnumSet<BuildCoordinationStatus> states) {
+        TaskFilterParameters taskFilterParameters = toTaskFilterParameters(states);
+        return rexClient.getAll(taskFilterParameters);
+    }
+
+    @Override
+    @Deprecated //only used in the tests
+    public Collection<BuildTaskRef> getAll() {
+        return null;
+    }
+
+    @Override
+    public Collection<BuildTaskRef> getUnfinishedTasks() {
+        Set<BuildTaskRef> runningBuildTasks = new HashSet<>();
+        Set<TaskDTO> unfinishedBuildTasks = getBuildTasksInState(UNFINISHED_STATES);
+        unfinishedBuildTasks.forEach(t -> {
+            IdRev idRev = ConstraintMapper.toIdRev(t.getConstraint());
+            String buildId = t.getName();
+            String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
+//            BuildCoordinationStatus status = toBuildCordinationStatus(t.getState());
+
+            BuildTaskRef buildTask = new DefaultBuildTaskRef(buildId, idRev, buildContentId);
+            runningBuildTasks.add(buildTask);
+        });
+        return runningBuildTasks;
+    }
+
+    @Override
+    @Deprecated
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    @Deprecated
+    public String getDebugInfo() {
+        return null;
+    }
+
+    private String getLoginToken(BuildSetTask buildSetTask) {
+        return buildSetTask.getBuildTasks().stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("There are no builds in the set."))
+                .getUser().getLoginToken();
+    }
+
+    private TaskFilterParameters toTaskFilterParameters(EnumSet<BuildCoordinationStatus> states) {
+        TaskFilterParameters taskFilterParameters = new TaskFilterParameters();
+
+        Boolean finished =  CollectionUtils.containsAny(FINISHED_STATES, states);
+        taskFilterParameters.setFinished(finished);
+
+        Boolean running = CollectionUtils.containsAny(RUNNING_STATES, states);
+        taskFilterParameters.setRunning(running);
+
+        Boolean waiting = CollectionUtils.containsAny(WAITING_STATES, states);
+        taskFilterParameters.setWaiting(waiting);
+        return taskFilterParameters;
+    }
+
+    private CreateTaskDTO getCreateTaskDTO(BpmEndpointUrlFactory bpmUrlFactory, BuildTask buildTask) throws CoreException {
+        String loginToken = buildTask.getUser().getLoginToken();
+        BpmBuildTask bpmBuildTask = new BpmBuildTask(buildTask, globalConfig);
+        Map<String, Serializable> bpmTask = Collections.singletonMap("processParameters", bpmBuildTask.getProcessParameters());
+        Map<String, Object> processParameters = new HashMap<>();
+        processParameters.put("auth", Collections.singletonMap("token", loginToken));
+        processParameters.put("mdc", new MDCParameters());
+        processParameters.put("task", bpmTask);
+
+        Map<String, Map<String, Object>> bpmRequestBody = Collections.singletonMap("initData", processParameters);
+
+        List<Request.Header> headers = List.of(
+                new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),
+                new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON),
+                new Request.Header(HttpHeaders.AUTHORIZATION_STRING, "Bearer " + loginToken)
+        );
+        Request remoteStart = bpmUrlFactory.startProcessInstance(
+                bpmConfig.getBpmNewDeploymentId(),
+                bpmConfig.getBpmNewBuildProcessName(),
+                buildTask.getId(),
+                headers,
+                bpmRequestBody);
+
+        Request remoteCancel = bpmUrlFactory.processInstanceSignalByCorrelation(
+                bpmConfig.getBpmNewDeploymentId(),
+                buildTask.getId(),
+                "CancelAll",
+                headers);
+
+        Request callback = new Request(Request.Method.POST, URI.create(globalConfig.getPncUrl() + ), headers);
+
+        CreateTaskDTO createTaskDTO = new CreateTaskDTO(
+                buildTask.getId(),
+                ConstraintMapper.toConstraint(buildTask.getBuildConfigurationAudited().getIdRev()),
+                remoteStart,
+                remoteCancel,
+                callback,
+                Mode.ACTIVE
+        );
+        return createTaskDTO;
+    }
+
+    private static class ConstraintMapper {
+
+        private static String toConstraint(IdRev idRev) {
+            return idRev.getId() + "-" + idRev.getRev();
+        }
+
+        private static IdRev toIdRev(String constraint) {
+            String[] split = constraint.split("-");
+            return new IdRev(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+        }
+    }
+
+}
