@@ -17,31 +17,37 @@
  */
 package org.jboss.pnc.spi.datastore;
 
-import org.jboss.pnc.enums.BuildCoordinationStatus;
-import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 public interface BuildTaskRepository {
 
-    BuildTask getTask(String id);
-
-    Optional<BuildTask> getTask(BuildConfigurationAudited buildConfigAudited, Set<BuildCoordinationStatus> states);
-
-    List<BuildTask> getBuildTasksInState(Set<BuildCoordinationStatus> states);
+    // TODO might not be required, used only while processing task completion
+//    Optional<BuildTask> getTask(String id);
 
     List<BuildTask> getBuildTasksByBCSRId(Integer buildConfigSetRecordId);
 
-    Collection<BuildTask> getAll();
+    /**
+     * @deprecated Used for tests only
+     */
+    @Deprecated // used in tests only
+    Collection<BuildTaskRef> getAll();
 
-    Collection<BuildTask> getUnfinishedTasks();
+    Collection<BuildTaskRef> getUnfinishedTasks();
 
+    /**
+     * @deprecated Used for tests only
+     */
+    @Deprecated
     boolean isEmpty();
 
-    // TODO do we still need this?
+    /**
+     * @deprecated if needed debug info should be provided by Rex
+     */
+    @Deprecated
     String getDebugInfo();
+
 }

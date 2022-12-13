@@ -51,9 +51,19 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>moduleconfig</artifactId>
     </dependency>
-    <dependency>
+    <dependency> <!-- TODO remove dependecy when doing a clean-up of direct -->
       <groupId>org.jboss.pnc</groupId>
       <artifactId>bpm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.rex</groupId>
+      <artifactId>dto</artifactId>
+      <version>0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.rex</groupId>
+      <artifactId>core</artifactId>
+      <version>0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>

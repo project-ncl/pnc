@@ -15,15 +15,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.remotecoordinator.builder;
+package org.jboss.pnc.spi.coordinator;
 
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.model.IdRev;
 
-public interface RexBuildScheduler {
+public interface BuildTaskRef {
+    String getId();
 
-    void startBuilding(BuildSetTask buildSetTask) throws CoreException;
+    IdRev getIdRev();
 
-    boolean cancel(BuildTask buildTask) throws CoreException;
+    String getContentId();
+
 }
