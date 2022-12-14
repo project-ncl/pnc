@@ -176,7 +176,7 @@ public class StatusUpdatesTest {
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
-        BuildSetTask setTask = buildTasksInitializer.createBuildSetTask(
+        BuildSetTask setTask = buildTasksInitializer.createBuildGraph(
                 buildConfigurationSet,
                 user,
                 buildOptions,

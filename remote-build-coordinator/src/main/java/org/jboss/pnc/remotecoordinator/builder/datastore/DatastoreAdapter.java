@@ -499,6 +499,7 @@ public class DatastoreAdapter {
                 processedDependenciesCache);
     }
 
+    @Deprecated
     public boolean requiresRebuild(BuildTask task, Set<Integer> processedDependenciesCache) {
         return datastore.requiresRebuild(
                 task.getBuildConfigurationAudited(),

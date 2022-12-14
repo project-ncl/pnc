@@ -20,25 +20,21 @@ package org.jboss.pnc.remotecoordinator.builder;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.model.utils.ContentIdentityManager;
+import org.jboss.pnc.remotecoordinator.BuildGraph;
+import org.jboss.pnc.remotecoordinator.RemoteBuildTask;
+import org.jboss.pnc.remotecoordinator.TaskEdge;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -48,7 +44,7 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class BuildTasksInitializer {
+public class BuildTasksInitializer { // TODO update docs
 
     private final Logger log = LoggerFactory.getLogger(BuildTasksInitializer.class);
 
@@ -61,16 +57,11 @@ public class BuildTasksInitializer {
         this.temporaryBuildLifespanDays = temporaryBuildLifespanDays;
     }
 
-    public BuildSetTask createBuildSetTask(
+    public BuildGraph createBuildGraph(
             BuildConfigurationAudited buildConfigurationAudited,
             User user,
             BuildOptions buildOptions,
             Collection<BuildTaskRef> submittedBuildTasks) {
-
-        BuildSetTask buildSetTask = BuildSetTask.Builder.newBuilder()
-                .buildOptions(buildOptions)
-                .startTime(new Date())
-                .build();
 
         Set<BuildConfigurationAudited> toBuild = new HashSet<>();
         collectBuildTasks(buildConfigurationAudited, buildOptions, toBuild);
@@ -79,23 +70,7 @@ public class BuildTasksInitializer {
                 buildConfigurationAudited,
                 toBuild.stream().map(BuildConfigurationAudited::toString).collect(Collectors.joining(", ")));
 
-        createNewBuildTasksFromBCAs(
-                buildSetTask,
-                user,
-                buildConfigurationAudited.getBuildConfiguration().getCurrentProductMilestone(),
-                toBuild,
-                submittedBuildTasks);
-        //TODO Loop again to set dependencies
-        for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            buildSetTask.addBuildTask(buildTask);
-            for (BuildTask checkDepBuildTask : buildSetTask.getBuildTasks()) {
-                if (buildTask.hasDirectConfigDependencyOn(checkDepBuildTask)) {
-                    buildTask.addDependency(checkDepBuildTask);
-                }
-            }
-        }
-
-        return buildSetTask;
+        return doCreateBuildGraph(user, buildOptions, submittedBuildTasks, toBuild);
     }
 
     private void collectBuildTasks(
@@ -207,13 +182,12 @@ public class BuildTasksInitializer {
      * @return Prepared BuildSetTask
      * @throws CoreException Thrown if the BuildConfigSetRecord cannot be stored
      */
-    public BuildSetTask createBuildSetTask(
+    public BuildGraph createBuildGraph(
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
             BuildOptions buildOptions,
             Collection<BuildTaskRef> submittedBuildTasks) {
-        BuildSetTask buildSetTask = initBuildSetTask(buildConfigurationSet, user, buildOptions);
 
         Set<BuildConfigurationAudited> buildConfigurationAuditeds = new HashSet<>();
         for (BuildConfiguration buildConfiguration : datastoreAdapter.getBuildConfigurations(buildConfigurationSet)) {
@@ -226,94 +200,64 @@ public class BuildTasksInitializer {
             buildConfigurationAuditeds.add(buildConfigurationAudited);
         }
 
-        // initializeBuildTasksInSet
         log.debug(
                 "Initializing BuildTasks In Set for BuildConfigurationAuditeds: {}.",
                 buildConfigurationAuditeds.stream()
                         .map(BuildConfigurationAudited::toString)
                         .collect(Collectors.joining("; ")));
-        Collection<BuildTask> newBuildTasksFromBCAs = createNewBuildTasksFromBCAs(
-                buildSetTask,
-                user,
-                buildConfigurationSet.getCurrentProductMilestone(),
-                buildConfigurationAuditeds,
-                submittedBuildTasks);
 
-        //TODO Loop again to set dependencies
-        for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            buildSetTask.addBuildTask(buildTask);
-            for (BuildTask checkDepBuildTask : buildSetTask.getBuildTasks()) {
-                if (buildTask.hasDirectConfigDependencyOn(checkDepBuildTask)) {
-                    buildTask.addDependency(checkDepBuildTask);
-                }
-            }
-        }
-        return buildSetTask;
+        return doCreateBuildGraph(user, buildOptions, submittedBuildTasks, buildConfigurationAuditeds);
     }
 
-    private BuildSetTask initBuildSetTask(
-            BuildConfigurationSet buildConfigurationSet,
+    private BuildGraph doCreateBuildGraph(
             User user,
-            BuildOptions buildOptions) {
-
-        BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
-                .buildConfigurationSet(buildConfigurationSet)
-                .user(user)
-                .startTime(new Date())
-                .status(org.jboss.pnc.enums.BuildStatus.BUILDING)
-                .temporaryBuild(buildOptions.isTemporaryBuild())
-                .alignmentPreference(buildOptions.getAlignmentPreference())
-                .build();
-
-        return BuildSetTask.Builder.newBuilder()
-                .buildConfigSetRecord(buildConfigSetRecord)
-                .buildOptions(buildOptions)
-                .build();
-    }
-
-    /**
-     * Creates build tasks from {@link BuildConfigurationAudited} collection.
-     * Skip already submitted tasks.
-     *
-     * @param buildSetTask The build set task which will contain the build tasks. This must already have initialized the
-     *        BuildConfigSet, BuildConfigSetRecord, Milestone, etc.
-     */
-    private Collection<BuildTask> createNewBuildTasksFromBCAs(
-            BuildSetTask buildSetTask,
-            User user,
-            ProductMilestone productMilestone,
-            Set<BuildConfigurationAudited> toBuild,
-            Collection<BuildTaskRef> alreadySubmittedBuildTasks) {
-
-        Set<BuildTask> tasks = new HashSet<>();
+            BuildOptions buildOptions,
+            Collection<BuildTaskRef> submittedBuildTasks,
+            Set<BuildConfigurationAudited> toBuild) {
+        Collection<RemoteBuildTask> buildTasks = new HashSet<>();
+        Collection<TaskEdge> taskEdges = new HashSet<>();
 
         for (BuildConfigurationAudited buildConfigAudited : toBuild) {
-            Optional<BuildTaskRef> taskOptional = alreadySubmittedBuildTasks.stream()
+            Optional<BuildTaskRef> taskOptional = submittedBuildTasks.stream()
                     .filter(bt -> bt.getIdRev().equals(buildConfigAudited.getIdRev()))
                     .findAny();
 
-            if (!taskOptional.isPresent()) {
-                String buildId = Sequence.nextBase32Id();
-                String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
+            RemoteBuildTask remoteBuildTask;
+            if (taskOptional.isPresent()) {
+                BuildTaskRef buildTaskRef = taskOptional.get();
+                remoteBuildTask = new RemoteBuildTask(
+                        buildTaskRef.getId(),
+                        buildConfigAudited, buildOptions,
+                        user.getId().toString(),
+                        true);
+            } else {
+                remoteBuildTask = new RemoteBuildTask(Sequence.nextBase32Id(), buildConfigAudited,
+                        buildOptions, user.getId().toString(), false);
+            }
+            buildTasks.add(remoteBuildTask);
+        }
 
-                Optional<String> requestContext = MDCUtils.getRequestContext();
-                BuildTask buildTask = BuildTask.build(
-                        buildConfigAudited,
-                        buildSetTask.getBuildOptions(),
-                        user,
-                        buildId,
-                        buildSetTask,
-                        buildSetTask.getStartTime(),
-                        productMilestone,
-                        buildContentId,
-                        requestContext.orElse(null));
-                log.debug(
-                        "Created new buildTask {} for BuildConfigurationAudited {}.",
-                        buildTask,
-                        buildConfigAudited);
-                tasks.add(buildTask);
+        for (RemoteBuildTask parent : buildTasks) {
+            for (RemoteBuildTask child : buildTasks) {
+                if (hasDirectConfigDependencyOn(parent.getBuildConfigurationAudited(), child.getBuildConfigurationAudited())) {
+                    taskEdges.add(new TaskEdge(parent.getId(), child.getId()));
+                }
             }
         }
-        return tasks;
+        return new BuildGraph(buildTasks, taskEdges);
+    }
+
+    public boolean hasDirectConfigDependencyOn(BuildConfigurationAudited parent, BuildConfigurationAudited child) {
+        if (child == null || child.equals(parent)) {
+            return false;
+        }
+
+        BuildConfiguration buildConfiguration = parent.getBuildConfiguration();
+        if (buildConfiguration == null || buildConfiguration.getDependencies() == null) {
+            return false;
+        }
+
+        return buildConfiguration.getDependencies()
+                .contains(child.getBuildConfiguration());
     }
 }

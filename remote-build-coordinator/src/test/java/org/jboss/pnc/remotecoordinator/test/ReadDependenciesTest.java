@@ -91,7 +91,7 @@ public class ReadDependenciesTest extends ProjectBuilder {
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
 
-        return buildTasksInitializer.createBuildSetTask(
+        return buildTasksInitializer.createBuildGraph(
                 buildConfigurationSet,
                 user,
                 buildOptions,
