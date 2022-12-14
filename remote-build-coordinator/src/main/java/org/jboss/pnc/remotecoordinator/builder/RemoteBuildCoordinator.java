@@ -21,6 +21,7 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Date.ExpiresDate;
+import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -60,6 +61,8 @@ import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.repour.RepourResult;
+import org.jboss.util.graph.Graph;
+import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,7 +180,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
         checkAllRunning(Collections.singleton(buildConfigurationAudited), unfinishedTasks);
 
-        BuildGraph buildGraph = buildTasksInitializer.createBuildGraph(
+        Graph<RemoteBuildTask> buildGraph = buildTasksInitializer.createBuildGraph(
                 buildConfigurationAudited,
                 user,
                 buildOptions,
@@ -191,7 +194,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         } else {
             noRebuildTasks = removeNRRTasks(buildGraph, buildOptions);
         }
-        if (!buildGraph.getBuildTasks().isEmpty()) {
+        if (!buildGraph.isEmpty()) {
             buildScheduler.startBuilding(buildGraph);
         }
         // save NRR records
@@ -384,13 +387,14 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
      *
      * @return NO_REBUILD_REQUIRED tasks
      */
-    private Collection<RemoteBuildTask> removeNRRTasks(BuildGraph buildGraph, BuildOptions buildOptions){
+    private Collection<RemoteBuildTask> removeNRRTasks(Graph<RemoteBuildTask> buildGraph, BuildOptions buildOptions){
         Set<RemoteBuildTask> toBuild = new HashSet<>();
         Set<RemoteBuildTask> notToBuild = new HashSet<>();
 
-        List<RemoteBuildTask> buildTasks = buildGraph.getBuildTasksChildrenFirst();
-        for (RemoteBuildTask task : buildTasks) {
-            if (CollectionUtils.containsAny(buildGraph.getChildren(task), toBuild) || datastoreAdapter.requiresRebuild(
+        List<Vertex<RemoteBuildTask>> buildTasks = GraphUtils.getChildrenFirst(buildGraph);
+        for (Vertex<RemoteBuildTask> task : buildTasks) {
+            List outgoingEdges = task.getOutgoingEdges();
+            if (CollectionUtils.containsAny(outgoingEdges, toBuild) || datastoreAdapter.requiresRebuild(
                     task.getBuildConfigurationAudited(),
                     buildOptions.isImplicitDependenciesCheck(),
                     buildOptions.isTemporaryBuild(),
@@ -763,14 +767,14 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     /**
      * @throws BuildConflictException
      */
-    private void checkIfAnyDependencyOfAlreadyRunningIsSubmitted(BuildGraph buildGraph) throws BuildConflictException {
-        for (RemoteBuildTask parent : buildGraph.getBuildTasks()) {
-            if (parent.isAlreadyRunning()) {
-                Collection<RemoteBuildTask> children = buildGraph.getChildren(parent);
+    private void checkIfAnyDependencyOfAlreadyRunningIsSubmitted(Graph<RemoteBuildTask> buildGraph) throws BuildConflictException {
+        for (Vertex<RemoteBuildTask> parent : buildGraph.getVerticies()) {
+            if (parent.getData().isAlreadyRunning()) {
+                Collection<RemoteBuildTask> children = parent.getOutgoingEdges();
                 for (RemoteBuildTask child : children) {
                     if (!child.isAlreadyRunning()) {
                         throw new BuildConflictException(
-                                "Submitted build " + parent.getBuildConfigurationAudited().getName()
+                                "Submitted build " + parent.getData().getBuildConfigurationAudited().getName()
                                         + " is a dependency of already running build: "
                                         + child.getBuildConfigurationAudited().getName());
                     }
