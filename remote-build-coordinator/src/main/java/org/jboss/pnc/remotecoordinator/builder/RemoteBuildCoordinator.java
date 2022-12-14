@@ -18,6 +18,7 @@
 package org.jboss.pnc.remotecoordinator.builder;
 
 import lombok.AllArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -38,6 +39,8 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.remotecoordinator.BuildCoordinationException;
+import org.jboss.pnc.remotecoordinator.BuildGraph;
+import org.jboss.pnc.remotecoordinator.RemoteBuildTask;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
@@ -76,9 +79,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-
-import static org.jboss.pnc.common.util.CollectionUtils.hasCycle;
 
 /**
  * Individual build submitted:
@@ -175,23 +177,48 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
         checkAllRunning(Collections.singleton(buildConfigurationAudited), unfinishedTasks);
 
-        BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
+        BuildGraph buildGraph = buildTasksInitializer.createBuildGraph(
                 buildConfigurationAudited,
                 user,
-                buildOptions, unfinishedTasks);
+                buildOptions,
+                unfinishedTasks);
 
-        Set<BuildTask> noRebuildTasks;
-        if (!buildSetTask.getBuildOptions().isForceRebuild()) {
-            noRebuildTasks = removeNRRTasks(buildSetTask);
-        } else {
+        checkIfAnyDependencyOfAlreadyRunningIsSubmitted(buildGraph);
+
+        Collection<RemoteBuildTask> noRebuildTasks;
+        if (buildOptions.isForceRebuild()) {
             noRebuildTasks = Collections.emptySet();
+        } else {
+            noRebuildTasks = removeNRRTasks(buildGraph, buildOptions);
         }
-        if (!buildSetTask.getBuildTasks().isEmpty()) {
-            buildScheduler.startBuilding(buildSetTask);
+        if (!buildGraph.getBuildTasks().isEmpty()) {
+            buildScheduler.startBuilding(buildGraph);
         }
         // save NRR records
         noRebuildTasks.forEach(task -> completeNoBuild(task, CompletionStatus.NO_REBUILD_REQUIRED));
 
+        String id = buildGraph.getBuildTasks()
+                .stream()
+                .filter(t -> t.getBuildConfigurationAudited().getIdRev().equals(buildConfigurationAudited.getIdRev()))
+                .findAny()
+                .orElseThrow(() -> new CoreException(
+                        "Missing task with IdRev: " + buildConfigurationAudited.getIdRev()))
+                .getId();
+
+        // return ID only
+        BuildSetTask buildSetTask = BuildSetTask.Builder.newBuilder().build();
+        BuildTask buildTask = BuildTask.build(
+                buildConfigurationAudited,
+                null,
+                null,
+                id,
+                null,
+                new Date(),
+                null,
+                null,
+                null);
+
+        buildSetTask.addBuildTask(buildTask);
         return buildSetTask;
     }
 
@@ -241,39 +268,45 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
         checkAllRunning(buildConfigurationAuditedsMap.values(), unfinishedTasks);
 
-        BuildSetTask buildSetTask = buildTasksInitializer.createBuildSetTask(
-                buildConfigurationSet,
+        BuildGraph buildGraph = buildTasksInitializer.createBuildGraph(buildConfigurationSet,
                 buildConfigurationAuditedsMap,
                 user,
-                buildOptions, unfinishedTasks);
-
-        Optional<ValidationStatus> validationFailedStatus = validateBuildConfigurationSetTask(
-                buildConfigurationSet,
                 buildOptions,
-                buildSetTask,
                 unfinishedTasks);
+        checkIfAnyDependencyOfAlreadyRunningIsSubmitted(buildGraph);
 
+        Optional<ValidationStatus> validationFailedStatus = validateBuildConfigurationSetTask(buildGraph, buildOptions);
+
+        BuildConfigSetRecord buildConfigSetRecord = null;
         if (validationFailedStatus.isPresent()) {
             ValidationStatus validationStatus = validationFailedStatus.get();
-            updateStatusAndStoreBuildBuildConfingSetRecord(
-                    buildSetTask,
+            storeBuildBuildConfingSetRecord(buildConfigurationSet,
                     validationStatus.buildStatus,
-                    validationStatus.description);
+                    validationStatus.description,
+                    user,
+                    buildOptions);
         } else {
-            Set<BuildTask> noRebuildTasks;
-            if (!buildSetTask.getBuildOptions().isForceRebuild()) {
-                noRebuildTasks = removeNRRTasks(buildSetTask);
+            Collection<RemoteBuildTask> noRebuildTasks;
+            if (!buildOptions.isForceRebuild()) {
+                noRebuildTasks = removeNRRTasks(buildGraph, buildOptions);
             } else {
                 noRebuildTasks = Collections.emptySet();
             }
-            buildScheduler.startBuilding(buildSetTask);
+            buildScheduler.startBuilding(buildGraph);
+
             // save NRR records
             noRebuildTasks.forEach(task -> completeNoBuild(task, CompletionStatus.NO_REBUILD_REQUIRED));
 
-            updateStatusAndStoreBuildBuildConfingSetRecord(buildSetTask, BuildStatus.BUILDING, null);
+            buildConfigSetRecord = storeBuildBuildConfingSetRecord(buildConfigurationSet,
+                    BuildStatus.BUILDING,
+                    null,
+                    user,
+                    buildOptions);
         }
-
-        return buildSetTask;
+        // return BCSR.ID only
+        return BuildSetTask.Builder.newBuilder()
+                .buildConfigSetRecord(buildConfigSetRecord)
+                .build();
     }
 
     @Override
@@ -286,34 +319,30 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
      * Returns a BuildStatus if no build is required or not possible, otherwise Optional.empty is returned.
      */
     private Optional<ValidationStatus> validateBuildConfigurationSetTask(
-            BuildConfigurationSet buildConfigurationSet,
-            BuildOptions buildOptions,
-            BuildSetTask buildSetTask,
-            Collection<BuildTaskRef> unfinishedTasks) throws CoreException {
+            BuildGraph buildGraph,
+            BuildOptions buildOptions) throws CoreException {
 
         // Check if the given build set task is empty and update the status message appropriately
-        if (buildSetTask.getBuildTasks() == null || buildSetTask.getBuildTasks().isEmpty()) {
+        if (buildGraph.getBuildTasks().isEmpty()) {
             return Optional.of(new ValidationStatus(BuildStatus.REJECTED, "Build config set is empty"));
         }
 
         // check if no rebuild is required
         if (!buildOptions.isForceRebuild()) {
-            boolean noRebuildsRequired = checkIfNoRebuildIsRequired(
-                    buildConfigurationSet,
+            boolean noRebuildsRequired = checkIfNoRebuildIsRequired(buildGraph,
                     buildOptions.isImplicitDependenciesCheck(),
                     buildOptions.isTemporaryBuild(),
                     buildOptions.getAlignmentPreference());
             if (noRebuildsRequired) {
-                return Optional.of(new ValidationStatus(BuildStatus.NO_REBUILD_REQUIRED, "All build configs were previously built"));
+                return Optional.of(new ValidationStatus(BuildStatus.NO_REBUILD_REQUIRED,
+                        "All build configs were previously built"));
             }
         }
 
         // check if there are cycles
-        Set<BuildTask> buildTasks = buildSetTask.getBuildTasks();
-        if (hasCycle(buildTasks, BuildTask::getDependencies)) {
+        if (!buildGraph.isDAG()) {
             return Optional.of(new ValidationStatus(BuildStatus.REJECTED, "Build config set has a cycle"));
         }
-
         return Optional.empty();
     }
 
@@ -323,32 +352,31 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         BuildStatus buildStatus;
         String description;
     }
+
     /**
      * Returns true if no build configurations needs a rebuild
      */
-    private boolean checkIfNoRebuildIsRequired(
-            BuildConfigurationSet buildConfigurationSet,
-            boolean checkImplicitDependencies,
-            boolean temporaryBuild,
-            AlignmentPreference alignmentPreference) throws CoreException {
-        Set<BuildConfiguration> buildConfigurations = buildConfigurationSet.getBuildConfigurations();
-        int requiresRebuild = buildConfigurations.size();
-        log.debug("There are {} configurations in a set {}.", requiresRebuild, buildConfigurationSet.getId());
+    private boolean checkIfNoRebuildIsRequired (BuildGraph buildGraph, boolean checkImplicitDependencies, boolean temporaryBuild, AlignmentPreference alignmentPreference)
+            throws CoreException {
+        Collection<RemoteBuildTask> buildTasks = buildGraph.getBuildTasks();
+        AtomicLong requiresRebuild = new AtomicLong(0);
 
         Set<Integer> processedDependenciesCache = new HashSet<>();
-        for (BuildConfiguration buildConfiguration : buildConfigurations) {
-            BuildConfigurationAudited buildConfigurationAudited = datastoreAdapter
-                    .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
-            if (!datastoreAdapter.requiresRebuild(
-                    buildConfigurationAudited,
+
+        buildTasks.stream().filter(bt -> !bt.isAlreadyRunning()).forEach(buildTask -> {
+            BuildConfiguration buildConfiguration = buildTask.getBuildConfigurationAudited().getBuildConfiguration();
+            BuildConfigurationAudited buildConfigurationAudited = datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(
+                    buildConfiguration.getId());
+            if (!datastoreAdapter.requiresRebuild(buildConfigurationAudited,
                     checkImplicitDependencies,
                     temporaryBuild,
                     alignmentPreference,
                     processedDependenciesCache)) {
-                requiresRebuild--;
+                requiresRebuild.incrementAndGet();
             }
-        }
-        return (!buildConfigurations.isEmpty() && requiresRebuild == 0);
+        });
+        log.debug("{} configurations require a rebuild.", requiresRebuild);
+        return requiresRebuild.get() == 0;
     }
 
     /**
@@ -356,45 +384,34 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
      *
      * @return NO_REBUILD_REQUIRED tasks
      */
-    private Set<BuildTask> removeNRRTasks(BuildSetTask buildSetTask) {
-        Set<BuildTask> toBuild = new HashSet<>();
-        Set<BuildTask> notToBuild = new HashSet<>();
+    private Collection<RemoteBuildTask> removeNRRTasks(BuildGraph buildGraph, BuildOptions buildOptions){
+        Set<RemoteBuildTask> toBuild = new HashSet<>();
+        Set<RemoteBuildTask> notToBuild = new HashSet<>();
 
-        List<BuildTask> buildTasks = buildSetTask.getBuildTasks()
-                .stream()
-                .sorted(this::dependantsFirst) //TODO jan ? do we need markDependantsToBuild if we order the collection?
-                .collect(Collectors.toList());
-        for (BuildTask task : buildTasks) {
-            if (!toBuild.contains(task) && !datastoreAdapter.requiresRebuild(task, new HashSet<>())) {
-                notToBuild.add(task);
+        List<RemoteBuildTask> buildTasks = buildGraph.getBuildTasksChildrenFirst();
+        for (RemoteBuildTask task : buildTasks) {
+            if (CollectionUtils.containsAny(buildGraph.getChildren(task), toBuild) || datastoreAdapter.requiresRebuild(
+                    task.getBuildConfigurationAudited(),
+                    buildOptions.isImplicitDependenciesCheck(),
+                    buildOptions.isTemporaryBuild(),
+                    buildOptions.getAlignmentPreference(),
+                    new HashSet<>()
+            )) {
+                toBuild.add(task);
             } else {
-                markToBuild(task, toBuild, notToBuild);
+                notToBuild.add(task);
             }
         }
 
         notToBuild.forEach(task -> {
             // NOTE: after removal NRR task can still be referenced as a dependency of other tasks
-            buildTasks.remove(task);
+            buildGraph.remove(task);
         });
         return notToBuild;
     }
 
-    private void markToBuild(BuildTask task, Set<BuildTask> toBuild, Set<BuildTask> notToBuild) {
-        toBuild.add(task);
-        notToBuild.remove(task);
-        markDependantsToBuild(task, toBuild, notToBuild);
-    }
-
-    private void markDependantsToBuild(BuildTask task, Set<BuildTask> toBuild, Set<BuildTask> notToBuild) {
-        for (BuildTask dependant : task.getDependants()) {
-            if (!toBuild.contains(dependant)) {
-                markToBuild(dependant, toBuild, notToBuild);
-            }
-        }
-    }
-
     @Override
-    public boolean cancel(String buildTaskId) throws CoreException {
+    public boolean cancel (String buildTaskId) throws CoreException { //TODO
         // Logging MDC must be set before calling
         Optional<BuildTask> taskOptional = getSubmittedBuildTasks().stream()
                 .filter(buildTask -> buildTask.getId().equals(buildTaskId))
@@ -418,25 +435,23 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    @Override
-    public Optional<BuildTaskContext> getMDCMeta(String buildTaskId) {
+    @Override public Optional<BuildTaskContext> getMDCMeta (String buildTaskId){
         return getSubmittedBuildTasks().stream()
                 .filter(buildTask -> buildTaskId.equals(buildTask.getId()))
                 .map(this::getMDCMeta)
                 .findAny();
     }
 
-    private BuildTaskContext getMDCMeta(BuildTask buildTask) {
+    private BuildTaskContext getMDCMeta (BuildTask buildTask){
         boolean temporaryBuild = buildTask.getBuildOptions().isTemporaryBuild();
-        return new BuildTaskContext(
-                buildTask.getContentId(),
+        return new BuildTaskContext(buildTask.getContentId(),
                 buildTask.getUser().getId().toString(),
                 temporaryBuild,
                 ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild));
     }
 
     @Override
-    public boolean cancelSet(int buildConfigSetRecordId) {
+    public boolean cancelSet ( int buildConfigSetRecordId){ //TODO
         BuildConfigSetRecord record = datastoreAdapter.getBuildCongigSetRecordById(buildConfigSetRecordId);
         if (record == null) {
             log.error("Could not find buildConfigSetRecord with id : {}", buildConfigSetRecordId);
@@ -460,7 +475,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         return true;
     }
 
-    private void monitorCancellation(BuildTask buildTask) {
+    private void monitorCancellation (BuildTask buildTask){
         int cancellationTimeout = 30;
         PollingMonitor monitor = new PollingMonitor();
 
@@ -477,10 +492,9 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         // timer.cancel(false);
     }
 
-    private void cancelInternal(BuildTask buildTask) {
+    private void cancelInternal (BuildTask buildTask){
 
-        BuildResult result = new BuildResult(
-                CompletionStatus.CANCELLED,
+        BuildResult result = new BuildResult(CompletionStatus.CANCELLED,
                 Optional.empty(),
                 "",
                 Optional.empty(),
@@ -494,26 +508,24 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         log.info("Task {} canceled internally.", buildTask.getId());
     }
 
-    public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status) {
+    public void updateBuildTaskStatus (BuildTask task, BuildCoordinationStatus status){
         updateBuildTaskStatus(task, task.getStatus(), status, null);
     }
 
-    private void updateBuildTaskStatus(
-            BuildTask task,
+    private void updateBuildTaskStatus (
+            RemoteBuildTask task,
             BuildCoordinationStatus oldStatus,
             BuildCoordinationStatus status,
             String statusDescription) {
 
-        task.setStatus(status);
+        task.setStatus(status); //TODO what is needed in the Build Task notifications
         task.setStatusDescription(statusDescription);
 
         Build build = buildMapper.fromBuildTask(task);
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
-                build,
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(build,
                 BuildStatus.fromBuildCoordinationStatus(oldStatus),
                 BuildStatus.fromBuildCoordinationStatus(status));
-        log.debug(
-                "Updated build task {} status to {}; old coord status: {}, new coord status: {}",
+        log.debug("Updated build task {} status to {}; old coord status: {}, new coord status: {}",
                 task.getId(),
                 buildStatusChanged,
                 oldStatus,
@@ -527,7 +539,9 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             // only fire notification when BuildStatus changes
             // and avoid firing the notification when old and new statuses are final (NCL-5885)
             buildStatusChangedEventNotifier.fire(buildStatusChanged);
-            log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
+            log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.",
+                    task.getId(),
+                    status);
         }
     }
 
@@ -535,25 +549,30 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
      * update status,
      * store BuildConfigSetRecord,
      * sendSetStatusChangeEvent
+     *
+     * @return
      */
-    private void updateStatusAndStoreBuildBuildConfingSetRecord(BuildSetTask buildSetTask, BuildStatus status, String description)
-            throws CoreException {
+    private BuildConfigSetRecord storeBuildBuildConfingSetRecord (BuildConfigurationSet buildConfigurationSet, BuildStatus
+    status, String description, User user, BuildOptions buildOptions)
+        throws CoreException {
 
-        buildSetTask.setTaskStatus(status);
-        buildSetTask.setStatusDescription(description);
+        BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
+                .buildConfigurationSet(buildConfigurationSet)
+                .user(user)
+                .startTime(new Date())
+                .status(org.jboss.pnc.enums.BuildStatus.BUILDING)
+                .temporaryBuild(buildOptions.isTemporaryBuild())
+                .alignmentPreference(buildOptions.getAlignmentPreference())
+                .build();
 
-        Optional<BuildConfigSetRecord> buildConfigSetRecord = buildSetTask.getBuildConfigSetRecord();
-        if (buildConfigSetRecord.isPresent()) {
-            updateBuildConfigSetRecordStatus(buildConfigSetRecord.get(), status, description);
-        } else {
-            throw new CoreException("Missing build config set record.");
-        }
+        updateBuildConfigSetRecordStatus(buildConfigSetRecord, status, description);
+        return buildConfigSetRecord;
     }
 
-    public void updateBuildConfigSetRecordStatus(BuildConfigSetRecord setRecord, BuildStatus status, String description)
-            throws CoreException {
-        log.info(
-                "Setting new status {} on buildConfigSetRecord.id {}. Description: {}.",
+    public void updateBuildConfigSetRecordStatus (BuildConfigSetRecord setRecord, BuildStatus status, String
+    description)
+        throws CoreException {
+        log.info("Setting new status {} on buildConfigSetRecord.id {}. Description: {}.",
                 status,
                 setRecord.getId(),
                 description);
@@ -575,13 +594,9 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         sendSetStatusChangeEvent(status, oldStatus, setRecord, description); //TODO try to move UP
     }
 
-    private void sendSetStatusChangeEvent(
-            BuildStatus status,
-            BuildStatus oldStatus,
-            BuildConfigSetRecord record,
-            String description) {
-        BuildSetStatusChangedEvent event = new DefaultBuildSetStatusChangedEvent(
-                oldStatus,
+    private void sendSetStatusChangeEvent (BuildStatus status, BuildStatus oldStatus, BuildConfigSetRecord
+    record, String description){
+        BuildSetStatusChangedEvent event = new DefaultBuildSetStatusChangedEvent(oldStatus,
                 status,
                 groupBuildMapper.toDTO(record),
                 description);
@@ -589,7 +604,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         buildSetStatusChangedEventNotifier.fire(event);
     }
 
-    public void completeNoBuild(BuildTask buildTask, CompletionStatus completionStatus) {
+    public void completeNoBuild (RemoteBuildTask buildTask, CompletionStatus completionStatus){
         String buildTaskId = buildTask.getId();
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         try {
@@ -622,7 +637,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    public void completeBuild(BuildTask buildTask, BuildResult buildResult) {
+    public void completeBuild(BuildTask buildTask, BuildResult buildResult){
         String buildTaskId = buildTask.getId();
 
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
@@ -635,8 +650,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                         ProcessException exception;
                         if (buildResult.getProcessException().isPresent()) {
                             exception = buildResult.getProcessException().get();
-                            log.debug(
-                                    "[buildTaskId: {}] Storing build result with exception {}.",
+                            log.debug("[buildTaskId: {}] Storing build result with exception {}.",
                                     buildTaskId,
                                     exception.getMessage());
                         } else if (buildResult.getRepourResult().isPresent()) {
@@ -648,7 +662,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                                         buildTaskId,
                                         repourResult.getLog());
                             } else {
-                                exception = new ProcessException("Build completed with system error but no exception.");
+                                exception = new ProcessException(
+                                        "Build completed with system error but no exception.");
                                 log.error(
                                         "[buildTaskId: {}] Storing build result with system_error and missing exception.",
                                         buildTaskId);
@@ -666,8 +681,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
 
                     case CANCELLED:
                     case TIMED_OUT:
-                        log.debug(
-                                "[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}",
+                        log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}",
                                 buildTaskId,
                                 operationCompletionStatus);
                         datastoreAdapter.storeResult(buildTask, buildResult);
@@ -675,8 +689,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                         break;
 
                     case FAILED:
-                        log.debug(
-                                "[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}",
+                        log.debug("[buildTaskId: {}] Storing failed build result. FailedReasonStatus: {}",
                                 buildTaskId,
                                 operationCompletionStatus);
                         datastoreAdapter.storeResult(buildTask, buildResult);
@@ -712,57 +725,57 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         }
     }
 
-
-    public List<BuildTask> getSubmittedBuildTasks() {
+    public List<BuildTask> getSubmittedBuildTasks () {
         return null; //TODO
-//        return new ArrayList<>(taskRepository.getUnfinishedTasks());
+        //        return new ArrayList<>(taskRepository.getUnfinishedTasks());
     }
 
-    @Override
-    public List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId) {
+    @Override public List<BuildTask> getSubmittedBuildTasksBySetId ( int buildConfigSetRecordId){
         return taskRepository.getBuildTasksByBCSRId(buildConfigSetRecordId);
     }
 
     @PostConstruct
-    public void start() {
+    public void start () {
         log.info("The application is starting ...");
     }
 
     @PreDestroy
-    public void destroy() {
+    public void destroy () {
         log.info("The application is shutting down ...");
-    }
-
-    private int dependantsFirst(BuildTask task1, BuildTask task2) {
-        if (task1.getDependencies().contains(task2)) {
-            return -1;
-        }
-        if (task1.getDependants().contains(task2)) {
-            return 1;
-        }
-        return 0;
     }
 
     /**
      * @throws BuildConflictException if all BCAs are in the unfinishedTasks.
      */
-    private void checkAllRunning(
-            Collection<BuildConfigurationAudited> BCAs,
-            Collection<BuildTaskRef> unfinishedTasks) throws BuildConflictException {
+    private void checkAllRunning(Collection < BuildConfigurationAudited > BCAs, Collection < BuildTaskRef > unfinishedTasks)
+            throws BuildConflictException {
 
-        Set<IdRev> unfinished = unfinishedTasks.stream()
-                .map(t -> t.getIdRev())
-                .collect(Collectors.toUnmodifiableSet());
+        Set<IdRev> unfinished = unfinishedTasks.stream().map(t -> t.getIdRev()).collect(Collectors.toUnmodifiableSet());
 
-        Set<IdRev> running = BCAs.stream()
-                .map(bca -> bca.getIdRev())
-                .filter(unfinished::contains)
-                .collect(Collectors.toSet());
+        Set<IdRev> running = BCAs.stream().map(bca -> bca.getIdRev()).filter(unfinished::contains).collect(Collectors.toSet());
 
         if (running.size() == BCAs.size()) {
             String runningMessage = running.stream().map(IdRev::toString).collect(Collectors.joining(", "));
-            throw new BuildConflictException(
-                    "Active build task found using the same configuration BC(s): " + runningMessage);
+            throw new BuildConflictException("Active build task found using the same configuration BC(s): " + runningMessage);
+        }
+    }
+
+    /**
+     * @throws BuildConflictException
+     */
+    private void checkIfAnyDependencyOfAlreadyRunningIsSubmitted(BuildGraph buildGraph) throws BuildConflictException {
+        for (RemoteBuildTask parent : buildGraph.getBuildTasks()) {
+            if (parent.isAlreadyRunning()) {
+                Collection<RemoteBuildTask> children = buildGraph.getChildren(parent);
+                for (RemoteBuildTask child : children) {
+                    if (!child.isAlreadyRunning()) {
+                        throw new BuildConflictException(
+                                "Submitted build " + parent.getBuildConfigurationAudited().getName()
+                                        + " is a dependency of already running build: "
+                                        + child.getBuildConfigurationAudited().getName());
+                    }
+                }
+            }
         }
     }
 }
