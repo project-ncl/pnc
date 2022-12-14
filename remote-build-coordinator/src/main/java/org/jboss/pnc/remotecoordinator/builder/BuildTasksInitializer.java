@@ -20,22 +20,24 @@ package org.jboss.pnc.remotecoordinator.builder;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.concurrent.Sequence;
+import org.jboss.pnc.common.graph.NameUniqueVertex;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.remotecoordinator.BuildGraph;
 import org.jboss.pnc.remotecoordinator.RemoteBuildTask;
-import org.jboss.pnc.remotecoordinator.TaskEdge;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.util.graph.Graph;
+import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -57,7 +59,7 @@ public class BuildTasksInitializer { // TODO update docs
         this.temporaryBuildLifespanDays = temporaryBuildLifespanDays;
     }
 
-    public BuildGraph createBuildGraph(
+    public Graph<RemoteBuildTask> createBuildGraph(
             BuildConfigurationAudited buildConfigurationAudited,
             User user,
             BuildOptions buildOptions,
@@ -182,7 +184,7 @@ public class BuildTasksInitializer { // TODO update docs
      * @return Prepared BuildSetTask
      * @throws CoreException Thrown if the BuildConfigSetRecord cannot be stored
      */
-    public BuildGraph createBuildGraph(
+    public Graph<RemoteBuildTask> createBuildGraph(
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
@@ -209,13 +211,13 @@ public class BuildTasksInitializer { // TODO update docs
         return doCreateBuildGraph(user, buildOptions, submittedBuildTasks, buildConfigurationAuditeds);
     }
 
-    private BuildGraph doCreateBuildGraph(
+    private Graph<RemoteBuildTask> doCreateBuildGraph(
             User user,
             BuildOptions buildOptions,
             Collection<BuildTaskRef> submittedBuildTasks,
             Set<BuildConfigurationAudited> toBuild) {
-        Collection<RemoteBuildTask> buildTasks = new HashSet<>();
-        Collection<TaskEdge> taskEdges = new HashSet<>();
+
+        Graph<RemoteBuildTask> graph = new Graph<>();
 
         for (BuildConfigurationAudited buildConfigAudited : toBuild) {
             Optional<BuildTaskRef> taskOptional = submittedBuildTasks.stream()
@@ -234,17 +236,24 @@ public class BuildTasksInitializer { // TODO update docs
                 remoteBuildTask = new RemoteBuildTask(Sequence.nextBase32Id(), buildConfigAudited,
                         buildOptions, user.getId().toString(), false);
             }
-            buildTasks.add(remoteBuildTask);
+            NameUniqueVertex<RemoteBuildTask> remoteBuildTaskVertex = new NameUniqueVertex<>(
+                    remoteBuildTask.getId(),
+                    remoteBuildTask);
+            graph.addVertex(remoteBuildTaskVertex);
         }
+        List<Vertex<RemoteBuildTask>> verticies = graph.getVerticies();
 
-        for (RemoteBuildTask parent : buildTasks) {
-            for (RemoteBuildTask child : buildTasks) {
-                if (hasDirectConfigDependencyOn(parent.getBuildConfigurationAudited(), child.getBuildConfigurationAudited())) {
-                    taskEdges.add(new TaskEdge(parent.getId(), child.getId()));
+        for (Vertex<RemoteBuildTask> parentVertex : verticies) {
+            for (Vertex<RemoteBuildTask> childVertex : verticies) {
+                if (hasDirectConfigDependencyOn(
+                        parentVertex.getData().getBuildConfigurationAudited(),
+                        childVertex.getData().getBuildConfigurationAudited())) {
+                    //TODO check for cycles
+                    graph.addEdge(parentVertex, childVertex, 1);
                 }
             }
         }
-        return new BuildGraph(buildTasks, taskEdges);
+        return graph;
     }
 
     public boolean hasDirectConfigDependencyOn(BuildConfigurationAudited parent, BuildConfigurationAudited child) {
