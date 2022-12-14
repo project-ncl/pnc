@@ -15,19 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.remotecoordinator.builder;
+package org.jboss.pnc.remotecoordinator;
 
-import org.jboss.pnc.remotecoordinator.BuildGraph;
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.exception.CoreException;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-public interface RexBuildScheduler {
+/**
+ * Edge in graph of objects.
+ *
+ * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
+ */
+@Getter
+@AllArgsConstructor
+public class TaskEdge {
 
-    void startBuilding(BuildGraph buildGraph) throws CoreException;
+    /**
+     * Source vertex name.
+     */
+    private final String source;
 
-    @Deprecated
-    void startBuilding(BuildSetTask buildSetTask) throws CoreException;
+    /**
+     * Target vertex name.
+     */
+    private final String target;
 
-    boolean cancel(BuildTask buildTask) throws CoreException;
 }
