@@ -88,6 +88,10 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.commonjava.atlas</groupId>
+      <artifactId>atlas-npm-identities</artifactId>
+    </dependency>
 
   </dependencies>
 
