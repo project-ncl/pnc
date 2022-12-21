@@ -44,6 +44,10 @@ public interface BuildCoordinator {
             User user,
             BuildOptions buildOptions) throws BuildConflictException, CoreException;
 
+    @Deprecated //used only in the tests
+    BuildSetTask buildSet(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)
+            throws CoreException;
+
     BuildSetTask buildSet(
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
@@ -74,6 +78,7 @@ public interface BuildCoordinator {
 
     boolean cancelSet(int buildConfigSetRecordId) throws CoreException;
 
+    @Deprecated //used only internally
     void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);
 
     void updateBuildConfigSetRecordStatus(BuildConfigSetRecord setRecord, BuildStatus status, String description)
