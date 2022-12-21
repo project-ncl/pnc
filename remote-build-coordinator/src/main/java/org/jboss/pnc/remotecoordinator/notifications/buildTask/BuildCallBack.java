@@ -24,6 +24,7 @@ import java.util.function.Consumer;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Deprecated //used in test only
 public class BuildCallBack {
 
     private final String buildTaskId;
@@ -38,6 +39,7 @@ public class BuildCallBack {
         return buildTaskId;
     }
 
+    @Deprecated //used only in the tests
     public void callback(BuildStatusChangedEvent buildStatusChangedEvent) {
         callback.accept(buildStatusChangedEvent);
     }

@@ -96,6 +96,8 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private final boolean legacyBuildCoordinator;
 
+    private int maxScheduleRetries;
+
     public SystemConfig(
             @JsonProperty("authenticationProviderId") String authenticationProviderId,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
@@ -121,7 +123,8 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("kafkaProperties") String kafkaProperties,
             @JsonProperty("infinispanClusterName") String infinispanClusterName,
             @JsonProperty("infinispanTransportProperties") String infinispanTransportProperties,
-            @JsonProperty("legacyBuildCoordinator") String legacyBuildCoordinator) {
+            @JsonProperty("legacyBuildCoordinator") String legacyBuildCoordinator,
+            @JsonProperty("maxScheduleRetries") String maxScheduleRetries) {
         this.authenticationProviderId = authenticationProviderId;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault(
@@ -157,6 +160,7 @@ public class SystemConfig extends AbstractModuleConfig {
         this.infinispanClusterName = infinispanClusterName;
         this.infinispanTransportProperties = infinispanTransportProperties;
         this.legacyBuildCoordinator = Boolean.valueOf(legacyBuildCoordinator);
+        this.maxScheduleRetries = toIntWithDefault("maxScheduleRetries", maxScheduleRetries, 10);
     }
 
     public static Properties readProperties(String file) {
@@ -271,6 +275,15 @@ public class SystemConfig extends AbstractModuleConfig {
         return legacyBuildCoordinator;
     }
 
+    public int getMaxScheduleRetries() {
+        return maxScheduleRetries;
+    }
+
+    public void setMaxScheduleRetries(int maxScheduleRetries) {
+        this.maxScheduleRetries = maxScheduleRetries;
+    }
+
+
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {
         int result = defaultValue;
         if (numberAsString == null) {
@@ -309,4 +322,5 @@ public class SystemConfig extends AbstractModuleConfig {
                 + ", infinispanClusterName='" + infinispanClusterName + '\'' + ", infinispanTransportProperties='"
                 + infinispanTransportProperties + '\'' + '}';
     }
+
 }

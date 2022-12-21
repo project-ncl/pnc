@@ -20,12 +20,16 @@ package org.jboss.pnc.remotecoordinator.builder;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.common.graph.NameUniqueVertex;
+import org.jboss.pnc.common.graph.GraphStructureException;
+import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.remotecoordinator.RemoteBuildTask;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
@@ -35,7 +39,10 @@ import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +70,7 @@ public class BuildTasksInitializer { // TODO update docs
             BuildConfigurationAudited buildConfigurationAudited,
             User user,
             BuildOptions buildOptions,
-            Collection<BuildTaskRef> submittedBuildTasks) {
+            Collection<BuildTaskRef> submittedBuildTasks) throws GraphStructureException {
 
         Set<BuildConfigurationAudited> toBuild = new HashSet<>();
         collectBuildTasks(buildConfigurationAudited, buildOptions, toBuild);
@@ -72,7 +79,13 @@ public class BuildTasksInitializer { // TODO update docs
                 buildConfigurationAudited,
                 toBuild.stream().map(BuildConfigurationAudited::toString).collect(Collectors.joining(", ")));
 
-        return doCreateBuildGraph(user, buildOptions, submittedBuildTasks, toBuild);
+        return doCreateBuildGraph(
+                user,
+                buildOptions,
+                submittedBuildTasks,
+                toBuild,
+                Collections.emptyMap(),
+                buildConfigurationAudited.getBuildConfiguration().getCurrentProductMilestone());
     }
 
     private void collectBuildTasks(
@@ -139,12 +152,13 @@ public class BuildTasksInitializer { // TODO update docs
         }
         visited.add(buildConfiguration);
 
-        boolean requiresRebuild = forceRebuild || datastoreAdapter.requiresRebuild(
+        Optional<BuildRecord> noRebuildCause = datastoreAdapter.requiresRebuild(
                 buildConfigurationAudited,
                 checkImplicitDependencies,
                 temporaryBuild,
                 alignmentPreference,
                 processedDependenciesCache);
+        boolean requiresRebuild = forceRebuild || noRebuildCause.isEmpty();
         for (BuildConfiguration dependency : buildConfiguration.getDependencies()) {
             boolean dependencyRequiresRebuild = collectDependentConfigurations(
                     dependency,
@@ -189,8 +203,10 @@ public class BuildTasksInitializer { // TODO update docs
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
             BuildOptions buildOptions,
-            Collection<BuildTaskRef> submittedBuildTasks) {
+            Collection<BuildTaskRef> submittedBuildTasks) throws GraphStructureException {
 
+        Map<IdRev, BuildRecord> noRebuildRequiredCauses = new HashMap<>();
+        Set<Integer> processedDependenciesCache = new HashSet<>();
         Set<BuildConfigurationAudited> buildConfigurationAuditeds = new HashSet<>();
         for (BuildConfiguration buildConfiguration : datastoreAdapter.getBuildConfigurations(buildConfigurationSet)) {
             BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedsMap
@@ -200,6 +216,16 @@ public class BuildTasksInitializer { // TODO update docs
                         .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
             }
             buildConfigurationAuditeds.add(buildConfigurationAudited);
+
+            Optional<BuildRecord> noRebuildCause = datastoreAdapter.requiresRebuild(
+                    buildConfigurationAudited,
+                    buildOptions.isImplicitDependenciesCheck(),
+                    buildOptions.isTemporaryBuild(),
+                    buildOptions.getAlignmentPreference(),
+                    processedDependenciesCache);
+            if (noRebuildCause.isPresent()) {
+                noRebuildRequiredCauses.put(buildConfigurationAudited.getIdRev(), noRebuildCause.get());
+            }
         }
 
         log.debug(
@@ -208,14 +234,22 @@ public class BuildTasksInitializer { // TODO update docs
                         .map(BuildConfigurationAudited::toString)
                         .collect(Collectors.joining("; ")));
 
-        return doCreateBuildGraph(user, buildOptions, submittedBuildTasks, buildConfigurationAuditeds);
+        return doCreateBuildGraph(
+                user,
+                buildOptions,
+                submittedBuildTasks,
+                buildConfigurationAuditeds,
+                noRebuildRequiredCauses,
+                buildConfigurationSet.getCurrentProductMilestone());
     }
 
     private Graph<RemoteBuildTask> doCreateBuildGraph(
             User user,
             BuildOptions buildOptions,
             Collection<BuildTaskRef> submittedBuildTasks,
-            Set<BuildConfigurationAudited> toBuild) {
+            Set<BuildConfigurationAudited> toBuild,
+            Map<IdRev, BuildRecord> noRebuildRequiredCauses,
+            ProductMilestone currentProductMilestone) throws GraphStructureException {
 
         Graph<RemoteBuildTask> graph = new Graph<>();
 
@@ -223,20 +257,31 @@ public class BuildTasksInitializer { // TODO update docs
             Optional<BuildTaskRef> taskOptional = submittedBuildTasks.stream()
                     .filter(bt -> bt.getIdRev().equals(buildConfigAudited.getIdRev()))
                     .findAny();
-
+            BuildRecord noRebuildRequired = noRebuildRequiredCauses.get(buildConfigAudited.getIdRev());
             RemoteBuildTask remoteBuildTask;
             if (taskOptional.isPresent()) {
                 BuildTaskRef buildTaskRef = taskOptional.get();
                 remoteBuildTask = new RemoteBuildTask(
                         buildTaskRef.getId(),
-                        buildConfigAudited, buildOptions,
+                        Instant.now(),
+                        buildConfigAudited,
+                        buildOptions,
                         user.getId().toString(),
-                        true);
+                        true,
+                        noRebuildRequired,
+                        currentProductMilestone);
             } else {
-                remoteBuildTask = new RemoteBuildTask(Sequence.nextBase32Id(), buildConfigAudited,
-                        buildOptions, user.getId().toString(), false);
+                remoteBuildTask = new RemoteBuildTask(
+                        Sequence.nextBase32Id(),
+                        Instant.now(),
+                        buildConfigAudited,
+                        buildOptions,
+                        user.getId().toString(),
+                        false,
+                        noRebuildRequired,
+                        currentProductMilestone);
             }
-            NameUniqueVertex<RemoteBuildTask> remoteBuildTaskVertex = new NameUniqueVertex<>(
+            Vertex<RemoteBuildTask> remoteBuildTaskVertex = new Vertex<>(
                     remoteBuildTask.getId(),
                     remoteBuildTask);
             graph.addVertex(remoteBuildTaskVertex);
@@ -248,11 +293,13 @@ public class BuildTasksInitializer { // TODO update docs
                 if (hasDirectConfigDependencyOn(
                         parentVertex.getData().getBuildConfigurationAudited(),
                         childVertex.getData().getBuildConfigurationAudited())) {
-                    //TODO check for cycles
                     graph.addEdge(parentVertex, childVertex, 1);
                 }
             }
         }
+        Vertex<RemoteBuildTask> root = GraphUtils.findRoot(graph);
+        graph.setRootVertex(root);
+
         return graph;
     }
 
