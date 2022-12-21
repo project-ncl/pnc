@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.spi.datastore;
 
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 
 import java.util.Collection;
@@ -28,7 +27,7 @@ public interface BuildTaskRepository {
     // TODO might not be required, used only while processing task completion
 //    Optional<BuildTask> getTask(String id);
 
-    List<BuildTask> getBuildTasksByBCSRId(Integer buildConfigSetRecordId);
+    List<BuildTaskRef> getBuildTasksByBCSRId(Integer buildConfigSetRecordId);
 
     /**
      * @deprecated Used for tests only

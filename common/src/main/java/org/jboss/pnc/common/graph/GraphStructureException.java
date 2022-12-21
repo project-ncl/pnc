@@ -15,27 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.remotecoordinator;
+package org.jboss.pnc.common.graph;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+public class GraphStructureException extends Exception {
 
-import java.util.Collection;
-
-@AllArgsConstructor
-@Getter
-public class BuildGraph {
-
-    private Collection<RemoteBuildTask> buildTasks;
-
-    private Collection<TaskEdge> edges;
-
-    public Collection<RemoteBuildTask> getChildren(RemoteBuildTask remoteBuildTask) {
-        edges.stream()
-                .filter(e -> e.getSource().equals(remoteBuildTask.getId()))
-    }
-
-    public boolean isDAG() {
-
+    public GraphStructureException(String message) {
+        super(message);
     }
 }

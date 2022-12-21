@@ -15,16 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.coordinator;
+package org.jboss.pnc.spi.exception;
 
-import org.jboss.pnc.model.IdRev;
+public class ScheduleConflictException extends CoreException {
+    public ScheduleConflictException(String message) {
+        super(message);
+    }
 
-public interface BuildTaskRef {
-    String getId();
+    public ScheduleConflictException(Exception e) {
+        super(e);
+    }
 
-    IdRev getIdRev();
-
-    @Deprecated //TODO calculate in-place
-    String getContentId();
-
+    public ScheduleConflictException(String message, Exception e) {
+        super(message, e);
+    }
 }

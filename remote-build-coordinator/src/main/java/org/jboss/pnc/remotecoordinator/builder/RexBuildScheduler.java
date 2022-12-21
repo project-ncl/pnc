@@ -17,17 +17,14 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
-import org.jboss.pnc.remotecoordinator.BuildGraph;
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.model.User;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.util.graph.Graph;
 
 public interface RexBuildScheduler {
 
-    void startBuilding(BuildGraph buildGraph) throws CoreException;
+    void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws CoreException;
 
-    @Deprecated
-    void startBuilding(BuildSetTask buildSetTask) throws CoreException;
-
-    boolean cancel(BuildTask buildTask) throws CoreException;
+    boolean cancel(String taskId) throws CoreException;
 }

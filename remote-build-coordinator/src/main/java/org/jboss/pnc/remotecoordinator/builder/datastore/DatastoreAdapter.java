@@ -18,8 +18,9 @@
 package org.jboss.pnc.remotecoordinator.builder.datastore;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.remotecoordinator.BuildCoordinationException;
+import org.jboss.pnc.common.util.ObjectWrapper;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -27,13 +28,15 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Project;
+import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
@@ -45,7 +48,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;
@@ -56,12 +58,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Consumer;
 
 import static org.jboss.pnc.enums.BuildStatus.CANCELLED;
 import static org.jboss.pnc.enums.BuildStatus.FAILED;
-import static org.jboss.pnc.enums.BuildStatus.SYSTEM_ERROR;
 import static org.jboss.pnc.enums.BuildStatus.NEW;
+import static org.jboss.pnc.enums.BuildStatus.SYSTEM_ERROR;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-15.
@@ -126,11 +128,15 @@ public class DatastoreAdapter {
         project.getBuildConfigurations().forEach(BuildConfiguration::getId);
     }
 
+    /**
+     * //TODO Used on remote build completion, triggered from Rex
+     */
     public BuildRecord storeResult(BuildTask buildTask, BuildResult buildResult) throws DatastoreException {
         try {
             BuildStatus buildRecordStatus = NEW;
 
-            BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
+            BuildRecord.Builder buildRecordBuilder = null;
+//            BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
             buildRecordBuilder.buildContentId(buildTask.getContentId());
 
             if (buildResult.getRepourResult().isPresent()) {
@@ -181,11 +187,13 @@ public class DatastoreAdapter {
                 buildDriverResult.getOutputChecksum().ifPresent(buildRecordBuilder::buildOutputChecksum);
                 buildRecordStatus = buildDriverResult.getBuildStatus(); // TODO buildRecord should use CompletionStatus
             } else if (!buildResult.hasFailed()) {
-                return storeResult(
-                        buildTask,
-                        Optional.of(buildResult),
-                        new BuildCoordinationException(
-                                "Trying to store success build with incomplete result. Missing BuildDriverResult."));
+// TODO
+//                return storeResult(
+//                        buildTask,
+//                        Optional.of(buildResult),
+//                        new BuildCoordinationException(
+//                                "Trying to store success build with incomplete result. Missing BuildDriverResult."));
+                return null;
             }
 
             if (buildResult.getEnvironmentDriverResult().isPresent()) {
@@ -256,21 +264,25 @@ public class DatastoreAdapter {
                 }
                 Map<Artifact, String> builtConflicts = datastore.checkForBuiltArtifacts(builtArtifacts);
                 if (builtConflicts.size() > 0) {
-                    return storeResult(
-                            buildTask,
-                            Optional.of(buildResult),
-                            new BuildCoordinationException(
-                                    "Trying to store success build with invalid repository manager result. Conflicting artifact data found: "
-                                            + builtConflicts.toString()));
+// TODO
+//                    return storeResult(
+//                            buildTask,
+//                            Optional.of(buildResult),
+//                            new BuildCoordinationException(
+//                                    "Trying to store success build with invalid repository manager result. Conflicting artifact data found: "
+//                                            + builtConflicts.toString()));
+                    return null;
                 }
 
                 dependencies = repositoryManagerResult.getDependencies();
             } else if (!buildResult.hasFailed()) {
-                return storeResult(
-                        buildTask,
-                        Optional.of(buildResult),
-                        new BuildCoordinationException(
-                                "Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
+                //TODO
+//                return storeResult(
+//                        buildTask,
+//                        Optional.of(buildResult),
+//                        new BuildCoordinationException(
+//                                "Trying to store success build with incomplete result. Missing RepositoryManagerResult."));
+                return null;
             }
 
             if (NEW.equals(buildRecordStatus)) {
@@ -304,18 +316,21 @@ public class DatastoreAdapter {
                 buildRecordBuilder.scmRevision(buildExecutionConfig.getScmRevision());
                 buildRecordBuilder.scmTag(buildExecutionConfig.getScmTag());
             } else if (!buildResult.hasFailed()) {
-                return storeResult(
-                        buildTask,
-                        Optional.of(buildResult),
-                        new BuildCoordinationException(
-                                "Trying to store success build with incomplete result. Missing BuildExecutionConfiguration."));
+                // TODO
+//                return storeResult(
+//                        buildTask,
+//                        Optional.of(buildResult),
+//                        new BuildCoordinationException(
+//                                "Trying to store success build with incomplete result. Missing BuildExecutionConfiguration."));
+                return null;
             }
 
             log.debug("Storing results of buildTask [{}] to datastore.", buildTask.getId());
             userLog.info("Successfully completed.");
             return datastore.storeCompletedBuild(buildRecordBuilder, builtArtifacts, dependencies);
         } catch (Exception e) {
-            return storeResult(buildTask, Optional.of(buildResult), e);
+//            return storeResult(buildTask, Optional.of(buildResult), e);
+            return null;
         }
     }
 
@@ -335,32 +350,74 @@ public class DatastoreAdapter {
         }
     }
 
-    public BuildRecord storeRecordForNoRebuild(BuildTask buildTask) throws DatastoreException {
+    public BuildRecord storeRecordForNoRebuild(
+            RemoteBuildTask buildTask,
+            User user,
+            List<Base32LongID> dependencyIds,
+            List<Base32LongID> dependantIds,
+            Integer buildConfigSetRecordId) throws DatastoreException {
         try {
             log.debug("Storing record for non required rebuild of buildTask [{}] to datastore.", buildTask.getId());
-            BuildRecord buildRecord = initBuildRecordBuilder(buildTask).status(BuildStatus.NO_REBUILD_REQUIRED)
-                    .appendLog("No rebuild was required.")
-                    .buildContentId(buildTask.getContentId())
-                    .build();
+            String contentId = ContentIdentityManager.getBuildContentId(buildTask.getId());
+
+            BuildRecord buildRecord = initBuildRecordBuilder(
+                    buildTask,
+                    user,
+                    null, //the build did not start
+                    Instant.now(),
+                    dependencyIds,
+                    dependantIds,
+                    buildConfigSetRecordId)
+                .status(BuildStatus.NO_REBUILD_REQUIRED)
+                .appendLog("No rebuild was required.")
+                .buildContentId(contentId)
+                .build();
             BuildRecord storedRecord = datastore.storeRecordForNoRebuild(buildRecord);
             userLog.info("Successfully completed.");
             return storedRecord;
         } catch (Exception e) {
-            return storeResult(buildTask, Optional.empty(), e);
+            return storeResult(
+                    buildTask,
+                    user,
+                    null, //the build did not start
+                    dependencyIds,
+                    dependantIds,
+                    buildConfigSetRecordId,
+                    Optional.empty(),
+                    e);
         }
     }
 
     /**
      * Store build result along with error information appended to the build log
      *
-     * @param buildTask task
-     * @param buildResult result of running the task
-     * @param e The error that occurred during the build process
+     * @param buildTask              task
+     * @param buildResult            result of running the task
+     * @param e                      The error that occurred during the build process
+     * @param dependencyIds
+     * @param dependantIds
+     * @param buildConfigSetRecordId
      * @throws DatastoreException on failure to store data
      */
-    public BuildRecord storeResult(BuildTask buildTask, Optional<BuildResult> buildResult, Throwable e)
+    public BuildRecord storeResult(
+            RemoteBuildTask buildTask,
+            User user,
+            Instant startTime,
+            List<Base32LongID> dependencyIds,
+            List<Base32LongID> dependantIds,
+            Integer buildConfigSetRecordId,
+            Optional<BuildResult> buildResult,
+            Throwable e)
             throws DatastoreException {
-        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
+        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(
+                buildTask,
+                user,
+                startTime,
+                Instant.now(),
+                dependencyIds,
+                dependantIds,
+                buildConfigSetRecordId);
+
         buildRecordBuilder.status(SYSTEM_ERROR);
 
         StringBuilder errorLog = new StringBuilder();
@@ -423,8 +480,13 @@ public class DatastoreAdapter {
         }
     }
 
+    /**
+     * //TODO used to store result due to the failed dependency (triggered from Rex)
+     */
     public void storeRejected(BuildTask buildTask) throws DatastoreException {
-        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
+        BuildRecord.Builder buildRecordBuilder = null;
+//        BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask, startTime);
+
         buildRecordBuilder.status(BuildStatus.fromBuildCoordinationStatus(buildTask.getStatus()));
         buildRecordBuilder.buildLog(buildTask.getStatusDescription());
 
@@ -443,60 +505,66 @@ public class DatastoreAdapter {
      *
      * @return The initialized build record builder
      */
-    private BuildRecord.Builder initBuildRecordBuilder(BuildTask buildTask) {
+    private BuildRecord.Builder initBuildRecordBuilder(
+            RemoteBuildTask buildTask,
+            User user,
+            Instant startTime,
+            Instant endTime,
+            List<Base32LongID> dependencies,
+            List<Base32LongID> dependants,
+            Integer buildConfigSetRecordId) {
         BuildOptions buildOptions = buildTask.getBuildOptions();
         BuildRecord.Builder builder = BuildRecord.Builder.newBuilder()
                 .id(buildTask.getId())
                 .buildConfigurationAudited(buildTask.getBuildConfigurationAudited())
-                .user(buildTask.getUser())
-                .submitTime(buildTask.getSubmitTime())
-                .startTime(buildTask.getStartTime())
-                .productMilestone(buildTask.getProductMilestone())
+                .user(user)
+                .submitTime(Date.from(buildTask.getSubmitTime()))
+                .productMilestone(buildTask.getCurrentProductMilestone())
                 .temporaryBuild(buildOptions.isTemporaryBuild())
                 .alignmentPreference(buildOptions.getAlignmentPreference())
-                .noRebuildCause(buildTask.getNoRebuildCause());
-
-        if (buildTask.getEndTime() == null) {
-            buildTask.setEndTime(Date.from(Instant.now()));
+                .noRebuildCause(buildTask.getNoRebuildCause().orElse(null));
+        if (startTime != null) {
+            builder.startTime(Date.from(startTime));
         }
 
-        builder.endTime(buildTask.getEndTime());
+        if (endTime == null) {
+            builder.endTime(new Date());
+        } else {
+            builder.endTime(Date.from(endTime));
+        }
 
-        if (buildTask.getBuildConfigSetRecordId() != null) {
-            BuildConfigSetRecord buildConfigSetRecord = datastore
-                    .getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());
+        if (buildConfigSetRecordId != null) {
+            BuildConfigSetRecord buildConfigSetRecord = datastore.getBuildConfigSetRecordById(buildConfigSetRecordId);
             builder.buildConfigSetRecord(buildConfigSetRecord);
         }
 
-        List<Base32LongID> dependencies = buildTask.getDependencies()
-                .stream()
-                .map(BuildTask::getId)
-                .map(Base32LongID::new)
-                .collect(Collectors.toList());
         builder.dependencyBuildRecordIds(dependencies.toArray(new Base32LongID[dependencies.size()]));
-
-        List<Base32LongID> dependants = buildTask.getDependants()
-                .stream()
-                .map(BuildTask::getId)
-                .map(Base32LongID::new)
-                .collect(Collectors.toList());
         builder.dependentBuildRecordIds(dependants.toArray(new Base32LongID[dependants.size()]));
 
         return builder;
     }
 
-    public boolean requiresRebuild(
+    /**
+     * @return cause for no rebuild or Empty if a rebuild is required.
+     */
+    public Optional<BuildRecord> requiresRebuild(
             BuildConfigurationAudited buildConfigurationAudited,
             boolean checkImplicitDependencies,
             boolean temporaryBuild,
             AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache) {
-        return datastore.requiresRebuild(
+        ObjectWrapper<BuildRecord> wrapper = new ObjectWrapper();
+        Consumer<BuildRecord> noRebuildCause = (buildRecord) -> {
+            wrapper.set(buildRecord);
+        };
+        datastore.requiresRebuild(
                 buildConfigurationAudited,
                 checkImplicitDependencies,
                 temporaryBuild,
                 alignmentPreference,
-                processedDependenciesCache);
+                processedDependenciesCache,
+                noRebuildCause);
+        return Optional.of(wrapper.get());
     }
 
     @Deprecated

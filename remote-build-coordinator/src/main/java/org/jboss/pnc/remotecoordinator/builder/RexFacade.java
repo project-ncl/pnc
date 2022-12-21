@@ -25,12 +25,15 @@ import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.BpmEndpointUrlFactory;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.rex.common.enums.Mode;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
@@ -43,6 +46,8 @@ import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.util.graph.Edge;
+import org.jboss.util.graph.Graph;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -54,6 +59,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -96,7 +102,9 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
     Object rexClient = null;
 
+    @Inject
     LoggedInUser loggedInUser;
+
 
     @Deprecated
     public RexFacade() { // CDI workaround
@@ -109,68 +117,37 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         this.loggedInUser = loggedInUser;
     }
 
-    public void startBuilding(BuildTask buildTask) throws CoreException {
+    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws CoreException {
         BpmEndpointUrlFactory bpmUrl = new BpmEndpointUrlFactory(bpmConfig.getBpmNewBaseUrl());
 
         Set<@NotNull @Valid EdgeDTO> edges = new HashSet<>();
         Map<@NotBlank String, @NotNull @Valid CreateTaskDTO> vertices = new HashMap<>();
 
-        boolean buildDependencies = buildTask.getBuildOptions().isBuildDependencies();
+        Collection<RemoteBuildTask> sourceVerticies = GraphUtils.unwrap(buildGraph.getVerticies());
+        for (RemoteBuildTask buildTask : sourceVerticies) {
+            vertices.put(buildTask.getId(), getCreateNewTaskDTO(bpmUrl, buildTask, user));
+        }
 
-        collectEdgesAndVertices(buildTask, bpmUrl, edges, vertices, buildDependencies);
-        CreateGraphRequest createGraphRequest = new CreateGraphRequest(edges, vertices);
-        rexClient.start(createGraphRequest);
-    }
-
-    private void collectEdgesAndVertices(
-            BuildTask buildTask,
-            BpmEndpointUrlFactory bpmUrl,
-            Set<@NotNull @Valid EdgeDTO> edges,
-            Map<@NotBlank String, @NotNull @Valid CreateTaskDTO> vertices,
-            boolean buildDependencies) throws CoreException {
-        vertices.put(buildTask.getId(), getCreateTaskDTO(bpmUrl, buildTask));
-        for (BuildTask dependency : buildTask.getDependencies()) {
-            if (buildDependencies) {
-                collectEdgesAndVertices(dependency, bpmUrl, edges, vertices, true);
-            }
-            //TODO Jan, is this ok ?
-            // Create edges also for the dependencies not present in the buildSetTask to link them to potentially
-            // already submitted tasks.
-            EdgeDTO edge = new EdgeDTO(buildTask.getId(), dependency.getId());
+        for (Edge<RemoteBuildTask> sourceEdge: buildGraph.getEdges()) {
+            RemoteBuildTask from = sourceEdge.getFrom().getData();
+            RemoteBuildTask to = sourceEdge.getTo().getData();
+            EdgeDTO edge = new EdgeDTO(from.getId(), to.getId());
             edges.add(edge);
         }
-    }
 
-    @Override
-    public void startBuilding(BuildSetTask buildSetTask) throws CoreException {
-        BpmEndpointUrlFactory bpmUrl = new BpmEndpointUrlFactory(bpmConfig.getBpmNewBaseUrl());
-
-        Set<@NotNull @Valid EdgeDTO> edges = new HashSet<>();
-        Map<@NotBlank String, @NotNull @Valid CreateTaskDTO> vertices = new HashMap<>();
-
-        for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            vertices.put(buildTask.getId(), getCreateTaskDTO(bpmUrl, buildTask));
-            for (BuildTask dependency : buildTask.getDependencies()) {
-                //TODO is this ok ?
-                // Create edges also for the dependencies not present in the buildSetTask to link them to potentially
-                // already submitted tasks.
-                EdgeDTO edge = new EdgeDTO(buildTask.getId(), dependency.getId());
-                edges.add(edge);
-            }
-        }
         CreateGraphRequest createGraphRequest = new CreateGraphRequest(edges, vertices);
-        rexClient.start(createGraphRequest, getLoginToken(buildSetTask));
+        return rexClient.start(createGraphRequest, loggedInUser.getTokenString());
     }
 
     @Override
-    public boolean cancel(BuildTask buildTask) throws CoreException {
-        return rexClient.cancel(buildTask.getId(), loggedInUser.getTokenString());
+    public boolean cancel(String taskId) throws CoreException {
+        return rexClient.cancel(taskId, loggedInUser.getTokenString());
     }
 
     @Override
-    public List<BuildTask> getBuildTasksByBCSRId(Integer buildConfigSetRecordId) {
+    public List<BuildTaskRef> getBuildTasksByBCSRId(Integer buildConfigSetRecordId) {
         // used by getBuildIdsInTheGroup
-        return null;
+        return null; //TODO
     }
 
     private Set<TaskDTO> getBuildTasksInState(EnumSet<BuildCoordinationStatus> states) {
@@ -233,9 +210,9 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         return taskFilterParameters;
     }
 
-    private CreateTaskDTO getCreateTaskDTO(BpmEndpointUrlFactory bpmUrlFactory, BuildTask buildTask) throws CoreException {
-        String loginToken = buildTask.getUser().getLoginToken();
-        BpmBuildTask bpmBuildTask = new BpmBuildTask(buildTask, globalConfig);
+    private CreateTaskDTO getCreateNewTaskDTO(BpmEndpointUrlFactory bpmUrlFactory, RemoteBuildTask buildTask, User user) throws CoreException {
+        String loginToken = loggedInUser.getTokenString();
+        BpmBuildTask bpmBuildTask = new BpmBuildTask(toBuildTask(buildTask, user, new Date()), globalConfig);
         Map<String, Serializable> bpmTask = Collections.singletonMap("processParameters", bpmBuildTask.getProcessParameters());
         Map<String, Object> processParameters = new HashMap<>();
         processParameters.put("auth", Collections.singletonMap("token", loginToken));
@@ -273,6 +250,24 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 Mode.ACTIVE
         );
         return createTaskDTO;
+    }
+
+    @Deprecated //remove once fully migrated to external task scheduler
+    private BuildTask toBuildTask(RemoteBuildTask buildTask, User user, Date startTime) {
+        BuildSetTask buildSetTask = BuildSetTask.Builder.newBuilder()
+                .startTime(startTime)
+                .build();
+        return BuildTask.build(
+                buildTask.getBuildConfigurationAudited(),
+                buildTask.getBuildOptions(),
+                user,
+                buildTask.getId(),
+                buildSetTask,
+                startTime,
+                null,
+                null,
+                null
+        );
     }
 
     private static class ConstraintMapper {
