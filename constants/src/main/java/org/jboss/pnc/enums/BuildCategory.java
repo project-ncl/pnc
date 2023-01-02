@@ -32,5 +32,9 @@ public enum BuildCategory {
     /**
      * The build is built to be used in Managed services only.
      */
-    SERVICE
+    SERVICE,
+    /**
+     * Build used by the Autobuilder feature only. No manual builds should be assigned to this category.
+     */
+    AUTO
 }
