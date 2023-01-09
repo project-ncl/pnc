@@ -21,6 +21,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jboss.pnc.model.IdRev;
 
+import java.time.Instant;
+
 @AllArgsConstructor
 public class DefaultBuildTaskRef implements BuildTaskRef {
 
@@ -32,5 +34,11 @@ public class DefaultBuildTaskRef implements BuildTaskRef {
 
     @Getter
     private final String contentId;
+
+    @Getter
+    private final String username;
+
+    @Getter
+    private final Instant submitTime;
 
 }

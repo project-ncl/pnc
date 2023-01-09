@@ -19,7 +19,6 @@ package org.jboss.pnc.remotecoordinator;
 
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.common.Strings;
-import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 import java.net.URI;
 import java.util.List;
@@ -40,7 +39,7 @@ public class BpmEndpointUrlFactory {
                 Request.Method.POST,
                 URI.create(baseUrl + "/containers/" + deploymentId + "/processes/" + processId + "/instances/correlation/" + correlationKey),
                 headers,
-                JsonOutputConverterMapper.apply(attachment));
+                attachment);
     }
 
     public Request processInstanceSignalByCorrelation(String deploymentId, String correlationKey, String signal, List<Request.Header> headers) {

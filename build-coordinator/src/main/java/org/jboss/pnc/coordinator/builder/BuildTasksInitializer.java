@@ -320,14 +320,13 @@ public class BuildTasksInitializer {
             } else {
                 String buildId = buildTaskIdProvider.get();
                 String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
-                // Used only for this operation inside the loop
+                // Used only for this operation inside the loop, user must be set from the request filter
                 MDCUtils.addBuildContext(
                         buildContentId,
                         buildOptions.isTemporaryBuild(),
                         ExpiresDate.getTemporaryBuildExpireDate(
                                 temporaryBuildLifespanDays,
-                                buildOptions.isTemporaryBuild()),
-                        user.getId().toString());
+                                buildOptions.isTemporaryBuild()));
                 try {
                     Optional<String> requestContext = MDCUtils.getRequestContext();
                     buildTask = BuildTask.build(

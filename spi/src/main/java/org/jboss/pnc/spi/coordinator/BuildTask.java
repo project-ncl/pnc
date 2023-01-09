@@ -33,9 +33,13 @@ import java.util.Set;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-23.
  */
-public class BuildTask extends DefaultBuildTaskRef {
+@Deprecated // remove once fully migrated to external task scheduler
+public class BuildTask {
 
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.build-task");
+
+    @Getter
+    private final String id;
 
     @Getter
     private final BuildConfigurationAudited buildConfigurationAudited;
@@ -48,6 +52,9 @@ public class BuildTask extends DefaultBuildTaskRef {
 
     @Getter
     private final Date submitTime;
+
+    @Getter
+    private final String contentId;
 
     @Getter
     @Setter
@@ -113,7 +120,7 @@ public class BuildTask extends DefaultBuildTaskRef {
             String contentId,
             String requestContext) {
 
-        super(id, buildConfigurationAudited.getIdRev(), contentId);
+        this.id = id;
         this.buildConfigurationAudited = buildConfigurationAudited;
         this.buildOptions = buildOptions;
         this.user = user;
@@ -122,6 +129,8 @@ public class BuildTask extends DefaultBuildTaskRef {
         this.buildSetTask = buildSetTask;
         this.buildConfigSetRecordId = buildConfigSetRecordId;
         this.productMilestone = productMilestone;
+        this.contentId = contentId;
+
         this.requestContext = requestContext;
     }
 
@@ -234,7 +243,7 @@ public class BuildTask extends DefaultBuildTaskRef {
 
     @Override
     public String toString() {
-        return "Build Task id:" + getId() + ", name: " + getBuildConfigurationAudited().getName() + ", project name: "
+        return "Build Task id:" + id + ", name: " + getBuildConfigurationAudited().getName() + ", project name: "
                 + getBuildConfigurationAudited().getProject().getName() + ", status: " + status;
     }
 

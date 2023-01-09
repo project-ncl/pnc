@@ -63,7 +63,10 @@ public interface BuildCoordinator {
      */
     List<BuildTask> getSubmittedBuildTasks();
 
+    @Deprecated // get rid of BuildTask
     List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId);
+
+    List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(int buildConfigSetRecordId);
 
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
 
@@ -86,5 +89,6 @@ public interface BuildCoordinator {
 
     void start();
 
+    @Deprecated
     Optional<BuildTaskContext> getMDCMeta(String buildTaskId);
 }

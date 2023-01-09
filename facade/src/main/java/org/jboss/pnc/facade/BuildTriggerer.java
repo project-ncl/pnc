@@ -48,6 +48,7 @@ public interface BuildTriggerer {
      */
     boolean cancelBuild(String buildId) throws CoreException;
 
+    @Deprecated // get MDC from the request
     Optional<BuildTaskContext> getMdcMeta(String buildId);
 
 }
