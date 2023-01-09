@@ -50,4 +50,5 @@ public class RemoteBuildTask {
     }
 
     public ProductMilestone currentProductMilestone;
+
 }

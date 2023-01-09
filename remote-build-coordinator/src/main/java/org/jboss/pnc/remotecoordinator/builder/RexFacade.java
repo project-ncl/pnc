@@ -23,6 +23,7 @@ import org.apache.http.entity.ContentType;
 import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.auth.LoggedInUser;
+import org.jboss.pnc.bpm.model.ComponentBuildParameters;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.graph.GraphUtils;
@@ -57,6 +58,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.net.URI;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -97,6 +99,8 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         UNFINISHED_STATES.addAll(RUNNING_STATES);
     }
 
+    private static final String INIT_DATA = "initData";
+
     private GlobalModuleGroup globalConfig;
     private BpmModuleConfig bpmConfig;
 
@@ -104,7 +108,6 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
     @Inject
     LoggedInUser loggedInUser;
-
 
     @Deprecated
     public RexFacade() { // CDI workaround
@@ -170,8 +173,18 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             String buildId = t.getName();
             String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
 //            BuildCoordinationStatus status = toBuildCordinationStatus(t.getState());
+            Map<String, Object> attachment = (Map<String, Object>) t.getRemoteStart().getAttachment();
+            Map<String, Object> initData = (Map<String, Object>) attachment.get(this.INIT_DATA);
+            ComponentBuildParameters parameters = (ComponentBuildParameters) initData.get("processParameters");
+            Instant submitTime = (Instant) initData.get("submitTime");
 
-            BuildTaskRef buildTask = new DefaultBuildTaskRef(buildId, idRev, buildContentId);
+            BuildTaskRef buildTask = new DefaultBuildTaskRef(
+                    buildId,
+                    idRev,
+                    buildContentId,
+                    parameters.getBuildExecutionConfiguration().getUser().getUsername(),
+                    submitTime
+                    );
             runningBuildTasks.add(buildTask);
         });
         return runningBuildTasks;
@@ -218,8 +231,9 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         processParameters.put("auth", Collections.singletonMap("token", loginToken));
         processParameters.put("mdc", new MDCParameters());
         processParameters.put("task", bpmTask);
+        processParameters.put("submitTime", buildTask.getSubmitTime());
 
-        Map<String, Map<String, Object>> bpmRequestBody = Collections.singletonMap("initData", processParameters);
+        Map<String, Map<String, Object>> bpmRequestBody = Collections.singletonMap(INIT_DATA, processParameters);
 
         List<Request.Header> headers = List.of(
                 new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),

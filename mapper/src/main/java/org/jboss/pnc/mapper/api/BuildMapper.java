@@ -31,11 +31,8 @@ import org.jboss.pnc.mapper.BuildBCRevisionFetcher;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.mapper.api.BuildMapper.StatusMapper;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -204,42 +201,6 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
             ignoreUnmappedSourceProperties = { "statusDescription", "buildSetTask", "buildConfigSetRecordId",
                     "buildOptions", "dependants", "dependencies", "requestContext" })
     Build fromBuildTask(BuildTask buildTask);
-
-    @Mapping(target = "id", expression = "java( remoteBuildTask.getId() )")
-    @Mapping(target = "project", source = "buildConfigurationAudited.project", resultType = ProjectRef.class)
-    @Mapping(
-            target = "scmRepository",
-            source = "buildConfigurationAudited.repositoryConfiguration",
-            qualifiedBy = Reference.class)
-    @Mapping(
-            target = "environment",
-            source = "buildConfigurationAudited.buildEnvironment",
-            qualifiedBy = Reference.class)
-    @Mapping(
-            target = "buildConfigRevision",
-            source = "buildConfigurationAudited",
-            resultType = BuildConfigurationRevisionRef.class)
-    @Mapping(target = "groupBuild", expression = "java( buildConfigSetRecord )")
-    @Mapping(target = "productMilestone", resultType = ProductMilestoneRef.class)
-    @Mapping(target = "noRebuildCause", resultType = BuildRef.class, qualifiedByName = "unwrap")
-    @Mapping(target = "buildContentId", expression = "java( ContentIdentityManager.getBuildContentId(remoteBuildTask.getId()) )")
-    @Mapping(target = "temporaryBuild", source = "buildOptions.temporaryBuild")
-    @Mapping(target = "alignmentPreference", source = "buildOptions.alignmentPreference")
-    @Mapping(target = "user", expression = "java( user )")
-    @Mapping(target = "scmUrl", ignore = true)
-    @Mapping(target = "scmRevision", ignore = true)
-    @Mapping(target = "scmTag", ignore = true)
-    @Mapping(target = "attributes", ignore = true)
-    @Mapping(target = "lastUpdateTime", ignore = true)
-    @Mapping(target = "progress", expression = "java( status )")
-    @Mapping(target = "buildOutputChecksum", ignore = true)
-    @BeanMapping(
-            ignoreUnmappedSourceProperties = { "userId", "alreadyRunning" })
-    Build fromRemoteBuildTask(
-            RemoteBuildTask remoteBuildTask,
-            BuildConfigSetRecord buildConfigSetRecord,
-            BuildCoordinationStatus status,
-            User user);
 
     public static <T> T unwrap(Optional<T> optional) {
         return (optional != null && optional.isPresent()) ? optional.get() : null;
