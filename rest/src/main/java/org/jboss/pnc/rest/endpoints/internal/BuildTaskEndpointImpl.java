@@ -77,11 +77,11 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         if (maybeBuildTask.isPresent()) {
             BuildTask buildTask = maybeBuildTask.get();
             boolean temporaryBuild = buildTask.getBuildOptions().isTemporaryBuild();
+            // user MDC must be set by the request filter
             MDCUtils.addBuildContext(
                     buildTask.getContentId(),
                     temporaryBuild,
-                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
-                    userService.currentUser().getId().toString());
+                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild));
             try {
                 if (buildTask.getStatus().isCompleted()) {
                     logger.warn(

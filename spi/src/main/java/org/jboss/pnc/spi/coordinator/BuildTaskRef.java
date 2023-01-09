@@ -19,6 +19,11 @@ package org.jboss.pnc.spi.coordinator;
 
 import org.jboss.pnc.model.IdRev;
 
+import java.time.Instant;
+
+/**
+ * Representing remote running task.
+ */
 public interface BuildTaskRef {
     String getId();
 
@@ -26,5 +31,9 @@ public interface BuildTaskRef {
 
     @Deprecated //TODO calculate in-place
     String getContentId();
+
+    String getUsername();
+
+    Instant getSubmitTime();
 
 }

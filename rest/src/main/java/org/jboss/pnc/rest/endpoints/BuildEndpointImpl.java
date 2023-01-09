@@ -17,29 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.lang.invoke.MethodHandles;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-
-import org.jboss.pnc.common.logging.BuildTaskContext;
-import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
@@ -60,6 +38,7 @@ import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.rest.api.endpoints.BuildEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -67,6 +46,26 @@ import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+
+import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.lang.invoke.MethodHandles;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -265,14 +264,8 @@ public class BuildEndpointImpl implements BuildEndpoint {
     @Override
     public void cancel(String buildId) {
         try {
+            MDC.put(MDCKeys.PROCESS_CONTEXT_KEY, ContentIdentityManager.getBuildContentId(buildId));
             logger.debug("Received cancel request for buildTaskId: {}.", buildId);
-
-            Optional<BuildTaskContext> mdcMeta = buildTriggerer.getMdcMeta(buildId);
-            if (mdcMeta.isPresent()) {
-                MDCUtils.addBuildContext(mdcMeta.get());
-            } else {
-                logger.warn("Unable to retrieve MDC meta. There is no running build for buildTaskId: {}.", buildId);
-            }
 
             if (!buildTriggerer.cancelBuild(buildId)) {
                 throw new NotFoundException();
@@ -282,7 +275,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
             logger.error("Unable to cancel the build [" + buildId + "].", e);
             throw new RuntimeException("Unable to cancel the build [" + buildId + "].");
         } finally {
-            MDCUtils.removeBuildContext();
+            MDC.remove(MDCKeys.PROCESS_CONTEXT_KEY);
         }
     }
 

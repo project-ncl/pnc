@@ -38,24 +38,20 @@ public class MDCUtils extends org.jboss.pnc.common.log.MDCUtils {
         addBuildContext(
                 buildTaskContext.getBuildContentId(),
                 buildTaskContext.isTemporaryBuild(),
-                buildTaskContext.getTemporaryBuildExpireDate(),
-                buildTaskContext.getUserId());
+                buildTaskContext.getTemporaryBuildExpireDate());
     }
 
     public static void addBuildContext(
             String processContext,
             Boolean temporaryBuild,
-            Instant temporaryBuildExpireDate,
-            String userId) {
+            Instant temporaryBuildExpireDate) {
         addProcessContext(processContext);
-        MDC.put(MDCKeys.USER_ID_KEY, userId);
         MDC.put(MDCKeys.TMP_KEY, temporaryBuild.toString());
         MDC.put(MDCKeys.EXP_KEY, temporaryBuildExpireDate.toString());
     }
 
     public static void removeBuildContext() {
         removeProcessContext();
-        MDC.remove(MDCKeys.USER_ID_KEY);
         MDC.remove(MDCKeys.TMP_KEY);
         MDC.remove(MDCKeys.EXP_KEY);
     }

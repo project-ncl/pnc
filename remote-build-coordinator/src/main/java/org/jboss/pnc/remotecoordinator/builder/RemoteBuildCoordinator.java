@@ -18,16 +18,14 @@
 package org.jboss.pnc.remotecoordinator.builder;
 
 import lombok.AllArgsConstructor;
+import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
-import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.common.util.ProcessStageUtils;
 import org.jboss.pnc.dto.Build;
-import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mapper.api.BuildMapper;
@@ -68,6 +66,7 @@ import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -96,7 +95,6 @@ import java.util.stream.Collectors;
  * No rebuild required:
  * - determine base on the DB status
  * - there must be no dependency scheduled for a rebuild
- * //TODO Jan: where do we order the builds (dependencies first) as we need that for NNR
  *
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-20.
  */
@@ -598,19 +596,9 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    @Override public Optional<BuildTaskContext> getMDCMeta (String buildTaskId){
-        return getSubmittedBuildTasks().stream()
-                .filter(buildTask -> buildTaskId.equals(buildTask.getId()))
-                .map(this::getMDCMeta)
-                .findAny();
-    }
-
-    private BuildTaskContext getMDCMeta (BuildTask buildTask){ //TODO
-        boolean temporaryBuild = buildTask.getBuildOptions().isTemporaryBuild();
-        return new BuildTaskContext(buildTask.getContentId(),
-                buildTask.getUser().getId().toString(),
-                temporaryBuild,
-                ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild));
+    @Override
+    public Optional<BuildTaskContext> getMDCMeta (String buildTaskId){
+        throw new UnsupportedOperationException("Remote build coordinator cannot provide more MDC details than the endpoint has.");
     }
 
     @Override
@@ -621,16 +609,16 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             return false;
         }
         log.debug("Cancelling Build Configuration Set: {}", buildConfigSetRecordId);
-        Collection<BuildTask> buildTasks = getSubmittedBuildTasksBySetId(buildConfigSetRecordId);
+        Collection<BuildTaskRef> buildTasks = getSubmittedBuildTaskRefsBySetId(buildConfigSetRecordId);
         buildTasks.forEach(buildTask -> {
             try {
-                MDCUtils.addBuildContext(getMDCMeta(buildTask));
+                MDC.put(MDCKeys.PROCESS_CONTEXT_KEY, ContentIdentityManager.getBuildContentId(buildTask.getId()));
                 log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
                 cancel(buildTask.getId());
             } catch (CoreException e) {
                 log.error("Unable to cancel the build [" + buildTask.getId() + "].", e);
             } finally {
-                MDCUtils.removeBuildContext();
+                MDC.remove(MDCKeys.PROCESS_CONTEXT_KEY);
             }
         });
 
@@ -650,7 +638,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
 
 //      BuildProgress
 
-        Build build = buildMapper.fromRemoteBuildTask(task, buildConfigSetRecord, status, user);
+        Build build = buildMapper.fromBuildTask(toBuildTask(task, buildConfigSetRecord, status, user));
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(build,
                 null,
                 BuildStatus.fromBuildCoordinationStatus(status));
@@ -785,6 +773,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         }
     }
 
+    //TODO only used from the endpoint (triggered from Rex)
     public void completeBuild(BuildTask buildTask, BuildResult buildResult){
         String buildTaskId = buildTask.getId();
 
@@ -881,28 +870,73 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId) {
+        // in the returned tasks only ids and BuildConfigurationAudited names are used
+        List<BuildTaskRef> tasks = taskRepository.getBuildTasksByBCSRId(buildConfigSetRecordId);
+        return tasks.stream().map( t -> {
+            BuildConfigurationAudited bca = bcaRepository.queryById(t.getIdRev());
+            return BuildTask.build(
+                    bca,
+                    null,
+                    null,
+                    t.getId(),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+                })
+                .collect(Collectors.toList());
+    }
+
     private BuildTask toBuildTask(BuildTaskRef buildTask) {
         String contentId = ContentIdentityManager.getBuildContentId(buildTask.getId());
-        GroupBuildRef buildGroup = null; //TODO
-        BuildStatus status;
         IdRev idRev = buildTask.getIdRev();
         BuildConfigurationAudited buildConfigurationAudited = bcaRepository.queryById(idRev);
 
+        User user = new User();
+        user.setUsername(buildTask.getUsername());
         return BuildTask.build(
                 buildConfigurationAudited,
                 null,
-                user,
+                user, //used by BuildConfigurationProviderImpl.getBuildConfigurationIncludeLatestBuild -> populateBuildConfigWithLatestBuild
                 buildTask.getId(),
                 null,
-                submitTime,
+                Date.from(buildTask.getSubmitTime()), //used by BuildConfigurationProviderImpl.getBuildConfigurationIncludeLatestBuild -> populateBuildConfigWithLatestBuild
                 null,
                 contentId,
                 null
         );
     }
 
+    private BuildTask toBuildTask(RemoteBuildTask buildTask,
+            BuildConfigSetRecord buildConfigSetRecord,
+            BuildCoordinationStatus status,
+            User user) {
+        String contentId = ContentIdentityManager.getBuildContentId(buildTask.getId());
+        IdRev idRev = buildTask.getBuildConfigurationAudited().getIdRev();
+        BuildConfigurationAudited buildConfigurationAudited = bcaRepository.queryById(idRev);
+
+        BuildSetTask buildSetTask = BuildSetTask.Builder.newBuilder()
+                .buildConfigSetRecord(buildConfigSetRecord)
+                .build();
+        BuildTask build = BuildTask.build(
+                buildConfigurationAudited,
+                null,
+                user,
+                buildTask.getId(),
+                buildSetTask,
+                Date.from(buildTask.getSubmitTime()),
+                null,
+                contentId,
+                null);
+        build.setStatus(status);
+        return build;
+    }
+
     @Override
-    public List<BuildTask> getSubmittedBuildTasksBySetId ( int buildConfigSetRecordId){
+    public List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId (int buildConfigSetRecordId){
         return taskRepository.getBuildTasksByBCSRId(buildConfigSetRecordId);
     }
 
