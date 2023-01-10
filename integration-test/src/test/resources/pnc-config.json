@@ -62,6 +62,10 @@
         {
           "@module-config": "scm-config",
           "internalScmAuthority": "git@github.com:22"
+        },
+        {
+          "@module-config": "scheduler-config",
+          "schedulerBaseUrl": "http://localhost:8181/"
         }
       ]
     }
