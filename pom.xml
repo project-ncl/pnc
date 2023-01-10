@@ -115,6 +115,7 @@
     <version.vertx.core>3.8.5</version.vertx.core>
     <version.pnc-api>2.4.5-SNAPSHOT</version.pnc-api>
     <version.pnc-common>2.2.1-SNAPSHOT</version.pnc-common>
+    <version.rex-api>1.0.0-SNAPSHOT</version.rex-api>
 
     <!-- same base version (no -redhat) as version.org.apache.httpcomponents.httpclient from the eap BOM-->
     <version.org.apache.httpcomponents.fluent-hc>4.5.4</version.org.apache.httpcomponents.fluent-hc>
@@ -627,6 +628,26 @@
         <groupId>org.jboss.pnc.build-agent</groupId>
         <artifactId>server</artifactId>
         <version>${version.buildagent}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc.rex</groupId>
+        <artifactId>rex-api</artifactId>
+        <version>${version.rex-api}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-infinispan-client</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-validator</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
 

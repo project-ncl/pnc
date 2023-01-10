@@ -80,6 +80,10 @@
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-folo-client-java</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.rex</groupId>
+      <artifactId>rex-api</artifactId>
+    </dependency>
 
 
     <dependency>
