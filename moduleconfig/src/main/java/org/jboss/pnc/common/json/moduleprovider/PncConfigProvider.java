@@ -22,6 +22,7 @@ import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
 import org.jboss.pnc.common.json.moduleconfig.ScmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleconfig.UIModuleConfig;
@@ -43,5 +44,6 @@ public class PncConfigProvider<T extends AbstractModuleConfig> extends AbstractC
         addModuleConfig(new ProviderNameType(DemoDataConfig.class, DemoDataConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(AlignmentConfig.class, AlignmentConfig.MODULE_NAME));
         addModuleConfig(new ProviderNameType(ScmModuleConfig.class, ScmModuleConfig.MODULE_NAME));
+        addModuleConfig(new ProviderNameType(SchedulerConfig.class, SchedulerConfig.MODULE_NAME));
     }
 }

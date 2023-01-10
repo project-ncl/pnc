@@ -24,6 +24,7 @@ import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.IndyRepoDriverModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.SchedulerConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +76,12 @@ public class ModuleConfigFactory {
     @Dependent
     IndyRepoDriverModuleConfig createMavenRepoDriverModuleConfig() throws ConfigurationParseException {
         return configuration.getModuleConfig(new PncConfigProvider<>(IndyRepoDriverModuleConfig.class));
+    }
+
+    @Produces
+    @Dependent
+    SchedulerConfig createSchedulerConfig() throws ConfigurationParseException {
+        return configuration.getModuleConfig(new PncConfigProvider<>(SchedulerConfig.class));
     }
 
     @Produces

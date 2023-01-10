@@ -303,7 +303,7 @@
                 </goals>
                 <configuration>
                   <execute-commands>
-                    <batch>true</batch>
+<!--                    <batch>true</batch>/-->
                     <commands>
                       <command>
                         /subsystem=logging/logger=org.jboss.pnc:add
@@ -322,6 +322,18 @@
                       </command>
                       <command>
                         /subsystem=logging/logger=org.jboss.pnc.datastore:add(level=TRACE)
+                      </command>
+                      <command>
+                        /extension=org.wildfly.extension.microprofile.config-smallrye:add
+                      </command>
+                      <command>
+                        /subsystem=microprofile-config-smallrye:add
+                      </command>
+                      <command>
+                        /extension=org.wildfly.extension.microprofile.fault-tolerance-smallrye:add
+                      </command>
+                      <command>
+                        /subsystem=microprofile-fault-tolerance-smallrye:add
                       </command>
                       <!--command>
                         /subsystem=logging/logger=org.hibernate:add(level=DEBUG)
