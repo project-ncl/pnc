@@ -25,7 +25,7 @@
   <parent>
     <groupId>org.jboss.bom</groupId> <!-- Use BOM as parent to have access to the properties -->
     <artifactId>jboss-eap-jakartaee8</artifactId>
-    <version>7.4.6.GA</version>
+    <version>7.4.7.GA</version>
   </parent>
 
   <groupId>org.jboss.pnc</groupId>
@@ -216,6 +216,13 @@
         <groupId>com.redhat.bom.rh-sso</groupId>
         <artifactId>rh-sso-adapter-bom</artifactId>
         <version>7.4.0.GA</version> <!-- If you are changing this, change also version.keycloak!-->
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.bom</groupId>
+        <artifactId>jboss-eap-xp-microprofile</artifactId>
+        <version>4.0.0.GA</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -690,6 +697,13 @@
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
         <version>1.8.3</version> <!-- version required by indy-repository-manager tests -->
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>io.smallrye.config</groupId>
+        <artifactId>smallrye-config</artifactId>
+        <version>2.12.1</version>
         <scope>test</scope>
       </dependency>
 
@@ -1345,6 +1359,7 @@
               <exclude>**/plugins.txt</exclude>
               <exclude>**/Dockerfile</exclude>
               <exclude>**/nbactions.xml</exclude>
+              <exclude>**/*.properties</exclude>
 
               <!-- Exclude downloaded/generated -->
               <exclude>**/.cache/**</exclude>

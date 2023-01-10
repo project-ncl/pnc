@@ -382,7 +382,7 @@
                 </goals>
                 <configuration>
                   <execute-commands>
-                    <batch>true</batch>
+<!--                    <batch>true</batch>-->
                     <commands>
                       <command>
                         /subsystem=logging/logger=org:add(level=INFO)
@@ -403,6 +403,19 @@
                         /subsystem=logging/root-logger=ROOT:change-root-log-level(level=DEBUG)
                       </command>
 
+                      <!-- Add microprofile stuff -->
+                      <command>
+                        /extension=org.wildfly.extension.microprofile.config-smallrye:add
+                      </command>
+                      <command>
+                        /subsystem=microprofile-config-smallrye:add
+                      </command>
+                      <command>
+                        /extension=org.wildfly.extension.microprofile.fault-tolerance-smallrye:add
+                      </command>
+                      <command>
+                        /subsystem=microprofile-fault-tolerance-smallrye:add
+                      </command>
                       <!--log sql queries and parameter bindings-->
                       <!--command>
                         /subsystem=logging/logger=org.hibernate.SQL:add(level=DEBUG)
