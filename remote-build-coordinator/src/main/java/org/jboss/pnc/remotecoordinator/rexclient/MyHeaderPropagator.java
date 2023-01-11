@@ -28,7 +28,7 @@ import java.util.Map;
 public class MyHeaderPropagator implements ClientHeadersFactory {
 
     /**
-     * Uses headers from initial request to Orchestrator from a user and propagates them to Rest Client
+     * Uses headers from initial REST request to Orchestrator from a user and propagates them to Rest Client
      *
      * @param incomingHeaders - the map of headers from the inbound JAX-RS request. This will be an empty map if the
      *        associated client interface is not part of a JAX-RS request.
@@ -62,9 +62,6 @@ public class MyHeaderPropagator implements ClientHeadersFactory {
                 case "log-request-context":
                 case "log-process-context":
                 case "process-context-variant":
-                    // propagate the MDC value
-                    outgoingHeaders.putSingle(header, value);
-                    break;
                 case "traceparent":
                 case "tracestate":
                 case "trace-id":
@@ -76,6 +73,9 @@ public class MyHeaderPropagator implements ClientHeadersFactory {
                 case "log-build-id":
                 case "log-tmp":
                 case "log-exp":
+                    // propagate the MDC value
+                    outgoingHeaders.putSingle(header, value);
+                    break;
                 default:
                     // don't propagate the MDC value
                     break;
