@@ -18,7 +18,6 @@
 
 package org.jboss.pnc.mock.executor;
 
-import org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent;
 import org.jboss.pnc.enums.BuildExecutionStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
@@ -68,7 +67,6 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
     private Runnable cancelHook;
 
     private String accessToken;
-    private Consumer<TaskStatusUpdateEvent> clientStatusUpdateConsumer;
 
     public BuildExecutionSessionMock(
             BuildExecutionConfiguration buildExecutionConfiguration,
@@ -257,16 +255,6 @@ public class BuildExecutionSessionMock implements BuildExecutionSession {
     @Override
     public void setRepositoryManagerResult(RepositoryManagerResult repositoryManagerResult) {
         this.repositoryManagerResult = repositoryManagerResult;
-    }
-
-    @Override
-    public void setBuildStatusUpdateConsumer(Consumer<TaskStatusUpdateEvent> clientStatusUpdateConsumer) {
-        this.clientStatusUpdateConsumer = clientStatusUpdateConsumer;
-    }
-
-    @Override
-    public Consumer<TaskStatusUpdateEvent> getBuildStatusUpdateConsumer() {
-        return clientStatusUpdateConsumer;
     }
 
     public synchronized void setCancelHook(Runnable cancelHook) {

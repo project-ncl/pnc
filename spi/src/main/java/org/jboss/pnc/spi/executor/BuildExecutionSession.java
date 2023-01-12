@@ -73,11 +73,6 @@ public interface BuildExecutionSession {
 
     void setRepositoryManagerResult(RepositoryManagerResult repositoryManagerResult);
 
-    void setBuildStatusUpdateConsumer(
-            Consumer<org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent> clientStatusUpdateConsumer);
-
-    Consumer<org.jboss.pnc.buildagent.api.TaskStatusUpdateEvent> getBuildStatusUpdateConsumer();
-
     String getAccessToken();
 
 }
