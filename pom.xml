@@ -107,7 +107,6 @@
     <version.keycloak>9.0.3.redhat-00002</version.keycloak>
     <version.shrinkwrap.descriptors>2.0.0</version.shrinkwrap.descriptors>
     <version.swagger2>2.1.4</version.swagger2>
-    <version.buildagent>1.0.0</version.buildagent>
     <version.lombok>1.18.22</version.lombok>
     <version.mapstruct>1.4.2.Final</version.mapstruct>
     <version.junit>4.13.1</version.junit>
@@ -611,24 +610,6 @@
         <version>${project.version}</version>
       </dependency>
       <!-- END: Project modules -->
-
-      <dependency>
-        <groupId>org.jboss.pnc.build-agent</groupId>
-        <artifactId>api</artifactId>
-        <version>${version.buildagent}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc.build-agent</groupId>
-        <artifactId>client</artifactId>
-        <version>${version.buildagent}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jboss.pnc.build-agent</groupId>
-        <artifactId>server</artifactId>
-        <version>${version.buildagent}</version>
-      </dependency>
 
       <dependency>
         <groupId>org.jboss.pnc.rex</groupId>

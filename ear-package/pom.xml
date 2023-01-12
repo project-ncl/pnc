@@ -137,10 +137,6 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>notifications</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.jboss.pnc.build-agent</groupId>
-      <artifactId>client</artifactId>
-    </dependency>
   </dependencies>
 
   <build>
@@ -152,12 +148,7 @@
           <configuration>
             <archive>
               <manifestEntries combine.children="append">
-                <!--
-                io.undertow.core, org.jboss.xnio: required by BuildAgentClient
-                -->
                 <Dependencies>
-                  io.undertow.core,
-                  io.undertow.websocket,
                   org.apache.commons.beanutils,
                   org.apache.commons.codec,
                   org.apache.commons.collections,
@@ -165,7 +156,6 @@
                   org.apache.commons.lang,
                   org.apache.commons.lang3,
                   org.apache.httpcomponents.core,
-                  org.jboss.xnio
                 </Dependencies>
               </manifestEntries>
             </archive>
@@ -306,12 +296,6 @@
             <jarModule>
               <groupId>org.jboss.pnc</groupId>
               <artifactId>notifications</artifactId>
-              <includeInApplicationXml>true</includeInApplicationXml>
-              <bundleDir>/</bundleDir>
-            </jarModule>
-            <jarModule>
-              <groupId>org.jboss.pnc.build-agent</groupId>
-              <artifactId>client</artifactId>
               <includeInApplicationXml>true</includeInApplicationXml>
               <bundleDir>/</bundleDir>
             </jarModule>
