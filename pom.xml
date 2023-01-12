@@ -615,20 +615,6 @@
         <groupId>org.jboss.pnc.rex</groupId>
         <artifactId>rex-api</artifactId>
         <version>${version.rex-api}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-infinispan-client</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-openapi</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-hibernate-validator</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
 
 
