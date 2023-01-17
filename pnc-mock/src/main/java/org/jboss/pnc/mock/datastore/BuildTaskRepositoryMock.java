@@ -17,61 +17,26 @@
  */
 package org.jboss.pnc.mock.datastore;
 
-import org.jboss.pnc.enums.BuildCoordinationStatus;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class BuildTaskRepositoryMock implements BuildTaskRepository {
-    private final Map<String, BuildTask> tasks = new ConcurrentHashMap<>();
+    private final Map<String, BuildTaskRef> tasks = new ConcurrentHashMap<>();
 
-    @Override
-    public BuildTask getTask(String id) {
+    public BuildTaskRef getTask(String id) {
         return tasks.get(id);
     }
 
     @Override
-    public Optional<BuildTask> getTask(
-            BuildConfigurationAudited buildConfigAudited,
-            Set<BuildCoordinationStatus> states) {
-        List<BuildTask> tasks = this.tasks.values()
-                .stream()
-                .filter(
-                        t -> states.contains(t.getStatus())
-                                && t.getBuildConfigurationAudited().getId().equals(buildConfigAudited.getId())
-                                && t.getBuildConfigurationAudited().getRev().equals(buildConfigAudited.getRev()))
-                .collect(Collectors.toList());
-        switch (tasks.size()) {
-            case 0:
-                return Optional.empty();
-            case 1:
-                return Optional.of(tasks.get(0));
-            default:
-                throw new IllegalStateException(
-                        "Multiple tasks in states " + states + " found for build config with id "
-                                + buildConfigAudited.getId());
-        }
-    }
-
-    @Override
-    public List<BuildTask> getBuildTasksInState(Set<BuildCoordinationStatus> states) {
-        return this.tasks.values().stream().filter(t -> states.contains(t.getStatus())).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<BuildTask> getBuildTasksByBCSRId(Integer buildConfigSetRecordId) {
+    public List<BuildTaskRef> getBuildTasksByBCSRId(Integer buildConfigSetRecordId) {
         return tasks.values()
                 .stream()
                 .filter(t -> buildConfigSetRecordId.equals(t.getBuildConfigSetRecordId()))
@@ -79,13 +44,17 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
     }
 
     @Override
-    public Collection<BuildTask> getAll() {
+    @Deprecated
+    public Collection<? extends BuildTaskRef> getAll() {
         return tasks.values();
     }
 
     @Override
-    public Collection<BuildTask> getUnfinishedTasks() {
-        return tasks.values().stream().filter(task -> !task.getStatus().isCompleted()).collect(Collectors.toList());
+    public Collection<BuildTaskRef> getUnfinishedTasks() {
+        return tasks.values()
+                .stream()
+                .filter(task -> !task.getStatus().isCompleted())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -98,11 +67,11 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
         return "null";
     }
 
-    public void addTask(BuildTask task) {
-        this.tasks.put(task.getId(), task);
+    public void addTask(BuildTaskRef task) {
+        this.tasks.put(task.getId(),task);
     }
 
-    public void removeTask(BuildTask task) {
+    public void removeTask(BuildTaskRef task) {
         this.tasks.remove(task.getId());
     }
 }

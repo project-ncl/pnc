@@ -115,6 +115,7 @@
     <version.vertx.core>3.8.5</version.vertx.core>
     <version.pnc-api>2.4.5-SNAPSHOT</version.pnc-api>
     <version.pnc-common>2.2.1-SNAPSHOT</version.pnc-common>
+    <version.rex>1.0.0-SNAPSHOT</version.rex>
 
     <!-- same base version (no -redhat) as version.org.apache.httpcomponents.httpclient from the eap BOM-->
     <version.org.apache.httpcomponents.fluent-hc>4.5.4</version.org.apache.httpcomponents.fluent-hc>
@@ -632,6 +633,17 @@
         <groupId>org.jboss.pnc</groupId>
         <artifactId>pnc-common</artifactId>
         <version>${version.pnc-common}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc.rex</groupId>
+        <artifactId>dto</artifactId>
+        <version>${version.rex}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.pnc.rex</groupId>
+        <artifactId>rex-api</artifactId>
+        <version>${version.rex}</version>
       </dependency>
 
       <!-- We need to have these keycloaks here becasue they are not provided

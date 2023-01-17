@@ -18,10 +18,12 @@
 
 package org.jboss.pnc.remotecoordinator.builder;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.common.graph.GraphUtils;
+import org.jboss.pnc.common.util.Quicksort;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
@@ -29,10 +31,10 @@ import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
@@ -40,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,11 +62,8 @@ public class BuildTasksInitializer { // TODO update docs
 
     private final DatastoreAdapter datastoreAdapter;
 
-    private final long temporaryBuildLifespanDays;
-
-    public BuildTasksInitializer(DatastoreAdapter datastoreAdapter, long temporaryBuildLifespanDays) {
+    public BuildTasksInitializer(DatastoreAdapter datastoreAdapter) {
         this.datastoreAdapter = datastoreAdapter;
-        this.temporaryBuildLifespanDays = temporaryBuildLifespanDays;
     }
 
     public Graph<RemoteBuildTask> createBuildGraph(
@@ -101,24 +101,28 @@ public class BuildTasksInitializer { // TODO update docs
             return;
         }
 
-        toBuild.add(buildConfigurationAudited);
+        Set<Integer> processedDependenciesCache = new HashSet<>();
         if (buildOptions.isBuildDependencies()) {
-
-            Set<Integer> processedDependenciesCache = new HashSet<>();
-            buildConfigurationAudited.getBuildConfiguration()
-                    .getDependencies()
-                    .forEach(
-                            dependencyConfiguration -> collectDependentConfigurations(
-                                    dependencyConfiguration,
-                                    datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(
-                                            dependencyConfiguration.getId()),
-                                    toBuild,
-                                    visited,
-                                    buildOptions.isImplicitDependenciesCheck(),
-                                    buildOptions.isForceRebuild(),
-                                    buildOptions.isTemporaryBuild(),
-                                    buildOptions.getAlignmentPreference(),
-                                    processedDependenciesCache));
+            collectDependentConfigurations(
+                    buildConfigurationAudited.getBuildConfiguration(),
+                    buildConfigurationAudited,
+                    toBuild,
+                    visited,
+                    buildOptions.isImplicitDependenciesCheck(),
+                    buildOptions.isForceRebuild(),
+                    buildOptions.isTemporaryBuild(),
+                    buildOptions.getAlignmentPreference(),
+                    processedDependenciesCache);
+        } else {
+            Optional<BuildRecord> noRebuildCause = datastoreAdapter.requiresRebuild(
+                    buildConfigurationAudited,
+                    buildOptions.isImplicitDependenciesCheck(),
+                    buildOptions.isTemporaryBuild(),
+                    buildOptions.getAlignmentPreference(),
+                    processedDependenciesCache);
+            if (buildOptions.isForceRebuild() || noRebuildCause.isEmpty()) {
+                toBuild.add(buildConfigurationAudited);
+            }
         }
     }
 
@@ -208,23 +212,34 @@ public class BuildTasksInitializer { // TODO update docs
         Map<IdRev, BuildRecord> noRebuildRequiredCauses = new HashMap<>();
         Set<Integer> processedDependenciesCache = new HashSet<>();
         Set<BuildConfigurationAudited> buildConfigurationAuditeds = new HashSet<>();
-        for (BuildConfiguration buildConfiguration : datastoreAdapter.getBuildConfigurations(buildConfigurationSet)) {
-            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedsMap
-                    .get(buildConfiguration.getId());
+        Set<BuildConfiguration> buildConfigurations = datastoreAdapter.getBuildConfigurations(buildConfigurationSet);
+        List<BuildConfiguration> dependenciesFirst = new ArrayList<>(buildConfigurations);
+        Quicksort.quicksort(dependenciesFirst, this::dependenciesFirst);
+
+        Set<BuildConfiguration> toBuild = new HashSet<>();
+
+        for (BuildConfiguration buildConfiguration : dependenciesFirst) {
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedsMap.get(buildConfiguration.getId());
             if (buildConfigurationAudited == null) {
                 buildConfigurationAudited = datastoreAdapter
                         .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
             }
             buildConfigurationAuditeds.add(buildConfigurationAudited);
 
-            Optional<BuildRecord> noRebuildCause = datastoreAdapter.requiresRebuild(
-                    buildConfigurationAudited,
-                    buildOptions.isImplicitDependenciesCheck(),
-                    buildOptions.isTemporaryBuild(),
-                    buildOptions.getAlignmentPreference(),
-                    processedDependenciesCache);
-            if (noRebuildCause.isPresent()) {
-                noRebuildRequiredCauses.put(buildConfigurationAudited.getIdRev(), noRebuildCause.get());
+            boolean anyDependencyRequiresRebuild = CollectionUtils.containsAny(buildConfiguration.getDependencies(), toBuild);
+
+            if (!buildOptions.isForceRebuild() && !anyDependencyRequiresRebuild) {
+                Optional<BuildRecord> noRebuildCause = datastoreAdapter.requiresRebuild(
+                        buildConfigurationAudited,
+                        buildOptions.isImplicitDependenciesCheck(),
+                        buildOptions.isTemporaryBuild(),
+                        buildOptions.getAlignmentPreference(),
+                        processedDependenciesCache);
+                if (noRebuildCause.isPresent()) {
+                    noRebuildRequiredCauses.put(buildConfigurationAudited.getIdRev(), noRebuildCause.get());
+                } else {
+                    toBuild.add(buildConfiguration);
+                }
             }
         }
 
@@ -241,6 +256,16 @@ public class BuildTasksInitializer { // TODO update docs
                 buildConfigurationAuditeds,
                 noRebuildRequiredCauses,
                 buildConfigurationSet.getCurrentProductMilestone());
+    }
+
+    private int dependenciesFirst(BuildConfiguration configuration1, BuildConfiguration configuration2) {
+        if (configuration1.getDependencies().contains(configuration2)) {
+            return 1;
+        }
+        if (configuration2.getDependencies().contains(configuration1)) {
+            return -1;
+        }
+        return 0;
     }
 
     private Graph<RemoteBuildTask> doCreateBuildGraph(
@@ -297,8 +322,8 @@ public class BuildTasksInitializer { // TODO update docs
                 }
             }
         }
-        Vertex<RemoteBuildTask> root = GraphUtils.findRoot(graph);
-        graph.setRootVertex(root);
+//        Optional<Vertex<RemoteBuildTask>> root = GraphUtils.findRoot(graph);
+//        root.ifPresent(r -> graph.setRootVertex(r));
 
         return graph;
     }
@@ -316,4 +341,42 @@ public class BuildTasksInitializer { // TODO update docs
         return buildConfiguration.getDependencies()
                 .contains(child.getBuildConfiguration());
     }
+
+    /**
+     * @return NO_REBUILD_REQUIRED tasks
+     */
+    public static Collection<RemoteBuildTask> removeNRRTasks(Graph<RemoteBuildTask> buildGraph) {
+        Set<Vertex<RemoteBuildTask>> toBuild = new HashSet<>();
+        Set<Vertex<RemoteBuildTask>> notToBuild = new HashSet<>();
+
+        for (Vertex<RemoteBuildTask> task : buildGraph.getVerticies()) {
+            if (!toBuild.contains(task) && task.getData().getNoRebuildCause().isPresent()) {
+                notToBuild.add(task);
+            } else {
+                markToBuild(task, toBuild, notToBuild);
+            }
+        }
+
+        notToBuild.forEach(task -> {
+            // NOTE: after removal NRR task can still be referenced as a dependency of other tasks
+            buildGraph.removeVertex(task);
+        });
+        return GraphUtils.unwrap(notToBuild);
+    }
+
+    private static void markToBuild(Vertex<RemoteBuildTask> task, Set<Vertex<RemoteBuildTask>> toBuild, Set<Vertex<RemoteBuildTask>> notToBuild) {
+        toBuild.add(task);
+        notToBuild.remove(task);
+        markDependantsToBuild(task, toBuild, notToBuild);
+    }
+
+    private static void markDependantsToBuild(Vertex<RemoteBuildTask> task, Set<Vertex<RemoteBuildTask>> toBuild, Set<Vertex<RemoteBuildTask>> notToBuild) {
+        List<Vertex<RemoteBuildTask>> dependants = GraphUtils.getFromVerticies(task.getIncomingEdges());
+        for (Vertex<RemoteBuildTask> dependant : dependants) {
+            if (!toBuild.contains(dependant)) {
+                markToBuild(dependant, toBuild, notToBuild);
+            }
+        }
+    }
+
 }

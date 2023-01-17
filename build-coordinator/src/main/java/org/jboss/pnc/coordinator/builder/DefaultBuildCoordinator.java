@@ -48,6 +48,7 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.InMemory;
 import org.jboss.pnc.spi.coordinator.ProcessException;
@@ -465,7 +466,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         boolean temporaryBuild = buildTask.getBuildOptions().isTemporaryBuild();
         return new BuildTaskContext(
                 buildTask.getContentId(),
-                buildTask.getUser().getId().toString(),
                 temporaryBuild,
                 ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild));
     }
@@ -932,6 +932,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
 
     @Override
     public List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId) {
+        throw new UnsupportedOperationException("To be used only with the remote build coordinator.");
+    }
+
+    @Override
+    public List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(int buildConfigSetRecordId) {
         throw new UnsupportedOperationException("To be used only with the remote build coordinator.");
     }
 

@@ -24,13 +24,6 @@ import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.ModuleConfigFactory;
-import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
-import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.remotecoordinator.notifications.buildSetTask.BuildSetCallBack;
-import org.jboss.pnc.remotecoordinator.notifications.buildSetTask.BuildSetStatusNotifications;
-import org.jboss.pnc.remotecoordinator.notifications.buildTask.BuildCallBack;
-import org.jboss.pnc.remotecoordinator.test.event.TestCDIBuildStatusChangedReceiver;
-import org.jboss.pnc.remotecoordinator.test.mock.EntityManagerMock;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.messaging.spi.MessageSender;
@@ -43,6 +36,15 @@ import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
+import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
+import org.jboss.pnc.remotecoordinator.builder.RexFacade;
+import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
+import org.jboss.pnc.remotecoordinator.notifications.buildSetTask.BuildSetCallBack;
+import org.jboss.pnc.remotecoordinator.notifications.buildSetTask.BuildSetStatusNotifications;
+import org.jboss.pnc.remotecoordinator.notifications.buildTask.BuildCallBack;
+import org.jboss.pnc.remotecoordinator.test.event.TestCDIBuildStatusChangedReceiver;
+import org.jboss.pnc.remotecoordinator.test.mock.EntityManagerMock;
+import org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
@@ -123,6 +125,9 @@ public class BuildCoordinatorDeployments {
                         RefToReferenceMapper.class.getPackage())
                 .addAsManifestResource("beans.xml")
                 .addAsResource("logback-test.xml", "logback.xml");
+
+        jar.deleteClass(RexFacade.class); //use mock
+        jar.addClass(MockBuildScheduler.class);
 
         log.info("Deployment content: {}", jar.toString(true));
         return jar;

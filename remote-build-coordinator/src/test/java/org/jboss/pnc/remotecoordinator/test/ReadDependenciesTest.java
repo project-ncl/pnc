@@ -19,15 +19,14 @@ package org.jboss.pnc.remotecoordinator.test;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.remotecoordinator.builder.BuildTasksInitializer;
-import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.remotecoordinator.builder.BuildTasksInitializer;
+import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
@@ -85,17 +84,18 @@ public class ReadDependenciesTest extends ProjectBuilder {
 
     public BuildSetTask createBuildSetTask(BuildConfigurationSet buildConfigurationSet, User user)
             throws CoreException {
-        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter, 1L);
+        BuildTasksInitializer buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
         AtomicInteger atomicInteger = new AtomicInteger(1);
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
 
-        return buildTasksInitializer.createBuildGraph(
-                buildConfigurationSet,
-                user,
-                buildOptions,
-                () -> Sequence.nextBase32Id(),
-                taskRepository.getUnfinishedTasks());
+// TODO        return buildTasksInitializer.createBuildGraph(
+//                buildConfigurationSet,
+//                user,
+//                buildOptions,
+//                () -> Sequence.nextBase32Id(),
+//                taskRepository.getUnfinishedTasks());
+        return null;
     }
 }

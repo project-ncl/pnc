@@ -27,6 +27,9 @@ import org.jboss.pnc.spi.BuildOptions;
 import java.time.Instant;
 import java.util.Optional;
 
+/**
+ * A task to be sent to the Rex
+ */
 @AllArgsConstructor
 @Getter
 public class RemoteBuildTask {

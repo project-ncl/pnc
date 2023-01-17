@@ -564,7 +564,7 @@ public class DatastoreAdapter {
                 alignmentPreference,
                 processedDependenciesCache,
                 noRebuildCause);
-        return Optional.of(wrapper.get());
+        return Optional.ofNullable(wrapper.get());
     }
 
     @Deprecated

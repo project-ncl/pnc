@@ -15,29 +15,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.remotecoordinator.test;
+package org.jboss.pnc.remotecoordinator.test.mock;
 
 import lombok.Setter;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.remotecoordinator.builder.RexBuildScheduler;
 import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.coordinator.BuildSetTask;
-import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.coordinator.Remote;
+import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
+import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
+import org.jboss.util.graph.Graph;
 import org.jetbrains.annotations.NotNull;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
+import java.util.Optional;
+
 import static org.jboss.pnc.spi.coordinator.CompletionStatus.CANCELLED;
 import static org.jboss.pnc.spi.coordinator.CompletionStatus.FAILED;
 import static org.jboss.pnc.spi.coordinator.CompletionStatus.NO_REBUILD_REQUIRED;
 import static org.jboss.pnc.spi.coordinator.CompletionStatus.SYSTEM_ERROR;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ApplicationScoped
 @Alternative
@@ -46,38 +53,48 @@ public class MockBuildScheduler implements RexBuildScheduler {
     @Setter(onMethod_ = { @Inject })
     protected BuildTaskRepositoryMock taskRepositoryMock;
 
-    @Setter(onMethod_ = { @Inject, @Remote })
-    protected BuildCoordinator coordinator;
+//    @Setter(onMethod_ = { @Inject, @Remote }) TODO do we need it ?
+//    protected BuildCoordinator coordinator;
 
     @Setter
     private boolean keepTasks = false;
 
+    public static BuildResult buildResult() {
+        return buildResult(CompletionStatus.SUCCESS);
+    }
+
+    public static BuildResult buildResult(CompletionStatus status) {
+        return new BuildResult(
+                status,
+                Optional.empty(),
+                "",
+                Optional.of(mock(BuildExecutionConfiguration.class)),
+                Optional.of(buildDriverResult()),
+                Optional.of(repoManagerResult()),
+                Optional.empty(),
+                Optional.empty());
+    }
+
+    private static BuildDriverResult buildDriverResult() {
+        BuildDriverResult mock = mock(BuildDriverResult.class);
+        when(mock.getBuildStatus()).thenReturn(BuildStatus.SUCCESS);
+        return mock;
+    }
+
+    private static RepositoryManagerResult repoManagerResult() {
+        RepositoryManagerResult mock = mock(RepositoryManagerResult.class);
+        when(mock.getCompletionStatus()).thenReturn(CompletionStatus.SUCCESS);
+        return mock;
+    }
+
     @Override
-    public void startBuilding(BuildTask buildTask) throws CoreException {
-        if (buildTask.getStatus().isCompleted()) {
-            return;
-        }
+    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws CoreException {
 
-        BuildCoordinationStatus status = BuildCoordinationStatus.DONE;
-        String buildScript = buildTask.getBuildConfigurationAudited().getBuildScript();
-        if (buildScript != null && !buildScript.isEmpty()) {
-            try {
-                status = BuildCoordinationStatus.fromBuildStatus(BuildStatus.valueOf(buildScript));
-            } catch (IllegalArgumentException e) {
-                // assume build that should finish well
-            }
-        }
+    }
 
-        buildTask.setStatus(status);
-
-        taskRepositoryMock.addTask(buildTask);
-        if (status.isCompleted()) {
-            coordinator.completeBuild(buildTask, mockBuildResult(status));
-        }
-
-        if (!keepTasks) {
-            taskRepositoryMock.removeTask(buildTask);
-        }
+    @Override
+    public boolean cancel(String taskId) throws CoreException {
+        return false;
     }
 
     @NotNull
@@ -87,32 +104,21 @@ public class MockBuildScheduler implements RexBuildScheduler {
             case REJECTED:
             case REJECTED_FAILED_DEPENDENCIES:
             case DONE_WITH_ERRORS:
-                result = AbstractDependentBuildTest.buildResult(FAILED);
+                result = buildResult(FAILED);
                 break;
             case REJECTED_ALREADY_BUILT:
-                result = AbstractDependentBuildTest.buildResult(NO_REBUILD_REQUIRED);
+                result = buildResult(NO_REBUILD_REQUIRED);
             case SYSTEM_ERROR:
-                result = AbstractDependentBuildTest.buildResult(SYSTEM_ERROR);
+                result = buildResult(SYSTEM_ERROR);
                 break;
             case CANCELLED:
-                result = AbstractDependentBuildTest.buildResult(CANCELLED);
+                result = buildResult(CANCELLED);
                 break;
             case DONE:
             default:
-                result = AbstractDependentBuildTest.buildResult();
+                result = buildResult();
         }
         return result;
     }
 
-    @Override
-    public void startBuilding(BuildSetTask buildSetTask) throws CoreException {
-        for (BuildTask buildTask : buildSetTask.getBuildTasks()) {
-            startBuilding(buildTask);
-        }
-    }
-
-    @Override
-    public boolean cancel(BuildTask buildTask) throws CoreException {
-        return false;
-    }
 }

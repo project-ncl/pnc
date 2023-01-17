@@ -15,15 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.remotecoordinator.test;
+package org.jboss.pnc.remotecoordinator.test.dependencies;
 
+import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.BuildOptions;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
+import org.jboss.util.graph.Graph;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -34,7 +35,7 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
     private BuildConfiguration[] all;
 
     @Before
-    public void setUp() throws TimeoutException, InterruptedException {
+    public void setUp() {
 
         // given
         d = config("d");
@@ -49,52 +50,57 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildAOnModifiedB() throws TimeoutException, InterruptedException {
+    public void shouldBuildAOnModifiedB() throws GraphStructureException {
         // when
         insertNewBuildRecords(b);
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
-        build(a, buildOptions);
+        Graph<RemoteBuildTask> buildGraph = createGraph(a, buildOptions);
+
         // then
-        expectBuilt(a);
+        expectBuiltTask(buildGraph, a);
     }
 
     @Test
-    public void shouldNotBuildAOnModifiedC() throws TimeoutException, InterruptedException {
+    public void shouldNotBuildAOnModifiedC() throws GraphStructureException {
         // when
         insertNewBuildRecords(c);
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
-        build(a, buildOptions);
+        Graph<RemoteBuildTask> buildGraph = createGraph(a, buildOptions);
+
         // then
-        expectBuilt();
+        expectBuiltTask(buildGraph);
     }
 
     @Test
-    public void shouldBuildAOnModifiedCWhenImplicitDependencyCheck() throws TimeoutException, InterruptedException {
+    public void shouldBuildAOnModifiedCWhenImplicitDependencyCheck()
+            throws GraphStructureException {
         // when
         insertNewBuildRecords(c);
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setBuildDependencies(false);
         buildOptions.setRebuildMode(RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
-        build(a, buildOptions);
+        Graph<RemoteBuildTask> buildGraph = createGraph(a, buildOptions);
+
         // then
-        expectBuilt(a);
+        expectBuiltTask(buildGraph, a);
     }
 
     @Test
-    public void shouldBuildABCOnForceAWithDependencies() throws TimeoutException, InterruptedException {
+    public void shouldBuildABCOnForceAWithDependencies() throws GraphStructureException {
         // when
         insertNewBuildRecords(d, b, a);
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setBuildDependencies(true);
         buildOptions.setRebuildMode(RebuildMode.FORCE);
-        build(a, buildOptions);
+        Graph<RemoteBuildTask> buildGraph = createGraph(a, buildOptions);
+
         // then
-        expectBuilt(d, b, a);
+        expectBuiltTask(buildGraph, d, b, a);
     }
 }

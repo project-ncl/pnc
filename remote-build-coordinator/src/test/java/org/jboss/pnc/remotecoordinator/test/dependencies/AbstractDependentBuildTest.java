@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.remotecoordinator.test;
+package org.jboss.pnc.remotecoordinator.test.dependencies;
 
 import lombok.RequiredArgsConstructor;
 import org.jboss.pnc.common.Configuration;
@@ -50,23 +50,13 @@ import org.jboss.pnc.remotecoordinator.builder.SetRecordUpdateJob;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.BuildResult;
-import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
-import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
-import org.jboss.pnc.spi.exception.BuildConflictException;
-import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
-import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.util.graph.Graph;
 import org.junit.Before;
 import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -74,11 +64,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,10 +79,7 @@ import static org.mockito.Mockito.when;
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/16/16 Time: 1:19 PM
  */
 @SuppressWarnings("deprecation")
-@Deprecated
 public abstract class AbstractDependentBuildTest {
-
-    private Logger logger = LoggerFactory.getLogger(AbstractDependentBuildTest.class);
 
     protected static final AtomicInteger configIdSequence = new AtomicInteger(0);
     protected static final AtomicInteger configAuditedIdSequence = new AtomicInteger(0);
@@ -168,10 +152,6 @@ public abstract class AbstractDependentBuildTest {
         buildScheduler.setTaskRepositoryMock(taskRepository);
     }
 
-    protected void initSetRecordUpdateJob() {
-
-    }
-
     protected void insertNewBuildRecords(BuildConfiguration... configs) {
         Stream.of(configs).forEach(this::insertNewBuildRecord);
     }
@@ -236,16 +216,10 @@ public abstract class AbstractDependentBuildTest {
         buildConfigurationAuditedRepository.save(auditedConfig(config));
     }
 
-    protected void pokeSetJob() throws CoreException {
-        updateSetJob.updateConfigSetRecordsStatuses();
-    }
-
     /**
      * Create a new revision
      */
     protected BuildConfiguration updateConfiguration(BuildConfiguration buildConfiguration) {
-        int id = configIdSequence.getAndIncrement();
-
         RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
                 .internalUrl("http://path.to/repo.git")
                 .build();
@@ -265,98 +239,14 @@ public abstract class AbstractDependentBuildTest {
         return BuildConfigurationAudited.fromBuildConfiguration(config, rev);
     }
 
-    protected void build(BuildConfigurationSet configSet, RebuildMode rebuildMode) throws CoreException {
-        BuildOptions buildOptions = new BuildOptions();
-        buildOptions.setRebuildMode(rebuildMode);
-
-        coordinator.buildSet(configSet, user, buildOptions);
-    }
-
-    protected void build(BuildConfiguration config) {
-        BuildOptions buildOptions = new BuildOptions();
-        build(config, buildOptions);
-    }
-
-    protected void build(BuildConfiguration config, BuildOptions buildOptions) {
-        try {
-            coordinator.buildConfig(config, user, buildOptions);
-        } catch (BuildConflictException | CoreException e) {
-            throw new RuntimeException("Failed to run a build of: " + config, e);
-        }
-    }
-
-    protected BuildTask getBuildTaskById(String taskId) {
-// TODO
-//        Optional<BuildTask> buildTask = taskRepository.getAll()
-//                .stream()
-//                .filter(bt -> bt.getId().equals(taskId))
-//                .findAny();
-//        if (buildTask.isPresent()) {
-//            return buildTask.get();
-//        } else {
-//            throw new RuntimeException("Task with id [" + taskId + "] was not found.");
-//        }
-        return null;
-    }
-
-    protected Optional<BuildTask> getScheduledBuildTaskByConfigurationId(Integer configurationId) {
-// TODO
-//        return taskRepository.getAll()
-//                .stream()
-//                .filter(bt -> bt.getBuildConfigurationAudited().getBuildConfiguration().getId().equals(configurationId))
-//                .findAny();
-        return null;
-    }
-
-    protected List<BuildConfiguration> getBuiltConfigs() {
-// TODO       return builtTasks.stream()
-//                .map(BuildTask::getBuildConfigurationAudited)
-//                .map(BuildConfigurationAudited::getBuildConfiguration)
-//                .collect(Collectors.toList());
-        return null;
-    }
-
     protected BuildConfigurationSet configSet(BuildConfiguration... configs) {
         BuildConfigurationSet set = new BuildConfigurationSet();
         Stream.of(configs).forEach(set::addBuildConfiguration);
         return set;
     }
 
-    public static BuildResult buildResult() {
-        return buildResult(CompletionStatus.SUCCESS);
-    }
-
-    public static BuildResult buildResult(CompletionStatus status) {
-        return new BuildResult(
-                status,
-                Optional.empty(),
-                "",
-                Optional.of(mock(BuildExecutionConfiguration.class)),
-                Optional.of(buildDriverResult()),
-                Optional.of(repoManagerResult()),
-                Optional.empty(),
-                Optional.empty());
-    }
-
-    private static BuildDriverResult buildDriverResult() {
-        BuildDriverResult mock = mock(BuildDriverResult.class);
-        when(mock.getBuildStatus()).thenReturn(BuildStatus.SUCCESS);
-        return mock;
-    }
-
-    private static RepositoryManagerResult repoManagerResult() {
-        RepositoryManagerResult mock = mock(RepositoryManagerResult.class);
-        when(mock.getCompletionStatus()).thenReturn(CompletionStatus.SUCCESS);
-        return mock;
-    }
-
     protected DependencyHandler makeResult(BuildConfiguration config) {
         return new DependencyHandler(config);
-    }
-
-    protected void expectBuilt(BuildConfiguration... configurations) throws InterruptedException, TimeoutException {
-        List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
-        assertThat(configsWithTasks).hasSameElementsAs(Arrays.asList(configurations));
     }
 
     protected void expectBuiltTask(Graph<RemoteBuildTask> buildGraph, BuildConfiguration... configurations) {

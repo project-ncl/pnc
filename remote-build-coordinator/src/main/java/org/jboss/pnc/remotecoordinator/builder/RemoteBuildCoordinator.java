@@ -17,9 +17,7 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
-import lombok.AllArgsConstructor;
 import org.jboss.pnc.api.constants.MDCKeys;
-import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
@@ -40,7 +38,6 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.BuildCoordinationException;
-import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
@@ -51,6 +48,7 @@ import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.coordinator.Remote;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
@@ -77,7 +75,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -147,9 +144,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         this.systemConfig = systemConfig;
         this.taskRepository = taskRepository;
         this.bcaRepository = bcaRepository;
-        this.buildTasksInitializer = new BuildTasksInitializer(
-                datastoreAdapter,
-                systemConfig.getTemporaryBuildsLifeSpan());
+        this.buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
         this.groupBuildMapper = groupBuildMapper;
         this.buildMapper = buildMapper;
     }
@@ -227,33 +222,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         } catch (GraphStructureException e) {
             throw new CoreException("Cannot construct input graph: " + e.getMessage());
         }
-
-        checkIfAnyDependencyOfAlreadyRunningIsSubmitted(buildGraph);
-
-        Optional<BuildStatusWithDescription> validationFailedStatus = validateBuildConfigurationSetTask(
-                buildGraph,
-                buildOptions);
-
-        BuildStatusWithDescription buildStatusWithDescription;
-        BuildCoordinationStatus coordinationStatus;
-        if (validationFailedStatus.isPresent()) {
-            buildStatusWithDescription = validationFailedStatus.get();
-            coordinationStatus = BuildCoordinationStatus.REJECTED;
-        } else {
-            try {
-                buildScheduler.startBuilding(buildGraph, user);
-            } catch (ScheduleConflictException e) {
-                return new ScheduleResult(
-                        buildGraph,
-                        BuildCoordinationStatus.SYSTEM_ERROR,
-                        new BuildStatusWithDescription(BuildStatus.SYSTEM_ERROR,"Failed to schedule remote tasks. " + e.getMessage()),
-                        Set.of(),
-                        e);
-            }
-            buildStatusWithDescription = new BuildStatusWithDescription(BuildStatus.BUILDING, null);
-            coordinationStatus = BuildCoordinationStatus.ENQUEUED;
-        }
-        return new ScheduleResult(buildGraph, coordinationStatus, buildStatusWithDescription, Set.of());
+        return validateAndRunBuilds(user, buildOptions, buildGraph);
     }
 
     /**
@@ -286,7 +255,11 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                     }
                     log.warn("Re-scheduling, attempt {}.", attempt);
                 } else {
-                    return notifyBuildStarted(scheduleResult, user, buildConfigurationAudited);
+                    // save and notify NRR records
+                    scheduleResult.noRebuildTasks.forEach(task -> completeNoBuild(task,
+                            scheduleResult.buildGraph, CompletionStatus.NO_REBUILD_REQUIRED, null,
+                            user));
+                    // Notification of the scheduled builds are triggered from the Rex.
                 }
             } catch (Throwable e) {
                 String errorMessage = "Unexpected error while trying to schedule build.";
@@ -324,10 +297,13 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
-            BuildOptions buildOptions) throws CoreException, BuildConflictException {
+            BuildOptions buildOptions) throws CoreException {
 
         int attempt = 0;
         while (true) {
+            // TODO use MP fault tolerance
+            //start transaction?
+            // user request -> @Retry(retryOnException= {Measlkdjase, ConcurrentUpdate.class}, failFast={asdlkasjdlksajExceptions.class) -> @Transactional -> endpoint method
             try {
                 ScheduleResult scheduleResult = doBuildSet(buildConfigurationSet,
                         buildConfigurationAuditedsMap,
@@ -363,6 +339,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                 // return BCSR.ID only
                 return BuildSetTask.Builder.newBuilder().buildConfigSetRecord(buildConfigSetRecord).build();
             }
+            // finally
+            // end transaction commit/rollback
         }
     }
 
@@ -387,9 +365,19 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         } catch (GraphStructureException e) {
             throw new CoreException("Cannot construct input graph: " + e.getMessage());
         }
-        checkIfAnyDependencyOfAlreadyRunningIsSubmitted(buildGraph);
+        return validateAndRunBuilds(user, buildOptions, buildGraph);
+    }
 
-        Optional<BuildStatusWithDescription> validationFailedStatus = validateBuildConfigurationSetTask(buildGraph, buildOptions);
+    private ScheduleResult validateAndRunBuilds(
+            User user,
+            BuildOptions buildOptions,
+            Graph<RemoteBuildTask> buildGraph) throws BuildConflictException, CoreException {
+
+        GraphValidation.checkIfAnyDependencyOfAlreadyRunningIsSubmitted(buildGraph);
+
+        Optional<BuildStatusWithDescription> validationFailedStatus = GraphValidation.validateBuildConfigurationSetTask(
+                buildGraph,
+                buildOptions);
 
         BuildCoordinationStatus coordinationStatus;
         BuildStatusWithDescription buildStatusWithDescription;
@@ -401,7 +389,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             noRebuildTasks = Collections.emptySet();
         } else {
             if (!buildOptions.isForceRebuild()) {
-                noRebuildTasks = removeNRRTasks(buildGraph);
+                noRebuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
             } else {
                 noRebuildTasks = Collections.emptySet();
             }
@@ -409,10 +397,10 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             try {
                 buildScheduler.startBuilding(buildGraph, user);
             } catch (ScheduleConflictException e) {
-                return new ScheduleResult(
-                        buildGraph,
+                return new ScheduleResult(buildGraph,
                         BuildCoordinationStatus.SYSTEM_ERROR,
-                        new BuildStatusWithDescription(BuildStatus.SYSTEM_ERROR,"Failed to schedule remote tasks. " + e.getMessage()),
+                        new BuildStatusWithDescription(BuildStatus.SYSTEM_ERROR,
+                                "Failed to schedule remote tasks. " + e.getMessage()),
                         noRebuildTasks,
                         e);
             }
@@ -468,13 +456,12 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                 scheduleResult.buildStatusWithDescription.buildStatus,
                 scheduleResult.buildStatusWithDescription.description, user, buildOptions);
 
-        // save NRR records
+        // save and notify NRR records
         scheduleResult.noRebuildTasks.forEach(task -> completeNoBuild(task,
                 scheduleResult.buildGraph, CompletionStatus.NO_REBUILD_REQUIRED, buildConfigSetRecord,
                 user));
+        // Notification of the scheduled builds are triggered from the Rex.
 
-        GraphUtils.unwrap(scheduleResult.buildGraph.getVerticies()).stream()
-                .forEach(task -> updateBuildTaskStatus(task, scheduleResult.coordinationStatus, buildConfigSetRecord, user));
         // return BCSR.ID only
         return BuildSetTask.Builder.newBuilder().buildConfigSetRecord(buildConfigSetRecord).build();
     }
@@ -485,100 +472,10 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         return Optional.empty();
     }
 
-    /**
-     * Returns a BuildStatus if there are validation errors (no build is required or not possible), otherwise Optional.empty is returned.
-     */
-    private Optional<BuildStatusWithDescription> validateBuildConfigurationSetTask(
-            Graph buildGraph,
-            BuildOptions buildOptions) throws CoreException {
-
-        // Check if the given build set task is empty and update the status message appropriately
-        if (buildGraph.isEmpty()) {
-            return Optional.of(new BuildStatusWithDescription(BuildStatus.REJECTED, "Build config set is empty"));
-        }
-
-        // check if no rebuild is required
-        if (!buildOptions.isForceRebuild()) {
-            boolean noRebuildsRequired = checkIfNoRebuildIsRequired(buildGraph,
-                    buildOptions.isImplicitDependenciesCheck(),
-                    buildOptions.isTemporaryBuild(),
-                    buildOptions.getAlignmentPreference());
-            if (noRebuildsRequired) {
-                return Optional.of(new BuildStatusWithDescription(BuildStatus.NO_REBUILD_REQUIRED,
-                        "All build configs were previously built"));
-            }
-        }
-
-        // check if there are cycles
-        if (GraphUtils.hasCycle(buildGraph)) {
-            return Optional.of(new BuildStatusWithDescription(BuildStatus.REJECTED, "Build config set has a cycle"));
-        }
-        return Optional.empty();
-    }
-
-    @AllArgsConstructor
-    private class BuildStatusWithDescription {
-
-        BuildStatus buildStatus;
-        String description;
-    }
-
-    /**
-     * Returns true if no build configurations needs a rebuild
-     */
-    private boolean checkIfNoRebuildIsRequired(Graph buildGraph, boolean checkImplicitDependencies, boolean temporaryBuild, AlignmentPreference alignmentPreference) {
-        Collection<RemoteBuildTask> buildTasks = GraphUtils.unwrap(buildGraph.getVerticies());
-        long requiresRebuild = buildTasks.stream()
-                .filter(bt -> !bt.isAlreadyRunning()) //TODO what about already running ?
-                .filter(bt -> bt.getNoRebuildCause().isEmpty())
-                .count();
-        log.debug("{} configurations require a rebuild.", requiresRebuild);
-        return requiresRebuild == 0;
-    }
-
-    /**
-     * Remove NO_REBUILD_REQUIRED them from the buildSetTask and return them.
-     *
-     * @return NO_REBUILD_REQUIRED tasks
-     */
-     private Collection<RemoteBuildTask> removeNRRTasks(Graph<RemoteBuildTask> buildGraph) {
-        Set<Vertex<RemoteBuildTask>> toBuild = new HashSet<>();
-        Set<Vertex<RemoteBuildTask>> notToBuild = new HashSet<>();
-
-        for (Vertex<RemoteBuildTask> task : buildGraph.getVerticies()) {
-            if (!toBuild.contains(task) && task.getData().getNoRebuildCause().isPresent()) {
-                notToBuild.add(task);
-            } else {
-                markToBuild(task, toBuild, notToBuild);
-            }
-        }
-
-        notToBuild.forEach(task -> {
-            // NOTE: after removal NRR task can still be referenced as a dependency of other tasks
-            buildGraph.removeVertex(task);
-        });
-        return GraphUtils.unwrap(notToBuild);
-    }
-
-    private void markToBuild(Vertex<RemoteBuildTask> task, Set<Vertex<RemoteBuildTask>> toBuild, Set<Vertex<RemoteBuildTask>> notToBuild) {
-        toBuild.add(task);
-        notToBuild.remove(task);
-        markDependantsToBuild(task, toBuild, notToBuild);
-    }
-
-    private void markDependantsToBuild(Vertex<RemoteBuildTask> task, Set<Vertex<RemoteBuildTask>> toBuild, Set<Vertex<RemoteBuildTask>> notToBuild) {
-        List<Vertex<RemoteBuildTask>> dependants = GraphUtils.getFromVerticies(task.getIncomingEdges());
-        for (Vertex<RemoteBuildTask> dependant : dependants) {
-            if (!toBuild.contains(dependant)) {
-                markToBuild(dependant, toBuild, notToBuild);
-            }
-        }
-    }
-
     @Override
     public boolean cancel (String buildTaskId) throws CoreException {
         // Logging MDC must be set before calling
-        Optional<BuildTaskRef> taskOptional = taskRepository.getUnfinishedTasks().stream()
+        Optional<BuildTaskRef> taskOptional = taskRepository.getUnfinishedTasks().stream() //TODO use the endpoint to get a specific task
                 .filter(buildTask -> buildTask.getId().equals(buildTaskId))
                 .findAny();
         if (taskOptional.isPresent()) {
@@ -962,26 +859,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
 
         if (running.size() == BCAs.size()) {
             String runningMessage = running.stream().map(IdRev::toString).collect(Collectors.joining(", "));
-            throw new BuildConflictException("Active build task found using the same configuration BC(s): " + runningMessage);
+            throw new BuildConflictException("All the build configurations are already running. " + runningMessage);
         }
     }
 
-    /**
-     * @throws BuildConflictException
-     */
-    private void checkIfAnyDependencyOfAlreadyRunningIsSubmitted(Graph<RemoteBuildTask> buildGraph) throws BuildConflictException {
-        for (Vertex<RemoteBuildTask> parent : buildGraph.getVerticies()) {
-            if (parent.getData().isAlreadyRunning()) {
-                Collection<RemoteBuildTask> children = parent.getOutgoingEdges();
-                for (RemoteBuildTask child : children) {
-                    if (!child.isAlreadyRunning()) {
-                        throw new BuildConflictException(
-                                "Submitted build " + parent.getData().getBuildConfigurationAudited().getName()
-                                        + " is a dependency of already running build: "
-                                        + child.getBuildConfigurationAudited().getName());
-                    }
-                }
-            }
-        }
-    }
 }
