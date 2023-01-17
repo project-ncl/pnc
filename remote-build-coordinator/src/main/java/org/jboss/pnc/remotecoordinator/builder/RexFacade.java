@@ -34,17 +34,17 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.BpmEndpointUrlFactory;
-import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
+import org.jboss.pnc.rex.api.parameters.TaskFilterParameters;
 import org.jboss.pnc.rex.common.enums.Mode;
+import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
-import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
-import org.jboss.pnc.rex.rest.parameters.TaskFilterParameters;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
+import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.util.graph.Edge;
@@ -138,13 +138,14 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             edges.add(edge);
         }
 
-        CreateGraphRequest createGraphRequest = new CreateGraphRequest(edges, vertices);
-        return rexClient.start(createGraphRequest, loggedInUser.getTokenString());
+//        CreateGraphRequest createGraphRequest = new CreateGraphRequest(edges, vertices);
+//        return rexClient.start(createGraphRequest, loggedInUser.getTokenString());
     }
 
     @Override
     public boolean cancel(String taskId) throws CoreException {
-        return rexClient.cancel(taskId, loggedInUser.getTokenString());
+//        return rexClient.cancel(taskId, loggedInUser.getTokenString());
+        return false; //TODO
     }
 
     @Override
@@ -155,7 +156,8 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
     private Set<TaskDTO> getBuildTasksInState(EnumSet<BuildCoordinationStatus> states) {
         TaskFilterParameters taskFilterParameters = toTaskFilterParameters(states);
-        return rexClient.getAll(taskFilterParameters);
+//        return rexClient.getAll(taskFilterParameters);
+        return Collections.emptySet(); //TODO
     }
 
     @Override
@@ -177,17 +179,35 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             Map<String, Object> initData = (Map<String, Object>) attachment.get(this.INIT_DATA);
             ComponentBuildParameters parameters = (ComponentBuildParameters) initData.get("processParameters");
             Instant submitTime = (Instant) initData.get("submitTime");
+            String buildConfigSetRecordID = t.getCorrelationID();
 
             BuildTaskRef buildTask = new DefaultBuildTaskRef(
                     buildId,
                     idRev,
+                    buildConfigSetRecordID,
                     buildContentId,
                     parameters.getBuildExecutionConfiguration().getUser().getUsername(),
-                    submitTime
-                    );
+                    submitTime,
+                    toBuildCoordinationStatus(t.getState()));
             runningBuildTasks.add(buildTask);
         });
         return runningBuildTasks;
+    }
+
+    private BuildCoordinationStatus toBuildCoordinationStatus(State state) {
+        switch (state) {
+            case NEW:
+                return BuildCoordinationStatus.NEW;
+            case ENQUEUED:
+                return BuildCoordinationStatus.ENQUEUED;
+            case UP:
+                return BuildCoordinationStatus.BUILDING;
+            case SUCCESSFUL:
+                return BuildCoordinationStatus.BUILD_COMPLETED;
+            case FAILED:
+                return BuildCoordinationStatus.DONE_WITH_ERRORS;
+        }
+        throw new UnsupportedOperationException("Needs to be implemented."); //TODO implement all statues
     }
 
     @Override
@@ -253,7 +273,10 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 "CancelAll",
                 headers);
 
-        Request callback = new Request(Request.Method.POST, URI.create(globalConfig.getPncUrl() + ), headers);
+        Request callback = new Request(
+                Request.Method.POST,
+                URI.create(globalConfig.getPncUrl() + ""), //TODO URL
+                headers);
 
         CreateTaskDTO createTaskDTO = new CreateTaskDTO(
                 buildTask.getId(),

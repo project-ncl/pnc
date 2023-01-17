@@ -15,33 +15,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.remotecoordinator.test;
+package org.jboss.pnc.remotecoordinator.test.mock;
 
-import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class MockBuildSchedulerWithManualBuildCompletion extends MockBuildScheduler {
 
     Map<String, Consumer<BuildResult>> scheduledTasks = new HashMap<>();
 
-    @Override
     public void startBuilding(BuildTask buildTask) throws CoreException {
-        taskRepositoryMock.addTask(buildTask);
-        Consumer<BuildResult> onComplete = (buildResult -> {
-            coordinator.completeBuild(buildTask, buildResult);
-        });
-        scheduledTasks.put(buildTask.getId(), onComplete);
+// TODO       taskRepositoryMock.addTask(buildTask);
+//        Consumer<BuildResult> onComplete = (buildResult -> {
+//            coordinator.completeBuild(buildTask, buildResult);
+//        });
+//        scheduledTasks.put(buildTask.getId(), onComplete);
     }
 
     public void completeBuild(String taskId) {
-        BuildResult result = AbstractDependentBuildTest.buildResult();
+        BuildResult result = MockBuildScheduler.buildResult();
         Consumer<BuildResult> buildResultConsumer = scheduledTasks.get(taskId);
 
         if (buildResultConsumer == null) {
@@ -53,13 +50,15 @@ public class MockBuildSchedulerWithManualBuildCompletion extends MockBuildSchedu
     }
 
     public boolean isBuilding(Integer configurationId) {
-        Optional<BuildTask> buildTask = taskRepositoryMock.getAll()
-                .stream()
-                .filter(task -> task.getBuildConfigurationAudited().getId().equals(configurationId))
-                .findFirst();
-        if (buildTask.isEmpty()) {
-            return false;
-        }
-        return buildTask.get().getStatus().equals(BuildCoordinationStatus.BUILDING);
+//        Optional<BuildTask> buildTask = taskRepositoryMock.getAll()
+//                .stream()
+//                .filter(task -> task.getBuildConfigurationAudited().getId().equals(configurationId))
+//                .findFirst();
+//        if (buildTask.isEmpty()) {
+//            return false;
+//        }
+//        return buildTask.get().getStatus().equals(BuildCoordinationStatus.BUILDING);
+        //TODO
+        return false;
     }
 }

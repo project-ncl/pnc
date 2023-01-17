@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.model.IdRev;
 
 import java.time.Instant;
@@ -29,11 +30,15 @@ public interface BuildTaskRef {
 
     IdRev getIdRev();
 
-    @Deprecated //TODO calculate in-place
+    String getBuildConfigSetRecordId();
+
+    @Deprecated // TODO calculate in-place
     String getContentId();
 
     String getUsername();
 
     Instant getSubmitTime();
+
+    BuildCoordinationStatus getStatus();
 
 }

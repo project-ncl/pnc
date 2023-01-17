@@ -15,24 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.remotecoordinator.test;
+package org.jboss.pnc.remotecoordinator.test.dependencies;
 
+import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.remotecoordinator.builder.BuildTasksInitializer;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.util.graph.Graph;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.TimeoutException;
+import java.util.Collection;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -56,13 +56,14 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
     private BuildConfiguration configB;
 
     private BuildConfigurationSet configSet;
+    private BuildConfiguration configC;
 
     @Before
     public void initialize() throws DatastoreException, ConfigurationParseException {
         config1 = buildConfig("1");
         configA = buildConfig("A", config1);
         configB = buildConfig("B", configA);
-        BuildConfiguration configC = buildConfig("C");
+        configC = buildConfig("C");
 
         configSet = configSet(configA, configB, configC);
 
@@ -80,20 +81,23 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
     }
 
     @Test
-    public void shouldNotRebuildIfDependencyIsNotRebuilt()
-            throws CoreException, TimeoutException, InterruptedException {
-        build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
-        List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
-        assertThat(configsWithTasks).isEmpty();
+    public void shouldNotRebuildIfDependencyIsNotRebuilt() throws GraphStructureException {
+        Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
+
+        expectBuiltTask(nrrBuildTasks, configA, configB, configC);
+        expectBuiltTask(buildGraph);
     }
 
     @Test
-    public void shouldRebuildOnlyDependent() throws CoreException, TimeoutException, InterruptedException {
+    public void shouldRebuildOnlyDependent() throws GraphStructureException {
         insertNewBuildRecords(config1);
 
-        build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
-        List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
-        assertThat(configsWithTasks).hasSameElementsAs(Arrays.asList(configA, configB));
+        Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
+
+        expectBuiltTask(nrrBuildTasks, configC);
+        expectBuiltTask(buildGraph, configA, configB);
     }
 
 }

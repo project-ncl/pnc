@@ -25,7 +25,7 @@ import java.util.List;
 public interface BuildTaskRepository {
 
     // TODO might not be required, used only while processing task completion
-//    Optional<BuildTask> getTask(String id);
+    // Optional<BuildTask> getTask(String id);
 
     List<BuildTaskRef> getBuildTasksByBCSRId(Integer buildConfigSetRecordId);
 
@@ -33,7 +33,7 @@ public interface BuildTaskRepository {
      * @deprecated Used for tests only
      */
     @Deprecated // used in tests only
-    Collection<BuildTaskRef> getAll();
+    Collection<? extends BuildTaskRef> getAll();
 
     Collection<BuildTaskRef> getUnfinishedTasks();
 

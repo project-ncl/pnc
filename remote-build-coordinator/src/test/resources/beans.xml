@@ -20,7 +20,7 @@
 -->
 <beans xmlns="http://xmlns.jcp.org/xml/ns/javaee" bean-discovery-mode="annotated">
     <alternatives>
-        <class>org.jboss.pnc.remotecoordinator.test.MockBuildScheduler</class>
+        <class>org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler</class>
         <class>org.jboss.pnc.remotecoordinator.test.mock.RexHttpClientMock</class>
     </alternatives>
 </beans>

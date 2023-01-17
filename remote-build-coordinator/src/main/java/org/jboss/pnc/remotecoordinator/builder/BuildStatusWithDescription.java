@@ -15,11 +15,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.common.graph;
+package org.jboss.pnc.remotecoordinator.builder;
 
-public class GraphStructureException extends Exception {
+import lombok.AllArgsConstructor;
+import org.jboss.pnc.enums.BuildStatus;
 
-    public GraphStructureException(String message) {
-        super(message);
-    }
+@AllArgsConstructor
+class BuildStatusWithDescription {
+
+    BuildStatus buildStatus;
+    String description;
 }
