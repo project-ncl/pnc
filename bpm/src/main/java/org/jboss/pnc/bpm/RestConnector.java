@@ -122,7 +122,7 @@ public class RestConnector implements Connector {
     @WithSpan(value = "RestConnector.startProcess")
     public Long startProcess(
             @SpanAttribute(value = "processId") String processId,
-            Object requestObject,
+            @SpanAttribute(value = "requestObject") Object requestObject,
             @SpanAttribute(value = "correlationKey") String correlationKey,
             String accessToken) throws ProcessManagerException {
 
