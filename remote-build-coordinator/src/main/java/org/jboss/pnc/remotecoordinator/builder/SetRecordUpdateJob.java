@@ -22,8 +22,8 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
+import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.Remote;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -88,7 +88,7 @@ public class SetRecordUpdateJob {
 
     private void updateConfigSetRecordStatus(BuildConfigSetRecord setRecord) throws CoreException {
         log.debug("Checking BuildConfigSetRecord[{}] for status update", setRecord.getId());
-        List<BuildTask> buildTasks = taskRepository.getBuildTasksByBCSRId(setRecord.getId());
+        List<BuildTaskRef> buildTasks = taskRepository.getBuildTasksByBCSRId(setRecord.getId());
         Set<BuildRecord> buildRecords = setRecord.getBuildRecords();
 
         BuildStatus effectiveState = getEffectiveState(setRecord, buildTasks, buildRecords);
@@ -104,7 +104,7 @@ public class SetRecordUpdateJob {
     // todo test that build task is removed after build record is created for the DB based solution
     private BuildStatus getEffectiveState(
             BuildConfigSetRecord setRecord,
-            List<BuildTask> buildTasks,
+            List<BuildTaskRef> buildTasks,
             Set<BuildRecord> buildRecords) {
         if (buildTasks.isEmpty() && buildRecords.isEmpty()) {
             log.error(
@@ -118,13 +118,13 @@ public class SetRecordUpdateJob {
                 .map(Base32LongID::getId)
                 .collect(Collectors.toSet());
 
-        List<BuildTask> effectiveBuildTasks = buildTasks.stream()
+        List<BuildTaskRef> effectiveBuildTasks = buildTasks.stream()
                 .filter(task -> !ids.contains(task.getId()))
                 .collect(Collectors.toList());
 
         Set<BuildStatus> buildStatuses = Stream.concat(
                 buildRecords.stream().map(BuildRecord::getStatus),
-                effectiveBuildTasks.stream().map(BuildTask::getStatus).map(BuildStatus::fromBuildCoordinationStatus))
+                effectiveBuildTasks.stream().map(BuildTaskRef::getStatus).map(BuildStatus::fromBuildCoordinationStatus))
                 .collect(Collectors.toSet());
 
         return determineStatus(buildStatuses);

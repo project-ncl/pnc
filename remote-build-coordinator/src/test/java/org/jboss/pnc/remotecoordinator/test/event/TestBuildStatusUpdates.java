@@ -25,7 +25,7 @@ import javax.enterprise.event.Observes;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class TestBuildStatusUpdates {
+public class TestBuildStatusUpdates { // TODO do we still need this ?
     public void collectEvent(@Observes BuildStatusChangedEvent buildStatusChangedEvent) {
         Assert.assertNotEquals(
                 "Status update event should not be fired if there is no status updates. " + buildStatusChangedEvent,

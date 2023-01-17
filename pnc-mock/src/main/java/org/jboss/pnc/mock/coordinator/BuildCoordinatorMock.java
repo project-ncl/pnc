@@ -27,17 +27,16 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
-import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
+import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +44,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
-@Alternative
-public class BuildCoordinatorMock implements BuildCoordinator {
+//@ApplicationScoped
+//@Alternative
+public class BuildCoordinatorMock implements BuildCoordinator { // TODO most likeley should be deleted
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -109,6 +108,11 @@ public class BuildCoordinatorMock implements BuildCoordinator {
                                         .getId()
                                         .equals(buildConfigSetRecordId))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(int buildConfigSetRecordId) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -61,20 +61,18 @@ public class GraphUtils {
     }
 
     public static <T> Collection<T> unwrap(Collection<Vertex<T>> verticies) {
-        return verticies.stream()
-                .map(Vertex::getData)
-                .collect(Collectors.toSet());
+        return verticies.stream().map(Vertex::getData).collect(Collectors.toSet());
     }
 
-    public static <T> Vertex<T> findRoot(Graph<T> graph) throws GraphStructureException {
+    public static <T> Optional<Vertex<T>> findRoot(Graph<T> graph) throws GraphStructureException {
         List<Vertex<T>> verticies = graph.getVerticies();
         List<Vertex<T>> possibleRoots = verticies.stream()
                 .filter(v -> v.getIncomingEdgeCount() == 0)
                 .collect(Collectors.toList());
         if (possibleRoots.size() == 1) {
-            return possibleRoots.get(0);
-        } else if (possibleRoots.size() == 0){
-            throw new GraphStructureException("Can't find root, there are no possible candidates.");
+            return Optional.of(possibleRoots.get(0));
+        } else if (possibleRoots.size() == 0) {
+            return Optional.empty();
         } else {
             throw new GraphStructureException("Can't find root, there are more possible candidates.");
         }
@@ -82,9 +80,7 @@ public class GraphUtils {
 
     public static boolean hasCycle(Graph graph) {
         List<Vertex> verticies = graph.getVerticies();
-        List<String> vertexNames = verticies.stream()
-                .map(Vertex::getName)
-                .collect(Collectors.toList());
+        List<String> vertexNames = verticies.stream().map(Vertex::getName).collect(Collectors.toList());
         Set<String> notVisited = new HashSet<>(vertexNames);
         List<String> visiting = new ArrayList<>();
         Set<String> visited = new HashSet<>();
@@ -98,11 +94,16 @@ public class GraphUtils {
         return false;
     }
 
-    private static <T> boolean dfs(Graph<T> graph, String current, Set<String> notVisited, List<String> visiting, Set<String> visited) {
+    private static <T> boolean dfs(
+            Graph<T> graph,
+            String current,
+            Set<String> notVisited,
+            List<String> visiting,
+            Set<String> visited) {
         move(current, notVisited, visiting);
         Vertex<T> currentTask = graph.findVertexByName(current);
         for (Object edge : currentTask.getOutgoingEdges()) {
-            String dependency = ((Edge<T>)edge).getTo().getName();
+            String dependency = ((Edge<T>) edge).getTo().getName();
             // attached dependencies are not in the builder declaration, therefore if discovered, they have to be add as
             // notVisited
             if (!notVisited.contains(dependency) && !visiting.contains(dependency) && !visited.contains(dependency)) {
@@ -131,20 +132,14 @@ public class GraphUtils {
     }
 
     public static <T> List<Vertex<T>> getFromVerticies(List<Edge<T>> edges) {
-        return edges.stream()
-                .map(Edge::getFrom)
-                .collect(Collectors.toList());
+        return edges.stream().map(Edge::getFrom).collect(Collectors.toList());
     }
 
     public static <T> List<Vertex<T>> getToVerticies(List<Edge<T>> edges) {
-        return edges.stream()
-                .map(Edge::getTo)
-                .collect(Collectors.toList());
+        return edges.stream().map(Edge::getTo).collect(Collectors.toList());
     }
 
     public static <T> Optional<Vertex<T>> getVertex(Graph<T> buildGraph, String name) {
-        return buildGraph.getVerticies().stream()
-                .filter(v -> v.getName().equals(name))
-                .findAny();
+        return buildGraph.getVerticies().stream().filter(v -> v.getName().equals(name)).findAny();
     }
 }

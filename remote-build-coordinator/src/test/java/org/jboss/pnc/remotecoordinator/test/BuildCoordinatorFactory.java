@@ -23,20 +23,12 @@ import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
-import org.jboss.pnc.mock.executor.BuildExecutorMock;
-import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
-import org.jboss.pnc.remotecoordinator.builder.SetRecordUpdateJob;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.remotecoordinator.test.mock.LocalBuildScheduler;
-import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
-import org.jboss.pnc.spi.executor.BuildExecutor;
 
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
-import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
 /**
@@ -63,68 +55,70 @@ public class BuildCoordinatorFactory {
 
         BuildTaskRepository taskRepository = new BuildTaskRepositoryMock();
 
-        LocalBuildSchedulerMock localBuildScheduler = new LocalBuildSchedulerMock();
-
-        BuildCoordinator coordinator = new RemoteBuildCoordinator(
-                datastoreAdapter,
-                buildStatusChangedEventNotifier,
-                buildSetStatusChangedEventNotifier,
-                localBuildScheduler,
-                taskRepository,
-                systemConfig,
-                groupBuildMapper,
-                buildMapper);
-        localBuildScheduler.setBuildCoordinator(coordinator);
-
-        SetRecordUpdateJob setJob = new SetRecordUpdateJob(taskRepository, datastore, coordinator);
-
-        return new BuildCoordinatorBeans(taskRepository, coordinator, setJob);
+// TODO       RexBuildSchedulerMockMock localBuildScheduler = new RexBuildSchedulerMockMock();
+//
+//         BuildCoordinator coordinator = new RemoteBuildCoordinator(
+//                datastoreAdapter,
+//                buildStatusChangedEventNotifier,
+//                buildSetStatusChangedEventNotifier,
+//                localBuildScheduler,
+//                taskRepository,
+//                systemConfig,
+//                groupBuildMapper,
+//                buildMapper);
+//        localBuildScheduler.setBuildCoordinator(coordinator);
+//
+//        SetRecordUpdateJob setJob = new SetRecordUpdateJob(taskRepository, datastore, coordinator);
+//
+//        return new BuildCoordinatorBeans(taskRepository, coordinator, setJob);
+        return null;
     }
 
     private SystemConfig createConfiguration() {
-        return new SystemConfig(
-                "NO_AUTH",
-                "10",
-                "${product_short_name}-${product_version}-pnc",
-                "10",
-                null,
-                "3600",
-                "14",
-                "",
-                "10",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                "false");
+//        return new SystemConfig(
+//                "NO_AUTH",
+//                "10",
+//                "${product_short_name}-${product_version}-pnc",
+//                "10",
+//                null,
+//                "3600",
+//                "14",
+//                "",
+//                "10",
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                null,
+//                "false");
+        return null;
     }
 
-    @Alternative
-    @ApplicationScoped
-    public static class LocalBuildSchedulerMock extends LocalBuildScheduler {
-
-        @Inject
-        public LocalBuildSchedulerMock(BuildExecutor buildExecutor, BuildCoordinator buildCoordinator) {
-            super(buildExecutor, buildCoordinator);
-        }
-
-        public void setBuildCoordinator(BuildCoordinator buildCoordinator) {
-            this.buildCoordinator = buildCoordinator;
-        }
-
-        public LocalBuildSchedulerMock() {
-            buildExecutor = new BuildExecutorMock();
-        }
-    };
+//    @Alternative
+//    @ApplicationScoped
+//    public static class RexBuildSchedulerMockMock extends RexBuildSchedulerMock {
+//
+//        @Inject
+//        public RexBuildSchedulerMockMock(BuildExecutor buildExecutor, BuildCoordinator buildCoordinator) {
+//            super(buildExecutor, buildCoordinator);
+//        }
+//
+//        public void setBuildCoordinator(BuildCoordinator buildCoordinator) {
+//            this.buildCoordinator = buildCoordinator;
+//        }
+//
+//        public RexBuildSchedulerMockMock() {
+//            buildExecutor = new BuildExecutorMock();
+//        }
+//    };
 }

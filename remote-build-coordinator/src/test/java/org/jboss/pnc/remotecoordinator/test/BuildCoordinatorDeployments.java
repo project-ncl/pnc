@@ -45,6 +45,8 @@ import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.test.mock.RexHttpClientMock;
+import org.jboss.pnc.remotecoordinator.builder.RexFacade;
+import org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
@@ -127,6 +129,9 @@ public class BuildCoordinatorDeployments {
                         RexHttpClient.class.getPackage())
                 .addAsManifestResource("beans.xml")
                 .addAsResource("logback-test.xml", "logback.xml");
+
+        jar.deleteClass(RexFacade.class); //use mock
+        jar.addClass(MockBuildScheduler.class);
 
         log.info("Deployment content: {}", jar.toString(true));
         return jar;

@@ -15,23 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.remotecoordinator.test;
+package org.jboss.pnc.remotecoordinator.test.dependencies;
 
+import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
-import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.remotecoordinator.builder.BuildTasksInitializer;
+import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
-import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.util.graph.Graph;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeoutException;
+import java.util.Collection;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -74,56 +75,63 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildAllIfNotSuccessfullyBuilt() throws CoreException, TimeoutException, InterruptedException {
-        build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
-
-        assertThat(getBuiltConfigs()).hasSameElementsAs(asList(configA, configB, configC, configD, configE));
+    public void shouldBuildAllIfNotSuccessfullyBuilt() throws GraphStructureException {
+        Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        expectBuiltTask(buildGraph, configA, configB, configC, configD, configE);
     }
 
     @Test
-    public void shouldNotCreateTaskForNonDependentBuilt() throws CoreException, TimeoutException, InterruptedException {
+    public void shouldNotCreateTaskForNonDependentBuilt() throws GraphStructureException {
         insertNewBuildRecords(configE);
-        build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
 
-        assertThat(getBuiltConfigs()).hasSameElementsAs(asList(configA, configB, configC, configD));
+        Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
+
+        expectBuiltTask(nrrBuildTasks, configE);
+        expectBuiltTask(buildGraph, configA, configB, configC, configD);
     }
 
     @Test
-    public void shouldCreateTaskForNonDependentBuiltWithRebuildAll()
-            throws CoreException, TimeoutException, InterruptedException {
+    public void shouldCreateTaskForNonDependentBuiltWithRebuildAll() throws GraphStructureException {
         insertNewBuildRecords(configE);
-        build(configSet, RebuildMode.FORCE);
+        Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.FORCE);
 
-        assertThat(getBuiltConfigs()).hasSameElementsAs(asList(configA, configB, configC, configD, configE));
+        expectBuiltTask(buildGraph, configA, configB, configC, configD, configE);
     }
 
     @Test
-    public void shouldCreateTaskForDependentBuilt() throws CoreException, TimeoutException, InterruptedException {
+    public void shouldCreateTaskForDependentBuilt() throws GraphStructureException {
         insertNewBuildRecords(configA, configC, configD, configE);
-        build(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
 
-        assertThat(getBuiltConfigs()).hasSameElementsAs(asList(configB, configC, configD));
+        expectBuiltTask(nrrBuildTasks, configA, configE);
+        expectBuiltTask(buildGraph, configB, configC, configD);
     }
 
     @Test
-    public void shouldBuildOnlyCWhenOnlyCIsUpdated() throws CoreException, TimeoutException, InterruptedException {
+    public void shouldBuildOnlyCWhenOnlyCIsUpdated() throws GraphStructureException {
         insertNewBuildRecords(configA, configB, configC, configD, configE);
 
         updateConfiguration(configC);
 
-        build(configSet, RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
+        Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
+        Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
 
-        expectBuilt(configC);
+        expectBuiltTask(nrrBuildTasks, configA, configB, configD, configE);
+        expectBuiltTask(buildGraph, configC);
     }
 
     @Test
-    public void shouldBuildBCDWhenBIsUpdated() throws CoreException, TimeoutException, InterruptedException {
+    public void shouldBuildBCDWhenBIsUpdated() throws GraphStructureException {
         insertNewBuildRecords(configA, configB, configC, configD, configE);
 
         updateConfiguration(configB);
 
-        build(configSet, RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
+        Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
+        Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
 
-        expectBuilt(configB, configC, configD);
+        expectBuiltTask(nrrBuildTasks, configA, configE);
+        expectBuiltTask(buildGraph, configB, configC, configD);
     }
 }

@@ -283,7 +283,6 @@ public class SystemConfig extends AbstractModuleConfig {
         this.maxScheduleRetries = maxScheduleRetries;
     }
 
-
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {
         int result = defaultValue;
         if (numberAsString == null) {
