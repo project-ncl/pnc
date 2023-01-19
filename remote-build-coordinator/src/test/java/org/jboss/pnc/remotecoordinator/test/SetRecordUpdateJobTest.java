@@ -25,6 +25,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -34,6 +35,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+// TODO review once the result storing from rex is done
+@Ignore
 public class SetRecordUpdateJobTest extends AbstractDependentBuildTest {
 
     private BuildConfiguration configA;

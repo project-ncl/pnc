@@ -24,6 +24,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
@@ -58,9 +59,12 @@ public class DatastoreMock implements Datastore {
     private List<BuildConfigSetRecord> buildConfigSetRecords = Collections.synchronizedList(new ArrayList<>());
 
     private Map<Integer, BuildConfiguration> buildConfigurations = Collections.synchronizedMap(new HashMap<>());
+    private Map<Integer, List<BuildConfigurationAudited>> buildConfigurationsAudited = Collections.synchronizedMap(new HashMap<>());
 
     AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
     AtomicInteger buildConfigAuditedRevSequence = new AtomicInteger(0);
+
+    private Set<IdRev> noRebuildRequiresIdRevs = new HashSet<>();
 
     @Override
     public Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts) {
@@ -145,15 +149,8 @@ public class DatastoreMock implements Datastore {
     @Override
     public BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(
             Integer buildConfigurationId) {
-        BuildConfiguration buildConfig = buildConfigurations.get(buildConfigurationId);
-
-        int rev = buildConfigAuditedRevSequence.incrementAndGet();
-        BuildConfigurationAudited buildConfigurationAudited = BuildConfigurationAudited.Builder.newBuilder()
-                .buildConfiguration(buildConfig)
-                .rev(rev)
-                .build();
-
-        return buildConfigurationAudited;
+        List<BuildConfigurationAudited> auditedList = buildConfigurationsAudited.get(buildConfigurationId);
+        return auditedList.get(auditedList.size() - 1);
     }
 
     @Override
@@ -187,10 +184,19 @@ public class DatastoreMock implements Datastore {
             AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache,
             Consumer<BuildRecord> nonRebuildCauseSetter) {
-        return true;
+        if (noRebuildRequiresIdRevs.contains(buildConfigurationAudited.getIdRev())) {
+            nonRebuildCauseSetter.accept(new BuildRecord());
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public BuildConfiguration save(BuildConfiguration buildConfig) {
+        List<BuildConfigurationAudited> auditedConfigs = buildConfigurationsAudited.computeIfAbsent(
+                buildConfig.getId(),
+                (k) -> new ArrayList<>());
+        auditedConfigs.add(BuildConfigurationAudited.fromBuildConfiguration(buildConfig, buildConfigAuditedRevSequence.getAndIncrement()));
         return buildConfigurations.put(buildConfig.getId(), buildConfig);
     }
 
@@ -201,5 +207,13 @@ public class DatastoreMock implements Datastore {
         buildConfigurations.clear();
         buildRecordSetSequence = new AtomicInteger(0);
         buildConfigAuditedRevSequence = new AtomicInteger(0);
+    }
+
+    public boolean addNoRebuildRequiredBCAIdREv(IdRev idRev) {
+        return noRebuildRequiresIdRevs.add(idRev);
+    }
+
+    public boolean removeNoRebuildRequiredBCAIdREv(IdRev idRev) {
+        return noRebuildRequiresIdRevs.remove(idRev);
     }
 }

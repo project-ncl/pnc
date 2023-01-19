@@ -33,7 +33,6 @@ import javax.persistence.PersistenceException;
  */
 @RunWith(Arquillian.class)
 public class ConfigurationsTest {
-    // TODO make sure there is a test for REJECTED build in the RemoteBuildCoordinatorTest
 
     @Deployment
     public static JavaArchive createDeployment() {

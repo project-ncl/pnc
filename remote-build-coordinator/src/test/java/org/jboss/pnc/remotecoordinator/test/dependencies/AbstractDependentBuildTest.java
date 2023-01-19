@@ -143,7 +143,6 @@ public abstract class AbstractDependentBuildTest {
 
         if (buildScheduler == null) {
             buildScheduler = new MockBuildScheduler();
-            buildScheduler.setKeepTasks(true);
         }
 
         buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
@@ -249,7 +248,8 @@ public abstract class AbstractDependentBuildTest {
         return new DependencyHandler(config);
     }
 
-    protected void expectBuiltTask(Graph<RemoteBuildTask> buildGraph, BuildConfiguration... configurations) {
+    protected void expectToBuildBuiltTask(Graph<RemoteBuildTask> buildGraph, BuildConfiguration... configurations) {
+        BuildTasksInitializer.removeNRRTasks(buildGraph);
         Collection<RemoteBuildTask> buildTasks = GraphUtils.unwrap(buildGraph.getVerticies());
         expectBuiltTask(buildTasks, configurations);
     }

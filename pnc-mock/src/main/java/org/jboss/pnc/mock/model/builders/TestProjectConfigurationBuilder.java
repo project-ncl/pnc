@@ -26,6 +26,7 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2014-12-10.
@@ -127,14 +128,14 @@ public class TestProjectConfigurationBuilder {
         return build(id, name, null);
     }
 
-    public BuildConfiguration build(int id, String name, BuildConfigurationSet buildConfigurationSet) {
+    public BuildConfiguration build(int id, String projectName, BuildConfigurationSet buildConfigurationSet) {
         Project project = new Project();
         project.setId(id);
-        project.setName(name);
+        project.setName(projectName);
 
         RepositoryConfiguration repositoryConfiguration = RepositoryConfiguration.Builder.newBuilder()
                 .id(id)
-                .internalUrl("github.com/" + name)
+                .internalUrl("github.com/" + projectName)
                 .build();
 
         BuildConfiguration buildConfiguration = new BuildConfiguration();
@@ -154,6 +155,19 @@ public class TestProjectConfigurationBuilder {
         }
         datastore.save(buildConfiguration);
 
+        return buildConfiguration;
+    }
+
+    public BuildConfiguration buildWithDependencies(int id, String name, BuildConfiguration... dependencies) {
+        BuildConfiguration buildConfiguration = build(id, name, null);
+        Arrays.stream(dependencies).forEach(bc -> buildConfiguration.addDependency(bc));
+        return buildConfiguration;
+    }
+
+    public BuildConfiguration buildWithDependencies(
+            int id, String name, BuildConfigurationSet set, BuildConfiguration... dependencies) {
+        BuildConfiguration buildConfiguration = buildWithDependencies(id, name, dependencies);
+        set.addBuildConfiguration(buildConfiguration);
         return buildConfiguration;
     }
 
