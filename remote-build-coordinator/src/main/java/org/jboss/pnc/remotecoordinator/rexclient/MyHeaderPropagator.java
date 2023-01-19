@@ -55,31 +55,6 @@ public class MyHeaderPropagator implements ClientHeadersFactory {
     private void addMDCHeaders(MultivaluedMap<String, String> outgoingHeaders) {
         Map<String, String> allMDCValues = MDCUtils.getHeadersFromMDC();
 
-        allMDCValues.forEach((header, value) -> {
-            switch (header) {
-                // values from MDCHeaderKeys.class
-                case "log-user-id":
-                case "log-request-context":
-                case "log-process-context":
-                case "process-context-variant":
-                case "traceparent":
-                case "tracestate":
-                case "trace-id":
-                case "span-id":
-                case "parent-id":
-                case "trace-flags":
-                case "trace-state":
-                case "trace-sampled":
-                case "log-build-id":
-                case "log-tmp":
-                case "log-exp":
-                    // propagate the MDC value
-                    outgoingHeaders.putSingle(header, value);
-                    break;
-                default:
-                    // don't propagate the MDC value
-                    break;
-            }
-        });
+        allMDCValues.forEach(outgoingHeaders::putSingle);
     }
 }
