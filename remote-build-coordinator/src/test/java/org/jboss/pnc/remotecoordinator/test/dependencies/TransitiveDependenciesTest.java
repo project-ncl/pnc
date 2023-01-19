@@ -83,7 +83,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
 
         // then
-        expectBuiltTask(buildGraph, a);
+        expectToBuildBuiltTask(buildGraph, a);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
 
         // then
-        expectBuiltTask(buildGraph, a, b, c, d);
+        expectToBuildBuiltTask(buildGraph, a, b, c, d);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         modifyConfigurations(e);
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
         // then
-        expectBuiltTask(buildGraph, a, b, e);
+        expectToBuildBuiltTask(buildGraph, a, b, e);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         modifyConfigurations(h);
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
         // then
-        expectBuiltTask(buildGraph, a, c, g, h);
+        expectToBuildBuiltTask(buildGraph, a, c, g, h);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         // when
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
         // then
-        expectBuiltTask(buildGraph);
+        expectToBuildBuiltTask(buildGraph);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         modifyConfigurations(all);
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
         // then
-        expectBuiltTask(buildGraph, all);
+        expectToBuildBuiltTask(buildGraph, all);
     }
 
     @Test
@@ -137,7 +137,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         modifyConfigurations(d, e, f, h);
         Graph<RemoteBuildTask> buildGraph = createGraph(a);
         // then
-        expectBuiltTask(buildGraph, all);
+        expectToBuildBuiltTask(buildGraph, all);
     }
 
     @Test
@@ -175,6 +175,6 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
                 .orElseThrow(() -> new AssertionError("Missing B."));
         Assert.assertTrue(runningB.isAlreadyRunning());
 
-        expectBuiltTask(buildGraph, a, b);
+        expectToBuildBuiltTask(buildGraph, a, b);
     }
 }

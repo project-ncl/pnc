@@ -77,7 +77,7 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
     @Test
     public void shouldBuildAllIfNotSuccessfullyBuilt() throws GraphStructureException {
         Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
-        expectBuiltTask(buildGraph, configA, configB, configC, configD, configE);
+        expectToBuildBuiltTask(buildGraph, configA, configB, configC, configD, configE);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
         Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
 
         expectBuiltTask(nrrBuildTasks, configE);
-        expectBuiltTask(buildGraph, configA, configB, configC, configD);
+        expectToBuildBuiltTask(buildGraph, configA, configB, configC, configD);
     }
 
     @Test
@@ -96,7 +96,7 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
         insertNewBuildRecords(configE);
         Graph<RemoteBuildTask> buildGraph = createGraph(configSet, RebuildMode.FORCE);
 
-        expectBuiltTask(buildGraph, configA, configB, configC, configD, configE);
+        expectToBuildBuiltTask(buildGraph, configA, configB, configC, configD, configE);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
         Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
 
         expectBuiltTask(nrrBuildTasks, configA, configE);
-        expectBuiltTask(buildGraph, configB, configC, configD);
+        expectToBuildBuiltTask(buildGraph, configB, configC, configD);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
         Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
 
         expectBuiltTask(nrrBuildTasks, configA, configB, configD, configE);
-        expectBuiltTask(buildGraph, configC);
+        expectToBuildBuiltTask(buildGraph, configC);
     }
 
     @Test
@@ -132,6 +132,6 @@ public class InGroupDependentBuildsTest extends AbstractDependentBuildTest {
         Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
 
         expectBuiltTask(nrrBuildTasks, configA, configE);
-        expectBuiltTask(buildGraph, configB, configC, configD);
+        expectToBuildBuiltTask(buildGraph, configB, configC, configD);
     }
 }

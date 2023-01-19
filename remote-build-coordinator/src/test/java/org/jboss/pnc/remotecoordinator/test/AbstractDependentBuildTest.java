@@ -159,7 +159,6 @@ public abstract class AbstractDependentBuildTest {
 
         if (buildScheduler == null) {
             buildScheduler = new MockBuildScheduler();
-            buildScheduler.setKeepTasks(true);
         }
 
         buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);

@@ -86,7 +86,7 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
         Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
 
         expectBuiltTask(nrrBuildTasks, configA, configB, configC);
-        expectBuiltTask(buildGraph);
+        expectToBuildBuiltTask(buildGraph);
     }
 
     @Test
@@ -97,7 +97,7 @@ public class OutsideGroupDependentConfigsTest extends AbstractDependentBuildTest
         Collection<RemoteBuildTask> nrrBuildTasks = BuildTasksInitializer.removeNRRTasks(buildGraph);
 
         expectBuiltTask(nrrBuildTasks, configC);
-        expectBuiltTask(buildGraph, configA, configB);
+        expectToBuildBuiltTask(buildGraph, configA, configB);
     }
 
 }

@@ -43,7 +43,7 @@ import static org.jboss.pnc.common.Configuration.CONFIG_SYSPROP;
  */
 
 @RunWith(Arquillian.class)
-@Ignore // SHOULD BE DONE IN INTEGRATION TESTS WITH REX
+@Ignore // TODO if needed move to integration tests
 public class ProjectWithFailedTransitiveDependenciesBuildTest extends ProjectBuilder {
 
     @Inject

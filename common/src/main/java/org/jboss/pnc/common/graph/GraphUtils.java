@@ -60,6 +60,22 @@ public class GraphUtils {
         }
     }
 
+    public static <T> Graph<T> clone(Graph<T> graph) {
+        Graph<T> clone = new Graph<>();
+        for (Vertex<T> vertex : graph.getVerticies()) {
+            clone.addVertex(vertex);
+        }
+
+        for (Edge<T> edge : graph.getEdges()) {
+            clone.addEdge(edge.getFrom(), edge.getTo(), edge.getCost());
+        }
+
+        if (graph.getRootVertex() != null ) {
+            clone.setRootVertex(graph.getRootVertex());
+        }
+        return clone;
+    }
+
     public static <T> Collection<T> unwrap(Collection<Vertex<T>> verticies) {
         return verticies.stream().map(Vertex::getData).collect(Collectors.toSet());
     }

@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-01-06.
  */
 @RunWith(Arquillian.class)
-@Ignore // SHOULD BE DONE IN INTEGRATION TESTS WITH REX
+@Ignore // TODO if needed move to integration tests
 public class ProjectWithDependenciesBuildTest extends ProjectBuilder {
 
     private static final Logger log = LoggerFactory.getLogger(ProjectWithDependenciesBuildTest.class);
