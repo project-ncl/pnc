@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,116 +71,111 @@ public class BuildTasksInitializer { // TODO update docs
             BuildOptions buildOptions,
             Collection<BuildTaskRef> submittedBuildTasks) throws GraphStructureException {
 
-        Set<BuildConfigurationAudited> toBuild = new HashSet<>();
-        collectBuildTasks(buildConfigurationAudited, buildOptions, toBuild);
+        log.debug(
+                "will create build tasks for scope: {} and configuration: {}",
+                buildOptions,
+                buildConfigurationAudited);
+
+        Set<BuildConfigurationAudited> collectedConfigurations = new HashSet<>();
+        Map<IdRev, BuildRecord> noRebuildRequiredCauses = new HashMap<>();
+        Set<BuildConfiguration> visited = new HashSet<>();
+
+        Set<Integer> processedDependenciesCache = new HashSet<>();
+        collectConfigurations(
+                buildConfigurationAudited.getBuildConfiguration(),
+                buildConfigurationAudited,
+                collectedConfigurations,
+                noRebuildRequiredCauses,
+                visited,
+                buildOptions.isBuildDependencies(),
+                buildOptions.isImplicitDependenciesCheck(),
+                buildOptions.isForceRebuild(),
+                buildOptions.isTemporaryBuild(),
+                buildOptions.getAlignmentPreference(),
+                processedDependenciesCache);
+
         log.debug(
                 "Collected build tasks for the BuildConfigurationAudited: {}. Collected: {}.",
                 buildConfigurationAudited,
-                toBuild.stream().map(BuildConfigurationAudited::toString).collect(Collectors.joining(", ")));
+                collectedConfigurations.stream().map(BuildConfigurationAudited::toString).collect(Collectors.joining(", ")));
 
         return doCreateBuildGraph(
                 user,
                 buildOptions,
                 submittedBuildTasks,
-                toBuild,
-                Collections.emptyMap(),
+                collectedConfigurations,
+                noRebuildRequiredCauses,
                 buildConfigurationAudited.getBuildConfiguration().getCurrentProductMilestone());
-    }
-
-    private void collectBuildTasks(
-            BuildConfigurationAudited buildConfigurationAudited,
-            BuildOptions buildOptions,
-            Set<BuildConfigurationAudited> toBuild) {
-        log.debug(
-                "will create build tasks for scope: {} and configuration: {}",
-                buildOptions,
-                buildConfigurationAudited);
-        Set<BuildConfiguration> visited = new HashSet<>();
-        if (toBuild.contains(buildConfigurationAudited)) {
-            return;
-        }
-
-        Set<Integer> processedDependenciesCache = new HashSet<>();
-        if (buildOptions.isBuildDependencies()) {
-            collectDependentConfigurations(
-                    buildConfigurationAudited.getBuildConfiguration(),
-                    buildConfigurationAudited,
-                    toBuild,
-                    visited,
-                    buildOptions.isImplicitDependenciesCheck(),
-                    buildOptions.isForceRebuild(),
-                    buildOptions.isTemporaryBuild(),
-                    buildOptions.getAlignmentPreference(),
-                    processedDependenciesCache);
-        } else {
-            Optional<BuildRecord> noRebuildCause = datastoreAdapter.requiresRebuild(
-                    buildConfigurationAudited,
-                    buildOptions.isImplicitDependenciesCheck(),
-                    buildOptions.isTemporaryBuild(),
-                    buildOptions.getAlignmentPreference(),
-                    processedDependenciesCache);
-            if (buildOptions.isForceRebuild() || noRebuildCause.isEmpty()) {
-                toBuild.add(buildConfigurationAudited);
-            }
-        }
     }
 
     /**
      * Collects all BuildConfigurationAudited entities, that needs to be built.
      *
-     * @param buildConfiguration Current BuildConfiguration used to resolve dependencies.
-     * @param buildConfigurationAudited Specific revision of a BuildConfiguration (passed as first parameter) to be
-     *        potentially built
-     * @param toBuild Set of BuildConfigurationAudited entities planned to be built
-     * @param visited Set of BuildConfigurations, which were already evaluated, if should be built
-     * @param checkImplicitDependencies if implicit check of dependencies needs to be done
-     * @param forceRebuild if force build is required
-     * @param temporaryBuild if build is temporary
+     * @param buildConfiguration         Current BuildConfiguration used to resolve dependencies.
+     * @param buildConfigurationAudited  Specific revision of a BuildConfiguration (passed as first parameter) to be
+     *                                   potentially built
+     * @param collectedConfigurations                    Set of BuildConfigurationAudited entities planned to be built
+     * @param noRebuildRequiredCauses
+     * @param visited                    Set of BuildConfigurations, which were already evaluated, if should be built
+     * @param buildDependencies
+     * @param checkImplicitDependencies  if implicit check of dependencies needs to be done
+     * @param forceRebuild               if force build is required
+     * @param temporaryBuild             if build is temporary
      * @param processedDependenciesCache list containing any dependency which was already processed in previous
-     *        iterations
+     *                                   iterations
      * @return Returns true, if the buildConfiguration should be rebuilt, otherwise returns false.
      */
-    private boolean collectDependentConfigurations(
+    private boolean collectConfigurations(
             BuildConfiguration buildConfiguration,
             BuildConfigurationAudited buildConfigurationAudited,
-            Set<BuildConfigurationAudited> toBuild,
+            Set<BuildConfigurationAudited> collectedConfigurations,
+            Map<IdRev, BuildRecord> noRebuildRequiredCauses,
             Set<BuildConfiguration> visited,
+            boolean buildDependencies,
             boolean checkImplicitDependencies,
             boolean forceRebuild,
             boolean temporaryBuild,
             AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache) {
         if (visited.contains(buildConfiguration)) {
-            return toBuild.contains(buildConfigurationAudited);
+            return !noRebuildRequiredCauses.containsKey(buildConfigurationAudited.getIdRev());
         }
         visited.add(buildConfiguration);
 
-        Optional<BuildRecord> noRebuildCause = datastoreAdapter.requiresRebuild(
-                buildConfigurationAudited,
-                checkImplicitDependencies,
-                temporaryBuild,
-                alignmentPreference,
-                processedDependenciesCache);
-        boolean requiresRebuild = forceRebuild || noRebuildCause.isEmpty();
-        for (BuildConfiguration dependency : buildConfiguration.getDependencies()) {
-            boolean dependencyRequiresRebuild = collectDependentConfigurations(
-                    dependency,
-                    datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependency.getId()),
-                    toBuild,
-                    visited,
+        Optional<BuildRecord> noRebuildCause;
+        if (!forceRebuild) {
+            noRebuildCause = datastoreAdapter.requiresRebuild(
+                    buildConfigurationAudited,
                     checkImplicitDependencies,
-                    forceRebuild,
                     temporaryBuild,
                     alignmentPreference,
                     processedDependenciesCache);
+            noRebuildCause.ifPresent(br -> noRebuildRequiredCauses.put(buildConfigurationAudited.getIdRev(), br));
+        } else {
+            noRebuildCause = Optional.empty();
+        }
 
-            requiresRebuild = requiresRebuild || dependencyRequiresRebuild;
+        boolean requiresRebuild = noRebuildCause.isEmpty();
 
+        if (buildDependencies) {
+            for (BuildConfiguration dependency : buildConfiguration.getDependencies()) {
+                boolean dependencyRequiresRebuild = collectConfigurations(
+                        dependency,
+                        datastoreAdapter.getLatestBuildConfigurationAuditedInitializeBCDependencies(dependency.getId()),
+                        collectedConfigurations,
+                        noRebuildRequiredCauses,
+                        visited,
+                        buildDependencies,
+                        checkImplicitDependencies,
+                        forceRebuild,
+                        temporaryBuild,
+                        alignmentPreference,
+                        processedDependenciesCache);
+                requiresRebuild = requiresRebuild || dependencyRequiresRebuild;
+            }
         }
         log.debug("Configuration {} requires rebuild: {}", buildConfiguration.getId(), requiresRebuild);
-        if (requiresRebuild) {
-            toBuild.add(buildConfigurationAudited);
-        }
+        collectedConfigurations.add(buildConfigurationAudited);
 
         return requiresRebuild;
     }
@@ -240,6 +234,8 @@ public class BuildTasksInitializer { // TODO update docs
                 } else {
                     toBuild.add(buildConfiguration);
                 }
+            } else {
+                toBuild.add(buildConfiguration);
             }
         }
 
@@ -279,13 +275,13 @@ public class BuildTasksInitializer { // TODO update docs
         Graph<RemoteBuildTask> graph = new Graph<>();
 
         for (BuildConfigurationAudited buildConfigAudited : toBuild) {
-            Optional<BuildTaskRef> taskOptional = submittedBuildTasks.stream()
+            Optional<BuildTaskRef> submittedTask = submittedBuildTasks.stream()
                     .filter(bt -> bt.getIdRev().equals(buildConfigAudited.getIdRev()))
                     .findAny();
             BuildRecord noRebuildRequired = noRebuildRequiredCauses.get(buildConfigAudited.getIdRev());
             RemoteBuildTask remoteBuildTask;
-            if (taskOptional.isPresent()) {
-                BuildTaskRef buildTaskRef = taskOptional.get();
+            if (submittedTask.isPresent()) {
+                BuildTaskRef buildTaskRef = submittedTask.get();
                 remoteBuildTask = new RemoteBuildTask(
                         buildTaskRef.getId(),
                         Instant.now(),
@@ -322,9 +318,6 @@ public class BuildTasksInitializer { // TODO update docs
                 }
             }
         }
-//        Optional<Vertex<RemoteBuildTask>> root = GraphUtils.findRoot(graph);
-//        root.ifPresent(r -> graph.setRootVertex(r));
-
         return graph;
     }
 
@@ -378,5 +371,4 @@ public class BuildTasksInitializer { // TODO update docs
             }
         }
     }
-
 }

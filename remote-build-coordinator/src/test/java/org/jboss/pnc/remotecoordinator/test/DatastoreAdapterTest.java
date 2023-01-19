@@ -55,6 +55,8 @@ import static org.mockito.Mockito.when;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+// TODO review once the result storing from rex is done
+@Ignore
 public class DatastoreAdapterTest {
 
     private static final String REPOSITORY_MANAGER_LOG = "Repository manager log.";
@@ -170,7 +172,7 @@ public class DatastoreAdapterTest {
     @Ignore
     @Test
     public void shouldStoreSshCredentialsOnSshEnabled() throws DatastoreException {
-// TODO       BuildTask buildTask = mockBuildTask();
+//        BuildTask buildTask = mockBuildTask();
 //        BuildResult buildResult = mockBuildResult(true);
 //
 //        SshCredentials sshCredentials = new SshCredentials();

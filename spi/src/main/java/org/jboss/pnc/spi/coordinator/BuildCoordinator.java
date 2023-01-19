@@ -52,7 +52,7 @@ public interface BuildCoordinator {
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
-            BuildOptions buildOptions) throws CoreException;
+            BuildOptions buildOptions) throws CoreException, BuildConflictException;
 
     Optional<BuildTask> getSubmittedBuildTask(String buildId);
 

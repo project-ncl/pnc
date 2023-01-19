@@ -59,7 +59,34 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
         Graph<RemoteBuildTask> buildGraph = createGraph(a, buildOptions);
 
         // then
-        expectBuiltTask(buildGraph, a);
+        expectToBuildBuiltTask(buildGraph, a);
+    }
+
+    @Test
+    public void shouldBuildAWhenNoDependencyOption() throws GraphStructureException {
+        insertNewBuildRecords(b);
+
+        // when
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setRebuildMode(RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
+        buildOptions.setBuildDependencies(false);
+        Graph<RemoteBuildTask> buildGraph = createGraph(a, buildOptions);
+
+        // then
+        expectToBuildBuiltTask(buildGraph, a);
+    }
+
+    @Test
+    public void shouldBuildABOnModifiedD() throws GraphStructureException {
+        // when
+        insertNewBuildRecords(d);
+
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setRebuildMode(RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
+        Graph<RemoteBuildTask> buildGraph = createGraph(a, buildOptions);
+
+        // then
+        expectToBuildBuiltTask(buildGraph, a, b);
     }
 
     @Test
@@ -72,7 +99,7 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
         Graph<RemoteBuildTask> buildGraph = createGraph(a, buildOptions);
 
         // then
-        expectBuiltTask(buildGraph);
+        expectToBuildBuiltTask(buildGraph);
     }
 
     @Test
@@ -87,7 +114,7 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
         Graph<RemoteBuildTask> buildGraph = createGraph(a, buildOptions);
 
         // then
-        expectBuiltTask(buildGraph, a);
+        expectToBuildBuiltTask(buildGraph, a);
     }
 
     @Test
@@ -101,6 +128,6 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
         Graph<RemoteBuildTask> buildGraph = createGraph(a, buildOptions);
 
         // then
-        expectBuiltTask(buildGraph, d, b, a);
+        expectToBuildBuiltTask(buildGraph, d, b, a);
     }
 }

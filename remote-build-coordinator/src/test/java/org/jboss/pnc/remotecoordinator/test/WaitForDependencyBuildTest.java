@@ -19,8 +19,8 @@ package org.jboss.pnc.remotecoordinator.test;
 
 import org.junit.Ignore;
 
-@Ignore //TODO SHOULD BE DONE IN INTEGRATION TESTS WITH REX
-public class WaitForDependencyBuildTest  {
+@Ignore // TODO if needed move to integration tests
+public class WaitForDependencyBuildTest {
 //extends AbstractDependentBuildTest
 //    private BuildConfiguration configParent;
 //    private BuildConfiguration configDependency;

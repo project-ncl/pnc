@@ -17,7 +17,9 @@
  */
 package org.jboss.pnc.remotecoordinator.test.mock;
 
+import lombok.Getter;
 import lombok.Setter;
+import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
@@ -37,6 +39,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.jboss.pnc.spi.coordinator.CompletionStatus.CANCELLED;
@@ -53,11 +58,8 @@ public class MockBuildScheduler implements RexBuildScheduler {
     @Setter(onMethod_ = { @Inject })
     protected BuildTaskRepositoryMock taskRepositoryMock;
 
-//    @Setter(onMethod_ = { @Inject, @Remote }) TODO do we need it ?
-//    protected BuildCoordinator coordinator;
-
-    @Setter
-    private boolean keepTasks = false;
+    @Getter
+    private List<RemoteBuildTask> activeBuildTasks = new ArrayList<>();
 
     public static BuildResult buildResult() {
         return buildResult(CompletionStatus.SUCCESS);
@@ -89,7 +91,10 @@ public class MockBuildScheduler implements RexBuildScheduler {
 
     @Override
     public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws CoreException {
-
+        Collection<RemoteBuildTask> sourceVerticies = GraphUtils.unwrap(buildGraph.getVerticies());
+        for (RemoteBuildTask buildTask : sourceVerticies) {
+            activeBuildTasks.add(buildTask);
+        }
     }
 
     @Override
@@ -97,6 +102,11 @@ public class MockBuildScheduler implements RexBuildScheduler {
         return false;
     }
 
+    public void clearActiveTasks() {
+        activeBuildTasks.clear();
+    }
+
+    @NotNull
     private static BuildResult mockBuildResult(BuildCoordinationStatus status) {
         BuildResult result;
         switch (status) {
