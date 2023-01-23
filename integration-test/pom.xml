@@ -173,7 +173,7 @@
       <artifactId>lombok</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.github.fge</groupId>
+      <groupId>com.github.java-json-tools</groupId>
       <artifactId>json-patch</artifactId>
       <exclusions>
         <exclusion>
@@ -314,7 +314,7 @@
           <groupId>org.hsqldb</groupId>
           <artifactId>hsqldb</artifactId>
           <scope>compile</scope>
-          <classifier>jdk8debug</classifier>
+          <classifier>debug</classifier>
         </dependency>
       </dependencies>
       <build>
@@ -346,8 +346,7 @@
                 <configuration>
                   <groupId>org.hsqldb</groupId>
                   <artifactId>hsqldb</artifactId>
-                  <classifier>jdk8debug</classifier>
-                  <!--<name>hsqldb-jdk8debug.jar</name>-->
+                  <classifier>debug</classifier>
                 </configuration>
               </execution>
               <execution>
@@ -365,7 +364,7 @@
                         <enabled>true</enabled>
                         <connection-url>jdbc:hsqldb:mem:newcastletestmemdb</connection-url>
                         <driver-class>org.hsqldb.jdbc.JDBCDriver</driver-class>
-                        <driver-name>hsqldb-2.4.1-jdk8debug.jar</driver-name>
+                        <driver-name>hsqldb-2.7.1-debug.jar</driver-name>
                         <user-name>sa</user-name>
                         <password>sa</password>
                       </properties>

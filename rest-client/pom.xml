@@ -43,9 +43,11 @@
       <groupId>org.jboss.resteasy</groupId>
       <artifactId>resteasy-client</artifactId>
     </dependency>
+    <!-- Unmanaged depencency (to avoid having a dependency on vertx in parent)-->
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
+      <version>${version.vertx-core}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -79,7 +81,7 @@
       <classifier>patch-builders</classifier>
     </dependency>
     <dependency>
-      <groupId>com.github.fge</groupId>
+      <groupId>com.github.java-json-tools</groupId>
       <artifactId>json-patch</artifactId>
       <exclusions>
         <exclusion>

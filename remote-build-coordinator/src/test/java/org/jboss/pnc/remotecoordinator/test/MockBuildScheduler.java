@@ -80,7 +80,6 @@ public class MockBuildScheduler implements RexBuildScheduler {
         }
     }
 
-    @NotNull
     private static BuildResult mockBuildResult(BuildCoordinationStatus status) {
         BuildResult result;
         switch (status) {
