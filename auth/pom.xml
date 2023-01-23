@@ -41,6 +41,11 @@
     </dependency>
 
     <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>common</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <scope>provided</scope>
@@ -78,16 +83,7 @@
 
     <dependency>
       <groupId>org.jboss.pnc</groupId>
-      <artifactId>common</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss.pnc</groupId>
       <artifactId>moduleconfig</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
     </dependency>
 
     <dependency>
@@ -98,17 +94,6 @@
     <dependency>
       <groupId>org.jboss.pnc</groupId>
       <artifactId>pnc-mock</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.jboss</groupId>
-      <artifactId>jboss-common-core</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.jboss.logging</groupId>
-          <artifactId>jboss-logging-spi</artifactId>
-        </exclusion>
-      </exclusions>
       <scope>test</scope>
     </dependency>
 
