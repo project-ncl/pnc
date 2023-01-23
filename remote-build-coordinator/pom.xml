@@ -28,7 +28,7 @@
     <version>2.5.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>build-coordinator</artifactId>
+  <artifactId>remote-build-coordinator</artifactId>
   <packaging>jar</packaging>
 
   <description>Contains implementations of action-controllers, which include the business logic for orchestrating build requests and collect the results. Action controllers are used to isolate logic from the REST API, so it can be reused in embedded scenarios.</description>
@@ -80,6 +80,10 @@
       <groupId>org.commonjava.indy</groupId>
       <artifactId>indy-folo-client-java</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc.rex</groupId>
+      <artifactId>rex-api</artifactId>
+    </dependency>
 
 
     <dependency>
@@ -89,6 +93,16 @@
     <dependency>
       <groupId>jakarta.enterprise</groupId>
       <artifactId>jakarta.enterprise.cdi-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.microprofile.rest.client</groupId>
+      <artifactId>microprofile-rest-client-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.microprofile.config</groupId>
+      <artifactId>microprofile-config-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -106,10 +120,20 @@
       <artifactId>jboss-annotations-api_1.3_spec</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jboss.spec.javax.ws.rs</groupId>
+      <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
+      <scope>provided</scope>
+    </dependency>
     <!-- only here as lombok is too eager to do everything-->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -141,11 +165,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>jakarta.persistence</groupId>
-      <artifactId>jakarta.persistence-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
       <artifactId>arquillian-junit-container</artifactId>
       <scope>test</scope>
@@ -158,6 +177,11 @@
     <dependency>
       <groupId>org.jboss.weld</groupId>
       <artifactId>weld-core-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.smallrye.config</groupId>
+      <artifactId>smallrye-config</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -183,11 +207,6 @@
     <dependency>
       <groupId>org.jboss.shrinkwrap.resolver</groupId>
       <artifactId>shrinkwrap-resolver-impl-maven-archive</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.smallrye.config</groupId>
-      <artifactId>smallrye-config</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -216,5 +235,8 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
     </dependency>
+
+    <!-- /Test coverage -->
+
   </dependencies>
 </project>

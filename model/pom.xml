@@ -109,7 +109,7 @@
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <scope>test</scope>
-      <classifier>jdk8debug</classifier>
+      <classifier>debug</classifier>
     </dependency>
     <dependency>
       <groupId>org.jboss.pnc</groupId>

@@ -121,7 +121,11 @@
             <artifactId>swagger-annotations</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- OTEL dependencies -->
         <dependency>
             <groupId>com.redhat.resilience.otel</groupId>
