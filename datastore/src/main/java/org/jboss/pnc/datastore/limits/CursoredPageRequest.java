@@ -20,6 +20,8 @@ package org.jboss.pnc.datastore.limits;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.Objects;
+
 /**
  * Pageable implementation that supports cursored (offset / limit based) pagination rather than the index / size based.
  *
@@ -27,11 +29,11 @@ import org.springframework.data.domain.Sort;
  */
 public class CursoredPageRequest implements Pageable {
 
-    private final int offset;
+    private final long offset;
     private final int limit;
     private final Sort sort;
 
-    public CursoredPageRequest(int offset, int limit, Sort sort) {
+    public CursoredPageRequest(long offset, int limit, Sort sort) {
         if (offset < 0) {
             throw new IllegalArgumentException("Offset must not be less than zero!");
         }
@@ -46,7 +48,7 @@ public class CursoredPageRequest implements Pageable {
     }
 
     @Override
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
 
@@ -77,7 +79,7 @@ public class CursoredPageRequest implements Pageable {
 
     @Override
     public Pageable previousOrFirst() {
-        int newOffset;
+        long newOffset;
 
         if (offset < limit) {
             newOffset = 0;
@@ -112,10 +114,7 @@ public class CursoredPageRequest implements Pageable {
 
     @Override
     public int hashCode() {
-        int result = offset;
-        result = 31 * result + limit;
-        result = 31 * result + (sort != null ? sort.hashCode() : 0);
-        return result;
+        return Objects.hash(offset, limit, sort);
     }
 
     @Override

@@ -28,7 +28,7 @@ import org.springframework.data.domain.Sort;
 public class PageableMapper {
 
     public static PageRequest map(PageInfo pageInfo, SortInfo sortInfo) {
-        return new PageRequest(getPageOffset(pageInfo), getPageSize(pageInfo), getSort(sortInfo));
+        return PageRequest.of(getPageOffset(pageInfo), getPageSize(pageInfo), getSort(sortInfo));
     }
 
     public static CursoredPageRequest mapCursored(PageInfo pageInfo, SortInfo sortInfo) {
@@ -41,7 +41,7 @@ public class PageableMapper {
         }
         Sort.Direction direction = sortInfo.getDirection() == SortInfo.SortingDirection.ASC ? Sort.Direction.ASC
                 : Sort.Direction.DESC;
-        return new Sort(direction, sortInfo.getFields());
+        return Sort.by(direction, sortInfo.getFields().toArray(new String[] {}));
     }
 
     private static int getPageOffset(PageInfo pageInfo) {
