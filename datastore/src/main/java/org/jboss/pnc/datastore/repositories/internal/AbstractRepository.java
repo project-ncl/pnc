@@ -65,7 +65,7 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
 
     @Override
     public void delete(ID id) {
-        springRepository.delete(id);
+        springRepository.deleteById(id);
     }
 
     @Override
@@ -86,12 +86,12 @@ public class AbstractRepository<T extends GenericEntity<ID>, ID extends Serializ
 
     @Override
     public T queryById(ID id) {
-        return springRepository.findOne(id);
+        return springRepository.findById(id).orElse(null);
     }
 
     @Override
     public T queryByPredicates(Predicate<T>... predicates) {
-        return springSpecificationsExecutor.findOne(SpecificationsMapper.map(predicates));
+        return springSpecificationsExecutor.findOne(SpecificationsMapper.map(predicates)).orElse(null);
     }
 
     @Override
