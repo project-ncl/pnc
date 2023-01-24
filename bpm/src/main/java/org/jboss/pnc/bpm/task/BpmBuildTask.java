@@ -25,7 +25,6 @@ import org.jboss.pnc.common.util.TimeUtils;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import java.io.Serializable;
@@ -48,7 +47,7 @@ public class BpmBuildTask {
         this.globalConfig = globalConfig;
     }
 
-    public Serializable getProcessParameters() throws CoreException {
+    public Serializable getProcessParameters() {
 
         return new ComponentBuildParameters(
                 globalConfig.getPncUrl(),

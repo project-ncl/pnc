@@ -59,7 +59,8 @@ public class DatastoreMock implements Datastore {
     private List<BuildConfigSetRecord> buildConfigSetRecords = Collections.synchronizedList(new ArrayList<>());
 
     private Map<Integer, BuildConfiguration> buildConfigurations = Collections.synchronizedMap(new HashMap<>());
-    private Map<Integer, List<BuildConfigurationAudited>> buildConfigurationsAudited = Collections.synchronizedMap(new HashMap<>());
+    private Map<Integer, List<BuildConfigurationAudited>> buildConfigurationsAudited = Collections
+            .synchronizedMap(new HashMap<>());
 
     AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
     AtomicInteger buildConfigAuditedRevSequence = new AtomicInteger(0);
@@ -193,9 +194,8 @@ public class DatastoreMock implements Datastore {
     }
 
     public BuildConfiguration save(BuildConfiguration buildConfig) {
-        List<BuildConfigurationAudited> auditedConfigs = buildConfigurationsAudited.computeIfAbsent(
-                buildConfig.getId(),
-                (k) -> new ArrayList<>());
+        List<BuildConfigurationAudited> auditedConfigs = buildConfigurationsAudited
+                .computeIfAbsent(buildConfig.getId(), (k) -> new ArrayList<>());
         auditedConfigs.add(BuildConfigurationAudited.fromBuildConfiguration(buildConfig, buildConfigAuditedRevSequence.getAndIncrement()));
         return buildConfigurations.put(buildConfig.getId(), buildConfig);
     }

@@ -30,6 +30,7 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.ScheduleConflictException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.util.graph.Graph;
@@ -38,7 +39,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -60,6 +60,11 @@ public class MockBuildScheduler implements RexBuildScheduler {
 
     @Getter
     private List<RemoteBuildTask> activeBuildTasks = new ArrayList<>();
+
+    @Setter
+    private ScheduleConflictException failToScheduleBuildException;
+
+    private List<Graph<RemoteBuildTask>> scheduleRequests = new ArrayList<>();
 
     public static BuildResult buildResult() {
         return buildResult(CompletionStatus.SUCCESS);
@@ -90,7 +95,11 @@ public class MockBuildScheduler implements RexBuildScheduler {
     }
 
     @Override
-    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws CoreException {
+    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws ScheduleConflictException {
+        scheduleRequests.add(buildGraph);
+        if (failToScheduleBuildException != null) {
+            throw failToScheduleBuildException;
+        }
         Collection<RemoteBuildTask> sourceVerticies = GraphUtils.unwrap(buildGraph.getVerticies());
         for (RemoteBuildTask buildTask : sourceVerticies) {
             activeBuildTasks.add(buildTask);
@@ -102,8 +111,9 @@ public class MockBuildScheduler implements RexBuildScheduler {
         return false;
     }
 
-    public void clearActiveTasks() {
+    public void reset() {
         activeBuildTasks.clear();
+        failToScheduleBuildException = null;
     }
 
     @NotNull
@@ -130,4 +140,7 @@ public class MockBuildScheduler implements RexBuildScheduler {
         return result;
     }
 
+    public List<Graph<RemoteBuildTask>> getScheduleRequests() {
+        return scheduleRequests;
+    }
 }

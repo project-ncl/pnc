@@ -20,11 +20,12 @@ package org.jboss.pnc.remotecoordinator.builder;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.ScheduleConflictException;
 import org.jboss.util.graph.Graph;
 
 public interface RexBuildScheduler {
 
-    void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws CoreException;
+    void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws ScheduleConflictException;
 
     boolean cancel(String taskId) throws CoreException;
 }

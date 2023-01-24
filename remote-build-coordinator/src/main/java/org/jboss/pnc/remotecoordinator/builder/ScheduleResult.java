@@ -19,18 +19,15 @@ package org.jboss.pnc.remotecoordinator.builder;
 
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
-import org.jboss.pnc.spi.exception.ScheduleConflictException;
 import org.jboss.util.graph.Graph;
 
 import java.util.Collection;
-import java.util.Optional;
 
-class ScheduleResult {
+public class ScheduleResult {
     Graph<RemoteBuildTask> buildGraph;
     BuildCoordinationStatus coordinationStatus;
     BuildStatusWithDescription buildStatusWithDescription;
     Collection<RemoteBuildTask> noRebuildTasks;
-    ScheduleConflictException exception;
 
     public ScheduleResult(
             Graph<RemoteBuildTask> buildGraph,
@@ -41,22 +38,5 @@ class ScheduleResult {
         this.coordinationStatus = coordinationStatus;
         this.buildStatusWithDescription = buildStatusWithDescription;
         this.noRebuildTasks = noRebuildTasks;
-    }
-
-    public ScheduleResult(
-            Graph<RemoteBuildTask> buildGraph,
-            BuildCoordinationStatus coordinationStatus,
-            BuildStatusWithDescription buildStatusWithDescription,
-            Collection<RemoteBuildTask> noRebuildTasks,
-            ScheduleConflictException e) {
-        this.buildGraph = buildGraph;
-        this.coordinationStatus = coordinationStatus;
-        this.buildStatusWithDescription = buildStatusWithDescription;
-        this.noRebuildTasks = noRebuildTasks;
-        exception = e;
-    }
-
-    public Optional<ScheduleConflictException> getException() {
-        return Optional.ofNullable(exception);
     }
 }

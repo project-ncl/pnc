@@ -165,7 +165,10 @@ public class TestProjectConfigurationBuilder {
     }
 
     public BuildConfiguration buildWithDependencies(
-            int id, String name, BuildConfigurationSet set, BuildConfiguration... dependencies) {
+            int id,
+            String name,
+            BuildConfigurationSet set,
+            BuildConfiguration... dependencies) {
         BuildConfiguration buildConfiguration = buildWithDependencies(id, name, dependencies);
         set.addBuildConfiguration(buildConfiguration);
         return buildConfiguration;
