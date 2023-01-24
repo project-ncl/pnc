@@ -51,7 +51,8 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
 
     @Override
     public Collection<BuildTaskRef> getUnfinishedTasks() {
-        return tasks.values()
+        return tasks
+                .values()
                 .stream()
                 .filter(task -> !task.getStatus().isCompleted())
                 .collect(Collectors.toList());
@@ -68,7 +69,7 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
     }
 
     public void addTask(BuildTaskRef task) {
-        this.tasks.put(task.getId(),task);
+        this.tasks.put(task.getId(), task);
     }
 
     public void removeTask(BuildTaskRef task) {

@@ -47,6 +47,7 @@ import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.ScheduleConflictException;
 import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
 
@@ -120,7 +121,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         this.loggedInUser = loggedInUser;
     }
 
-    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws CoreException {
+    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws ScheduleConflictException {
         BpmEndpointUrlFactory bpmUrl = new BpmEndpointUrlFactory(bpmConfig.getBpmNewBaseUrl());
 
         Set<@NotNull @Valid EdgeDTO> edges = new HashSet<>();
@@ -138,6 +139,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             edges.add(edge);
         }
 
+        throw new ScheduleConflictException(""); // TODO
 //        CreateGraphRequest createGraphRequest = new CreateGraphRequest(edges, vertices);
 //        return rexClient.start(createGraphRequest, loggedInUser.getTokenString());
     }
@@ -243,7 +245,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         return taskFilterParameters;
     }
 
-    private CreateTaskDTO getCreateNewTaskDTO(BpmEndpointUrlFactory bpmUrlFactory, RemoteBuildTask buildTask, User user) throws CoreException {
+    private CreateTaskDTO getCreateNewTaskDTO(BpmEndpointUrlFactory bpmUrlFactory, RemoteBuildTask buildTask, User user) {
         String loginToken = loggedInUser.getTokenString();
         BpmBuildTask bpmBuildTask = new BpmBuildTask(toBuildTask(buildTask, user, new Date()), globalConfig);
         Map<String, Serializable> bpmTask = Collections.singletonMap("processParameters", bpmBuildTask.getProcessParameters());

@@ -41,6 +41,7 @@ import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.Remote;
 import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.ScheduleConflictException;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Before;
@@ -85,10 +86,17 @@ public class RemoteBuildCoordinatorTest {
     @Before
     public void setUp() {
         datastoreMock.clear();
-        buildScheduler.clearActiveTasks();
+        buildScheduler.reset();
         datastoreAdapter = new DatastoreAdapter(datastoreMock);
         USER.setId(1);
     }
+
+
+    /**
+     * TODO
+     * - test storing the results of sys_error builds
+     * - test conflicting schedule retries
+     */
 
     @Test
     public void shouldRejectSingleBuildIfItsAlreadyRunning() throws Exception {
@@ -193,6 +201,24 @@ public class RemoteBuildCoordinatorTest {
         // make sure no_rebuild tasks are not scheduled
         Assert.assertEquals(1, buildScheduler.getActiveBuildTasks().size());
     }
+
+    @Test
+    public void shouldThrowWhenBuildSchedulingFails() throws Exception {
+        buildScheduler.setFailToScheduleBuildException(new ScheduleConflictException("Intentionally failing to start the build."));
+
+        BuildConfiguration bc200 = testProjectConfigurationBuilder.buildWithDependencies(200, "Project-223");
+
+        BuildOptions buildOptions = new BuildOptions();
+
+        try {
+            buildCoordinator.buildConfig(bc200, USER, buildOptions);
+        } catch (Exception e) {
+            Assertions.assertThat(e.getMessage()).contains("failing to start");
+        }
+        // make sure there were retries
+        Assert.assertTrue(buildScheduler.getScheduleRequests().size() > 1);
+    }
+
 
     private BuildTaskRef getBuildTaskRef(BuildConfiguration bc200, BuildCoordinationStatus status) {
         BuildConfigurationAudited audited = getBuildConfigurationAudited(bc200);

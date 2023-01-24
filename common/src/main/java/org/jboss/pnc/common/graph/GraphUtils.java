@@ -70,7 +70,7 @@ public class GraphUtils {
             clone.addEdge(edge.getFrom(), edge.getTo(), edge.getCost());
         }
 
-        if (graph.getRootVertex() != null ) {
+        if (graph.getRootVertex() != null) {
             clone.setRootVertex(graph.getRootVertex());
         }
         return clone;
