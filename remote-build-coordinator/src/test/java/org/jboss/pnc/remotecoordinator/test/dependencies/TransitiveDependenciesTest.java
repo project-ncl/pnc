@@ -150,7 +150,7 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
                 .getLatestBuildConfigurationAuditedInitializeBCDependencies(b.getId());
 
         BuildTaskRef taskRefB = new DefaultBuildTaskRef(
-                auditedB.getId()+"",
+                auditedB.getId() + "",
                 auditedB.getIdRev(),
                 "",
                 "",
@@ -158,11 +158,8 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
                 Instant.now(),
                 BuildCoordinationStatus.BUILDING);
         Collection<BuildTaskRef> alreadyRunning = Set.of(taskRefB);
-        Graph<RemoteBuildTask> buildGraph = buildTasksInitializer.createBuildGraph(
-                auditedA,
-                user,
-                new BuildOptions(),
-                alreadyRunning);
+        Graph<RemoteBuildTask> buildGraph = buildTasksInitializer
+                .createBuildGraph(auditedA, user, new BuildOptions(), alreadyRunning);
 
         // then
         Collection<RemoteBuildTask> remoteBuildTasks = GraphUtils.unwrap(buildGraph.getVerticies());

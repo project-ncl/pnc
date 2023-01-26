@@ -15,25 +15,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.remotecoordinator.builder;
+package org.jboss.pnc.spi.exception;
 
-import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
-import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.exception.ScheduleException;
-import org.jboss.util.graph.Graph;
+public class ScheduleErrorException extends ScheduleException {
+    public ScheduleErrorException(String message) {
+        super(message);
+    }
 
-public interface RexBuildScheduler {
+    public ScheduleErrorException(Exception e) {
+        super(e);
+    }
 
-    /**
-     *
-     * @param buildGraph
-     * @param user
-     * @param buildConfigSetRecordId group recordId or null if it is not a group build
-     * @throws ScheduleException
-     */
-    void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Long buildConfigSetRecordId)
-            throws ScheduleException;
-
-    boolean cancel(String taskId) throws CoreException;
+    public ScheduleErrorException(String message, Exception e) {
+        super(message, e);
+    }
 }

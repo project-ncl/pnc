@@ -189,7 +189,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         }
     }
 
-    private Integer getBuildConfigSetId(BuildCoordinator coordinator, String buildTaskId) {
+    private Long getBuildConfigSetId(BuildCoordinator coordinator, String buildTaskId) {
         return coordinator.getSubmittedBuildTasks()
                 .stream()
                 .filter(t -> buildTaskId.equals(t.getId()))

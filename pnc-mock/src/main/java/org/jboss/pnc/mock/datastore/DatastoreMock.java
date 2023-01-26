@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -62,7 +63,7 @@ public class DatastoreMock implements Datastore {
     private Map<Integer, List<BuildConfigurationAudited>> buildConfigurationsAudited = Collections
             .synchronizedMap(new HashMap<>());
 
-    AtomicInteger buildRecordSetSequence = new AtomicInteger(0);
+    AtomicLong buildRecordSetSequence = new AtomicLong(0);
     AtomicInteger buildConfigAuditedRevSequence = new AtomicInteger(0);
 
     private Set<IdRev> noRebuildRequiresIdRevs = new HashSet<>();
@@ -155,7 +156,7 @@ public class DatastoreMock implements Datastore {
     }
 
     @Override
-    public BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId) {
+    public BuildConfigSetRecord getBuildConfigSetRecordById(Long buildConfigSetRecordId) {
         return buildConfigSetRecords.stream()
                 .filter(bcsr -> bcsr.getId().equals(buildConfigSetRecordId))
                 .findFirst()
@@ -196,7 +197,9 @@ public class DatastoreMock implements Datastore {
     public BuildConfiguration save(BuildConfiguration buildConfig) {
         List<BuildConfigurationAudited> auditedConfigs = buildConfigurationsAudited
                 .computeIfAbsent(buildConfig.getId(), (k) -> new ArrayList<>());
-        auditedConfigs.add(BuildConfigurationAudited.fromBuildConfiguration(buildConfig, buildConfigAuditedRevSequence.getAndIncrement()));
+        auditedConfigs.add(
+                BuildConfigurationAudited
+                        .fromBuildConfiguration(buildConfig, buildConfigAuditedRevSequence.getAndIncrement()));
         return buildConfigurations.put(buildConfig.getId(), buildConfig);
     }
 
@@ -205,7 +208,7 @@ public class DatastoreMock implements Datastore {
         buildRecords.clear();
         buildConfigSetRecords.clear();
         buildConfigurations.clear();
-        buildRecordSetSequence = new AtomicInteger(0);
+        buildRecordSetSequence = new AtomicLong(0);
         buildConfigAuditedRevSequence = new AtomicInteger(0);
     }
 

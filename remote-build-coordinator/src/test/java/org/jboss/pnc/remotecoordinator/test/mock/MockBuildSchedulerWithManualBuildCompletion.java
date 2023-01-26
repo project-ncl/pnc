@@ -30,11 +30,11 @@ public class MockBuildSchedulerWithManualBuildCompletion extends MockBuildSchedu
     Map<String, Consumer<BuildResult>> scheduledTasks = new HashMap<>();
 
     public void startBuilding(BuildTask buildTask) throws CoreException {
-// TODO       taskRepositoryMock.addTask(buildTask);
-//        Consumer<BuildResult> onComplete = (buildResult -> {
-//            coordinator.completeBuild(buildTask, buildResult);
-//        });
-//        scheduledTasks.put(buildTask.getId(), onComplete);
+        // TODO taskRepositoryMock.addTask(buildTask);
+        // Consumer<BuildResult> onComplete = (buildResult -> {
+        // coordinator.completeBuild(buildTask, buildResult);
+        // });
+        // scheduledTasks.put(buildTask.getId(), onComplete);
     }
 
     public void completeBuild(String taskId) {
@@ -50,15 +50,15 @@ public class MockBuildSchedulerWithManualBuildCompletion extends MockBuildSchedu
     }
 
     public boolean isBuilding(Integer configurationId) {
-//        Optional<BuildTask> buildTask = taskRepositoryMock.getAll()
-//                .stream()
-//                .filter(task -> task.getBuildConfigurationAudited().getId().equals(configurationId))
-//                .findFirst();
-//        if (buildTask.isEmpty()) {
-//            return false;
-//        }
-//        return buildTask.get().getStatus().equals(BuildCoordinationStatus.BUILDING);
-        //TODO
+        // Optional<BuildTask> buildTask = taskRepositoryMock.getAll()
+        // .stream()
+        // .filter(task -> task.getBuildConfigurationAudited().getId().equals(configurationId))
+        // .findFirst();
+        // if (buildTask.isEmpty()) {
+        // return false;
+        // }
+        // return buildTask.get().getStatus().equals(BuildCoordinationStatus.BUILDING);
+        // TODO
         return false;
     }
 }

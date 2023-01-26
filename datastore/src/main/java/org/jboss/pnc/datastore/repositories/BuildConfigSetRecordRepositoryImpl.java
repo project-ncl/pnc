@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -31,7 +32,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 @Stateless
-public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<BuildConfigSetRecord, Integer>
+public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<BuildConfigSetRecord, Long>
         implements BuildConfigSetRecordRepository {
 
     private static final EnumSet<BuildStatus> IN_PROGRESS_STATES = BuildStatus.unfinished();
@@ -49,6 +50,15 @@ public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<Build
     public BuildConfigSetRecordRepositoryImpl(EntityManager manager) {
         super(BuildConfigSetRecord.class, Integer.class);
         this.manager = manager;
+    }
+
+    @Override
+    public BuildConfigSetRecord save(BuildConfigSetRecord entity) {
+        if (entity.getId() == null) {
+            long id = Sequence.nextId();
+            entity.setId(id);
+        }
+        return super.save(entity);
     }
 
     @Override

@@ -130,7 +130,7 @@ public class BuildCoordinatorDeployments {
                 .addAsManifestResource("beans.xml")
                 .addAsResource("logback-test.xml", "logback.xml");
 
-        jar.deleteClass(RexFacade.class); //use mock
+        jar.deleteClass(RexFacade.class); // use mock
         jar.addClass(MockBuildScheduler.class);
 
         log.info("Deployment content: {}", jar.toString(true));

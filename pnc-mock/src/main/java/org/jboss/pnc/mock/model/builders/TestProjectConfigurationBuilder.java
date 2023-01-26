@@ -114,10 +114,9 @@ public class TestProjectConfigurationBuilder {
 
     public BuildConfiguration buildConfigurationForCancelling(BuildConfigurationSet buildConfigurationSet) {
         BuildConfiguration buildConfiguration1 = build(1, "with-dependency-1-on-2", buildConfigurationSet);
-        BuildConfiguration buildConfiguration2 = build(2, "with-dependency-2-on-3", buildConfigurationSet);
-        BuildConfiguration buildConfiguration3 = build(3, "not-dependent", buildConfigurationSet);
         // CANCEL script means, that the build waits for 1 sec and then completes itself, gives time to cancel
-        buildConfiguration2.setBuildScript(CANCEL);
+        BuildConfiguration buildConfiguration2 = build(2, "with-dependency-2-on-3", buildConfigurationSet, CANCEL);
+        BuildConfiguration buildConfiguration3 = build(3, "not-dependent", buildConfigurationSet);
 
         buildConfiguration1.addDependency(buildConfiguration2);
         buildConfiguration2.addDependency(buildConfiguration3);
@@ -129,6 +128,14 @@ public class TestProjectConfigurationBuilder {
     }
 
     public BuildConfiguration build(int id, String projectName, BuildConfigurationSet buildConfigurationSet) {
+        return build(id, projectName, buildConfigurationSet, PASS);
+    }
+
+    public BuildConfiguration build(
+            int id,
+            String projectName,
+            BuildConfigurationSet buildConfigurationSet,
+            String buildScript) {
         Project project = new Project();
         project.setId(id);
         project.setName(projectName);
@@ -140,7 +147,7 @@ public class TestProjectConfigurationBuilder {
 
         BuildConfiguration buildConfiguration = new BuildConfiguration();
         buildConfiguration.setId(id);
-        buildConfiguration.setBuildScript(PASS);
+        buildConfiguration.setBuildScript(buildScript);
         buildConfiguration.setName(id + "");
         buildConfiguration.setRepositoryConfiguration(repositoryConfiguration);
         buildConfiguration.setBuildType(BuildType.MVN);
@@ -178,8 +185,7 @@ public class TestProjectConfigurationBuilder {
             int id,
             String name,
             BuildConfigurationSet buildConfigurationSet) {
-        BuildConfiguration buildConfiguration = build(id, name, buildConfigurationSet);
-        buildConfiguration.setBuildScript(FAIL);
+        BuildConfiguration buildConfiguration = build(id, name, buildConfigurationSet, FAIL);
         return buildConfiguration;
     }
 
@@ -193,8 +199,7 @@ public class TestProjectConfigurationBuilder {
     }
 
     public BuildConfiguration buildConfigurationToCancel(int id, String name) {
-        BuildConfiguration buildConfiguration = build(id, name);
-        buildConfiguration.setBuildScript(CANCEL);
+        BuildConfiguration buildConfiguration = build(id, name, null, CANCEL);
         return buildConfiguration;
     }
 

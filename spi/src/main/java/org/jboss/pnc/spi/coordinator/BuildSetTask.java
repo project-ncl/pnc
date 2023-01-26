@@ -154,7 +154,7 @@ public class BuildSetTask {
     }
 
     @Deprecated
-    public Integer getId() {
+    public Long getId() {
         return Optional.ofNullable(buildConfigSetRecord).map(BuildConfigSetRecord::getId).orElse(null);
     }
 

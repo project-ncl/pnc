@@ -103,8 +103,7 @@ public class ExplicitDependenciesTest extends AbstractDependentBuildTest {
     }
 
     @Test
-    public void shouldBuildAOnModifiedCWhenImplicitDependencyCheck()
-            throws GraphStructureException {
+    public void shouldBuildAOnModifiedCWhenImplicitDependencyCheck() throws GraphStructureException {
         // when
         insertNewBuildRecords(c);
 

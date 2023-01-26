@@ -27,7 +27,7 @@ public interface BuildTaskRepository {
     // TODO might not be required, used only while processing task completion
     // Optional<BuildTask> getTask(String id);
 
-    List<BuildTaskRef> getBuildTasksByBCSRId(Integer buildConfigSetRecordId);
+    List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId);
 
     /**
      * @deprecated Used for tests only

@@ -142,7 +142,7 @@ public class TemporaryBuildsCleaner {
      * @param authToken
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Result deleteTemporaryBuildConfigSetRecord(Integer buildConfigSetRecordId, String authToken)
+    public Result deleteTemporaryBuildConfigSetRecord(Long buildConfigSetRecordId, String authToken)
             throws ValidationException {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
 

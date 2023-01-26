@@ -21,7 +21,7 @@ import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductVersionRef;
-import org.jboss.pnc.mapper.IntIdMapper;
+import org.jboss.pnc.mapper.LongIdMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.mapstruct.BeanMapping;
@@ -35,7 +35,7 @@ import org.mapstruct.Mapping;
         config = MapperCentralConfig.class,
         uses = { RefToReferenceMapper.class, ProductVersionMapper.class, GroupConfigurationMapper.class,
                 UserMapper.class })
-public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
+public interface GroupBuildMapper extends EntityMapper<Long, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
 
     @Override
     @Mapping(target = "buildConfigurationSet", source = "groupConfig")
@@ -60,7 +60,7 @@ public interface GroupBuildMapper extends EntityMapper<Integer, BuildConfigSetRe
     GroupBuildRef toRef(BuildConfigSetRecord dbEntity);
 
     @Override
-    default IdMapper<Integer, String> getIdMapper() {
-        return new IntIdMapper();
+    default IdMapper<Long, String> getIdMapper() {
+        return new LongIdMapper();
     }
 }

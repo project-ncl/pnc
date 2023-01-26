@@ -474,7 +474,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public boolean cancelSet(int buildSetTaskId) {
+    public boolean cancelSet(long buildSetTaskId) {
         BuildConfigSetRecord record = datastoreAdapter.getBuildCongigSetRecordById(buildSetTaskId);
         if (record == null) {
             log.error("Could not find buildConfigSetRecord with id : {}", buildSetTaskId);
@@ -934,17 +934,17 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId) {
+    public List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId) {
         return nullableStreamOf(buildQueue.getSubmittedBuildTasks()).filter(Objects::nonNull)
                 .filter(
                         t -> t.getBuildSetTask() != null
-                                && Integer.valueOf(buildConfigSetRecordId).equals(t.getBuildConfigSetRecordId()))
+                                && Long.valueOf(buildConfigSetRecordId).equals(t.getBuildConfigSetRecordId()))
                 .sorted(Comparator.comparing(bt -> bt.getBuildConfigurationAudited().getName()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(int buildConfigSetRecordId) {
+    public List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(long buildConfigSetRecordId) {
         throw new UnsupportedOperationException("To be used only with the remote build coordinator.");
     }
 

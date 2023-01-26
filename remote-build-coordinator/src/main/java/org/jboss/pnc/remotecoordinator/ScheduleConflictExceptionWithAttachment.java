@@ -20,6 +20,7 @@ package org.jboss.pnc.remotecoordinator;
 import lombok.Getter;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
 import org.jboss.pnc.remotecoordinator.builder.ScheduleResult;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.ScheduleConflictException;
@@ -32,16 +33,21 @@ public class ScheduleConflictExceptionWithAttachment extends ScheduleConflictExc
     private final BuildOptions buildOptions;
     private final ScheduleResult scheduleResult;
 
+    private final RemoteBuildCoordinator bean;
+
     public ScheduleConflictExceptionWithAttachment(
             ScheduleConflictException e,
             BuildConfigurationSet buildConfigurationSet,
             User user,
             BuildOptions buildOptions,
-            ScheduleResult scheduleResult) {
+            ScheduleResult scheduleResult,
+            RemoteBuildCoordinator bean) {
         super(e);
         this.buildConfigurationSet = buildConfigurationSet;
         this.user = user;
         this.buildOptions = buildOptions;
         this.scheduleResult = scheduleResult;
+        this.bean = bean;
     }
+
 }

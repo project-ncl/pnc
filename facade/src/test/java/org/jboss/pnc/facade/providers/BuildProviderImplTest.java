@@ -158,7 +158,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         when(userService.currentUser()).thenReturn(user);
 
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
-                .id(1)
+                .id(1L)
                 .temporaryBuild(false)
                 .build();
         when(buildConfigSetRecordRepository.queryById(any())).thenReturn(buildConfigSetRecord);
@@ -552,7 +552,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     @Test
     public void shouldGetGraphWithDependencies() {
         // With
-        Integer configSetRecordId = 1;
+        Long configSetRecordId = 1L;
         BuildSetTask buildSetTask = mock(BuildSetTask.class);
         BuildConfigSetRecord setRecord = mock(BuildConfigSetRecord.class);
         Optional<BuildConfigSetRecord> optional = Optional.of(setRecord);
@@ -582,7 +582,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     @Test(expected = EmptyEntityException.class)
     public void shouldThrowAnExceptionWhenTheGroupDoesNotExist() {
         // Given some group
-        when(buildConfigSetRecordRepository.queryById(42)).thenReturn(null);
+        when(buildConfigSetRecordRepository.queryById(42L)).thenReturn(null);
 
         // When getting non-existing group
         Graph<Build> graph = provider.getBuildGraphForGroupBuild("42");
@@ -706,7 +706,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     private BuildTask mockBuildTaskWithSet(BuildSetTask buildSetTask) {
         BuildTask task = mockBuildTask();
         BuildConfigSetRecord record = buildSetTask.getBuildConfigSetRecord().get();
-        Integer id = record.getId();
+        Long id = record.getId();
         when(task.getBuildConfigSetRecordId()).thenReturn(id);
         when(task.getUser()).thenReturn(mock(User.class));
         return task;

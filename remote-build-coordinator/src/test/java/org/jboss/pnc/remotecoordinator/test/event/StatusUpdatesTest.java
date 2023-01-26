@@ -145,7 +145,8 @@ public class StatusUpdatesTest {
             receivedUpdatesForId.add(statusChangedEvent.getBuild().getId());
         };
 
-//TODO        tasksIds.forEach((id) -> buildStatusNotifications.subscribe(new BuildCallBack(id, statusChangeEventConsumer)));
+        // TODO tasksIds.forEach((id) -> buildStatusNotifications.subscribe(new BuildCallBack(id,
+        // statusChangeEventConsumer)));
 
         buildTasks.forEach((bt) -> buildCoordinator.updateBuildTaskStatus(bt, BuildCoordinationStatus.DONE));
 
@@ -176,15 +177,15 @@ public class StatusUpdatesTest {
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.FORCE);
-//TODO        BuildSetTask setTask = buildTasksInitializer.createBuildGraph(
-//                buildConfigurationSet,
-//                user,
-//                buildOptions,
-//                Sequence::nextBase32Id,
-//                taskRepository.getUnfinishedTasks());
-//        buildCoordinator
-//                .updateBuildConfigSetRecordStatus(setTask.getBuildConfigSetRecord().get(), BuildStatus.BUILDING, "");
-//        return setTask;
+        // TODO BuildSetTask setTask = buildTasksInitializer.createBuildGraph(
+        // buildConfigurationSet,
+        // user,
+        // buildOptions,
+        // Sequence::nextBase32Id,
+        // taskRepository.getUnfinishedTasks());
+        // buildCoordinator
+        // .updateBuildConfigSetRecordStatus(setTask.getBuildConfigSetRecord().get(), BuildStatus.BUILDING, "");
+        // return setTask;
         return null;
     }
 
