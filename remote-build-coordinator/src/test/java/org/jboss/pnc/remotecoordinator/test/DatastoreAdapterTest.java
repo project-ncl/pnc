@@ -69,12 +69,8 @@ public class DatastoreAdapterTest {
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
         // when
-        datastoreAdapter.storeRecordForNoRebuild(
-                mockBuildTask(),
-                null,
-                Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST,
-                null);
+        datastoreAdapter
+                .storeRecordForNoRebuild(mockBuildTask(), null, Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
 
         // then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
@@ -143,7 +139,7 @@ public class DatastoreAdapterTest {
                 .buildConfiguration(buildConfiguration)
                 .build();
 
-//        BuildTask buildTask = mockBuildTask();
+        // BuildTask buildTask = mockBuildTask();
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
 
         BuildResult buildResult = new BuildResult(
@@ -155,8 +151,8 @@ public class DatastoreAdapterTest {
                 Optional.of(RepositoryManagerResultMock.mockResult()),
                 Optional.of(EnvironmentDriverResultMock.mock()),
                 Optional.of(repourResult));
-        //TODO completed build
-//        datastoreAdapter.storeResult(buildTask, buildResult);
+        // TODO completed build
+        // datastoreAdapter.storeResult(buildTask, buildResult);
 
         // then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
@@ -172,28 +168,29 @@ public class DatastoreAdapterTest {
     @Ignore
     @Test
     public void shouldStoreSshCredentialsOnSshEnabled() throws DatastoreException {
-//        BuildTask buildTask = mockBuildTask();
-//        BuildResult buildResult = mockBuildResult(true);
-//
-//        SshCredentials sshCredentials = new SshCredentials();
-//        sshCredentials.setCommand(RandomStringUtils.randomAlphabetic(30));
-//        sshCredentials.setPassword(RandomStringUtils.randomAlphabetic(30));
-//
-//        when(buildResult.getEnvironmentDriverResult()).thenReturn(
-//                Optional.of(new EnvironmentDriverResult(CompletionStatus.FAILED, "", Optional.of(sshCredentials))));
-//
-//        when(buildResult.getRepourResult()).thenReturn(Optional.of(RepourResultMock.mock()));
-//
-//        OldRemoteBuildCoordinatorTest.ArgumentGrabbingAnswer<BuildRecord.Builder> answer = new OldRemoteBuildCoordinatorTest.ArgumentGrabbingAnswer<>(BuildRecord.Builder.class);
-//        when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class), any(), any())).thenAnswer(answer);
-//
-//        coordinator.completeBuild(buildTask, buildResult);
-//
-//        assertThat(answer.arguments).hasSize(1);
-//        BuildRecord.Builder builder = answer.arguments.iterator().next();
-//        BuildRecord record = builder.build();
-//        assertThat(record.getSshCommand()).isEqualTo(sshCredentials.getCommand());
-//        assertThat(record.getSshPassword()).isEqualTo(sshCredentials.getPassword());
+        // BuildTask buildTask = mockBuildTask();
+        // BuildResult buildResult = mockBuildResult(true);
+        //
+        // SshCredentials sshCredentials = new SshCredentials();
+        // sshCredentials.setCommand(RandomStringUtils.randomAlphabetic(30));
+        // sshCredentials.setPassword(RandomStringUtils.randomAlphabetic(30));
+        //
+        // when(buildResult.getEnvironmentDriverResult()).thenReturn(
+        // Optional.of(new EnvironmentDriverResult(CompletionStatus.FAILED, "", Optional.of(sshCredentials))));
+        //
+        // when(buildResult.getRepourResult()).thenReturn(Optional.of(RepourResultMock.mock()));
+        //
+        // OldRemoteBuildCoordinatorTest.ArgumentGrabbingAnswer<BuildRecord.Builder> answer = new
+        // OldRemoteBuildCoordinatorTest.ArgumentGrabbingAnswer<>(BuildRecord.Builder.class);
+        // when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class), any(), any())).thenAnswer(answer);
+        //
+        // coordinator.completeBuild(buildTask, buildResult);
+        //
+        // assertThat(answer.arguments).hasSize(1);
+        // BuildRecord.Builder builder = answer.arguments.iterator().next();
+        // BuildRecord record = builder.build();
+        // assertThat(record.getSshCommand()).isEqualTo(sshCredentials.getCommand());
+        // assertThat(record.getSshPassword()).isEqualTo(sshCredentials.getPassword());
     }
 
     private void storeResult(
@@ -220,8 +217,8 @@ public class DatastoreAdapterTest {
                 Optional.of(EnvironmentDriverResultMock.mock()),
                 Optional.of(RepourResultMock.mock()));
 
-//        BuildTask buildTask = mockBuildTask(); //TODO completed build
-//        datastoreAdapter.storeResult(buildTask, buildResult);
+        // BuildTask buildTask = mockBuildTask(); //TODO completed build
+        // datastoreAdapter.storeResult(buildTask, buildResult);
     }
 
     private RemoteBuildTask mockBuildTask() {
@@ -246,8 +243,7 @@ public class DatastoreAdapterTest {
                 "1",
                 false,
                 null,
-                null
-        );
+                null);
 
         return remoteBuildTask;
     }

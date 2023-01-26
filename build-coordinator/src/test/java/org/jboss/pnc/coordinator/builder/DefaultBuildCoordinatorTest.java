@@ -411,7 +411,7 @@ public class DefaultBuildCoordinatorTest {
     }
 
     private static class SaveBuildConfigSetRecordAnswer implements Answer<BuildConfigSetRecord> {
-        private static int id = 1;
+        private static long id = 1;
 
         @Override
         public BuildConfigSetRecord answer(InvocationOnMock invocation) throws Throwable {

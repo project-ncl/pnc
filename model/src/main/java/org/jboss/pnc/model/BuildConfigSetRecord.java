@@ -31,8 +31,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
@@ -41,7 +39,6 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PersistenceException;
 import javax.persistence.PreRemove;
-import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -62,16 +59,14 @@ import java.util.Set;
         indexes = { @Index(name = "idx_buildconfigsetrecord_buildconfigset", columnList = "buildconfigurationset_id"),
                 @Index(name = "idx_buildconfigsetrecord_productversion", columnList = "productversion_id"),
                 @Index(name = "idx_buildconfigsetrecord_user", columnList = "user_id") })
-public class BuildConfigSetRecord implements GenericEntity<Integer> {
+public class BuildConfigSetRecord implements GenericEntity<Long> {
 
     private static final long serialVersionUID = 1L;
 
     public static final String SEQUENCE_NAME = "build_config_set_record_id_seq";
 
     @Id
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME, initialValue = 100, allocationSize = 1)
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = SEQUENCE_NAME)
-    private Integer id;
+    private Long id;
 
     /**
      * The build configuration set which was executed
@@ -160,7 +155,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      *
      * @return the id
      */
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
@@ -170,7 +165,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
      * @param id the new id
      */
     @Override
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -333,7 +328,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
 
     public static class Builder {
 
-        private Integer id;
+        private Long id;
 
         private BuildConfigurationSet buildConfigurationSet;
 
@@ -386,7 +381,7 @@ public class BuildConfigSetRecord implements GenericEntity<Integer> {
             return buildConfigSetRecord;
         }
 
-        public Builder id(Integer id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }

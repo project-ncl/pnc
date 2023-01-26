@@ -30,7 +30,7 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.CoreException;
-import org.jboss.pnc.spi.exception.ScheduleConflictException;
+import org.jboss.pnc.spi.exception.ScheduleException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.util.graph.Graph;
@@ -62,7 +62,7 @@ public class MockBuildScheduler implements RexBuildScheduler {
     private List<RemoteBuildTask> activeBuildTasks = new ArrayList<>();
 
     @Setter
-    private ScheduleConflictException failToScheduleBuildException;
+    private ScheduleException scheduleException;
 
     private List<Graph<RemoteBuildTask>> scheduleRequests = new ArrayList<>();
 
@@ -95,10 +95,11 @@ public class MockBuildScheduler implements RexBuildScheduler {
     }
 
     @Override
-    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user) throws ScheduleConflictException {
+    public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Long buildConfigSetRecordId)
+            throws ScheduleException {
         scheduleRequests.add(buildGraph);
-        if (failToScheduleBuildException != null) {
-            throw failToScheduleBuildException;
+        if (scheduleException != null) {
+            throw scheduleException;
         }
         Collection<RemoteBuildTask> sourceVerticies = GraphUtils.unwrap(buildGraph.getVerticies());
         for (RemoteBuildTask buildTask : sourceVerticies) {
@@ -113,7 +114,8 @@ public class MockBuildScheduler implements RexBuildScheduler {
 
     public void reset() {
         activeBuildTasks.clear();
-        failToScheduleBuildException = null;
+        scheduleRequests.clear();
+        scheduleException = null;
     }
 
     @NotNull

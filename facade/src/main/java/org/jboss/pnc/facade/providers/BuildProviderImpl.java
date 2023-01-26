@@ -432,7 +432,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     @Override
     public Graph<Build> getBuildGraphForGroupBuild(String groupBuildId) {
         BuildConfigSetRecord buildConfigSetRecord = buildConfigSetRecordRepository
-                .queryById(Integer.valueOf(groupBuildId));
+                .queryById(Long.valueOf(groupBuildId));
         if (buildConfigSetRecord == null) {
             throw new EmptyEntityException("Build group " + groupBuildId + " does not exists.");
         }

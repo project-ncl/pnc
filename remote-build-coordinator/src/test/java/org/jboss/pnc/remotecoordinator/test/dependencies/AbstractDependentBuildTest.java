@@ -267,29 +267,22 @@ public abstract class AbstractDependentBuildTest {
         return createGraph(configuration, new BuildOptions());
     }
 
-    protected Graph<RemoteBuildTask> createGraph(BuildConfiguration configuration, BuildOptions buildOptions) throws
-            GraphStructureException {
+    protected Graph<RemoteBuildTask> createGraph(BuildConfiguration configuration, BuildOptions buildOptions)
+            throws GraphStructureException {
         BuildConfigurationAudited audited = datastoreAdapter
                 .getLatestBuildConfigurationAuditedInitializeBCDependencies(configuration.getId());
-        return buildTasksInitializer.createBuildGraph(
-                audited,
-                user,
-                buildOptions,
-                Collections.emptySet());
+        return buildTasksInitializer.createBuildGraph(audited, user, buildOptions, Collections.emptySet());
     }
 
     protected Graph<RemoteBuildTask> createGraph(BuildConfigurationSet buildConfigurationSet, RebuildMode rebuildMode)
             throws GraphStructureException {
 
         Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap = new HashMap<>();
-        buildConfigurationSet.getBuildConfigurations().stream()
-                .map(BuildConfiguration::getId)
-                .forEach( id -> {
-                BuildConfigurationAudited audited = datastoreAdapter
-                        .getLatestBuildConfigurationAuditedInitializeBCDependencies(id);
-                buildConfigurationAuditedsMap.put(id, audited);
-            }
-        );
+        buildConfigurationSet.getBuildConfigurations().stream().map(BuildConfiguration::getId).forEach(id -> {
+            BuildConfigurationAudited audited = datastoreAdapter
+                    .getLatestBuildConfigurationAuditedInitializeBCDependencies(id);
+            buildConfigurationAuditedsMap.put(id, audited);
+        });
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(rebuildMode);

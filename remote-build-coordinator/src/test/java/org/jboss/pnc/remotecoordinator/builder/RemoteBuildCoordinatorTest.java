@@ -42,6 +42,7 @@ import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.Remote;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.ScheduleConflictException;
+import org.jboss.pnc.spi.exception.ScheduleErrorException;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Before;
@@ -91,11 +92,8 @@ public class RemoteBuildCoordinatorTest {
         USER.setId(1);
     }
 
-
     /**
-     * TODO
-     * - test storing the results of sys_error builds
-     * - test conflicting schedule retries
+     * TODO - test storing the results of sys_error builds - test conflicting schedule retries
      */
 
     @Test
@@ -109,8 +107,10 @@ public class RemoteBuildCoordinatorTest {
 
         try {
             buildCoordinator.buildConfig(bc200, USER, buildOptions);
-        } catch (BuildConflictException e) {
-            Assertions.assertThat(e.getMessage()).contains("already running");
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            Assertions.assertThat(cause).isInstanceOf(BuildConflictException.class);
+            Assertions.assertThat(cause.getMessage()).contains("already running");
             return;
         }
         Assert.fail("Did not throw expected exception.");
@@ -121,8 +121,10 @@ public class RemoteBuildCoordinatorTest {
         BuildConfigurationSet set = testProjectConfigurationBuilder.buildConfigurationSet(1);
 
         BuildConfiguration bc202 = testProjectConfigurationBuilder.build(202, "Project-223", set);
-        BuildConfiguration bc201 = testProjectConfigurationBuilder.buildWithDependencies(201, "Project-223", set, bc202);
-        BuildConfiguration bc200 = testProjectConfigurationBuilder.buildWithDependencies(200, "Project-223", set, bc201);
+        BuildConfiguration bc201 = testProjectConfigurationBuilder
+                .buildWithDependencies(201, "Project-223", set, bc202);
+        BuildConfiguration bc200 = testProjectConfigurationBuilder
+                .buildWithDependencies(200, "Project-223", set, bc201);
 
         taskRepository.addTask(getBuildTaskRef(bc200, BuildCoordinationStatus.BUILDING));
         taskRepository.addTask(getBuildTaskRef(bc201, BuildCoordinationStatus.BUILDING));
@@ -136,8 +138,10 @@ public class RemoteBuildCoordinatorTest {
         addBCAsToMap(bc202, bcas);
         try {
             buildCoordinator.buildSet(set, bcas, USER, buildOptions);
-        } catch (BuildConflictException e) {
-            Assertions.assertThat(e.getMessage()).contains("All the build configurations are already running");
+        } catch (Exception e) {
+            Throwable cause = e.getCause();
+            Assertions.assertThat(cause).isInstanceOf(BuildConflictException.class);
+            Assertions.assertThat(cause.getMessage()).contains("All the build configurations are already running");
             return;
         }
         Assert.fail("Did not throw expected exception.");
@@ -176,8 +180,10 @@ public class RemoteBuildCoordinatorTest {
         set.setId(1);
 
         BuildConfiguration bc202 = testProjectConfigurationBuilder.build(202, "Project-223", set);
-        BuildConfiguration bc201 = testProjectConfigurationBuilder.buildWithDependencies(201, "Project-223", set, bc202);
-        BuildConfiguration bc200 = testProjectConfigurationBuilder.buildWithDependencies(200, "Project-223", set, bc201);
+        BuildConfiguration bc201 = testProjectConfigurationBuilder
+                .buildWithDependencies(201, "Project-223", set, bc202);
+        BuildConfiguration bc200 = testProjectConfigurationBuilder
+                .buildWithDependencies(200, "Project-223", set, bc201);
 
         BuildOptions buildOptions = new BuildOptions();
         buildOptions.setRebuildMode(RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
@@ -203,8 +209,8 @@ public class RemoteBuildCoordinatorTest {
     }
 
     @Test
-    public void shouldThrowWhenBuildSchedulingFails() throws Exception {
-        buildScheduler.setFailToScheduleBuildException(new ScheduleConflictException("Intentionally failing to start the build."));
+    public void shouldRetryAndThrowWhenBuildSchedulingFails() throws Exception {
+        buildScheduler.setScheduleException(new ScheduleConflictException("Intentionally failing to start the build."));
 
         BuildConfiguration bc200 = testProjectConfigurationBuilder.buildWithDependencies(200, "Project-223");
 
@@ -219,17 +225,88 @@ public class RemoteBuildCoordinatorTest {
         Assert.assertTrue(buildScheduler.getScheduleRequests().size() > 1);
     }
 
+    @Test
+    public void shouldNotRetryWhenBuildSchedulingFailsWithError() throws Exception {
+        buildScheduler.setScheduleException(new ScheduleErrorException("Intentionally failing to start the build."));
+
+        BuildConfiguration bc200 = testProjectConfigurationBuilder.buildWithDependencies(200, "Project-223");
+
+        BuildOptions buildOptions = new BuildOptions();
+
+        try {
+            buildCoordinator.buildConfig(bc200, USER, buildOptions);
+        } catch (Exception e) {
+            Assertions.assertThat(e.getMessage()).contains("failing to start");
+        }
+        // make sure there were NO retries
+        Assert.assertTrue(buildScheduler.getScheduleRequests().size() == 1);
+    }
+
+    @Test
+    public void shouldRetryAndThrowWhenBuildSetSchedulingFails() throws Exception {
+        buildScheduler.setScheduleException(new ScheduleConflictException("Intentionally failing to start the build."));
+
+        BuildConfigurationSet set = testProjectConfigurationBuilder.buildConfigurationSet(1);
+
+        BuildConfiguration bc202 = testProjectConfigurationBuilder.build(202, "Project-223", set);
+        BuildConfiguration bc201 = testProjectConfigurationBuilder
+                .buildWithDependencies(201, "Project-223", set, bc202);
+        BuildConfiguration bc200 = testProjectConfigurationBuilder
+                .buildWithDependencies(200, "Project-223", set, bc201);
+
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setRebuildMode(RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        Map<Integer, BuildConfigurationAudited> bcas = new HashMap<>();
+        addBCAsToMap(bc200, bcas);
+        addBCAsToMap(bc201, bcas);
+        addBCAsToMap(bc202, bcas);
+        try {
+            buildCoordinator.buildSet(set, bcas, USER, buildOptions);
+        } catch (Exception e) {
+            Assertions.assertThat(e.getMessage()).contains("failing to start");
+        }
+        // make sure there were retries
+        Assert.assertTrue(buildScheduler.getScheduleRequests().size() > 1);
+
+        // make sure the record is stored
+        Assert.assertEquals(1, datastoreMock.getBuildConfigSetRecords().size());
+        Assert.assertEquals(BuildStatus.SYSTEM_ERROR, datastoreMock.getBuildConfigSetRecords().get(0).getStatus());
+    }
+
+    @Test
+    public void shouldNotRetryWhenBuildSetSchedulingFailsWithError() throws Exception {
+        buildScheduler.setScheduleException(new ScheduleErrorException("Intentionally failing to start the build."));
+
+        BuildConfigurationSet set = testProjectConfigurationBuilder.buildConfigurationSet(1);
+
+        BuildConfiguration bc202 = testProjectConfigurationBuilder.build(202, "Project-223", set);
+        BuildConfiguration bc201 = testProjectConfigurationBuilder
+                .buildWithDependencies(201, "Project-223", set, bc202);
+        BuildConfiguration bc200 = testProjectConfigurationBuilder
+                .buildWithDependencies(200, "Project-223", set, bc201);
+
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setRebuildMode(RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        Map<Integer, BuildConfigurationAudited> bcas = new HashMap<>();
+        addBCAsToMap(bc200, bcas);
+        addBCAsToMap(bc201, bcas);
+        addBCAsToMap(bc202, bcas);
+        try {
+            buildCoordinator.buildSet(set, bcas, USER, buildOptions);
+        } catch (Exception e) {
+            Assertions.assertThat(e.getMessage()).contains("failing to start");
+        }
+        // make sure there were NO retries
+        Assert.assertTrue(buildScheduler.getScheduleRequests().size() == 1);
+
+        // make sure the record is stored
+        Assert.assertEquals(1, datastoreMock.getBuildConfigSetRecords().size());
+        Assert.assertEquals(BuildStatus.SYSTEM_ERROR, datastoreMock.getBuildConfigSetRecords().get(0).getStatus());
+    }
 
     private BuildTaskRef getBuildTaskRef(BuildConfiguration bc200, BuildCoordinationStatus status) {
         BuildConfigurationAudited audited = getBuildConfigurationAudited(bc200);
-        return new DefaultBuildTaskRef(
-                audited.getId()+"",
-                audited.getIdRev(),
-                "",
-                "",
-                "",
-                Instant.now(),
-                status);
+        return new DefaultBuildTaskRef(audited.getId() + "", audited.getIdRev(), "", "", "", Instant.now(), status);
     }
 
     private BuildConfigurationAudited getBuildConfigurationAudited(BuildConfiguration buildConfiguration) {

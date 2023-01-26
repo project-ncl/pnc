@@ -21,59 +21,60 @@ import org.junit.Ignore;
 
 @Ignore // TODO if needed move to integration tests
 public class WaitForDependencyBuildTest {
-//extends AbstractDependentBuildTest
-//    private BuildConfiguration configParent;
-//    private BuildConfiguration configDependency;
-//
-//    private MockBuildSchedulerWithManualBuildCompletion buildScheduler = new MockBuildSchedulerWithManualBuildCompletion();
-//
-//    @Before
-//    public void initialize() throws DatastoreException, ConfigurationParseException {
-//        configDependency = buildConfig("Dependency");
-//        configParent = buildConfig("Parent", configDependency);
-//
-//        super.initialize();
-//
-//        saveConfig(configDependency);
-//        saveConfig(configParent);
-//    }
-//
-//    @Test
-//    public void shouldNotStartParentBuildWhenDependencyIsRunning()
-//            throws CoreException, TimeoutException, InterruptedException {
-//
-//        // start dependency
-//        build(configDependency);
-//        Wait.forCondition(() -> buildScheduler.isBuilding(configDependency.getId()), 3, ChronoUnit.SECONDS);
-//
-//        // start parent while dependency is running
-//        build(configParent);
-//
-//        // parent should wait for dependency to complete
-//        BuildTask parentBuildTask = getSubmittedBuildTaskByConfigurationId(configParent.getId()).get();
-//        assertThat(parentBuildTask.getStatus()).isEqualTo(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
-//
-//        // complete the dependency
-//        BuildTask dependencyBuildTask = getScheduledBuildTaskByConfigurationId(configDependency.getId()).get();
-//        buildScheduler.completeBuild(dependencyBuildTask.getId());
-//
-//        // check if parent has started
-//        Wait.forCondition(
-//                () -> buildScheduler.isBuilding(parentBuildTask.getBuildConfigurationAudited().getId()),
-//                3,
-//                ChronoUnit.SECONDS);
-//
-//        buildScheduler.completeBuild(parentBuildTask.getId());
-//
-//        List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
-//        assertThat(configsWithTasks).isEmpty();
-//    }
-//
-//    private Optional<BuildTask> getSubmittedBuildTaskByConfigurationId(Integer buildConfigurationId) {
-//        return coordinator.getSubmittedBuildTasks()
-//                .stream()
-//                .filter(bt -> bt.getBuildConfigurationAudited().getId().equals(buildConfigurationId))
-//                .findAny();
-//    }
+    // extends AbstractDependentBuildTest
+    // private BuildConfiguration configParent;
+    // private BuildConfiguration configDependency;
+    //
+    // private MockBuildSchedulerWithManualBuildCompletion buildScheduler = new
+    // MockBuildSchedulerWithManualBuildCompletion();
+    //
+    // @Before
+    // public void initialize() throws DatastoreException, ConfigurationParseException {
+    // configDependency = buildConfig("Dependency");
+    // configParent = buildConfig("Parent", configDependency);
+    //
+    // super.initialize();
+    //
+    // saveConfig(configDependency);
+    // saveConfig(configParent);
+    // }
+    //
+    // @Test
+    // public void shouldNotStartParentBuildWhenDependencyIsRunning()
+    // throws CoreException, TimeoutException, InterruptedException {
+    //
+    // // start dependency
+    // build(configDependency);
+    // Wait.forCondition(() -> buildScheduler.isBuilding(configDependency.getId()), 3, ChronoUnit.SECONDS);
+    //
+    // // start parent while dependency is running
+    // build(configParent);
+    //
+    // // parent should wait for dependency to complete
+    // BuildTask parentBuildTask = getSubmittedBuildTaskByConfigurationId(configParent.getId()).get();
+    // assertThat(parentBuildTask.getStatus()).isEqualTo(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
+    //
+    // // complete the dependency
+    // BuildTask dependencyBuildTask = getScheduledBuildTaskByConfigurationId(configDependency.getId()).get();
+    // buildScheduler.completeBuild(dependencyBuildTask.getId());
+    //
+    // // check if parent has started
+    // Wait.forCondition(
+    // () -> buildScheduler.isBuilding(parentBuildTask.getBuildConfigurationAudited().getId()),
+    // 3,
+    // ChronoUnit.SECONDS);
+    //
+    // buildScheduler.completeBuild(parentBuildTask.getId());
+    //
+    // List<BuildConfiguration> configsWithTasks = getBuiltConfigs();
+    // assertThat(configsWithTasks).isEmpty();
+    // }
+    //
+    // private Optional<BuildTask> getSubmittedBuildTaskByConfigurationId(Integer buildConfigurationId) {
+    // return coordinator.getSubmittedBuildTasks()
+    // .stream()
+    // .filter(bt -> bt.getBuildConfigurationAudited().getId().equals(buildConfigurationId))
+    // .findAny();
+    // }
 
 }

@@ -67,7 +67,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class GroupBuildProviderTest extends AbstractIntIdProviderTest<BuildConfigSetRecord> {
+public class GroupBuildProviderTest extends AbstractLongIdProviderTest<BuildConfigSetRecord> {
 
     private static final int CURRENT_USER = randInt(1000, 100000);
 
@@ -120,7 +120,7 @@ public class GroupBuildProviderTest extends AbstractIntIdProviderTest<BuildConfi
     }
 
     @Override
-    protected Repository<BuildConfigSetRecord, Integer> repository() {
+    protected Repository<BuildConfigSetRecord, Long> repository() {
         return repository;
     }
 
@@ -162,7 +162,7 @@ public class GroupBuildProviderTest extends AbstractIntIdProviderTest<BuildConfi
     @Test
     public void shouldProvideCallbackOnDeletion() throws Exception {
         // given
-        final int buildId = 88;
+        final long buildId = 88L;
         final String buildIdString = String.valueOf(buildId);
         final String callbackUrl = "http://localhost:8088/callback";
 
@@ -197,7 +197,7 @@ public class GroupBuildProviderTest extends AbstractIntIdProviderTest<BuildConfi
 
     private BuildConfigSetRecord prepareBCSetRecord(BuildConfigurationSet buildConfigurationSet) {
         final BuildConfigSetRecord record = BuildConfigSetRecord.Builder.newBuilder()
-                .id(entityId.getAndIncrement())
+                .id(getNextId())
                 .buildConfigurationSet(buildConfigurationSet)
                 .startTime(Date.from(Instant.now()))
                 .user(mockUser())

@@ -31,7 +31,7 @@ public class GraphValidationTest {
 
     @Test
     public void shouldThrowIfAnyDependencyOfAlreadyRunningIsSubmitted() throws BuildConflictException {
-        //given
+        // given
         RemoteBuildTask running = new RemoteBuildTask(
                 "1",
                 Instant.now().minus(1, ChronoUnit.MINUTES),
@@ -40,8 +40,7 @@ public class GraphValidationTest {
                 "1",
                 true,
                 null,
-                null
-        );
+                null);
         RemoteBuildTask submitted = new RemoteBuildTask(
                 "2",
                 Instant.now(),
@@ -50,8 +49,7 @@ public class GraphValidationTest {
                 "1",
                 true,
                 null,
-                null
-        );
+                null);
 
         Vertex<RemoteBuildTask> runningVertex = new Vertex<>(running.getId(), running);
         Vertex<RemoteBuildTask> submittedVertex = new Vertex<>(submitted.getId(), submitted);

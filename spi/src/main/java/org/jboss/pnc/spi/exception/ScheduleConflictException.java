@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.spi.exception;
 
-public class ScheduleConflictException extends CoreException {
+public class ScheduleConflictException extends ScheduleException {
     public ScheduleConflictException(String message) {
         super(message);
     }

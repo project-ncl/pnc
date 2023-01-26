@@ -36,7 +36,7 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
     }
 
     @Override
-    public List<BuildTaskRef> getBuildTasksByBCSRId(Integer buildConfigSetRecordId) {
+    public List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId) {
         return tasks.values()
                 .stream()
                 .filter(t -> buildConfigSetRecordId.equals(t.getBuildConfigSetRecordId()))
@@ -51,11 +51,7 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
 
     @Override
     public Collection<BuildTaskRef> getUnfinishedTasks() {
-        return tasks
-                .values()
-                .stream()
-                .filter(task -> !task.getStatus().isCompleted())
-                .collect(Collectors.toList());
+        return tasks.values().stream().filter(task -> !task.getStatus().isCompleted()).collect(Collectors.toList());
     }
 
     @Override

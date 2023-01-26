@@ -362,7 +362,7 @@ public class DefaultDatastore implements Datastore {
     }
 
     @Override
-    public BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId) {
+    public BuildConfigSetRecord getBuildConfigSetRecordById(Long buildConfigSetRecordId) {
         return buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
     }
 

@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.BuildConfigSetRecord} entity.
  */
-public interface BuildConfigSetRecordRepository extends Repository<BuildConfigSetRecord, Integer> {
+public interface BuildConfigSetRecordRepository extends Repository<BuildConfigSetRecord, Long> {
     List<BuildConfigSetRecord> findTemporaryBuildConfigSetRecordsOlderThan(Date date);
 
     List<BuildConfigSetRecord> findBuildConfigSetRecordsInProgress();

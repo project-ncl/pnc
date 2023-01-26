@@ -97,7 +97,9 @@ public class BuildTasksInitializer { // TODO update docs
         log.debug(
                 "Collected build tasks for the BuildConfigurationAudited: {}. Collected: {}.",
                 buildConfigurationAudited,
-                collectedConfigurations.stream().map(BuildConfigurationAudited::toString).collect(Collectors.joining(", ")));
+                collectedConfigurations.stream()
+                        .map(BuildConfigurationAudited::toString)
+                        .collect(Collectors.joining(", ")));
 
         return doCreateBuildGraph(
                 user,
@@ -111,18 +113,18 @@ public class BuildTasksInitializer { // TODO update docs
     /**
      * Collects all BuildConfigurationAudited entities, that needs to be built.
      *
-     * @param buildConfiguration         Current BuildConfiguration used to resolve dependencies.
-     * @param buildConfigurationAudited  Specific revision of a BuildConfiguration (passed as first parameter) to be
-     *                                   potentially built
-     * @param collectedConfigurations                    Set of BuildConfigurationAudited entities planned to be built
+     * @param buildConfiguration Current BuildConfiguration used to resolve dependencies.
+     * @param buildConfigurationAudited Specific revision of a BuildConfiguration (passed as first parameter) to be
+     *        potentially built
+     * @param collectedConfigurations Set of BuildConfigurationAudited entities planned to be built
      * @param noRebuildRequiredCauses
-     * @param visited                    Set of BuildConfigurations, which were already evaluated, if should be built
+     * @param visited Set of BuildConfigurations, which were already evaluated, if should be built
      * @param buildDependencies
-     * @param checkImplicitDependencies  if implicit check of dependencies needs to be done
-     * @param forceRebuild               if force build is required
-     * @param temporaryBuild             if build is temporary
+     * @param checkImplicitDependencies if implicit check of dependencies needs to be done
+     * @param forceRebuild if force build is required
+     * @param temporaryBuild if build is temporary
      * @param processedDependenciesCache list containing any dependency which was already processed in previous
-     *                                   iterations
+     *        iterations
      * @return Returns true, if the buildConfiguration should be rebuilt, otherwise returns false.
      */
     private boolean collectConfigurations(
@@ -213,14 +215,16 @@ public class BuildTasksInitializer { // TODO update docs
         Set<BuildConfiguration> toBuild = new HashSet<>();
 
         for (BuildConfiguration buildConfiguration : dependenciesFirst) {
-            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedsMap.get(buildConfiguration.getId());
+            BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedsMap
+                    .get(buildConfiguration.getId());
             if (buildConfigurationAudited == null) {
                 buildConfigurationAudited = datastoreAdapter
                         .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
             }
             buildConfigurationAuditeds.add(buildConfigurationAudited);
 
-            boolean anyDependencyRequiresRebuild = CollectionUtils.containsAny(buildConfiguration.getDependencies(), toBuild);
+            boolean anyDependencyRequiresRebuild = CollectionUtils
+                    .containsAny(buildConfiguration.getDependencies(), toBuild);
 
             if (!buildOptions.isForceRebuild() && !anyDependencyRequiresRebuild) {
                 Optional<BuildRecord> noRebuildCause = datastoreAdapter.requiresRebuild(
@@ -302,9 +306,7 @@ public class BuildTasksInitializer { // TODO update docs
                         noRebuildRequired,
                         currentProductMilestone);
             }
-            Vertex<RemoteBuildTask> remoteBuildTaskVertex = new Vertex<>(
-                    remoteBuildTask.getId(),
-                    remoteBuildTask);
+            Vertex<RemoteBuildTask> remoteBuildTaskVertex = new Vertex<>(remoteBuildTask.getId(), remoteBuildTask);
             graph.addVertex(remoteBuildTaskVertex);
         }
         List<Vertex<RemoteBuildTask>> verticies = graph.getVerticies();
@@ -331,8 +333,7 @@ public class BuildTasksInitializer { // TODO update docs
             return false;
         }
 
-        return buildConfiguration.getDependencies()
-                .contains(child.getBuildConfiguration());
+        return buildConfiguration.getDependencies().contains(child.getBuildConfiguration());
     }
 
     /**
@@ -350,20 +351,27 @@ public class BuildTasksInitializer { // TODO update docs
             }
         }
 
-        notToBuild.forEach(task -> {
-            // NOTE: after removal NRR task can still be referenced as a dependency of other tasks
-            buildGraph.removeVertex(task);
-        });
+        notToBuild.forEach(
+                task -> {
+                    // NOTE: after removal NRR task can still be referenced as a dependency of other tasks
+                    buildGraph.removeVertex(task);
+                });
         return GraphUtils.unwrap(notToBuild);
     }
 
-    private static void markToBuild(Vertex<RemoteBuildTask> task, Set<Vertex<RemoteBuildTask>> toBuild, Set<Vertex<RemoteBuildTask>> notToBuild) {
+    private static void markToBuild(
+            Vertex<RemoteBuildTask> task,
+            Set<Vertex<RemoteBuildTask>> toBuild,
+            Set<Vertex<RemoteBuildTask>> notToBuild) {
         toBuild.add(task);
         notToBuild.remove(task);
         markDependantsToBuild(task, toBuild, notToBuild);
     }
 
-    private static void markDependantsToBuild(Vertex<RemoteBuildTask> task, Set<Vertex<RemoteBuildTask>> toBuild, Set<Vertex<RemoteBuildTask>> notToBuild) {
+    private static void markDependantsToBuild(
+            Vertex<RemoteBuildTask> task,
+            Set<Vertex<RemoteBuildTask>> toBuild,
+            Set<Vertex<RemoteBuildTask>> notToBuild) {
         List<Vertex<RemoteBuildTask>> dependants = GraphUtils.getFromVerticies(task.getIncomingEdges());
         for (Vertex<RemoteBuildTask> dependant : dependants) {
             if (!toBuild.contains(dependant)) {

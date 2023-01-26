@@ -39,7 +39,8 @@ public class GraphValidation {
     /**
      * @throws BuildConflictException
      */
-    public static void checkIfAnyDependencyOfAlreadyRunningIsSubmitted(Graph<RemoteBuildTask> buildGraph) throws BuildConflictException {
+    public static void checkIfAnyDependencyOfAlreadyRunningIsSubmitted(Graph<RemoteBuildTask> buildGraph)
+            throws BuildConflictException {
         for (Vertex<RemoteBuildTask> parent : buildGraph.getVerticies()) {
             if (parent.getData().isAlreadyRunning()) {
                 Collection<Edge<RemoteBuildTask>> edges = parent.getOutgoingEdges();
@@ -57,8 +58,8 @@ public class GraphValidation {
     }
 
     /**
-     * Returns a {@link BuildStatusWithDescription} if there are validation errors (no build is required or not possible),
-     * otherwise Optional.empty() is returned.
+     * Returns a {@link BuildStatusWithDescription} if there are validation errors (no build is required or not
+     * possible), otherwise Optional.empty() is returned.
      */
     public static Optional<BuildStatusWithDescription> validateBuildConfigurationSetTask(
             Graph buildGraph,
@@ -73,8 +74,10 @@ public class GraphValidation {
         if (!buildOptions.isForceRebuild()) {
             boolean noRebuildsRequired = checkIfNoRebuildIsRequired(buildGraph);
             if (noRebuildsRequired) {
-                return Optional.of(new BuildStatusWithDescription(BuildStatus.NO_REBUILD_REQUIRED,
-                        "All build configs were previously built"));
+                return Optional.of(
+                        new BuildStatusWithDescription(
+                                BuildStatus.NO_REBUILD_REQUIRED,
+                                "All build configs were previously built"));
             }
         }
 
@@ -91,7 +94,7 @@ public class GraphValidation {
     private static boolean checkIfNoRebuildIsRequired(Graph buildGraph) {
         Collection<RemoteBuildTask> buildTasks = GraphUtils.unwrap(buildGraph.getVerticies());
         long requiresRebuild = buildTasks.stream()
-                .filter(bt -> !bt.isAlreadyRunning()) //TODO what about already running ?
+                .filter(bt -> !bt.isAlreadyRunning()) // TODO what about already running ?
                 .filter(bt -> bt.getNoRebuildCause().isEmpty())
                 .count();
         logger.debug("{} configurations require a rebuild.", requiresRebuild);

@@ -156,7 +156,7 @@ public class BuildCoordinationTest {
 
         // check the result
         Assert.assertEquals(BuildSetStatus.DONE, lastBuildSetStatus.get());
-        datastoreMock.getBuildConfigSetRecordById(buildConfigurationSet.getId());
+        datastoreMock.getBuildConfigSetRecordById(Long.valueOf(buildConfigurationSet.getId()));
 
         Optional<BuildConfigSetRecord> maybeSetRecord = buildSetTask.getBuildConfigSetRecord();
         assertThat(maybeSetRecord.isPresent()).isTrue();

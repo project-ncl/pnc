@@ -103,7 +103,7 @@ public interface Datastore {
      */
     BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(Integer buildConfigurationId);
 
-    BuildConfigSetRecord getBuildConfigSetRecordById(Integer buildConfigSetRecordId);
+    BuildConfigSetRecord getBuildConfigSetRecordById(Long buildConfigSetRecordId);
 
     /**
      * Check if a build configuration should be rebuilt (if some of its dependencies were rebuild or configuration was

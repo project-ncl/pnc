@@ -55,70 +55,70 @@ public class BuildCoordinatorFactory {
 
         BuildTaskRepository taskRepository = new BuildTaskRepositoryMock();
 
-// TODO       RexBuildSchedulerMockMock localBuildScheduler = new RexBuildSchedulerMockMock();
-//
-//         BuildCoordinator coordinator = new RemoteBuildCoordinator(
-//                datastoreAdapter,
-//                buildStatusChangedEventNotifier,
-//                buildSetStatusChangedEventNotifier,
-//                localBuildScheduler,
-//                taskRepository,
-//                systemConfig,
-//                groupBuildMapper,
-//                buildMapper);
-//        localBuildScheduler.setBuildCoordinator(coordinator);
-//
-//        SetRecordUpdateJob setJob = new SetRecordUpdateJob(taskRepository, datastore, coordinator);
-//
-//        return new BuildCoordinatorBeans(taskRepository, coordinator, setJob);
+        // TODO RexBuildSchedulerMockMock localBuildScheduler = new RexBuildSchedulerMockMock();
+        //
+        // BuildCoordinator coordinator = new RemoteBuildCoordinator(
+        // datastoreAdapter,
+        // buildStatusChangedEventNotifier,
+        // buildSetStatusChangedEventNotifier,
+        // localBuildScheduler,
+        // taskRepository,
+        // systemConfig,
+        // groupBuildMapper,
+        // buildMapper);
+        // localBuildScheduler.setBuildCoordinator(coordinator);
+        //
+        // SetRecordUpdateJob setJob = new SetRecordUpdateJob(taskRepository, datastore, coordinator);
+        //
+        // return new BuildCoordinatorBeans(taskRepository, coordinator, setJob);
         return null;
     }
 
     private SystemConfig createConfiguration() {
-//        return new SystemConfig(
-//                "NO_AUTH",
-//                "10",
-//                "${product_short_name}-${product_version}-pnc",
-//                "10",
-//                null,
-//                "3600",
-//                "14",
-//                "",
-//                "10",
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                null,
-//                "false");
+        // return new SystemConfig(
+        // "NO_AUTH",
+        // "10",
+        // "${product_short_name}-${product_version}-pnc",
+        // "10",
+        // null,
+        // "3600",
+        // "14",
+        // "",
+        // "10",
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // null,
+        // "false");
         return null;
     }
 
-//    @Alternative
-//    @ApplicationScoped
-//    public static class RexBuildSchedulerMockMock extends RexBuildSchedulerMock {
-//
-//        @Inject
-//        public RexBuildSchedulerMockMock(BuildExecutor buildExecutor, BuildCoordinator buildCoordinator) {
-//            super(buildExecutor, buildCoordinator);
-//        }
-//
-//        public void setBuildCoordinator(BuildCoordinator buildCoordinator) {
-//            this.buildCoordinator = buildCoordinator;
-//        }
-//
-//        public RexBuildSchedulerMockMock() {
-//            buildExecutor = new BuildExecutorMock();
-//        }
-//    };
+    // @Alternative
+    // @ApplicationScoped
+    // public static class RexBuildSchedulerMockMock extends RexBuildSchedulerMock {
+    //
+    // @Inject
+    // public RexBuildSchedulerMockMock(BuildExecutor buildExecutor, BuildCoordinator buildCoordinator) {
+    // super(buildExecutor, buildCoordinator);
+    // }
+    //
+    // public void setBuildCoordinator(BuildCoordinator buildCoordinator) {
+    // this.buildCoordinator = buildCoordinator;
+    // }
+    //
+    // public RexBuildSchedulerMockMock() {
+    // buildExecutor = new BuildExecutorMock();
+    // }
+    // };
 }

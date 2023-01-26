@@ -98,7 +98,7 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     }
 
     @Override
-    public List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId) {
+    public List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId) {
         return activeTasks.stream()
                 .filter(
                         buildTask -> buildTask.getBuildSetTask().getBuildConfigSetRecord().isPresent()
@@ -111,7 +111,7 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     }
 
     @Override
-    public List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(int buildConfigSetRecordId) {
+    public List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(long buildConfigSetRecordId) {
         throw new UnsupportedOperationException();
     }
 
@@ -126,7 +126,7 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     }
 
     @Override
-    public boolean cancelSet(int buildConfigSetRecordId) {
+    public boolean cancelSet(long buildConfigSetRecordId) {
         return false;
     }
 

@@ -36,8 +36,7 @@ public class ConfigurationsTest {
 
     @Deployment
     public static JavaArchive createDeployment() {
-        return BuildCoordinatorDeployments.deployment(
-                BuildCoordinatorDeployments.Options.WITH_DATASTORE);
+        return BuildCoordinatorDeployments.deployment(BuildCoordinatorDeployments.Options.WITH_DATASTORE);
     }
 
     @Inject
@@ -49,9 +48,7 @@ public class ConfigurationsTest {
             configurationBuilder.buildConfigurationWhichDependsOnItself();
         } catch (PersistenceException e) {
             String message = "itself";
-            Assert.assertTrue(
-                    "Expected exception message to contain " + message,
-                    e.getMessage().contains(message));
+            Assert.assertTrue("Expected exception message to contain " + message, e.getMessage().contains(message));
             return;
         }
         Assert.fail("Did not receive expected exception.");

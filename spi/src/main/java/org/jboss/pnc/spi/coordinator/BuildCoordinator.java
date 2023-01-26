@@ -64,9 +64,9 @@ public interface BuildCoordinator {
     List<BuildTask> getSubmittedBuildTasks();
 
     @Deprecated // get rid of BuildTask
-    List<BuildTask> getSubmittedBuildTasksBySetId(int buildConfigSetRecordId);
+    List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId);
 
-    List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(int buildConfigSetRecordId);
+    List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(long buildConfigSetRecordId);
 
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
 
@@ -79,7 +79,7 @@ public interface BuildCoordinator {
      */
     boolean cancel(String buildTaskId) throws CoreException;
 
-    boolean cancelSet(int buildConfigSetRecordId) throws CoreException;
+    boolean cancelSet(long buildConfigSetRecordId) throws CoreException;
 
     @Deprecated // used only internally
     void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);

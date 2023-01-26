@@ -53,9 +53,9 @@ public class BuildConfigSetRecordPredicates {
         return (root, query, cb) -> cb.isTrue(root.get(BuildConfigSetRecord_.temporaryBuild));
     }
 
-    public static Predicate<BuildConfigSetRecord> newestWithBuildConfigSetID(Integer buildConfigSetId) {
+    public static Predicate<BuildConfigSetRecord> newestWithBuildConfigSetID(Long buildConfigSetId) {
         return (root, query, cb) -> {
-            Subquery<Integer> subQuery = cb.createQuery(Integer.class).subquery(Integer.class);
+            Subquery<Long> subQuery = cb.createQuery(Long.class).subquery(Long.class);
             Root<BuildConfigSetRecord> subRoot = subQuery.from(BuildConfigSetRecord.class);
             javax.persistence.criteria.Predicate subSelect = cb.equal(
                     subRoot.get(BuildConfigSetRecord_.buildConfigurationSet).get(BuildConfigurationSet_.id),

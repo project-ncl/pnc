@@ -54,7 +54,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredica
 
 @PermitAll
 @Stateless
-public class GroupBuildProviderImpl extends AbstractProvider<Integer, BuildConfigSetRecord, GroupBuild, GroupBuildRef>
+public class GroupBuildProviderImpl extends AbstractProvider<Long, BuildConfigSetRecord, GroupBuild, GroupBuildRef>
         implements GroupBuildProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupBuildProviderImpl.class);
@@ -109,7 +109,7 @@ public class GroupBuildProviderImpl extends AbstractProvider<Integer, BuildConfi
         }
         try {
             return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(
-                    Integer.valueOf(id),
+                    Long.valueOf(id),
                     user.getLoginToken(),
                     notifyOnDeletionCompletion(callback));
         } catch (ValidationException e) {
