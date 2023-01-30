@@ -19,7 +19,7 @@ package org.jboss.pnc.remotecoordinator.builder;
 
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
-import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.exception.ScheduleException;
 import org.jboss.util.graph.Graph;
 
@@ -35,5 +35,5 @@ public interface RexBuildScheduler {
     void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Long buildConfigSetRecordId)
             throws ScheduleException;
 
-    boolean cancel(String taskId) throws CoreException;
+    void cancel(String taskId) throws RemoteRequestException;
 }

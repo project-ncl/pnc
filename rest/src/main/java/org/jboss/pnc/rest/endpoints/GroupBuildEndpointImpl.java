@@ -62,7 +62,7 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
     @Inject
     private BrewPusher brewPusher;
 
-    private EndpointHelper<Integer, GroupBuild, GroupBuildRef> endpointHelper;
+    private EndpointHelper<Long, GroupBuild, GroupBuildRef> endpointHelper;
 
     @PostConstruct
     public void init() {

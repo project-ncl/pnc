@@ -31,7 +31,6 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -108,11 +107,6 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
                                         .getId()
                                         .equals(buildConfigSetRecordId))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(long buildConfigSetRecordId) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

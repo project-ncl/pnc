@@ -19,6 +19,7 @@ package org.jboss.pnc.mock.datastore;
 
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 
 import javax.enterprise.context.ApplicationScoped;
 import java.util.Collection;
@@ -33,6 +34,11 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
 
     public BuildTaskRef getTask(String id) {
         return tasks.get(id);
+    }
+
+    @Override
+    public BuildTaskRef getSpecific(Long id) throws RemoteRequestException {
+        throw new UnsupportedOperationException("Not implemented.");
     }
 
     @Override

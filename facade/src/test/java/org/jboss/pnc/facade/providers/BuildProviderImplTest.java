@@ -48,6 +48,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -136,15 +137,15 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     }
 
     @Before
-    public void prepareMock() throws ReflectiveOperationException, IllegalArgumentException {
+    public void prepareMock() throws ReflectiveOperationException, IllegalArgumentException, RemoteRequestException {
         when(repository.findByIdFetchProperties(any())).thenAnswer(inv -> {
             Base32LongID id = inv.getArgument(0);
             return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
         });
 
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(runningBuilds);
-        when(buildCoordinator.getSubmittedBuildTasksBySetId(anyInt())).thenAnswer(inv -> {
-            int bcsrid = inv.getArgument(0);
+        when(buildCoordinator.getSubmittedBuildTasksBySetId(anyLong())).thenAnswer(inv -> {
+            long bcsrid = inv.getArgument(0);
             return runningBuilds.stream()
                     .filter(
                             task -> task.getBuildConfigSetRecordId() != null

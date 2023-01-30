@@ -147,7 +147,7 @@ public class GroupBuildProviderImpl extends AbstractProvider<Long, BuildConfigSe
     @Override
     public void cancel(String id) {
         try {
-            buildCoordinator.cancelSet(Integer.parseInt(id));
+            buildCoordinator.cancelSet(Long.parseLong(id));
         } catch (CoreException e) {
             throw new RuntimeException("Error when canceling buildConfigSetRecord with id: " + id, e);
         }

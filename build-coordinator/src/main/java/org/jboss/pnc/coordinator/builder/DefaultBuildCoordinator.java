@@ -48,7 +48,6 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
-import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.InMemory;
 import org.jboss.pnc.spi.coordinator.ProcessException;
@@ -941,11 +940,6 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
                                 && Long.valueOf(buildConfigSetRecordId).equals(t.getBuildConfigSetRecordId()))
                 .sorted(Comparator.comparing(bt -> bt.getBuildConfigurationAudited().getName()))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(long buildConfigSetRecordId) {
-        throw new UnsupportedOperationException("To be used only with the remote build coordinator.");
     }
 
     @PostConstruct

@@ -29,6 +29,7 @@ import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 
 import java.util.List;
 import java.util.Map;
@@ -61,12 +62,10 @@ public interface BuildCoordinator {
      *
      * @return list of all build tasks in the queue
      */
-    List<BuildTask> getSubmittedBuildTasks();
+    List<BuildTask> getSubmittedBuildTasks() throws RemoteRequestException;
 
     @Deprecated // get rid of BuildTask
-    List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId);
-
-    List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(long buildConfigSetRecordId);
+    List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId) throws RemoteRequestException;
 
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
 

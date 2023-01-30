@@ -66,6 +66,7 @@ import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -356,7 +357,12 @@ public class BuildConfigurationProviderImpl extends
                 .map(bc -> mapper.getIdMapper().toEntity(bc.getId()))
                 .collect(Collectors.toList());
         List<BuildRecord> latestBuilds = buildRecordRepository.getLatestBuildsForBuildConfigs(configIds);
-        List<BuildTask> runningBuilds = buildCoordinator.getSubmittedBuildTasks();
+        List<BuildTask> runningBuilds;
+        try {
+            runningBuilds = buildCoordinator.getSubmittedBuildTasks();
+        } catch (RemoteRequestException e) {
+            throw new RuntimeException(e);
+        }
         List<BuildConfigurationWithLatestBuild> bcsWithLatest = new ArrayList<>();
         buildConfigs.getContent()
                 .forEach(bc -> bcsWithLatest.add(populateBuildConfigWithLatestBuild(bc, latestBuilds, runningBuilds)));

@@ -36,7 +36,7 @@ public interface BuildTriggerer {
     String triggerBuild(int buildConfigId, OptionalInt rev, BuildOptions buildOptions)
             throws BuildConflictException, CoreException;
 
-    int triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
+    long triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
             throws BuildConflictException, CoreException;
 
     /**
