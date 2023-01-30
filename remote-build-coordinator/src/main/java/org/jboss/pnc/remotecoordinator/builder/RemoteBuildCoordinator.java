@@ -23,7 +23,6 @@ import org.eclipse.microprofile.faulttolerance.FallbackHandler;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.BuildTaskContext;
@@ -64,6 +63,7 @@ import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.exception.ScheduleConflictException;
 import org.jboss.pnc.spi.exception.ScheduleException;
 import org.jboss.pnc.spi.repour.RepourResult;
@@ -256,8 +256,6 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         } catch (BuildConflictException e) {
             log.warn("Conflicting build.", e);
             throw e;
-        } catch (GraphStructureException e) {
-            throw new CoreException("Cannot construct input graph: " + e.getMessage());
         } catch (ScheduleConflictException e) {
             throw e;
         } catch (Throwable e) {
@@ -344,15 +342,11 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         } catch (BuildConflictException e) {
             log.warn("Conflicting build.", e);
             throw e;
-        } catch (GraphStructureException e) {
-            throw new CoreException("Cannot construct input graph: " + e.getMessage());
         } catch (ScheduleConflictExceptionWithAttachment e) {
             throw e;
         } catch (Throwable e) {
             String errorMessage = "Unexpected error while trying to schedule build set.";
             log.error(errorMessage, e);
-
-            // TODO store all the builds ?
 
             BuildConfigSetRecord buildConfigSetRecord = storeBuildBuildConfigSetRecord(
                     buildConfigurationSet,
@@ -502,28 +496,26 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public boolean cancelSet(long buildConfigSetRecordId) {
+    public boolean cancelSet(long buildConfigSetRecordId) throws CoreException {
         BuildConfigSetRecord record = datastoreAdapter.getBuildCongigSetRecordById(buildConfigSetRecordId);
         if (record == null) {
             log.error("Could not find buildConfigSetRecord with id : {}", buildConfigSetRecordId);
-            return false;
+            throw new CoreException("Cannot cancel the build: buildConfigSetRecord not found.");
         }
         log.debug("Cancelling Build Configuration Set: {}", buildConfigSetRecordId);
         Collection<BuildTaskRef> buildTasks = getSubmittedBuildTaskRefsBySetId(buildConfigSetRecordId);
-        buildTasks.forEach(buildTask -> {
+        for (BuildTaskRef buildTask : buildTasks) {
             try {
                 MDC.put(MDCKeys.PROCESS_CONTEXT_KEY, ContentIdentityManager.getBuildContentId(buildTask.getId()));
                 log.debug("Received cancel request for buildTaskId: {}.", buildTask.getId());
                 cancel(buildTask.getId());
-            } catch (CoreException e) {
-                log.error("Unable to cancel the build [" + buildTask.getId() + "].", e);
             } finally {
                 MDC.remove(MDCKeys.PROCESS_CONTEXT_KEY);
             }
-        });
+        }
 
         // modifying of the record to Cancelled state is done in SetRecordUpdateJob
-        return true;
+        return true; // TODO once fully migrated, return void as the exception is thrown;
     }
 
     public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status) {
@@ -770,13 +762,13 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    public List<BuildTask> getSubmittedBuildTasks() {
+    public List<BuildTask> getSubmittedBuildTasks() throws RemoteRequestException {
         Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
         return unfinishedTasks.stream().map(this::toBuildTask).collect(Collectors.toList());
     }
 
     @Override
-    public List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId) {
+    public List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId) throws RemoteRequestException {
         // in the returned tasks only ids and BuildConfigurationAudited names are used
         List<BuildTaskRef> tasks = taskRepository.getBuildTasksByBCSRId(buildConfigSetRecordId);
         return tasks.stream().map(t -> {
@@ -834,8 +826,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         return build;
     }
 
-    @Override
-    public List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(long buildConfigSetRecordId) {
+    private List<BuildTaskRef> getSubmittedBuildTaskRefsBySetId(long buildConfigSetRecordId)
+            throws RemoteRequestException {
         return taskRepository.getBuildTasksByBCSRId(buildConfigSetRecordId);
     }
 

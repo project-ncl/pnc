@@ -21,7 +21,6 @@ package org.jboss.pnc.remotecoordinator.builder;
 import org.apache.commons.collections.CollectionUtils;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.common.concurrent.Sequence;
-import org.jboss.pnc.common.graph.GraphStructureException;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.util.Quicksort;
 import org.jboss.pnc.model.BuildConfiguration;
@@ -35,7 +34,6 @@ import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
-import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
@@ -55,7 +53,7 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-public class BuildTasksInitializer { // TODO update docs
+public class BuildTasksInitializer {
 
     private final Logger log = LoggerFactory.getLogger(BuildTasksInitializer.class);
 
@@ -69,7 +67,7 @@ public class BuildTasksInitializer { // TODO update docs
             BuildConfigurationAudited buildConfigurationAudited,
             User user,
             BuildOptions buildOptions,
-            Collection<BuildTaskRef> submittedBuildTasks) throws GraphStructureException {
+            Collection<BuildTaskRef> submittedBuildTasks) {
 
         log.debug(
                 "will create build tasks for scope: {} and configuration: {}",
@@ -111,7 +109,9 @@ public class BuildTasksInitializer { // TODO update docs
     }
 
     /**
-     * Collects all BuildConfigurationAudited entities, that needs to be built.
+     * Collects all BuildConfigurationAudited entities. If no-rebuild is required for a
+     * {@link BuildConfigurationAudited}, its IdRev is added to the map, where key is IdRev of BCA not requiring a
+     * rebuild and a value is a {@link BuildRecord} that satisfies no-rebuild required condition.
      *
      * @param buildConfiguration Current BuildConfiguration used to resolve dependencies.
      * @param buildConfigurationAudited Specific revision of a BuildConfiguration (passed as first parameter) to be
@@ -183,11 +183,13 @@ public class BuildTasksInitializer { // TODO update docs
     }
 
     /**
-     * Create a BuildSetTask of BuildConfigurations contained in the BuildConfigurationSet.
+     * Create a Graph of all (including already running, no-rebuild required) associated dependencies.
      *
      * A specific revision of the BuildConfigurations contained in the set is used, if it's available in the
-     * buildConfigurationAuditedsMap parameter. If it's not available, latest revision of the BuildConfiguration is
+     * buildConfigurationAuditedsMap parameter. If it's not available, the latest revision of the BuildConfiguration is
      * used.
+     *
+     * If idRev is present in the submittedBuildTasks a new {@link RemoteBuildTask} is marker as already running.
      *
      * @param buildConfigurationSet BuildConfigurationSet to be built
      * @param buildConfigurationAuditedsMap A map BuildConfiguration::id:BuildConfigurationAudited of specific revisions
@@ -195,15 +197,14 @@ public class BuildTasksInitializer { // TODO update docs
      * @param user A user, who triggered the build
      * @param buildOptions Build options
      * @param submittedBuildTasks Already submitted build tasks
-     * @return Prepared BuildSetTask
-     * @throws CoreException Thrown if the BuildConfigSetRecord cannot be stored
+     * @return a graph of all associated dependencies
      */
     public Graph<RemoteBuildTask> createBuildGraph(
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
             BuildOptions buildOptions,
-            Collection<BuildTaskRef> submittedBuildTasks) throws GraphStructureException {
+            Collection<BuildTaskRef> submittedBuildTasks) {
 
         Map<IdRev, BuildRecord> noRebuildRequiredCauses = new HashMap<>();
         Set<Integer> processedDependenciesCache = new HashSet<>();
@@ -272,13 +273,13 @@ public class BuildTasksInitializer { // TODO update docs
             User user,
             BuildOptions buildOptions,
             Collection<BuildTaskRef> submittedBuildTasks,
-            Set<BuildConfigurationAudited> toBuild,
+            Set<BuildConfigurationAudited> collectedConfigurations,
             Map<IdRev, BuildRecord> noRebuildRequiredCauses,
-            ProductMilestone currentProductMilestone) throws GraphStructureException {
+            ProductMilestone currentProductMilestone) {
 
         Graph<RemoteBuildTask> graph = new Graph<>();
 
-        for (BuildConfigurationAudited buildConfigAudited : toBuild) {
+        for (BuildConfigurationAudited buildConfigAudited : collectedConfigurations) {
             Optional<BuildTaskRef> submittedTask = submittedBuildTasks.stream()
                     .filter(bt -> bt.getIdRev().equals(buildConfigAudited.getIdRev()))
                     .findAny();

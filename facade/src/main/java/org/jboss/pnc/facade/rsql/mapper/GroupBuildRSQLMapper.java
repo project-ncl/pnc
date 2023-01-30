@@ -30,7 +30,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author <a href="mailto:jmichalo@redhat.com">Jan Michalov</a>
  */
 @ApplicationScoped
-public class GroupBuildRSQLMapper extends AbstractRSQLMapper<Integer, BuildConfigSetRecord> {
+public class GroupBuildRSQLMapper extends AbstractRSQLMapper<Long, BuildConfigSetRecord> {
 
     public GroupBuildRSQLMapper() {
         super(BuildConfigSetRecord.class);

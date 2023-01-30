@@ -44,7 +44,7 @@ public class BuildRSQLMapper extends AbstractRSQLMapper<Base32LongID, BuildRecor
     }
 
     @Override
-    protected SingularAttribute<BuildRecord, ? extends GenericEntity<Integer>> toEntity(String name) {
+    protected SingularAttribute<BuildRecord, ? extends GenericEntity<?>> toEntity(String name) {
         switch (name) {
             case "environment":
                 return BuildRecord_.buildEnvironment;

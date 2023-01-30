@@ -22,7 +22,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.entity.ContentType;
 import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.auth.LoggedInUser;
 import org.jboss.pnc.bpm.model.ComponentBuildParameters;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
@@ -49,7 +48,7 @@ import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
-import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.exception.ScheduleConflictException;
 import org.jboss.pnc.spi.exception.ScheduleErrorException;
 import org.jboss.pnc.spi.exception.ScheduleException;
@@ -77,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -117,18 +117,14 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     @Inject
     RexHttpClient rexClient;
 
-    @Inject
-    LoggedInUser loggedInUser;
-
     @Deprecated
     public RexFacade() { // CDI workaround
     }
 
     @Inject
-    public RexFacade(GlobalModuleGroup globalConfig, BpmModuleConfig bpmConfig, LoggedInUser loggedInUser) {
+    public RexFacade(GlobalModuleGroup globalConfig, BpmModuleConfig bpmConfig) {
         this.globalConfig = globalConfig;
         this.bpmConfig = bpmConfig;
-        this.loggedInUser = loggedInUser;
     }
 
     public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Long buildConfigSetRecordId)
@@ -168,71 +164,104 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     }
 
     @Override
-    public boolean cancel(String taskId) throws CoreException {
-        // return rexClient.cancel(taskId, loggedInUser.getTokenString());
-        return false; // TODO
+    public void cancel(String taskId) throws RemoteRequestException {
+        try {
+            rexClient.cancel(taskId);
+        } catch (Exception e) {
+            throw new RemoteRequestException("Cannot cancel remote task.", e);
+        }
     }
 
     @Override
-    public List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId) {
-        // used by getBuildIdsInTheGroup
-        return null; // TODO
-    }
-
-    private Set<TaskDTO> getBuildTasksInState(EnumSet<BuildCoordinationStatus> states) {
-        TaskFilterParameters taskFilterParameters = toTaskFilterParameters(states);
-        // return rexClient.getAll(taskFilterParameters);
-        return Collections.emptySet(); // TODO
+    public BuildTaskRef getSpecific(Long id) throws RemoteRequestException {
+        try {
+            TaskDTO taskDTO = rexClient.getSpecific(Objects.toString(id));
+            return toBuildTaskRef(taskDTO);
+        } catch (Exception e) {
+            throw new RemoteRequestException("Cannot get task by id.", e);
+        }
     }
 
     @Override
-    @Deprecated // only used in the tests
+    public List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId) throws RemoteRequestException {
+        try {
+            return rexClient.byCorrelation(Objects.toString(buildConfigSetRecordId))
+                    .stream()
+                    .map(this::toBuildTaskRef)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RemoteRequestException("Cannot get tasks by correlationId.", e);
+        }
+    }
+
+    @Override
+    @Deprecated // only used in the DefaultBuildCoordinator tests
     public Collection<BuildTaskRef> getAll() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public Collection<BuildTaskRef> getUnfinishedTasks() {
-        Set<BuildTaskRef> runningBuildTasks = new HashSet<>();
-        Set<TaskDTO> unfinishedBuildTasks = getBuildTasksInState(UNFINISHED_STATES);
-        unfinishedBuildTasks.forEach(t -> {
-            IdRev idRev = ConstraintMapper.toIdRev(t.getConstraint());
-            String buildId = t.getName();
-            String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
-            // BuildCoordinationStatus status = toBuildCordinationStatus(t.getState());
-            Map<String, Object> attachment = (Map<String, Object>) t.getRemoteStart().getAttachment();
-            Map<String, Object> initData = (Map<String, Object>) attachment.get(this.INIT_DATA);
-            ComponentBuildParameters parameters = (ComponentBuildParameters) initData.get("processParameters");
-            Instant submitTime = (Instant) initData.get("submitTime");
-            String buildConfigSetRecordID = t.getCorrelationID();
+    public Collection<BuildTaskRef> getUnfinishedTasks() throws RemoteRequestException {
+        return getBuildTasksInState(UNFINISHED_STATES);
+    }
 
-            BuildTaskRef buildTask = new DefaultBuildTaskRef(
-                    buildId,
-                    idRev,
-                    buildConfigSetRecordID,
-                    buildContentId,
-                    parameters.getBuildExecutionConfiguration().getUser().getUsername(),
-                    submitTime,
-                    toBuildCoordinationStatus(t.getState()));
-            runningBuildTasks.add(buildTask);
-        });
-        return runningBuildTasks;
+    private Set<BuildTaskRef> getBuildTasksInState(EnumSet<BuildCoordinationStatus> states)
+            throws RemoteRequestException {
+        TaskFilterParameters taskFilterParameters = toTaskFilterParameters(states);
+        try {
+            return rexClient.getAll(taskFilterParameters)
+                    .stream()
+                    .map(this::toBuildTaskRef)
+                    .collect(Collectors.toSet());
+        } catch (Exception e) {
+            throw new RemoteRequestException("Cannot get tasks.", e);
+        }
+    }
+
+    private BuildTaskRef toBuildTaskRef(TaskDTO t) {
+        IdRev idRev = ConstraintMapper.toIdRev(t.getConstraint());
+        String buildId = t.getName();
+        String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
+        Map<String, Object> attachment = (Map<String, Object>) t.getRemoteStart().getAttachment();
+        Map<String, Object> initData = (Map<String, Object>) attachment.get(this.INIT_DATA);
+        ComponentBuildParameters parameters = (ComponentBuildParameters) initData.get("processParameters");
+        Instant submitTime = (Instant) initData.get("submitTime");
+        String buildConfigSetRecordID = t.getCorrelationID();
+
+        BuildTaskRef buildTask = new DefaultBuildTaskRef(
+                buildId,
+                idRev,
+                buildConfigSetRecordID,
+                buildContentId,
+                parameters.getBuildExecutionConfiguration().getUser().getUsername(),
+                submitTime,
+                toBuildCoordinationStatus(t.getState()));
+        return buildTask;
     }
 
     private BuildCoordinationStatus toBuildCoordinationStatus(State state) {
         switch (state) {
             case NEW:
                 return BuildCoordinationStatus.NEW;
+            case WAITING:
+                return BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES;
             case ENQUEUED:
+            case STARTING:
                 return BuildCoordinationStatus.ENQUEUED;
             case UP:
+            case STOPPING:
                 return BuildCoordinationStatus.BUILDING;
-            case SUCCESSFUL:
-                return BuildCoordinationStatus.BUILD_COMPLETED;
+            case START_FAILED:
+            case STOP_FAILED:
+                return BuildCoordinationStatus.SYSTEM_ERROR;
             case FAILED:
                 return BuildCoordinationStatus.DONE_WITH_ERRORS;
+            case SUCCESSFUL:
+                return BuildCoordinationStatus.DONE;
+            case STOPPED:
+                return BuildCoordinationStatus.CANCELLED;
         }
-        throw new UnsupportedOperationException("Needs to be implemented."); // TODO implement all statues
+        throw new IllegalArgumentException(state + " is not mapped.");
     }
 
     @Override
@@ -245,15 +274,6 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     @Deprecated
     public String getDebugInfo() {
         return null;
-    }
-
-    private String getLoginToken(BuildSetTask buildSetTask) {
-        return buildSetTask.getBuildTasks()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("There are no builds in the set."))
-                .getUser()
-                .getLoginToken();
     }
 
     private TaskFilterParameters toTaskFilterParameters(EnumSet<BuildCoordinationStatus> states) {
@@ -274,7 +294,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             BpmEndpointUrlFactory bpmUrlFactory,
             RemoteBuildTask buildTask,
             User user) {
-        String loginToken = loggedInUser.getTokenString();
+        String loginToken = user.getLoginToken();
         BpmBuildTask bpmBuildTask = new BpmBuildTask(toBuildTask(buildTask, user, new Date()), globalConfig);
         Map<String, Serializable> bpmTask = Collections
                 .singletonMap("processParameters", bpmBuildTask.getProcessParameters());
@@ -305,7 +325,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
         Request callback = new Request(
                 Request.Method.POST,
-                URI.create(globalConfig.getPncUrl() + ""), // TODO URL
+                URI.create(globalConfig.getPncUrl() + ""), // TODO URL for result storing
                 headers);
 
         CreateTaskDTO createTaskDTO = new CreateTaskDTO(
@@ -344,5 +364,4 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             return new IdRev(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
         }
     }
-
 }

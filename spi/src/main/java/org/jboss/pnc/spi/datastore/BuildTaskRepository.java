@@ -18,6 +18,7 @@
 package org.jboss.pnc.spi.datastore;
 
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +28,9 @@ public interface BuildTaskRepository {
     // TODO might not be required, used only while processing task completion
     // Optional<BuildTask> getTask(String id);
 
-    List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId);
+    BuildTaskRef getSpecific(Long id) throws RemoteRequestException;
+
+    List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId) throws RemoteRequestException;
 
     /**
      * @deprecated Used for tests only
@@ -35,7 +38,7 @@ public interface BuildTaskRepository {
     @Deprecated // used in tests only
     Collection<? extends BuildTaskRef> getAll();
 
-    Collection<BuildTaskRef> getUnfinishedTasks();
+    Collection<BuildTaskRef> getUnfinishedTasks() throws RemoteRequestException;
 
     /**
      * @deprecated Used for tests only

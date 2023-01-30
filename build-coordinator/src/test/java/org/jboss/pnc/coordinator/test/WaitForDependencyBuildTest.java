@@ -27,6 +27,7 @@ import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.test.util.Wait;
 import org.junit.Before;
 import org.junit.Test;
@@ -95,7 +96,8 @@ public class WaitForDependencyBuildTest extends AbstractDependentBuildTest {
         assertThat(configsWithTasks).isEmpty();
     }
 
-    private Optional<BuildTask> getSubmittedBuildTaskByConfigurationId(Integer buildConfigurationId) {
+    private Optional<BuildTask> getSubmittedBuildTaskByConfigurationId(Integer buildConfigurationId)
+            throws RemoteRequestException {
         return coordinator.getSubmittedBuildTasks()
                 .stream()
                 .filter(bt -> bt.getBuildConfigurationAudited().getId().equals(buildConfigurationId))

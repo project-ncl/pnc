@@ -29,6 +29,7 @@ import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.Assert;
 import org.junit.Test;
@@ -189,7 +190,7 @@ public class CancelledBuildTest extends ProjectBuilder {
         }
     }
 
-    private Long getBuildConfigSetId(BuildCoordinator coordinator, String buildTaskId) {
+    private Long getBuildConfigSetId(BuildCoordinator coordinator, String buildTaskId) throws RemoteRequestException {
         return coordinator.getSubmittedBuildTasks()
                 .stream()
                 .filter(t -> buildTaskId.equals(t.getId()))

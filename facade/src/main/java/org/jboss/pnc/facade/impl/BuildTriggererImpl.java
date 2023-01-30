@@ -100,7 +100,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     }
 
     @Override
-    public int triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
+    public long triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
             throws BuildConflictException, CoreException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();

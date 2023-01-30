@@ -29,7 +29,6 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
-import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.ScheduleException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -108,8 +107,7 @@ public class MockBuildScheduler implements RexBuildScheduler {
     }
 
     @Override
-    public boolean cancel(String taskId) throws CoreException {
-        return false;
+    public void cancel(String taskId) {
     }
 
     public void reset() {
