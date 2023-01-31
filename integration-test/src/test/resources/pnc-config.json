@@ -11,7 +11,8 @@
 
       "externalDaUrl": "",
       "externalIndyUrl": "http://localhost/indy-external/",
-      "externalPncUrl": ""
+      "externalPncUrl": "",
+      "externalBifrostUrl": "http://bifrost.url"
     },
     {
       "@module-group":"pnc",

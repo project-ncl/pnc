@@ -60,7 +60,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
 import java.util.List;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ACCEPTED_CODE;
@@ -659,9 +658,9 @@ public interface BuildEndpoint {
     @Path("/{id}/logs/align")
     @TimedMetric
     @Produces(MediaType.TEXT_PLAIN)
-    StreamingOutput getAlignLogs(@Parameter(description = B_ID) @PathParam("id") String id);
+    Response getAlignLogs(@Parameter(description = B_ID) @PathParam("id") String id);
 
-    static final String GET_BUILD_LOGS_DESC = "Gets build logs for specific build.";
+    static final String GET_BUILD_LOGS_DESC = "Gets build logs for specific build. This endpoint serves as a redirect.";
 
     /**
      * {@value GET_BUILD_LOGS_DESC}
@@ -685,7 +684,7 @@ public interface BuildEndpoint {
     @Path("/{id}/logs/build")
     @TimedMetric
     @Produces(MediaType.TEXT_PLAIN)
-    StreamingOutput getBuildLogs(@Parameter(description = B_ID) @PathParam("id") String id);
+    Response getBuildLogs(@Parameter(description = B_ID) @PathParam("id") String id);
 
     static final String GET_SSH_CREDENTIALS_DESC = "Gets ssh credentials to log into the build pod.";
     static final String GET_SSH_CREDENTIALS_DESC2 = "This GET requests require authentication";

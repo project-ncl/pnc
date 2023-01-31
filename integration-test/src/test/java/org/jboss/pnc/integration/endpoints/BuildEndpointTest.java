@@ -29,7 +29,6 @@ import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
@@ -61,8 +60,6 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -487,15 +484,19 @@ public class BuildEndpointTest {
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
 
         // Disable redirects so we can test the actual response
+        disableRedirects(client);
+
+        Response internalScmArchiveLink = client.getInternalScmArchiveLink(buildId);
+        assertThat(internalScmArchiveLink.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
+        assertThat(internalScmArchiveLink.getHeaderString("Location")).isNotEmpty();
+    }
+
+    private static void disableRedirects(BuildClient client) throws NoSuchFieldException, IllegalAccessException {
         Field f = ClientBase.class.getDeclaredField("client");
         f.setAccessible(true);
         ResteasyClient reClient = (ResteasyClient) f.get(client);
         ApacheHttpClient43EngineWithRetry engine = (ApacheHttpClient43EngineWithRetry) reClient.httpEngine();
         engine.setFollowRedirects(false);
-
-        Response internalScmArchiveLink = client.getInternalScmArchiveLink(buildId);
-        assertThat(internalScmArchiveLink.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
-        assertThat(internalScmArchiveLink.getHeaderString("Location")).isNotEmpty();
     }
 
     @Test
@@ -534,39 +535,47 @@ public class BuildEndpointTest {
     }
 
     @Test
-    public void shouldGetAlignLogs() throws ClientException, IOException {
-        // when
+    public void shouldGetAlignLogsByRedirect() throws Exception {
+        // with
+        String logType = "alignment-log";
+        String lineFormat = "LEVEL";
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
-        Optional<InputStream> stream = client.getAlignLogs(buildId);
+
+        // Disable redirects so we can test the actual response
+        disableRedirects(client);
+
+        // when
+        Response response = client.getAlignLogs(buildId);
 
         // then
-        assertThat(stream).isPresent();
-        String log = IoUtils.readStreamAsString(stream.get());
-        assertThat(log).contains("alignment log"); // from DatabaseDataInitializer
+        assertThat(response.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
+        assertThat(response.getHeaderString("Location")).isNotEmpty()
+                .contains(buildId)
+                .contains("http://bifrost.url") // from pnc-config.json in resources
+                .contains(logType)
+                .contains(lineFormat);
     }
 
     @Test
-    public void shouldGetBuildLogs() throws ClientException, IOException {
-        // when
+    public void shouldGetBuildLogsByRedirect() throws Exception {
+        // with
+        String logType = "build-log";
+        String lineFormat = "PLAIN";
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
-        Optional<InputStream> stream = client.getBuildLogs(buildId);
+
+        // Disable redirects so we can test the actual response
+        disableRedirects(client);
+
+        // when
+        Response response = client.getBuildLogs(buildId);
 
         // then
-        assertThat(stream).isPresent();
-        String log = IoUtils.readStreamAsString(stream.get());
-        assertThat(log).contains("demo log"); // from DatabaseDataInitializer
-    }
-
-    @Test
-    public void shouldGetBuildLogsWithUTFCharacter() throws ClientException, IOException {
-        // when
-        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
-        Optional<InputStream> stream = client.getBuildLogs(buildId);
-
-        // then
-        assertThat(stream).isPresent();
-        String log = IoUtils.readStreamAsString(stream.get());
-        assertThat(log).contains("📦");// from DatabaseDataInitializer
+        assertThat(response.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
+        assertThat(response.getHeaderString("Location")).isNotEmpty()
+                .contains(buildId)
+                .contains("http://bifrost.url") // from pnc-config.json in resources
+                .contains(logType)
+                .contains(lineFormat);
     }
 
     @Test
