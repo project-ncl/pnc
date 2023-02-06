@@ -846,7 +846,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     }
 
     /**
-     * @throws BuildConflictException if all BCAs are in the unfinishedTasks.
+     * @throws BuildConflictException if every BCA is already scheduled.
      */
     private void checkAllRunning(Collection<BuildConfigurationAudited> BCAs, Collection<BuildTaskRef> unfinishedTasks)
             throws BuildConflictException {
