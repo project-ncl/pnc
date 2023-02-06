@@ -76,6 +76,7 @@ import org.slf4j.MDC;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -335,8 +336,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                         buildConfigurationSet,
                         user,
                         buildOptions,
-                        scheduleResult,
-                        this);
+                        scheduleResult);
             }
             return storeAndNotifyBuildSet(buildConfigurationSet, user, buildOptions, scheduleResult);
         } catch (BuildConflictException e) {
@@ -360,7 +360,13 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         // finally
     }
 
+    @Dependent
     public static class BuildSetFallback implements FallbackHandler<BuildSetTask> {
+
+        @Inject
+        @Remote
+        RemoteBuildCoordinator buildCoordinator;
+
         public BuildSetTask handle(ExecutionContext context) {
             try {
                 if (context.getFailure() instanceof ScheduleConflictExceptionWithAttachment) {
@@ -370,9 +376,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                             "No more retries, failed to schedule remote tasks.",
                             exception.getScheduleResult().buildStatusWithDescription.description);
 
-                    RemoteBuildCoordinator bean = exception.getBean();
-
-                    return bean.storeAndNotifyBuildSet(
+                    return buildCoordinator.storeAndNotifyBuildSet(
                             exception.getBuildConfigurationSet(),
                             exception.getUser(),
                             exception.getBuildOptions(),
