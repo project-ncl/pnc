@@ -110,7 +110,7 @@ public class BuildIteratorTest {
     }
 
     private void mockRepository(SortInfo sortInfo, Predicate<BuildRecord> predicate) {
-        when(repository.queryWithPredicatesUsingCursor(any(), same(sortInfo), same(predicate)))
+        when(repository.queryWithPredicates(any(), same(sortInfo), same(predicate)))
                 .thenAnswer((InvocationOnMock invocation) -> {
                     PageInfo pageInfo = invocation.getArgument(0);
 

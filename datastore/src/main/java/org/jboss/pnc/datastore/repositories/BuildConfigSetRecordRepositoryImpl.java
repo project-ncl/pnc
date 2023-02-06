@@ -18,7 +18,6 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigSetRecordSpringRepository;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates;
@@ -43,14 +42,12 @@ public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<Build
      */
     @Deprecated
     public BuildConfigSetRecordRepositoryImpl() {
-        super(null, null);
+        super(BuildConfigSetRecord.class, Integer.class);
     }
 
     @Inject
-    public BuildConfigSetRecordRepositoryImpl(
-            BuildConfigSetRecordSpringRepository buildConfigSetRecordSpringRepository,
-            EntityManager manager) {
-        super(buildConfigSetRecordSpringRepository, buildConfigSetRecordSpringRepository);
+    public BuildConfigSetRecordRepositoryImpl(EntityManager manager) {
+        super(BuildConfigSetRecord.class, Integer.class);
         this.manager = manager;
     }
 

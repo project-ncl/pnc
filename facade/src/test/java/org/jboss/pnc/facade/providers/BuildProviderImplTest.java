@@ -79,6 +79,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -140,8 +141,6 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
 
     @Before
     public void prepareMock() throws ReflectiveOperationException, IllegalArgumentException {
-        when(repository.queryWithPredicatesUsingCursor(any(PageInfo.class), any(SortInfo.class), any()))
-                .thenAnswer(new ListAnswer(repositoryList));
         when(repository.findByIdFetchProperties(any())).thenAnswer(inv -> {
             Base32LongID id = inv.getArgument(0);
             return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
@@ -719,7 +718,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     }
 
     private void mockRepository(SortInfo sortInfo, Predicate<BuildRecord> predicate) {
-        when(repository.queryWithPredicatesUsingCursor(any(), same(sortInfo), same(predicate)))
+        when(repository.queryWithPredicates(any(), same(sortInfo), same(predicate)))
                 .thenAnswer((InvocationOnMock invocation) -> {
                     PageInfo pageInfo = invocation.getArgument(0);
 

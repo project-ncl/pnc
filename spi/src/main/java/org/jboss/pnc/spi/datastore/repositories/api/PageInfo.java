@@ -21,4 +21,8 @@ public interface PageInfo {
     int getPageSize();
 
     int getPageOffset();
+
+    default int getElementOffset() {
+        return getPageSize() * getPageOffset();
+    }
 }

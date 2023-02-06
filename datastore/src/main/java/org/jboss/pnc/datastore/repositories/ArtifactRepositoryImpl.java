@@ -17,27 +17,21 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.ArtifactSpringRepository;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 
+import javax.ejb.Stateless;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Stateless
 public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer> implements ArtifactRepository {
 
-    @Inject
-    public ArtifactRepositoryImpl(ArtifactSpringRepository springArtifactRepository) {
-        super(springArtifactRepository, springArtifactRepository);
+    public ArtifactRepositoryImpl() {
+        super(Artifact.class, Integer.class);
     }
 
     @Override

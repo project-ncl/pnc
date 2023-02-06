@@ -31,6 +31,10 @@ public abstract class AbstractIntIdProviderTest<T extends GenericEntity<java.lan
 
     protected AtomicInteger entityId = new AtomicInteger(1);
 
+    public AbstractIntIdProviderTest() {
+        super(Integer.class);
+    }
+
     protected Integer getNextId() {
         return entityId.getAndIncrement();
     }

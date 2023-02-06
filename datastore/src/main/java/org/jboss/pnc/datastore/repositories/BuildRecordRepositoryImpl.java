@@ -19,9 +19,6 @@ package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildRecordSpringRepository;
-import org.jboss.pnc.datastore.repositories.internal.PageableMapper;
-import org.jboss.pnc.datastore.repositories.internal.SpecificationsMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
@@ -30,7 +27,6 @@ import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
@@ -39,11 +35,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.includeTemporary;
@@ -61,7 +60,6 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
 
     private static final Logger logger = LoggerFactory.getLogger(BuildRecordRepositoryImpl.class);
 
-    private BuildRecordSpringRepository repository;
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     /**
@@ -69,34 +67,44 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
      */
     @Deprecated
     public BuildRecordRepositoryImpl() {
-        super(null, null);
+        super(BuildRecord.class, Base32LongID.class);
     }
 
     @Inject
-    public BuildRecordRepositoryImpl(
-            BuildRecordSpringRepository buildRecordSpringRepository,
-            BuildConfigurationAuditedRepository buildConfigurationAuditedRepository) {
-        super(buildRecordSpringRepository, buildRecordSpringRepository);
-        this.repository = buildRecordSpringRepository;
+    public BuildRecordRepositoryImpl(BuildConfigurationAuditedRepository buildConfigurationAuditedRepository) {
+        super(BuildRecord.class, Base32LongID.class);
         this.buildConfigurationAuditedRepository = buildConfigurationAuditedRepository;
     }
 
     @Override
     public BuildRecord findByIdFetchAllProperties(Base32LongID id) {
-        BuildRecord buildRecord = repository.findByIdFetchAllProperties(id);
-        if (buildRecord != null) {
+        TypedQuery<BuildRecord> query = entityManager
+                .createQuery("select br from BuildRecord br fetch all properties where br.id = :id", BuildRecord.class);
+        query.setParameter("id", id);
+        try {
+            BuildRecord buildRecord = query.getSingleResult();
             fetchBuildConfigurationAudited(buildRecord);
+            return buildRecord;
+        } catch (NoResultException ex) {
+            return null;
         }
-        return buildRecord;
     }
 
     @Override
     public BuildRecord findByIdFetchProperties(Base32LongID id) {
-        BuildRecord buildRecord = repository.findByIdFetchProperties(id);
-        if (buildRecord != null) {
+        TypedQuery<BuildRecord> query = entityManager.createQuery(
+                "select br from BuildRecord br "
+                        + "left join fetch br.productMilestone left join fetch br.buildConfigSetRecord left join fetch br.user "
+                        + "where br.id = :id",
+                BuildRecord.class);
+        query.setParameter("id", id);
+        try {
+            BuildRecord buildRecord = query.getSingleResult();
             fetchBuildConfigurationAudited(buildRecord);
+            return buildRecord;
+        } catch (NoResultException ex) {
+            return null;
         }
-        return buildRecord;
     }
 
     private void fetchBuildConfigurationAudited(BuildRecord buildRecord) {
@@ -104,28 +112,6 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
         BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedRepository
                 .queryById(new IdRev(buildRecord.getBuildConfigurationId(), revision));
         buildRecord.setBuildConfigurationAudited(buildConfigurationAudited);
-    }
-
-    @Override
-    public List<BuildRecord> queryWithPredicatesUsingCursor(
-            PageInfo pageInfo,
-            SortInfo sortInfo,
-            Predicate<BuildRecord>... predicates) {
-        return repository.findAll(SpecificationsMapper.map(predicates), PageableMapper.mapCursored(pageInfo, sortInfo))
-                .getContent();
-    }
-
-    @Override
-    public List<BuildRecord> queryWithPredicatesUsingCursor(
-            PageInfo pageInfo,
-            SortInfo sortInfo,
-            List<Predicate<BuildRecord>> andPredicates,
-            List<Predicate<BuildRecord>> orPredicates) {
-        return repository
-                .findAll(
-                        SpecificationsMapper.map(andPredicates, orPredicates),
-                        PageableMapper.mapCursored(pageInfo, sortInfo))
-                .getContent();
     }
 
     @Override
@@ -250,14 +236,31 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
 
     @Override
     public List<BuildRecord> getLatestBuildsForBuildConfigs(List<Integer> configIds) {
-        return (configIds == null || configIds.isEmpty()) ? Collections.emptyList()
-                : this.repository.getLatestBuildsByBuildConfigIds(configIds);
+        if (configIds == null || configIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Query query = entityManager.createNativeQuery(
+                "SELECT * FROM buildrecord br INNER JOIN ("
+                        + "   SELECT buildconfiguration_id, max(submittime) AS max_submit FROM buildrecord"
+                        + "   GROUP BY buildconfiguration_id ) brr"
+                        + " ON  br.buildconfiguration_id = brr.buildconfiguration_id"
+                        + " AND br.submittime = brr.max_submit AND br.buildconfiguration_id IN (:ids)",
+                BuildRecord.class);
+        query.setParameter("ids", configIds);
+        return query.getResultList();
     }
 
     @Override
-    public Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsId) {
-        return (artifactsId == null || artifactsId.isEmpty()) ? Collections.emptySet()
-                : repository.findByBuiltArtifacts(artifactsId);
+    public Set<BuildRecord> findByBuiltArtifacts(Set<Integer> artifactsIds) {
+        if (artifactsIds == null || artifactsIds.isEmpty()) {
+            return Collections.emptySet();
+        }
+        TypedQuery<BuildRecord> query = entityManager.createQuery(
+                "SELECT DISTINCT br FROM BuildRecord br JOIN br.builtArtifacts builtArtifacts "
+                        + "WHERE builtArtifacts.id IN (:ids)",
+                BuildRecord.class);
+        query.setParameter("ids", artifactsIds);
+        return query.getResultStream().collect(Collectors.toSet());
     }
 
     @Override
@@ -267,11 +270,28 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
 
     @Override
     public List<Object[]> getAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime, int pageSize, int offset) {
-        return repository.getAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime, pageSize, offset);
+        Query query = entityManager.createNativeQuery(
+                "SELECT buildrecord_id, buildcontentid, submittime, starttime, endtime, lastupdatetime,"
+                        + " submit_year, submit_month, submit_quarter,"
+                        + " status, temporarybuild, autoalign, brewpullactive, buildtype,"
+                        + " executionrootname, executionrootversion, user_id, username,"
+                        + " buildconfiguration_id, buildconfiguration_rev, buildconfiguration_name,"
+                        + " buildconfigsetrecord_id, productmilestone_id, productmilestone_version,"
+                        + " project_id, project_name, productversion_id, product_version, product_id, product_name"
+                        + " FROM _archived_buildrecords WHERE lastupdatetime > :lastupdatetime "
+                        + " ORDER BY lastupdatetime ASC LIMIT :pageSize OFFSET :offset");
+        query.setParameter("lastupdatetime", lastupdatetime);
+        query.setParameter("pageSize", pageSize);
+        query.setParameter("offset", offset);
+        return query.getResultList();
     }
 
     @Override
     public int countAllBuildRecordInsightsNewerThanTimestamp(Date lastupdatetime) {
-        return repository.countAllBuildRecordInsightsNewerThanTimestamp(lastupdatetime);
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(DISTINCT buildrecord_id) "
+                        + " FROM _archived_buildrecords WHERE lastupdatetime > :lastupdatetime ");
+        query.setParameter("lastupdatetime", lastupdatetime);
+        return (Integer) query.getSingleResult();
     }
 }

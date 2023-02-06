@@ -18,7 +18,6 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildRecordPushResultSpringRepository;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecordPushResult;
 import org.jboss.pnc.spi.datastore.predicates.BuildRecordPushResultPredicates;
@@ -36,8 +35,8 @@ public class BuildRecordPushResultRepositoryImpl extends AbstractRepository<Buil
         implements BuildRecordPushResultRepository {
 
     @Inject
-    public BuildRecordPushResultRepositoryImpl(BuildRecordPushResultSpringRepository springRepository) {
-        super(springRepository, springRepository);
+    public BuildRecordPushResultRepositoryImpl() {
+        super(BuildRecordPushResult.class, Long.class);
     }
 
     @Override

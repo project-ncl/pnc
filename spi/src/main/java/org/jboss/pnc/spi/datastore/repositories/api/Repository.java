@@ -29,6 +29,8 @@ public interface Repository<T extends GenericEntity<ID>, ID extends Serializable
 
     void delete(ID id);
 
+    void delete(T id);
+
     void flushAndRefresh(T entity);
 
     /**
