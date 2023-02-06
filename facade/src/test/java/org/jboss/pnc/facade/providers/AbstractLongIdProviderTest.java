@@ -27,6 +27,10 @@ import org.jboss.pnc.model.GenericEntity;
  */
 public abstract class AbstractLongIdProviderTest<T extends GenericEntity<Long>> extends AbstractProviderTest<Long, T> {
 
+    public AbstractLongIdProviderTest() {
+        super(Long.class);
+    }
+
     protected Long getNextId() {
         return Sequence.nextId();
     }

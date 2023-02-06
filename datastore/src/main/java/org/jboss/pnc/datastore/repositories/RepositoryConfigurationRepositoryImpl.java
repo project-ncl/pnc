@@ -18,13 +18,11 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.RepositoryConfigurationSpringRepository;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 
 /**
  * @author Jakub Bartecek
@@ -33,17 +31,8 @@ import javax.inject.Inject;
 public class RepositoryConfigurationRepositoryImpl extends AbstractRepository<RepositoryConfiguration, Integer>
         implements RepositoryConfigurationRepository {
 
-    /**
-     * @deprecated Created for CDI.
-     */
-    @Deprecated
     public RepositoryConfigurationRepositoryImpl() {
-    }
-
-    @Inject
-    public RepositoryConfigurationRepositoryImpl(
-            RepositoryConfigurationSpringRepository repositoryConfigurationSpringRepository) {
-        super(repositoryConfigurationSpringRepository, repositoryConfigurationSpringRepository);
+        super(RepositoryConfiguration.class, Integer.class);
     }
 
     @Override

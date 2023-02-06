@@ -182,6 +182,12 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
 
     protected final List<T> repositoryList = new ArrayList<>();
 
+    protected final Class<ID> idType;
+
+    protected AbstractProviderTest(Class<ID> idType) {
+        this.idType = idType;
+    }
+
     @Before
     public void injectMappers() throws ReflectiveOperationException, IllegalArgumentException {
         injectMethod(
@@ -377,16 +383,16 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
             }
             throw new IllegalArgumentException("Provided entity has ID but is not in the repository.");
         });
-        when(repository().queryById(any())).thenAnswer(inv -> {
-            Integer id = inv.getArgument(0);
+        when(repository().queryById(any(idType))).thenAnswer(inv -> {
+            ID id = inv.getArgument(0);
             return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
         });
         doAnswer(inv -> {
-            Integer id = inv.getArgument(0);
+            ID id = inv.getArgument(0);
             T object = repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);
             repositoryList.remove(object);
             return null;
-        }).when(repository()).delete(any());
+        }).when(repository()).delete(any(idType));
     }
 
     protected abstract ID getNextId();

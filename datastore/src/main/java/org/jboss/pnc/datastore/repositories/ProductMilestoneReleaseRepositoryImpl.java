@@ -18,7 +18,6 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.ProductMilestoneReleaseSpringRepository;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductMilestoneRelease_;
@@ -29,7 +28,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import java.util.List;
 
 /**
@@ -39,20 +37,8 @@ import java.util.List;
 public class ProductMilestoneReleaseRepositoryImpl extends AbstractRepository<ProductMilestoneRelease, Long>
         implements ProductMilestoneReleaseRepository {
 
-    private ProductMilestoneReleaseSpringRepository repository;
-
-    /**
-     * @deprecated Created for CDI.
-     */
-    @Deprecated
     public ProductMilestoneReleaseRepositoryImpl() {
-        super(null, null);
-    }
-
-    @Inject
-    public ProductMilestoneReleaseRepositoryImpl(ProductMilestoneReleaseSpringRepository springRepository) {
-        super(springRepository, springRepository);
-        this.repository = springRepository;
+        super(ProductMilestoneRelease.class, Long.class);
     }
 
     @Override

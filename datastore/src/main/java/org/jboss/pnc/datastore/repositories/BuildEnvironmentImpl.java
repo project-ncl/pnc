@@ -18,27 +18,16 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildEnvironmentSpringRepository;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 
 @Stateless
 public class BuildEnvironmentImpl extends AbstractRepository<BuildEnvironment, Integer>
         implements BuildEnvironmentRepository {
 
-    /**
-     * @deprecated Created for CDI.
-     */
-    @Deprecated
     public BuildEnvironmentImpl() {
-        super(null, null);
-    }
-
-    @Inject
-    public BuildEnvironmentImpl(BuildEnvironmentSpringRepository buildEnvironmentSpringRepository) {
-        super(buildEnvironmentSpringRepository, buildEnvironmentSpringRepository);
+        super(BuildEnvironment.class, Integer.class);
     }
 }

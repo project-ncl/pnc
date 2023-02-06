@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 /**
- * Spring Data's repositories which should be exposed outside of this module.
+ * Data's repositories which should be exposed outside of this module.
  *
  * @see org.jboss.pnc.spi.datastore.repositories
  * @author Sebastian Laskawiec

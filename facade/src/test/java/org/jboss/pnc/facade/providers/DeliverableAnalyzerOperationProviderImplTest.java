@@ -119,15 +119,6 @@ public class DeliverableAnalyzerOperationProviderImplTest
             }
             throw new IllegalArgumentException("Provided entity has ID but is not in the repository.");
         });
-        doAnswer(inv -> {
-            Base32LongID id = inv.getArgument(0);
-            DeliverableAnalyzerOperation object = repositoryList.stream()
-                    .filter(a -> id.equals(a.getId()))
-                    .findFirst()
-                    .orElse(null);
-            repositoryList.remove(object);
-            return null;
-        }).when(repository()).delete(any());
     }
 
     @Before
