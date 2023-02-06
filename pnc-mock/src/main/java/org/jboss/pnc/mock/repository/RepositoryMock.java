@@ -107,6 +107,11 @@ public abstract class RepositoryMock<ID extends Serializable, EntityType extends
     }
 
     @Override
+    public void delete(EntityType entity) {
+        delete(entity.getId());
+    }
+
+    @Override
     public void flushAndRefresh(EntityType entity) {
     }
 

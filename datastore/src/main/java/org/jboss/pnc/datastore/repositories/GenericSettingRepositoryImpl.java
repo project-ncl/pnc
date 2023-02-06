@@ -18,29 +18,18 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.GenericSettingSpringRepository;
 import org.jboss.pnc.model.GenericSetting;
 import org.jboss.pnc.spi.datastore.predicates.GenericSettingPredicates;
 import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 
 @Stateless
 public class GenericSettingRepositoryImpl extends AbstractRepository<GenericSetting, Integer>
         implements GenericSettingRepository {
 
-    /**
-     * @deprecated Created for CDI.
-     */
-    @Deprecated
     public GenericSettingRepositoryImpl() {
-        super(null, null);
-    }
-
-    @Inject
-    public GenericSettingRepositoryImpl(GenericSettingSpringRepository genericSettingSpringRepository) {
-        super(genericSettingSpringRepository, genericSettingSpringRepository);
+        super(GenericSetting.class, Integer.class);
     }
 
     @Override

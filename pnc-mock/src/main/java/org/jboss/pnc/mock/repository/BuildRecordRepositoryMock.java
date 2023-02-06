@@ -59,24 +59,6 @@ public class BuildRecordRepositoryMock extends Base32LongIdRepositoryMock<BuildR
         return queryById(id);
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<BuildRecord> queryWithPredicatesUsingCursor(
-            PageInfo pageInfo,
-            SortInfo sortInfo,
-            Predicate<BuildRecord>... predicates) {
-        return null;
-    }
-
-    @Override
-    public List<BuildRecord> queryWithPredicatesUsingCursor(
-            PageInfo pageInfo,
-            SortInfo sortInfo,
-            List<Predicate<BuildRecord>> andPredicates,
-            List<Predicate<BuildRecord>> orPredicates) {
-        return null;
-    }
-
     @Override
     public BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean temporaryBuild) {
         List<BuildRecord> buildRecords = queryAll();

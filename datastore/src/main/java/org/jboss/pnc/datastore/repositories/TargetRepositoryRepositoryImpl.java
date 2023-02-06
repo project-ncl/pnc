@@ -18,13 +18,11 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.TargetRepositorySpringRepository;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.spi.datastore.predicates.TargetRepositoryPredicates;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
 
@@ -35,17 +33,8 @@ import java.util.Set;
 public class TargetRepositoryRepositoryImpl extends AbstractRepository<TargetRepository, Integer>
         implements TargetRepositoryRepository {
 
-    /**
-     * @deprecated Created for CDI.
-     */
-    @Deprecated
     public TargetRepositoryRepositoryImpl() {
-        super(null, null);
-    }
-
-    @Inject
-    public TargetRepositoryRepositoryImpl(TargetRepositorySpringRepository targetRepositorySpringRepository) {
-        super(targetRepositorySpringRepository, targetRepositorySpringRepository);
+        super(TargetRepository.class, Integer.class);
     }
 
     @Override

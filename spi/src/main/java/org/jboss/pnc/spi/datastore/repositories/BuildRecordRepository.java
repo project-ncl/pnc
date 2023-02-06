@@ -45,17 +45,6 @@ public interface BuildRecordRepository extends Repository<BuildRecord, Base32Lon
      */
     BuildRecord findByIdFetchProperties(Base32LongID id);
 
-    List<BuildRecord> queryWithPredicatesUsingCursor(
-            PageInfo pageInfo,
-            SortInfo sortInfo,
-            Predicate<BuildRecord>... predicates);
-
-    List<BuildRecord> queryWithPredicatesUsingCursor(
-            PageInfo pageInfo,
-            SortInfo sortInfo,
-            List<Predicate<BuildRecord>> andPredicates,
-            List<Predicate<BuildRecord>> orPredicates);
-
     BuildRecord getLatestSuccessfulBuildRecord(Integer configurationId, boolean buildTemporary);
 
     default BuildRecord getLatestSuccessfulBuildRecord(List<BuildRecord> buildRecords, boolean buildTemporary) {

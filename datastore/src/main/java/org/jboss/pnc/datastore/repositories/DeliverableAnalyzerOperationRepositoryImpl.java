@@ -17,37 +17,19 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.DeliverableAnalyzerOperationSpringRepository;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import javax.ejb.Stateless;
 
 @Stateless
 public class DeliverableAnalyzerOperationRepositoryImpl
         extends AbstractRepository<DeliverableAnalyzerOperation, Base32LongID>
         implements DeliverableAnalyzerOperationRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(DeliverableAnalyzerOperationRepositoryImpl.class);
-
-    private DeliverableAnalyzerOperationSpringRepository repository;
-
-    /**
-     * @deprecated Created for CDI.
-     */
-    @Deprecated
     public DeliverableAnalyzerOperationRepositoryImpl() {
-        super(null, null);
-    }
-
-    @Inject
-    public DeliverableAnalyzerOperationRepositoryImpl(DeliverableAnalyzerOperationSpringRepository repository) {
-        super(repository, repository);
-        this.repository = repository;
+        super(DeliverableAnalyzerOperation.class, Base32LongID.class);
     }
 }

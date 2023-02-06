@@ -29,6 +29,10 @@ import org.jboss.pnc.model.GenericEntity;
 public abstract class AbstractBase32LongIDProviderTest<T extends GenericEntity<Base32LongID>>
         extends AbstractProviderTest<Base32LongID, T> {
 
+    public AbstractBase32LongIDProviderTest() {
+        super(Base32LongID.class);
+    }
+
     protected Base32LongID getNextId() {
         return new Base32LongID(Sequence.nextId());
     }

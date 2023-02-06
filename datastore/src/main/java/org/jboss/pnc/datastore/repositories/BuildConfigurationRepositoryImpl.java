@@ -19,17 +19,13 @@ package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.datastore.repositories.internal.BuildConfigurationSpringRepository;
 import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import java.util.Date;
-import java.util.Objects;
 
 @Stateless
 public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildConfiguration, Integer>
@@ -42,15 +38,12 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
      */
     @Deprecated
     public BuildConfigurationRepositoryImpl() {
-        super(null, null);
+        super(BuildConfiguration.class, Integer.class);
     }
 
     @Inject
-    public BuildConfigurationRepositoryImpl(
-            BuildConfigurationSpringRepository buildConfigurationSpringRepository,
-            AlignmentConfig alignmentConfig) {
-
-        super(buildConfigurationSpringRepository, buildConfigurationSpringRepository);
+    public BuildConfigurationRepositoryImpl(AlignmentConfig alignmentConfig) {
+        super(BuildConfiguration.class, Integer.class);
         this.alignmentConfig = alignmentConfig;
     }
 
@@ -61,7 +54,7 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
         buildConfiguration.setDefaultAlignmentParams(
                 alignmentConfig.getAlignmentParameters().get(buildConfiguration.getBuildType().toString()));
 
-        return springRepository.save(buildConfiguration);
+        return super.save(buildConfiguration);
     }
 
     private boolean areParametersEqual(BuildConfiguration persisted, BuildConfiguration newBC) {

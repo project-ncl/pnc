@@ -686,7 +686,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         PageInfo pageInfo = toPageInfo(buildPageInfo);
         SortInfo sortInfo = rsqlPredicateProducer.getSortInfo(type, buildPageInfo.getSort());
         List<BuildRecord> resultList = ((BuildRecordRepository) BuildProviderImpl.this.repository)
-                .queryWithPredicatesUsingCursor(pageInfo, sortInfo, predicatesArray);
+                .queryWithPredicates(pageInfo, sortInfo, predicatesArray);
 
         int hits = repository.count(predicatesArray);
 
@@ -1077,7 +1077,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             }
             PageInfo pageInfo = new DefaultPageInfo(firstIndex, size);
             builds = ((BuildRecordRepository) BuildProviderImpl.this.repository)
-                    .queryWithPredicatesUsingCursor(pageInfo, sortInfo, predicates);
+                    .queryWithPredicates(pageInfo, sortInfo, predicates);
             it = builds.iterator();
             if (builds.size() < size) {
                 firstIndex = lastIndex + 1;
