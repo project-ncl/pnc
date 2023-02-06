@@ -94,10 +94,11 @@ public class GraphUtils {
         }
     }
 
-    public static boolean hasCycle(Graph graph) {
-        List<Vertex> verticies = graph.getVerticies();
-        List<String> vertexNames = verticies.stream().map(Vertex::getName).collect(Collectors.toList());
-        Set<String> notVisited = new HashSet<>(vertexNames);
+    public static <T> boolean hasCycle(Graph<T> graph) {
+        List<Vertex<T>> vertices = graph.getVerticies();
+        Set<String> notVisited = vertices.stream()
+                .map(Vertex::getName)
+                .collect(Collectors.toSet());
         List<String> visiting = new ArrayList<>();
         Set<String> visited = new HashSet<>();
 
