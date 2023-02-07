@@ -468,6 +468,7 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         boolean temporaryBuild = buildTask.getBuildOptions().isTemporaryBuild();
         return new BuildTaskContext(
                 buildTask.getContentId(),
+                buildTask.getUser().getId().toString(),
                 temporaryBuild,
                 ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild));
     }

@@ -326,7 +326,8 @@ public class BuildTasksInitializer {
                         buildOptions.isTemporaryBuild(),
                         ExpiresDate.getTemporaryBuildExpireDate(
                                 temporaryBuildLifespanDays,
-                                buildOptions.isTemporaryBuild()));
+                                buildOptions.isTemporaryBuild()),
+                        user.getId().toString());
                 try {
                     Optional<String> requestContext = MDCUtils.getRequestContext();
                     buildTask = BuildTask.build(

@@ -30,6 +30,9 @@ public class SchedulerMicroprofileConfig implements ConfigSource {
     private static final String SCHEDULER_CONNECT_TIMEOUT_KEY = "scheduler-client/mp-rest/connectTimeout";
     private static final String SCHEDULER_READ_TIMEOUT_KEY = "scheduler-client/mp-rest/readTimeout";
     private static final String SCHEDULER_FOLLOW_REDIRECTS_KEY = "scheduler-client/mp-rest/followRedirects";
+    private static final String SCHEDULER_MAX_RETRIES_BC_KEY = "org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator/buildConfig/Retry/maxRetries";
+    private static final String SCHEDULER_MAX_RETRIES_BCA_KEY = "org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator/buildConfigurationAudited/Retry/maxRetries";
+    private static final String SCHEDULER_MAX_RETRIES_BS_KEY = "org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator/buildSet/Retry/maxRetries";
 
     private final Map<String, String> properties;
 
@@ -46,6 +49,11 @@ public class SchedulerMicroprofileConfig implements ConfigSource {
         }
         if (config.getFollowRedirects() != null) {
             properties.put(SCHEDULER_FOLLOW_REDIRECTS_KEY, config.getFollowRedirects());
+        }
+        if (config.getMaxScheduleRetries() != null) {
+            properties.put(SCHEDULER_MAX_RETRIES_BC_KEY, config.getMaxScheduleRetries());
+            properties.put(SCHEDULER_MAX_RETRIES_BCA_KEY, config.getMaxScheduleRetries());
+            properties.put(SCHEDULER_MAX_RETRIES_BS_KEY, config.getMaxScheduleRetries());
         }
     }
 

@@ -18,11 +18,13 @@
 package org.jboss.pnc.remotecoordinator.builder;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.jboss.pnc.enums.BuildStatus;
 
+@Getter
 @AllArgsConstructor
 class BuildStatusWithDescription {
 
-    BuildStatus buildStatus;
-    String description;
+    private final BuildStatus buildStatus;
+    private final String description;
 }

@@ -122,7 +122,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     private GroupBuildMapper groupBuildMapper;
     private BuildMapper buildMapper;
 
-    BuildConfigurationAuditedRepository bcaRepository;
+    private BuildConfigurationAuditedRepository bcaRepository;
 
     @Deprecated
     public RemoteBuildCoordinator() {
@@ -174,34 +174,6 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         return buildConfigurationAudited(buildConfigurationAudited, user, buildOptions);
     }
 
-    // TODO do we still need it ?
-    private BuildSetTask notifyBuildStarted(
-            ScheduleResult scheduleResult,
-            User user,
-            BuildConfigurationAudited buildConfigurationAudited) throws CoreException {
-        // prepare the response and status update
-        Collection<Vertex<RemoteBuildTask>> verticies = scheduleResult.buildGraph.getVerticies();
-        Collection<RemoteBuildTask> buildTasks = GraphUtils.unwrap(verticies);
-        String id = buildTasks.stream()
-                .filter(t -> t.getBuildConfigurationAudited().getIdRev().equals(buildConfigurationAudited.getIdRev()))
-                .findAny()
-                .orElseThrow(
-                        () -> new CoreException("Missing task with IdRev: " + buildConfigurationAudited.getIdRev()))
-                .getId();
-
-        // return ID only
-        BuildSetTask buildSetTask = BuildSetTask.Builder.newBuilder().build();
-        BuildTask buildTask = BuildTask
-                .build(buildConfigurationAudited, null, null, id, null, new Date(), null, null, null);
-
-        buildSetTask.addBuildTask(buildTask);
-
-        // nothing to save for a single build, just send the notifications
-        buildTasks.stream().forEach(task -> updateBuildTaskStatus(task, BuildCoordinationStatus.ENQUEUED, null, user));
-
-        return buildSetTask;
-    }
-
     /**
      * Run a single build. Uses the settings from the specific revision of a BuildConfiguration. The dependencies are
      * resolved by the BuildConfiguration relations and are used in the latest revisions
@@ -225,7 +197,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
 
         try {
             Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
-            checkAllRunning(Collections.singleton(buildConfigurationAudited), unfinishedTasks);
+            verifyAllBCAsAreNotRunning(Collections.singleton(buildConfigurationAudited), unfinishedTasks);
 
             Graph<RemoteBuildTask> buildGraph = buildTasksInitializer
                     .createBuildGraph(buildConfigurationAudited, user, buildOptions, unfinishedTasks);
@@ -311,7 +283,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
 
         try {
             Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
-            checkAllRunning(buildConfigurationAuditedsMap.values(), unfinishedTasks);
+            verifyAllBCAsAreNotRunning(buildConfigurationAuditedsMap.values(), unfinishedTasks);
 
             Graph<RemoteBuildTask> buildGraph = buildTasksInitializer.createBuildGraph(
                     buildConfigurationSet,
@@ -357,7 +329,6 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             // return BCSR.ID only
             return BuildSetTask.Builder.newBuilder().buildConfigSetRecord(buildConfigSetRecord).build();
         }
-        // finally
     }
 
     @Dependent
@@ -374,7 +345,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                             .getFailure();
                     log.error(
                             "No more retries, failed to schedule remote tasks.",
-                            exception.getScheduleResult().buildStatusWithDescription.description);
+                            exception.getScheduleResult().buildStatusWithDescription.getDescription());
 
                     return buildCoordinator.storeAndNotifyBuildSet(
                             exception.getBuildConfigurationSet(),
@@ -446,8 +417,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             ScheduleResult scheduleResult) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = storeBuildBuildConfigSetRecord(
                 buildConfigurationSet,
-                scheduleResult.buildStatusWithDescription.buildStatus,
-                scheduleResult.buildStatusWithDescription.description,
+                scheduleResult.buildStatusWithDescription.getBuildStatus(),
+                scheduleResult.buildStatusWithDescription.getDescription(),
                 user,
                 buildOptions);
 
@@ -571,6 +542,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         return buildConfigSetRecord;
     }
 
+    // TODO Either rename the method to storeBuildConfigSetRecordAndNotify or move the status update to upper layer
+    // because yhe method name doesn't suggest that it updates the status.
     public void updateBuildConfigSetRecordStatus(BuildConfigSetRecord setRecord, BuildStatus status, String description)
             throws CoreException {
         log.info(
@@ -848,8 +821,9 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     /**
      * @throws BuildConflictException if every BCA is already scheduled.
      */
-    private void checkAllRunning(Collection<BuildConfigurationAudited> BCAs, Collection<BuildTaskRef> unfinishedTasks)
-            throws BuildConflictException {
+    private void verifyAllBCAsAreNotRunning(
+            Collection<BuildConfigurationAudited> BCAs,
+            Collection<BuildTaskRef> unfinishedTasks) throws BuildConflictException {
 
         Set<IdRev> unfinished = unfinishedTasks.stream().map(t -> t.getIdRev()).collect(Collectors.toUnmodifiableSet());
 
