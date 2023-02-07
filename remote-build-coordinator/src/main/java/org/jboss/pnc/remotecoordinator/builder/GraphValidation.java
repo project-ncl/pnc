@@ -91,7 +91,7 @@ public class GraphValidation {
     /**
      * Returns true if no build configurations needs a rebuild
      */
-    private static boolean checkIfNoRebuildIsRequired(Graph buildGraph) {
+    private static boolean checkIfNoRebuildIsRequired(Graph<RemoteBuildTask> buildGraph) {
         Collection<RemoteBuildTask> buildTasks = GraphUtils.unwrap(buildGraph.getVerticies());
         long requiresRebuild = buildTasks.stream()
                 .filter(bt -> !bt.isAlreadyRunning())
