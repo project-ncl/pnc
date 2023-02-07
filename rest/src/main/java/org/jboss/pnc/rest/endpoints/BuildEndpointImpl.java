@@ -66,6 +66,7 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static java.text.MessageFormat.format;
 import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
 
 /**
@@ -325,12 +326,12 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
         return URI.create(
                 bifrostURL.concat(
-                        MessageFormat.format(
+                        format(
                                 BIFROST_LOGS_ENDPOINT,
                                 buildID,
                                 logType,
-                                batchSize,
-                                batchDelay,
+                                String.valueOf(batchSize),
+                                String.valueOf(batchDelay),
                                 format.toString())));
     }
 
