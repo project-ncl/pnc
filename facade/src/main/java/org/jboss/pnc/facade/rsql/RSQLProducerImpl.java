@@ -39,7 +39,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,9 +121,9 @@ public class RSQLProducerImpl implements RSQLProducer {
     }
 
     @Override
-    public <DB extends GenericEntity<?>> SortInfo getSortInfo(Class<DB> type, String rsql) {
+    public <DB extends GenericEntity<?>> SortInfo<DB> getSortInfo(Class<DB> type, String rsql) {
         if (rsql == null || rsql.isEmpty()) {
-            return new EmptySortInfo();
+            return new EmptySortInfo<>();
         }
 
         if (!rsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {
@@ -132,8 +131,9 @@ public class RSQLProducerImpl implements RSQLProducer {
         }
 
         Node rootNode = sortParser.parse(preprocessRSQL(rsql));
-        Function<RSQLSelectorPath, String> toPath = (RSQLSelectorPath selector) -> mapper.toPath(type, selector);
-        return (SortInfo) rootNode.accept(new SortRSQLNodeTraveller(toPath));
+        BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath = (from, selector) -> mapper
+                .toPath(type, from, selector);
+        return (SortInfo<DB>) rootNode.accept(new SortRSQLNodeTraveller(toPath));
     }
 
     @Override

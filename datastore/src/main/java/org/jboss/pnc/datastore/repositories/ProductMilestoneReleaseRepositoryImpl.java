@@ -23,7 +23,6 @@ import org.jboss.pnc.model.ProductMilestoneRelease;
 import org.jboss.pnc.model.ProductMilestoneRelease_;
 import org.jboss.pnc.spi.datastore.predicates.ProductMilestoneReleasePredicates;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 
@@ -45,7 +44,7 @@ public class ProductMilestoneReleaseRepositoryImpl extends AbstractRepository<Pr
     public ProductMilestoneRelease findLatestByMilestone(ProductMilestone milestone) {
         List<ProductMilestoneRelease> productMilestoneReleases = queryWithPredicates(
                 new DefaultPageInfo(0, 1),
-                new DefaultSortInfo(SortInfo.SortingDirection.DESC, ProductMilestoneRelease_.startingDate.getName()),
+                DefaultSortInfo.desc(ProductMilestoneRelease_.startingDate),
                 ProductMilestoneReleasePredicates.withMilestoneId(milestone.getId()));
         return productMilestoneReleases.size() > 0 ? productMilestoneReleases.get(0) : null;
     }

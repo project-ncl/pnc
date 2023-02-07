@@ -19,9 +19,13 @@ package org.jboss.pnc.facade.rsql;
 
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.ASC;
 import static org.jboss.pnc.facade.rsql.RSQLProducerImpl.DESC;
+
+import cz.jirutka.rsql.parser.ast.Node;
 import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo.SortingDirection;
+import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo.SortingDirection;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultOrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,50 +33,64 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import cz.jirutka.rsql.parser.ast.ComparisonNode;
 import cz.jirutka.rsql.parser.ast.LogicalNode;
+
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-class SortRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNodeTraveller<SortInfo> {
+class SortRSQLNodeTraveller<DB extends GenericEntity<Integer>> extends RSQLNodeTraveller<SortInfo<DB>> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final Function<RSQLSelectorPath, String> toPath;
+    private final BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath;
 
-    public SortRSQLNodeTraveller(Function<RSQLSelectorPath, String> toPath) {
+    public SortRSQLNodeTraveller(BiFunction<From<?, DB>, RSQLSelectorPath, Path> toPath) {
         this.toPath = toPath;
     }
 
     @Override
-    public SortInfo visit(LogicalNode logicalNode) {
-        return null;
+    public SortInfo<DB> visit(LogicalNode logicalNode) {
+        List<OrderInfo<DB>> orders = logicalNode.getChildren()
+                .stream()
+                .flatMap(n -> visit(n).orders().stream())
+                .collect(Collectors.toList());
+        return new DefaultSortInfo<>(orders);
     }
 
     @Override
-    public SortInfo visit(ComparisonNode node) {
+    public SortInfo<DB> visit(ComparisonNode node) {
         SortingDirection sortingDirection;
-        List<String> sortingFields = new ArrayList<>();
 
         if (node.getOperator().equals(ASC)) {
-            sortingDirection = SortInfo.SortingDirection.ASC;
+            sortingDirection = OrderInfo.SortingDirection.ASC;
         } else if (node.getOperator().equals(DESC)) {
-            sortingDirection = SortInfo.SortingDirection.DESC;
+            sortingDirection = OrderInfo.SortingDirection.DESC;
         } else {
             throw new UnsupportedOperationException("Unsupported sorting: " + node.getOperator());
         }
 
         logger.trace("Sorting direction - {}, arguments {}", sortingDirection, node.getArguments());
+        List<OrderInfo<DB>> orders = new ArrayList<>();
         for (String argument : node.getArguments()) {
-            if ("id".equals(argument)) { // Disable sorting by id
+            RSQLSelectorPath path = RSQLSelectorPath.get(argument);
+            RSQLSelectorPath last = path;
+            while (!last.isFinal())
+                last = last.next();
+            if ("id".equals(last.getElement())) { // Disable sorting by id
                 throw new RSQLException("Sorting by id is not supported.");
             }
-            sortingFields.add(toPath.apply(RSQLSelectorPath.get(argument)));
+
+            orders.add(new DefaultOrderInfo<>(sortingDirection, root -> toPath.apply(root, path)));
         }
-        return new DefaultSortInfo(sortingDirection, sortingFields);
+        return new DefaultSortInfo<>(orders);
     }
 }

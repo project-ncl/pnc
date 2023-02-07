@@ -15,26 +15,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.datastore.limits.rsql;
+package org.jboss.pnc.spi.datastore.repositories.api.impl;
 
 import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultOrderInfo;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
-import java.util.Collections;
-import java.util.List;
+import javax.persistence.metamodel.SingularAttribute;
+import java.util.function.Function;
 
-public class EmptySortInfo<T> implements SortInfo<T> {
+public class DefaultOrderInfo<T> implements OrderInfo<T> {
+    private final SortingDirection direction;
+    private final Function<Root<T>, Expression<?>> toExpression;
 
-    @Override
-    public List<OrderInfo<T>> orders() {
-        return Collections
-                .singletonList(new DefaultOrderInfo<T>(OrderInfo.SortingDirection.ASC, EmptySortInfo::idOrder));
+    public DefaultOrderInfo(SortingDirection direction, Function<Root<T>, Expression<?>> toExpression) {
+        this.direction = direction;
+        this.toExpression = toExpression;
     }
 
-    private static <T> Expression<?> idOrder(Root<T> root) {
-        return root.get("id");
+    public DefaultOrderInfo(SortingDirection direction, SingularAttribute<T, ?> attribute) {
+        this.direction = direction;
+        this.toExpression = root -> root.get(attribute);
+    }
+
+    @Override
+    public SortingDirection getDirection() {
+        return direction;
+    }
+
+    @Override
+    public Expression<?> getExpression(Root<T> root) {
+        return toExpression.apply(root);
     }
 }
