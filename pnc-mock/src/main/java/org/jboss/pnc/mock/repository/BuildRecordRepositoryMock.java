@@ -22,14 +22,8 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
-import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -40,9 +34,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.CollectionUtils.ofNullableCollection;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.includeTemporary;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withBuildConfigurationId;
-import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withSuccess;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:04 PM

@@ -107,6 +107,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -118,11 +119,11 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
@@ -150,7 +151,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     private BuildMapper buildMapper;
 
     private BuildCoordinator buildCoordinator;
-    private SortInfoProducer sortInfoProducer;
     private UserService userService;
 
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
@@ -167,7 +167,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             Gerrit gerrit,
             BuildConfigurationRevisionMapper buildConfigurationRevisionMapper,
             BuildCoordinator buildCoordinator,
-            SortInfoProducer sortInfoProducer,
             UserService userService,
             TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker,
             ResultMapper resultMapper) {
@@ -182,7 +181,6 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         this.buildConfigurationRevisionMapper = buildConfigurationRevisionMapper;
         this.buildMapper = mapper;
         this.buildCoordinator = buildCoordinator;
-        this.sortInfoProducer = sortInfoProducer;
         this.userService = userService;
         this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;
         this.resultMapper = resultMapper;
@@ -693,7 +691,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         Predicate<BuildRecord>[] predicatesArray = predicates.toArray(new Predicate[predicates.size()]);
 
         PageInfo pageInfo = toPageInfo(buildPageInfo);
-        SortInfo sortInfo = rsqlPredicateProducer.getSortInfo(type, buildPageInfo.getSort());
+        SortInfo<BuildRecord> sortInfo = rsqlPredicateProducer.getSortInfo(type, buildPageInfo.getSort());
         List<BuildRecord> resultList = ((BuildRecordRepository) BuildProviderImpl.this.repository)
                 .queryWithPredicates(pageInfo, sortInfo, predicatesArray);
 
@@ -902,7 +900,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             comparing = rsqlPredicateProducer.getComparator(pageInfo.getSort());
         }
 
-        SortInfo sortInfo = rsqlPredicateProducer.getSortInfo(type, pageInfo.getSort());
+        SortInfo<BuildRecord> sortInfo = rsqlPredicateProducer.getSortInfo(type, pageInfo.getSort());
         MergeIterator<Build> builds = new MergeIterator(
                 runningBuilds.iterator(),
                 new BuildIterator(
@@ -1029,7 +1027,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     private Optional<Build> readLatestFinishedBuild(Predicate<BuildRecord> predicate) {
         PageInfo pageInfo = this.pageInfoProducer.getPageInfo(0, 1);
-        SortInfo sortInfo = this.sortInfoProducer.getSortInfo(SortInfo.SortingDirection.DESC, "submitTime");
+        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.submitTime);
         List<BuildRecord> buildRecords = repository.queryWithPredicates(pageInfo, sortInfo, predicate);
 
         return buildRecords.stream().map(mapper::toDTO).findFirst();
@@ -1042,14 +1040,14 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         private final int maxPageSize;
         private int firstIndex;
         private final int lastIndex;
-        private final SortInfo sortInfo;
+        private final SortInfo<BuildRecord> sortInfo;
         private final Predicate<BuildRecord>[] predicates;
 
         public BuildIterator(
                 int firstIndex,
                 int lastIndex,
                 int pageSize,
-                SortInfo sortInfo,
+                SortInfo<BuildRecord> sortInfo,
                 Predicate<BuildRecord>... predicate) {
             this.maxPageSize = Math.max(pageSize, 10);
             this.firstIndex = Math.max(firstIndex, 0);

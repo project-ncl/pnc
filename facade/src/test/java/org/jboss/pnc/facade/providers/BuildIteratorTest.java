@@ -72,7 +72,7 @@ public class BuildIteratorTest {
 
     @Test
     public void testBuildIterator() {
-        SortInfo sortInfo = mock(SortInfo.class);
+        SortInfo<BuildRecord> sortInfo = mock(SortInfo.class);
         Predicate<BuildRecord> predicate = mock(Predicate.class);
         mockRepository(sortInfo, predicate);
 
@@ -110,7 +110,7 @@ public class BuildIteratorTest {
         assertEquals(Arrays.asList(7, 8, 9, 10, 11, 12), ret);
     }
 
-    private void mockRepository(SortInfo sortInfo, Predicate<BuildRecord> predicate) {
+    private void mockRepository(SortInfo<BuildRecord> sortInfo, Predicate<BuildRecord> predicate) {
         when(repository.queryWithPredicates(any(), same(sortInfo), same(predicate)))
                 .thenAnswer((InvocationOnMock invocation) -> {
                     PageInfo pageInfo = invocation.getArgument(0);

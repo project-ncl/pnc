@@ -58,7 +58,7 @@ public interface RSQLProducer {
      * @param rsql query for sorting, e.g. <code>"=asc=id"</code>.
      * @return Sort Info object.
      */
-    <DB extends GenericEntity<?>> SortInfo getSortInfo(Class<DB> type, String rsql);
+    <DB extends GenericEntity<?>> SortInfo<DB> getSortInfo(Class<DB> type, String rsql);
 
     /**
      * Gets comparator based on RSQL query.

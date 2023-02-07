@@ -17,8 +17,16 @@
  */
 package org.jboss.pnc.spi.datastore.repositories.api;
 
-import java.util.List;
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Root;
 
-public interface SortInfo<T> {
-    List<OrderInfo<T>> orders();
+public interface OrderInfo<T> {
+
+    SortingDirection getDirection();
+
+    Expression<?> getExpression(Root<T> root);
+
+    enum SortingDirection {
+        ASC, DESC
+    }
 }

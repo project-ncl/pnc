@@ -17,42 +17,41 @@
  */
 package org.jboss.pnc.spi.datastore.repositories.api.impl;
 
+import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.SingularAttribute;
 import java.util.Collections;
 import java.util.List;
 
-public class DefaultSortInfo implements SortInfo {
+public class DefaultSortInfo<T> implements SortInfo<T> {
+    private final List<OrderInfo<T>> order;
 
-    public static final SortingDirection DEFAULT_SORT_DIRECTION = SortingDirection.ASC;
-
-    protected final List<String> fields = new ArrayList<>();
-    protected final SortingDirection direction;
-
-    public DefaultSortInfo(SortingDirection direction, String... fields) {
-        Collections.addAll(this.fields, fields);
-        this.direction = direction;
+    public DefaultSortInfo(List<OrderInfo<T>> orderInfo) {
+        this.order = List.copyOf(orderInfo);
     }
 
-    public DefaultSortInfo(SortingDirection direction, Collection<String> fields) {
-        this.fields.addAll(fields);
-        this.direction = direction;
+    public DefaultSortInfo(OrderInfo<T> orderInfo) {
+        this.order = Collections.singletonList(orderInfo);
     }
 
-    public DefaultSortInfo() {
-        this.direction = DEFAULT_SORT_DIRECTION;
-        fields.add("id");
+    public static <T> SortInfo<T> asc(SingularAttribute<T, ?> field) {
+        DefaultOrderInfo<T> orderInfo = new DefaultOrderInfo<>(
+                OrderInfo.SortingDirection.ASC,
+                (Root<T> root) -> root.get(field));
+        return new DefaultSortInfo(orderInfo);
+    }
+
+    public static <T> SortInfo<T> desc(SingularAttribute<T, ?> field) {
+        DefaultOrderInfo<T> orderInfo = new DefaultOrderInfo<>(
+                OrderInfo.SortingDirection.DESC,
+                (Root<T> root) -> root.get(field));
+        return new DefaultSortInfo(orderInfo);
     }
 
     @Override
-    public List<String> getFields() {
-        return Collections.unmodifiableList(fields);
-    }
-
-    @Override
-    public SortingDirection getDirection() {
-        return direction;
+    public List<OrderInfo<T>> orders() {
+        return order;
     }
 }
