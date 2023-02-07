@@ -132,7 +132,7 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
             Predicate<DB>... predicates) {
         Predicate<DB> rsqlPredicate = rsqlPredicateProducer.getCriteriaPredicate(type, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
-        SortInfo sortInfo = rsqlPredicateProducer.getSortInfo(type, sortingRsql);
+        SortInfo<DB> sortInfo = rsqlPredicateProducer.getSortInfo(type, sortingRsql);
         List<DB> collection = repository
                 .queryWithPredicates(pageInfo, sortInfo, ObjectArrays.concat(rsqlPredicate, predicates));
         int totalHits = repository.count(ObjectArrays.concat(rsqlPredicate, predicates));

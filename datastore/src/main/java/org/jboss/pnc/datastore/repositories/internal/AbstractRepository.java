@@ -18,6 +18,7 @@
 package org.jboss.pnc.datastore.repositories.internal;
 
 import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -32,7 +33,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.From;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
@@ -121,7 +121,7 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
     }
 
     @Override
-    public List<T> queryAll(PageInfo pageInfo, SortInfo sortInfo) {
+    public List<T> queryAll(PageInfo pageInfo, SortInfo<T> sortInfo) {
         return findAll(pageInfo, sortInfo);
     }
 
@@ -166,7 +166,7 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
     }
 
     @Override
-    public List<T> queryWithPredicates(PageInfo pageInfo, SortInfo sortInfo, Predicate<T>... predicates) {
+    public List<T> queryWithPredicates(PageInfo pageInfo, SortInfo<T> sortInfo, Predicate<T>... predicates) {
         return findAll(pageInfo, sortInfo, predicates);
     }
 
@@ -239,7 +239,7 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
         throw new IllegalArgumentException(String.format("Unsupported primitive id type %s", idClass));
     }
 
-    private List<T> findAll(PageInfo pageInfo, SortInfo sortInfo, Predicate<T>... predicates) {
+    private List<T> findAll(PageInfo pageInfo, SortInfo<T> sortInfo, Predicate<T>... predicates) {
         TypedQuery<T> query = getQuery(sortInfo, predicates);
         if (pageInfo != null) {
             query.setFirstResult(pageInfo.getElementOffset());
@@ -295,7 +295,7 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
         return entityManager.createQuery(query);
     }
 
-    private TypedQuery<T> getQuery(SortInfo sortInfo, Predicate<T>... predicates) {
+    private TypedQuery<T> getQuery(SortInfo<T> sortInfo, Predicate<T>... predicates) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<T> query = builder.createQuery(entityClass);
 
@@ -310,7 +310,7 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
     }
 
     private TypedQuery<T> getQuery(
-            SortInfo sortInfo,
+            SortInfo<T> sortInfo,
             Collection<Predicate<T>> andPredicates,
             Collection<Predicate<T>> orPredicates) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -390,8 +390,7 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
         return root;
     }
 
-    private List<Order> toOrders(SortInfo sort, From<?, ?> from, CriteriaBuilder cb) {
-
+    private List<Order> toOrders(SortInfo<T> sort, Root<T> from, CriteriaBuilder cb) {
         if (sort == null) {
             return Collections.emptyList();
         }
@@ -401,16 +400,15 @@ public abstract class AbstractRepository<T extends GenericEntity<ID>, ID extends
 
         List<Order> orders = new ArrayList<>();
 
-        for (String order : sort.getFields()) {
-
-            orders.add(toJpaOrder(sort.getDirection(), order, from, cb));
+        for (OrderInfo<T> order : sort.orders()) {
+            orders.add(toJpaOrder(order, from, cb));
         }
 
         return orders;
     }
 
-    private Order toJpaOrder(SortInfo.SortingDirection sd, String field, From<?, ?> from, CriteriaBuilder cb) {
-        Expression<?> expression = from.get(field);
-        return sd == SortInfo.SortingDirection.ASC ? cb.asc(expression) : cb.desc(expression);
+    private Order toJpaOrder(OrderInfo<T> order, Root<T> from, CriteriaBuilder cb) {
+        Expression<?> expression = order.getExpression(from);
+        return order.getDirection() == OrderInfo.SortingDirection.ASC ? cb.asc(expression) : cb.desc(expression);
     }
 }

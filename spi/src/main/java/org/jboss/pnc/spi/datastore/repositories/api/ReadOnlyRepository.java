@@ -26,7 +26,7 @@ import java.util.List;
 public interface ReadOnlyRepository<T extends GenericEntity<ID>, ID extends Serializable> {
     List<T> queryAll();
 
-    List<T> queryAll(PageInfo pageInfo, SortInfo sortInfo);
+    List<T> queryAll(PageInfo pageInfo, SortInfo<T> sortInfo);
 
     T queryById(ID id);
 
@@ -38,5 +38,5 @@ public interface ReadOnlyRepository<T extends GenericEntity<ID>, ID extends Seri
 
     List<T> queryWithPredicates(Predicate<T>... predicates);
 
-    List<T> queryWithPredicates(PageInfo pageInfo, SortInfo sortInfo, Predicate<T>... predicates);
+    List<T> queryWithPredicates(PageInfo pageInfo, SortInfo<T> sortInfo, Predicate<T>... predicates);
 }

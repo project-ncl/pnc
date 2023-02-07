@@ -126,7 +126,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
             boolean temporaryBuild) {
 
         PageInfo pageInfo = new DefaultPageInfo(0, 1);
-        SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.submitTime.getName());
+        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.submitTime);
         List<BuildRecord> buildRecords = queryWithPredicates(
                 pageInfo,
                 sortInfo,
@@ -157,7 +157,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     @Override
     public BuildRecord getLatestSuccessfulBuildRecord(IdRev idRev, boolean temporaryBuild) {
         PageInfo pageInfo = new DefaultPageInfo(0, 1);
-        SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.id.getName());
+        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.id);
 
         List<BuildRecord> buildRecords = queryWithPredicates(
                 pageInfo,
@@ -176,7 +176,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
     @Override
     public BuildRecord getAnyLatestSuccessfulBuildRecordWithRevision(IdRev idRev, boolean temporaryBuild) {
         PageInfo pageInfo = new DefaultPageInfo(0, 1);
-        SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.submitTime.getName());
+        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.submitTime);
 
         List<BuildRecord> buildRecords = queryWithPredicates(
                 pageInfo,
@@ -198,7 +198,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
             boolean temporaryBuild,
             AlignmentPreference alignmentPreference) {
         PageInfo pageInfo = new DefaultPageInfo(0, 1);
-        SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.submitTime.getName());
+        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.submitTime);
 
         List<BuildRecord> buildRecords = queryWithPredicates(
                 pageInfo,
@@ -220,7 +220,7 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
             boolean temporaryBuild,
             AlignmentPreference alignmentPreference) {
         PageInfo pageInfo = new DefaultPageInfo(0, 1);
-        SortInfo sortInfo = new DefaultSortInfo(SortInfo.SortingDirection.DESC, BuildRecord_.submitTime.getName());
+        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.submitTime);
         List<BuildRecord> buildRecords = queryWithPredicates(
                 pageInfo,
                 sortInfo,

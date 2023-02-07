@@ -44,7 +44,6 @@ import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
-import org.jboss.pnc.spi.datastore.repositories.SortInfoProducer;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -109,9 +108,6 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
 
     @Mock
-    private SortInfoProducer sortInfoProducer;
-
-    @Mock
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Mock
@@ -155,7 +151,6 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
                                     && task.getBuildConfigSetRecordId().equals(bcsrid))
                     .collect(Collectors.toList());
         });
-        when(sortInfoProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
         when(rsqlPredicateProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
 
         user = mock(User.class);
@@ -461,7 +456,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     }
 
     public void testBuildIterator() {
-        SortInfo sortInfo = mock(SortInfo.class);
+        SortInfo<BuildRecord> sortInfo = mock(SortInfo.class);
         Predicate<BuildRecord> predicate = mock(Predicate.class);
         mockRepository(sortInfo, predicate);
 
@@ -717,7 +712,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         return task;
     }
 
-    private void mockRepository(SortInfo sortInfo, Predicate<BuildRecord> predicate) {
+    private void mockRepository(SortInfo<BuildRecord> sortInfo, Predicate<BuildRecord> predicate) {
         when(repository.queryWithPredicates(any(), same(sortInfo), same(predicate)))
                 .thenAnswer((InvocationOnMock invocation) -> {
                     PageInfo pageInfo = invocation.getArgument(0);

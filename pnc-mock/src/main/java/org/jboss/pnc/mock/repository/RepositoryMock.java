@@ -60,14 +60,14 @@ public abstract class RepositoryMock<ID extends Serializable, EntityType extends
     }
 
     @Override
-    public List<EntityType> queryAll(PageInfo pageInfo, SortInfo sortInfo) {
+    public List<EntityType> queryAll(PageInfo pageInfo, SortInfo<EntityType> sortInfo) {
         return Collections.emptyList();
     }
 
     @Override
     public List<EntityType> queryWithPredicates(
             PageInfo pageInfo,
-            SortInfo sortInfo,
+            SortInfo<EntityType> sortInfo,
             Predicate<EntityType>... predicates) {
         return Collections.emptyList();
     }
