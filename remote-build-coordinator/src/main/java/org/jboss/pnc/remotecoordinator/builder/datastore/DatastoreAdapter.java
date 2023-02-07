@@ -58,7 +58,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static org.jboss.pnc.enums.BuildStatus.CANCELLED;
 import static org.jboss.pnc.enums.BuildStatus.FAILED;
@@ -552,18 +551,16 @@ public class DatastoreAdapter {
             boolean temporaryBuild,
             AlignmentPreference alignmentPreference,
             Set<Integer> processedDependenciesCache) {
-        ObjectWrapper<BuildRecord> wrapper = new ObjectWrapper();
-        Consumer<BuildRecord> noRebuildCause = (buildRecord) -> {
-            wrapper.set(buildRecord);
-        };
+
+        ObjectWrapper<BuildRecord> rebuildCause = new ObjectWrapper<>();
         datastore.requiresRebuild(
                 buildConfigurationAudited,
                 checkImplicitDependencies,
                 temporaryBuild,
                 alignmentPreference,
                 processedDependenciesCache,
-                noRebuildCause);
-        return Optional.ofNullable(wrapper.get());
+                rebuildCause::set);
+        return Optional.ofNullable(rebuildCause.get());
     }
 
     @Deprecated

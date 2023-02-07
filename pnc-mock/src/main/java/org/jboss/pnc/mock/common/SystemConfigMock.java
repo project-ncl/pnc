@@ -59,7 +59,6 @@ public class SystemConfigMock {
                 null,
                 null,
                 null,
-                "false",
-                "3");
+                "false");
     }
 }

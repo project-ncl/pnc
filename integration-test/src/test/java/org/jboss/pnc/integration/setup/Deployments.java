@@ -84,8 +84,6 @@ public class Deployments {
     public static EnterpriseArchive testEar() {
         EnterpriseArchive ear = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, getBaseEar());
 
-        // ear.delete("/remote-build-coordinator.jar"); //TODO remove for NCL-6533
-
         WebArchive restWar = prepareRestArchive(ear);
         ear.addAsModule(archiveToTest(restWar));
 

@@ -51,7 +51,7 @@
       <groupId>org.jboss.pnc</groupId>
       <artifactId>moduleconfig</artifactId>
     </dependency>
-    <dependency> <!-- TODO remove dependecy when doing a clean-up of direct -->
+    <dependency> <!-- TODO remove the dependecy when when we fully migrate to Rex -->
       <groupId>org.jboss.pnc</groupId>
       <artifactId>bpm</artifactId>
     </dependency>

@@ -32,9 +32,6 @@ public interface BuildTaskRef {
 
     String getBuildConfigSetRecordId();
 
-    @Deprecated // TODO calculate in-place
-    String getContentId();
-
     String getUsername();
 
     Instant getSubmitTime();

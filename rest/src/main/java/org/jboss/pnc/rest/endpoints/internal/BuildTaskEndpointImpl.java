@@ -81,7 +81,8 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             MDCUtils.addBuildContext(
                     buildTask.getContentId(),
                     temporaryBuild,
-                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild));
+                    ExpiresDate.getTemporaryBuildExpireDate(systemConfig.getTemporaryBuildsLifeSpan(), temporaryBuild),
+                    null);
             try {
                 if (buildTask.getStatus().isCompleted()) {
                     logger.warn(

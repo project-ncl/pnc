@@ -59,7 +59,6 @@ public class SysConfigProducer {
                 null,
                 null,
                 null,
-                "false",
-                "3");
+                "false");
     }
 }
