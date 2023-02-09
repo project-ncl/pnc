@@ -108,9 +108,8 @@ public class RemoteBuildCoordinatorTest {
         try {
             buildCoordinator.buildConfig(bc200, USER, buildOptions);
         } catch (Exception e) {
-            Throwable cause = e.getCause();
-            Assertions.assertThat(cause).isInstanceOf(BuildConflictException.class);
-            Assertions.assertThat(cause.getMessage()).contains("already running");
+            Assertions.assertThat(e).isInstanceOf(BuildConflictException.class);
+            Assertions.assertThat(e.getMessage()).contains("already running");
             return;
         }
         Assert.fail("Did not throw expected exception.");
@@ -139,9 +138,8 @@ public class RemoteBuildCoordinatorTest {
         try {
             buildCoordinator.buildSet(set, bcas, USER, buildOptions);
         } catch (Exception e) {
-            Throwable cause = e.getCause();
-            Assertions.assertThat(cause).isInstanceOf(BuildConflictException.class);
-            Assertions.assertThat(cause.getMessage()).contains("All the build configurations are already running");
+            Assertions.assertThat(e).isInstanceOf(BuildConflictException.class);
+            Assertions.assertThat(e.getMessage()).contains("All the build configurations are already running");
             return;
         }
         Assert.fail("Did not throw expected exception.");
@@ -267,10 +265,6 @@ public class RemoteBuildCoordinatorTest {
         }
         // make sure there were retries
         Assert.assertTrue(buildScheduler.getScheduleRequests().size() > 1);
-
-        // make sure the record is stored
-        Assert.assertEquals(1, datastoreMock.getBuildConfigSetRecords().size());
-        Assert.assertEquals(BuildStatus.SYSTEM_ERROR, datastoreMock.getBuildConfigSetRecords().get(0).getStatus());
     }
 
     @Test
@@ -298,10 +292,6 @@ public class RemoteBuildCoordinatorTest {
         }
         // make sure there were NO retries
         Assert.assertTrue(buildScheduler.getScheduleRequests().size() == 1);
-
-        // make sure the record is stored
-        Assert.assertEquals(1, datastoreMock.getBuildConfigSetRecords().size());
-        Assert.assertEquals(BuildStatus.SYSTEM_ERROR, datastoreMock.getBuildConfigSetRecords().get(0).getStatus());
     }
 
     private BuildTaskRef getBuildTaskRef(BuildConfiguration bc200, BuildCoordinationStatus status) {
