@@ -25,9 +25,6 @@ import java.util.List;
 
 public interface BuildTaskRepository {
 
-    // TODO might not be required, used only while processing task completion
-    // Optional<BuildTask> getTask(String id);
-
     BuildTaskRef getSpecific(Long id) throws RemoteRequestException;
 
     List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId) throws RemoteRequestException;

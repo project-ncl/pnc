@@ -39,6 +39,8 @@ import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.context.Dependent;
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,12 +55,14 @@ import java.util.stream.Collectors;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
+@Dependent
 public class BuildTasksInitializer {
 
     private final Logger log = LoggerFactory.getLogger(BuildTasksInitializer.class);
 
     private final DatastoreAdapter datastoreAdapter;
 
+    @Inject
     public BuildTasksInitializer(DatastoreAdapter datastoreAdapter) {
         this.datastoreAdapter = datastoreAdapter;
     }
