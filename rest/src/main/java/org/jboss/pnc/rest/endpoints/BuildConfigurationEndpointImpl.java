@@ -40,6 +40,7 @@ import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
+import org.jboss.pnc.facade.validation.InvalidRequestException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.rest.api.endpoints.BuildConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
@@ -47,6 +48,7 @@ import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,6 +166,8 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
             return triggerBuild(id, OptionalInt.empty(), buildParams);
         } catch (BuildConflictException ex) {
             throw new AlreadyRunningException(ex, ex.getBuildTaskId());
+        } catch (BuildRequestException ex) {
+            throw new InvalidRequestException(ex);
         }
     }
 
@@ -240,6 +244,8 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
             return triggerBuild(id, OptionalInt.of(rev), buildParams);
         } catch (BuildConflictException ex) {
             throw new AlreadyRunningException(ex, ex.getBuildTaskId());
+        } catch (BuildRequestException ex) {
+            throw new InvalidRequestException(ex);
         }
     }
 
@@ -287,7 +293,8 @@ public class BuildConfigurationEndpointImpl implements BuildConfigurationEndpoin
         return new AlignmentParameters(buildType, alignmentConfig.getAlignmentParameters().get(buildType));
     }
 
-    private Build triggerBuild(String id, OptionalInt rev, BuildParameters buildParams) throws BuildConflictException {
+    private Build triggerBuild(String id, OptionalInt rev, BuildParameters buildParams)
+            throws BuildConflictException, BuildRequestException {
         try {
             logger.debug(
                     "Endpoint /build requested for buildConfigurationId: {}, revision: {}, parameters: {}",

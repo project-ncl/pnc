@@ -58,6 +58,8 @@ import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -278,7 +280,7 @@ public abstract class AbstractDependentBuildTest {
     protected void build(BuildConfiguration config, BuildOptions buildOptions) {
         try {
             coordinator.buildConfig(config, user, buildOptions);
-        } catch (CoreException e) {
+        } catch (CoreException | BuildRequestException | BuildConflictException e) {
             throw new RuntimeException("Failed to run a build of: " + config, e);
         }
     }

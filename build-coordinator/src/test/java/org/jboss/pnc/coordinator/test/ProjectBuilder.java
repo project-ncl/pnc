@@ -38,6 +38,7 @@ import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -92,7 +93,7 @@ public class ProjectBuilder {
             BuildConfiguration buildConfiguration,
             BuildCoordinator buildCoordinator,
             Consumer<BuildStatusChangedEvent> onStatusUpdate)
-            throws BuildConflictException, InterruptedException, CoreException {
+            throws BuildConflictException, InterruptedException, CoreException, BuildRequestException {
         return buildProject(buildConfiguration, buildCoordinator, onStatusUpdate, new BuildOptions());
     }
 
@@ -100,7 +101,8 @@ public class ProjectBuilder {
             BuildConfiguration buildConfiguration,
             BuildCoordinator buildCoordinator,
             Consumer<BuildStatusChangedEvent> onStatusUpdate,
-            BuildOptions buildOptions) throws BuildConflictException, InterruptedException, CoreException {
+            BuildOptions buildOptions)
+            throws BuildConflictException, InterruptedException, CoreException, BuildRequestException {
 
         log.debug("Building project {}", buildConfiguration.getName());
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
@@ -127,7 +129,7 @@ public class ProjectBuilder {
     }
 
     void buildProject(BuildConfiguration buildConfiguration, BuildCoordinator buildCoordinator)
-            throws BuildConflictException, InterruptedException, CoreException {
+            throws BuildConflictException, InterruptedException, CoreException, BuildRequestException {
         List<BuildStatusChangedEvent> receivedStatuses = new CopyOnWriteArrayList<>();
 
         BuildTask buildTask = buildProject(buildConfiguration, buildCoordinator, receivedStatuses::add);

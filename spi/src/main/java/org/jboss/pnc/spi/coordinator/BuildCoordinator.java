@@ -27,6 +27,8 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 
@@ -37,12 +39,12 @@ import java.util.Optional;
 public interface BuildCoordinator {
 
     BuildSetTask buildConfig(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions)
-            throws CoreException;
+            throws CoreException, BuildRequestException, BuildConflictException;
 
     BuildSetTask buildConfigurationAudited(
             BuildConfigurationAudited buildConfiguration,
             User user,
-            BuildOptions buildOptions) throws CoreException;
+            BuildOptions buildOptions) throws CoreException, BuildRequestException, BuildConflictException;
 
     @Deprecated // used only in the tests
     BuildSetTask buildSet(BuildConfigurationSet buildConfigurationSet, User user, BuildOptions buildOptions)
@@ -52,7 +54,7 @@ public interface BuildCoordinator {
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
-            BuildOptions buildOptions) throws CoreException;
+            BuildOptions buildOptions) throws CoreException, BuildRequestException, BuildConflictException;
 
     Optional<BuildTask> getSubmittedBuildTask(String buildId);
 

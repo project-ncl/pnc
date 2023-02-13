@@ -31,12 +31,14 @@ import org.jboss.pnc.facade.providers.api.BuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
+import org.jboss.pnc.facade.validation.InvalidRequestException;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.rest.api.endpoints.GroupConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,6 +162,8 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
             return groupBuildProvider.getSpecific(Long.toString(groupBuildId));
         } catch (BuildConflictException ex) {
             throw new AlreadyRunningException(ex, ex.getBuildTaskId());
+        } catch (BuildRequestException ex) {
+            throw new InvalidRequestException(ex);
         } catch (CoreException ex) {
             throw new RuntimeException(ex);
         }

@@ -163,7 +163,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     @Retry(retryOn = ScheduleConflictException.class)
     @Override
     public BuildSetTask buildConfig(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions)
-            throws CoreException {
+            throws CoreException, BuildRequestException, BuildConflictException {
         BuildConfigurationAudited buildConfigurationAudited = datastoreAdapter
                 .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
         return buildConfigurationAudited(buildConfigurationAudited, user, buildOptions);
@@ -187,7 +187,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     public BuildSetTask buildConfigurationAudited(
             BuildConfigurationAudited buildConfigurationAudited,
             User user,
-            BuildOptions buildOptions) throws BuildConflictException, CoreException {
+            BuildOptions buildOptions) throws BuildRequestException, BuildConflictException, CoreException {
 
         try {
             Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
@@ -220,10 +220,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                     null);
             buildSetTask.addBuildTask(buildTask);
             return buildSetTask; // TODO once fully migrated to Rex return id only
-        } catch (BuildConflictException e) {
-            log.warn("Conflicting build.", e);
-            throw e;
-        } catch (ScheduleConflictException e) {
+        } catch (ScheduleConflictException | BuildConflictException | BuildRequestException e) {
+            log.warn("Cannot prepare build.", e);
             throw e;
         } catch (Throwable e) {
             String errorMessage = "Unexpected error while trying to schedule build.";
@@ -262,7 +260,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
-            BuildOptions buildOptions) throws CoreException {
+            BuildOptions buildOptions) throws CoreException, BuildRequestException, BuildConflictException {
 
         try {
             Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
@@ -282,8 +280,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                     buildConfigSetRecordId);
             // TODO end build timing
             return storeAndNotifyBuildSet(buildConfigurationSet, user, buildOptions, scheduleResult);
-        } catch (BuildConflictException e) {
-            log.warn("Conflicting build.", e);
+        } catch (ScheduleConflictException | BuildConflictException | BuildRequestException e) {
+            log.warn("Cannot prepare builds.", e);
             throw e;
         } catch (Throwable e) {
             log.error("Unexpected error while trying to schedule build set.", e);
@@ -302,7 +300,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             User user,
             BuildOptions buildOptions,
             Graph<RemoteBuildTask> buildGraph,
-            Long buildConfigSetRecordId) throws CoreException {
+            Long buildConfigSetRecordId) throws CoreException, BuildConflictException, BuildRequestException {
 
         GraphValidation.checkIfAnyDependencyOfAlreadyRunningIsSubmitted(buildGraph);
 
