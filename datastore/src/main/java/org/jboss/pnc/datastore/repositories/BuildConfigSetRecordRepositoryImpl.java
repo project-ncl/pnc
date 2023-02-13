@@ -43,12 +43,12 @@ public class BuildConfigSetRecordRepositoryImpl extends AbstractRepository<Build
      */
     @Deprecated
     public BuildConfigSetRecordRepositoryImpl() {
-        super(BuildConfigSetRecord.class, Integer.class);
+        super(BuildConfigSetRecord.class, Long.class);
     }
 
     @Inject
     public BuildConfigSetRecordRepositoryImpl(EntityManager manager) {
-        super(BuildConfigSetRecord.class, Integer.class);
+        super(BuildConfigSetRecord.class, Long.class);
         this.manager = manager;
     }
 

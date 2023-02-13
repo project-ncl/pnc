@@ -52,6 +52,7 @@ import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -262,7 +263,7 @@ public class DefaultBuildCoordinatorTest {
     }
 
     @Test
-    public void testBuildBuildConfiguration() throws BuildConflictException, CoreException {
+    public void testBuildBuildConfiguration() throws BuildConflictException, CoreException, BuildRequestException {
         assertTrue("Test assumes that we build with dependencies", BUILD_OPTIONS.isBuildDependencies());
 
         BuildConfigurationAudited bca = mockDatastoreWithBCAudited(BC_1, 5);
@@ -277,7 +278,8 @@ public class DefaultBuildCoordinatorTest {
     }
 
     @Test
-    public void testBuildBuildConfigurationAudited() throws BuildConflictException, CoreException {
+    public void testBuildBuildConfigurationAudited()
+            throws BuildConflictException, CoreException, BuildRequestException {
         assertTrue("Test assumes that we build with dependencies", BUILD_OPTIONS.isBuildDependencies());
 
         BuildConfigurationAudited bca = mockDatastoreWithBCAudited(BC_1, 5);
@@ -316,7 +318,7 @@ public class DefaultBuildCoordinatorTest {
 
     @Test
     public void testBuildBuildConfigurationSetWithAudited()
-            throws BuildConflictException, CoreException, DatastoreException {
+            throws BuildConflictException, CoreException, DatastoreException, BuildRequestException {
         BuildConfigurationAudited bca = mockDatastoreWithBCAudited(BC_1, 5);
         BuildConfigurationAudited bcaDep = mockDatastoreWithBCAudited(BC_2, 2);
         BuildConfigurationAudited bca3 = mockDatastoreWithBCAudited(BC_3, 9);

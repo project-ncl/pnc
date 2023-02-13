@@ -38,6 +38,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedReposit
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
+import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +92,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     public String triggerBuild(
             final int buildConfigId,
             OptionalInt buildConfigurationRevision,
-            BuildOptions buildOptions) throws BuildConflictException, CoreException {
+            BuildOptions buildOptions) throws BuildConflictException, CoreException, BuildRequestException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
 
@@ -101,7 +102,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
 
     @Override
     public long triggerGroupBuild(int groupConfigId, Optional<GroupBuildRequest> revs, BuildOptions buildOptions)
-            throws BuildConflictException, CoreException {
+            throws BuildConflictException, CoreException, BuildRequestException {
 
         throwCoreExceptionIfInMaintenanceModeAndNonSystemUser();
 
@@ -122,7 +123,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     private BuildSetTask doTriggerBuild(
             final int buildConfigId,
             OptionalInt buildConfigurationRevision,
-            BuildOptions buildOptions) throws BuildConflictException, CoreException {
+            BuildOptions buildOptions) throws BuildConflictException, CoreException, BuildRequestException {
 
         BuildSetTask buildSetTask;
         if (buildConfigurationRevision.isPresent()) {
@@ -160,7 +161,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     private BuildSetTask doTriggerGroupBuild(
             final int groupConfigId,
             Optional<GroupBuildRequest> revs,
-            BuildOptions buildOptions) throws CoreException {
+            BuildOptions buildOptions) throws CoreException, BuildRequestException, BuildConflictException {
         final BuildConfigurationSet buildConfigurationSet = buildConfigurationSetRepository.queryById(groupConfigId);
         Preconditions.checkArgument(
                 buildConfigurationSet != null,

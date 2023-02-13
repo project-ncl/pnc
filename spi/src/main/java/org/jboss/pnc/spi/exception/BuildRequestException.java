@@ -20,7 +20,7 @@ package org.jboss.pnc.spi.exception;
 /**
  * Thrown when the user attempts to run an empty build or there are cycle dependencies in the build request.
  */
-public class BuildRequestException extends CoreException {
+public class BuildRequestException extends Exception {
 
     private static final long serialVersionUID = 1L;
 

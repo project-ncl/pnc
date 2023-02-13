@@ -15,30 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.exception;
+package org.jboss.pnc.facade.validation;
 
-/**
- * Thrown the user attempts to run a build when the a build task using the same configuration is already running.
- */
-public class BuildConflictException extends Exception {
+import org.jboss.pnc.spi.exception.BuildRequestException;
 
-    private static final long serialVersionUID = 1L;
+import javax.ejb.ApplicationException;
 
-    /**
-     * The id of the build task which conflicts with the new request
-     */
-    private String buildTaskId;
+@ApplicationException(rollback = true)
+public class InvalidRequestException extends RuntimeException {
 
-    public BuildConflictException(String message) {
-        super(message);
-    }
-
-    public BuildConflictException(String message, String buildTaskId) {
-        super(message);
-        this.buildTaskId = buildTaskId;
-    }
-
-    public String getBuildTaskId() {
-        return buildTaskId;
+    public InvalidRequestException(BuildRequestException e) {
+        super(e);
     }
 }

@@ -18,7 +18,7 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.spi.exception.BuildRequestException;
+import org.jboss.pnc.facade.validation.InvalidRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,12 +28,12 @@ import javax.ws.rs.ext.Provider;
 import java.lang.invoke.MethodHandles;
 
 @Provider
-public class BuildRequestExceptionMapper implements ExceptionMapper<BuildRequestException> {
+public class InvalidRequestExceptionMapper implements ExceptionMapper<InvalidRequestException> {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Override
-    public Response toResponse(BuildRequestException e) {
+    public Response toResponse(InvalidRequestException e) {
         logger.warn("A BuildRequest error occurred when processing REST call", e);
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity(new ErrorResponse("BuildRequestException", e.getMessage()))
