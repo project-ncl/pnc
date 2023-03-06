@@ -31,6 +31,7 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -60,6 +61,10 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     public BuildSetTask buildConfig(BuildConfiguration buildConfiguration, User user, BuildOptions buildOptions) {
         logger.warn("Invoking unimplemented method build");
         return Mockito.mock(BuildSetTask.class);
+    }
+
+    @Override
+    public void completeBuild(BuildTaskRef buildTask, Optional<BuildResult> buildResult) {
     }
 
     @Override
@@ -128,6 +133,10 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status) {
     }
 
+    @Override
+    public void updateBuildTaskStatus(BuildTaskRef task, BuildCoordinationStatus status) {
+    }
+
     public void addActiveTask(BuildTask task) {
         activeTasks.add(task);
     }
@@ -142,7 +151,7 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     }
 
     @Override
-    public void updateBuildConfigSetRecordStatus(
+    public void storeAndNotifyBuildConfigSetRecord(
             BuildConfigSetRecord setRecord,
             BuildStatus status,
             String description) {

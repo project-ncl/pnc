@@ -21,33 +21,34 @@ package org.jboss.pnc.remotecoordinator.builder;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.entity.ContentType;
 import org.jboss.pnc.api.constants.HttpHeaders;
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.Request;
-import org.jboss.pnc.bpm.model.ComponentBuildParameters;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
-import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.mapper.api.BuildTaskMappers;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.BpmEndpointUrlFactory;
 import org.jboss.pnc.remotecoordinator.rexclient.RexHttpClient;
 import org.jboss.pnc.remotecoordinator.rexclient.exception.ConflictResponseException;
+import org.jboss.pnc.remotecoordinator.rexclient.exception.TaskNotFoundException;
 import org.jboss.pnc.rex.api.parameters.TaskFilterParameters;
 import org.jboss.pnc.rex.common.enums.Mode;
-import org.jboss.pnc.rex.common.enums.State;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.dto.requests.CreateGraphRequest;
+import org.jboss.pnc.spi.coordinator.BuildMeta;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
-import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
+import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.exception.ScheduleConflictException;
 import org.jboss.pnc.spi.exception.ScheduleErrorException;
@@ -65,7 +66,7 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.net.URI;
-import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -75,8 +76,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static java.text.MessageFormat.format;
 
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
@@ -113,18 +117,23 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
     private GlobalModuleGroup globalConfig;
     private BpmModuleConfig bpmConfig;
-
-    @Inject
-    RexHttpClient rexClient;
+    private BuildTaskMappers mappers;
+    private RexHttpClient rexClient;
 
     @Deprecated
     public RexFacade() { // CDI workaround
     }
 
     @Inject
-    public RexFacade(GlobalModuleGroup globalConfig, BpmModuleConfig bpmConfig) {
+    public RexFacade(
+            GlobalModuleGroup globalConfig,
+            BpmModuleConfig bpmConfig,
+            BuildTaskMappers mappers,
+            RexHttpClient rexClient) {
         this.globalConfig = globalConfig;
         this.bpmConfig = bpmConfig;
+        this.mappers = mappers;
+        this.rexClient = rexClient;
     }
 
     public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Long buildConfigSetRecordId)
@@ -173,22 +182,41 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     }
 
     @Override
-    public BuildTaskRef getSpecific(Long id) throws RemoteRequestException {
+    public Optional<BuildTaskRef> getSpecific(String taskId) throws RemoteRequestException, MissingDataException {
         try {
-            TaskDTO taskDTO = rexClient.getSpecific(Objects.toString(id));
-            return toBuildTaskRef(taskDTO);
+            TaskDTO taskDTO = rexClient.getSpecific(taskId);
+
+            return Optional.of(mappers.toBuildTaskRef(taskDTO, getBuildMetadata(taskDTO)));
+        } catch (TaskNotFoundException br) {
+            return Optional.empty();
+        } catch (MissingDataException e) {
+            throw e;
         } catch (Exception e) {
             throw new RemoteRequestException("Cannot get task by id.", e);
         }
     }
 
+    private static BuildMeta getBuildMetadata(TaskDTO taskDTO) throws MissingDataException {
+        if (taskDTO.getCallerNotifications() == null
+                || !(taskDTO.getCallerNotifications().getAttachment() instanceof BuildMeta)) {
+            throw new MissingDataException("BuildMeta metadata missing for Build " + taskDTO.name);
+        }
+        return (BuildMeta) taskDTO.getCallerNotifications().getAttachment();
+    }
+
     @Override
-    public List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId) throws RemoteRequestException {
+    public List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId)
+            throws RemoteRequestException, MissingDataException {
         try {
-            return rexClient.byCorrelation(Objects.toString(buildConfigSetRecordId))
-                    .stream()
-                    .map(this::toBuildTaskRef)
-                    .collect(Collectors.toList());
+            ArrayList<BuildTaskRef> toReturn = new ArrayList<>();
+
+            for (var task : rexClient.byCorrelation(Objects.toString(buildConfigSetRecordId, null))) {
+                toReturn.add(mappers.toBuildTaskRef(task, getBuildMetadata(task)));
+            }
+
+            return toReturn;
+        } catch (MissingDataException e) {
+            throw e;
         } catch (Exception e) {
             throw new RemoteRequestException("Cannot get tasks by correlationId.", e);
         }
@@ -201,67 +229,27 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     }
 
     @Override
-    public Collection<BuildTaskRef> getUnfinishedTasks() throws RemoteRequestException {
+    public Collection<BuildTaskRef> getUnfinishedTasks() throws RemoteRequestException, MissingDataException {
         return getBuildTasksInState(UNFINISHED_STATES);
     }
 
     private Set<BuildTaskRef> getBuildTasksInState(EnumSet<BuildCoordinationStatus> states)
-            throws RemoteRequestException {
-        TaskFilterParameters taskFilterParameters = toTaskFilterParameters(states);
+            throws RemoteRequestException, MissingDataException {
         try {
-            return rexClient.getAll(taskFilterParameters)
-                    .stream()
-                    .map(this::toBuildTaskRef)
-                    .collect(Collectors.toSet());
+            Set<BuildTaskRef> set = new HashSet<>();
+            TaskFilterParameters taskFilterParameters = toTaskFilterParameters(states);
+
+            for (TaskDTO task : rexClient.getAll(taskFilterParameters)) {
+                BuildTaskRef buildTaskRef = mappers.toBuildTaskRef(task, getBuildMetadata(task));
+                set.add(buildTaskRef);
+            }
+
+            return set;
+        } catch (MissingDataException e) {
+            throw e;
         } catch (Exception e) {
             throw new RemoteRequestException("Cannot get tasks.", e);
         }
-    }
-
-    private BuildTaskRef toBuildTaskRef(TaskDTO t) {
-        IdRev idRev = ConstraintMapper.toIdRev(t.getConstraint());
-        String buildId = t.getName();
-        String buildContentId = ContentIdentityManager.getBuildContentId(buildId);
-        Map<String, Object> attachment = (Map<String, Object>) t.getRemoteStart().getAttachment();
-        Map<String, Object> initData = (Map<String, Object>) attachment.get(this.INIT_DATA);
-        ComponentBuildParameters parameters = (ComponentBuildParameters) initData.get("processParameters");
-        Instant submitTime = (Instant) initData.get("submitTime");
-        String buildConfigSetRecordID = t.getCorrelationID();
-
-        BuildTaskRef buildTask = new DefaultBuildTaskRef(
-                buildId,
-                idRev,
-                buildConfigSetRecordID,
-                buildContentId,
-                parameters.getBuildExecutionConfiguration().getUser().getUsername(),
-                submitTime,
-                toBuildCoordinationStatus(t.getState()));
-        return buildTask;
-    }
-
-    private BuildCoordinationStatus toBuildCoordinationStatus(State state) {
-        switch (state) {
-            case NEW:
-                return BuildCoordinationStatus.NEW;
-            case WAITING:
-                return BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES;
-            case ENQUEUED:
-            case STARTING:
-                return BuildCoordinationStatus.ENQUEUED;
-            case UP:
-            case STOPPING:
-                return BuildCoordinationStatus.BUILDING;
-            case START_FAILED:
-            case STOP_FAILED:
-                return BuildCoordinationStatus.SYSTEM_ERROR;
-            case FAILED:
-                return BuildCoordinationStatus.DONE_WITH_ERRORS;
-            case SUCCESSFUL:
-                return BuildCoordinationStatus.DONE;
-            case STOPPED:
-                return BuildCoordinationStatus.CANCELLED;
-        }
-        throw new IllegalArgumentException(state + " is not mapped.");
     }
 
     @Override
@@ -306,10 +294,16 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
         Map<String, Map<String, Object>> bpmRequestBody = Collections.singletonMap(INIT_DATA, processParameters);
 
-        List<Request.Header> headers = List.of(
+        List<Request.Header> headers = MDCUtils.getHeadersFromMDC()
+                .entrySet().stream()
+                .map(entry -> new Request.Header(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
+        headers.addAll(List.of(
                 new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),
                 new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON),
-                new Request.Header(HttpHeaders.AUTHORIZATION_STRING, "Bearer " + loginToken));
+                new Request.Header(HttpHeaders.AUTHORIZATION_STRING, "Bearer " + loginToken)));
+
         Request remoteStart = bpmUrlFactory.startProcessInstance(
                 bpmConfig.getBpmNewDeploymentId(),
                 bpmConfig.getBpmNewBuildProcessName(),
@@ -323,14 +317,17 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 "CancelAll",
                 headers);
 
-        Request callback = new Request(
-                Request.Method.POST,
-                URI.create(globalConfig.getPncUrl() + ""), // TODO URL for result storing
-                headers);
+        BuildMeta buildMetadata = mappers.toBuildMeta(buildTask);
+        Request callback = Request.builder()
+                .method(Request.Method.POST)
+                .uri(URI.create(format("{0}/build-tasks/{1}/notify", globalConfig.getPncUrl(), buildTask.getId())))
+                .headers(headers)
+                .attachment(buildMetadata)
+                .build();
 
         CreateTaskDTO createTaskDTO = new CreateTaskDTO(
                 buildTask.getId(),
-                ConstraintMapper.toConstraint(buildTask.getBuildConfigurationAudited().getIdRev()),
+                BuildTaskMappers.toConstraint(buildTask.getBuildConfigurationAudited().getIdRev()),
                 remoteStart,
                 remoteCancel,
                 callback,
@@ -351,17 +348,5 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 null,
                 null,
                 null);
-    }
-
-    private static class ConstraintMapper {
-
-        private static String toConstraint(IdRev idRev) {
-            return idRev.getId() + "-" + idRev.getRev();
-        }
-
-        private static IdRev toIdRev(String constraint) {
-            String[] split = constraint.split("-");
-            return new IdRev(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
-        }
     }
 }

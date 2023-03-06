@@ -18,7 +18,9 @@
 package org.jboss.pnc.mock.datastore;
 
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
@@ -71,6 +73,17 @@ public class DatastoreMock implements Datastore {
     @Override
     public Map<Artifact, String> checkForBuiltArtifacts(Collection<Artifact> artifacts) {
         return new HashMap<>();
+    }
+
+    @Override
+    public BuildConfigurationAudited getBuildConfigurationAudited(IdRev idRev) {
+        return buildConfigurationsAudited.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().equals(idRev.id))
+                .flatMap(entry -> entry.getValue().stream())
+                .filter(bca -> bca.getIdRev().getRev().equals(idRev.rev))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -187,7 +200,8 @@ public class DatastoreMock implements Datastore {
             Set<Integer> processedDependenciesCache,
             Consumer<BuildRecord> nonRebuildCauseSetter) {
         if (noRebuildRequiresIdRevs.contains(buildConfigurationAudited.getIdRev())) {
-            nonRebuildCauseSetter.accept(new BuildRecord());
+            nonRebuildCauseSetter
+                    .accept(BuildRecord.Builder.newBuilder().id(new Base32LongID(Sequence.nextId())).build());
             return false;
         } else {
             return true;
@@ -195,12 +209,19 @@ public class DatastoreMock implements Datastore {
     }
 
     public BuildConfiguration save(BuildConfiguration buildConfig) {
+        return saveBCA(buildConfig).getBuildConfiguration();
+    }
+
+    public BuildConfigurationAudited saveBCA(BuildConfiguration buildConfig) {
         List<BuildConfigurationAudited> auditedConfigs = buildConfigurationsAudited
                 .computeIfAbsent(buildConfig.getId(), (k) -> new ArrayList<>());
-        auditedConfigs.add(
-                BuildConfigurationAudited
-                        .fromBuildConfiguration(buildConfig, buildConfigAuditedRevSequence.getAndIncrement()));
-        return buildConfigurations.put(buildConfig.getId(), buildConfig);
+
+        var bca = BuildConfigurationAudited
+                .fromBuildConfiguration(buildConfig, buildConfigAuditedRevSequence.getAndIncrement());
+        auditedConfigs.add(bca);
+        buildConfigurations.put(buildConfig.getId(), bca.getBuildConfiguration());
+
+        return bca;
     }
 
     public void clear() {

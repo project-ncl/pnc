@@ -22,5 +22,6 @@
     <alternatives>
         <class>org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler</class>
         <class>org.jboss.pnc.remotecoordinator.test.mock.RexHttpClientMock</class>
+        <class>org.jboss.pnc.remotecoordinator.test.mock.UserRepositoryMock</class>
     </alternatives>
 </beans>

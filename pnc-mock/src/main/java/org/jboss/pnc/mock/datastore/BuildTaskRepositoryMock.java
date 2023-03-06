@@ -25,6 +25,7 @@ import javax.enterprise.context.ApplicationScoped;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
     }
 
     @Override
-    public BuildTaskRef getSpecific(Long id) throws RemoteRequestException {
+    public Optional<BuildTaskRef> getSpecific(String taskId) throws RemoteRequestException {
         throw new UnsupportedOperationException("Not implemented.");
     }
 
@@ -45,7 +46,9 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
     public List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId) {
         return tasks.values()
                 .stream()
-                .filter(t -> buildConfigSetRecordId.equals(t.getBuildConfigSetRecordId()))
+                .filter(
+                        t -> buildConfigSetRecordId.equals(
+                                t.getBuildConfigSetRecord() == null ? null : t.getBuildConfigSetRecord().getId()))
                 .collect(Collectors.toList());
     }
 

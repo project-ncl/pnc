@@ -18,13 +18,24 @@
 package org.jboss.pnc.spi.coordinator;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
+import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.User;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 @AllArgsConstructor
+@Builder(toBuilder = true)
+@ToString
 public class DefaultBuildTaskRef implements BuildTaskRef {
 
     @Getter
@@ -34,18 +45,52 @@ public class DefaultBuildTaskRef implements BuildTaskRef {
     private final IdRev idRev;
 
     @Getter
-    private final String buildConfigSetRecordId;
+    private final BuildConfigSetRecord buildConfigSetRecord;
+
+    @Getter
+    private final ProductMilestone productMilestone;
 
     @Getter
     private final String contentId;
 
     @Getter
-    private final String username;
-
-    @Getter
     private final Instant submitTime;
 
     @Getter
+    private final Instant startTime;
+
+    @Getter
+    private final Instant endTime;
+
+    @Getter
+    private final User user;
+
+    @Getter
     private final BuildCoordinationStatus status;
+
+    @Getter
+    private final boolean temporaryBuild;
+
+    @Getter
+    private final AlignmentPreference alignmentPreference;
+
+    @Getter
+    private final BuildRecord noRebuildCause;
+
+    @Getter
+    @Builder.Default
+    private final Set<String> dependants = new HashSet<>();
+
+    @Getter
+    @Builder.Default
+    private final Set<String> dependencies = new HashSet<>();
+
+    @Getter
+    @Builder.Default
+    private final Set<String> taskDependants = new HashSet<>();
+
+    @Getter
+    @Builder.Default
+    private final Set<String> taskDependencies = new HashSet<>();
 
 }

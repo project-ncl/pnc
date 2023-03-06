@@ -79,7 +79,7 @@ public class EntityManagerMock implements EntityManager {
 
     @Override
     public <T> T getReference(Class<T> entityClass, Object primaryKey) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null;
     }
 
     @Override

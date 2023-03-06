@@ -149,14 +149,13 @@ public class TransitiveDependenciesTest extends AbstractDependentBuildTest {
         BuildConfigurationAudited auditedB = datastoreAdapter
                 .getLatestBuildConfigurationAuditedInitializeBCDependencies(b.getId());
 
-        BuildTaskRef taskRefB = new DefaultBuildTaskRef(
-                auditedB.getId() + "",
-                auditedB.getIdRev(),
-                "",
-                "",
-                "",
-                Instant.now(),
-                BuildCoordinationStatus.BUILDING);
+        BuildTaskRef taskRefB = DefaultBuildTaskRef.builder()
+                .id(String.valueOf(auditedB.getId()))
+                .idRev(auditedB.getIdRev())
+                .submitTime(Instant.now())
+                .status(BuildCoordinationStatus.BUILDING)
+                .build();
+
         Collection<BuildTaskRef> alreadyRunning = Set.of(taskRefB);
         Graph<RemoteBuildTask> buildGraph = buildTasksInitializer
                 .createBuildGraph(auditedA, user, new BuildOptions(), alreadyRunning);

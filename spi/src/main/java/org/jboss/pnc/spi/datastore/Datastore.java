@@ -24,6 +24,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 
@@ -104,6 +105,8 @@ public interface Datastore {
     BuildConfigurationAudited getLatestBuildConfigurationAuditedLoadBCDependencies(Integer buildConfigurationId);
 
     BuildConfigSetRecord getBuildConfigSetRecordById(Long buildConfigSetRecordId);
+
+    BuildConfigurationAudited getBuildConfigurationAudited(IdRev idRev);
 
     /**
      * Check if a build configuration should be rebuilt (if some of its dependencies were rebuild or configuration was

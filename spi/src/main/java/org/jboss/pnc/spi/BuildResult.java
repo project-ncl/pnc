@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.spi;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
@@ -31,6 +32,7 @@ import java.util.Optional;
 /**
  * Created by <a href="mailto:matejonnet@gmail.com">Matej Lazar</a> on 2015-02-02.
  */
+@AllArgsConstructor
 public class BuildResult {
 
     @Getter
@@ -59,25 +61,6 @@ public class BuildResult {
 
     @Getter
     private final Optional<RepourResult> repourResult;
-
-    public BuildResult(
-            CompletionStatus completionStatus,
-            Optional<ProcessException> processException,
-            String processLog,
-            Optional<BuildExecutionConfiguration> buildExecutionConfiguration,
-            Optional<BuildDriverResult> buildDriverResult,
-            Optional<RepositoryManagerResult> repositoryManagerResult,
-            Optional<EnvironmentDriverResult> environmentDriverResult,
-            Optional<RepourResult> repourResult) {
-        this.completionStatus = completionStatus;
-        this.processException = processException;
-        this.processLog = processLog;
-        this.buildExecutionConfiguration = buildExecutionConfiguration;
-        this.buildDriverResult = buildDriverResult;
-        this.repositoryManagerResult = repositoryManagerResult;
-        this.environmentDriverResult = environmentDriverResult;
-        this.repourResult = repourResult;
-    }
 
     public boolean hasFailed() {
         return processException.isPresent() || completionStatus.isFailed();

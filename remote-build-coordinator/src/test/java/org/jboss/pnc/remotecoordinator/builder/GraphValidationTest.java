@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 
 public class GraphValidationTest {
 
@@ -40,7 +41,9 @@ public class GraphValidationTest {
                 "1",
                 true,
                 null,
-                null);
+                null,
+                new ArrayList<>(),
+                new ArrayList<>());
         RemoteBuildTask submitted = new RemoteBuildTask(
                 "2",
                 Instant.now(),
@@ -49,7 +52,9 @@ public class GraphValidationTest {
                 "1",
                 true,
                 null,
-                null);
+                null,
+                new ArrayList<>(),
+                new ArrayList<>());
 
         Vertex<RemoteBuildTask> runningVertex = new Vertex<>(running.getId(), running);
         Vertex<RemoteBuildTask> submittedVertex = new Vertex<>(submitted.getId(), submitted);

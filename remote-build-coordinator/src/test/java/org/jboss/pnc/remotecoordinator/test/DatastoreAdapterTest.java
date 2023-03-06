@@ -18,10 +18,12 @@
 
 package org.jboss.pnc.remotecoordinator.test;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
+import org.jboss.pnc.mock.model.MockUser;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
 import org.jboss.pnc.mock.spi.EnvironmentDriverResultMock;
 import org.jboss.pnc.mock.spi.RepositoryManagerResultMock;
@@ -29,23 +31,24 @@ import org.jboss.pnc.mock.spi.RepourResultMock;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Project;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
-import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.BuildResult;
+import org.jboss.pnc.spi.SshCredentials;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
+import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
-import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
+import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.environment.EnvironmentDriverResult;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,8 +58,6 @@ import static org.mockito.Mockito.when;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-// TODO review once the result storing from rex is done
-@Ignore
 public class DatastoreAdapterTest {
 
     private static final String REPOSITORY_MANAGER_LOG = "Repository manager log.";
@@ -69,8 +70,7 @@ public class DatastoreAdapterTest {
         DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
 
         // when
-        datastoreAdapter
-                .storeRecordForNoRebuild(mockBuildTask(), null, Collections.EMPTY_LIST, Collections.EMPTY_LIST, null);
+        datastoreAdapter.storeRecordForNoRebuild(mockBuildTaskRef(datastore.saveBCA(mockConfiguration())));
 
         // then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
@@ -90,7 +90,7 @@ public class DatastoreAdapterTest {
         CompletionStatus completionStatus = CompletionStatus.SUCCESS;
 
         // when
-        storeResult(datastoreAdapter, buildStatus, completionStatus);
+        storeResult(datastoreAdapter, datastore, buildStatus, completionStatus);
 
         // then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
@@ -112,7 +112,7 @@ public class DatastoreAdapterTest {
         CompletionStatus completionStatus = CompletionStatus.FAILED;
 
         // when
-        storeResult(datastoreAdapter, buildStatus, completionStatus);
+        storeResult(datastoreAdapter, datastore, buildStatus, completionStatus);
 
         // then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
@@ -139,7 +139,7 @@ public class DatastoreAdapterTest {
                 .buildConfiguration(buildConfiguration)
                 .build();
 
-        // BuildTask buildTask = mockBuildTask();
+        BuildTaskRef buildTask = mockBuildTaskRef(datastore.saveBCA(mockConfiguration()));
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
 
         BuildResult buildResult = new BuildResult(
@@ -151,8 +151,8 @@ public class DatastoreAdapterTest {
                 Optional.of(RepositoryManagerResultMock.mockResult()),
                 Optional.of(EnvironmentDriverResultMock.mock()),
                 Optional.of(repourResult));
-        // TODO completed build
-        // datastoreAdapter.storeResult(buildTask, buildResult);
+
+        datastoreAdapter.storeResult(buildTask, buildResult);
 
         // then
         List<BuildRecord> buildRecords = datastore.getBuildRecords();
@@ -165,36 +165,52 @@ public class DatastoreAdapterTest {
         Assert.assertEquals(repourResult.getLog(), buildRecord.getRepourLog());
     }
 
-    @Ignore
     @Test
     public void shouldStoreSshCredentialsOnSshEnabled() throws DatastoreException {
-        // BuildTask buildTask = mockBuildTask();
-        // BuildResult buildResult = mockBuildResult(true);
-        //
-        // SshCredentials sshCredentials = new SshCredentials();
-        // sshCredentials.setCommand(RandomStringUtils.randomAlphabetic(30));
-        // sshCredentials.setPassword(RandomStringUtils.randomAlphabetic(30));
-        //
-        // when(buildResult.getEnvironmentDriverResult()).thenReturn(
-        // Optional.of(new EnvironmentDriverResult(CompletionStatus.FAILED, "", Optional.of(sshCredentials))));
-        //
-        // when(buildResult.getRepourResult()).thenReturn(Optional.of(RepourResultMock.mock()));
-        //
-        // OldRemoteBuildCoordinatorTest.ArgumentGrabbingAnswer<BuildRecord.Builder> answer = new
-        // OldRemoteBuildCoordinatorTest.ArgumentGrabbingAnswer<>(BuildRecord.Builder.class);
-        // when(datastore.storeCompletedBuild(any(BuildRecord.Builder.class), any(), any())).thenAnswer(answer);
-        //
-        // coordinator.completeBuild(buildTask, buildResult);
-        //
-        // assertThat(answer.arguments).hasSize(1);
-        // BuildRecord.Builder builder = answer.arguments.iterator().next();
-        // BuildRecord record = builder.build();
-        // assertThat(record.getSshCommand()).isEqualTo(sshCredentials.getCommand());
-        // assertThat(record.getSshPassword()).isEqualTo(sshCredentials.getPassword());
+        // given
+        DatastoreMock datastore = new DatastoreMock();
+        DatastoreAdapter datastoreAdapter = new DatastoreAdapter(datastore);
+
+        BuildDriverResult buildDriverResult = mock(BuildDriverResult.class);
+        when(buildDriverResult.getBuildStatus()).thenReturn(BuildStatus.FAILED);
+
+        RepositoryManagerResult repoManagerResult = mock(RepositoryManagerResult.class);
+        when(repoManagerResult.getCompletionStatus()).thenReturn(CompletionStatus.SUCCESS);
+
+        BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
+
+        SshCredentials sshCredentials = new SshCredentials();
+        sshCredentials.setCommand(RandomStringUtils.randomAlphabetic(30));
+        sshCredentials.setPassword(RandomStringUtils.randomAlphabetic(30));
+
+        EnvironmentDriverResult environmentDriverResult = new EnvironmentDriverResult(
+                CompletionStatus.FAILED,
+                "",
+                Optional.of(sshCredentials));
+
+        BuildResult buildResult = new BuildResult(
+                CompletionStatus.SUCCESS,
+                Optional.empty(),
+                "",
+                Optional.of(buildExecutionConfiguration),
+                Optional.of(buildDriverResult),
+                Optional.of(repoManagerResult),
+                Optional.of(environmentDriverResult),
+                Optional.of(RepourResultMock.mock()));
+
+        BuildTaskRef buildTask = mockBuildTaskRef(datastore.saveBCA(mockConfiguration()));
+
+        // when
+        BuildRecord record = datastoreAdapter.storeResult(buildTask, buildResult);
+
+        // then
+        Assert.assertEquals(record.getSshCommand(), sshCredentials.getCommand());
+        Assert.assertEquals(record.getSshPassword(), sshCredentials.getPassword());
     }
 
     private void storeResult(
             DatastoreAdapter datastoreAdapter,
+            DatastoreMock datastore,
             BuildStatus buildStatus,
             CompletionStatus completionStatus) throws DatastoreException {
         BuildDriverResult buildDriverResult = mock(BuildDriverResult.class);
@@ -217,35 +233,30 @@ public class DatastoreAdapterTest {
                 Optional.of(EnvironmentDriverResultMock.mock()),
                 Optional.of(RepourResultMock.mock()));
 
-        // BuildTask buildTask = mockBuildTask(); //TODO completed build
-        // datastoreAdapter.storeResult(buildTask, buildResult);
+        BuildTaskRef taskRef = mockBuildTaskRef(datastore.saveBCA(mockConfiguration()));
+
+        datastoreAdapter.storeResult(taskRef, buildResult);
     }
 
-    private RemoteBuildTask mockBuildTask() {
+    private BuildTaskRef mockBuildTaskRef(BuildConfigurationAudited bca) {
+        return DefaultBuildTaskRef.builder()
+                .idRev(new IdRev(bca.getId(), bca.getRev()))
+                .alignmentPreference(AlignmentPreference.PREFER_PERSISTENT)
+                .temporaryBuild(false)
+                .id("123")
+                .submitTime(Instant.now())
+                .contentId("context-id")
+                .status(BuildCoordinationStatus.DONE)
+                .user(MockUser.newTestUser(1))
+                .build();
+    }
+
+    private static BuildConfiguration mockConfiguration() {
         BuildConfiguration buildConfiguration = new BuildConfiguration();
         buildConfiguration.setId(12);
         buildConfiguration.setName("Configuration.");
         buildConfiguration.setProject(new Project());
-
-        BuildOptions buildOptions = new BuildOptions(
-                false,
-                true,
-                false,
-                false,
-                RebuildMode.IMPLICIT_DEPENDENCY_CHECK,
-                AlignmentPreference.PREFER_PERSISTENT);
-
-        RemoteBuildTask remoteBuildTask = new RemoteBuildTask(
-                "123",
-                Instant.now(),
-                BuildConfigurationAudited.fromBuildConfiguration(buildConfiguration, 13),
-                buildOptions,
-                "1",
-                false,
-                null,
-                null);
-
-        return remoteBuildTask;
+        return buildConfiguration;
     }
 
 }
