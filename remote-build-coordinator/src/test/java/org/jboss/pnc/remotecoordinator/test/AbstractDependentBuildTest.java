@@ -46,7 +46,7 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.remotecoordinator.builder.BuildTasksInitializer;
-import org.jboss.pnc.remotecoordinator.builder.SetRecordUpdateJob;
+import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler;
 import org.jboss.pnc.spi.BuildOptions;
@@ -112,7 +112,7 @@ public abstract class AbstractDependentBuildTest {
     protected BuildRecordRepositoryMock buildRecordRepository;
     protected MockBuildScheduler buildScheduler;
 
-    protected SetRecordUpdateJob updateSetJob;
+    protected SetRecordTasks updateSetJob;
 
     protected BuildConfigSetRecordRepositoryMock buildConfigSetRecordRepository;
 
@@ -164,7 +164,7 @@ public abstract class AbstractDependentBuildTest {
 
         buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
 
-        updateSetJob = new SetRecordUpdateJob(taskRepository, datastore, coordinator);
+        updateSetJob = new SetRecordTasks(taskRepository, datastore, coordinator);
         buildScheduler.setTaskRepositoryMock(taskRepository);
     }
 

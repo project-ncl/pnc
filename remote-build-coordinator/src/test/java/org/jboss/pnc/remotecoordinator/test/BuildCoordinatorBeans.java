@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.remotecoordinator.test;
 
-import org.jboss.pnc.remotecoordinator.builder.SetRecordUpdateJob;
+import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 
@@ -27,12 +27,12 @@ import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 public class BuildCoordinatorBeans {
     public final BuildTaskRepository taskRepository;
     public final BuildCoordinator coordinator;
-    public final SetRecordUpdateJob setJob;
+    public final SetRecordTasks setJob;
 
     public BuildCoordinatorBeans(
             BuildTaskRepository taskRepository,
             BuildCoordinator coordinator,
-            SetRecordUpdateJob setJob) {
+            SetRecordTasks setJob) {
         this.taskRepository = taskRepository;
         this.coordinator = coordinator;
         this.setJob = setJob;

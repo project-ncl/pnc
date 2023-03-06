@@ -40,61 +40,68 @@ public class SystemConfig extends AbstractModuleConfig {
      * number of threads that are taking a build task to be build and starting the building process (their job finishes
      * at starting bpm build, then they go back to grab the next build task)
      */
-    private int coordinatorThreadPoolSize;
+    private final int coordinatorThreadPoolSize;
 
-    private String brewTagPattern;
+    private final String brewTagPattern;
 
     /**
      * maximum number of build tasks processed at a time (build tasks that are in progress, regardless of whether they
      * are starting bpm process, being build by executor, etc)
      */
-    private int coordinatorMaxConcurrentBuilds;
+    private final int coordinatorMaxConcurrentBuilds;
 
-    private KeycloakClientConfig keycloakServiceAccountConfig;
+    private final KeycloakClientConfig keycloakServiceAccountConfig;
 
-    private long serviceTokenRefreshIfExpiresInSeconds;
+    private final long serviceTokenRefreshIfExpiresInSeconds;
 
     /**
      * Temporary builds life span set as number of days. After the expiration the temporary builds gets deleted.
      * Defaults to 14 days.
      */
-    private int temporaryBuildsLifeSpan;
+    private final int temporaryBuildsLifeSpan;
 
-    private String messageSenderId;
+    private final String messageSenderId;
 
-    private int messagingInternalQueueSize;
+    private final int messagingInternalQueueSize;
 
     /**
      * Kafka or Infinispan. Null or any other results in local "distribution"
      */
-    private String distributedEventType;
+    private final String distributedEventType;
 
-    private String kafkaBootstrapServers; // list of Kafka bootstrap servers; ; required if distributedEventType is
-                                          // "kafka"
-    private String kafkaTopic; // the Kafka topic used to distribute events in JSON form; required
-    private int kafkaNumOfConsumers; // number of Kafka consumers consuming 'kafkaTopic', default is 1
-    private int kafkaNumOfRetries; // number of retries the client will attempt to resend requests, default is 0
-    private int kafkaRetryBackoffMillis; // amount of time to wait before attempting to retry a failed request, default
-                                         // is 0
-    private String kafkaAcks; // The number of acknowledgments the producer requires the leader to have received before
-                              // considering a request complete; one of "all", "-1", "0", "1"
-    private String kafkaSecurityProtocol; // org.apache.kafka.common.security.auth.SecurityProtocol; one of PLAINTEXT |
-                                          // SASL_PLAINTEXT | SASL_SSL | SSL; optional
-    private String kafkaSecuritySaslMechanism; // SASL mechanism configuration; optional
-    private String kafkaSecuritySaslJaasConf; // JAAS login context parameters for SASL connections; either
-                                              // kafkaSecuritySaslJaasConf or (kafkaSecurityUser and
-                                              // kafkaSecurityPassword) are required if kafkaSecuritySaslMechanism is
-                                              // specified
-    private String kafkaSecurityUser; // either kafkaSecuritySaslJaasConf or (kafkaSecurityUser and
-                                      // kafkaSecurityPassword) are required if kafkaSecuritySaslMechanism is specified
-    private String kafkaSecurityPassword; // either kafkaSecuritySaslJaasConf or (kafkaSecurityUser and
-                                          // kafkaSecurityPassword) are required if kafkaSecuritySaslMechanism is
-                                          // specified
-    private String kafkaProperties; // path to additional Kafka properties; e.g. security, ack, etc; optional
-    private String infinispanClusterName; // Infinispan cluster name; required if distributedEventType is "infinispan"
-    private String infinispanTransportProperties; // path to Infinispan transport properties; optional
+    private final String kafkaBootstrapServers; // list of Kafka bootstrap servers; ; required if distributedEventType
+                                                // is
+    // "kafka"
+    private final String kafkaTopic; // the Kafka topic used to distribute events in JSON form; required
+    private final int kafkaNumOfConsumers; // number of Kafka consumers consuming 'kafkaTopic', default is 1
+    private final int kafkaNumOfRetries; // number of retries the client will attempt to resend requests, default is 0
+    private final int kafkaRetryBackoffMillis; // amount of time to wait before attempting to retry a failed request,
+                                               // default
+    // is 0
+    private final String kafkaAcks; // The number of acknowledgments the producer requires the leader to have received
+                                    // before
+    // considering a request complete; one of "all", "-1", "0", "1"
+    private final String kafkaSecurityProtocol; // org.apache.kafka.common.security.auth.SecurityProtocol; one of
+                                                // PLAINTEXT |
+    // SASL_PLAINTEXT | SASL_SSL | SSL; optional
+    private final String kafkaSecuritySaslMechanism; // SASL mechanism configuration; optional
+    private final String kafkaSecuritySaslJaasConf; // JAAS login context parameters for SASL connections; either
+    // kafkaSecuritySaslJaasConf or (kafkaSecurityUser and
+    // kafkaSecurityPassword) are required if kafkaSecuritySaslMechanism is
+    // specified
+    private final String kafkaSecurityUser; // either kafkaSecuritySaslJaasConf or (kafkaSecurityUser and
+    // kafkaSecurityPassword) are required if kafkaSecuritySaslMechanism is specified
+    private final String kafkaSecurityPassword; // either kafkaSecuritySaslJaasConf or (kafkaSecurityUser and
+    // kafkaSecurityPassword) are required if kafkaSecuritySaslMechanism is
+    // specified
+    private final String kafkaProperties; // path to additional Kafka properties; e.g. security, ack, etc; optional
+    private final String infinispanClusterName; // Infinispan cluster name; required if distributedEventType is
+                                                // "infinispan"
+    private final String infinispanTransportProperties; // path to Infinispan transport properties; optional
 
     private final boolean legacyBuildCoordinator;
+
+    private final long recordUpdateJobMillisDelay; // delay between job that updates setRecord statuses; optional
 
     public SystemConfig(
             @JsonProperty("authenticationProviderId") String authenticationProviderId,
@@ -121,7 +128,8 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("kafkaProperties") String kafkaProperties,
             @JsonProperty("infinispanClusterName") String infinispanClusterName,
             @JsonProperty("infinispanTransportProperties") String infinispanTransportProperties,
-            @JsonProperty("legacyBuildCoordinator") String legacyBuildCoordinator) {
+            @JsonProperty("legacyBuildCoordinator") String legacyBuildCoordinator,
+            @JsonProperty("recordUpdateJobMillisDelay") String recordUpdateJobMillisDelay) {
         this.authenticationProviderId = authenticationProviderId;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault(
@@ -157,6 +165,10 @@ public class SystemConfig extends AbstractModuleConfig {
         this.infinispanClusterName = infinispanClusterName;
         this.infinispanTransportProperties = infinispanTransportProperties;
         this.legacyBuildCoordinator = Boolean.valueOf(legacyBuildCoordinator);
+        this.recordUpdateJobMillisDelay = toLongWithDefault(
+                "recordUpdateJobMillisDelay",
+                recordUpdateJobMillisDelay,
+                5000);
     }
 
     public static Properties readProperties(String file) {
@@ -271,6 +283,10 @@ public class SystemConfig extends AbstractModuleConfig {
         return legacyBuildCoordinator;
     }
 
+    public long getRecordUpdateJobMillisDelay() {
+        return recordUpdateJobMillisDelay;
+    }
+
     private int toIntWithDefault(String fieldName, String numberAsString, int defaultValue) {
         int result = defaultValue;
         if (numberAsString == null) {
@@ -282,6 +298,25 @@ public class SystemConfig extends AbstractModuleConfig {
                 log.warn(
                         "Invalid value in field: " + fieldName
                                 + ". Expected an integer, got: {}. Will use default value: {}",
+                        numberAsString,
+                        defaultValue,
+                        nfe);
+            }
+        }
+        return result;
+    }
+
+    private long toLongWithDefault(String fieldName, String numberAsString, long defaultValue) {
+        long result = defaultValue;
+        if (numberAsString == null) {
+            log.warn("Value in field: " + fieldName + " not set. Will use default value: {}", defaultValue);
+        } else {
+            try {
+                result = Long.parseLong(numberAsString);
+            } catch (NumberFormatException nfe) {
+                log.warn(
+                        "Invalid value in field: " + fieldName
+                                + ". Expected an long, got: {}. Will use default value: {}",
                         numberAsString,
                         defaultValue,
                         nfe);

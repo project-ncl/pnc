@@ -37,7 +37,7 @@ import static org.mockito.Mockito.when;
 
 // TODO review once the result storing from rex is done
 @Ignore
-public class SetRecordUpdateJobTest extends AbstractDependentBuildTest {
+public class SetRecordTasksTest extends AbstractDependentBuildTest {
 
     private BuildConfiguration configA;
     private BuildConfiguration configB;

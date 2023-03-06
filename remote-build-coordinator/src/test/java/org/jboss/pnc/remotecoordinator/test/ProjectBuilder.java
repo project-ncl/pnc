@@ -17,7 +17,7 @@
  */
 package org.jboss.pnc.remotecoordinator.test;
 
-import org.jboss.pnc.remotecoordinator.builder.SetRecordUpdateJob;
+import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
 import org.jboss.pnc.remotecoordinator.test.event.TestCDIBuildSetStatusChangedReceiver;
 import org.jboss.pnc.remotecoordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -138,7 +138,7 @@ public class ProjectBuilder {
     void buildProjects(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob) throws InterruptedException, CoreException, DatastoreException {
+            SetRecordTasks setJob) throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet);
         buildProjectsAndVerifyResult(
                 buildConfigurationSet,
@@ -151,7 +151,7 @@ public class ProjectBuilder {
     BuildSetTask buildProjects(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob,
+            SetRecordTasks setJob,
             Consumer<BuildStatusChangedEvent> onStatusUpdate)
             throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet);
@@ -161,7 +161,7 @@ public class ProjectBuilder {
     BuildSetTask buildProjects(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob,
+            SetRecordTasks setJob,
             Consumer<BuildStatusChangedEvent> onStatusUpdate,
             int skippedUpdates) throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = getNumberOfStatusUpdates(buildConfigurationSet) - skippedUpdates;
@@ -184,7 +184,7 @@ public class ProjectBuilder {
             BuildConfigurationSet buildConfigurationSet,
             int numCompletedBuilds,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob) throws InterruptedException, CoreException, DatastoreException {
+            SetRecordTasks setJob) throws InterruptedException, CoreException, DatastoreException {
         buildFailingProject(buildConfigurationSet, numCompletedBuilds, 1, buildCoordinator, setJob);
     }
 
@@ -193,7 +193,7 @@ public class ProjectBuilder {
             int numCompletedBuilds,
             int numFailedBuilds,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob) throws InterruptedException, CoreException, DatastoreException {
+            SetRecordTasks setJob) throws InterruptedException, CoreException, DatastoreException {
         int nStatusUpdates = N_STATUS_UPDATES_PER_TASK * numCompletedBuilds
                 + N_STATUS_UPDATES_PER_TASK_WAITING_FOR_FAILED_DEPS * numFailedBuilds;
         buildProjectsAndVerifyResult(
@@ -224,7 +224,7 @@ public class ProjectBuilder {
     private BuildSetTask buildProjectsAndWaitForUpdates(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob,
+            SetRecordTasks setJob,
             int nStatusUpdates,
             Consumer<BuildStatusChangedEvent> onStatusUpdate,
             List<BuildStatusChangedEvent> receivedStatuses,
@@ -262,7 +262,7 @@ public class ProjectBuilder {
     private BuildSetTask buildProjects(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob,
+            SetRecordTasks setJob,
             int nStatusUpdates,
             Consumer<BuildStatusChangedEvent> onStatusUpdate) throws InterruptedException, CoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());
@@ -282,7 +282,7 @@ public class ProjectBuilder {
     private void buildProjectsAndVerifyResult(
             BuildConfigurationSet buildConfigurationSet,
             BuildCoordinator buildCoordinator,
-            SetRecordUpdateJob setJob,
+            SetRecordTasks setJob,
             int nStatusUpdates,
             Verifier verifier) throws InterruptedException, CoreException {
         log.info("Building configuration set {}", buildConfigurationSet.getName());

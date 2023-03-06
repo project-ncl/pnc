@@ -30,7 +30,7 @@ import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.remotecoordinator.builder.BuildTasksInitializer;
-import org.jboss.pnc.remotecoordinator.builder.SetRecordUpdateJob;
+import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.remotecoordinator.notifications.buildSetTask.BuildSetStatusNotifications;
 import org.jboss.pnc.remotecoordinator.test.BuildCoordinatorDeployments;
@@ -102,7 +102,7 @@ public class StatusUpdatesTest {
     Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
     @Inject
-    SetRecordUpdateJob setRecordUpdateJob;
+    SetRecordTasks setRecordTasks;
 
     @Deployment
     public static JavaArchive createDeployment() {
@@ -127,7 +127,7 @@ public class StatusUpdatesTest {
             buildCoordinator.completeBuild(bt, createBuildResult());
         });
         this.waitForConditionWithTimeout(() -> buildTasks.stream().allMatch(task -> task.getStatus().isCompleted()), 4);
-        setRecordUpdateJob.updateConfigSetRecordsStatuses();
+        setRecordTasks.updateConfigSetRecordsStatuses();
         Assert.assertNotNull("Did not receive build set status update.", receivedBuildSetStatusChangedEvent.get());
         Assert.assertTrue(receivedBuildSetStatusChangedEvent.get().getNewBuildStatus().isFinal());
     }

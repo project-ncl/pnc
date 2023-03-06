@@ -29,8 +29,7 @@ import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.datastore.Datastore;
 import org.jboss.pnc.spi.exception.CoreException;
 
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.util.Collection;
@@ -39,10 +38,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Singleton
+@ApplicationScoped
 @Slf4j
 // TODO: make it run on a single instance if easily doable
-public class SetRecordUpdateJob {
+public class SetRecordTasks {
 
     private BuildTaskRepository taskRepository;
 
@@ -51,11 +50,11 @@ public class SetRecordUpdateJob {
     BuildCoordinator buildCoordinator;
 
     @Deprecated // CDI
-    public SetRecordUpdateJob() {
+    public SetRecordTasks() {
     }
 
     @Inject
-    public SetRecordUpdateJob(
+    public SetRecordTasks(
             BuildTaskRepository taskRepository,
             Datastore datastore,
             @Remote BuildCoordinator buildCoordinator) {
@@ -65,11 +64,8 @@ public class SetRecordUpdateJob {
     }
 
     /**
-     * TODO make the @Schedule configurable
-     *
      * @throws CoreException
      */
-    @Schedule(hour = "*", minute = "*", second = "0,10,20,30,40,50")
     @Transactional
     public void updateConfigSetRecordsStatuses() throws CoreException {
         log.debug("triggered the job");
@@ -94,14 +90,12 @@ public class SetRecordUpdateJob {
         BuildStatus effectiveState = getEffectiveState(setRecord, buildTasks, buildRecords);
         if (setRecord.getStatus() != effectiveState) {
             updateConfigSetRecordStatus(setRecord, effectiveState);
-            // mstodo Probably more specific logging
             log.debug("BuildConfigSetRecord[{}] changes status to {}", setRecord, effectiveState);
         } else {
             log.debug("BuildConfigSetRecord[{}] didn't change its status", setRecord);
         }
     }
 
-    // todo test that build task is removed after build record is created for the DB based solution
     private BuildStatus getEffectiveState(
             BuildConfigSetRecord setRecord,
             List<BuildTaskRef> buildTasks,
@@ -152,6 +146,6 @@ public class SetRecordUpdateJob {
 
     private void updateConfigSetRecordStatus(BuildConfigSetRecord setRecord, BuildStatus effectiveState)
             throws CoreException {
-        buildCoordinator.updateBuildConfigSetRecordStatus(setRecord, effectiveState, "");
+        buildCoordinator.storeAndNotifyBuildConfigSetRecord(setRecord, effectiveState, "");
     }
 }

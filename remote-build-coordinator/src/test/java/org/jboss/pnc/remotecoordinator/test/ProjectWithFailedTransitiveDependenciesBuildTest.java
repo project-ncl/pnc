@@ -20,7 +20,7 @@ package org.jboss.pnc.remotecoordinator.test;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
-import org.jboss.pnc.remotecoordinator.builder.SetRecordUpdateJob;
+import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -67,7 +67,7 @@ public class ProjectWithFailedTransitiveDependenciesBuildTest extends ProjectBui
         TestProjectConfigurationBuilder configurationBuilder = new TestProjectConfigurationBuilder(datastore);
         BuildCoordinatorBeans beans = buildCoordinatorFactory.createBuildCoordinator(datastore);
         BuildCoordinator coordinator = beans.coordinator;
-        SetRecordUpdateJob setJob = beans.setJob;
+        SetRecordTasks setJob = beans.setJob;
         taskRepository = beans.taskRepository;
 
         buildFailingProject(
