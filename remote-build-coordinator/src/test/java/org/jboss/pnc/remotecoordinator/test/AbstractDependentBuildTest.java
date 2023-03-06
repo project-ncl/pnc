@@ -27,6 +27,9 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.datastore.DefaultDatastore;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.mapper.api.BuildMapper;
+import org.jboss.pnc.mapper.api.BuildTaskMappers;
+import org.jboss.pnc.mapper.api.GroupBuildMapper;
 import org.jboss.pnc.mock.datastore.BuildTaskRepositoryMock;
 import org.jboss.pnc.mock.model.BuildEnvironmentMock;
 import org.jboss.pnc.mock.model.RepositoryConfigurationMock;
@@ -46,6 +49,7 @@ import org.jboss.pnc.model.Project;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.remotecoordinator.builder.BuildTasksInitializer;
+import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
 import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler;
@@ -69,6 +73,7 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.enterprise.event.Event;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
@@ -164,12 +169,21 @@ public abstract class AbstractDependentBuildTest {
 
         buildTasksInitializer = new BuildTasksInitializer(datastoreAdapter);
 
+        this.coordinator = new RemoteBuildCoordinator(
+                datastoreAdapter,
+                mock(Event.class),
+                mock(Event.class),
+                buildScheduler,
+                taskRepository,
+                buildConfigurationAuditedRepository,
+                systemConfig,
+                mock(GroupBuildMapper.class),
+                mock(BuildMapper.class),
+                buildTasksInitializer,
+                mock(BuildTaskMappers.class));
+
         updateSetJob = new SetRecordTasks(taskRepository, datastore, coordinator);
         buildScheduler.setTaskRepositoryMock(taskRepository);
-    }
-
-    protected void initSetRecordUpdateJob() {
-
     }
 
     protected void insertNewBuildRecords(BuildConfiguration... configs) {
