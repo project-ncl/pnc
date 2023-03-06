@@ -50,8 +50,8 @@ public interface ArtifactMapper
     @Mapping(target = "deployUrl", ignore = true)
     @Mapping(target = "publicUrl", ignore = true)
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "targetRepository", "buildRecords", "dependantBuildRecords",
-                    "importDate", "deliveredInProductMilestones", "identifierSha256", "built", "imported", "trusted",
+            ignoreUnmappedSourceProperties = { "targetRepository", "dependantBuildRecords", "importDate",
+                    "deliveredInProductMilestones", "identifierSha256", "built", "imported", "trusted",
                     "descriptiveString", "creationUser", "modificationUser" })
     ArtifactRef toRef(Artifact dbEntity);
 

@@ -112,7 +112,8 @@ public class BuildCoordinatorFactory {
                 null,
                 null,
                 null,
-                "true");
+                "true",
+                null);
     }
 
     @Alternative

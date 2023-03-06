@@ -289,7 +289,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
             logger.debug("Cancel request for buildTaskId {} successfully processed.", buildId);
         } catch (CoreException e) {
             logger.error("Unable to cancel the build [" + buildId + "].", e);
-            throw new RuntimeException("Unable to cancel the build [" + buildId + "].");
+            throw new RuntimeException("Unable to cancel the build [" + buildId + "].", e);
         } finally {
             MDC.remove(MDCKeys.PROCESS_CONTEXT_KEY);
         }

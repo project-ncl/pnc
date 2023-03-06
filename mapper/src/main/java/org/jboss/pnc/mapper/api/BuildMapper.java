@@ -88,7 +88,7 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
                     "repourLogMd5", "repourLogSha256", "repourLogSize", "buildRecordPushResults",
                     "buildConfigurationId", "buildConfigurationRev", "buildEnvironment", "buildConfigurationAudited",
                     "dependentBuildRecordIds", "dependencyBuildRecordIds", "user", "attributes", "attributesMap",
-                    "buildConfigurationAuditedIdRev", "buildOutputChecksum", "noRebuildRequired" })
+                    "buildConfigurationAuditedIdRev", "buildOutputChecksum" })
     BuildRef toRef(BuildRecord dbEntity);
 
     @Override
