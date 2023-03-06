@@ -1243,6 +1243,7 @@
               <exclude>**/Dockerfile</exclude>
               <exclude>**/nbactions.xml</exclude>
               <exclude>**/*.properties</exclude>
+              <exclude>**/.github/**</exclude>
 
               <!-- Exclude downloaded/generated -->
               <exclude>**/.cache/**</exclude>
