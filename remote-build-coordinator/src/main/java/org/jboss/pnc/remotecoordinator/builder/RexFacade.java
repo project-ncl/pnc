@@ -295,14 +295,16 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         Map<String, Map<String, Object>> bpmRequestBody = Collections.singletonMap(INIT_DATA, processParameters);
 
         List<Request.Header> headers = MDCUtils.getHeadersFromMDC()
-                .entrySet().stream()
+                .entrySet()
+                .stream()
                 .map(entry -> new Request.Header(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
-        headers.addAll(List.of(
-                new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),
-                new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON),
-                new Request.Header(HttpHeaders.AUTHORIZATION_STRING, "Bearer " + loginToken)));
+        headers.addAll(
+                List.of(
+                        new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),
+                        new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON),
+                        new Request.Header(HttpHeaders.AUTHORIZATION_STRING, "Bearer " + loginToken)));
 
         Request remoteStart = bpmUrlFactory.startProcessInstance(
                 bpmConfig.getBpmNewDeploymentId(),

@@ -17,26 +17,28 @@
  */
 package org.jboss.pnc.remotecoordinator.test;
 
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.ConfigurationParseException;
+import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.enums.BuildStatus;
-import org.jboss.pnc.enums.RebuildMode;
-import org.jboss.pnc.mock.repository.BuildConfigurationRepositoryMock;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
-// TODO review once the result storing from rex is done
-@Ignore
 public class SetRecordTasksTest extends AbstractDependentBuildTest {
 
     private BuildConfiguration configA;
@@ -48,27 +50,32 @@ public class SetRecordTasksTest extends AbstractDependentBuildTest {
 
     @Before
     public void initialize() throws DatastoreException, ConfigurationParseException {
+        super.initialize();
+
         configA = buildConfig("A");
         configB = buildConfig("B");
         configC = buildConfig("C");
         configD = buildConfig("D");
         configE = buildConfig("E");
-
         configSet = configSet(configA, configB, configC, configD, configE);
 
-        buildConfigurationRepository = spy(new BuildConfigurationRepositoryMock());
-        when(buildConfigurationRepository.queryWithPredicates(any()))
-                .thenReturn(new ArrayList<>(configSet.getBuildConfigurations()));
-
-        super.initialize();
-
         configSet.getBuildConfigurations().forEach(this::saveConfig);
+
+        // return all configs on queryWithPredicates with configSet ID
+        buildConfigurationRepository.returnAllDataOnQuery();
     }
 
     @Test
-    public void buildConfigSetRecordShouldBeMarkedSuccessWhenAllBuildsAreSuccess() throws Exception {
+    public void buildConfigSetRecordShouldBeMarkedSuccessWhenAllBuildsAreSuccess2() throws Exception {
         // with
-        build(configSet, RebuildMode.FORCE);
+        var records = new HashSet<BuildRecord>();
+        records.add(saveRecordToDB(configA, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configB, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configC, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configD, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configE, BuildStatus.SUCCESS));
+        saveBuildConfigSetRecord(configSet, records);
+
         var setRecords = buildConfigSetRecordRepository.queryAll();
         assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
 
@@ -84,10 +91,13 @@ public class SetRecordTasksTest extends AbstractDependentBuildTest {
     @Test
     public void buildConfigSetRecordShouldBeMarkedFailedOnFailure() throws Exception {
         // with
-        configA.setBuildScript(BuildStatus.FAILED.toString());
-        updateConfiguration(configA);
-
-        build(configSet, RebuildMode.FORCE);
+        var records = new HashSet<BuildRecord>();
+        records.add(saveRecordToDB(configA, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configB, BuildStatus.FAILED));
+        records.add(saveRecordToDB(configC, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configD, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configE, BuildStatus.SUCCESS));
+        saveBuildConfigSetRecord(configSet, records);
 
         var setRecords = buildConfigSetRecordRepository.queryAll();
         assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
@@ -104,44 +114,230 @@ public class SetRecordTasksTest extends AbstractDependentBuildTest {
     @Test
     public void buildConfigSetRecordShouldBeNoRebuildRequiredIfAllRecordsAreNRR() throws Exception {
         // with
-        build(configSet, RebuildMode.FORCE);
-        pokeSetJob();
+        var records = new HashSet<BuildRecord>();
+        records.add(saveRecordToDB(configA, BuildStatus.NO_REBUILD_REQUIRED));
+        records.add(saveRecordToDB(configB, BuildStatus.NO_REBUILD_REQUIRED));
+        records.add(saveRecordToDB(configC, BuildStatus.NO_REBUILD_REQUIRED));
+        records.add(saveRecordToDB(configD, BuildStatus.NO_REBUILD_REQUIRED));
+        records.add(saveRecordToDB(configE, BuildStatus.NO_REBUILD_REQUIRED));
+        saveBuildConfigSetRecord(configSet, records);
 
         var setRecords = buildConfigSetRecordRepository.queryAll();
-        assertThat(setRecords).hasSize(1);
-        var succRecord = setRecords.iterator().next();
-        assertThat(succRecord.getStatus()).isEqualTo(BuildStatus.SUCCESS);
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
 
         // when
-        build(configSet, RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
         pokeSetJob();
 
         // then
         setRecords = buildConfigSetRecordRepository.queryAll();
 
-        assertThat(setRecords).hasSize(2)
-                .filteredOn(record -> !succRecord.getId().equals(record.getId()))
-                .allMatch(record -> record.getStatus() == BuildStatus.NO_REBUILD_REQUIRED);
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.NO_REBUILD_REQUIRED);
     }
 
     @Test
-    public void buildConfigSetRecordShouldBeMarkedCancelledWhenBuildsAreCancelled() throws Exception {
+    public void buildConfigSetRecordShouldBeCancelledIfABuildIsCancelledWithSuccessfulBuilds() throws Exception {
         // with
-        configSet.getBuildConfigurations().forEach(config -> {
-            config.setBuildScript(BuildStatus.CANCELLED.toString());
-            updateConfiguration(config);
-        });
+        var records = new HashSet<BuildRecord>();
+        records.add(saveRecordToDB(configA, BuildStatus.CANCELLED));
+        records.add(saveRecordToDB(configB, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configC, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configD, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configE, BuildStatus.SUCCESS));
+        saveBuildConfigSetRecord(configSet, records);
 
-        // when
-        build(configSet, RebuildMode.EXPLICIT_DEPENDENCY_CHECK);
         var setRecords = buildConfigSetRecordRepository.queryAll();
         assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
+
+        // when
         pokeSetJob();
 
         // then
         setRecords = buildConfigSetRecordRepository.queryAll();
 
         assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.CANCELLED);
+    }
+
+    @Test
+    public void buildConfigSetRecordShouldBeCancelledIfABuildIsCancelledWithFailedBuilds() throws Exception {
+        // with
+        var records = new HashSet<BuildRecord>();
+        records.add(saveRecordToDB(configA, BuildStatus.CANCELLED));
+        records.add(saveRecordToDB(configB, BuildStatus.FAILED));
+        records.add(saveRecordToDB(configC, BuildStatus.FAILED));
+        records.add(saveRecordToDB(configD, BuildStatus.FAILED));
+        records.add(saveRecordToDB(configE, BuildStatus.FAILED));
+        saveBuildConfigSetRecord(configSet, records);
+
+        var setRecords = buildConfigSetRecordRepository.queryAll();
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
+
+        // when
+        pokeSetJob();
+
+        // then
+        setRecords = buildConfigSetRecordRepository.queryAll();
+
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.CANCELLED);
+    }
+
+    @Test
+    public void buildConfigSetRecordShouldBeCancelledIfABuildIsCancelledWithMixedStatuses() throws Exception {
+        // with
+        var records = new HashSet<BuildRecord>();
+        records.add(saveRecordToDB(configA, BuildStatus.CANCELLED));
+        records.add(saveRecordToDB(configB, BuildStatus.SYSTEM_ERROR));
+        records.add(saveRecordToDB(configC, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configD, BuildStatus.FAILED));
+        records.add(saveRecordToDB(configE, BuildStatus.FAILED));
+        saveBuildConfigSetRecord(configSet, records);
+
+        var setRecords = buildConfigSetRecordRepository.queryAll();
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
+
+        // when
+        pokeSetJob();
+
+        // then
+        setRecords = buildConfigSetRecordRepository.queryAll();
+
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.CANCELLED);
+    }
+
+    @Test
+    public void buildConfigSetRecordShouldBeBuildingEvenWithMostCancelled() throws Exception {
+        // with
+        var records = new HashSet<BuildRecord>();
+
+        // DB
+        records.add(saveRecordToDB(configA, BuildStatus.CANCELLED));
+        records.add(saveRecordToDB(configB, BuildStatus.SYSTEM_ERROR));
+        records.add(saveRecordToDB(configC, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configD, BuildStatus.FAILED));
+
+        var setRecord = saveBuildConfigSetRecord(configSet, records);
+
+        // REX
+        saveRecordToRex(configE, BuildStatus.BUILDING, setRecord);
+
+        var setRecords = buildConfigSetRecordRepository.queryAll();
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
+
+        // when
+        pokeSetJob();
+
+        // then
+        setRecords = buildConfigSetRecordRepository.queryAll();
+
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
+    }
+
+    @Test
+    public void buildConfigSetRecordShouldBeFailedWithSystemError() throws Exception {
+        // with
+        var records = new HashSet<BuildRecord>();
+        records.add(saveRecordToDB(configA, BuildStatus.SYSTEM_ERROR));
+        records.add(saveRecordToDB(configB, BuildStatus.SYSTEM_ERROR));
+        records.add(saveRecordToDB(configC, BuildStatus.SUCCESS));
+        records.add(saveRecordToDB(configD, BuildStatus.FAILED));
+        records.add(saveRecordToDB(configE, BuildStatus.FAILED));
+        saveBuildConfigSetRecord(configSet, records);
+
+        var setRecords = buildConfigSetRecordRepository.queryAll();
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
+
+        // when
+        pokeSetJob();
+
+        // then
+        setRecords = buildConfigSetRecordRepository.queryAll();
+
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.FAILED);
+    }
+
+    @Test
+    public void buildConfigSetRecordShouldBeBuildingWithSuccessfulBuild() throws Exception {
+        // with
+        var records = new HashSet<BuildRecord>();
+
+        // DB
+        records.add(saveRecordToDB(configA, BuildStatus.SUCCESS));
+        var setRecord = saveBuildConfigSetRecord(configSet, records);
+
+        // REX
+        saveRecordToRex(configB, BuildStatus.BUILDING, setRecord);
+        saveRecordToRex(configC, BuildStatus.BUILDING, setRecord);
+        saveRecordToRex(configD, BuildStatus.BUILDING, setRecord);
+        saveRecordToRex(configE, BuildStatus.BUILDING, setRecord);
+
+        var setRecords = buildConfigSetRecordRepository.queryAll();
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
+
+        // when
+        pokeSetJob();
+
+        // then
+        setRecords = buildConfigSetRecordRepository.queryAll();
+
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
+    }
+
+    @Test
+    public void buildConfigSetRecordShouldBeBuildingWithEnqueuedBuilds() throws Exception {
+        // with
+        var records = new HashSet<BuildRecord>();
+
+        // DB
+        records.add(saveRecordToDB(configA, BuildStatus.SUCCESS));
+        var setRecord = saveBuildConfigSetRecord(configSet, records);
+
+        // REX
+        saveRecordToRex(configB, BuildStatus.ENQUEUED, setRecord);
+        saveRecordToRex(configC, BuildStatus.ENQUEUED, setRecord);
+        saveRecordToRex(configD, BuildStatus.ENQUEUED, setRecord);
+        saveRecordToRex(configE, BuildStatus.ENQUEUED, setRecord);
+
+        var setRecords = buildConfigSetRecordRepository.queryAll();
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
+
+        // when
+        pokeSetJob();
+
+        // then
+        setRecords = buildConfigSetRecordRepository.queryAll();
+
+        assertThat(setRecords).hasSize(1).allMatch(record -> record.getStatus() == BuildStatus.BUILDING);
+    }
+
+    private void saveRecordToRex(BuildConfiguration config, BuildStatus status, BuildConfigSetRecord setRecord) {
+        taskRepository.addTask(
+                DefaultBuildTaskRef.builder()
+                        .id(Sequence.nextBase32Id())
+                        .idRev(BuildConfigurationAudited.fromBuildConfiguration(config, 1).getIdRev())
+                        .status(BuildCoordinationStatus.fromBuildStatus(status))
+                        .buildConfigSetRecord(setRecord)
+                        .build());
+    }
+
+    private BuildRecord saveRecordToDB(BuildConfiguration configA, BuildStatus status) {
+        return buildRecordRepository.save(
+                BuildRecord.Builder.newBuilder()
+                        .buildConfigurationAudited(BuildConfigurationAudited.fromBuildConfiguration(configA, 1))
+                        .submitTime(Date.from(Instant.now()))
+                        .startTime(Date.from(Instant.now()))
+                        .status(status)
+                        .endTime(Date.from(Instant.now().plus(1, ChronoUnit.SECONDS)))
+                        .build());
+    }
+
+    private BuildConfigSetRecord saveBuildConfigSetRecord(BuildConfigurationSet configSet, Set<BuildRecord> records) {
+        return buildConfigSetRecordRepository.save(
+                BuildConfigSetRecord.Builder.newBuilder()
+                        .buildRecords(records)
+                        .buildConfigurationSet(configSet)
+                        .status(BuildStatus.BUILDING)
+                        .startTime(Date.from(Instant.now()))
+                        .temporaryBuild(false)
+                        .build());
     }
 
 }

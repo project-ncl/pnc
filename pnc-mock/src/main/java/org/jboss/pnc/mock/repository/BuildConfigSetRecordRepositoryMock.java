@@ -37,7 +37,6 @@ public class BuildConfigSetRecordRepositoryMock extends LongIdRepositoryMock<Bui
 
     @Override
     public List<BuildConfigSetRecord> findBuildConfigSetRecordsInProgress() {
-        System.out.println("finding build in progress in " + this.hashCode()); // mstodo remove
         return data.stream().filter(r -> !r.getStatus().isFinal()).collect(Collectors.toList());
     }
 }
