@@ -296,7 +296,12 @@ public class RemoteBuildCoordinatorTest {
 
     private BuildTaskRef getBuildTaskRef(BuildConfiguration bc200, BuildCoordinationStatus status) {
         BuildConfigurationAudited audited = getBuildConfigurationAudited(bc200);
-        return new DefaultBuildTaskRef(audited.getId() + "", audited.getIdRev(), "", "", "", Instant.now(), status);
+        return DefaultBuildTaskRef.builder()
+                .id(String.valueOf(audited.getId()))
+                .idRev(audited.getIdRev())
+                .submitTime(Instant.now())
+                .status(status)
+                .build();
     }
 
     private BuildConfigurationAudited getBuildConfigurationAudited(BuildConfiguration buildConfiguration) {

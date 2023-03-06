@@ -30,6 +30,7 @@ import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
+import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 
 import java.util.List;
@@ -56,19 +57,22 @@ public interface BuildCoordinator {
             User user,
             BuildOptions buildOptions) throws CoreException, BuildRequestException, BuildConflictException;
 
-    Optional<BuildTask> getSubmittedBuildTask(String buildId);
+    Optional<BuildTask> getSubmittedBuildTask(String buildId) throws RemoteRequestException, MissingDataException;
 
     /**
      * List all waiting, ready and in progress tasks
      *
      * @return list of all build tasks in the queue
      */
-    List<BuildTask> getSubmittedBuildTasks() throws RemoteRequestException;
+    List<BuildTask> getSubmittedBuildTasks() throws RemoteRequestException, MissingDataException;
 
     @Deprecated // get rid of BuildTask
-    List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId) throws RemoteRequestException;
+    List<BuildTask> getSubmittedBuildTasksBySetId(long buildConfigSetRecordId)
+            throws RemoteRequestException, MissingDataException;
 
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
+
+    void completeBuild(BuildTaskRef buildTask, Optional<BuildResult> buildResult);
 
     /**
      * Cancels a running build
@@ -84,7 +88,9 @@ public interface BuildCoordinator {
     @Deprecated // used only internally
     void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);
 
-    void updateBuildConfigSetRecordStatus(BuildConfigSetRecord setRecord, BuildStatus status, String description)
+    void updateBuildTaskStatus(BuildTaskRef task, BuildCoordinationStatus status);
+
+    void storeAndNotifyBuildConfigSetRecord(BuildConfigSetRecord setRecord, BuildStatus status, String description)
             throws CoreException;
 
     void start();

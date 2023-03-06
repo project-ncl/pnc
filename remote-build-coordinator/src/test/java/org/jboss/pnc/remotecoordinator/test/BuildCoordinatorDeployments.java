@@ -47,6 +47,7 @@ import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.test.mock.RexHttpClientMock;
 import org.jboss.pnc.remotecoordinator.builder.RexFacade;
 import org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler;
+import org.jboss.pnc.remotecoordinator.test.mock.UserRepositoryMock;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
@@ -107,6 +108,7 @@ public class BuildCoordinatorDeployments {
                 .addClass(BuildConfigurationAuditedRepositoryMock.class)
                 .addClass(EntityManagerMock.class)
                 .addClass(RexHttpClientMock.class)
+                .addClass(UserRepositoryMock.class)
                 .addPackages(false, BuildResultMapper.class.getPackage())
                 .addPackages(
                         true,

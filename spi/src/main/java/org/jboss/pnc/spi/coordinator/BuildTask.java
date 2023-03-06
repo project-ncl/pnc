@@ -108,7 +108,7 @@ public class BuildTask {
      */
     private final String requestContext;
 
-    private BuildTask(
+    public BuildTask(
             BuildConfigurationAudited buildConfigurationAudited,
             BuildOptions buildOptions,
             User user,
@@ -233,11 +233,17 @@ public class BuildTask {
         }
         BuildTask buildTask = (BuildTask) o;
 
+        if (getBuildConfigurationAudited() == null || buildTask.getBuildConfigurationAudited() == null) {
+            return getId().equals(buildTask.getId());
+        }
         return getBuildConfigurationAudited().equals(buildTask.getBuildConfigurationAudited());
     }
 
     @Override
     public int hashCode() {
+        if (getBuildConfigurationAudited() == null) {
+            return getId().hashCode();
+        }
         return getBuildConfigurationAudited().hashCode();
     }
 

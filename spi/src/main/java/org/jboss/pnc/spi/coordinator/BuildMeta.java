@@ -17,42 +17,50 @@
  */
 package org.jboss.pnc.spi.coordinator;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
 import lombok.Getter;
-import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildRecord;
-import org.jboss.pnc.model.ProductMilestone;
-import org.jboss.pnc.spi.BuildOptions;
+import lombok.extern.jackson.Jacksonized;
+import org.jboss.pnc.api.enums.AlignmentPreference;
+import org.jboss.pnc.model.IdRev;
 
-import java.time.Instant;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-/**
- * A task to be sent to the Rex
- */
-@AllArgsConstructor
-@Getter
-public class RemoteBuildTask {
+@Builder
+@Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BuildMeta {
+    @Getter
+    String id;
 
-    private String id;
+    @Getter
+    IdRev idRev;
 
-    private Instant submitTime;
+    @Getter
+    String contentId;
 
-    private BuildConfigurationAudited buildConfigurationAudited;
+    @Getter
+    boolean temporaryBuild;
 
-    private BuildOptions buildOptions;
+    @Getter
+    AlignmentPreference alignmentPreference;
 
-    private String username;
+    @Getter
+    Date submitTime;
 
-    private boolean alreadyRunning;
+    @Getter
+    String username;
 
-    private Optional<BuildRecord> noRebuildCause;
+    @Getter
+    Integer productMilestoneId;
 
-    private ProductMilestone currentProductMilestone;
+    @Getter
+    String noRebuildCauseId;
 
-    private List<String> dependencies;
+    @Getter
+    List<String> dependants;
 
-    private List<String> dependants;
-
+    @Getter
+    List<String> dependencies;
 }

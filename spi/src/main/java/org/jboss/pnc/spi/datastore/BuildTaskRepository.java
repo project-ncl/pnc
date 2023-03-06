@@ -18,24 +18,27 @@
 package org.jboss.pnc.spi.datastore;
 
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
+import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface BuildTaskRepository {
 
-    BuildTaskRef getSpecific(Long id) throws RemoteRequestException;
+    Optional<BuildTaskRef> getSpecific(String taskId) throws RemoteRequestException, MissingDataException;
 
-    List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId) throws RemoteRequestException;
+    List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId)
+            throws RemoteRequestException, MissingDataException;
 
     /**
      * @deprecated Used for tests only
      */
     @Deprecated // used in tests only
-    Collection<? extends BuildTaskRef> getAll();
+    Collection<? extends BuildTaskRef> getAll() throws MissingDataException;
 
-    Collection<BuildTaskRef> getUnfinishedTasks() throws RemoteRequestException;
+    Collection<BuildTaskRef> getUnfinishedTasks() throws RemoteRequestException, MissingDataException;
 
     /**
      * @deprecated Used for tests only

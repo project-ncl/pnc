@@ -66,6 +66,7 @@ import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
+import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.slf4j.Logger;
@@ -360,7 +361,7 @@ public class BuildConfigurationProviderImpl extends
         List<BuildTask> runningBuilds;
         try {
             runningBuilds = buildCoordinator.getSubmittedBuildTasks();
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
         List<BuildConfigurationWithLatestBuild> bcsWithLatest = new ArrayList<>();

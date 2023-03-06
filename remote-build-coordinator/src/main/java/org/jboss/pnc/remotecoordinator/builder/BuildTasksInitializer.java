@@ -296,20 +296,24 @@ public class BuildTasksInitializer {
                         Instant.now(),
                         buildConfigAudited,
                         buildOptions,
-                        user.getId().toString(),
+                        user.getUsername(),
                         true,
-                        noRebuildRequired,
-                        currentProductMilestone);
+                        Optional.ofNullable(noRebuildRequired),
+                        currentProductMilestone,
+                        new ArrayList<>(),
+                        new ArrayList<>());
             } else {
                 remoteBuildTask = new RemoteBuildTask(
                         Sequence.nextBase32Id(),
                         Instant.now(),
                         buildConfigAudited,
                         buildOptions,
-                        user.getId().toString(),
+                        user.getUsername(),
                         false,
-                        noRebuildRequired,
-                        currentProductMilestone);
+                        Optional.ofNullable(noRebuildRequired),
+                        currentProductMilestone,
+                        new ArrayList<>(),
+                        new ArrayList<>());
             }
             Vertex<RemoteBuildTask> remoteBuildTaskVertex = new Vertex<>(remoteBuildTask.getId(), remoteBuildTask);
             graph.addVertex(remoteBuildTaskVertex);
@@ -321,6 +325,12 @@ public class BuildTasksInitializer {
                 if (hasDirectConfigDependencyOn(
                         parentVertex.getData().getBuildConfigurationAudited(),
                         childVertex.getData().getBuildConfigurationAudited())) {
+                    var parent = parentVertex.getData();
+                    var child = childVertex.getData();
+
+                    parent.getDependencies().add(child.getId());
+                    child.getDependants().add(parent.getId());
+
                     graph.addEdge(parentVertex, childVertex, 1);
                 }
             }

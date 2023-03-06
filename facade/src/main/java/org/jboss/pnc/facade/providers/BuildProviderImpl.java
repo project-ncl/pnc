@@ -75,6 +75,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
+import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.jboss.util.graph.Vertex;
@@ -349,7 +350,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     public Page<Build> getBuilds(BuildPageInfo pageInfo) {
         try {
             return getBuildList(pageInfo, _t -> true, (_r, _q, cb) -> cb.conjunction());
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
     }
@@ -360,7 +361,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 && Integer.valueOf(milestoneId).equals(t.getProductMilestone().getId());
         try {
             return getBuildList(pageInfo, predicate, withPerformedInMilestone(Integer.valueOf(milestoneId)));
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
     }
@@ -378,7 +379,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 .equals(t.getBuildConfigurationAudited().getProject().getId());
         try {
             return getBuildList(pageInfo, predicate, withBuildConfigurationIds(buildConfigIds));
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
     }
@@ -419,7 +420,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 .equals(t.getBuildConfigurationAudited().getId());
         try {
             return getBuildList(pageInfo, predicate, withBuildConfigurationId(Integer.valueOf(buildConfigurationId)));
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
     }
@@ -429,7 +430,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         java.util.function.Predicate<BuildTask> predicate = t -> Integer.valueOf(userId).equals(t.getUser().getId());
         try {
             return getBuildList(pageInfo, predicate, withUserId(Integer.valueOf(userId)));
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
     }
@@ -442,7 +443,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 .orElse(false);
         try {
             return getBuildList(pageInfo, predicate, withBuildConfigSetId(Integer.valueOf(groupConfigurationId)));
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
     }
@@ -453,7 +454,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 && t.getBuildConfigSetRecordId() == Integer.parseInt(groupBuildId);
         try {
             return getBuildList(pageInfo, predicate, withBuildConfigSetRecordId(Integer.valueOf(groupBuildId)));
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
     }
@@ -489,7 +490,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         List<BuildTask> runningTasks = null;
         try {
             runningTasks = buildCoordinator.getSubmittedBuildTasksBySetId(buildConfigSetRecord.getId());
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
         List<String> runningAndStoredIds = new ArrayList<>();
@@ -582,7 +583,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                     .stream()
                     .filter(submittedBuild -> submittedBuild.getId().equals(id))
                     .findFirst();
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
         if (buildTask.isPresent()) {
@@ -601,7 +602,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         List<BuildTask> runningBuilds = null;
         try {
             runningBuilds = buildCoordinator.getSubmittedBuildTasks();
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
 
@@ -688,7 +689,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         List<BuildTask> x;
         try {
             x = buildCoordinator.getSubmittedBuildTasks();
-        } catch (RemoteRequestException e) {
+        } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }
 
@@ -858,7 +859,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     private Page<Build> getBuildList(
             BuildPageInfo pageInfo,
             java.util.function.Predicate<BuildTask> predicate,
-            Predicate<BuildRecord> dbPredicate) throws RemoteRequestException {
+            Predicate<BuildRecord> dbPredicate) throws RemoteRequestException, MissingDataException {
 
         if (pageInfo.isRunning()) {
             if (pageInfo.isLatest()) {
@@ -879,7 +880,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
      * Returns the page of Latest Running build filtered by given predicate.
      */
     private Page<Build> getLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate)
-            throws RemoteRequestException {
+            throws RemoteRequestException, MissingDataException {
         List<Build> build = readLatestRunningBuild(predicate).map(Collections::singletonList)
                 .orElse(Collections.emptyList());
         return new Page<>(0, 1, build.size(), build.size(), build);
@@ -889,7 +890,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
      * Returns the page of Running builds filtered by given BuildPageInfo and predicate.
      */
     private Page<Build> getRunningBuilds(BuildPageInfo pageInfo, java.util.function.Predicate<BuildTask> predicate)
-            throws RemoteRequestException {
+            throws RemoteRequestException, MissingDataException {
         List<Build> runningBuilds = readRunningBuilds(pageInfo, predicate);
 
         List<Build> builds = runningBuilds.stream()
@@ -909,7 +910,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
      */
     private Page<Build> getLatestBuild(
             java.util.function.Predicate<BuildTask> predicate,
-            Predicate<BuildRecord> dbPredicate) throws RemoteRequestException {
+            Predicate<BuildRecord> dbPredicate) throws RemoteRequestException, MissingDataException {
         TreeSet<Build> sorted = new TreeSet<>(Comparator.comparing(Build::getSubmitTime).reversed());
         readLatestRunningBuild(predicate).ifPresent(sorted::add);
         readLatestFinishedBuild(dbPredicate).ifPresent(sorted::add);
@@ -926,7 +927,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     private Page<Build> getBuilds(
             BuildPageInfo pageInfo,
             java.util.function.Predicate<BuildTask> predicate,
-            Predicate<BuildRecord> dbPredicate) throws RemoteRequestException {
+            Predicate<BuildRecord> dbPredicate) throws RemoteRequestException, MissingDataException {
         List<Build> runningBuilds = readRunningBuilds(pageInfo, predicate);
 
         int firstPossibleDBIndex = pageInfo.getPageIndex() * pageInfo.getPageSize() - runningBuilds.size();
@@ -1014,7 +1015,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     }
 
     private List<Build> readRunningBuilds(BuildPageInfo pageInfo, java.util.function.Predicate<BuildTask> predicate)
-            throws RemoteRequestException {
+            throws RemoteRequestException, MissingDataException {
         java.util.function.Predicate<Build> streamPredicate = (f) -> true;
         if (!StringUtils.isEmpty(pageInfo.getQ())) {
             streamPredicate = rsqlPredicateProducer.getStreamPredicate(pageInfo.getQ());
@@ -1061,7 +1062,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     }
 
     private Optional<Build> readLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate)
-            throws RemoteRequestException {
+            throws RemoteRequestException, MissingDataException {
         return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(Objects::nonNull)
                 .filter(predicate)
                 .sorted(Comparator.comparing(BuildTask::getSubmitTime).reversed())

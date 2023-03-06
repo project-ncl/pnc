@@ -366,6 +366,11 @@ public class DefaultDatastore implements Datastore {
         return buildConfigSetRecordRepository.queryById(buildConfigSetRecordId);
     }
 
+    @Override
+    public BuildConfigurationAudited getBuildConfigurationAudited(IdRev idRev) {
+        return buildConfigurationAuditedRepository.queryById(idRev);
+    }
+
     /**
      * Rebuild is required if Build Configuration has been modified or a dependency has been rebuilt since last
      * successful build.
