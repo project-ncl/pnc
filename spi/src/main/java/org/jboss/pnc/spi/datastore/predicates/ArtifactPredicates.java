@@ -149,4 +149,8 @@ public class ArtifactPredicates {
         return ((root, query, cb) -> sha1.isPresent() ? cb.equal(root.get(Artifact_.sha1), sha1.get()) : cb.and());
     }
 
+    public static Predicate<Artifact> withPurl(String purl) {
+        return (root, query, cb) -> cb.equal(root.get(Artifact_.purl), purl);
+    }
+
 }

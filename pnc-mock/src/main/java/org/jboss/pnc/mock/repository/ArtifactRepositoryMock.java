@@ -31,4 +31,9 @@ public class ArtifactRepositoryMock extends IntIdRepositoryMock<Artifact> implem
     public Set<Artifact> withIdentifierAndSha256s(Set<Artifact.IdentifierSha256> identifierSha256s) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public Artifact withPurl(String purl) {
+        throw new UnsupportedOperationException();
+    }
 }

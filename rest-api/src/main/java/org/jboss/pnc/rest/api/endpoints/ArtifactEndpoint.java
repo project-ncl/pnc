@@ -80,6 +80,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Client
 public interface ArtifactEndpoint {
     static final String A_ID = "ID of the artifact";
+    static final String A_PURL = "Purl of the artifact";
     static final String A_REV = "Revision number of the artifact";
 
     static final String GET_ALL_DESC = "Gets all artifacts.";
@@ -181,6 +182,28 @@ public interface ArtifactEndpoint {
     @GET
     @Path("/{id}")
     Artifact getSpecific(@Parameter(description = "ID of the Artifact") @PathParam("id") String id);
+
+    /**
+     * {@value GET_SPECIFIC_DESC}
+     *
+     * @param purl {@value A_PURL}
+     * @return
+     */
+    @Operation(
+            summary = GET_SPECIFIC_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Artifact.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/purl/{purl}")
+    Artifact getSpecificFromPurl(@Parameter(description = "Purl of the Artifact") @PathParam("purl") String purl);
 
     static final String CREATE_DESC = "Creates a new Artifact.";
 
