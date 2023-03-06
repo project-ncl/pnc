@@ -150,6 +150,11 @@
             <artifactId>pnc-api</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc.rex</groupId>
+            <artifactId>model</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
