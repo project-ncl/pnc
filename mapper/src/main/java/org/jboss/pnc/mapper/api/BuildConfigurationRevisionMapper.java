@@ -45,7 +45,7 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "parameters", source = "genericParameters")
     @Mapping(target = "creationUser", qualifiedBy = Reference.class)
     @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "buildRecords", "buildConfiguration" })
+    @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "buildConfiguration" })
     BuildConfigurationRevision toDTO(BuildConfigurationAudited dbEntity);
 
     @Mapping(target = "repositoryConfiguration", source = "scmRepository", qualifiedBy = IdEntity.class)
@@ -63,7 +63,7 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @BeanMapping(
-            ignoreUnmappedSourceProperties = { "idRev", "buildRecords", "buildConfiguration", "repositoryConfiguration",
+            ignoreUnmappedSourceProperties = { "idRev", "buildConfiguration", "repositoryConfiguration",
                     "buildEnvironment", "project", "genericParameters", "creationUser", "lastModificationUser" })
     BuildConfigurationRevisionRef toRef(BuildConfigurationAudited dbEntity);
 }

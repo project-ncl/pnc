@@ -46,12 +46,11 @@ public interface BuildPushResultMapper
             resultType = ProductMilestoneCloseResultRef.class)
     @Mapping(target = "logContext", expression = "java( logContext(db) )")
     @Mapping(target = "message", ignore = true)
-    @BeanMapping(ignoreUnmappedSourceProperties = { "tagPrefix", "artifactImportErrors", "log" })
+    @BeanMapping(ignoreUnmappedSourceProperties = { "tagPrefix", "log" })
     BuildPushResult toDTO(BuildRecordPushResult db);
 
     @Mapping(target = "buildId", source = "buildRecord")
-    @BeanMapping(
-            ignoreUnmappedSourceProperties = { "tagPrefix", "artifactImportErrors", "log", "productMilestoneRelease" })
+    @BeanMapping(ignoreUnmappedSourceProperties = { "tagPrefix", "log", "productMilestoneRelease" })
     @Mapping(target = "logContext", expression = "java( logContext(db) )")
     @Mapping(target = "message", ignore = true)
     BuildPushResultRef toRef(BuildRecordPushResult db);

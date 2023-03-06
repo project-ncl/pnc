@@ -137,7 +137,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     }
 
     @Before
-    public void prepareMock() throws ReflectiveOperationException, IllegalArgumentException, RemoteRequestException {
+    public void prepareMock() throws Exception {
         when(repository.findByIdFetchProperties(any())).thenAnswer(inv -> {
             Base32LongID id = inv.getArgument(0);
             return repositoryList.stream().filter(a -> id.equals(a.getId())).findFirst().orElse(null);

@@ -32,7 +32,9 @@ import org.jboss.pnc.coordinator.notifications.buildTask.BuildCallBack;
 import org.jboss.pnc.coordinator.test.event.TestCDIBuildStatusChangedReceiver;
 import org.jboss.pnc.coordinator.test.mock.EntityManagerMock;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
+import org.jboss.pnc.mapper.BuildTaskMappersImpl;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
+import org.jboss.pnc.mapper.UserFetcher;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
@@ -119,9 +121,9 @@ public class BuildCoordinatorDeployments {
                         SystemConfig.class.getPackage(),
                         ModuleConfigFactory.class.getPackage(),
                         RefToReferenceMapper.class.getPackage())
+                .deleteClasses(BuildTaskMappersImpl.class, UserFetcher.class)
                 .addAsManifestResource("beans.xml")
                 .addAsResource("logback-test.xml", "logback.xml");
-
         log.info("Deployment content: {}", jar.toString(true));
         return jar;
     }

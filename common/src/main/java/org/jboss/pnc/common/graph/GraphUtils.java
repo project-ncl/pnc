@@ -155,6 +155,6 @@ public class GraphUtils {
     }
 
     public static <T> Optional<Vertex<T>> getVertex(Graph<T> buildGraph, String name) {
-        return buildGraph.getVerticies().stream().filter(v -> v.getName().equals(name)).findAny();
+        return Optional.ofNullable(buildGraph.findVertexByName(name));
     }
 }

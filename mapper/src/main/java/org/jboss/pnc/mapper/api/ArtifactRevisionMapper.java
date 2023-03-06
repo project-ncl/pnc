@@ -49,7 +49,7 @@ public interface ArtifactRevisionMapper {
     ArtifactAudited toEntity(ArtifactRevision dtoEntity);
 
     @Mapping(target = "id", expression = "java( dbEntity.getId().toString() )")
-    @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "artifact", "creationUser", "modificationUser" })
+    @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "artifact", "modificationUser" })
     ArtifactRevisionRef toRef(ArtifactAudited dbEntity);
 
 }

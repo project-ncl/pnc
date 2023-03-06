@@ -48,6 +48,7 @@ import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildScheduler;
 import org.jboss.pnc.spi.coordinator.BuildSetTask;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.InMemory;
 import org.jboss.pnc.spi.coordinator.ProcessException;
@@ -108,6 +109,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private DatastoreAdapter datastoreAdapter;
     private Event<BuildStatusChangedEvent> buildStatusChangedEventNotifier;
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
+
+    @Override
+    public void completeBuild(BuildTaskRef buildTask, Optional<BuildResult> buildResult) {
+        throw new UnsupportedOperationException("Legacy Coordinator does not support new way of saving result");
+    }
 
     private BuildScheduler buildScheduler;
 
@@ -562,8 +568,15 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public void updateBuildConfigSetRecordStatus(BuildConfigSetRecord setRecord, BuildStatus status, String description)
-            throws CoreException {
+    public void updateBuildTaskStatus(BuildTaskRef task, BuildCoordinationStatus status) {
+        throw new UnsupportedOperationException("This method should not be used with InMemory coordinator");
+    }
+
+    @Override
+    public void storeAndNotifyBuildConfigSetRecord(
+            BuildConfigSetRecord setRecord,
+            BuildStatus status,
+            String description) throws CoreException {
         throw new UnsupportedOperationException("To be used only with the remote build coordinator.");
     }
 

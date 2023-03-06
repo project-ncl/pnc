@@ -907,7 +907,7 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
         private Boolean temporaryBuild;
 
-        AlignmentPreference alignmentPreference;
+        private AlignmentPreference alignmentPreference;
 
         private Date submitTime;
 
