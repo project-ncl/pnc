@@ -25,7 +25,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
+import org.jboss.pnc.rex.model.requests.NotificationRequest;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -51,7 +54,7 @@ public interface BuildTaskEndpoint {
     @Path("/{taskId}/completed")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Deprecated
-    public Response buildTaskCompleted(
+    Response buildTaskCompleted(
             @Parameter(description = "Build task id") @PathParam("taskId") String buildId,
             @Parameter(
                     description = "Build result",
@@ -64,9 +67,20 @@ public interface BuildTaskEndpoint {
     @POST
     @Path("/{taskId}/completed")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response buildTaskCompletedJson(
+    @Deprecated
+    Response buildTaskCompletedJson(
             @Parameter(description = "Build task id") @PathParam("taskId") String buildId,
             @Parameter(description = "Build result", required = true) BuildResultRest buildResult)
             throws InvalidEntityException;
 
+    @Operation(
+            summary = "Persists build or notifies client about a status transition in a active build process.",
+            responses = { @ApiResponse(responseCode = SUCCESS_CODE, description = SUCCESS_DESCRIPTION) })
+    @POST
+    @Path("/{buildId}/notify")
+    @Consumes(MediaType.APPLICATION_JSON)
+    Response buildTaskNotification(
+            @Parameter(description = "Build id") @PathParam("buildId") @NotBlank String buildId,
+            @Parameter(description = "Notification body", required = true) @NotNull NotificationRequest notification)
+            throws InvalidEntityException;
 }

@@ -38,6 +38,9 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.mock.spi.BuildDriverResultMock;
+import org.jboss.pnc.rex.common.enums.State;
+import org.jboss.pnc.rex.model.requests.MinimizedTask;
+import org.jboss.pnc.rex.model.requests.NotificationRequest;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
@@ -53,6 +56,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static org.jboss.pnc.integration.setup.RestClientConfiguration.BASE_REST_PATH;
 
 /**
@@ -98,6 +102,39 @@ public class BuildTaskEndpointTest {
                 Assert.assertEquals(
                         "Received error response code. Response: " + printEntity(response),
                         400, // validation failure is expected; 500 when deserialization fails
+                        statusCode);
+            }
+        } catch (IOException e) {
+            Assertions.fail("Cannot invoke remote endpoint.", e);
+        }
+    }
+
+    @Test
+    public void shouldRejectBuildIdNotEqualToRexName() {
+        // given
+        String buildId = "AAAAAAAAA";
+        String rexTaskName = "AAAAAAAAB";
+        NotificationRequest smallNotification = NotificationRequest.builder()
+                .before(State.NEW)
+                .after(State.ENQUEUED)
+                .task(MinimizedTask.builder().name(rexTaskName).constraint("123:32").build())
+                .build();
+
+        // when
+        HttpPost request = new HttpPost(url + BASE_REST_PATH + "/build-tasks/AAAAA/notify");
+        request.addHeader(Credentials.USER.createAuthHeader(BasicHeader::new));
+        request.addHeader("Content-type", MediaType.APPLICATION_JSON);
+
+        String jsonBody = JsonOutputConverterMapper.apply(smallNotification);
+        request.setEntity(new StringEntity(jsonBody, ContentType.APPLICATION_JSON));
+        // then
+        int statusCode = -1;
+        try (CloseableHttpClient httpClient = HttpUtils.getPermissiveHttpClient()) {
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                statusCode = response.getStatusLine().getStatusCode();
+                Assert.assertEquals(
+                        "Received error response code. Response: " + printEntity(response),
+                        BAD_REQUEST.getStatusCode(), // validation failure is expected; 500 when deserialization fails
                         statusCode);
             }
         } catch (IOException e) {
