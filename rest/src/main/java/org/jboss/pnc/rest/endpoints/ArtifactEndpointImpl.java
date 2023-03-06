@@ -103,6 +103,11 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
     }
 
     @Override
+    public Artifact getSpecificFromPurl(String purl) {
+        return artifactProvider.getSpecificFromPurl(purl);
+    }
+
+    @Override
     public Artifact create(Artifact artifact) {
         return endpointHelper.create(artifact);
     }

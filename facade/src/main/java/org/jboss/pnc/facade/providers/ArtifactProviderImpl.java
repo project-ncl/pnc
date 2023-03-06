@@ -65,6 +65,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import javax.ws.rs.NotFoundException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -366,6 +367,15 @@ public class ArtifactProviderImpl
         ArtifactAudited auditedArtifact = artifactAuditedRepository.queryById(idRev);
 
         return artifactRevisionMapper.toDTO(auditedArtifact);
+    }
+
+    @Override
+    public org.jboss.pnc.dto.Artifact getSpecificFromPurl(String purl) {
+        Artifact artifact = ((ArtifactRepository) repository).withPurl(purl);
+        if (artifact == null) {
+            throw new NotFoundException();
+        }
+        return mapper.toDTO(artifact);
     }
 
     private CriteriaQuery<Tuple> artifactInfoQuery(
