@@ -52,4 +52,15 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
         return artifactsMatchingIdentifier;
     }
 
+    @Override
+    public Artifact withPurl(String purl) {
+
+        List<Artifact> artifacts = queryWithPredicates(ArtifactPredicates.withPurl(purl));
+        if (artifacts != null && !artifacts.isEmpty()) {
+            return artifacts.get(0);
+        }
+
+        return null;
+    }
+
 }
