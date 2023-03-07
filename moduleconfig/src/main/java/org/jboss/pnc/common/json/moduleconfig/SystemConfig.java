@@ -103,6 +103,8 @@ public class SystemConfig extends AbstractModuleConfig {
 
     private final long recordUpdateJobMillisDelay; // delay between job that updates setRecord statuses; optional
 
+    private final boolean recordUpdateJobEnabled;
+
     public SystemConfig(
             @JsonProperty("authenticationProviderId") String authenticationProviderId,
             @JsonProperty("coordinatorThreadPoolSize") String coordinatorThreadPoolSize,
@@ -129,7 +131,8 @@ public class SystemConfig extends AbstractModuleConfig {
             @JsonProperty("infinispanClusterName") String infinispanClusterName,
             @JsonProperty("infinispanTransportProperties") String infinispanTransportProperties,
             @JsonProperty("legacyBuildCoordinator") String legacyBuildCoordinator,
-            @JsonProperty("recordUpdateJobMillisDelay") String recordUpdateJobMillisDelay) {
+            @JsonProperty("recordUpdateJobMillisDelay") String recordUpdateJobMillisDelay,
+            @JsonProperty("recordUpdateJobEnabled") String recordUpdateJobEnabled) {
         this.authenticationProviderId = authenticationProviderId;
         this.coordinatorThreadPoolSize = toIntWithDefault("coordinatorThreadPoolSize", coordinatorThreadPoolSize, 1);
         this.coordinatorMaxConcurrentBuilds = toIntWithDefault(
@@ -168,7 +171,8 @@ public class SystemConfig extends AbstractModuleConfig {
         this.recordUpdateJobMillisDelay = toLongWithDefault(
                 "recordUpdateJobMillisDelay",
                 recordUpdateJobMillisDelay,
-                5000);
+                30000);
+        this.recordUpdateJobEnabled = Boolean.parseBoolean(recordUpdateJobEnabled);
     }
 
     public static Properties readProperties(String file) {
@@ -345,4 +349,7 @@ public class SystemConfig extends AbstractModuleConfig {
                 + infinispanTransportProperties + '\'' + '}';
     }
 
+    public boolean isRecordUpdateJobEnabled() {
+        return recordUpdateJobEnabled;
+    }
 }
