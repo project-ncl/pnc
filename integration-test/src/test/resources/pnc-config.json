@@ -24,7 +24,8 @@
           "coordinatorMaxConcurrentBuilds": "10",
           "brewTagPattern" : "${product_short_name}-${product_version}-pnc",
           "temporaryBuildsLifeSpan" : "14",
-          "legacyBuildCoordinator" : "true"
+          "legacyBuildCoordinator" : "true",
+          "recordUpdateJobEnabled" : "false"
         },
         {
           "@module-config": "demo-data-config",

@@ -97,7 +97,8 @@ public class DefaultObserverTest {
                 null,
                 null,
                 "true",
-                null);
+                null,
+                "false");
     }
 
     private SystemConfig createKafkaConfiguration() {
@@ -127,7 +128,8 @@ public class DefaultObserverTest {
                 null,
                 null,
                 "true",
-                null);
+                null,
+                "false");
     }
 
     private SystemConfig createInfinispanConfiguration() {
@@ -157,7 +159,8 @@ public class DefaultObserverTest {
                 "pnc-ispn-cluster",
                 null,
                 "true",
-                null);
+                null,
+                "false");
     }
 
 }

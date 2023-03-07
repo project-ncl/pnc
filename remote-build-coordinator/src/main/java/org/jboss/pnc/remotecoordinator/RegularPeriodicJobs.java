@@ -51,7 +51,7 @@ public class RegularPeriodicJobs {
     @PostConstruct
     void initJobs() {
         // Start Periodic Job only if we use Rex-based scheduler
-        if (!config.isLegacyBuildCoordinator()) {
+        if (!config.isLegacyBuildCoordinator() && config.isRecordUpdateJobEnabled()) {
             service.scheduleWithFixedDelay(
                     this::pokeSetRecordTask,
                     0,
