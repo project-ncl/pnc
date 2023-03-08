@@ -179,6 +179,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             throws InvalidEntityException {
         logger.debug("Received transition notification for Build '{}'", buildId);
 
+        // BuildID of endpoint must match the rex task ID
         if (!buildId.equals(notification.getTask().getName())) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Build ID does not correspond to associated Rex Task")
