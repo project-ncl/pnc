@@ -22,11 +22,13 @@ import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.api.constants.Attributes;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.EnvironmentClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.dto.requests.EnvironmentDeprecationRequest;
 import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
@@ -128,6 +130,11 @@ public class EnvironmentEndpointTest {
         Assertions.assertThat(envVers11RetrievedFromDB.getSystemImageId()).isEqualTo("builder-rhel-7-j14-mvn3.6.5:1.1");
         Assertions.assertThat(envVers11RetrievedFromDB.isDeprecated()).isEqualTo(false);
 
+        envVers10RetrievedFromDB = client.getSpecific(envVers10Id);
+        Assertions.assertThat(envVers10RetrievedFromDB.isDeprecated()).isEqualTo(true);
+        Assertions.assertThat(envVers10RetrievedFromDB.getAttributes())
+                .containsEntry(Attributes.DEPRECATION_REPLACEMENT, envVers11RetrievedFromDB.getId());
+
         Environment envVers12 = client
                 .createNew(environmentBuilder.systemImageId("builder-rhel-7-j14-mvn3.6.5:1.2").build());
         String envVers12Id = envVers12.getId();
@@ -142,7 +149,11 @@ public class EnvironmentEndpointTest {
         Assertions.assertThat(envVers12RetrievedFromDB.getName()).isEqualTo(envVers11RetrievedFromDB.getName());
         Assertions.assertThat(envVers12RetrievedFromDB.isDeprecated()).isEqualTo(false);
         Assertions.assertThat(envVers11RetrievedFromDB.isDeprecated()).isEqualTo(true);
+        Assertions.assertThat(envVers11RetrievedFromDB.getAttributes())
+                .containsEntry(Attributes.DEPRECATION_REPLACEMENT, envVers12RetrievedFromDB.getId());
         Assertions.assertThat(envVers10RetrievedFromDB.isDeprecated()).isEqualTo(true);
+        Assertions.assertThat(envVers10RetrievedFromDB.getAttributes())
+                .containsEntry(Attributes.DEPRECATION_REPLACEMENT, envVers12RetrievedFromDB.getId());
     }
 
     @Test
@@ -164,6 +175,44 @@ public class EnvironmentEndpointTest {
         }
         Assertions.assertThat(caught).isNotNull();
         Assertions.assertThat(caught.getCause()).isInstanceOf(javax.ws.rs.ForbiddenException.class);
+    }
+
+    @Test
+    @InSequence(40)
+    public void shouldDeprecateEnvironment() throws ClientException {
+        EnvironmentClient client = new EnvironmentClient(RestClientConfiguration.asSystem());
+
+        // assert state
+        String deprecatingName = "OpenJDK 14.0; Mvn 3.6.5";
+        RemoteCollection<Environment> all = client
+                .getAll(Optional.empty(), Optional.of("deprecated==false;name==\"" + deprecatingName + "\""));
+        assertThat(all.size()).isEqualTo(1);
+        Environment deprecatingEnv = all.iterator().next();
+        assertThat(deprecatingEnv.isDeprecated()).isFalse();
+
+        // With
+        Environment.Builder environmentBuilder = Environment.builder()
+                .name("OpenJDK 14.0; Mvn 3.6.9")
+                .description("OpenJDK 14.0; Mvn 3.6.9")
+                .systemImageRepositoryUrl("quay.io/rh-newcastle")
+                .systemImageType(SystemImageType.DOCKER_IMAGE);
+
+        Environment newEnv = client
+                .createNew(environmentBuilder.systemImageId("builder-rhel-7-j14-mvn3.6.9:1.0").build());
+
+        // When
+        EnvironmentDeprecationRequest request = EnvironmentDeprecationRequest.builder()
+                .replacementEnvironmentId(newEnv.getId())
+                .build();
+        Environment deprecatedEnv = client.deprecate(deprecatingEnv.getId(), request);
+        Environment deprecatedEnvFromDB = client.getSpecific(deprecatedEnv.getId());
+
+        // Then
+        assertThat(deprecatedEnv.isDeprecated()).isTrue();
+        assertThat(deprecatedEnvFromDB.isDeprecated()).isTrue();
+        assertThat(deprecatedEnv.getAttributes()).containsEntry(Attributes.DEPRECATION_REPLACEMENT, newEnv.getId());
+        assertThat(deprecatedEnvFromDB.getAttributes())
+                .containsEntry(Attributes.DEPRECATION_REPLACEMENT, newEnv.getId());
     }
 
 }

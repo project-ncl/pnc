@@ -17,9 +17,12 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import org.jboss.pnc.api.constants.Attributes;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildEnvironment_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+
+import javax.persistence.criteria.MapJoin;
 
 /**
  * Predicates for {@link org.jboss.pnc.model.BuildEnvironment} entity.
@@ -38,6 +41,16 @@ public class EnvironmentPredicates {
         return (root, query, cb) -> cb.and(
                 cb.equal(root.get(BuildEnvironment_.name), name),
                 cb.equal(root.get(BuildEnvironment_.deprecated), false));
+    }
+
+    public static Predicate<BuildEnvironment> replacedBy(String replacementId) {
+        return (root, query, cb) -> {
+            MapJoin<BuildEnvironment, String, String> join = root.join(BuildEnvironment_.attributes);
+            return cb.and(
+                    cb.isTrue(root.get(BuildEnvironment_.deprecated)),
+                    cb.equal(join.key(), Attributes.DEPRECATION_REPLACEMENT),
+                    cb.equal(join.value(), replacementId));
+        };
     }
 
 }
