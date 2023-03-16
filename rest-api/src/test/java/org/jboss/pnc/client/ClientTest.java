@@ -62,22 +62,26 @@ public class ClientTest {
             exchange.getConnection().close();
         }).build();
         server.start();
-
-        Configuration configuration = getBasicConfiguration(8080).addDefaultMdcToHeadersMappings().build();
-
-        ProjectClient projectClient = new ProjectClient(configuration);
-
-        String requestContext = "12345";
-        MDC.put(MDCKeys.REQUEST_CONTEXT_KEY, requestContext);
         try {
-            projectClient.getSpecific("1");
-        } catch (javax.ws.rs.ProcessingException | ClientException e) {
-            // expected
-        }
+            Configuration configuration = getBasicConfiguration(8080).addDefaultMdcToHeadersMappings().build();
 
-        Assert.assertTrue(requestsReceived.intValue() > 2);
-        Assert.assertEquals(requestContext, headerReceived.get());
-        System.out.println("Done!");
+            ProjectClient projectClient = new ProjectClient(configuration);
+
+            String requestContext = "12345";
+            MDC.put(MDCKeys.REQUEST_CONTEXT_KEY, requestContext);
+            try {
+                projectClient.getSpecific("1");
+            } catch (javax.ws.rs.ProcessingException | ClientException e) {
+                // expected
+            }
+
+            Assert.assertTrue(requestsReceived.intValue() > 2);
+            Assert.assertEquals(requestContext, headerReceived.get());
+            System.out.println("Done!");
+
+        } finally {
+            server.stop();
+        }
     }
 
     @Test
