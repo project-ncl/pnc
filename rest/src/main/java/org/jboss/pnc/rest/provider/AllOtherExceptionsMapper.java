@@ -26,12 +26,14 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAllowedException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.RedirectionException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -57,6 +59,10 @@ public class AllOtherExceptionsMapper implements ExceptionMapper<Exception> {
             if (e instanceof NotFoundException) {
                 logger.info("Resource requested by a client was not found.", e);
                 return response; // In case of 404 we want to return the empty body.
+            } else if (e instanceof RedirectionException) {
+                URI location = ((RedirectionException) e).getLocation();
+                logger.info("Sending redirect to {}", location);
+                return response;
             } else if (e instanceof ForbiddenException) {
                 logger.warn("Access to a resource requested by a client has been forbidden.", e);
             } else if (e instanceof NotAllowedException) {
