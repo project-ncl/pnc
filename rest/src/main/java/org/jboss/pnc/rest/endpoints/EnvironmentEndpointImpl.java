@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.dto.requests.EnvironmentDeprecationRequest;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.EnvironmentProvider;
 import org.jboss.pnc.rest.api.endpoints.EnvironmentEndpoint;
@@ -53,6 +54,11 @@ public class EnvironmentEndpointImpl implements EnvironmentEndpoint {
     @Override
     public Environment createNew(Environment environment) {
         return endpointHelper.create(environment);
+    }
+
+    @Override
+    public Environment deprecate(String id, EnvironmentDeprecationRequest request) {
+        return environmentProvider.deprecateEnvironment(id, request.getReplacementEnvironmentId());
     }
 
 }
