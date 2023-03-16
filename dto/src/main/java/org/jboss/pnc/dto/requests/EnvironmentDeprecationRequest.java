@@ -15,20 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.providers.api;
+package org.jboss.pnc.dto.requests;
 
-import org.jboss.pnc.dto.Environment;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
-public interface EnvironmentProvider
-        extends Provider<Integer, org.jboss.pnc.model.BuildEnvironment, Environment, Environment> {
+import javax.validation.constraints.NotBlank;
 
+@Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
+public class EnvironmentDeprecationRequest {
     /**
-     * Marks the environment as deprecated and adds attribute to indicate to what environment should be the deprecated
-     * upgraded to.
-     *
-     * @param id ID of the environment to be deprecated;
-     * @param replacementId ID of the environment that is replacing the environment.
-     * @return The deprecated environment.
+     * The ID of the environment, that should be used instead of the one being deprecated.
      */
-    Environment deprecateEnvironment(String id, String replacementId);
+    @NotBlank
+    String replacementEnvironmentId;
 }

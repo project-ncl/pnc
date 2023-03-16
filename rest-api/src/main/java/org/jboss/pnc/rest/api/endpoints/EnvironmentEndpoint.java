@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.jboss.pnc.dto.Environment;
+import org.jboss.pnc.dto.requests.EnvironmentDeprecationRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
@@ -67,6 +68,7 @@ public interface EnvironmentEndpoint {
 
     static final String GET_ALL_DESC = "Gets all environments.";
     static final String CREATE_NEW_DESC = "Creates a new environment.";
+    static final String DEPRECATE_DESC = "Marks environment as deprecated.";
 
     /**
      * {@value GET_ALL_DESC}
@@ -144,5 +146,31 @@ public interface EnvironmentEndpoint {
     @POST
     @RespondWithStatus(Response.Status.CREATED)
     Environment createNew(@NotNull Environment environment);
+
+    /**
+     * {@value DEPRECATE_DESC}
+     *
+     */
+    @Operation(
+            summary = "[role:admin] " + DEPRECATE_DESC,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = Environment.class))),
+                    @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @POST
+    @Path("/{id}")
+    Environment deprecate(
+            @Parameter(description = E_ID) @PathParam("id") String id,
+            @Valid EnvironmentDeprecationRequest request);
 
 }
