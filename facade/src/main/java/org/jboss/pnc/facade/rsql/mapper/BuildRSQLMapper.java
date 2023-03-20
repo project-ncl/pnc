@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
+import org.jboss.pnc.facade.rsql.RSQLException;
 import org.jboss.pnc.facade.rsql.converter.Base32EncodedLongValueConverter;
 import org.jboss.pnc.facade.rsql.converter.ValueConverter;
 import org.jboss.pnc.model.Base32LongID;
@@ -46,8 +47,11 @@ public class BuildRSQLMapper extends AbstractRSQLMapper<Base32LongID, BuildRecor
     @Override
     protected SingularAttribute<BuildRecord, ? extends GenericEntity<?>> toEntity(String name) {
         switch (name) {
+            case "buildConfigRevision":
+                throw new RSQLException(
+                        "RSQL selector 'buildConfigRevision' is hard or impossible to implement for Builds");
             case "environment":
-                return BuildRecord_.buildEnvironment;
+                throw new RSQLException("RSQL selector 'environment' is hard or impossible to implement for Builds");
             case "user":
                 return BuildRecord_.user;
             case "groupBuild":
