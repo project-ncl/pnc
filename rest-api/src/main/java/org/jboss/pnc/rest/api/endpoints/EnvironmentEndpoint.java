@@ -37,6 +37,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -168,7 +169,7 @@ public interface EnvironmentEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @POST
-    @Path("/{id}")
+    @Path("/{id}/deprecate")
     Environment deprecate(
             @Parameter(description = E_ID) @PathParam("id") String id,
             @Valid EnvironmentDeprecationRequest request);
