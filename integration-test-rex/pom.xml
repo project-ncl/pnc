@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014-2022 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>parent</artifactId>
+    <groupId>org.jboss.pnc</groupId>
+    <version>2.5.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>integration-test-rex</artifactId>
+  <packaging>jar</packaging>
+
+  <description>Tests for REST endpoints. REST to DB related tests run against im memory database. REST to executor related tests use mocked executor to avoid using remote services.</description>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>rest-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>moduleconfig</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>test-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>ear-package</artifactId>
+      <scope>test</scope>
+      <type>ear</type>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>ear-package</artifactId>
+      <scope>test</scope>
+      <type>pom</type>
+      <exclusions>
+        <!-- Avoid using private apis -->
+        <exclusion>
+          <groupId>org.jboss.pnc</groupId>
+          <artifactId>datastore</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.keycloak</groupId>
+      <artifactId>keycloak-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>rest</artifactId>
+      <scope>test</scope>
+      <classifier>classes</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>auth</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.enterprise</groupId>
+      <artifactId>jakarta.enterprise.cdi-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.rest-assured</groupId>
+      <artifactId>rest-assured</artifactId>
+    </dependency>
+    <!-- only here as lombok is too eager to do everything-->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.pnc</groupId>
+      <artifactId>pnc-mock</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.pnc.metrics</groupId>
+      <artifactId>pncmetrics</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.junit</groupId>
+      <artifactId>arquillian-junit-container</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.arquillian</groupId>
+      <artifactId>wildfly-arquillian-container-managed</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.arquillian.extension</groupId>
+      <artifactId>arquillian-transaction-jta</artifactId>
+    </dependency>
+    <dependency>
+      <artifactId>jboss-transaction-api_1.3_spec</artifactId>
+      <groupId>org.jboss.spec.javax.transaction</groupId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.spec.javax.websocket</groupId>
+      <artifactId>jboss-websocket-api_1.1_spec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap</groupId>
+      <artifactId>shrinkwrap-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.resolver</groupId>
+      <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.shrinkwrap.descriptors</groupId>
+      <artifactId>shrinkwrap-descriptors-impl-javaee</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency> <!--Required to add lib to Arquillian deployment. -->
+      <groupId>org.jboss</groupId>
+      <artifactId>jboss-common-core</artifactId>
+    </dependency>
+    <!--<dependency>-->
+      <!--<groupId>com.fasterxml.jackson.datatype</groupId>-->
+      <!--<artifactId>jackson-datatype-joda</artifactId>-->
+    <!--</dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>com.fasterxml.jackson.datatype</groupId>-->
+<!--      <artifactId>jackson-datatype-jdk8</artifactId>-->
+<!--      <scope>test</scope>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>com.fasterxml.jackson.datatype</groupId>-->
+<!--      <artifactId>jackson-datatype-jsr310</artifactId>-->
+<!--      <scope>test</scope>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.jboss.resteasy</groupId>-->
+<!--      <artifactId>resteasy-jackson2-provider</artifactId>-->
+<!--      <scope>test</scope>-->
+<!--    </dependency>-->
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.java-json-tools</groupId>
+      <artifactId>json-patch</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.dasniko</groupId>
+      <artifactId>testcontainers-keycloak</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.jboss.shrinkwrap</groupId>
+          <artifactId>shrinkwrap-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.jboss.shrinkwrap</groupId>
+          <artifactId>shrinkwrap-impl-base</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-junit4-mock</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <additionalClasspathElements>
+            <additionalClasspathElement>${project.basedir}/ear-package/target/ear-package-${project.version}.ear</additionalClasspathElement>
+          </additionalClasspathElements>
+          <includes>
+            <include>**/*.java</include> <!--TODO rename tests to follow the convention. (*IT.java, IT*.java) -->
+          </includes>
+          <groups>org.jboss.pnc.test.category.ContainerTest</groups>
+          <excludedGroups>org.jboss.pnc.test.category.DebugTest</excludedGroups>
+          <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <systemPropertyVariables>
+            <pnc-config-path>${test.server.unpack.dir}/${app.server}-${jboss.version}/pnc-config.json</pnc-config-path>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>auth</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>copy-auth-properties</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>copy-resources</goal>
+                </goals>
+                <configuration>
+                  <overwrite>true</overwrite>
+                  <outputDirectory>${project.build.testOutputDirectory}/</outputDirectory>
+                  <resources>
+                    <resource>
+                      <directory>${project.basedir}/src/main/auth/</directory>
+                      <includes>
+                        <include>auth.properties</include>
+                      </includes>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>download-server</id>
+      <activation>
+        <property>
+          <name>eap.zip.url</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>download-and-extract-eap-server</id>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <target>
+                    <!-- If JBOSS_HOME is set it causes obscure errors with CLI in -->
+                    <!-- wildfly-maven-plugin. -->
+                    <property environment="env" />
+                    <fail message="JBOSS_HOME must not be set" if="env.JBOSS_HOME" />
+
+                    <echo>Preparing EAP application server</echo>
+                    <echo>EAP URL ${eap.zip.url}</echo>
+                    <fail message="Please specify EAP zip file URL via: -Deap.zip.url=" unless="eap.zip.url" />
+                    <mkdir dir="${test.server.unpack.dir}" />
+                    <get usetimestamp="true" src="${eap.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
+                    <unzip src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" dest="${test.server.unpack.dir}/" overwrite="true" />
+
+                    <!-- TODO remove internal URL -->
+                    <get usetimestamp="true" src="${eap-sso-adapter.url}"
+                         skipexisting="true"
+                         dest="${test.server.unpack.dir}/rh-sso-7.6.1-eap7-adapter-dist.zip" />
+                    <!-- variable in the path -->
+                    <unzip src="${test.server.unpack.dir}/rh-sso-7.6.1-eap7-adapter-dist.zip" dest="${test.server.unpack.dir}/jboss-eap-7.4/" overwrite="true" />
+
+                    <copy file="src/test/resources/pnc-config.json" tofile="${test.server.unpack.dir}/${app.server}-${jboss.version}/pnc-config.json" />
+
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>configure-test-container</id>
+      <activation>
+        <property>
+          <name>eap.zip.url</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.hsqldb</groupId>
+          <artifactId>hsqldb</artifactId>
+          <scope>compile</scope>
+          <classifier>debug</classifier>
+        </dependency>
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.wildfly.plugins</groupId>
+            <artifactId>wildfly-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>start-server</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+                <configuration>
+                  <jbossHome>${test.server.build.dir}</jbossHome>
+                  <java-opts>
+                    <java-opt>--add-modules=java.se</java-opt>
+                  </java-opts>
+                </configuration>
+              </execution>
+              <!-- HSQLDB JDBC driver installation and datasource configuration -->
+              <execution>
+                <id>deploy-hsql-jdbc-driver</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>deploy-artifact</goal>
+                </goals>
+                <configuration>
+                  <groupId>org.hsqldb</groupId>
+                  <artifactId>hsqldb</artifactId>
+                  <classifier>debug</classifier>
+                </configuration>
+              </execution>
+              <execution>
+                <id>add-hsql-datasource</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>add-resource</goal>
+                </goals>
+                <configuration>
+                  <address>subsystem=datasources,data-source=java:jboss/datasources/NewcastleTestDS</address>
+                  <resources>
+                    <resource>
+                      <properties>
+                        <jndi-name>java:jboss/datasources/NewcastleTestDS</jndi-name>
+                        <enabled>true</enabled>
+                        <connection-url>jdbc:hsqldb:mem:newcastletestmemdb</connection-url>
+                        <driver-class>org.hsqldb.jdbc.JDBCDriver</driver-class>
+                        <driver-name>hsqldb-2.7.1-debug.jar</driver-name>
+                        <user-name>sa</user-name>
+                        <password>sa</password>
+                      </properties>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+              <!-- End HSQLDB configuraiton -->
+              <execution>
+                <id>change-logging-level</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>execute-commands</goal>
+                </goals>
+                <configuration>
+                  <execute-commands>
+<!--                    <batch>true</batch>-->
+                    <commands>
+                      <command>
+                        /subsystem=logging/logger=org:add(level=INFO)
+                      </command>
+                      <command>
+                        /subsystem=logging/logger=io:add(level=INFO)
+                      </command>
+                      <command>
+                        /subsystem=logging/logger=javax:add(level=INFO)
+                      </command>
+                      <command>
+                        /subsystem=logging/logger=org.jboss.pnc:add(level=DEBUG)
+                      </command>
+                      <command>
+                        /subsystem=logging/console-handler=CONSOLE:change-log-level(level=DEBUG)
+                      </command>
+                      <command>
+                        /subsystem=logging/root-logger=ROOT:change-root-log-level(level=DEBUG)
+                      </command>
+
+                      <!-- Add microprofile stuff -->
+                      <command>
+                        /extension=org.wildfly.extension.microprofile.config-smallrye:add
+                      </command>
+                      <command>
+                        /subsystem=microprofile-config-smallrye:add
+                      </command>
+                      <command>
+                        /extension=org.wildfly.extension.microprofile.fault-tolerance-smallrye:add
+                      </command>
+                      <command>
+                        /subsystem=microprofile-fault-tolerance-smallrye:add
+                      </command>
+                      <command>
+                        /extension=org.wildfly.extension.microprofile.metrics-smallrye:add
+                      </command>
+                      <command>
+                        /subsystem=microprofile-metrics-smallrye:add
+                      </command>
+                      <!--log sql queries and parameter bindings-->
+                      <!--command>
+                        /subsystem=logging/logger=org.hibernate.SQL:add(level=DEBUG)
+                      </command>
+                      <command>
+                        /subsystem=logging/logger=org.hibernate.type:add(level=TRACE)
+                      </command-->
+                      <command>
+                        /subsystem=security/security-domain=keycloak/:add
+                      </command>
+                      <command>
+                        /subsystem=security/security-domain=keycloak/authentication=classic/:add(login-modules=[{ "code" => "org.keycloak.adapters.jboss.KeycloakLoginModule","flag" => "required"}])
+                      </command>
+                      <command>
+                        /extension=org.keycloak.keycloak-adapter-subsystem/:add(module=org.keycloak.keycloak-adapter-subsystem)
+                      </command>
+                      <command>
+                        /subsystem=keycloak:add
+                      </command>
+                      <command>
+                        /subsystem=keycloak/realm=newcastle-testcontainer:add(realm-public-key="MIIBIjAN...", auth-server-url=" ", ssl-required="none", disable-trust-manager="true")
+                      </command>
+                      <command>
+                        /subsystem=keycloak/secure-deployment=rest.war:add(realm="newcastle-testcontainer", resource="pnc", public-client="true", bearer-only="true")
+                      </command>
+                      <command>
+                        /subsystem=ee:write-attribute(name="global-modules",value=[{"name" => "org.keycloak.keycloak-core","slot" => "main"}])
+                      </command>
+                    </commands>
+                  </execute-commands>
+                </configuration>
+              </execution>
+              <execution>
+                <id>shutdown-server</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>shutdown</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
+</project>

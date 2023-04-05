@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    JBoss, Home of Professional Open Source.
+    Copyright 2014-2022 Red Hat, Inc., and individual contributors
+    as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<persistence version="2.0"
+             xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="
+        http://java.sun.com/xml/ns/persistence
+        http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+  <persistence-unit name="primary">
+    <jta-data-source>java:jboss/datasources/NewcastleTestDS</jta-data-source>
+    <jar-file>model.jar</jar-file>
+    <properties>
+      <!-- Properties for Hibernate -->
+      <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
+      <property name="hibernate.hbm2ddl.auto" value="create-drop"/>
+      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.format_sql" value="true"/>
+      <property name="hibernate.generate_statistics" value="true" />
+      <property name="hibernate.session.events.log" value="true" />
+
+      <property name="hibernate.jdbc.batch_size" value="50"/>
+      <property name="hibernate.order_inserts" value="true"/>
+      <property name="hibernate.order_updates" value="true"/>
+      <property name="hibernate.batch_versioned_data" value="true"/>
+
+      <property name="hibernate.cache.use_reference_entries" value="true" />
+      <property name="hibernate.cache.use_second_level_cache" value="true" />
+      <property name="hibernate.cache.use_query_cache" value="false" />
+      <property name="hibernate.cache.region_prefix" value=""/>
+      <property name="hibernate.cache.infinispan.statistics" value="true"/>
+
+      <property name="hibernate.cache.region.factory_class" value="infinispan"/>
+    </properties>
+  </persistence-unit>
+</persistence>
