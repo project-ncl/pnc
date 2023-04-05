@@ -17,10 +17,12 @@
  */
 package org.jboss.pnc.remotecoordinator.rexclient.exception;
 
+import javax.ws.rs.NotFoundException;
+
 /**
  * Requested Task/Build has not been found in Rex.
  */
-public class TaskNotFoundException extends RuntimeException {
+public class TaskNotFoundException extends NotFoundException {
 
     public TaskNotFoundException(String message) {
         super(message);
