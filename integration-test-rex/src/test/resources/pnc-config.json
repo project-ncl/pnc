@@ -1,0 +1,75 @@
+{
+  "@class":"ModuleConfigJson","name":"pnc-config",
+  "configs":[
+    {
+      "@module-group": "global",
+      "bpmUrl": "http://bpmHost/",
+      "daUrl": "http://daHost/",
+      "indyUrl": "http://indyHost/",
+      "pncUrl": "http://pncHost/",
+      "repourUrl": "http://repourHost/",
+
+      "externalDaUrl": "",
+      "externalIndyUrl": "http://localhost/indy-external/",
+      "externalPncUrl": "",
+      "externalBifrostUrl": "http://localhost:8081/"
+    },
+    {
+      "@module-group":"pnc",
+      "configs": [
+        {
+          "@module-config": "system-config",
+          "authenticationProviderId": "Keycloak",
+          "coordinatorThreadPoolSize": "1",
+          "coordinatorMaxConcurrentBuilds": "10",
+          "brewTagPattern" : "${product_short_name}-${product_version}-pnc",
+          "temporaryBuildsLifeSpan" : "14",
+          "legacyBuildCoordinator" : "false",
+          "recordUpdateJobEnabled" : "false"
+        },
+        {
+          "@module-config": "demo-data-config",
+          "importDemoData": true,
+          "internalRepos": ["ssh://git@github.com:22/project-ncl/pnc.git",
+            "ssh://git@github.com:22/project-ncl/termd.git",
+            "ssh://git@github.com:22/project-ncl/pnc-build-agent.git",
+            "ssh://git@github.com:22/project-ncl/dependency-analysis.git",
+            "ssh://git@github.com:22/project-ncl/causeway.git"
+          ]
+        },
+        {
+          "@module-config": "alignment-config",
+          "alignmentParameters" : {
+            "MVN" : "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
+            "NPM" : "",
+            "GRADLE": "--info -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true",
+            "SBT" : ""
+          }
+        },
+        {
+          "@module-config": "bpm-config",
+          "httpConnectionRequestTimeout": "${env.HTTP_CONNECTION_REQUEST_TIMEOUT}"
+        },
+        {
+          "@module-config": "ui",
+          "pncNotificationsUrl": "${env.PNC_UI_PNC_NOTIFICATIONS_URL}",
+          "ssoTokenLifespan": "${env.SSO_TOKEN_FILESPAN}",
+          "keycloak":
+          {
+            "url": "${PNC_UI_KEYCLOAK_URL}",
+            "realm": "newcastle-testcontainer",
+            "clientId": "pnc"
+          }
+        },
+        {
+          "@module-config": "scm-config",
+          "internalScmAuthority": "git@github.com:22"
+        },
+        {
+          "@module-config": "scheduler-config",
+          "schedulerBaseUrl": "${PNC_SCHEDULER_BASE_URL}"
+        }
+      ]
+    }
+  ]
+}

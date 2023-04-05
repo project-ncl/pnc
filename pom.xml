@@ -83,6 +83,7 @@
     <module>web</module>
     <module>demo-data</module>
     <module>integration-test</module>
+    <module>integration-test-rex</module>
     <module>pnc-mock</module> <!-- keep 'pnc' prefix as 'mock' is dy default ignored in some cases (intellij) -->
     <module>bpm</module>
     <module>processor</module>
@@ -597,6 +598,12 @@
 
       <dependency>
         <groupId>org.jboss.pnc</groupId>
+        <artifactId>integration-test-rex</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc</groupId>
         <artifactId>demo-data</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -821,6 +828,19 @@
       </dependency>
 
       <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers</artifactId>
+        <version>1.18.0</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.github.dasniko</groupId>
+        <artifactId>testcontainers-keycloak</artifactId>
+        <version>2.1.2</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
         <groupId>org.dbunit</groupId>
         <artifactId>dbunit</artifactId>
         <version>${version.dbunit}</version>
@@ -899,7 +919,6 @@
         <version>${version.com.fasterxml.jackson.datatype}</version>
         <scope>provided</scope>
       </dependency>
-
       <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>

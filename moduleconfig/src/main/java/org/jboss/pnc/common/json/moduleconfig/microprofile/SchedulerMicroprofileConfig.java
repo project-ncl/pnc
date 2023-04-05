@@ -26,7 +26,7 @@ import java.util.Set;
 
 public class SchedulerMicroprofileConfig implements ConfigSource {
 
-    private static final String SCHEDULER_URL_KEY = "scheduler-client/mp-rest/url";
+    public static final String SCHEDULER_URL_KEY = "scheduler-client/mp-rest/url";
     private static final String SCHEDULER_CONNECT_TIMEOUT_KEY = "scheduler-client/mp-rest/connectTimeout";
     private static final String SCHEDULER_READ_TIMEOUT_KEY = "scheduler-client/mp-rest/readTimeout";
     private static final String SCHEDULER_FOLLOW_REDIRECTS_KEY = "scheduler-client/mp-rest/followRedirects";
@@ -64,7 +64,11 @@ public class SchedulerMicroprofileConfig implements ConfigSource {
 
     @Override
     public String getValue(String key) {
-        return properties.get(key);
+        if (System.getProperty(SCHEDULER_URL_KEY) != null) {
+            return System.getProperty(SCHEDULER_URL_KEY);
+        } else {
+            return properties.get(key);
+        }
     }
 
     @Override
