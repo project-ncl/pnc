@@ -118,7 +118,7 @@
     <!-- -redhat version is missing some packages -->
     <version.com.github.json-patch>1.13</version.com.github.json-patch>
     <!-- SYNC commons-* with EAP provided versions (they can be found in eap-runtime-artifacts pom) -->
-    <version.commons-lang>2.6</version.commons-lang>
+    <version.commons-lang>2.6-redhat-2</version.commons-lang>
     <version.commons-logging>1.2</version.commons-logging>
     <version.commons-collections>3.2.2</version.commons-collections>
     <version.commons-validator>1.7</version.commons-validator>
