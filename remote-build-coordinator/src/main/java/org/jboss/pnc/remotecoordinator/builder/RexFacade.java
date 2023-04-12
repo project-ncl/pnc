@@ -18,10 +18,10 @@
 
 package org.jboss.pnc.remotecoordinator.builder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.entity.ContentType;
 import org.jboss.pnc.api.constants.HttpHeaders;
-import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
@@ -36,6 +36,7 @@ import org.jboss.pnc.remotecoordinator.BpmEndpointUrlFactory;
 import org.jboss.pnc.remotecoordinator.rexclient.RexHttpClient;
 import org.jboss.pnc.remotecoordinator.rexclient.exception.ConflictResponseException;
 import org.jboss.pnc.remotecoordinator.rexclient.exception.TaskNotFoundException;
+import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.rex.api.parameters.TaskFilterParameters;
 import org.jboss.pnc.rex.common.enums.Mode;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
@@ -112,6 +113,8 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         UNFINISHED_STATES = EnumSet.copyOf(WAITING_STATES);
         UNFINISHED_STATES.addAll(RUNNING_STATES);
     }
+
+    private static final ObjectMapper jsonMapper = new JacksonProvider().getMapper();
 
     private static final String INIT_DATA = "initData";
 
@@ -197,11 +200,15 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     }
 
     private static BuildMeta getBuildMetadata(TaskDTO taskDTO) throws MissingDataException {
-        if (taskDTO.getCallerNotifications() == null
-                || !(taskDTO.getCallerNotifications().getAttachment() instanceof BuildMeta)) {
+        if (taskDTO.getCallerNotifications() == null) {
             throw new MissingDataException("BuildMeta metadata missing for Build " + taskDTO.name);
         }
-        return (BuildMeta) taskDTO.getCallerNotifications().getAttachment();
+
+        try {
+            return jsonMapper.convertValue(taskDTO.getCallerNotifications().getAttachment(), BuildMeta.class);
+        } catch (IllegalArgumentException e) {
+            throw new MissingDataException("BuildMeta metadata missing for Build " + taskDTO.name, e);
+        }
     }
 
     @Override
