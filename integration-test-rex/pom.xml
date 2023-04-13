@@ -351,6 +351,48 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.1.0</version>
+            <configuration>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <!-- automatically creates the classpath using all project dependencies,
+                     also adding the project build directory -->
+                <classpath/>
+                <argument>org.jboss.pnc.integrationrex.GetFreePort</argument>
+              </arguments>
+            </configuration>
+            <executions>
+              <execution>
+                <id>prepare-properties</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>properties-maven-plugin</artifactId>
+            <version>1.1.0</version>
+            <executions>
+              <execution>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>read-project-properties</goal>
+                </goals>
+                <configuration>
+                  <files>
+                    <file>${basedir}/target/test.properties</file>
+                  </files>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
             <groupId>org.wildfly.plugins</groupId>
             <artifactId>wildfly-maven-plugin</artifactId>
             <executions>
@@ -471,8 +513,11 @@
                       <command>
                         /subsystem=keycloak:add
                       </command>
-                      <command>
+                      <!--command>
                         /subsystem=keycloak/realm=newcastle-testcontainer:add(realm-public-key="MIIBIjAN...", auth-server-url=" ", ssl-required="none", disable-trust-manager="true")
+                      </command-->
+                      <command> <!-- TODO realm-public-key -->
+                        /subsystem=keycloak/realm=newcastle-testcontainer:add(auth-server-url="http://localhost:${keycloakPort}", ssl-required="none", disable-trust-manager="true")
                       </command>
                       <command>
                         /subsystem=keycloak/secure-deployment=rest.war:add(realm="newcastle-testcontainer", resource="pnc", public-client="true", bearer-only="true")
