@@ -57,8 +57,9 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.utility.DockerImageName;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -99,14 +100,23 @@ public class BuildTest {
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() throws InterruptedException, IOException {
 
-        KeycloakContainer keycloak = new CustomKeycloakContainer().withRealmImportFile("keycloak-realm-export.json");
+        Properties testProperties = new Properties();
+        try (InputStream propFile = new FileInputStream("target/test.properties")) {
+            testProperties.load(propFile);
+        }
+
+        KeycloakContainer keycloak = new CustomKeycloakContainer().withExposedPorts(8080)
+                .withRealmImportFile("keycloak-realm-export.json");
+        String keycloakPort = testProperties.getProperty(GetFreePort.KEYCLOAK_PORT);
+        String keycloakPortBinding = keycloakPort + ":" + 8080; // 8080 is in-container port
+        keycloak.setPortBindings(List.of(keycloakPortBinding));
         keycloak.start();
 
         authServerUrl = keycloak.getAuthServerUrl();
 
-        int rexHostPort = getFreeHostPort();
+        int rexHostPort = GetFreePort.getFreeHostPort();
         logger.info("Rex container will bind to host port: {}.", rexHostPort);
-        String portBinding = rexHostPort + ":" + 8080; // 8080 is in-container port
+        String rexPortBinding = rexHostPort + ":" + 8080; // 8080 is in-container port
 
         Consumer<OutputFrame> logConsumer = frame -> logger.debug("REX >>" + frame.getUtf8String());
         GenericContainer rexTC = new GenericContainer(
@@ -118,7 +128,7 @@ public class BuildTest {
                         .withEnv("QUARKUS_OIDC_CLIENR_ID", "pnc")
                         .withEnv("SCHEDULER_BASEURL", "http://localhost:" + rexHostPort);
 
-        rexTC.setPortBindings(List.of(portBinding));
+        rexTC.setPortBindings(List.of(rexPortBinding));
 
         rexTC.start();
 
@@ -140,16 +150,6 @@ public class BuildTest {
         // Thread.sleep(300000);
         final EnterpriseArchive ear = Deployments.testEar();
         return ear;
-    }
-
-    private static int getFreeHostPort() {
-        try (ServerSocket serverSocket = new ServerSocket(0)) {
-            assertThat(serverSocket).isNotNull();
-            assertThat(serverSocket.getLocalPort()).isGreaterThan(0);
-            return serverSocket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private static void waitForConditionWithTimeout(Supplier<Boolean> sup, int timeoutSeconds)
