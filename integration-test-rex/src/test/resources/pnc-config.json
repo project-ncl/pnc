@@ -6,7 +6,7 @@
       "bpmUrl": "http://bpmHost/",
       "daUrl": "http://daHost/",
       "indyUrl": "http://indyHost/",
-      "pncUrl": "http://pncHost/",
+      "pncUrl": "http://host.testcontainers.internal:8080/",
       "repourUrl": "http://repourHost/",
 
       "externalDaUrl": "",
@@ -67,7 +67,7 @@
         },
         {
           "@module-config": "scheduler-config",
-          "schedulerBaseUrl": "${PNC_SCHEDULER_BASE_URL}"
+          "schedulerBaseUrl": "http://localhost:5679"
         }
       ]
     }

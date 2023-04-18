@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories.internal;
 
+import org.hibernate.Session;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;

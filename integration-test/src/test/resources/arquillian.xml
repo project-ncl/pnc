@@ -25,8 +25,8 @@
     <container qualifier="jboss" default="true">
         <configuration>
             <property name="jbossHome">${test.server.build.dir}</property>
-            <property name="javaVmArguments">-Xmx2G --add-modules=java.se -Dpnc-config-file=${test.server.build.dir}/pnc-config.json</property>
-<!--             <property name="javaVmArguments">-Xmx2G &#45;&#45;add-modules=java.se -Dpnc-config-file=${test.server.build.dir}/pnc-config.json -Xrunjdwp:transport=dt_socket,address=1044,server=y,suspend=y</property>-->
+<!--            <property name="javaVmArguments">-Xmx2G &#45;&#45;add-modules=java.se -Dpnc-config-file=${test.server.build.dir}/pnc-config.json</property>-->
+             <property name="javaVmArguments">-Xmx2G --add-modules=java.se -Dpnc-config-file=${test.server.build.dir}/pnc-config.json -Xrunjdwp:transport=dt_socket,address=1044,server=y,suspend=y</property>
         </configuration>
     </container>
 
