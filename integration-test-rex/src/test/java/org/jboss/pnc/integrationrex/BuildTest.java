@@ -53,8 +53,12 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.Testcontainers;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.OutputFrame;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 import java.io.FileInputStream;
@@ -99,36 +103,38 @@ public class BuildTest {
 
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() throws InterruptedException, IOException {
+        Testcontainers.exposeHostPorts(8080);
 
-        Properties testProperties = new Properties();
-        try (InputStream propFile = new FileInputStream("target/test.properties")) {
-            testProperties.load(propFile);
-        }
-
-        KeycloakContainer keycloak = new CustomKeycloakContainer().withExposedPorts(8080)
-                .withRealmImportFile("keycloak-realm-export.json");
-        String keycloakPort = testProperties.getProperty(GetFreePort.KEYCLOAK_PORT);
-        String keycloakPortBinding = keycloakPort + ":" + 8080; // 8080 is in-container port
-        keycloak.setPortBindings(List.of(keycloakPortBinding));
+        Network network = Network.newNetwork();
+        // String keycloakPort = testProperties.getProperty(GetFreePort.KEYCLOAK_PORT);
+        // String keycloakPortBinding = keycloakPort + ":" + 8080; // 8080 is in-container port
+        KeycloakContainer keycloak = new CustomKeycloakContainer().withNetwork(network)
+                .withNetworkAliases("keycloak")
+                .withRealmImportFile("keycloak-realm-export.json")
+                .withAccessToHost(true);
+        keycloak.setPortBindings(List.of("5678:8080"));
         keycloak.start();
 
         authServerUrl = keycloak.getAuthServerUrl();
 
         int rexHostPort = GetFreePort.getFreeHostPort();
-        logger.info("Rex container will bind to host port: {}.", rexHostPort);
-        String rexPortBinding = rexHostPort + ":" + 8080; // 8080 is in-container port
+        logger.info("Rex container will bind to host port: {}.", 5679);
+        String portBinding = 5679 + ":" + 8080; // 8080 is in-container port
 
         Consumer<OutputFrame> logConsumer = frame -> logger.debug("REX >>" + frame.getUtf8String());
         GenericContainer rexTC = new GenericContainer(
                 // DockerImageName.parse("rh-newcastle/rex"))
-                DockerImageName.parse("localhost/matej/core:1.0.0-SNAPSHOT")).withStartupAttempts(3)
-                        .withLogConsumer(logConsumer)
-                        .withExposedPorts(8080)
-                        .withEnv("QUARKUS_OIDC_AUTH_SERVER_URL", authServerUrl + "/realms/" + keycloakRealm)
-                        .withEnv("QUARKUS_OIDC_CLIENR_ID", "pnc")
-                        .withEnv("SCHEDULER_BASEURL", "http://localhost:" + rexHostPort);
+                DockerImageName.parse("localhost/jmichalo/core:1.0.0-SNAPSHOT")).withAccessToHost(true)
+                        .withNetwork(network)
+                        .withNetworkAliases("rex")
+                        // .withLogConsumer(logConsumer)
+                        .withClasspathResourceMapping(
+                                "rex-application.yaml",
+                                "/home/jboss/config/application.yaml",
+                                BindMode.READ_ONLY)
+                        .waitingFor(Wait.forLogMessage(".*Installed features:.*", 1));
 
-        rexTC.setPortBindings(List.of(rexPortBinding));
+        rexTC.setPortBindings(List.of(portBinding));
 
         rexTC.start();
 

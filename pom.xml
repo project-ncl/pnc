@@ -1287,6 +1287,7 @@
               <exclude>**/nbactions.xml</exclude>
               <exclude>**/*.properties</exclude>
               <exclude>**/.github/**</exclude>
+              <exclude>**/rex-application.yaml</exclude>
 
               <!-- Exclude downloaded/generated -->
               <exclude>**/.cache/**</exclude>
