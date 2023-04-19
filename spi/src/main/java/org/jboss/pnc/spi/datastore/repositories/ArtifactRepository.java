@@ -27,7 +27,5 @@ import java.util.Set;
  */
 public interface ArtifactRepository extends Repository<Artifact, Integer> {
 
-    Set<Artifact> withIdentifierAndSha256s(Set<Artifact.IdentifierSha256> identifierSha256s);
-
     Artifact withPurl(String purl);
 }
