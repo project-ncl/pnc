@@ -30,6 +30,7 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
@@ -211,12 +212,10 @@ public class DefaultDatastore implements Datastore {
 
         fetchOrSaveRequiredTargetRepositories(artifacts, storedTargetRepositories);
 
-        Set<Artifact> artifactsInDb = null;
         if (artifactConstraints.size() > 0) {
-            artifactsInDb = artifactRepository.withIdentifierAndSha256s(artifactConstraints);
-        }
-
-        if (artifactsInDb != null) {
+            logger.debug("Searching artifacts by {} constraints.", artifactConstraints.size());
+            List<Artifact> artifactsInDb = artifactRepository
+                    .queryWithPredicates(ArtifactPredicates.withIdentifierAndSha256(artifactConstraints));
             for (Artifact artifact : artifactsInDb) {
                 logger.trace("Found in DB, adding to cache. Artifact {}", artifact);
                 artifactCache.put(artifact.getIdentifierSha256(), artifact);
@@ -268,6 +267,7 @@ public class DefaultDatastore implements Datastore {
                 requiredTargetRepositories.remove(targetRepository.getIdentifierPath());
             }
 
+            logger.debug("Saving {} target repositories.", requiredTargetRepositories.size());
             for (TargetRepository targetRepository : requiredTargetRepositories.values()) {
                 // NCL-5474: This can potentionally cause unique constraint violation if two builds finish at the same
                 // time, both with the same new target repository. This is unlikely to happen, so we take the risk.

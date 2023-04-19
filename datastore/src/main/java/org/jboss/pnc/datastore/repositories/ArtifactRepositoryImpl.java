@@ -35,24 +35,6 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
     }
 
     @Override
-    public Set<Artifact> withIdentifierAndSha256s(Set<Artifact.IdentifierSha256> identifierSha256s) {
-        Set<String> sha256s = identifierSha256s.stream()
-                .map(Artifact.IdentifierSha256::getSha256)
-                .collect(Collectors.toSet());
-
-        List<Artifact> artifacts = queryWithPredicates(ArtifactPredicates.withSha256In(sha256s));
-
-        // make sure the identifier matches too
-        Set<Artifact> artifactsMatchingIdentifier = artifacts.stream()
-                .filter(
-                        a -> identifierSha256s
-                                .contains(new Artifact.IdentifierSha256(a.getIdentifier(), a.getSha256())))
-                .collect(Collectors.toSet());
-
-        return artifactsMatchingIdentifier;
-    }
-
-    @Override
     public Artifact withPurl(String purl) {
 
         List<Artifact> artifacts = queryWithPredicates(ArtifactPredicates.withPurl(purl));
