@@ -30,6 +30,7 @@ import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.mock.repository.SequenceHandlerRepositoryMock;
 import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.Datastore;
+import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.predicates.RepositoryConfigurationPredicates;
 import org.jboss.pnc.spi.datastore.repositories.*;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
@@ -376,7 +377,8 @@ public class DatastoreTest {
                 new Artifact.IdentifierSha256(
                         importedDuplicateArtifact.getIdentifier(),
                         importedDuplicateArtifact.getSha256()));
-        Set<Artifact> artifactsFromDb = artifactRepository.withIdentifierAndSha256s(identifiersAndSha);
+        List<Artifact> artifactsFromDb = artifactRepository
+                .queryWithPredicates(ArtifactPredicates.withIdentifierAndSha256(identifiersAndSha));
         Assert.assertEquals(1, artifactsFromDb.size());
         Assert.assertEquals(
                 buildsUntestedRepoPath,

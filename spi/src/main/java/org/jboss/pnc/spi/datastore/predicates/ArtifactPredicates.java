@@ -31,6 +31,8 @@ import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -139,6 +141,19 @@ public class ArtifactPredicates {
     public static Predicate<Artifact> withSha256(Optional<String> sha256) {
         return ((root, query, cb) -> sha256.isPresent() ? cb.equal(root.get(Artifact_.sha256), sha256.get())
                 : cb.and());
+    }
+
+    public static Predicate<Artifact> withIdentifierAndSha256(Set<Artifact.IdentifierSha256> identifierSha256Set) {
+        return ((root, query, cb) -> {
+            List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
+            for (Artifact.IdentifierSha256 identifierSha256 : identifierSha256Set) {
+                predicates.add(
+                        cb.and(
+                                cb.equal(root.get(Artifact_.identifier), identifierSha256.getIdentifier()),
+                                cb.equal(root.get(Artifact_.sha256), identifierSha256.getSha256())));
+            }
+            return cb.or(predicates.toArray(new javax.persistence.criteria.Predicate[0]));
+        });
     }
 
     public static Predicate<Artifact> withMd5(Optional<String> md5) {
