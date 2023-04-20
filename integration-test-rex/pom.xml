@@ -115,6 +115,17 @@
     </dependency>
 
     <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock-jre8</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock-webhooks-extension</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
       <scope>test</scope>
@@ -122,6 +133,7 @@
     <dependency>
       <groupId>org.jboss.arquillian.junit</groupId>
       <artifactId>arquillian-junit-container</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.wildfly.arquillian</groupId>
@@ -517,7 +529,7 @@
                         /subsystem=keycloak/realm=newcastle-testcontainer:add(realm-public-key="MIIBIjAN...", auth-server-url=" ", ssl-required="none", disable-trust-manager="true")
                       </command-->
                       <command> <!-- TODO realm-public-key -->
-                        /subsystem=keycloak/realm=newcastle-testcontainer:add(auth-server-url="http://localhost:${keycloakPort}", ssl-required="none", disable-trust-manager="true")
+                        /subsystem=keycloak/realm=newcastle-testcontainer:add(auth-server-url="http://localhost:5678", ssl-required="none", disable-trust-manager="true")
                       </command>
                       <command>
                         /subsystem=keycloak/secure-deployment=rest.war:add(realm="newcastle-testcontainer", resource="pnc", public-client="true", bearer-only="true")

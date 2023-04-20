@@ -6,7 +6,7 @@
       "bpmUrl": "http://bpmHost/",
       "daUrl": "http://daHost/",
       "indyUrl": "http://indyHost/",
-      "pncUrl": "http://host.testcontainers.internal:8080/",
+      "pncUrl": "http://host.testcontainers.internal:8080/pnc-rest/v2",
       "repourUrl": "http://repourHost/",
 
       "externalDaUrl": "",
@@ -48,7 +48,10 @@
         },
         {
           "@module-config": "bpm-config",
-          "httpConnectionRequestTimeout": "${env.HTTP_CONNECTION_REQUEST_TIMEOUT}"
+          "httpConnectionRequestTimeout": "${env.HTTP_CONNECTION_REQUEST_TIMEOUT}",
+          "bpmNewBaseUrl": "http://host.testcontainers.internal:8088/",
+          "bpmNewDeploymentId": "wiremock",
+          "bpmNewBuildProcessName": "big-process"
         },
         {
           "@module-config": "ui",
@@ -56,7 +59,7 @@
           "ssoTokenLifespan": "${env.SSO_TOKEN_FILESPAN}",
           "keycloak":
           {
-            "url": "${PNC_UI_KEYCLOAK_URL}",
+            "url": "http://localhost:5678",
             "realm": "newcastle-testcontainer",
             "clientId": "pnc"
           }
