@@ -37,6 +37,16 @@ public class CustomKeycloakContainer extends KeycloakContainer {
     private ObjectMapper objectMapper;
 
     public CustomKeycloakContainer() {
+        super();
+        initObjectMapper();
+    }
+
+    public CustomKeycloakContainer(String imageName) {
+        super(imageName);
+        initObjectMapper();
+    }
+
+    private void initObjectMapper() {
         objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

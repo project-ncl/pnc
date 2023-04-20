@@ -9,20 +9,26 @@ quarkus:
 
   oidc:
     enabled: true
-    auth-server-url: http://keycloak:5678/realms/newcastle-testcontainer
-    client-id: pnc
+    auth-server-url: http://keycloak:8080/realms/newcastle-testcontainer
+    client-id: rex
+    token:
+      issuer: any
     credentials:
-      secret: secret
+      jwt:
+        issuer: any
+#    credentials:
+#      secret: secret
     application-type: SERVICE
     tls:
       verification: none
 
   infinispan-client:
+    hosts: infinispan:11222
     client-intelligence: BASIC
     use-schema-registration: true
     use-auth: true
-    auth-username: admin
-    auth-password: password
+    username: admin
+    password: password
     cache:
       "rex-counter":
         configuration-uri: "counter-configuration.xml"
@@ -48,7 +54,9 @@ quarkus:
       "com.arjuna.ats.jta":
         # Set to WARN if you want to see all the exceptions
         level: ERROR
-
+      "io.quarkus.oidc":
+        level: TRACE
+    min-level: FINEST
   vertx:
     max-event-loop-execute-time: 10s
 
