@@ -239,7 +239,7 @@
       <dependency>
         <groupId>org.jboss.bom</groupId>
         <artifactId>jboss-eap-xp-microprofile</artifactId>
-        <version>4.0.0.GA</version>
+        <version>4.0.0.GA-7.4.10.GA</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
