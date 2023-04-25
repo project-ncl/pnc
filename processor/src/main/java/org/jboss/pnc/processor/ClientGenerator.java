@@ -19,6 +19,7 @@ package org.jboss.pnc.processor;
 
 import com.squareup.javapoet.*;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.processor.annotation.Client;
 
@@ -94,6 +95,7 @@ public class ClientGenerator extends AbstractProcessor {
             // [NCL-6405]: Add old variant of ArtifactEndpoint.getAllFiltered method for backward compatibility reasons
             if ("ArtifactEndpoint".equals(restInterfaceName)) {
                 methods.add(createOldGetAllFilteredMethod());
+                methods.add(createAnotherOldGetAllFilteredMethod());
             }
 
             for (ExecutableElement restApiMethod : ElementFilter.methodsIn(endpointApi.getEnclosedElements())) {
@@ -323,7 +325,25 @@ public class ClientGenerator extends AbstractProcessor {
                 .addParameter(RepositoryType.class, "repoType")
                 .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"))
                 .addStatement(
-                        "return getAllFiltered(identifier, qualities, repoType, java.util.Collections.emptySet())")
+                        "return getAllFiltered(identifier, qualities, repoType, java.util.Collections.emptySet(), java.util.Collections.emptySet())")
+                .build();
+    }
+
+    private MethodSpec createAnotherOldGetAllFilteredMethod() {
+        return MethodSpec.methodBuilder("getAllFiltered")
+                .addAnnotation(Deprecated.class)
+                .addModifiers(Modifier.PUBLIC)
+                .returns(
+                        ParameterizedTypeName.get(
+                                ClassName.get("org.jboss.pnc.client", "RemoteCollection"),
+                                ClassName.get("org.jboss.pnc.dto.response", "ArtifactInfo")))
+                .addParameter(String.class, "identifier")
+                .addParameter(ParameterizedTypeName.get(Set.class, ArtifactQuality.class), "qualities")
+                .addParameter(RepositoryType.class, "repoType")
+                .addParameter(ParameterizedTypeName.get(Set.class, BuildCategory.class), "buildCategories")
+                .addException(ClassName.get("org.jboss.pnc.client", "RemoteResourceException"))
+                .addStatement(
+                        "return getAllFiltered(identifier, qualities, repoType, buildCategories, java.util.Collections.emptySet())")
                 .build();
     }
 
