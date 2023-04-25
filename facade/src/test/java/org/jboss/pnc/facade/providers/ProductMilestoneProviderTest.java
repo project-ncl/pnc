@@ -28,7 +28,6 @@ import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
@@ -54,9 +53,6 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<ProductMilestone> {
-
-    @Mock
-    private ProductMilestoneRepository repository;
 
     @Mock
     private ProductMilestoneReleaseManager releaseManager;
@@ -99,7 +95,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
 
     @Override
     protected Repository<ProductMilestone, Integer> repository() {
-        return repository;
+        return milestoneRepository;
     }
 
     @Test
@@ -139,7 +135,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
                 mock.getProductVersion(),
                 mock.getVersion());
 
-        when(repository.queryByPredicates(any(Predicate.class))).thenReturn(mock);
+        when(repository().queryByPredicates(any(Predicate.class))).thenReturn(mock);
 
         // then
         assertThatThrownBy(() -> provider.store(toCreate)).isInstanceOf(ConflictedEntryException.class);
@@ -187,7 +183,7 @@ public class ProductMilestoneProviderTest extends AbstractIntIdProviderTest<Prod
                 .version(mock.getVersion())
                 .build();
 
-        when(repository.queryByPredicates(any(Predicate.class))).thenReturn(mock);
+        when(repository().queryByPredicates(any(Predicate.class))).thenReturn(mock);
 
         // then
         assertThatThrownBy(() -> provider.update(toUpdate.getId(), toUpdate))
