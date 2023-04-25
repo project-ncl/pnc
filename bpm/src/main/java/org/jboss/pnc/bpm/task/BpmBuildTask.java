@@ -18,16 +18,26 @@
 package org.jboss.pnc.bpm.task;
 
 import lombok.ToString;
+import org.jboss.pnc.api.constants.Defaults;
 import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.ComponentBuildParameters;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.TimeUtils;
+import org.jboss.pnc.model.AlignConfig;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static java.lang.String.format;
+import static java.lang.String.join;
+import static org.jboss.pnc.api.constants.ManipulatorKeys.*;
+import static org.jboss.pnc.model.utils.DelimitedStringListTypeDescriptor.DELIMITER;
 
 /**
  * @author Jakub Senko
@@ -87,10 +97,73 @@ public class BpmBuildTask {
                         buildTask.getBuildOptions().isTimestampAlignment(),
                         buildTask.getBuildSetTask().getStartTime()),
                 buildConfigurationAudited.isBrewPullActive(),
-                buildConfigurationAudited.getDefaultAlignmentParams(),
+                buildConfigurationAudited.getDefaultAlignmentParams()
+                        // TODO convert from this hacky way into dedicated field or add as generic param
+                        + ' ' + appendAlignmentConfigs(buildConfigurationAudited),
                 buildTask.getBuildOptions().getAlignmentPreference());
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
+    }
+
+    private String appendAlignmentConfigs(BuildConfigurationAudited buildConfigurationAudited) {
+        List<String> toAppend = new ArrayList<>();
+        Map<String, AlignConfig> configs = buildConfigurationAudited.getBuildConfiguration().getAlignConfigs();
+        for (var entry : configs.entrySet()) {
+            String dependencyScope = entry.getKey();
+            AlignConfig config = entry.getValue();
+            if (dependencyScope.equals(Defaults.GLOBAL_SCOPE)) {
+                appendGlobalManipulatorKeys(toAppend, config);
+            } else {
+                appendManipulatorKeys(toAppend, config, dependencyScope);
+            }
+
+        }
+        return join(" ", toAppend);
+    }
+
+    private static void appendGlobalManipulatorKeys(List<String> toAppend, AlignConfig config) {
+        if (config.getIdRanks() != null && !config.getIdRanks().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_RANK_PATTERN, join(DELIMITER, config.getIdRanks())));
+        } else if (config.getRanks() != null && !config.getRanks().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_RANK_PATTERN, join(DELIMITER, config.getRanks())));
+        }
+
+        if (config.getIdDenyList() != null && !config.getIdDenyList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN, config.getIdDenyList()));
+        } else if (config.getDenyList() != null && !config.getDenyList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN, config.getDenyList()));
+        }
+
+        if (config.getIdAllowList() != null && !config.getIdAllowList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN, config.getIdAllowList()));
+        } else if (config.getAllowList() != null && !config.getAllowList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN, config.getAllowList()));
+        }
+    }
+
+    private static void appendManipulatorKeys(List<String> toAppend, AlignConfig config, String dependencyScope) {
+        if (config.getIdRanks() != null && !config.getIdRanks().isEmpty()) {
+            toAppend.add(
+                    format(
+                            DEPENDENCY_RANK_PATTERN_WITH_OVERRIDE,
+                            dependencyScope,
+                            join(DELIMITER, config.getIdRanks())));
+        } else if (config.getRanks() != null && !config.getRanks().isEmpty()) {
+            toAppend.add(
+                    format(DEPENDENCY_RANK_PATTERN_WITH_OVERRIDE, dependencyScope, join(DELIMITER, config.getRanks())));
+        }
+
+        if (config.getIdDenyList() != null && !config.getIdDenyList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, config.getIdDenyList()));
+        } else if (config.getDenyList() != null && !config.getDenyList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, config.getDenyList()));
+        }
+
+        if (config.getIdAllowList() != null && !config.getIdAllowList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, config.getIdAllowList()));
+        } else if (config.getAllowList() != null && !config.getAllowList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, config.getAllowList()));
+        }
     }
 
     public GlobalModuleGroup getGlobalConfig() {
