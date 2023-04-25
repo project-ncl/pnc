@@ -26,6 +26,7 @@ import org.jboss.pnc.enums.BuildType;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Build configuration with information about last executed build with it
@@ -67,6 +68,7 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
             User modificationUser,
             String defaultAlignmentParams,
             Boolean brewPullActive,
+            Set<AlignmentConfig> alignmentConfigs,
             BuildRef latestBuild,
             String latestBuildUsername) {
         super(
@@ -88,7 +90,8 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
                 creationUser,
                 modificationUser,
                 defaultAlignmentParams,
-                brewPullActive);
+                brewPullActive,
+                alignmentConfigs);
         this.latestBuild = latestBuild;
         this.latestBuildUsername = latestBuildUsername;
     }
@@ -117,6 +120,7 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
             this.parameters = buildConfiguration.parameters;
             this.creationUser = buildConfiguration.creationUser;
             this.modificationUser = buildConfiguration.modificationUser;
+            this.alignmentConfigs = buildConfiguration.alignmentConfigs;
             return this;
         }
     }

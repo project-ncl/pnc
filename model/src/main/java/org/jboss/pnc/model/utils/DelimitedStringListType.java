@@ -15,16 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mock.repository;
+package org.jboss.pnc.model.utils;
 
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.hibernate.type.AbstractSingleColumnStandardBasicType;
+import org.hibernate.type.descriptor.sql.VarcharTypeDescriptor;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
+import java.util.List;
 
-@Alternative
-@ApplicationScoped
-public class ProductVersionRepositoryMock extends IntIdRepositoryMock<ProductVersion>
-        implements ProductVersionRepository {
+public class DelimitedStringListType extends AbstractSingleColumnStandardBasicType<List> {
+
+    public DelimitedStringListType() {
+        super(VarcharTypeDescriptor.INSTANCE, new DelimitedStringListTypeDescriptor());
+    }
+
+    @Override
+    public String getName() {
+        return "delimited_strings";
+    }
 }

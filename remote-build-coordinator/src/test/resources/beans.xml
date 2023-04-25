@@ -23,5 +23,9 @@
         <class>org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler</class>
         <class>org.jboss.pnc.remotecoordinator.test.mock.RexHttpClientMock</class>
         <class>org.jboss.pnc.remotecoordinator.test.mock.UserRepositoryMock</class>
+        <class>org.jboss.pnc.mock.mapper.AlignConfigMapperMock</class>
     </alternatives>
+    <scan>
+        <exclude name="org.jboss.pnc.mapper.AbstractAlignConfigMapperImpl"/>
+    </scan>
 </beans>

@@ -17,10 +17,12 @@
  */
 package org.jboss.pnc.spi.datastore.predicates;
 
+import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
+import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 import javax.persistence.criteria.Join;
@@ -42,6 +44,18 @@ public class ProductMilestonePredicates {
             Join<ProductMilestone, ProductVersion> productVersion = root.join(ProductMilestone_.productVersion);
             return cb.and(
                     cb.equal(productVersion.get(ProductVersion_.id), productVersionId),
+                    cb.equal(root.get(ProductMilestone_.version), version));
+        };
+    }
+
+    public static Predicate<ProductMilestone> withProductAbbreviationAndMilestoneVersion(
+            String abbreviation,
+            String version) {
+        return (root, query, cb) -> {
+            Join<ProductMilestone, ProductVersion> productVersion = root.join(ProductMilestone_.productVersion);
+            Join<ProductVersion, Product> product = productVersion.join(ProductVersion_.product);
+            return cb.and(
+                    cb.equal(product.get(Product_.abbreviation), abbreviation),
                     cb.equal(root.get(ProductMilestone_.version), version));
         };
     }

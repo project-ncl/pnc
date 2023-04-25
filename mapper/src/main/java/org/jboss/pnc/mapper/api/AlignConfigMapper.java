@@ -15,16 +15,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mock.repository;
+package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.dto.AlignmentConfig;
+import org.jboss.pnc.model.AlignConfig;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
+public interface AlignConfigMapper {
 
-@Alternative
-@ApplicationScoped
-public class ProductVersionRepositoryMock extends IntIdRepositoryMock<ProductVersion>
-        implements ProductVersionRepository {
+    AlignConfig toModel(AlignmentConfig config);
+
+    AlignmentConfig toDto(AlignConfig config, String dependencyOverride);
+
+    void updateEntity(AlignmentConfig dto, AlignConfig model);
 }

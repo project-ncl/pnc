@@ -17,7 +17,13 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.common.alignment.ranking.AlignmentPredicate;
+import org.jboss.pnc.common.alignment.ranking.AlignmentRanking;
+import org.jboss.pnc.common.alignment.ranking.exception.ValidationException;
+import org.jboss.pnc.common.alignment.ranking.tokenizer.QualifierToken;
+import org.jboss.pnc.common.alignment.ranking.tokenizer.Token;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.dto.AlignmentConfig;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
@@ -32,6 +38,7 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.RepositoryCreationResponse;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
@@ -49,23 +56,37 @@ import org.jboss.pnc.mapper.api.BuildConfigurationRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.IdRev;
+import org.jboss.pnc.model.Product;
+import org.jboss.pnc.model.ProductMilestone;
+import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.RepositoryConfiguration;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.BuildTask;
+import org.jboss.pnc.spi.datastore.predicates.BuildConfigurationSetPredicates;
+import org.jboss.pnc.spi.datastore.predicates.ProductMilestonePredicates;
+import org.jboss.pnc.spi.datastore.predicates.ProductPredicates;
+import org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProjectRepository;
 import org.jboss.pnc.spi.datastore.repositories.RepositoryConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.SequenceHandlerRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.notifications.Notifier;
@@ -75,7 +96,9 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -85,8 +108,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toMap;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.isNotArchived;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withBuildConfigurationSetId;
@@ -151,6 +176,15 @@ public class BuildConfigurationProviderImpl extends
     private ProjectRepository projectRepository;
 
     @Inject
+    private ProductRepository productRepository;
+
+    @Inject
+    private ProductMilestoneRepository productMilestoneRepository;
+
+    @Inject
+    private BuildConfigSetRecordRepository buildConfigSetRecordRepository;
+
+    @Inject
     private BuildProvider buildProvider;
 
     @Inject
@@ -208,6 +242,301 @@ public class BuildConfigurationProviderImpl extends
 
         validateIfItsNotConflicted(buildConfigurationRest);
         validateEnvironment(buildConfigurationRest);
+        validateAlignConfig(buildConfigurationRest);
+    }
+
+    private void validateAlignConfig(BuildConfiguration newConfiguration) {
+        Set<AlignmentConfig> newConfigs = newConfiguration.getAlignmentConfigs();
+        if (newConfigs == null || newConfigs.isEmpty()) {
+            return;
+        }
+
+        validateRankings(newConfigs);
+        validateAllowDenyLists(newConfigs);
+    }
+
+    private void validateAlignConfig(Integer id, BuildConfiguration buildConfigurationRest) {
+        Set<AlignmentConfig> newConfigs = buildConfigurationRest.getAlignmentConfigs();
+        if (newConfigs == null || newConfigs.isEmpty()) {
+            return;
+        }
+
+        Set<AlignmentConfig> oldConfigs = getSpecific(String.valueOf(id)).getAlignmentConfigs();
+        if (oldConfigs == null || oldConfigs.isEmpty()) {
+            validateRankings(newConfigs);
+            validateAllowDenyLists(newConfigs);
+        } else {
+            validateRankings(newConfigs, oldConfigs);
+            validateAllowDenyLists(newConfigs, oldConfigs);
+        }
+    }
+
+    private void validateRankings(Set<AlignmentConfig> configs) {
+        List<List<String>> rankings = configs.stream().map(AlignmentConfig::getRanks).collect(Collectors.toList());
+
+        for (List<String> ranks : rankings) {
+            AlignmentRanking compiledRanks;
+            try {
+                compiledRanks = new AlignmentRanking(ranks, null);
+            } catch (Exception e) {
+                throw new InvalidEntityException(e.getMessage(), "alignmentConfigs", e);
+            }
+
+            List<List<Token>> tokenizedRanks = compiledRanks.getRanksAsTokens();
+
+            verifyQualifiersExist(tokenizedRanks);
+        }
+    }
+
+    private void validateRankings(Set<AlignmentConfig> newConfigs, Set<AlignmentConfig> oldConfigs) {
+        try {
+            Map<String, List<List<Token>>> newDependencyTokensMap = mapConfigToListOfTokensPerRank(newConfigs);
+            Map<String, List<List<Token>>> oldDependencyTokensMap = mapConfigToListOfTokensPerRank(oldConfigs);
+
+            Map<String, AlignmentConfig> mappedByDepOverride = newConfigs.stream()
+                    .collect(toMap(AlignmentConfig::getDependencyOverride, Function.identity()));
+
+            Set<AlignmentConfig> toValidate = newDependencyTokensMap.entrySet()
+                    .stream()
+                    .filter(
+                            entry -> !oldDependencyTokensMap.containsKey(entry.getKey()) // validate new entries
+                                    // validate old entries that changed
+                                    || !oldDependencyTokensMap.get(entry.getKey()).equals(entry.getValue()))
+                    .map(Map.Entry::getKey)
+                    .map(mappedByDepOverride::get)
+                    .collect(Collectors.toSet());
+
+            validateRankings(toValidate);
+        } catch (ValidationException e) {
+            throw new InvalidEntityException(e.getMessage(), "alignmentConfigs", e);
+        }
+
+    }
+
+    private void validateAllowDenyLists(Set<AlignmentConfig> newConfigs) {
+        validateAList(newConfigs, AlignmentConfig::getDenyList);
+        validateAList(newConfigs, AlignmentConfig::getAllowList);
+    }
+
+    private void validateAllowDenyLists(Set<AlignmentConfig> newConfigs, Set<AlignmentConfig> oldConfigs) {
+        try {
+            Map<String, AlignmentConfig> mappedByDepOverride = newConfigs.stream()
+                    .collect(toMap(AlignmentConfig::getDependencyOverride, Function.identity()));
+
+            // DENY LIST SECTION
+            Map<String, List<Token>> newDenyListTokenMap = mapConfigPredicateToListOfTokens(
+                    newConfigs,
+                    AlignmentConfig::getDenyList);
+            Map<String, List<Token>> oldDenyListTokenMap = mapConfigPredicateToListOfTokens(
+                    oldConfigs,
+                    AlignmentConfig::getDenyList);
+
+            // VALIDATE NEW KEYS AND KEYS THAT HAVE CHANGED QUALIFIERS
+            Set<AlignmentConfig> toValidate = newDenyListTokenMap.entrySet()
+                    .stream()
+                    .filter(
+                            entry -> !oldDenyListTokenMap.containsKey(entry.getKey()) // validate new entries
+                                    // validate old entries that changed
+                                    || !oldDenyListTokenMap.get(entry.getKey()).equals(entry.getValue()))
+                    .map(Map.Entry::getKey)
+                    .map(mappedByDepOverride::get)
+                    .collect(Collectors.toSet());
+
+            validateAList(toValidate, AlignmentConfig::getDenyList);
+
+            // ALLOW LIST SECTION
+            Map<String, List<Token>> newAllowListTokenMap = mapConfigPredicateToListOfTokens(
+                    newConfigs,
+                    AlignmentConfig::getAllowList);
+            Map<String, List<Token>> oldAllowListTokenMap = mapConfigPredicateToListOfTokens(
+                    oldConfigs,
+                    AlignmentConfig::getAllowList);
+
+            // VALIDATE NEW KEYS AND KEYS THAT HAVE CHANGED QUALIFIERS
+            toValidate = newAllowListTokenMap.entrySet()
+                    .stream()
+                    .filter(
+                            entry -> !oldAllowListTokenMap.containsKey(entry.getKey()) // validate new entries
+                                    // validate old entries that changed
+                                    || !oldAllowListTokenMap.get(entry.getKey()).equals(entry.getValue()))
+                    .map(Map.Entry::getKey)
+                    .map(mappedByDepOverride::get)
+                    .collect(Collectors.toSet());
+
+            validateAList(toValidate, AlignmentConfig::getAllowList);
+        } catch (ValidationException e) {
+            throw new InvalidEntityException(e.getMessage(), "alignmentConfigs", e);
+        }
+    }
+
+    private void validateAList(
+            Set<AlignmentConfig> newConfigs,
+            Function<AlignmentConfig, String> allowDenylistFunction) {
+        try {
+            Map<String, List<Token>> newDenies = mapConfigPredicateToListOfTokens(newConfigs, allowDenylistFunction);
+
+            newDenies.values()
+                    .stream()
+                    .flatMap(Collection::stream)
+                    .filter(token -> token instanceof QualifierToken)
+                    .forEach(token -> verifyQualifier((QualifierToken) token));
+
+        } catch (ValidationException e) {
+            throw new InvalidEntityException(e.getMessage(), "alignmentConfigs", e);
+        }
+    }
+
+    /**
+     * AlignConfig has multiple ranks (List<String>) where each rank (String) consists of multiple Tokens (List<Token>).
+     * Therefore, multiple ranks of single config map to List<List<Token>>.
+     *
+     * @param configs Set of AlignmentConfigs
+     * @return Map where key is dependencyScope(override) and value is ranks mapped into Tokens
+     */
+    private static Map<String, List<List<Token>>> mapConfigToListOfTokensPerRank(Set<AlignmentConfig> configs) {
+        return configs.stream()
+                .collect(
+                        toMap(
+                                AlignmentConfig::getDependencyOverride,
+                                ac -> new AlignmentRanking(ac.getRanks(), null).getRanksAsTokens()));
+    }
+
+    private static Map<String, List<Token>> mapConfigPredicateToListOfTokens(
+            Set<AlignmentConfig> configs,
+            Function<AlignmentConfig, String> allowDenylistFunction) {
+        return configs.stream()
+                .collect(
+                        toMap(
+                                AlignmentConfig::getDependencyOverride,
+                                ac -> new AlignmentPredicate(allowDenylistFunction.apply(ac)).getTokens()));
+    }
+
+    private void verifyQualifiersExist(List<List<Token>> tokenizedRanks) {
+        tokenizedRanks.stream()
+                .flatMap(Collection::stream)
+                .distinct()
+                .filter(token -> token instanceof QualifierToken)
+                .forEach(token -> verifyQualifier((QualifierToken) token));
+    }
+
+    private void verifyQualifier(QualifierToken token) {
+        String[] values = token.parts;
+        switch (token.qualifier) {
+            case PRODUCT_ID:
+                validateById(
+                        parseQualifierId(values[0], Integer::valueOf, Product.class),
+                        productRepository,
+                        Product.class);
+                break;
+            case PRODUCT:
+                Product product = productRepository.queryByPredicates(ProductPredicates.withAbbrev(values[0]));
+                if (product == null) {
+                    throw new InvalidEntityException("Product with abbreviation " + values[0] + " not found.");
+                }
+                break;
+            case VERSION_ID:
+                validateById(
+                        parseQualifierId(values[0], Integer::valueOf, ProductVersion.class),
+                        productVersionRepository,
+                        ProductVersion.class);
+                break;
+            case VERSION:
+                ProductVersion version = productVersionRepository.queryByPredicates(
+                        ProductVersionPredicates.withProductAbbreviation(values[0]),
+                        ProductVersionPredicates.withVersion(values[1]));
+                if (version == null) {
+                    throw new InvalidEntityException(
+                            "ProductVersion of Product " + values[0] + " and Version " + values[1]
+                                    + " does not exist.");
+                }
+                break;
+            case MILESTONE_ID:
+                validateById(
+                        parseQualifierId(values[0], Integer::valueOf, ProductMilestone.class),
+                        productMilestoneRepository,
+                        ProductMilestone.class);
+                break;
+            case MILESTONE:
+                ProductMilestone milestone = productMilestoneRepository.queryByPredicates(
+                        ProductMilestonePredicates.withProductAbbreviationAndMilestoneVersion(values[0], values[1]));
+                if (milestone == null) {
+                    throw new InvalidEntityException(
+                            "ProductMilestone of Product " + values[0] + " and Version " + values[1]
+                                    + " does not exist.");
+                }
+                break;
+            case GROUP_BUILD:
+                validateById(
+                        parseQualifierId(values[0], Long::valueOf, BuildConfigSetRecord.class),
+                        buildConfigSetRecordRepository,
+                        BuildConfigSetRecord.class);
+                break;
+            case DEPENDENCY:
+            case BUILD:
+                validateById(
+                        parseQualifierId(values[0], Base32LongID::new, BuildRecord.class),
+                        buildRecordRepository,
+                        BuildRecord.class);
+                break;
+            case BUILD_CONFIG_ID:
+                validateById(
+                        parseQualifierId(values[0], Integer::valueOf, org.jboss.pnc.model.BuildConfiguration.class),
+                        repository,
+                        org.jboss.pnc.model.BuildConfiguration.class);
+                break;
+            case BUILD_CONFIG:
+                org.jboss.pnc.model.BuildConfiguration configuration = repository
+                        .queryByPredicates(withName(values[0]));
+                if (configuration == null) {
+                    throw new InvalidEntityException("BuildConfiguration with name " + values[0] + " not found");
+                }
+                break;
+            case GROUP_CONFIG_ID:
+                validateById(
+                        parseQualifierId(values[0], Integer::valueOf, BuildConfigurationSet.class),
+                        buildConfigurationSetRepository,
+                        BuildConfigurationSet.class);
+                break;
+            case GROUP_CONFIG:
+                org.jboss.pnc.model.BuildConfigurationSet bcs = buildConfigurationSetRepository
+                        .queryByPredicates(BuildConfigurationSetPredicates.withName(values[0]));
+                if (bcs == null) {
+                    throw new InvalidEntityException("BuildConfiguration with name " + values[0] + " not found");
+                }
+                break;
+            case QUALITY:
+                try {
+                    ArtifactQuality.valueOf(values[0]);
+                } catch (IllegalArgumentException e) {
+                    throw new InvalidEntityException("Unknown Quality " + values[0]);
+                }
+                break;
+        }
+    }
+
+    private <ID extends Serializable> ID parseQualifierId(
+            String value,
+            Function<String, ID> parser,
+            Class<? extends GenericEntity<ID>> clazz) {
+        try {
+            return parser.apply(value);
+        } catch (Exception e) {
+            throw new InvalidEntityException(
+                    "Could not parse " + clazz.getCanonicalName() + " ID " + value,
+                    "alignmentConfigs",
+                    e);
+        }
+    }
+
+    private <E extends GenericEntity<ID>, ID extends Serializable> void validateById(
+            ID parsedId,
+            Repository<E, ID> repository,
+            Class<E> clazz) {
+        E entity = repository.queryById(parsedId);
+        if (entity == null) {
+            throw new InvalidEntityException(
+                    clazz.getSimpleName() + " with ID " + parsedId.toString() + " does not exist.");
+        }
     }
 
     @Override
@@ -221,6 +550,7 @@ public class BuildConfigurationProviderImpl extends
         validateIfItsNotConflicted(buildConfigurationRest);
         validateDependencies(id, buildConfigurationRest.getDependencies());
         validateEnvironment(buildConfigurationRest);
+        validateAlignConfig(id, buildConfigurationRest);
     }
 
     private void validateDependencies(Integer buildConfigId, Map<String, BuildConfigurationRef> dependencies)

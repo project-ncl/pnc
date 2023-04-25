@@ -24,6 +24,7 @@ import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Configuration;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.json.moduleprovider.ModuleConfigFactory;
+import org.jboss.pnc.mock.mapper.AlignConfigMapperMock;
 import org.jboss.pnc.remotecoordinator.builder.RemoteBuildCoordinator;
 import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.remotecoordinator.notifications.buildSetTask.BuildSetCallBack;
@@ -122,6 +123,7 @@ public class BuildCoordinatorDeployments {
                         BuildSetCallBack.class.getPackage(),
                         BuildCallBack.class.getPackage(),
                         BuildCoordinationStatus.class.getPackage(),
+                        AlignConfigMapperMock.class.getPackage(),
                         DefaultBuildStatusChangedEvent.class.getPackage(),
                         BuildExecutorMock.class.getPackage(),
                         MessageSender.class.getPackage(),
