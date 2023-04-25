@@ -21,7 +21,6 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.model.Product;
-import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.junit.Before;
@@ -42,9 +41,6 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class ProductProviderTest extends AbstractIntIdProviderTest<Product> {
 
-    @Mock
-    private ProductRepository repository;
-
     @InjectMocks
     private ProductProviderImpl provider;
 
@@ -58,7 +54,7 @@ public class ProductProviderTest extends AbstractIntIdProviderTest<Product> {
 
     @Override
     protected Repository<Product, Integer> repository() {
-        return repository;
+        return productRepository;
     }
 
     @Before
@@ -113,7 +109,7 @@ public class ProductProviderTest extends AbstractIntIdProviderTest<Product> {
 
         // Prepare
         // return entity of product with same name as dto
-        when(repository.queryByPredicates(any(Predicate.class))).thenAnswer(env -> productMock);
+        when(repository().queryByPredicates(any(Predicate.class))).thenAnswer(env -> productMock);
 
         // when
         org.jboss.pnc.dto.Product productDTO = org.jboss.pnc.dto.Product.builder()
@@ -153,7 +149,7 @@ public class ProductProviderTest extends AbstractIntIdProviderTest<Product> {
 
         // Prepare
         // return entity corresponding to the updated name of dto
-        when(repository.queryByPredicates(any(Predicate.class))).thenAnswer(env -> productMockSecond);
+        when(repository().queryByPredicates(any(Predicate.class))).thenAnswer(env -> productMockSecond);
 
         // when
         org.jboss.pnc.dto.Product productUpdate = org.jboss.pnc.dto.Product.builder()
