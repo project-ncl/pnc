@@ -18,11 +18,15 @@
 package org.jboss.pnc.facade.providers;
 
 import org.commonjava.atlas.maven.ident.ref.InvalidRefException;
+import org.jboss.pnc.api.enums.Qualifier;
 import org.jboss.pnc.common.maven.Gav;
+import org.jboss.pnc.common.pnc.LongBase32IdConverter;
+import org.jboss.pnc.common.sql.NativeQueryBuilder;
 import org.jboss.pnc.coordinator.maintenance.BlacklistAsyncInvoker;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.User;
+import org.jboss.pnc.dto.requests.QValue;
 import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -39,12 +43,7 @@ import org.jboss.pnc.mapper.api.ArtifactRevisionMapper;
 import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.mapper.api.UserMapper;
-import org.jboss.pnc.model.Artifact;
-import org.jboss.pnc.model.ArtifactAudited;
-import org.jboss.pnc.model.Artifact_;
-import org.jboss.pnc.model.IdRev;
-import org.jboss.pnc.model.TargetRepository;
-import org.jboss.pnc.model.TargetRepository_;
+import org.jboss.pnc.model.*;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactAuditedRepository;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -60,23 +59,20 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.Tuple;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import javax.ws.rs.NotFoundException;
 
+import java.math.BigInteger;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.text.MessageFormat.format;
+import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.mapping;
+import static org.jboss.pnc.api.enums.Qualifier.*;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
@@ -118,6 +114,8 @@ public class ArtifactProviderImpl
             .of(ArtifactQuality.DELETED, ArtifactQuality.BLACKLISTED);
 
     private static final String MVN_BLACKLIST_JSON_PAYLOAD = "{\"groupId\":\"%s\",\"artifactId\":\"%s\",\"version\":\"%s\"}";
+
+    private static final String ID_SUFFIX = "_id";
 
     private ArtifactRevisionMapper artifactRevisionMapper;
 
@@ -179,25 +177,59 @@ public class ArtifactProviderImpl
             Optional<String> identifierPattern,
             Set<ArtifactQuality> qualities,
             Optional<RepositoryType> repoType,
-            Set<BuildCategory> buildCategories) {
+            Set<BuildCategory> buildCategories,
+            Set<QValue> requestedQualifiers) {
 
-        CriteriaBuilder cb = em.getCriteriaBuilder();
+        Map<Integer, Object> queryParams = new HashMap<>();
+        AtomicInteger paramCounter = new AtomicInteger(1);
 
-        CriteriaQuery<Tuple> query = artifactInfoQuery(cb, identifierPattern, qualities, repoType, buildCategories);
-        int offset = pageIndex * pageSize;
-        List<ArtifactInfo> artifacts = em.createQuery(query)
-                .setMaxResults(pageSize)
-                .setFirstResult(offset)
-                .getResultList()
+        Map<Qualifier, List<String[]>> qualifierMap = requestedQualifiers.stream()
+                .collect(groupingBy(QValue::getQualifier, mapping(QValue::getValue, toList())));
+
+        String baseQuery = baseArtifactQuery(
+                pageSize,
+                pageIndex,
+                identifierPattern,
+                qualities,
+                repoType,
+                buildCategories,
+                queryParams,
+                paramCounter);
+        String outerQuery = artifactInfoNativeQuery(baseQuery, repoType, qualifierMap, queryParams, paramCounter);
+
+        // NATIVE SQL queries are required to be able to join Build and BuildConfiguration/BuildConfigurationAudited
+        // ADDITIONALLY, these are STRICTLY required to be portable between DBMSs
+        List<Tuple> list = doNativeQuery(outerQuery, queryParams);
+
+        List<ArtifactInfo> artifacts = list.stream()
+                .peek((object) -> log.debug(object.toString()))
+                .collect(groupingBy(tuple -> tuple.get("identifier", String.class)))
+                .values()
                 .stream()
-                .map(this::mapTupleToArtifactInfo)
-                .collect(Collectors.toList());
+                .map(tuples -> mapTuplesToArtifactInfo(tuples, qualifierMap))
+                .collect(toList());
 
-        Predicate<Artifact>[] predicates = getPredicates(identifierPattern, qualities, repoType, buildCategories);
-        int totalHits = repository.count(predicates);
+        queryParams.clear();
+        paramCounter.set(1);
+        String countQuery = countArtifactQuery(
+                identifierPattern,
+                qualities,
+                repoType,
+                buildCategories,
+                queryParams,
+                paramCounter);
+
+        int totalHits = doNativeQuery(countQuery, queryParams).get(0).get(0, BigInteger.class).intValue();
         int totalPages = (totalHits + pageSize - 1) / pageSize;
 
         return new Page<>(pageIndex, pageSize, totalPages, totalHits, artifacts);
+    }
+
+    private List<Tuple> doNativeQuery(String sql, Map<Integer, Object> queryParameters) {
+        Query query = em.createNativeQuery(sql, Tuple.class);
+        queryParameters.forEach(query::setParameter);
+
+        return (List<Tuple>) query.getResultList();
     }
 
     @Override
@@ -353,7 +385,7 @@ public class ArtifactProviderImpl
         List<ArtifactRevision> toReturn = nullableStreamOf(auditedBuildConfigs).map(artifactRevisionMapper::toDTO)
                 .skip(pageIndex * pageSize)
                 .limit(pageSize)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         int totalHits = auditedBuildConfigs.size();
         int totalPages = (totalHits + pageSize - 1) / pageSize;
@@ -378,54 +410,299 @@ public class ArtifactProviderImpl
         return mapper.toDTO(artifact);
     }
 
-    private CriteriaQuery<Tuple> artifactInfoQuery(
-            CriteriaBuilder cb,
+    /**
+     * This method enhances base ArtifactInfo query with Artifact's Qualifier by using additional joins.
+     *
+     *
+     * Amount of rows retrieved by this query can be larger than requested pageSize if any of Qualifiers is multi-valued
+     * (f.e. DEPENDENCY is multi-valued because one Artifact can have multiple dependencies). For each value, there is
+     * an additional row. The amount of additional rows should be kept to minimum.
+     *
+     * @param baseArtifactQuery base SQL to retrieve at most pageSize amount of unique Artifact
+     * @param repoType
+     * @param qualifierMap map of requested Qualifiers with values
+     * @param queryParams map of positional parameters
+     * @param paramCounter counter for next parameter position
+     * @return Full ArtifactInfo SQL query with all necessary data for requested qualifiers
+     */
+    private String artifactInfoNativeQuery(
+            String baseArtifactQuery,
+            Optional<RepositoryType> repoType,
+            Map<Qualifier, List<String[]>> qualifierMap,
+            Map<Integer, Object> queryParams,
+            AtomicInteger paramCounter) {
+        NativeQueryBuilder builder = NativeQueryBuilder.builder();
+
+        builder.select("art", Artifact_.ID, "id")
+                .select("art", Artifact_.IDENTIFIER, "identifier")
+                .select("art", Artifact_.ARTIFACT_QUALITY, "QUALITY")
+                .select("art", Artifact_.BUILD_CATEGORY, "BUILD_CATEGORY");
+        repoType.ifPresent(ign -> builder.select("art", TargetRepository_.REPOSITORY_TYPE, "repoType"));
+
+        builder.from('(' + baseArtifactQuery + ')', "art");
+
+        qualifierMap.forEach((qualifier, values) -> {
+            switch (qualifier) {
+                case PRODUCT:
+                    // PRODUCT.abbr requires BUILD,MILESTONE,VERSION,PRODUCT
+                    requiresJoinOf(BUILD, builder);
+                    requiresJoinOf(MILESTONE, builder);
+                    requiresJoinOf(VERSION, builder);
+                    requiresJoinOf(PRODUCT, builder);
+                    requiresSelect(PRODUCT, builder);
+                    break;
+                case PRODUCT_ID:
+                    // PRODUCT.id requires BUILD,MILESTONE,VERSION
+                    requiresJoinOf(BUILD, builder);
+                    requiresJoinOf(MILESTONE, builder);
+                    requiresJoinOf(VERSION, builder);
+                    builder.select("prod", ProductVersion_.PRODUCT + ID_SUFFIX, PRODUCT_ID.name());
+                    break;
+                case VERSION:
+                    // 'PRODUCT.abbr PRODUCTVERSION.version' require BUILD,MILESTONE,VERSION,PRODUCT
+                    requiresJoinOf(BUILD, builder);
+                    requiresJoinOf(MILESTONE, builder);
+                    requiresJoinOf(VERSION, builder);
+                    requiresJoinOf(PRODUCT, builder);
+
+                    requiresSelect(PRODUCT, builder);
+                    builder.select("pv", ProductVersion_.VERSION, VERSION.name());
+                    break;
+                case VERSION_ID:
+                    // requires BUILD,MILESTONE
+                    requiresJoinOf(BUILD, builder);
+                    requiresJoinOf(MILESTONE, builder);
+
+                    builder.select("pm", ProductMilestone_.VERSION + ID_SUFFIX, VERSION_ID.name());
+                    break;
+                case MILESTONE:
+                    // 'PRODUCT.abbr PRODUCTVERSION.version' require BUILD,MILESTONE,VERSION,PRODUCT
+                    requiresJoinOf(BUILD, builder);
+                    requiresJoinOf(MILESTONE, builder);
+                    requiresJoinOf(VERSION, builder);
+                    requiresJoinOf(PRODUCT, builder);
+
+                    requiresSelect(PRODUCT, builder);
+                    builder.select("pm", ProductMilestone_.VERSION, qualifier.name());
+                    break;
+                case MILESTONE_ID:
+                    // requires BUILD
+                    requiresJoinOf(BUILD, builder);
+
+                    builder.select("br", BuildRecord_.PRODUCT_MILESTONE + ID_SUFFIX, MILESTONE_ID.name());
+                    break;
+                case GROUP_BUILD:
+                    // requires BUILD
+                    requiresJoinOf(BUILD, builder);
+
+                    builder.select("br", BuildRecord_.BUILD_CONFIG_SET_RECORD + ID_SUFFIX, GROUP_BUILD.name());
+                    break;
+                case BUILD:
+                    // requires <<nothing>>
+                    builder.select("art", Artifact_.BUILD_RECORD + ID_SUFFIX, BUILD.name());
+                    break;
+                case BUILD_CONFIG:
+                    // requires BUILD, BUILD_CONFIG
+                    // don't join with audited table to have latest data
+                    requiresJoinOf(BUILD, builder);
+                    requiresJoinOf(BUILD_CONFIG, builder);
+
+                    builder.select("bc", BuildConfiguration_.NAME, BUILD_CONFIG.name());
+                    break;
+                case BUILD_CONFIG_ID:
+                    // requires BUILD
+                    requiresJoinOf(BUILD, builder);
+
+                    builder.select("br", BuildRecord_.BUILD_CONFIGURATION_ID + ID_SUFFIX, BUILD_CONFIG_ID.name());
+                    break;
+                case GROUP_CONFIG:
+                    // requires BUILD, GROUP_BUILD, GROUP_CONFIG
+                    requiresJoinOf(BUILD, builder);
+                    requiresJoinOf(GROUP_BUILD, builder);
+                    requiresJoinOf(GROUP_CONFIG, builder);
+
+                    builder.select("br", BuildRecord_.BUILD_CONFIGURATION_ID + ID_SUFFIX, BUILD_CONFIG_ID.name());
+                    break;
+                case GROUP_CONFIG_ID:
+                    // requires BUILD, GROUP_BUILD
+                    requiresJoinOf(BUILD, builder);
+                    requiresJoinOf(GROUP_BUILD, builder);
+
+                    builder.select(
+                            "bcsr",
+                            BuildConfigSetRecord_.BUILD_CONFIGURATION_SET + ID_SUFFIX,
+                            GROUP_CONFIG_ID.name());
+                    break;
+                case DEPENDENCY: // MULTI-VALUE
+                    // requires DEPENDENCY_MAP
+                    List<String> parameters = values.stream()
+                            .peek(
+                                    qValue -> queryParams.put(
+                                            paramCounter.getAndIncrement(),
+                                            LongBase32IdConverter.toLong(qValue[0])))
+                            .map(ign -> " ? ")
+                            .collect(toList());
+                    builder.join(
+                            "LEFT",
+                            "build_record_artifact_dependencies_map",
+                            "depmap",
+                            "art.id = depmap.dependency_artifact_id AND depmap.build_record_id IN ("
+                                    + String.join(",", parameters) + ")"); // query only dependencies in request
+                    builder.select("depmap", "build_record_id", DEPENDENCY.name());
+                    break;
+                case QUALITY: // MULTI-VALUE in the future
+                    // requires <<nothing>>
+                    // do nothing, handled by select QUALITY at the start of method
+                    break;
+            }
+        });
+
+        return builder.build();
+    }
+
+    /**
+     * Used for Joins that can repeat between Qualifiers. For example a lot of Qualifiers require join with BuildRecord.
+     */
+    private void requiresJoinOf(Qualifier toJoin, NativeQueryBuilder builder) {
+        switch (toJoin) {
+            case PRODUCT:
+                builder.requiresJoin("LEFT", "Product", "prod", "pv.product_id = prod.id");
+                break;
+            case VERSION:
+                builder.requiresJoin("LEFT", "ProductVersion", "pv", "pm.productversion_id = pv.id");
+                break;
+            case MILESTONE:
+                builder.requiresJoin("LEFT", "ProductMilestone", "pm", "br.productmilestone_id = pm.id");
+                break;
+            case GROUP_BUILD:
+                builder.requiresJoin("LEFT", "BuildConfigSetRecord", "bcsr", "br.buildconfigsetrecord_id = bcsr.id");
+                break;
+            case BUILD:
+                builder.requiresJoin("LEFT", "BuildRecord", "br", "art.buildrecord_id = br.id");
+                break;
+            case BUILD_CONFIG:
+                // Join with Audited configuration or Regular one?
+                builder.requiresJoin("LEFT", "BuildConfiguration", "bc", "br.buildconfigutation_id = bc.id ");
+                break;
+            case GROUP_CONFIG:
+                builder.requiresJoin("LEFT", "BuildConfigurationSet", "bcs", "bcsr.buildconfigutationset_id = bcsr.id");
+                break;
+        }
+    }
+
+    /**
+     * Used for Joins that can repeat between Qualifiers. For example multiple Qualifiers require product abbreviation.
+     */
+    private void requiresSelect(Qualifier toSelect, NativeQueryBuilder builder) {
+        switch (toSelect) {
+            case PRODUCT:
+                builder.requiresSelect("prod", Product_.ABBREVIATION, PRODUCT.name());
+                break;
+        }
+    }
+
+    /**
+     * Base ArtifactInfo query. It has to be paginated and sorted.
+     *
+     * @return SQL query for pageSize unique artifacts
+     */
+    private String baseArtifactQuery(
+            int pageSize,
+            int pageIndex,
             Optional<String> identifierPattern,
             Set<ArtifactQuality> qualities,
             Optional<RepositoryType> repoType,
-            Set<BuildCategory> buildCategories) {
+            Set<BuildCategory> buildCategories,
+            Map<Integer, Object> queryParameters,
+            AtomicInteger parameterCounter) {
+        NativeQueryBuilder builder = NativeQueryBuilder.builder();
 
-        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+        builder.select("a", Artifact_.ID)
+                .select("a", Artifact_.IDENTIFIER)
+                .select("a", Artifact_.ARTIFACT_QUALITY)
+                .select("a", Artifact_.BUILD_CATEGORY)
+                // used often for joins in outer query
+                .select("a", Artifact_.BUILD_RECORD + ID_SUFFIX);
 
-        Root<Artifact> artifact = query.from(org.jboss.pnc.model.Artifact.class);
-        Path<TargetRepository> repository = artifact.get(Artifact_.targetRepository);
-        query.multiselect(
-                artifact.get(Artifact_.id),
-                artifact.get(Artifact_.identifier),
-                artifact.get(Artifact_.artifactQuality),
-                repository.get(TargetRepository_.repositoryType),
-                artifact.get(Artifact_.buildCategory));
+        if (repoType.isPresent()) {
+            builder.select("tr", TargetRepository_.REPOSITORY_TYPE);
+        }
 
-        List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>(4);
+        baseArtifactQueryBody(
+                builder,
+                identifierPattern,
+                qualities,
+                repoType,
+                buildCategories,
+                queryParameters,
+                parameterCounter);
+
+        builder.orderBy("a." + Artifact_.ID + " ASC");
+        builder.limit(pageSize);
+        builder.offset(pageIndex * pageSize);
+        return builder.build();
+    }
+
+    private String countArtifactQuery(
+            Optional<String> identifierPattern,
+            Set<ArtifactQuality> qualities,
+            Optional<RepositoryType> repoType,
+            Set<BuildCategory> buildCategories,
+            Map<Integer, Object> queryParameters,
+            AtomicInteger parameterCounter) {
+        NativeQueryBuilder builder = NativeQueryBuilder.builder();
+        builder.select("count (*)");
+
+        baseArtifactQueryBody(
+                builder,
+                identifierPattern,
+                qualities,
+                repoType,
+                buildCategories,
+                queryParameters,
+                parameterCounter);
+
+        return builder.build();
+    }
+
+    private static void baseArtifactQueryBody(
+            NativeQueryBuilder builder,
+            Optional<String> identifierPattern,
+            Set<ArtifactQuality> qualities,
+            Optional<RepositoryType> repoType,
+            Set<BuildCategory> buildCategories,
+            Map<Integer, Object> queryParameters,
+            AtomicInteger parameterCounter) {
+        builder.from("artifact", "a");
+
         if (identifierPattern.isPresent()) {
-            javax.persistence.criteria.Predicate withIdentifierLike = cb
-                    .like(artifact.get(Artifact_.identifier), identifierPattern.get().replace("*", "%"));
-            predicates.add(withIdentifierLike);
+            queryParameters.put(parameterCounter.getAndIncrement(), identifierPattern.get().replace("*", "%"));
+            builder.where(Artifact_.IDENTIFIER + " LIKE ?");
         }
 
         if (!qualities.isEmpty()) {
-            javax.persistence.criteria.Predicate withQualityIn = artifact.get(Artifact_.artifactQuality).in(qualities);
-            predicates.add(withQualityIn);
+            Set<String> strings = qualities.stream().map(e -> '\'' + e.toString() + '\'').collect(toSet());
+            // NO need to parametrize for enums
+            builder.where(Artifact_.ARTIFACT_QUALITY + " in (" + String.join(",", strings) + ")");
         }
 
         if (!buildCategories.isEmpty()) {
-            javax.persistence.criteria.Predicate withBuildCategoryIn = artifact.get(Artifact_.buildCategory)
-                    .in(buildCategories);
-            predicates.add(withBuildCategoryIn);
+            Set<String> strings = buildCategories.stream().map(e -> '\'' + e.toString() + '\'').collect(toSet());
+            // NO need to parametrize for enums
+            builder.where(Artifact_.BUILD_CATEGORY + " in (" + String.join(",", strings) + ")");
         }
 
         if (repoType.isPresent()) {
-            javax.persistence.criteria.Predicate withRepoType = cb.equal(
-                    artifact.join(Artifact_.targetRepository).get(TargetRepository_.repositoryType),
-                    repoType.get());
-            predicates.add(withRepoType);
+            builder.join(
+                    "LEFT",
+                    "TargetRepository",
+                    "tr",
+                    format("a.{0} = tr.{1}", Artifact_.TARGET_REPOSITORY + ID_SUFFIX, TargetRepository_.ID));
+            String trColumn = "tr." + TargetRepository_.REPOSITORY_TYPE;
+            String repoTypeString = repoType.get().toString();
+            // NO need to parametrize for enums
+            builder.where(trColumn + " = '" + repoTypeString + "'");
         }
-
-        query.where(cb.and(predicates.toArray(new javax.persistence.criteria.Predicate[predicates.size()])));
-
-        query.orderBy(cb.asc(artifact.get(Artifact_.id)));
-
-        return query;
     }
 
     private Predicate<Artifact>[] getPredicates(
@@ -460,7 +737,65 @@ public class ArtifactProviderImpl
         return predicates.toArray(new Predicate[predicates.size()]);
     }
 
+    private ArtifactInfo mapTuplesToArtifactInfo(List<Tuple> tuples, Map<Qualifier, List<String[]>> qualifierMap) {
+        ArtifactInfo baseInfo = mapNamedTupleToArtifactInfo(tuples.get(0));
+        for (Tuple tuple : tuples) {
+            for (Map.Entry<Qualifier, List<String[]>> entry : qualifierMap.entrySet()) {
+
+                Qualifier qualifier = entry.getKey();
+                List<String[]> allowedValues = entry.getValue();
+
+                String[] parsedValue = parseValue(tuple, qualifier);
+
+                if (allowedValues.stream().anyMatch(value -> Arrays.equals(value, parsedValue))) {
+                    String joinedValue = String.join(" ", parsedValue);
+
+                    if (baseInfo.getQualifiers().containsKey(qualifier)) {
+                        baseInfo.getQualifiers().get(qualifier).add(joinedValue);
+                    } else {
+                        baseInfo.getQualifiers().put(qualifier, new HashSet<>());
+                        baseInfo.getQualifiers().get(qualifier).add(joinedValue);
+                    }
+                }
+            }
+        }
+
+        return baseInfo;
+    }
+
+    private static String[] parseValue(Tuple tuple, Qualifier qualifier) {
+        String[] parsedValue;
+        switch (qualifier) {
+            case VERSION:
+            case MILESTONE:
+                String productAbbr = tuple.get(PRODUCT.name(), String.class);
+                String versionPart = tuple.get(qualifier.name(), String.class);
+                parsedValue = new String[] { productAbbr, versionPart };
+                break;
+            case BUILD:
+            case DEPENDENCY:
+                parsedValue = new String[] { LongBase32IdConverter.toString(tuple.get(qualifier.name(), Long.class)) };
+                break;
+            case PRODUCT:
+            case PRODUCT_ID:
+            case VERSION_ID:
+            case MILESTONE_ID:
+            case GROUP_BUILD:
+            case BUILD_CONFIG:
+            case BUILD_CONFIG_ID:
+            case GROUP_CONFIG:
+            case GROUP_CONFIG_ID:
+            case QUALITY:
+                parsedValue = new String[] { tuple.get(qualifier.name(), String.class) };
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown qualifier " + qualifier.name());
+        }
+        return parsedValue;
+    }
+
     private ArtifactInfo mapTupleToArtifactInfo(Tuple tuple) {
+
         return ArtifactInfo.builder()
                 .id(tuple.get(0).toString())
                 .identifier(tuple.get(1).toString())
@@ -468,6 +803,24 @@ public class ArtifactProviderImpl
                 .repositoryType((RepositoryType) tuple.get(3))
                 .buildCategory((BuildCategory) tuple.get(4))
                 .build();
+    }
+
+    private ArtifactInfo mapNamedTupleToArtifactInfo(Tuple tuple) {
+
+        ArtifactInfo.Builder builder = ArtifactInfo.builder()
+                .id(tuple.get("id", Integer.class).toString())
+                .identifier(tuple.get("identifier", String.class))
+                .artifactQuality(ArtifactQuality.valueOf(tuple.get("QUALITY", String.class)))
+                .buildCategory(BuildCategory.valueOf(tuple.get("BUILD_CATEGORY", String.class)))
+                .qualifiers(new HashMap<>());
+
+        try {
+            builder.repositoryType(RepositoryType.valueOf(tuple.get("repoType", String.class)));
+        } catch (IllegalArgumentException e) {
+            // not found
+        }
+
+        return builder.build();
     }
 
     private ArtifactQuality validateProvidedArtifactQuality(String quality, boolean isLoggedInUserSystemUser) {

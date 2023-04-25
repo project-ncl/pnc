@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.ArtifactRef;
 import org.jboss.pnc.dto.ArtifactRevision;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.requests.QValue;
 import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
@@ -40,7 +41,6 @@ import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.validation.Valid;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -87,14 +87,16 @@ public class ArtifactEndpointImpl implements ArtifactEndpoint {
             String identifier,
             Set<ArtifactQuality> qualities,
             RepositoryType repoType,
-            Set<BuildCategory> buildCategories) {
+            Set<BuildCategory> buildCategories,
+            Set<QValue> qualifiers) {
         return artifactProvider.getAllFiltered(
                 paginationParameters.getPageIndex(),
                 paginationParameters.getPageSize(),
                 Optional.ofNullable(identifier),
                 qualities,
                 Optional.ofNullable(repoType),
-                buildCategories);
+                buildCategories,
+                qualifiers);
     }
 
     @Override
