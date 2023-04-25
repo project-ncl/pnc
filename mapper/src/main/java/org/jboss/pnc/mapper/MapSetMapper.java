@@ -19,24 +19,33 @@ package org.jboss.pnc.mapper;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import static java.util.function.Function.identity;
+import static org.jboss.pnc.api.constants.Defaults.GLOBAL_SCOPE;
+
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.jboss.pnc.api.constants.Defaults;
+import org.jboss.pnc.dto.AlignmentConfig;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.mapper.api.AlignConfigMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
+import org.jboss.pnc.model.AlignConfig;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.GenericEntity;
@@ -65,6 +74,9 @@ public class MapSetMapper {
 
     @Inject
     private ProductVersionMapper productVersionMapper;
+
+    @Inject
+    private AlignConfigMapper alignConfigMapper;
 
     @Inject
     private RefToReferenceMapper referenceMapper;
@@ -107,6 +119,51 @@ public class MapSetMapper {
 
     public Map<String, ProductReleaseRef> mapPR(Collection<ProductRelease> value) {
         return map(value, productReleaseMapper);
+    }
+
+    public Map<String, AlignConfig> mapAC(Collection<AlignmentConfig> value) {
+        if (value == null) {
+            return null;
+        }
+        return value.stream()
+                .collect(
+                        Collectors.toMap(
+                                ac -> ac.getDependencyOverride() == null ? GLOBAL_SCOPE : ac.getDependencyOverride(),
+                                alignConfigMapper::toModel));
+    }
+
+    public Set<AlignmentConfig> mapAC(Map<String, AlignConfig> value) {
+        if (value == null) {
+            return null;
+        }
+        return value.entrySet()
+                .stream()
+                .map(entry -> alignConfigMapper.toDto(entry.getValue(), entry.getKey()))
+                .collect(Collectors.toSet());
+    }
+
+    public Map<String, AlignConfig> updateAlignConfigs(Set<AlignmentConfig> source, Map<String, AlignConfig> target) {
+        Map<String, AlignConfig> oldACs = target;
+        Map<String, AlignmentConfig> newACs;
+        if (source == null) {
+            newACs = Collections.emptyMap();
+        } else {
+            newACs = source.stream()
+                    .collect(
+                            Collectors.toMap(
+                                    ac -> ac.getDependencyOverride() == null ? GLOBAL_SCOPE
+                                            : ac.getDependencyOverride(),
+                                    Function.identity()));
+        }
+
+        CollectionMerger.merge(
+                oldACs.keySet(),
+                newACs.keySet(),
+                add -> target.put(add, alignConfigMapper.toModel(newACs.get(add))),
+                remove -> target.remove(remove),
+                update -> alignConfigMapper.updateEntity(newACs.get(update), oldACs.get(update)));
+
+        return target;
     }
 
     private <ID extends Serializable, DTO extends DTOEntity, DB extends GenericEntity<ID>> Set<DB> map(

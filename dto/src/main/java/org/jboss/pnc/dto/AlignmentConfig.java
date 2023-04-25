@@ -15,16 +15,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mock.repository;
+package org.jboss.pnc.dto;
 
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Alternative;
+import java.util.List;
 
-@Alternative
-@ApplicationScoped
-public class ProductVersionRepositoryMock extends IntIdRepositoryMock<ProductVersion>
-        implements ProductVersionRepository {
+@Getter
+@Builder
+@Jacksonized
+public class AlignmentConfig {
+    private final String dependencyOverride;
+    private final List<String> ranks;
+    private final String denyList;
+    private final String allowList;
 }

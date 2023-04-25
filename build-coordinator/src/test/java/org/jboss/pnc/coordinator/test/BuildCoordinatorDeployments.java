@@ -38,9 +38,11 @@ import org.jboss.pnc.mapper.UserFetcher;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.mock.datastore.DatastoreMock;
 import org.jboss.pnc.mock.executor.BuildExecutorMock;
+import org.jboss.pnc.mock.mapper.AlignConfigMapperMock;
 import org.jboss.pnc.mock.model.builders.TestEntitiesFactory;
 import org.jboss.pnc.mock.model.builders.TestProjectConfigurationBuilder;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
+import org.jboss.pnc.mock.repository.BuildConfigurationSetRepositoryMock;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
@@ -117,6 +119,7 @@ public class BuildCoordinatorDeployments {
                         BuildCoordinationStatus.class.getPackage(),
                         DefaultBuildStatusChangedEvent.class.getPackage(),
                         BuildExecutorMock.class.getPackage(),
+                        AlignConfigMapperMock.class.getPackage(),
                         MessageSender.class.getPackage(),
                         SystemConfig.class.getPackage(),
                         ModuleConfigFactory.class.getPackage(),

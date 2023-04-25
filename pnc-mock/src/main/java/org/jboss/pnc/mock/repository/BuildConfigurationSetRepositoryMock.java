@@ -17,14 +17,23 @@
  */
 package org.jboss.pnc.mock.repository;
 
-import org.jboss.pnc.model.ProductVersion;
-import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.model.BuildConfigurationSet;
+import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Alternative
 @ApplicationScoped
-public class ProductVersionRepositoryMock extends IntIdRepositoryMock<ProductVersion>
-        implements ProductVersionRepository {
+public class BuildConfigurationSetRepositoryMock extends IntIdRepositoryMock<BuildConfigurationSet>
+        implements BuildConfigurationSetRepository {
+
+    @Override
+    public List<BuildConfigurationSet> withProductVersionId(Integer id) {
+        return data.stream()
+                .filter(bcs -> bcs.getProductVersion() != null && bcs.getProductVersion().getId().equals(id))
+                .collect(Collectors.toList());
+    }
 }

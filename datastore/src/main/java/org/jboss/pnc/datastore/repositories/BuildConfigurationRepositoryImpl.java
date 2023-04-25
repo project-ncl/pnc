@@ -17,8 +17,10 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import org.jboss.pnc.api.constants.Defaults;
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
+import org.jboss.pnc.model.AlignConfig;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 
@@ -26,6 +28,9 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import java.util.Map;
+
+import static org.jboss.pnc.api.constants.Defaults.GLOBAL_SCOPE;
 
 @Stateless
 public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildConfiguration, Integer>
@@ -53,6 +58,13 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
         // Update or save need to set the default alignment parameters
         buildConfiguration.setDefaultAlignmentParams(
                 alignmentConfig.getAlignmentParameters().get(buildConfiguration.getBuildType().toString()));
+
+        // In case of null key, map the key to default value which is global scope (GLOBAL)
+        Map<String, AlignConfig> alignConfigs = buildConfiguration.getAlignConfigs();
+        if (alignConfigs != null && alignConfigs.containsKey(null)) {
+            AlignConfig def = alignConfigs.remove(null);
+            alignConfigs.put(GLOBAL_SCOPE, def);
+        }
 
         return super.save(buildConfiguration);
     }

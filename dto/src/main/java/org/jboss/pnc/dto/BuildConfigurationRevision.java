@@ -22,6 +22,7 @@ import org.jboss.pnc.enums.BuildType;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -73,6 +74,8 @@ public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
      */
     private final User modificationUser;
 
+    private final Set<AlignmentConfig> alignmentConfigs;
+
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     private BuildConfigurationRevision(
             SCMRepository scmRepository,
@@ -90,7 +93,8 @@ public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
             User creationUser,
             User modificationUser,
             String defaultAlignmentParams,
-            boolean brewPullActive) {
+            boolean brewPullActive,
+            Set<AlignmentConfig> alignmentConfigs) {
         super(
                 id,
                 rev,
@@ -108,6 +112,7 @@ public class BuildConfigurationRevision extends BuildConfigurationRevisionRef {
         this.parameters = parameters;
         this.creationUser = creationUser;
         this.modificationUser = modificationUser;
+        this.alignmentConfigs = alignmentConfigs;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

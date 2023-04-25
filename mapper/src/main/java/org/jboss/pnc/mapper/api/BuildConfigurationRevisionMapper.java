@@ -20,6 +20,7 @@ package org.jboss.pnc.mapper.api;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.ProjectRef;
+import org.jboss.pnc.mapper.MapSetMapper;
 import org.jboss.pnc.mapper.RefToReferenceMapper;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.IdRev;
@@ -33,7 +34,7 @@ import org.mapstruct.Mapping;
 @Mapper(
         config = MapperCentralConfig.class,
         uses = { RefToReferenceMapper.class, ProjectMapper.class, EnvironmentMapper.class, SCMRepositoryMapper.class,
-                UserMapper.class },
+                UserMapper.class, MapSetMapper.class },
         imports = IdRev.class)
 public interface BuildConfigurationRevisionMapper {
 
@@ -44,6 +45,7 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "modificationTime", source = "lastModificationTime")
     @Mapping(target = "parameters", source = "genericParameters")
     @Mapping(target = "creationUser", qualifiedBy = Reference.class)
+    @Mapping(target = "alignmentConfigs", source = "alignConfigs")
     @Mapping(target = "modificationUser", source = "lastModificationUser", qualifiedBy = Reference.class)
     @BeanMapping(ignoreUnmappedSourceProperties = { "idRev", "buildConfiguration" })
     BuildConfigurationRevision toDTO(BuildConfigurationAudited dbEntity);
@@ -56,6 +58,7 @@ public interface BuildConfigurationRevisionMapper {
     @Mapping(target = "buildConfiguration", ignore = true)
     @Mapping(target = "lastModificationTime", source = "modificationTime")
     @Mapping(target = "genericParameters", source = "parameters")
+    @Mapping(target = "alignConfigs", source = "alignmentConfigs")
     @Mapping(target = "creationUser", qualifiedBy = IdEntity.class)
     @Mapping(target = "lastModificationUser", source = "modificationUser", qualifiedBy = IdEntity.class)
     BuildConfigurationAudited toEntity(BuildConfigurationRevision dtoEntity);
