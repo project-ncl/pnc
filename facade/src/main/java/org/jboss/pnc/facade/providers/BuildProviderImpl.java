@@ -451,9 +451,9 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     @Override
     public Page<Build> getBuildsForGroupBuild(BuildPageInfo pageInfo, String groupBuildId) {
         java.util.function.Predicate<BuildTask> predicate = t -> t.getBuildConfigSetRecordId() != null
-                && t.getBuildConfigSetRecordId() == Integer.parseInt(groupBuildId);
+                && t.getBuildConfigSetRecordId().equals(Long.parseLong(groupBuildId));
         try {
-            return getBuildList(pageInfo, predicate, withBuildConfigSetRecordId(Integer.valueOf(groupBuildId)));
+            return getBuildList(pageInfo, predicate, withBuildConfigSetRecordId(Long.valueOf(groupBuildId)));
         } catch (RemoteRequestException | MissingDataException e) {
             throw new RuntimeException(e);
         }

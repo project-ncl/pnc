@@ -94,7 +94,7 @@ public class GroupBuildEndpointImpl implements GroupBuildEndpoint {
     @Override
     public void brewPush(String id, GroupBuildPushRequest buildConfigSetRecordPushRequest) {
         // TODO progress updates
-        brewPusher.pushGroup(Integer.parseInt(id), buildConfigSetRecordPushRequest.getTagPrefix());
+        brewPusher.pushGroup(Long.parseLong(id), buildConfigSetRecordPushRequest.getTagPrefix());
     }
 
     @Override
