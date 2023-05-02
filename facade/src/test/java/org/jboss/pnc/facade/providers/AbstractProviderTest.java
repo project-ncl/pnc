@@ -280,6 +280,11 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
                 buildConfigurationRevisionMapper,
                 userMapper,
                 BuildConfigurationRevisionMapperImpl.class);
+        injectMethod(
+                "mapSetMapper",
+                buildConfigurationRevisionMapper,
+                mapSetMapper,
+                BuildConfigurationRevisionMapperImpl.class);
         injectMethod("userMapper", artifactRevisionMapper, userMapper, ArtifactRevisionMapperImpl.class);
 
         injectMethod(
