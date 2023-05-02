@@ -857,6 +857,9 @@ public class DatabaseDataInitializer {
                 .build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord2);
 
+         // update owning side of build record to link with build config set record
+         buildRecords.forEach(record -> buildRecordRepository.save(record));
+
         BuildConfigSetRecord buildConfigSetRecord3 = BuildConfigSetRecord.Builder.newBuilder()
                 .buildConfigurationSet(buildConfigurationSet1)
                 .startTime(Timestamp.from(calendar.toInstant().minus(20, ChronoUnit.DAYS)))
