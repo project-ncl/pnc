@@ -102,7 +102,7 @@ public class BrewPusherImpl implements BrewPusher {
     private static final Logger userLog = LoggerFactory.getLogger("org.jboss.pnc._userlog_.brewpush");
 
     @Override
-    public Set<BuildPushResult> pushGroup(int buildGroupId, String tagPrefix) {
+    public Set<BuildPushResult> pushGroup(long buildGroupId, String tagPrefix) {
         BuildPushParameters buildPushParameters = BuildPushParameters.builder()
                 .tagPrefix(tagPrefix)
                 .reimport(false)
