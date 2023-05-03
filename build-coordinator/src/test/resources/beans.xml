@@ -21,10 +21,10 @@
 <beans xmlns="http://xmlns.jcp.org/xml/ns/javaee" bean-discovery-mode="annotated">
     <alternatives>
         <class>org.jboss.pnc.coordinator.test.BuildCoordinatorFactory$LocalBuildSchedulerMock</class>
-        <class>org.jboss.pnc.mock.mapper.AlignConfigMapperMock</class>
+        <class>org.jboss.pnc.mock.mapper.AlignStratMapperMock</class>
     </alternatives>
     <scan>
         <!-- Brings a lot of unnecessary beans -->
-        <exclude name="org.jboss.pnc.mapper.AbstractAlignConfigMapperImpl"/>
+        <exclude name="org.jboss.pnc.mapper.AbstractAlignStratMapperImpl"/>
     </scan>
 </beans>

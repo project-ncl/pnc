@@ -23,7 +23,7 @@ import org.jboss.pnc.bpm.model.BuildExecutionConfigurationRest;
 import org.jboss.pnc.bpm.model.ComponentBuildParameters;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.util.TimeUtils;
-import org.jboss.pnc.model.AlignConfig;
+import org.jboss.pnc.model.AlignStrategy;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -99,70 +99,74 @@ public class BpmBuildTask {
                 buildConfigurationAudited.isBrewPullActive(),
                 buildConfigurationAudited.getDefaultAlignmentParams()
                         // TODO convert from this hacky way into dedicated field or add as generic param
-                        + ' ' + appendAlignmentConfigs(buildConfigurationAudited),
+                        + ' ' + appendAlignmentStrategies(buildConfigurationAudited),
                 buildTask.getBuildOptions().getAlignmentPreference());
 
         return new BuildExecutionConfigurationRest(buildExecutionConfiguration);
     }
 
-    private String appendAlignmentConfigs(BuildConfigurationAudited buildConfigurationAudited) {
+    private String appendAlignmentStrategies(BuildConfigurationAudited buildConfigurationAudited) {
         List<String> toAppend = new ArrayList<>();
-        Map<String, AlignConfig> configs = buildConfigurationAudited.getBuildConfiguration().getAlignConfigs();
-        for (var entry : configs.entrySet()) {
+        Map<String, AlignStrategy> strats = buildConfigurationAudited.getBuildConfiguration().getAlignStrategies();
+        for (var entry : strats.entrySet()) {
             String dependencyScope = entry.getKey();
-            AlignConfig config = entry.getValue();
+            AlignStrategy strategy = entry.getValue();
             if (dependencyScope.equals(Defaults.GLOBAL_SCOPE)) {
-                appendGlobalManipulatorKeys(toAppend, config);
+                appendGlobalManipulatorKeys(toAppend, strategy);
             } else {
-                appendManipulatorKeys(toAppend, config, dependencyScope);
+                appendManipulatorKeys(toAppend, strategy, dependencyScope);
             }
 
         }
         return join(" ", toAppend);
     }
 
-    private static void appendGlobalManipulatorKeys(List<String> toAppend, AlignConfig config) {
-        if (config.getIdRanks() != null && !config.getIdRanks().isEmpty()) {
-            toAppend.add(format(DEPENDENCY_RANK_PATTERN, join(DELIMITER, config.getIdRanks())));
-        } else if (config.getRanks() != null && !config.getRanks().isEmpty()) {
-            toAppend.add(format(DEPENDENCY_RANK_PATTERN, join(DELIMITER, config.getRanks())));
+    private static void appendGlobalManipulatorKeys(List<String> toAppend, AlignStrategy strategy) {
+        if (strategy.getIdRanks() != null && !strategy.getIdRanks().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_RANK_PATTERN, join(DELIMITER, strategy.getIdRanks())));
+        } else if (strategy.getRanks() != null && !strategy.getRanks().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_RANK_PATTERN, join(DELIMITER, strategy.getRanks())));
         }
 
-        if (config.getIdDenyList() != null && !config.getIdDenyList().isEmpty()) {
-            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN, config.getIdDenyList()));
-        } else if (config.getDenyList() != null && !config.getDenyList().isEmpty()) {
-            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN, config.getDenyList()));
+        if (strategy.getIdDenyList() != null && !strategy.getIdDenyList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN, strategy.getIdDenyList()));
+        } else if (strategy.getDenyList() != null && !strategy.getDenyList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN, strategy.getDenyList()));
         }
 
-        if (config.getIdAllowList() != null && !config.getIdAllowList().isEmpty()) {
-            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN, config.getIdAllowList()));
-        } else if (config.getAllowList() != null && !config.getAllowList().isEmpty()) {
-            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN, config.getAllowList()));
+        if (strategy.getIdAllowList() != null && !strategy.getIdAllowList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN, strategy.getIdAllowList()));
+        } else if (strategy.getAllowList() != null && !strategy.getAllowList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN, strategy.getAllowList()));
         }
     }
 
-    private static void appendManipulatorKeys(List<String> toAppend, AlignConfig config, String dependencyScope) {
-        if (config.getIdRanks() != null && !config.getIdRanks().isEmpty()) {
+    private static void appendManipulatorKeys(List<String> toAppend, AlignStrategy strategy, String dependencyScope) {
+        if (strategy.getIdRanks() != null && !strategy.getIdRanks().isEmpty()) {
             toAppend.add(
                     format(
                             DEPENDENCY_RANK_PATTERN_WITH_OVERRIDE,
                             dependencyScope,
-                            join(DELIMITER, config.getIdRanks())));
-        } else if (config.getRanks() != null && !config.getRanks().isEmpty()) {
+                            join(DELIMITER, strategy.getIdRanks())));
+        } else if (strategy.getRanks() != null && !strategy.getRanks().isEmpty()) {
             toAppend.add(
-                    format(DEPENDENCY_RANK_PATTERN_WITH_OVERRIDE, dependencyScope, join(DELIMITER, config.getRanks())));
+                    format(
+                            DEPENDENCY_RANK_PATTERN_WITH_OVERRIDE,
+                            dependencyScope,
+                            join(DELIMITER, strategy.getRanks())));
         }
 
-        if (config.getIdDenyList() != null && !config.getIdDenyList().isEmpty()) {
-            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, config.getIdDenyList()));
-        } else if (config.getDenyList() != null && !config.getDenyList().isEmpty()) {
-            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, config.getDenyList()));
+        if (strategy.getIdDenyList() != null && !strategy.getIdDenyList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, strategy.getIdDenyList()));
+        } else if (strategy.getDenyList() != null && !strategy.getDenyList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_DENY_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, strategy.getDenyList()));
         }
 
-        if (config.getIdAllowList() != null && !config.getIdAllowList().isEmpty()) {
-            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, config.getIdAllowList()));
-        } else if (config.getAllowList() != null && !config.getAllowList().isEmpty()) {
-            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, config.getAllowList()));
+        if (strategy.getIdAllowList() != null && !strategy.getIdAllowList().isEmpty()) {
+            toAppend.add(
+                    format(DEPENDENCY_ALLOW_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, strategy.getIdAllowList()));
+        } else if (strategy.getAllowList() != null && !strategy.getAllowList().isEmpty()) {
+            toAppend.add(format(DEPENDENCY_ALLOW_LIST_PATTERN_WITH_OVERRIDE, dependencyScope, strategy.getAllowList()));
         }
     }
 

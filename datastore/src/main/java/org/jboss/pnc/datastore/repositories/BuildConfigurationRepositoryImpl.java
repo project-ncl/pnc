@@ -17,10 +17,9 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
-import org.jboss.pnc.api.constants.Defaults;
 import org.jboss.pnc.common.json.moduleconfig.AlignmentConfig;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.model.AlignConfig;
+import org.jboss.pnc.model.AlignStrategy;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 
@@ -60,10 +59,10 @@ public class BuildConfigurationRepositoryImpl extends AbstractRepository<BuildCo
                 alignmentConfig.getAlignmentParameters().get(buildConfiguration.getBuildType().toString()));
 
         // In case of null key, map the key to default value which is global scope (GLOBAL)
-        Map<String, AlignConfig> alignConfigs = buildConfiguration.getAlignConfigs();
-        if (alignConfigs != null && alignConfigs.containsKey(null)) {
-            AlignConfig def = alignConfigs.remove(null);
-            alignConfigs.put(GLOBAL_SCOPE, def);
+        Map<String, AlignStrategy> alignStrats = buildConfiguration.getAlignStrategies();
+        if (alignStrats != null && alignStrats.containsKey(null)) {
+            AlignStrategy def = alignStrats.remove(null);
+            alignStrats.put(GLOBAL_SCOPE, def);
         }
 
         return super.save(buildConfiguration);
