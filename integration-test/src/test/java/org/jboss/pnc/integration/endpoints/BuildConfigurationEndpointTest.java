@@ -34,7 +34,7 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.SCMRepositoryClient;
 import org.jboss.pnc.client.patch.BuildConfigurationPatchBuilder;
 import org.jboss.pnc.client.patch.PatchBuilderException;
-import org.jboss.pnc.dto.AlignmentConfig;
+import org.jboss.pnc.dto.AlignmentStrategy;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
@@ -274,7 +274,7 @@ public class BuildConfigurationEndpointTest {
                 .name(name)
                 .parameters(Collections.singletonMap(PARAMETER_KEY, genericParameterValue1))
                 .buildType(BuildType.MVN)
-                .alignmentConfigs(Set.of(AlignmentConfig.builder().ranks(ranks).build()))
+                .alignmentStrategies(Set.of(AlignmentStrategy.builder().ranks(ranks).build()))
                 .build();
 
         BuildConfigurationClient client = new BuildConfigurationClient(RestClientConfiguration.asUser());
@@ -964,8 +964,9 @@ public class BuildConfigurationEndpointTest {
                 ranks);
 
         BuildConfiguration specific = client.getSpecific(bc.getId());
-        assertThat(specific.getAlignmentConfigs().stream().map(AlignmentConfig::getRanks).collect(Collectors.toSet()))
-                .containsExactly(ranks);
+        assertThat(
+                specific.getAlignmentStrategies().stream().map(AlignmentStrategy::getRanks).collect(Collectors.toSet()))
+                        .containsExactly(ranks);
 
     }
 }

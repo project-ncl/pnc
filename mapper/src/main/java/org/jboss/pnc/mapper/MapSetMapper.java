@@ -30,22 +30,21 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.jboss.pnc.api.constants.Defaults;
-import org.jboss.pnc.dto.AlignmentConfig;
+import org.jboss.pnc.dto.AlignmentStrategy;
 import org.jboss.pnc.dto.BuildConfigurationRef;
 import org.jboss.pnc.dto.DTOEntity;
 import org.jboss.pnc.dto.GroupConfigurationRef;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductReleaseRef;
 import org.jboss.pnc.dto.ProductVersionRef;
-import org.jboss.pnc.mapper.api.AlignConfigMapper;
+import org.jboss.pnc.mapper.api.AlignStratMapper;
 import org.jboss.pnc.mapper.api.BuildConfigurationMapper;
 import org.jboss.pnc.mapper.api.EntityMapper;
 import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.mapper.api.ProductReleaseMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
-import org.jboss.pnc.model.AlignConfig;
+import org.jboss.pnc.model.AlignStrategy;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.GenericEntity;
@@ -76,7 +75,7 @@ public class MapSetMapper {
     private ProductVersionMapper productVersionMapper;
 
     @Inject
-    private AlignConfigMapper alignConfigMapper;
+    private AlignStratMapper alignStratMapper;
 
     @Inject
     private RefToReferenceMapper referenceMapper;
@@ -121,7 +120,7 @@ public class MapSetMapper {
         return map(value, productReleaseMapper);
     }
 
-    public Map<String, AlignConfig> mapAC(Collection<AlignmentConfig> value) {
+    public Map<String, AlignStrategy> mapAC(Collection<AlignmentStrategy> value) {
         if (value == null) {
             return null;
         }
@@ -129,26 +128,28 @@ public class MapSetMapper {
                 .collect(
                         Collectors.toMap(
                                 ac -> ac.getDependencyOverride() == null ? GLOBAL_SCOPE : ac.getDependencyOverride(),
-                                alignConfigMapper::toModel));
+                                alignStratMapper::toModel));
     }
 
-    public Set<AlignmentConfig> mapAC(Map<String, AlignConfig> value) {
+    public Set<AlignmentStrategy> mapAC(Map<String, AlignStrategy> value) {
         if (value == null) {
             return null;
         }
         return value.entrySet()
                 .stream()
-                .map(entry -> alignConfigMapper.toDto(entry.getValue(), entry.getKey()))
+                .map(entry -> alignStratMapper.toDto(entry.getValue(), entry.getKey()))
                 .collect(Collectors.toSet());
     }
 
-    public Map<String, AlignConfig> updateAlignConfigs(Set<AlignmentConfig> source, Map<String, AlignConfig> target) {
-        Map<String, AlignConfig> oldACs = target;
-        Map<String, AlignmentConfig> newACs;
+    public Map<String, AlignStrategy> updateAlignStrats(
+            Set<AlignmentStrategy> source,
+            Map<String, AlignStrategy> target) {
+        Map<String, AlignStrategy> oldASs = target;
+        Map<String, AlignmentStrategy> newASs;
         if (source == null) {
-            newACs = Collections.emptyMap();
+            newASs = Collections.emptyMap();
         } else {
-            newACs = source.stream()
+            newASs = source.stream()
                     .collect(
                             Collectors.toMap(
                                     ac -> ac.getDependencyOverride() == null ? GLOBAL_SCOPE
@@ -157,11 +158,11 @@ public class MapSetMapper {
         }
 
         CollectionMerger.merge(
-                oldACs.keySet(),
-                newACs.keySet(),
-                add -> target.put(add, alignConfigMapper.toModel(newACs.get(add))),
+                oldASs.keySet(),
+                newASs.keySet(),
+                add -> target.put(add, alignStratMapper.toModel(newASs.get(add))),
                 remove -> target.remove(remove),
-                update -> alignConfigMapper.updateEntity(newACs.get(update), oldACs.get(update)));
+                update -> alignStratMapper.updateEntity(newASs.get(update), oldASs.get(update)));
 
         return target;
     }

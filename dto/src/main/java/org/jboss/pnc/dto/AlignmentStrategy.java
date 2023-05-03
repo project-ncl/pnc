@@ -15,16 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.mapper.api;
+package org.jboss.pnc.dto;
 
-import org.jboss.pnc.dto.AlignmentConfig;
-import org.jboss.pnc.model.AlignConfig;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
 
-public interface AlignConfigMapper {
+import java.util.List;
 
-    AlignConfig toModel(AlignmentConfig config);
-
-    AlignmentConfig toDto(AlignConfig config, String dependencyOverride);
-
-    void updateEntity(AlignmentConfig dto, AlignConfig model);
+@Getter
+@Builder(toBuilder = true)
+@EqualsAndHashCode
+@Jacksonized
+public class AlignmentStrategy {
+    private final String dependencyOverride;
+    private final List<String> ranks;
+    private final String denyList;
+    private final String allowList;
 }

@@ -107,7 +107,7 @@ public class BuildConfiguration extends BuildConfigurationRef {
      */
     protected final User modificationUser;
 
-    protected final Set<AlignmentConfig> alignmentConfigs;
+    protected final Set<AlignmentStrategy> alignmentStrategies;
 
     @lombok.Builder(builderClassName = "Builder", toBuilder = true)
     protected BuildConfiguration(
@@ -130,7 +130,7 @@ public class BuildConfiguration extends BuildConfigurationRef {
             User modificationUser,
             String defaultAlignmentParams,
             Boolean brewPullActive,
-            Set<AlignmentConfig> alignmentConfigs) {
+            Set<AlignmentStrategy> alignmentStrategies) {
         super(
                 id,
                 name,
@@ -151,7 +151,7 @@ public class BuildConfiguration extends BuildConfigurationRef {
         this.parameters = parameters;
         this.creationUser = creationUser;
         this.modificationUser = modificationUser;
-        this.alignmentConfigs = alignmentConfigs;
+        this.alignmentStrategies = alignmentStrategies;
     }
 
     @JsonPOJOBuilder(withPrefix = "")

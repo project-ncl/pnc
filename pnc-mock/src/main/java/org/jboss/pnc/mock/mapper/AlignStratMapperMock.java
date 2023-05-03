@@ -18,34 +18,34 @@
 
 package org.jboss.pnc.mock.mapper;
 
-import org.jboss.pnc.dto.AlignmentConfig;
-import org.jboss.pnc.mapper.api.AlignConfigMapper;
-import org.jboss.pnc.model.AlignConfig;
+import org.jboss.pnc.dto.AlignmentStrategy;
+import org.jboss.pnc.mapper.api.AlignStratMapper;
+import org.jboss.pnc.model.AlignStrategy;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
 
 @Alternative
 @ApplicationScoped
-public class AlignConfigMapperMock implements AlignConfigMapper {
+public class AlignStratMapperMock implements AlignStratMapper {
 
     @Override
-    public AlignConfig toModel(AlignmentConfig config) {
-        return AlignConfig.builder().ranks(config.getRanks()).denyList(config.getDenyList()).build();
+    public AlignStrategy toModel(AlignmentStrategy strat) {
+        return AlignStrategy.builder().ranks(strat.getRanks()).denyList(strat.getDenyList()).build();
     }
 
     @Override
-    public AlignmentConfig toDto(AlignConfig config, String dependencyOverride) {
-        return AlignmentConfig.builder()
-                .denyList(config.getDenyList())
-                .allowList(config.getAllowList())
-                .ranks(config.getRanks())
+    public AlignmentStrategy toDto(AlignStrategy strat, String dependencyOverride) {
+        return AlignmentStrategy.builder()
+                .denyList(strat.getDenyList())
+                .allowList(strat.getAllowList())
+                .ranks(strat.getRanks())
                 .dependencyOverride(dependencyOverride)
                 .build();
     }
 
     @Override
-    public void updateEntity(AlignmentConfig dto, AlignConfig model) {
+    public void updateEntity(AlignmentStrategy dto, AlignStrategy model) {
         model.setRanks(dto.getRanks());
         model.setAllowList(dto.getAllowList());
         model.setDenyList(dto.getDenyList());
