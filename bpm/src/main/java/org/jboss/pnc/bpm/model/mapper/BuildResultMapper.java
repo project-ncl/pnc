@@ -38,8 +38,16 @@ import static java.util.Optional.ofNullable;
 @ApplicationScoped
 public class BuildResultMapper {
 
-    @Inject
     private RepositoryManagerResultMapper repositoryManagerResultMapper;
+
+    // CDI
+    public BuildResultMapper() {
+    }
+
+    @Inject
+    public BuildResultMapper(RepositoryManagerResultMapper repositoryManagerResultMapper) {
+        this.repositoryManagerResultMapper = repositoryManagerResultMapper;
+    }
 
     public BuildResult toEntity(BuildResultRest buildResultRest) {
         RepositoryManagerResult repositoryManagerResult = null;

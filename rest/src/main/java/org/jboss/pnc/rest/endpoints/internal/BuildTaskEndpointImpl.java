@@ -189,7 +189,8 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         BuildMeta buildMeta = parseBuildMeta(buildId, notification);
 
         // Task has to be present in Rex, otherwise it is unknown
-        validateBuildIsActive(buildId, notification);
+        // TODO uncomment to avoid an ability of our users to create invalid BRecords
+        // validateBuildIsActive(buildId, notification);
 
         // Avoid notifications if build is already persisted
         validateBuildHasNotBeenSaved(buildId, notification);
@@ -226,7 +227,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
     private void validateBuildHasNotBeenSaved(String buildId, NotificationRequest request)
             throws WebApplicationException {
         Build build = buildProvider.getSpecific(buildId);
-        if (build != null) {
+        if (build != null && build.getStatus().isFinal()) {
             logger.error("Notification arrived while Build '{}' is already saved. Request: {}", buildId, request);
             throw new WebApplicationException(
                     Response.status(Response.Status.GONE)

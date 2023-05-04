@@ -454,8 +454,9 @@ public class DatastoreAdapter {
             builder.endTime(Date.from(Instant.now()));
         }
 
-        if (buildTask.getBuildConfigSetRecord() != null) {
-            builder.buildConfigSetRecord(buildTask.getBuildConfigSetRecord());
+        if (buildTask.getBuildConfigSetRecordId() != null) {
+            BuildConfigSetRecord bcsr = datastore.getBuildConfigSetRecordById(buildTask.getBuildConfigSetRecordId());
+            builder.buildConfigSetRecord(bcsr);
         }
 
         builder.dependencyBuildRecordIds(

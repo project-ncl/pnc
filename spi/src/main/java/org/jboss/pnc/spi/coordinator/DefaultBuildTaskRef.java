@@ -45,7 +45,7 @@ public class DefaultBuildTaskRef implements BuildTaskRef {
     private final IdRev idRev;
 
     @Getter
-    private final BuildConfigSetRecord buildConfigSetRecord;
+    private final Long buildConfigSetRecordId;
 
     @Getter
     private final ProductMilestone productMilestone;

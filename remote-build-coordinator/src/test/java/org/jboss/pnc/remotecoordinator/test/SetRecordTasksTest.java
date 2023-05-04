@@ -314,7 +314,7 @@ public class SetRecordTasksTest extends AbstractDependentBuildTest {
                         .id(Sequence.nextBase32Id())
                         .idRev(BuildConfigurationAudited.fromBuildConfiguration(config, 1).getIdRev())
                         .status(BuildCoordinationStatus.fromBuildStatus(status))
-                        .buildConfigSetRecord(setRecord)
+                        .buildConfigSetRecordId(setRecord.getId())
                         .build());
     }
 

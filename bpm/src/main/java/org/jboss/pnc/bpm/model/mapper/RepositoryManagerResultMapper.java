@@ -32,8 +32,16 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class RepositoryManagerResultMapper {
 
-    @Inject
     private ArtifactMapper artifactMapper;
+
+    // CDI
+    public RepositoryManagerResultMapper() {
+    }
+
+    @Inject
+    public RepositoryManagerResultMapper(ArtifactMapper artifactMapper) {
+        this.artifactMapper = artifactMapper;
+    }
 
     public RepositoryManagerResultRest toDTO(RepositoryManagerResult entity) {
         List<Artifact> builtArtifacts = entity.getBuiltArtifacts()

@@ -225,6 +225,7 @@ public class BuildTasksInitializer {
             if (buildConfigurationAudited == null) {
                 buildConfigurationAudited = datastoreAdapter
                         .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
+                buildConfigurationAuditedsMap.put(buildConfigurationAudited.getId(), buildConfigurationAudited);
             }
             buildConfigurationAuditeds.add(buildConfigurationAudited);
 

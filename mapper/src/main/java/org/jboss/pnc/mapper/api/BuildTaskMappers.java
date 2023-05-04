@@ -48,7 +48,7 @@ public interface BuildTaskMappers {
 
     @Mapping(target = "id", source = "task.name")
     @Mapping(target = "idRev", source = "task.constraint")
-    @Mapping(target = "buildConfigSetRecord", source = "task.correlationID")
+    @Mapping(target = "buildConfigSetRecordId", source = "task.correlationID")
     @Mapping(target = "productMilestone", source = "meta.productMilestoneId")
     @Mapping(target = "submitTime", source = "meta.submitTime")
     @Mapping(target = "startTime", ignore = true) // TODO generate in REX
@@ -69,7 +69,7 @@ public interface BuildTaskMappers {
 
     @Mapping(target = "id", source = "task.name")
     @Mapping(target = "idRev", source = "task.constraint")
-    @Mapping(target = "buildConfigSetRecord", source = "task.correlationID")
+    @Mapping(target = "buildConfigSetRecordId", source = "task.correlationID")
     @Mapping(target = "productMilestone", source = "meta.productMilestoneId")
     @Mapping(target = "submitTime", source = "meta.submitTime")
     @Mapping(target = "startTime", ignore = true) // TODO generate in REX
@@ -91,7 +91,7 @@ public interface BuildTaskMappers {
     @Mapping(target = "buildConfigurationAudited", source = "idRev")
     @Mapping(target = "statusDescription", ignore = true)
     @Mapping(target = "buildSetTask", ignore = true)
-    @Mapping(target = "buildConfigSetRecordId", source = "buildConfigSetRecord.id")
+    @Mapping(target = "buildConfigSetRecordId", source = "buildConfigSetRecordId")
     @Mapping(target = "buildOptions.temporaryBuild", source = "temporaryBuild")
     @Mapping(target = "buildOptions.alignmentPreference", source = "alignmentPreference")
     @Mapping(target = "requestContext", ignore = true)
@@ -106,7 +106,7 @@ public interface BuildTaskMappers {
     @Mapping(target = "status", constant = "REJECTED_ALREADY_BUILT")
     @Mapping(target = "alignmentPreference", source = "request.buildOptions.alignmentPreference")
     @Mapping(target = "productMilestone", source = "request.currentProductMilestone.id")
-    @Mapping(target = "buildConfigSetRecord", source = "setRecordId")
+    @Mapping(target = "buildConfigSetRecordId", source = "setRecordId")
     @Mapping(target = "user", source = "request.username", qualifiedBy = ByUsername.class)
     @Mapping(target = "startTime", ignore = true) // NRR don't have startTime
     @Mapping(target = "endTime", ignore = true) // NRR don't have endTime

@@ -63,15 +63,18 @@ public class GraphUtils {
     public static <T> Graph<T> clone(Graph<T> graph) {
         Graph<T> clone = new Graph<>();
         for (Vertex<T> vertex : graph.getVerticies()) {
-            clone.addVertex(vertex);
+            clone.addVertex(new Vertex<>(vertex.getName(), vertex.getData()));
         }
 
         for (Edge<T> edge : graph.getEdges()) {
-            clone.addEdge(edge.getFrom(), edge.getTo(), edge.getCost());
+            clone.addEdge(
+                    clone.findVertexByName(edge.getFrom().getName()),
+                    clone.findVertexByName(edge.getTo().getName()),
+                    edge.getCost());
         }
 
         if (graph.getRootVertex() != null) {
-            clone.setRootVertex(graph.getRootVertex());
+            clone.setRootVertex(new Vertex<>(graph.getRootVertex().getName(), graph.getRootVertex().getData()));
         }
         return clone;
     }

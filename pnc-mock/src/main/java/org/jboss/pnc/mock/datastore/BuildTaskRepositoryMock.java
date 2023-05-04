@@ -46,9 +46,7 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
     public List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId) {
         return tasks.values()
                 .stream()
-                .filter(
-                        t -> buildConfigSetRecordId.equals(
-                                t.getBuildConfigSetRecord() == null ? null : t.getBuildConfigSetRecord().getId()))
+                .filter(t -> buildConfigSetRecordId.equals(t.getBuildConfigSetRecordId()))
                 .collect(Collectors.toList());
     }
 

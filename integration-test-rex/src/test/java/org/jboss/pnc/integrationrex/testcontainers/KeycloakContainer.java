@@ -15,13 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.integrationrex;
+package org.jboss.pnc.integrationrex.testcontainers;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.command.InspectContainerResponse;
-import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.RealmRepresentation;
 
@@ -31,17 +30,17 @@ import java.io.UncheckedIOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CustomKeycloakContainer extends KeycloakContainer {
+public class KeycloakContainer extends dasniko.testcontainers.keycloak.KeycloakContainer {
 
-    private final Set<String> importFiles = new HashSet<>();;
+    private final Set<String> importFiles = new HashSet<>();
     private ObjectMapper objectMapper;
 
-    public CustomKeycloakContainer() {
-        super();
+    public KeycloakContainer() {
+        super("quay.io/keycloak/keycloak:21.1.0");
         initObjectMapper();
     }
 
-    public CustomKeycloakContainer(String imageName) {
+    public KeycloakContainer(String imageName) {
         super(imageName);
         initObjectMapper();
     }
@@ -50,12 +49,6 @@ public class CustomKeycloakContainer extends KeycloakContainer {
         objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
-
-    @Override
-    public KeycloakContainer withRealmImportFile(String importFile) {
-        this.importFiles.add(importFile);
-        return self();
     }
 
     @Override
