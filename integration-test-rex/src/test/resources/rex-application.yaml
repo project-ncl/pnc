@@ -1,5 +1,5 @@
 scheduler:
-  baseUrl: "http://127.0.0.1:5679"
+  baseUrl: "http://localhost:5679"
 
 quarkus:
 

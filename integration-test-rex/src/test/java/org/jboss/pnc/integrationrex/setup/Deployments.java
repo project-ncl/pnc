@@ -35,6 +35,8 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
+
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -54,8 +56,8 @@ public class Deployments {
     public static EnterpriseArchive testEar() {
         EnterpriseArchive ear = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, getBaseEar());
 
-        // WebArchive restWar = prepareRestArchive(ear);
-        // ear.addAsModule(archiveToTest(restWar));
+        WebArchive restWar = prepareRestArchive(ear);
+        ear.addAsModule(archiveToTest(restWar));
 
         addTestPersistenceXml(ear);
         ear.setApplicationXML("application.xml");

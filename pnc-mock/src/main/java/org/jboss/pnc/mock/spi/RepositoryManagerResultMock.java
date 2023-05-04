@@ -40,19 +40,22 @@ public class RepositoryManagerResultMock {
 
     public static RepositoryManagerResult mockResult(boolean failed) {
         int rebuild = rebuildNumber.getAndAdd(100);
+        return mockResult(failed, rebuild);
+    }
+
+    public static RepositoryManagerResult mockResult(boolean failed, int base) {
         return new RepositoryManagerResult() {
             @Override
             public List<Artifact> getBuiltArtifacts() {
-                Artifact[] artifacts = { ArtifactBuilder.mockArtifact(rebuild + 11),
-                        ArtifactBuilder.mockArtifact(rebuild + 12) };
+                Artifact[] artifacts = { ArtifactBuilder.mockArtifact(base + 11),
+                        ArtifactBuilder.mockArtifact(base + 12) };
                 return Arrays.asList(artifacts);
             }
 
             @Override
             public List<Artifact> getDependencies() {
-                Artifact[] artifacts = { ArtifactBuilder.mockImportedArtifact(rebuild + 21),
-                        ArtifactBuilder.mockImportedArtifact(rebuild + 22),
-                        ArtifactBuilder.mockArtifact(rebuild + 13) };
+                Artifact[] artifacts = { ArtifactBuilder.mockImportedArtifact(base + 21),
+                        ArtifactBuilder.mockImportedArtifact(base + 22), ArtifactBuilder.mockArtifact(base + 13) };
                 return Arrays.asList(artifacts);
             }
 
@@ -80,4 +83,5 @@ public class RepositoryManagerResultMock {
             }
         };
     }
+
 }
