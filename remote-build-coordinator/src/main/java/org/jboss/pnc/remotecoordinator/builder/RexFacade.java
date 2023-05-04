@@ -159,7 +159,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         }
 
         CreateGraphRequest createGraphRequest = new CreateGraphRequest(
-                Objects.toString(buildConfigSetRecordId),
+                buildConfigSetRecordId == null ? null : String.valueOf(buildConfigSetRecordId),
                 edges,
                 vertices);
         try {
@@ -329,7 +329,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         BuildMeta buildMetadata = mappers.toBuildMeta(buildTask);
         Request callback = Request.builder()
                 .method(Request.Method.POST)
-                .uri(URI.create(format("{0}/pnc-rest/build-tasks/{1}/notify", globalConfig.getPncUrl(), buildTask.getId())))
+                .uri(URI.create(format("{0}/build-tasks/{1}/notify", globalConfig.getPncUrl(), buildTask.getId())))
                 .headers(headers)
                 .attachment(buildMetadata)
                 .build();

@@ -65,7 +65,6 @@ import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.exception.ScheduleConflictException;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.jboss.util.graph.Graph;
-import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -268,14 +267,15 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
 
         try {
             Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
-            verifyAllBCAsAreNotRunning(buildConfigurationAuditedsMap.values(), unfinishedTasks);
-
             Graph<RemoteBuildTask> buildGraph = buildTasksInitializer.createBuildGraph(
                     buildConfigurationSet,
                     buildConfigurationAuditedsMap,
                     user,
                     buildOptions,
                     unfinishedTasks);
+
+            verifyAllBCAsAreNotRunning(buildConfigurationAuditedsMap.values(), unfinishedTasks);
+
             Long buildConfigSetRecordId = Sequence.nextId();
             ScheduleResult scheduleResult = validateAndRunBuilds(
                     user,
@@ -283,7 +283,12 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                     buildGraph,
                     buildConfigSetRecordId);
             // TODO end build timing
-            return storeAndNotifyBuildSet(buildConfigurationSet, user, buildOptions, scheduleResult);
+            return storeAndNotifyBuildSet(
+                    buildConfigurationSet,
+                    user,
+                    buildOptions,
+                    scheduleResult,
+                    buildConfigSetRecordId);
         } catch (ScheduleConflictException | BuildConflictException | BuildRequestException e) {
             log.warn("Cannot prepare builds.", e);
             throw e;
@@ -352,8 +357,10 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             BuildConfigurationSet buildConfigurationSet,
             User user,
             BuildOptions buildOptions,
-            ScheduleResult scheduleResult) throws CoreException {
+            ScheduleResult scheduleResult,
+            Long buildConfigSetRecordId) throws CoreException {
         BuildConfigSetRecord buildConfigSetRecord = storeAndNotifyBuildConfigSetRecord(
+                buildConfigSetRecordId,
                 buildConfigurationSet,
                 scheduleResult.buildStatusWithDescription.getBuildStatus(),
                 scheduleResult.buildStatusWithDescription.getDescription(),
@@ -437,7 +444,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         Build build = buildMapper.fromBuildTask(taskMappers.toBuildTask(task));
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
                 build,
-                null,
+                build.getStatus(),
                 BuildStatus.fromBuildCoordinationStatus(status));
         log.debug("Updated build task {} status to {}; new coord status: {}", task.getId(), buildStatusChanged, status);
 
@@ -454,6 +461,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
      * @return
      */
     private BuildConfigSetRecord storeAndNotifyBuildConfigSetRecord(
+            Long buildConfigSetRecordId,
             BuildConfigurationSet buildConfigurationSet,
             BuildStatus status,
             String description,
@@ -461,6 +469,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             BuildOptions buildOptions) throws CoreException {
 
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
+                .id(buildConfigSetRecordId)
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
                 .startTime(new Date())

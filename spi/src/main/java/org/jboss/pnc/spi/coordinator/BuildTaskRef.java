@@ -44,7 +44,7 @@ public interface BuildTaskRef {
 
     Instant getEndTime();
 
-    BuildConfigSetRecord getBuildConfigSetRecord();
+    Long getBuildConfigSetRecordId();
 
     ProductMilestone getProductMilestone();
 

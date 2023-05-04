@@ -59,6 +59,9 @@ public class IDToReferenceMapper {
             DTOID id,
             IdMapper<ID, DTOID> idMapper,
             Class<DB> type) {
+        if (id == null) {
+            return null;
+        }
         return em.getReference(type, idMapper.toEntity(id));
     }
 
