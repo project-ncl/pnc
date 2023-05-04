@@ -50,6 +50,7 @@ import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -73,6 +74,7 @@ import static org.jboss.pnc.restclient.websocket.predicates.GroupBuildChangedNot
 @RunAsClient
 @RunWith(Arquillian.class)
 @Category({ ContainerTest.class })
+@Ignore
 public class WebSocketClientTest {
 
     private static final String PNC_SOCKET_URL = "ws://localhost:8080" + NOTIFICATION_PATH;

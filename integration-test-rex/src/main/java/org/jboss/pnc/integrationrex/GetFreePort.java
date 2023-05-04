@@ -27,11 +27,14 @@ import java.util.Properties;
 public class GetFreePort {
 
     public static final String KEYCLOAK_PORT = "keycloakPort";
+    public static final String REX_PORT = "keycloakPort";
 
     public static void main(String[] args) {
         int freeHostPort = getFreeHostPort();
+        int freeHostPort2 = getFreeHostPort();
         Properties properties = new Properties();
         properties.put(KEYCLOAK_PORT, Objects.toString(freeHostPort));
+        properties.put(REX_PORT, Objects.toString(freeHostPort2));
         try (final OutputStream outputstream = new FileOutputStream("target/test.properties")) {
             properties.store(outputstream, "File Updated");
         } catch (IOException e) {

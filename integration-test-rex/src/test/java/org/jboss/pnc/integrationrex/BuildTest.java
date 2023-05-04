@@ -17,8 +17,6 @@
  */
 package org.jboss.pnc.integrationrex;
 
-import dasniko.testcontainers.keycloak.KeycloakContainer;
-import org.jboss.arquillian.container.test.api.BeforeDeployment;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -41,18 +39,17 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.integrationrex.mock.BPMWireMock;
 import org.jboss.pnc.integrationrex.setup.Deployments;
+import org.jboss.pnc.integrationrex.testcontainers.KeycloakContainer;
 import org.jboss.pnc.integrationrex.testcontainers.InfinispanContainer;
 import org.jboss.pnc.integrationrex.utils.ResponseUtils;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.util.StringPropertyReplacer;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -67,10 +64,7 @@ import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
-import java.awt.image.ImageConsumer;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -103,7 +97,6 @@ public class BuildTest {
 
     private BuildClient buildClient;
 
-    // public static GenericContainer rexTC;
     private static String authServerUrl;
 
     private static String keycloakRealm = "newcastle-testcontainer";
@@ -118,12 +111,13 @@ public class BuildTest {
         Consumer<OutputFrame> logsConsumer = frame -> logger.debug("KEYCLOAK >>" + frame.getUtf8String());
         // String keycloakPort = testProperties.getProperty(GetFreePort.KEYCLOAK_PORT);
         // String keycloakPortBinding = keycloakPort + ":" + 8080; // 8080 is in-container port
-        KeycloakContainer keycloak = new CustomKeycloakContainer().withNetwork(network)
-                .withLogConsumer(logsConsumer)
-                .withNetworkAliases("keycloak")
-                .withRealmImportFile("keycloak-realm-export.json")
-                .withAccessToHost(true)
-                .withStartupAttempts(5);
+        dasniko.testcontainers.keycloak.KeycloakContainer keycloak = new KeycloakContainer(
+                "quay.io/keycloak/keycloak:21.1.0").withNetwork(network)
+                        .withLogConsumer(logsConsumer)
+                        .withNetworkAliases("keycloak")
+                        .withRealmImportFile("keycloak-realm-export.json")
+                        .withAccessToHost(true)
+                        .withStartupAttempts(5);
         keycloak.setPortBindings(List.of("5678:8080"));
         keycloak.start();
 
@@ -148,10 +142,10 @@ public class BuildTest {
                         .waitingFor(Wait.forLogMessage(".*Installed features:.*", 1))
                         .withStartupAttempts(5);
 
-        InfinispanContainer ispn = new InfinispanContainer(false).withNetwork(network)
+        InfinispanContainer ispn = new InfinispanContainer(false)
+                .withNetwork(network)
                 .withNetworkAliases("infinispan")
                 .withStartupAttempts(5);
-        ispn.setPortBindings(List.of("1239:11222"));
         ispn.start();
 
         rexTC.setPortBindings(List.of(portBinding));
@@ -188,6 +182,8 @@ public class BuildTest {
 
     @BeforeClass
     public static void before() {
+        // 8080 IS JBOSS CONTAINER
+        // 8088 IS BPM WIREMOCK MOCK
         Testcontainers.exposeHostPorts(8080, 8088);
     }
 
@@ -321,7 +317,6 @@ public class BuildTest {
     }
 
     @Test
-    @Ignore
     public void shouldRejectGroupBuildWithNoRebuildsRequired() throws ClientException {
         // given
         GroupConfiguration groupConfig = groupConfigurationClient.getAll().iterator().next();
@@ -356,7 +351,6 @@ public class BuildTest {
     }
 
     @Test
-    @Ignore
     public void shouldBuildTemporaryBuildAndNotAssignItToMilestone() throws ClientException {
         // BC pnc-1.0.0.DR1 is assigned to a product version containing an active product milestone see
         // DatabaseDataInitializer#initiliazeProjectProductData
@@ -380,7 +374,6 @@ public class BuildTest {
     }
 
     @Test
-    @Ignore
     public void shouldTriggerPersistentWithoutForceAfterTemporaryOnTheSameRev() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
@@ -414,7 +407,6 @@ public class BuildTest {
     // NCL-5192
     // Replicates NCL-5192 through explicit dependency instead of implicit
     @Test
-    @Ignore
     public void dontRebuildTemporaryBuildWhenThereIsNewerPersistentOnSameRev()
             throws ClientException, InterruptedException {
         BuildConfiguration parent = buildConfigurationClient
@@ -451,7 +443,7 @@ public class BuildTest {
         Build temporaryBuild = buildConfigurationClient.trigger(parent.getId(), getTemporaryParameters());
         ResponseUtils
                 .waitSynchronouslyFor(() -> buildToFinish(temporaryBuild.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
-
+        Thread.sleep(1L);
         // Build persistent build of dependency on the same revision
         Build dependencyPersistentBuild = buildConfigurationClient
                 .trigger(dependency.getId(), getPersistentParameters());
@@ -470,7 +462,6 @@ public class BuildTest {
     }
 
     @Test
-    @Ignore
     public void shouldRejectAfterBuildingTwoTempBuildsOnSameRevision() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
@@ -502,7 +493,6 @@ public class BuildTest {
     }
 
     @Test
-    @Ignore
     public void shouldNotTriggerANewPersistentBuildWithoutForceIfOnlyDescriptionChanged() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
@@ -538,7 +528,6 @@ public class BuildTest {
     }
 
     @Test
-    @Ignore
     public void shouldNotTriggerANewTemporaryBuildWithoutForceIfOnlyDescriptionChanged() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
@@ -574,7 +563,6 @@ public class BuildTest {
     }
 
     @Test
-    @Ignore
     public void shouldHaveNoRebuildCauseFilled() throws Exception {
         // with
         BuildConfiguration buildConfiguration = buildConfigurationClient.getAll().iterator().next();
