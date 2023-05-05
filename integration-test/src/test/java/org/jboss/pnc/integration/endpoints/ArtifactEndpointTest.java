@@ -180,6 +180,24 @@ public class ArtifactEndpointTest {
     }
 
     @Test
+    public void testGetAllArtifactsWithAllQueryParams() throws RemoteResourceException {
+        Qualifier qualifier = Qualifier.PRODUCT;
+
+        String value = "PNC"; // from DatabaseDataInitializer
+        String identifierFilter = "demo:built-artifact*"; // from DatabaseDataInitializer
+
+        ArtifactClient client = new ArtifactClient(RestClientConfiguration.asAnonymous());
+        var result = client.getAllFiltered(
+                identifierFilter,
+                Set.of(ArtifactQuality.TESTED, ArtifactQuality.VERIFIED, ArtifactQuality.NEW),
+                RepositoryType.MAVEN,
+                Set.of(BuildCategory.STANDARD),
+                Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
+
+        assertQualifier(qualifier, value, result, 2);
+    }
+
+    @Test
     public void testGetAllArtifactsWithProductIdQualifier() throws RemoteResourceException {
         Qualifier qualifier = Qualifier.PRODUCT_ID;
         String productAbbrev = "PNC"; // from DatabaseDataInitializer

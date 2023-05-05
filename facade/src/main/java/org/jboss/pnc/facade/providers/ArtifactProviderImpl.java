@@ -683,19 +683,19 @@ public class ArtifactProviderImpl
 
         if (identifierPattern.isPresent()) {
             queryParameters.put(parameterCounter.getAndIncrement(), identifierPattern.get().replace("*", "%"));
-            builder.where(Artifact_.IDENTIFIER + " LIKE ?");
+            builder.where("a." + Artifact_.IDENTIFIER + " LIKE ?");
         }
 
         if (!qualities.isEmpty()) {
             Set<String> strings = qualities.stream().map(e -> '\'' + e.toString() + '\'').collect(toSet());
             // NO need to parametrize for enums
-            builder.where(Artifact_.ARTIFACT_QUALITY + " in (" + String.join(",", strings) + ")");
+            builder.where("a." + Artifact_.ARTIFACT_QUALITY + " in (" + String.join(",", strings) + ")");
         }
 
         if (!buildCategories.isEmpty()) {
             Set<String> strings = buildCategories.stream().map(e -> '\'' + e.toString() + '\'').collect(toSet());
             // NO need to parametrize for enums
-            builder.where(Artifact_.BUILD_CATEGORY + " in (" + String.join(",", strings) + ")");
+            builder.where("a." + Artifact_.BUILD_CATEGORY + " in (" + String.join(",", strings) + ")");
         }
 
         if (repoType.isPresent()) {
