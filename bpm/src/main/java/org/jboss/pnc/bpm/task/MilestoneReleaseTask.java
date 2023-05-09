@@ -52,6 +52,7 @@ public class MilestoneReleaseTask {
                 globalConfig.getPncUrl(),
                 globalConfig.getExternalCausewayUrl());
     }
+
     public GlobalModuleGroup getGlobalConfig() {
         return globalConfig;
     }
