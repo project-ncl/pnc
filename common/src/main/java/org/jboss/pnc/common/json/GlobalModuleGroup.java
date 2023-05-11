@@ -38,6 +38,7 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
     private String externalPncUrl;
     private String externalRepourUrl;
     private String externalUiLoggerUrl;
+    private String brewContentUrl;
 
     public String getBpmUrl() {
         return bpmUrl;
@@ -157,5 +158,13 @@ public class GlobalModuleGroup extends AbstractModuleGroup {
 
     public void setExternalUiLoggerUrl(String externalUiLoggerUrl) {
         this.externalUiLoggerUrl = externalUiLoggerUrl;
+    }
+
+    public String getBrewContentUrl() {
+        return brewContentUrl;
+    }
+
+    public void setBrewContentUrl(String brewContentUrl) {
+        this.brewContentUrl = brewContentUrl;
     }
 }

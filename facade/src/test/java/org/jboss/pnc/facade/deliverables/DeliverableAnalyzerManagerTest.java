@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.*;
 
 import org.jboss.pnc.api.deliverablesanalyzer.dto.*;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.util.UserService;
@@ -63,6 +64,8 @@ public class DeliverableAnalyzerManagerTest {
     @Mock
     private ArtifactMapper artifactMapper;
     @Mock
+    private GlobalModuleGroup globalConfig;
+    @Mock
     private UserService userService;
 
     @InjectMocks
@@ -96,6 +99,7 @@ public class DeliverableAnalyzerManagerTest {
             return artifacts.stream().filter(a -> id.equals(a.getId())).findAny().orElse(null);
         });
         when((userService.currentUser())).thenReturn(USER);
+        when(globalConfig.getBrewContentUrl()).thenReturn("https://example.com/");
     }
 
     @Test
