@@ -126,6 +126,10 @@
             <artifactId>guava</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.package-url</groupId>
+            <artifactId>packageurl-java</artifactId>
+        </dependency>
 
         <!-- Build dependencies -->
         <dependency>
