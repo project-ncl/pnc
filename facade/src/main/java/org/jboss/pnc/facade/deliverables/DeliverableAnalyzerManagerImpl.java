@@ -17,20 +17,25 @@
  */
 package org.jboss.pnc.facade.deliverables;
 
+import com.github.packageurl.MalformedPackageURLException;
+import com.github.packageurl.PackageURL;
+import com.github.packageurl.PackageURLBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.Artifact;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.ArtifactType;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.Build;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
-import org.jboss.pnc.api.deliverablesanalyzer.dto.NPMArtifact;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
 import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
+import org.jboss.pnc.common.Strings;
+import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.util.StringUtils;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
@@ -68,6 +73,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
@@ -83,6 +90,9 @@ import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 @PermitAll
 public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.DeliverableAnalyzerManager {
     private static final String KOJI_PATH_MAVEN_PREFIX = "/api/content/maven/remote/koji-";
+
+    private static final Pattern NVR_PATTERN = Pattern.compile("(.+)-([^-]+)-([^-]+)");
+
     public static final String URL_PARAMETER_PREFIX = "url-";
 
     @Inject
@@ -101,6 +111,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private UserService userService;
     @Inject
     private BpmModuleConfig bpmConfig;
+    @Inject
+    private GlobalModuleGroup globalConfig;
     @Inject
     private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
     @Inject
@@ -159,7 +171,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 case BREW:
                     statCounter = stats.brewCounter();
                     TargetRepository brewRepository = getBrewRepository(build);
-                    artifactParser = art -> findOrCreateArtifact(assertBrewArtifacts(art), brewRepository);
+                    artifactParser = art -> findOrCreateBrewArtifact(
+                            assertBrewArtifacts(art),
+                            brewRepository,
+                            build.getBrewNVR());
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown build system type " + build.getBuildSystemType());
@@ -175,7 +190,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
             stats.notFoundArtifactsCount = notFoundArtifacts.size();
             notFoundArtifacts.stream()
-                    .map(art -> findOrCreateArtifact(art, distributionRepository))
+                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository))
                     .peek(artifactUpdater)
                     .forEach(milestone::addDeliveredArtifact);
         }
@@ -214,9 +229,20 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         milestone.getDeliveredArtifacts().clear();
     }
 
-    @SuppressWarnings("unchecked")
-    private org.jboss.pnc.model.Artifact findOrCreateArtifact(Artifact art, TargetRepository targetRepo) {
-        org.jboss.pnc.model.Artifact artifact = mapArtifact(art);
+    private org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(
+            Artifact artifact,
+            TargetRepository targetRepo,
+            String nvr) {
+        return findOrCreateArtifact(mapBrewArtifact(artifact, nvr), targetRepo);
+    }
+
+    private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(Artifact artifact, TargetRepository targetRepo) {
+        return findOrCreateArtifact(mapNotFoundArtifact(artifact), targetRepo);
+    }
+
+    private org.jboss.pnc.model.Artifact findOrCreateArtifact(
+            org.jboss.pnc.model.Artifact artifact,
+            TargetRepository targetRepo) {
         // find
         org.jboss.pnc.model.Artifact dbArtifact = artifactRepository.queryByPredicates(
                 ArtifactPredicates.withIdentifierAndSha256(artifact.getIdentifier(), artifact.getSha256()),
@@ -241,39 +267,103 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return artifact;
     }
 
-    private org.jboss.pnc.model.Artifact mapArtifact(Artifact art) {
-        org.jboss.pnc.model.Artifact.Builder builder = org.jboss.pnc.model.Artifact.builder();
-        builder.md5(art.getMd5());
-        builder.sha1(art.getSha1());
-        builder.sha256(art.getSha256());
-        builder.size(art.getSize());
-        if (art.getArtifactType() == null) {
-            Path path = Paths.get(art.getFilename());
-            builder.filename(path.getFileName().toString());
-            builder.identifier(art.getFilename());
-            Path directory = path.getParent();
-            builder.deployPath(directory == null ? null : directory.toString());
-        } else {
-            builder.filename(art.getFilename());
-            switch (art.getArtifactType()) {
-                case MAVEN:
-                    builder.identifier(fill((MavenArtifact) art));
-                    break;
-                case NPM:
-                    builder.identifier(fill((NPMArtifact) art));
-                    break;
-            }
+    private org.jboss.pnc.model.Artifact mapNotFoundArtifact(Artifact artifact) {
+        org.jboss.pnc.model.Artifact.Builder builder = mapArtifact(artifact);
+        Path path = Paths.get(artifact.getFilename());
+        builder.filename(path.getFileName().toString());
+        builder.identifier(artifact.getFilename());
+        Path directory = path.getParent();
+        builder.deployPath(directory == null ? null : directory.toString());
+
+        return builder.build();
+    }
+
+    private org.jboss.pnc.model.Artifact mapBrewArtifact(Artifact artifact, String nvr) {
+        if (artifact.getArtifactType() != ArtifactType.MAVEN) {
+            throw new UnsupportedOperationException("Brew artifact " + artifact + " is not Maven!");
         }
-        if (art.isBuiltFromSource()) {
+        MavenArtifact mavenArtifact = (MavenArtifact) artifact;
+
+        org.jboss.pnc.model.Artifact.Builder builder = mapArtifact(mavenArtifact);
+        builder.identifier(createIdentifier(mavenArtifact));
+        builder.filename(createFileName(mavenArtifact));
+        builder.deployPath(createDeployPath(mavenArtifact));
+        builder.originUrl(createBrewOriginURL(mavenArtifact, nvr));
+        builder.purl(createPURL(mavenArtifact));
+
+        return builder.build();
+    }
+
+    private org.jboss.pnc.model.Artifact.Builder mapArtifact(Artifact artifact) {
+        org.jboss.pnc.model.Artifact.Builder builder = org.jboss.pnc.model.Artifact.builder();
+        builder.md5(artifact.getMd5());
+        builder.sha1(artifact.getSha1());
+        builder.sha256(artifact.getSha256());
+        builder.size(artifact.getSize());
+        builder.importDate(new Date());
+        builder.creationUser(userService.currentUser());
+        builder.creationTime(new Date());
+
+        if (artifact.isBuiltFromSource()) {
             builder.artifactQuality(ArtifactQuality.NEW);
         } else {
             builder.artifactQuality(ArtifactQuality.IMPORTED);
         }
 
-        return builder.build();
+        return builder;
     }
 
-    private String fill(MavenArtifact mavenArtifact) {
+    private static String createDeployPath(MavenArtifact mavenArt) {
+        String filename = createFileName(mavenArt);
+        String deployPath = "/" + mavenArt.getGroupId().replace('.', '/') + "/" + mavenArt.getArtifactId() + "/"
+                + mavenArt.getVersion() + "/" + filename;
+        return deployPath;
+    }
+
+    private static String createFileName(MavenArtifact mavenArt) {
+        String filename = mavenArt.getArtifactId() + "-" + mavenArt.getVersion();
+        if (Strings.isEmpty(mavenArt.getClassifier())) {
+            filename += "-" + mavenArt.getClassifier();
+        }
+        filename += "." + mavenArt.getType();
+        return filename;
+    }
+
+    private String createBrewOriginURL(MavenArtifact mavenArt, String nvr) {
+        String brewContentUrl = globalConfig.getBrewContentUrl();
+
+        Matcher matcher = NVR_PATTERN.matcher(nvr);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("NVR " + nvr + " does not match expected format.");
+        }
+        String name = matcher.group(1);
+        String version = matcher.group(2);
+        String release = matcher.group(3);
+
+        return brewContentUrl + "/" + name + "/" + version + "/" + release + "/" + createDeployPath(mavenArt);
+    }
+
+    private String createPURL(MavenArtifact mavenArtifact) {
+        try {
+            PackageURLBuilder purlBuilder = PackageURLBuilder.aPackageURL()
+                    .withType(PackageURL.StandardTypes.MAVEN)
+                    .withNamespace(mavenArtifact.getGroupId())
+                    .withName(mavenArtifact.getArtifactId())
+                    .withVersion(mavenArtifact.getVersion())
+                    .withQualifier(
+                            "type",
+                            StringUtils.isEmpty(mavenArtifact.getType()) ? "jar" : mavenArtifact.getType());
+
+            if (!StringUtils.isEmpty(mavenArtifact.getClassifier())) {
+                purlBuilder.withQualifier("classifier", mavenArtifact.getClassifier());
+            }
+            return purlBuilder.build().toString();
+        } catch (MalformedPackageURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String createIdentifier(MavenArtifact mavenArtifact) {
         return Arrays
                 .asList(
                         mavenArtifact.getGroupId(),
@@ -284,10 +374,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(":"));
-    }
-
-    private String fill(NPMArtifact mavenArtifact) {
-        return mavenArtifact.getName() + ":" + mavenArtifact.getVersion();
     }
 
     private TargetRepository getBrewRepository(Build build) {
