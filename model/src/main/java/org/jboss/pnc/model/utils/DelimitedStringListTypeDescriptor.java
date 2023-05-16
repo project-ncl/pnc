@@ -46,12 +46,17 @@ public class DelimitedStringListTypeDescriptor extends AbstractTypeDescriptor<Li
 
     @Override
     public String toString(List value) {
-        return String.join(DELIMITER, ((List<String>) value));
+        return value == null || value.isEmpty() ? null : String.join(DELIMITER, ((List<String>) value));
     }
 
     @Override
     public List fromString(String string) {
         List<String> values = new ArrayList<>();
+
+        if (string == null) {
+            return values;
+        }
+
         Collections.addAll(values, string.split(DELIMITER));
         return values;
     }
