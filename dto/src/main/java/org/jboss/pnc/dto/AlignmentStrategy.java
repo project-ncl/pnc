@@ -20,12 +20,14 @@ package org.jboss.pnc.dto;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
 
 @Getter
 @Builder(toBuilder = true)
+@ToString
 @EqualsAndHashCode
 @Jacksonized
 public class AlignmentStrategy {
