@@ -25,7 +25,6 @@ import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.util.Quicksort;
 import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
-import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.ProductMilestone;
@@ -189,13 +188,8 @@ public class BuildTasksInitializer {
     /**
      * Create a Graph of all (including already running, no-rebuild required) associated dependencies.
      *
-     * A specific revision of the BuildConfigurations contained in the set is used, if it's available in the
-     * buildConfigurationAuditedsMap parameter. If it's not available, the latest revision of the BuildConfiguration is
-     * used.
-     *
      * If idRev is present in the submittedBuildTasks a new {@link RemoteBuildTask} is marker as already running.
      *
-     * @param buildConfigurationSet BuildConfigurationSet to be built
      * @param buildConfigurationAuditedsMap A map BuildConfiguration::id:BuildConfigurationAudited of specific revisions
      *        of BuildConfigurations contained in the buildConfigurationSet
      * @param user A user, who triggered the build
@@ -204,16 +198,21 @@ public class BuildTasksInitializer {
      * @return a graph of all associated dependencies
      */
     public Graph<RemoteBuildTask> createBuildGraph(
-            BuildConfigurationSet buildConfigurationSet,
             Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap,
             User user,
             BuildOptions buildOptions,
-            Collection<BuildTaskRef> submittedBuildTasks) {
+            Collection<BuildTaskRef> submittedBuildTasks,
+            ProductMilestone currentProductMilestone) {
 
         Map<IdRev, BuildRecord> noRebuildRequiredCauses = new HashMap<>();
         Set<Integer> processedDependenciesCache = new HashSet<>();
-        Set<BuildConfigurationAudited> buildConfigurationAuditeds = new HashSet<>();
-        Set<BuildConfiguration> buildConfigurations = datastoreAdapter.getBuildConfigurations(buildConfigurationSet);
+        Collection<BuildConfigurationAudited> buildConfigurationAuditeds = buildConfigurationAuditedsMap.values();
+
+        Set<BuildConfiguration> buildConfigurations = buildConfigurationAuditedsMap.values()
+                .stream()
+                .map(BuildConfigurationAudited::getBuildConfiguration)
+                .collect(Collectors.toSet());
+
         List<BuildConfiguration> dependenciesFirst = new ArrayList<>(buildConfigurations);
         Quicksort.quicksort(dependenciesFirst, this::dependenciesFirst);
 
@@ -222,14 +221,6 @@ public class BuildTasksInitializer {
         for (BuildConfiguration buildConfiguration : dependenciesFirst) {
             BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedsMap
                     .get(buildConfiguration.getId());
-            if (buildConfigurationAudited == null) {
-                buildConfigurationAudited = datastoreAdapter
-                        .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
-                // TODO @jmichalo why adding to the map? It breaks the
-                // RemoteBuildCoordinatorTest.shouldRejectBuildSetIfAllAreAlreadyRunning
-                // buildConfigurationAuditedsMap.put(buildConfigurationAudited.getId(), buildConfigurationAudited);
-            }
-            buildConfigurationAuditeds.add(buildConfigurationAudited);
 
             boolean anyDependencyRequiresRebuild = CollectionUtils
                     .containsAny(buildConfiguration.getDependencies(), toBuild);
@@ -263,7 +254,7 @@ public class BuildTasksInitializer {
                 submittedBuildTasks,
                 buildConfigurationAuditeds,
                 noRebuildRequiredCauses,
-                buildConfigurationSet.getCurrentProductMilestone());
+                currentProductMilestone);
     }
 
     private int dependenciesFirst(BuildConfiguration configuration1, BuildConfiguration configuration2) {
@@ -280,7 +271,7 @@ public class BuildTasksInitializer {
             User user,
             BuildOptions buildOptions,
             Collection<BuildTaskRef> submittedBuildTasks,
-            Set<BuildConfigurationAudited> collectedConfigurations,
+            Collection<BuildConfigurationAudited> collectedConfigurations,
             Map<IdRev, BuildRecord> noRebuildRequiredCauses,
             ProductMilestone currentProductMilestone) {
 

@@ -117,7 +117,9 @@ public class RemoteBuildCoordinatorTest {
 
     @Test
     public void shouldRejectBuildSetIfAllAreAlreadyRunning() throws Exception {
-        BuildConfigurationSet set = testProjectConfigurationBuilder.buildConfigurationSet(1);
+        BuildConfigurationSet set = new BuildConfigurationSet();
+        set.setName("test-build-configuration");
+        set.setId(1);
 
         BuildConfiguration bc202 = testProjectConfigurationBuilder.build(202, "Project-223", set);
         BuildConfiguration bc201 = testProjectConfigurationBuilder
