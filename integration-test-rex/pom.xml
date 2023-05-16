@@ -327,7 +327,6 @@
                     <get usetimestamp="true" src="${eap.zip.url}" skipexisting="true" dest="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" />
                     <unzip src="${test.server.unpack.dir}/${app.server}-${jboss.version}.zip" dest="${test.server.unpack.dir}/" overwrite="true" />
 
-                    <!-- TODO remove internal URL -->
                     <get usetimestamp="true" src="${eap-sso-adapter.url}"
                          skipexisting="true"
                          dest="${test.server.unpack.dir}/rh-sso-7.6.1-eap7-adapter-dist.zip" />
@@ -528,8 +527,8 @@
                       <!--command>
                         /subsystem=keycloak/realm=newcastle-testcontainer:add(realm-public-key="MIIBIjAN...", auth-server-url=" ", ssl-required="none", disable-trust-manager="true")
                       </command-->
-                      <command> <!-- TODO realm-public-key -->
-                        /subsystem=keycloak/realm=newcastle-testcontainer:add(auth-server-url="http://localhost:5678", ssl-required="none", disable-trust-manager="true")
+                      <command> <!-- TODO realm-public-key. Do we need it ? -->
+                        /subsystem=keycloak/realm=newcastle-testcontainer:add(auth-server-url="http://localhost:${keycloakPort}", ssl-required="none", disable-trust-manager="true")
                       </command>
                       <command>
                         /subsystem=keycloak/secure-deployment=rest.war:add(realm="newcastle-testcontainer", resource="pnc", public-client="true", bearer-only="true")
