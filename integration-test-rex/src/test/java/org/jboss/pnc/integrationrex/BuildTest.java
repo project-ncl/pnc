@@ -178,8 +178,6 @@ public class BuildTest {
         Files.writeString(configFile, replacedConfig);
         final EnterpriseArchive ear = Deployments.testEar();
 
-        // Thread.sleep(1500000);
-
         return ear;
     }
 
