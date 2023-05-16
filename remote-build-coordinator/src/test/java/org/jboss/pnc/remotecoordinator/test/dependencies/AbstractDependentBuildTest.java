@@ -288,11 +288,11 @@ public abstract class AbstractDependentBuildTest {
         buildOptions.setRebuildMode(rebuildMode);
 
         return buildTasksInitializer.createBuildGraph(
-                buildConfigurationSet,
                 buildConfigurationAuditedsMap,
                 user,
                 buildOptions,
-                Collections.emptyList());
+                Collections.emptyList(),
+                buildConfigurationSet.getCurrentProductMilestone());
     }
 
     @RequiredArgsConstructor

@@ -266,15 +266,19 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             BuildOptions buildOptions) throws CoreException, BuildRequestException, BuildConflictException {
 
         try {
-            Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
-            Graph<RemoteBuildTask> buildGraph = buildTasksInitializer.createBuildGraph(
+            Map<Integer, BuildConfigurationAudited> resolvedBCAs = getBCAs(
                     buildConfigurationSet,
-                    buildConfigurationAuditedsMap,
+                    buildConfigurationAuditedsMap);
+            Collection<BuildTaskRef> unfinishedTasks = taskRepository.getUnfinishedTasks();
+
+            verifyAllBCAsAreNotRunning(resolvedBCAs.values(), unfinishedTasks);
+
+            Graph<RemoteBuildTask> buildGraph = buildTasksInitializer.createBuildGraph(
+                    resolvedBCAs,
                     user,
                     buildOptions,
-                    unfinishedTasks);
-
-            verifyAllBCAsAreNotRunning(buildConfigurationAuditedsMap.values(), unfinishedTasks);
+                    unfinishedTasks,
+                    buildConfigurationSet.getCurrentProductMilestone());
 
             Long buildConfigSetRecordId = Sequence.nextId();
             ScheduleResult scheduleResult = validateAndRunBuilds(
@@ -296,6 +300,36 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             log.error("Unexpected error while trying to schedule build set.", e);
             throw e;
         }
+    }
+
+    /**
+     * A specific revision of the BuildConfigurations contained in the set is used, if it's available in the
+     * buildConfigurationAuditedsMap parameter. If it's not available, the latest revision of the BuildConfiguration is
+     * used.
+     *
+     */
+    private Map<Integer, BuildConfigurationAudited> getBCAs(
+            BuildConfigurationSet buildConfigurationSet,
+            Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap) {
+
+        Set<BuildConfiguration> buildConfigurations = datastoreAdapter.getBuildConfigurations(buildConfigurationSet);
+
+        return buildConfigurations.stream()
+                .collect(
+                        Collectors.toMap(
+                                BuildConfiguration::getId,
+                                bc -> getBCA(bc.getId(), buildConfigurationAuditedsMap)));
+    }
+
+    private BuildConfigurationAudited getBCA(
+            Integer buildConfigurationId,
+            Map<Integer, BuildConfigurationAudited> buildConfigurationAuditedsMap) {
+        BuildConfigurationAudited buildConfigurationAudited = buildConfigurationAuditedsMap.get(buildConfigurationId);
+        if (buildConfigurationAudited == null) {
+            buildConfigurationAudited = datastoreAdapter
+                    .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfigurationId);
+        }
+        return buildConfigurationAudited;
     }
 
     /**
