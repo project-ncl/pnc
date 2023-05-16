@@ -59,9 +59,9 @@
           "ssoTokenLifespan": "${env.SSO_TOKEN_FILESPAN}",
           "keycloak":
           {
-            "url": "http://localhost:5678",
-            "realm": "newcastle-testcontainer",
-            "clientId": "pnc"
+            "url": "http://not-used-in-the-tests",
+            "realm": "",
+            "clientId": ""
           }
         },
         {

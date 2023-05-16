@@ -31,8 +31,7 @@ public class GetFreePort {
 
     public static void main(String[] args) {
         Properties properties = new Properties();
-        // properties.put(KEYCLOAK_PORT, Objects.toString(getFreeHostPort()));
-        properties.put(KEYCLOAK_PORT, Objects.toString(5678));
+        properties.put(KEYCLOAK_PORT, Objects.toString(getFreeHostPort()));
         // properties.put(REX_PORT, Objects.toString(getFreeHostPort()));
         try (final OutputStream outputstream = new FileOutputStream("target/test.properties")) {
             properties.store(outputstream, "File Updated");
