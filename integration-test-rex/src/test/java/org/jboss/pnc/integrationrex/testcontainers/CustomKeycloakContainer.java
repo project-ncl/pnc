@@ -21,6 +21,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.RealmRepresentation;
 
@@ -30,27 +31,40 @@ import java.io.UncheckedIOException;
 import java.util.HashSet;
 import java.util.Set;
 
-public class KeycloakContainer extends dasniko.testcontainers.keycloak.KeycloakContainer {
+public class CustomKeycloakContainer extends KeycloakContainer {
 
     private final Set<String> importFiles = new HashSet<>();
     private ObjectMapper objectMapper;
 
-    public KeycloakContainer() {
+    public CustomKeycloakContainer() {
         super("quay.io/keycloak/keycloak:21.1.0");
         initObjectMapper();
     }
 
-    public KeycloakContainer(String imageName) {
+    public CustomKeycloakContainer(String imageName) {
         super(imageName);
         initObjectMapper();
     }
 
+    /**
+     * Customize objectMapper to accept exported realm file
+     */
     private void initObjectMapper() {
         objectMapper = new ObjectMapper();
         objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+    @Override
+    public KeycloakContainer withRealmImportFile(String importFile) {
+        // Parent importFiles are not accessible.
+        this.importFiles.add(importFile);
+        return self();
+    }
+
+    /**
+     * Use customized objectMapper.
+     */
     @Override
     protected void containerIsStarted(InspectContainerResponse containerInfo, boolean reused) {
         if (reused) {

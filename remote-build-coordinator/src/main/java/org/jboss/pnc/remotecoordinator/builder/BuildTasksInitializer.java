@@ -225,7 +225,9 @@ public class BuildTasksInitializer {
             if (buildConfigurationAudited == null) {
                 buildConfigurationAudited = datastoreAdapter
                         .getLatestBuildConfigurationAuditedInitializeBCDependencies(buildConfiguration.getId());
-                buildConfigurationAuditedsMap.put(buildConfigurationAudited.getId(), buildConfigurationAudited);
+                // TODO @jmichalo why adding to the map? It breaks the
+                // RemoteBuildCoordinatorTest.shouldRejectBuildSetIfAllAreAlreadyRunning
+                // buildConfigurationAuditedsMap.put(buildConfigurationAudited.getId(), buildConfigurationAudited);
             }
             buildConfigurationAuditeds.add(buildConfigurationAudited);
 

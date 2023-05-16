@@ -27,14 +27,13 @@ import java.util.Properties;
 public class GetFreePort {
 
     public static final String KEYCLOAK_PORT = "keycloakPort";
-    public static final String REX_PORT = "keycloakPort";
+    // public static final String REX_PORT = "rexPort";
 
     public static void main(String[] args) {
-        int freeHostPort = getFreeHostPort();
-        int freeHostPort2 = getFreeHostPort();
         Properties properties = new Properties();
-        properties.put(KEYCLOAK_PORT, Objects.toString(freeHostPort));
-        properties.put(REX_PORT, Objects.toString(freeHostPort2));
+        // properties.put(KEYCLOAK_PORT, Objects.toString(getFreeHostPort()));
+        properties.put(KEYCLOAK_PORT, Objects.toString(5678));
+        // properties.put(REX_PORT, Objects.toString(getFreeHostPort()));
         try (final OutputStream outputstream = new FileOutputStream("target/test.properties")) {
             properties.store(outputstream, "File Updated");
         } catch (IOException e) {
@@ -42,6 +41,10 @@ public class GetFreePort {
         }
     }
 
+    /**
+     *
+     * @return free port on a host network
+     */
     public static int getFreeHostPort() {
         try (ServerSocket serverSocket = new ServerSocket(0)) {
             if (serverSocket == null) {
