@@ -33,6 +33,7 @@ import org.jboss.pnc.remotecoordinator.builder.datastore.DatastoreAdapter;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
+import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
 import org.slf4j.Logger;
@@ -70,7 +71,7 @@ public class BuildTasksInitializer {
             BuildConfigurationAudited buildConfigurationAudited,
             User user,
             BuildOptions buildOptions,
-            Collection<BuildTaskRef> submittedBuildTasks) {
+            Collection<BuildTaskRef> unfinishedTasks) {
 
         log.debug(
                 "will create build tasks for scope: {} and configuration: {}",
@@ -105,7 +106,7 @@ public class BuildTasksInitializer {
         return doCreateBuildGraph(
                 user,
                 buildOptions,
-                submittedBuildTasks,
+                unfinishedTasks,
                 collectedConfigurations,
                 noRebuildRequiredCauses,
                 buildConfigurationAudited.getBuildConfiguration().getCurrentProductMilestone());
@@ -270,7 +271,7 @@ public class BuildTasksInitializer {
     private Graph<RemoteBuildTask> doCreateBuildGraph(
             User user,
             BuildOptions buildOptions,
-            Collection<BuildTaskRef> submittedBuildTasks,
+            Collection<BuildTaskRef> unfinishedTasks,
             Collection<BuildConfigurationAudited> collectedConfigurations,
             Map<IdRev, BuildRecord> noRebuildRequiredCauses,
             ProductMilestone currentProductMilestone) {
@@ -278,13 +279,13 @@ public class BuildTasksInitializer {
         Graph<RemoteBuildTask> graph = new Graph<>();
 
         for (BuildConfigurationAudited buildConfigAudited : collectedConfigurations) {
-            Optional<BuildTaskRef> submittedTask = submittedBuildTasks.stream()
+            Optional<BuildTaskRef> unfinishedTask = unfinishedTasks.stream()
                     .filter(bt -> bt.getIdRev().equals(buildConfigAudited.getIdRev()))
                     .findAny();
             BuildRecord noRebuildRequired = noRebuildRequiredCauses.get(buildConfigAudited.getIdRev());
             RemoteBuildTask remoteBuildTask;
-            if (submittedTask.isPresent()) {
-                BuildTaskRef buildTaskRef = submittedTask.get();
+            if (unfinishedTask.isPresent()) {
+                BuildTaskRef buildTaskRef = unfinishedTask.get();
                 remoteBuildTask = new RemoteBuildTask(
                         buildTaskRef.getId(),
                         Instant.now(),
@@ -360,11 +361,18 @@ public class BuildTasksInitializer {
             }
         }
 
-        notToBuild.forEach(
-                task -> {
-                    // NOTE: after removal NRR task can still be referenced as a dependency of other tasks
-                    buildGraph.removeVertex(task);
-                });
+        notToBuild.forEach(task -> {
+            // Remove the reference if the task is not running (not present in Rex).
+            // If it is running, it will be linked by the Rex to a running dependency.
+            List<Edge<RemoteBuildTask>> dependantsEdges = task.getIncomingEdges();
+            dependantsEdges.stream()
+                    .filter(de -> !de.getTo().getData().isAlreadyRunning())
+                    .collect(Collectors.toSet())
+                    .stream()
+                    .forEach(de -> buildGraph.removeEdge(de.getFrom(), de.getTo()));
+
+            buildGraph.removeVertex(task);
+        });
         return GraphUtils.unwrap(notToBuild);
     }
 

@@ -170,7 +170,7 @@ public class RemoteBuildCoordinatorTest {
         Assert.assertEquals(BuildStatus.NO_REBUILD_REQUIRED, buildRecords.get(0).getStatus());
 
         // make sure no_rebuild tasks are not scheduled
-        Assert.assertEquals(1, buildScheduler.getActiveBuildTasks().size());
+        Assert.assertEquals(1, buildScheduler.activeBuildTaskCount());
     }
 
     @Test
@@ -205,7 +205,37 @@ public class RemoteBuildCoordinatorTest {
         Assert.assertEquals(BuildStatus.NO_REBUILD_REQUIRED, buildRecords.get(0).getStatus());
 
         // make sure no_rebuild tasks are not scheduled
-        Assert.assertEquals(1, buildScheduler.getActiveBuildTasks().size());
+        Assert.assertEquals(1, buildScheduler.activeBuildTaskCount());
+    }
+
+    @Test
+    public void shouldNotSubmitNonRunningAndNRRDependency() throws Exception {
+        BuildConfigurationSet set = new BuildConfigurationSet();
+        set.setName("test-build-configuration");
+        set.setId(1);
+
+        BuildConfiguration bc202 = testProjectConfigurationBuilder.build(202, "Project-223", set);
+        BuildConfiguration bc201 = testProjectConfigurationBuilder
+                .buildWithDependencies(201, "Project-223", set, bc202);
+        BuildConfiguration bc200 = testProjectConfigurationBuilder
+                .buildWithDependencies(200, "Project-223", set, bc201);
+
+        BuildOptions buildOptions = new BuildOptions();
+        buildOptions.setRebuildMode(RebuildMode.IMPLICIT_DEPENDENCY_CHECK);
+        Map<Integer, BuildConfigurationAudited> bcas = new HashMap<>();
+        addBCAsToMap(bc200, bcas);
+        addBCAsToMap(bc201, bcas);
+        addBCAsToMap(bc202, bcas);
+
+        datastoreMock.addNoRebuildRequiredBCAIdREv(bcas.get(bc202.getId()).getIdRev());
+        datastoreMock.addNoRebuildRequiredBCAIdREv(bcas.get(bc201.getId()).getIdRev());
+
+        taskRepository.addTask(getBuildTaskRef(bc201, BuildCoordinationStatus.BUILDING));
+
+        buildCoordinator.buildSet(set, bcas, USER, buildOptions);
+
+        // make sure no_rebuild tasks are not scheduled
+        Assert.assertEquals(2, buildScheduler.activeBuildTaskCount());
     }
 
     @Test
