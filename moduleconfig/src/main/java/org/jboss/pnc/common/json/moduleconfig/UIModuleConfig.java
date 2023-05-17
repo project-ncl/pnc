@@ -36,6 +36,7 @@ public class UIModuleConfig extends AbstractModuleConfig {
     public static final String MODULE_NAME = "ui";
 
     private final String pncNotificationsUrl;
+    private final String bifrostWsUrl;
     private final String userGuideUrl;
     private final Integer ssoTokenLifespan;
     private final KeycloakConfig keycloak;
@@ -43,11 +44,13 @@ public class UIModuleConfig extends AbstractModuleConfig {
 
     public UIModuleConfig(
             @JsonProperty("pncNotificationsUrl") String pncNotificationsUrl,
+            @JsonProperty("bifrostWsUrl") String bifrostWsUrl,
             @JsonProperty("userGuideUrl") String userGuideUrl,
             @JsonProperty("ssoTokenLifespan") String ssoTokenLifespan,
             @JsonProperty("keycloak") KeycloakConfig keycloak,
             @JsonProperty("grafana") @DefaultValue("{}") Map<String, String> grafana) {
         this.pncNotificationsUrl = pncNotificationsUrl;
+        this.bifrostWsUrl = bifrostWsUrl;
         this.userGuideUrl = userGuideUrl;
         this.ssoTokenLifespan = StringUtils.parseInt(ssoTokenLifespan, 86400000); // default to 24h
         this.keycloak = keycloak;
@@ -60,6 +63,11 @@ public class UIModuleConfig extends AbstractModuleConfig {
     @JsonProperty("pncNotificationsUrl")
     public String getPncNotificationsUrl() {
         return pncNotificationsUrl;
+    }
+
+    @JsonProperty("bifrostWsUrl")
+    public String getBifrostWsUrl() {
+        return bifrostWsUrl;
     }
 
     /**
@@ -91,8 +99,8 @@ public class UIModuleConfig extends AbstractModuleConfig {
 
     @Override
     public String toString() {
-        return "UIModuleConfig{" + ", pncNotificationsUrl='" + pncNotificationsUrl + '\'' + ", userGuideUrl='"
-                + userGuideUrl + '\'' + ", ssoTokenLifespan=" + ssoTokenLifespan + ", keycloak=" + keycloak
-                + ", grafana=" + grafana + '}';
+        return "UIModuleConfig{" + "pncNotificationsUrl='" + pncNotificationsUrl + '\'' + ", bifrostWsUrl='"
+                + bifrostWsUrl + '\'' + ", userGuideUrl='" + userGuideUrl + '\'' + ", ssoTokenLifespan="
+                + ssoTokenLifespan + ", keycloak=" + keycloak + ", grafana=" + grafana + '}';
     }
 }
