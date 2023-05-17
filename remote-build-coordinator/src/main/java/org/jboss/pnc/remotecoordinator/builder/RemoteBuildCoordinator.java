@@ -184,7 +184,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
      * @throws BuildConflictException If there is already a build running with the same build configuration Id and
      *         revision
      */
-    @Transactional // TODO test in integration tests
+    @Transactional // TODO test transaction in integration tests
     @Retry(retryOn = ScheduleConflictException.class)
     @Override
     public BuildSetTask buildConfigurationAudited(
@@ -372,7 +372,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             } else {
                 noRebuildTasks = Collections.emptySet();
             }
-
+            // here we have a graph with edges to task not present in the Rex, bacause it
             log.info(
                     "Scheduling builds {}.",
                     GraphUtils.unwrap(buildGraphCopy.getVerticies())

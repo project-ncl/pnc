@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.remotecoordinator.test.mock;
 
-import lombok.Getter;
 import lombok.Setter;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
@@ -28,6 +27,7 @@ import org.jboss.pnc.remotecoordinator.builder.RexBuildScheduler;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.ScheduleException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
@@ -56,9 +56,6 @@ public class MockBuildScheduler implements RexBuildScheduler {
 
     @Setter(onMethod_ = { @Inject })
     protected BuildTaskRepositoryMock taskRepositoryMock;
-
-    @Getter
-    private List<RemoteBuildTask> activeBuildTasks = new ArrayList<>();
 
     @Setter
     private ScheduleException scheduleException;
@@ -102,7 +99,12 @@ public class MockBuildScheduler implements RexBuildScheduler {
         }
         Collection<RemoteBuildTask> sourceVerticies = GraphUtils.unwrap(buildGraph.getVerticies());
         for (RemoteBuildTask buildTask : sourceVerticies) {
-            activeBuildTasks.add(buildTask);
+            taskRepositoryMock.addTask(
+                    DefaultBuildTaskRef
+                            .builder()
+                            .id(buildTask.getId())
+                            .status(BuildCoordinationStatus.BUILDING)
+                            .build());
         }
     }
 
@@ -111,7 +113,7 @@ public class MockBuildScheduler implements RexBuildScheduler {
     }
 
     public void reset() {
-        activeBuildTasks.clear();
+        taskRepositoryMock.clear();
         scheduleRequests.clear();
         scheduleException = null;
     }
@@ -142,5 +144,9 @@ public class MockBuildScheduler implements RexBuildScheduler {
 
     public List<Graph<RemoteBuildTask>> getScheduleRequests() {
         return scheduleRequests;
+    }
+
+    public long activeBuildTaskCount() {
+        return taskRepositoryMock.getUnfinishedTasks().size();
     }
 }

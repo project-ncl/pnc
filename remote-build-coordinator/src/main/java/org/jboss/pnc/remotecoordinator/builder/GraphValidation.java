@@ -46,7 +46,8 @@ public class GraphValidation {
                 Collection<Edge<RemoteBuildTask>> edges = parent.getOutgoingEdges();
                 for (Edge<RemoteBuildTask> edge : edges) {
                     RemoteBuildTask child = edge.getTo().getData();
-                    if (!child.isAlreadyRunning()) {
+                    boolean hasNoRebuildCause = child.getNoRebuildCause() != null && child.getNoRebuildCause().isPresent();
+                    if (!hasNoRebuildCause && !child.isAlreadyRunning()) {
                         throw new BuildConflictException(
                                 "Submitted build " + parent.getData().getBuildConfigurationAudited().getName()
                                         + " is a dependency of already running build: "

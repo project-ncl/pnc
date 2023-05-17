@@ -78,4 +78,8 @@ public class BuildTaskRepositoryMock implements BuildTaskRepository {
     public void removeTask(BuildTaskRef task) {
         this.tasks.remove(task.getId());
     }
+
+    public void clear() {
+        tasks.clear();
+    }
 }
