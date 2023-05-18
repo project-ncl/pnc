@@ -17,9 +17,12 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
-import java.text.MessageFormat;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -33,9 +36,8 @@ import javax.inject.Inject;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 
-import org.jboss.pnc.api.bifrost.enums.Format;
-import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.BuildTaskContext;
 import org.jboss.pnc.common.logging.MDCUtils;
 import org.jboss.pnc.constants.Attributes;
@@ -66,8 +68,6 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
-
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
@@ -77,19 +77,6 @@ import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
 public class BuildEndpointImpl implements BuildEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-
-    /**
-     * Param 1: build-id
-     * <p>
-     * Param 2: build-log/alignment-log
-     * <p>
-     * Param 3: lines per batch
-     * <p>
-     * Param 4: rate of batches (in ms)
-     * <p>
-     * Param 5: line format (PLAIN/LEVEL) {@see org.jboss.pnc.api.bifrost.enums.Format} for options
-     */
-    private static final String BIFROST_LOGS_ENDPOINT = "/text?matchFilters=mdc.processContext:build-{0},loggerName:org.jboss.pnc._userlog_.{1}&batchSize={2}&batchDelay={3}&format={4}&direction=ASC";
 
     public static BuildPageInfo toBuildPageInfo(PageParameters page, BuildsFilterParameters builds) {
         return new BuildPageInfo(
@@ -113,9 +100,6 @@ public class BuildEndpointImpl implements BuildEndpoint {
 
     @Inject
     private BrewPusher brewPusher;
-
-    @Inject
-    private GlobalModuleGroup globalConfig;
 
     private EndpointHelper<Base32LongID, Build, BuildRef> endpointHelper;
 
@@ -308,30 +292,31 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public Response getAlignLogs(String id) {
-        return Response.temporaryRedirect(createBifrostRedirectURL(id, "alignment-log", Format.LEVEL)).build();
+    public StreamingOutput getAlignLogs(String id) {
+        String repourLog = provider.getRepourLog(id);
+        if (repourLog == null || repourLog.isEmpty()) {
+            return null;
+        }
+
+        return outputStream -> {
+            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
+            writer.write(repourLog);
+            writer.flush();
+        };
     }
 
     @Override
-    public Response getBuildLogs(String id) {
-        return Response.temporaryRedirect(createBifrostRedirectURL(id, "build-log", Format.PLAIN)).build();
-    }
+    public StreamingOutput getBuildLogs(String id) {
+        String buildLog = provider.getBuildLog(id);
+        if (buildLog == null || buildLog.isEmpty()) {
+            return null;
+        }
 
-    private URI createBifrostRedirectURL(String buildID, String logType, Format format) {
-        int batchDelay = 500;
-        int batchSize = 10000;
-
-        String bifrostURL = stripEndingSlash(globalConfig.getExternalBifrostUrl());
-
-        return URI.create(
-                bifrostURL.concat(
-                        MessageFormat.format(
-                                BIFROST_LOGS_ENDPOINT,
-                                buildID,
-                                logType,
-                                batchSize,
-                                batchDelay,
-                                format.toString())));
+        return outputStream -> {
+            Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8));
+            writer.write(buildLog);
+            writer.flush();
+        };
     }
 
     @Override
