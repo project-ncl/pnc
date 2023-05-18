@@ -65,23 +65,6 @@ import org.jboss.pnc.spi.coordinator.ProcessException;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
-import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.RedirectionException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.lang.invoke.MethodHandles;
-import java.net.URI;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static java.text.MessageFormat.format;
 import static org.jboss.pnc.common.util.StringUtils.stripEndingSlash;
@@ -326,17 +309,13 @@ public class BuildEndpointImpl implements BuildEndpoint {
     }
 
     @Override
-    public StreamingOutput getAlignLogs(String id) {
-        throw new RedirectionException(
-                Response.Status.TEMPORARY_REDIRECT,
-                createBifrostRedirectURL(id, "alignment-log", Format.LEVEL));
+    public Response getAlignLogs(String id) {
+        return Response.temporaryRedirect(createBifrostRedirectURL(id, "alignment-log", Format.LEVEL)).build();
     }
 
     @Override
-    public StreamingOutput getBuildLogs(String id) {
-        throw new RedirectionException(
-                Response.Status.TEMPORARY_REDIRECT,
-                createBifrostRedirectURL(id, "build-log", Format.PLAIN));
+    public Response getBuildLogs(String id) {
+        return Response.temporaryRedirect(createBifrostRedirectURL(id, "build-log", Format.PLAIN)).build();
     }
 
     private URI createBifrostRedirectURL(String buildID, String logType, Format format) {

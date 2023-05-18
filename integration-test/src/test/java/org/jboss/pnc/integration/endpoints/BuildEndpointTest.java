@@ -17,9 +17,6 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
-import io.undertow.Undertow;
-import io.undertow.util.HttpString;
-import org.apache.http.entity.ContentType;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -32,7 +29,6 @@ import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.common.util.IoUtils;
 import org.jboss.pnc.constants.Attributes;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
@@ -64,10 +60,7 @@ import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +69,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
@@ -544,62 +536,46 @@ public class BuildEndpointTest {
 
     @Test
     public void shouldGetAlignLogsByRedirect() throws Exception {
-        AtomicReference<String> redirectedQuery = new AtomicReference<>();
-        String logMessage = "This is the log from the redirected endpoint, the alignment log.";
-        // http client should redirect to `externalBifrostUrl` which is set in the pnc-config to point to localhost:8080
-        Undertow server = Undertow.builder().addHttpListener(8081, "localhost").setHandler(exchange -> {
-            redirectedQuery.set(exchange.getQueryString());
-            exchange.getResponseHeaders()
-                    .add(HttpString.tryFromString("Content-Type"), ContentType.TEXT_PLAIN.getMimeType());
-            exchange.getResponseChannel().writeFinal(ByteBuffer.wrap(logMessage.getBytes(StandardCharsets.UTF_8)));
-            exchange.getConnection().close();
-        }).build();
-        server.start();
-        try {
-            BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        // with
+        String logType = "alignment-log";
+        String lineFormat = "LEVEL";
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
 
-            // when
-            Optional<InputStream> stream = client.getAlignLogs(buildId);
+        // Disable redirects so we can test the actual response
+        disableRedirects(client);
 
-            // then
-            assertThat(stream).isPresent();
-            String log = IoUtils.readStreamAsString(stream.get());
-            assertThat(log).isEqualTo(logMessage);
-        } finally {
-            server.stop();
-        }
-        assertThat(redirectedQuery.get()).contains("org.jboss.pnc._userlog_.alignment-log");
-        assertThat(redirectedQuery.get()).contains(buildId);
+        // when
+        Response response = client.getAlignLogs(buildId);
+
+        // then
+        assertThat(response.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
+        assertThat(response.getHeaderString("Location")).isNotEmpty()
+                .contains(buildId)
+                .contains("http://bifrost.url") // from pnc-config.json in resources
+                .contains(logType)
+                .contains(lineFormat);
     }
 
     @Test
     public void shouldGetBuildLogsByRedirect() throws Exception {
-        AtomicReference<String> redirectedQuery = new AtomicReference<>();
-        String logMessage = "This is the log from the redirected endpoint, the build log.";
-        // http client should redirect to `externalBifrostUrl` which is set in the pnc-config to point to localhost:8081
-        Undertow server = Undertow.builder().addHttpListener(8081, "localhost").setHandler(exchange -> {
-            redirectedQuery.set(exchange.getQueryString());
-            exchange.getResponseHeaders()
-                    .add(HttpString.tryFromString("Content-Type"), ContentType.TEXT_PLAIN.getMimeType());
-            exchange.getResponseChannel().writeFinal(ByteBuffer.wrap(logMessage.getBytes(StandardCharsets.UTF_8)));
-            exchange.getConnection().close();
-        }).build();
-        server.start();
-        try {
-            BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
+        // with
+        String logType = "build-log";
+        String lineFormat = "PLAIN";
+        BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
 
-            // when
-            Optional<InputStream> stream = client.getBuildLogs(buildId);
+        // Disable redirects so we can test the actual response
+        disableRedirects(client);
 
-            // then
-            assertThat(stream).isPresent();
-            String log = IoUtils.readStreamAsString(stream.get());
-            assertThat(log).isEqualTo(logMessage);
-        } finally {
-            server.stop();
-        }
-        assertThat(redirectedQuery.get()).contains("org.jboss.pnc._userlog_.build-log");
-        assertThat(redirectedQuery.get()).contains(buildId);
+        // when
+        Response response = client.getBuildLogs(buildId);
+
+        // then
+        assertThat(response.getStatusInfo()).isEqualTo(Status.TEMPORARY_REDIRECT);
+        assertThat(response.getHeaderString("Location")).isNotEmpty()
+                .contains(buildId)
+                .contains("http://bifrost.url") // from pnc-config.json in resources
+                .contains(logType)
+                .contains(lineFormat);
     }
 
     @Test
