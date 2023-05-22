@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.integrationrex;
 
-import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.auth.KeycloakClient;
@@ -37,57 +36,34 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
-import org.jboss.pnc.integrationrex.mock.BPMWireMock;
-import org.jboss.pnc.integrationrex.setup.Deployments;
-import org.jboss.pnc.integrationrex.testcontainers.CustomKeycloakContainer;
-import org.jboss.pnc.integrationrex.testcontainers.InfinispanContainer;
 import org.jboss.pnc.integrationrex.utils.ResponseUtils;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.jboss.util.StringPropertyReplacer;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.Testcontainers;
-import org.testcontainers.containers.BindMode;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.Network;
-import org.testcontainers.containers.output.OutputFrame;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.DockerImageName;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.jboss.pnc.common.json.moduleconfig.microprofile.SchedulerMicroprofileConfig.SCHEDULER_URL_KEY;
 import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
 
 @RunAsClient
 @RunWith(Arquillian.class)
 @Category({ ContainerTest.class })
-public class BuildTest {
+public class BuildTest extends RemoteServices {
 
     private static final Logger logger = LoggerFactory.getLogger(BuildTest.class);
 
@@ -99,88 +75,6 @@ public class BuildTest {
 
     private BuildClient buildClient;
 
-    private static String authServerUrl;
-
-    private static String keycloakRealm = "newcastle-testcontainer";
-
-    @Rule
-    public BPMWireMock bpm = new BPMWireMock(8088);
-
-    @Deployment(testable = false)
-    public static EnterpriseArchive deploy() throws InterruptedException, IOException {
-
-        // properties to share port numbers
-        Properties testProperties = new Properties();
-        try (InputStream propFile = new FileInputStream("target/test.properties")) {
-            testProperties.load(propFile);
-        }
-
-        Network network = Network.newNetwork();
-        Consumer<OutputFrame> logsConsumer = frame -> logger.debug("KEYCLOAK >>" + frame.getUtf8String());
-        String keycloakHostPort = testProperties.getProperty(GetFreePort.KEYCLOAK_PORT);
-        String keycloakPortBinding = keycloakHostPort + ":" + 8080; // 8080 is in-container port
-        dasniko.testcontainers.keycloak.KeycloakContainer keycloak = new CustomKeycloakContainer(
-                "quay.io/keycloak/keycloak:21.1.0").withNetwork(network)
-                        .withLogConsumer(logsConsumer)
-                        .withNetworkAliases("keycloak")
-                        .withRealmImportFile("keycloak-realm-export.json")
-                        .withAccessToHost(true)
-                        .withStartupAttempts(5);
-        keycloak.setPortBindings(List.of(keycloakPortBinding));
-        keycloak.start();
-
-        authServerUrl = keycloak.getAuthServerUrl();
-
-        // int rexHostPort = GetFreePort.getFreeHostPort();
-        int rexHostPort = 5679;
-        logger.info("Rex container will bind to host port: {}.", rexHostPort);
-        String rexPortBinding = rexHostPort + ":" + 8080; // 8080 is in-container port
-
-        Consumer<OutputFrame> logConsumer = frame -> logger.debug("REX >>" + frame.getUtf8String());
-
-        // Transferable applicationYaml = Transferable.of( string );
-        GenericContainer rexTC = new GenericContainer(
-                // DockerImageName.parse("rh-newcastle/rex"))
-                DockerImageName.parse("localhost/matej/rex-core:1.0.0-SNAPSHOT")).withAccessToHost(true)
-                        .withNetwork(network)
-                        .withNetworkAliases("rex")
-                        .withAccessToHost(true)
-                        .withLogConsumer(logConsumer)
-                        .withClasspathResourceMapping(
-                                "rex-application.yaml",
-                                "/home/jboss/config/application.yaml",
-                                BindMode.READ_ONLY)
-                        // .withCopyToContainer(applicationYaml, "/home/jboss/config/application.yaml")
-                        .waitingFor(Wait.forLogMessage(".*Installed features:.*", 1))
-                        .withStartupAttempts(5);
-
-        InfinispanContainer ispn = new InfinispanContainer(false).withNetwork(network)
-                .withNetworkAliases("infinispan")
-                .withStartupAttempts(5);
-        ispn.start();
-
-        rexTC.setPortBindings(List.of(rexPortBinding));
-
-        rexTC.start();
-
-        String rexHost = rexTC.getHost();
-        logger.info("Rex host: {}", rexHost);
-        logger.info("Rex port: {}", rexHostPort);
-        System.setProperty(SCHEDULER_URL_KEY, "http://" + rexHost + ":" + rexHostPort);
-
-        Path configFile = Path.of(System.getProperty("pnc-config-path"));
-        logger.info("Updating config file {}.", configFile);
-        String config = Files.readString(configFile);
-        Properties properties = new Properties();
-        properties.put("PNC_SCHEDULER_BASE_URL", "http://localhost:" + rexHostPort);
-        properties.put("PNC_UI_KEYCLOAK_URL", authServerUrl);
-        String replacedConfig = StringPropertyReplacer.replaceProperties(config, properties);
-        Files.writeString(configFile, replacedConfig);
-        final EnterpriseArchive ear = Deployments.testEar();
-
-        return ear;
-    }
-
     private static void waitForConditionWithTimeout(Supplier<Boolean> sup, int timeoutSeconds)
             throws InterruptedException {
         int secondsPassed = 0;
@@ -188,13 +82,6 @@ public class BuildTest {
             Thread.sleep(1000);
             secondsPassed++;
         }
-    }
-
-    @BeforeClass
-    public static void before() {
-        // 8080 IS JBOSS CONTAINER
-        // 8088 IS BPM WIREMOCK MOCK
-        Testcontainers.exposeHostPorts(8080, 8088);
     }
 
     @Before

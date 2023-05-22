@@ -31,7 +31,7 @@ quarkus:
     password: password
     cache:
       "rex-counter":
-        configuration-uri: "counter-configuration.xml"
+        configuration-uri: "task-configuration.xml"
         near-cache-mode: disabled
         near-cache-max-entries: -1
       "rex-tasks":

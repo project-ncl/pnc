@@ -24,10 +24,9 @@ import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedBinaryMessage;
 import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.spi.WebSocketHttpExchange;
-import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
-import org.jboss.pnc.client.BuildConfigurationClient;
+import org.jboss.pnc.auth.KeycloakClient;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupBuildClient;
 import org.jboss.pnc.client.RemoteResourceNotFoundException;
@@ -38,7 +37,7 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
-import org.jboss.pnc.integrationrex.setup.Deployments;
+import org.jboss.pnc.integrationrex.RemoteServices;
 import org.jboss.pnc.integrationrex.setup.RestClientConfiguration;
 import org.jboss.pnc.integrationrex.utils.ResponseUtils;
 import org.jboss.pnc.rest.api.parameters.BuildParameters;
@@ -49,8 +48,8 @@ import org.jboss.pnc.restclient.websocket.ListenerUnsubscriber;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
-import org.junit.Ignore;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -66,6 +65,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.NOTIFICATION_PATH;
+import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
 import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildCompleted;
 import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildConfiguration;
 import static org.jboss.pnc.restclient.websocket.predicates.GroupBuildChangedNotificationPredicates.withGBuildCompleted;
@@ -74,16 +74,29 @@ import static org.jboss.pnc.restclient.websocket.predicates.GroupBuildChangedNot
 @RunAsClient
 @RunWith(Arquillian.class)
 @Category({ ContainerTest.class })
-@Ignore
-public class WebSocketClientTest {
+public class WebSocketClientTest extends RemoteServices {
 
     private static final String PNC_SOCKET_URL = "ws://localhost:8080" + NOTIFICATION_PATH;
 
     public static final Logger logger = LoggerFactory.getLogger(WebSocketClientTest.class);
 
-    @Deployment
-    public static EnterpriseArchive deploy() {
-        return Deployments.testEar();
+    private AdvancedBuildConfigurationClient buildConfigurationClient;
+    private AdvancedGroupConfigurationClient groupConfigurationClient;
+
+    @Before
+    public void beforeEach() {
+        String token = KeycloakClient
+                .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
+                .getToken();
+
+        buildConfigurationClient = new AdvancedBuildConfigurationClient(withBearerToken(token));
+        groupConfigurationClient = new AdvancedGroupConfigurationClient(withBearerToken(token));
+    }
+
+    @After
+    public void afterEach() {
+        buildConfigurationClient.close();
+        groupConfigurationClient.close();
     }
 
     @Test
@@ -113,13 +126,12 @@ public class WebSocketClientTest {
         assertThat(disconnect).succeedsWithin(500, TimeUnit.MILLISECONDS);
     }
 
-    @Test // TODO Move to Rex Remote Test
+    @Test
     public void testBuildListener() throws Exception {
         // with
         WebSocketClient wsClient = new VertxWebSocketClient();
         wsClient.connect(PNC_SOCKET_URL).get();
-        BuildConfigurationClient buildConfigurationClient = new BuildConfigurationClient(
-                RestClientConfiguration.asUser());
+
         BuildConfiguration bc = buildConfigurationClient.getAll().iterator().next();
         AtomicInteger notificationCounter = new AtomicInteger(0);
 
@@ -143,8 +155,7 @@ public class WebSocketClientTest {
         // with
         WebSocketClient wsClient = new VertxWebSocketClient();
         wsClient.connect(PNC_SOCKET_URL).get();
-        BuildConfigurationClient buildConfigurationClient = new BuildConfigurationClient(
-                RestClientConfiguration.asUser());
+
         BuildConfiguration bc = buildConfigurationClient.getAll().iterator().next();
 
         // when
@@ -246,9 +257,6 @@ public class WebSocketClientTest {
         WebSocketClient wsClient = new VertxWebSocketClient();
         wsClient.connect("ws://localhost:8082" + NOTIFICATION_PATH).join();
 
-        AdvancedBuildConfigurationClient buildConfigurationClient = new AdvancedBuildConfigurationClient(
-                RestClientConfiguration.asUser());
-
         // test the actual fallbackSupplier (it's private -> reflection unfortunately)
         Method supplier = buildConfigurationClient.getClass().getDeclaredMethod("fallbackSupplier", String.class);
         supplier.setAccessible(true);
@@ -279,8 +287,6 @@ public class WebSocketClientTest {
         WebSocketClient wsClient = new VertxWebSocketClient();
         wsClient.connect("ws://localhost:8082" + NOTIFICATION_PATH).join();
 
-        AdvancedGroupConfigurationClient groupConfigurationClient = new AdvancedGroupConfigurationClient(
-                RestClientConfiguration.asUser());
         GroupConfiguration gc = groupConfigurationClient.getAll().iterator().next();
 
         // test the actual fallbackSupplier (it's private -> reflection unfortunately)

@@ -23,7 +23,6 @@ import org.jboss.pnc.integrationrex.mock.client.KeycloakServiceClientMock;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.maven.Maven;
 import org.jboss.shrinkwrap.resolver.api.maven.PomEquippedResolveStage;
 import org.jboss.shrinkwrap.resolver.api.maven.ScopeType;
@@ -35,8 +34,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.jboss.arquillian.container.test.api.Testable.archiveToTest;
-
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
@@ -46,7 +43,6 @@ public class Deployments {
 
     public static final String AUTH_JAR = "/auth.jar";
     public static final String COORDINATOR_JAR = "/build-coordinator.jar";
-    public static final String REST_WAR = "/rest.war";
 
     private static final PomEquippedResolveStage resolver = Maven.resolver()
             .loadPomFromFile("pom.xml")
@@ -55,9 +51,6 @@ public class Deployments {
 
     public static EnterpriseArchive testEar() {
         EnterpriseArchive ear = ShrinkWrap.createFromZipFile(EnterpriseArchive.class, getBaseEar());
-
-        WebArchive restWar = prepareRestArchive(ear);
-        ear.addAsModule(archiveToTest(restWar));
 
         addTestPersistenceXml(ear);
         ear.setApplicationXML("application.xml");
@@ -82,14 +75,6 @@ public class Deployments {
     private static void addTestPersistenceXml(EnterpriseArchive enterpriseArchive) {
         JavaArchive datastoreJar = enterpriseArchive.getAsType(JavaArchive.class, "/datastore.jar");
         datastoreJar.addAsManifestResource("test-ds.xml", "persistence.xml");
-    }
-
-    private static WebArchive prepareRestArchive(EnterpriseArchive ear) {
-        WebArchive restWar = ear.getAsType(WebArchive.class, REST_WAR);
-        // restWar.addAsWebInfResource("WEB-INF/web.xml", "web.xml");
-        // restWar.addAsWebInfResource("WEB-INF/jboss-web.xml");
-        logger.info("REST archive listing: {}", restWar.toString(true));
-        return restWar;
     }
 
     private static void addMocks(EnterpriseArchive enterpriseArchive) {

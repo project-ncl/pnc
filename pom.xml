@@ -623,6 +623,12 @@
 
       <dependency>
         <groupId>org.jboss.pnc.rex</groupId>
+        <artifactId>rex-common</artifactId>
+        <version>${version.rex-api}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.pnc.rex</groupId>
         <artifactId>rex-dto</artifactId>
         <version>${version.rex-api}</version>
       </dependency>
@@ -836,7 +842,7 @@
       <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>testcontainers</artifactId>
-        <version>1.18.0</version>
+        <version>1.18.1</version>
         <scope>test</scope>
       </dependency>
       <dependency>
