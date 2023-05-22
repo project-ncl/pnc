@@ -100,8 +100,7 @@ public class MockBuildScheduler implements RexBuildScheduler {
         Collection<RemoteBuildTask> sourceVerticies = GraphUtils.unwrap(buildGraph.getVerticies());
         for (RemoteBuildTask buildTask : sourceVerticies) {
             taskRepositoryMock.addTask(
-                    DefaultBuildTaskRef
-                            .builder()
+                    DefaultBuildTaskRef.builder()
                             .id(buildTask.getId())
                             .status(BuildCoordinationStatus.BUILDING)
                             .build());
