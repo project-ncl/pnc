@@ -17,7 +17,6 @@
  */
 package org.jboss.pnc.client;
 
-import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.common.util.StringUtils;
 import org.slf4j.MDC;
 
@@ -52,7 +51,5 @@ public class MdcToHeadersFilter implements ClientRequestFilter {
                 headers.add(mdcKeyHeaderKey.getValue(), mdcValue);
             }
         }
-        Map<String, String> otelHeaders = MDCUtils.getOtelHeadersFromMDC();
-        otelHeaders.forEach(headers::add);
     }
 }
