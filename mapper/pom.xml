@@ -77,11 +77,11 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc.rex</groupId>
-            <artifactId>dto</artifactId>
+            <artifactId>rex-dto</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.pnc.rex</groupId>
-            <artifactId>model</artifactId>
+            <artifactId>rex-model</artifactId>
         </dependency>
     </dependencies>
 

@@ -610,13 +610,13 @@
 
       <dependency>
         <groupId>org.jboss.pnc.rex</groupId>
-        <artifactId>model</artifactId>
+        <artifactId>rex-model</artifactId>
         <version>${version.rex-api}</version>
       </dependency>
 
       <dependency>
         <groupId>org.jboss.pnc.rex</groupId>
-        <artifactId>dto</artifactId>
+        <artifactId>rex-dto</artifactId>
         <version>${version.rex-api}</version>
       </dependency>
 
