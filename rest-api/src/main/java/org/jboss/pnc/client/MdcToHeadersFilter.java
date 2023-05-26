@@ -48,11 +48,12 @@ public class MdcToHeadersFilter implements ClientRequestFilter {
         }
         for (Map.Entry<String, String> mdcKeyHeaderKey : mappings.entrySet()) {
             String mdcValue = context.get(mdcKeyHeaderKey.getKey());
-            if (!StringUtils.isEmpty(mdcValue)) {
+            // [NCL-7890] if the headers map already contains the mdc header specified in the request, don't add the
+            // mdc key value to it. For e.g, traceparent header might already be specified from the Quarkus Otel
+            // integration
+            if (!StringUtils.isEmpty(mdcValue) && !headers.containsKey(mdcKeyHeaderKey.getValue())) {
                 headers.add(mdcKeyHeaderKey.getValue(), mdcValue);
             }
         }
-        Map<String, String> otelHeaders = MDCUtils.getOtelHeadersFromMDC();
-        otelHeaders.forEach(headers::add);
     }
 }
