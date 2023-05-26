@@ -121,8 +121,9 @@ public class RemoteServices {
         Consumer<OutputFrame> rexLogConsumer = frame -> logger.debug("REX >>" + frame.getUtf8String());
 
         rexContainer = new GenericContainer(
-                // DockerImageName.parse("rh-newcastle/rex"))
-                DockerImageName.parse("localhost/matej/rex-core:1.0.0-SNAPSHOT")).withAccessToHost(true)
+                 DockerImageName.parse("rh-newcastle/rex-core:latest"))
+//                DockerImageName.parse("localhost/-your-name/rex-core:1.0.0-SNAPSHOT"))
+                        .withAccessToHost(true)
                         .withNetwork(network)
                         .withNetworkAliases("rex")
                         .withAccessToHost(true)
