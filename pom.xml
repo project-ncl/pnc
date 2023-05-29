@@ -97,7 +97,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <maven.min.version>3.2</maven.min.version>
     <!--<version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>1.0.2.Final-redhat-1</version.org.jboss.spec.javax.jms.jboss-jms-api_2.0_spec>-->
-    <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
+    <version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>1.0.1.Final-redhat-3</version.org.jboss.spec.javax.jms.jboss-jms-api_1.1_spec>
     <atlasVersion>1.1.0</atlasVersion>
     <indyVersion>2.5.4</indyVersion>
     <!-- If you are changing this, change also version.keycloak!-->
