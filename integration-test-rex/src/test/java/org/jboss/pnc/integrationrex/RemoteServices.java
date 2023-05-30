@@ -120,20 +120,19 @@ public class RemoteServices {
 
         Consumer<OutputFrame> rexLogConsumer = frame -> logger.debug("REX >>" + frame.getUtf8String());
 
-        rexContainer = new GenericContainer(
-                 DockerImageName.parse("rh-newcastle/rex:latest"))
-//                DockerImageName.parse("localhost/-your-name/rex-core:1.0.0-SNAPSHOT"))
-                        .withAccessToHost(true)
-                        .withNetwork(network)
-                        .withNetworkAliases("rex")
-                        .withAccessToHost(true)
-                        .withLogConsumer(rexLogConsumer)
-                        .withClasspathResourceMapping(
-                                "rex-application.yaml",
-                                "/home/jboss/config/application.yaml",
-                                BindMode.READ_ONLY)
-                        .waitingFor(Wait.forLogMessage(".*Installed features:.*", 1))
-                        .withStartupAttempts(5);
+        rexContainer = new GenericContainer(DockerImageName.parse("quay.io/rh-newcastle/rex:latest"))
+                // DockerImageName.parse("localhost/-your-name/rex-core:1.0.0-SNAPSHOT"))
+                .withAccessToHost(true)
+                .withNetwork(network)
+                .withNetworkAliases("rex")
+                .withAccessToHost(true)
+                .withLogConsumer(rexLogConsumer)
+                .withClasspathResourceMapping(
+                        "rex-application.yaml",
+                        "/home/jboss/config/application.yaml",
+                        BindMode.READ_ONLY)
+                .waitingFor(Wait.forLogMessage(".*Installed features:.*", 1))
+                .withStartupAttempts(5);
         // .withReuse(true);
 
         InfinispanContainer ispn = new InfinispanContainer(false).withNetwork(network)
