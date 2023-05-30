@@ -480,6 +480,9 @@
                         /subsystem=logging/logger=org.jboss.pnc:add(level=DEBUG)
                       </command>
                       <command>
+                        /subsystem=logging/logger=org.testcontainers:add(level=DEBUG)
+                      </command>
+                      <command>
                         /subsystem=logging/console-handler=CONSOLE:change-log-level(level=DEBUG)
                       </command>
                       <command>
