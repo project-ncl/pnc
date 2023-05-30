@@ -189,8 +189,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         BuildMeta buildMeta = parseBuildMeta(buildId, notification);
 
         // Task has to be present in Rex, otherwise it is unknown
-        // TODO uncomment to avoid an ability of our users to create invalid BRecords
-        // validateBuildIsActive(buildId, notification);
+        validateBuildIsActive(buildId, notification);
 
         // Avoid notifications if build is already persisted
         validateBuildHasNotBeenSaved(buildId, notification);

@@ -27,8 +27,6 @@ import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-
 @Slf4j
 public class LogJsonAction extends PostServeAction {
 
@@ -51,6 +49,6 @@ public class LogJsonAction extends PostServeAction {
         String pretty = objectMapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(objectMapper.readTree(serveEvent.getRequest().getBodyAsString()));
         System.out.println("Received JSON: " + pretty);
-        log.info("Received JSON: " + pretty);
+        log.trace("Received JSON: " + pretty);
     }
 }

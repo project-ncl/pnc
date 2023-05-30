@@ -372,7 +372,6 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             } else {
                 noRebuildTasks = Collections.emptySet();
             }
-            // here we have a graph with edges to task not present in the Rex, bacause it
             log.info(
                     "Scheduling builds {}.",
                     GraphUtils.unwrap(buildGraphCopy.getVerticies())
