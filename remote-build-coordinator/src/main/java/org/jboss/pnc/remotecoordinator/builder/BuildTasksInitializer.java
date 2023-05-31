@@ -362,16 +362,8 @@ public class BuildTasksInitializer {
         }
 
         notToBuild.forEach(task -> {
-            // Remove the reference if the task is not running (not present in Rex).
-            // If it is running, it will be linked by the Rex to a running dependency.
-            // Tasks that are not present in the Rex cannot be submitted to Rex,
-            // because Rex cannot reference them.
-            List<Edge<RemoteBuildTask>> dependantsEdges = task.getIncomingEdges();
-            dependantsEdges.stream()
-                    .filter(de -> !de.getTo().getData().isAlreadyRunning())
-                    .collect(Collectors.toSet())
-                    .stream()
-                    .forEach(de -> buildGraph.removeEdge(de.getFrom(), de.getTo()));
+            List<Edge<RemoteBuildTask>> dependantsEdges = new ArrayList<>(task.getIncomingEdges());
+            dependantsEdges.forEach(de -> buildGraph.removeEdge(de.getFrom(), de.getTo()));
 
             buildGraph.removeVertex(task);
         });
