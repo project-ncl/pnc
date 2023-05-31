@@ -101,7 +101,7 @@ public class BPMWireMock extends WireMockRule {
         dto.setRepositoryManagerResult(mockRepositoryManagerResultRest(buildID));
 
         String s = objectMapper.writeValueAsString(dto);
-        log.trace("JSOOOON: " + s);
+        log.trace("MOCK-BPM JSON reply: " + s);
         return s;
     }
 
