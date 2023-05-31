@@ -340,7 +340,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         String version = matcher.group(2);
         String release = matcher.group(3);
 
-        return brewContentUrl + "/" + name + "/" + version + "/" + release + "/" + createDeployPath(mavenArt);
+        return brewContentUrl + "/" + name + "/" + version + "/" + release + "/maven" + createDeployPath(mavenArt);
     }
 
     private String createPURL(MavenArtifact mavenArtifact) {
