@@ -91,8 +91,6 @@ import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.DeliverableAnalyzerManager {
     private static final String KOJI_PATH_MAVEN_PREFIX = "/api/content/maven/remote/koji-";
 
-    private static final String BREW_CONTENT_URL = "http://download.eng.bos.redhat.com/brewroot/packages";
-
     private static final Pattern NVR_PATTERN = Pattern.compile("(.+)-([^-]+)-([^-]+)");
 
     public static final String URL_PARAMETER_PREFIX = "url-";
@@ -342,7 +340,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         String version = matcher.group(2);
         String release = matcher.group(3);
 
-        return brewContentUrl + "/" + name + "/" + version + "/" + release + "/" + createDeployPath(mavenArt);
+        return brewContentUrl + "/" + name + "/" + version + "/" + release + "/maven" + createDeployPath(mavenArt);
     }
 
     private String createPURL(MavenArtifact mavenArtifact) {
