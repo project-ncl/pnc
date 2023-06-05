@@ -82,7 +82,6 @@ public class BuildIteratorTest {
         ret = new ArrayList<>();
         while (bit.hasNext()) {
             Build next = bit.next();
-            System.out.println("next: " + next);
             ret.add(Integer.valueOf(next.getId()));
         }
         assertEquals(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), ret);
@@ -114,7 +113,8 @@ public class BuildIteratorTest {
                 .thenAnswer((InvocationOnMock invocation) -> {
                     PageInfo pageInfo = invocation.getArgument(0);
 
-                    return LongStream.range(pageInfo.getPageOffset(), pageInfo.getPageOffset() + pageInfo.getPageSize())
+                    return LongStream
+                            .range(pageInfo.getElementOffset(), pageInfo.getElementOffset() + pageInfo.getPageSize())
                             .mapToObj(Base32LongID::new)
                             .map(BuildIteratorTest::mockBuildRecord)
                             .collect(Collectors.toList());

@@ -48,7 +48,6 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
-import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,7 +78,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -548,6 +546,40 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
                         new Condition<>(
                                 b -> buildRecord3.getSubmitTime().toInstant().equals(b.getSubmitTime()),
                                 "Build present"));
+    }
+
+    @Test
+    public void testGetLatePage() throws InterruptedException {
+        BuildRecord first = null;
+        BuildRecord last = null;
+        for (int i = 0; i <= 3000; i++) {
+            Thread.sleep(1L); // make sure new start time is in the next millisecond
+            BuildRecord build = mockBuildRecord();
+            if (i == (3000 - 2000)) {
+                first = build;
+            }
+            if (i == (3000 - 2049)) {
+                last = build;
+            }
+        }
+        assertThat(first).isNotNull();
+        assertThat(last).isNotNull();
+
+        Page<Build> all = provider.getAll(40, 50, null, null);
+
+        BuildRecord finalFirst = first;
+        BuildRecord finalLast = last;
+        assertThat(all.getContent()).hasSize(50)
+                .haveExactly(
+                        1,
+                        new Condition<>(
+                                b -> finalFirst.getSubmitTime().toInstant().equals(b.getSubmitTime()),
+                                "Build submitted " + finalFirst.getSubmitTime().toInstant() + " present"))
+                .haveExactly(
+                        1,
+                        new Condition<>(
+                                b -> finalLast.getSubmitTime().toInstant().equals(b.getSubmitTime()),
+                                "Build submitted " + finalLast.getSubmitTime().toInstant() + " present"));
     }
 
     @Test
