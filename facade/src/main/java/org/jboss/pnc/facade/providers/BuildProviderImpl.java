@@ -73,6 +73,7 @@ import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.CursorPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.jboss.pnc.spi.exception.MissingDataException;
@@ -1127,9 +1128,8 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             if (size > maxPageSize) {
                 size = maxPageSize;
             }
-            PageInfo pageInfo = new DefaultPageInfo(firstIndex, size);
-            builds = ((BuildRecordRepository) BuildProviderImpl.this.repository)
-                    .queryWithPredicates(pageInfo, sortInfo, predicates);
+            PageInfo pageInfo = new CursorPageInfo(firstIndex, size);
+            builds = BuildProviderImpl.this.repository.queryWithPredicates(pageInfo, sortInfo, predicates);
             it = builds.iterator();
             if (builds.size() < size) {
                 firstIndex = lastIndex + 1;
