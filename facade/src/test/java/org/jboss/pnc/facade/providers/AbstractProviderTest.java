@@ -435,7 +435,7 @@ public abstract class AbstractProviderTest<ID extends Serializable, T extends Ge
         @Override
         public List<T> answer(InvocationOnMock invocation) throws Throwable {
             PageInfo pageInfo = invocation.getArgument(0);
-            int first = pageInfo.getPageOffset();
+            int first = pageInfo.getElementOffset();
             int last = first + pageInfo.getPageSize();
             if (last > list.size()) {
                 last = list.size();
