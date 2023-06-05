@@ -222,9 +222,9 @@ public class BuildTest {
         RemoteCollection<Build> childBuildCol = buildConfigurationClient
                 .getBuilds(buildConfigurationChild.getId(), parameters);
 
-        Build childBuild = childBuildCol.getAll().iterator().next();
         // then
         assertThat(childBuildCol.size()).isEqualTo(1);
+        Build childBuild = childBuildCol.getAll().iterator().next();
         assertThat(buildConfigurationParent.getDependencies().size()).isEqualTo(1);
 
         assertThat(build).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
