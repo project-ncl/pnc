@@ -53,6 +53,10 @@ public class UserService {
     @Inject
     private UserRepository repository;
 
+    public boolean isUserLoggedIn() {
+        return httpServletRequest.getUserPrincipal() != null;
+    }
+
     public String currentUserToken() {
         logger.trace("Getting current user token using authenticationProvider: {}.", authenticationProvider.getId());
         LoggedInUser currentUser = authenticationProvider.getLoggedInUser(httpServletRequest);

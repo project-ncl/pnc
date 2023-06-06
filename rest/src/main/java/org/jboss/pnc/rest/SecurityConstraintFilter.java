@@ -70,6 +70,9 @@ public class SecurityConstraintFilter implements ContainerRequestFilter {
     }
 
     private boolean isUserInAnyRole(String... roles) {
+        if (!userService.isUserLoggedIn()) {
+            return false;
+        }
         for (String role : roles) {
             if (userService.hasLoggedInUserRole(role)) {
                 return true;
