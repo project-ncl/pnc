@@ -17,15 +17,11 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation_;
 import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.model.Operation;
-import org.jboss.pnc.model.Operation_;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.metamodel.SetAttribute;
 import javax.persistence.metamodel.SingularAttribute;
 
 /**
@@ -33,7 +29,7 @@ import javax.persistence.metamodel.SingularAttribute;
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
 @ApplicationScoped
-public class DeliverableAnalyzerOperationRSQLMapper extends OperationRSQLMapper<DeliverableAnalyzerOperation> {
+public class DeliverableAnalyzerOperationRSQLMapper extends GenericOperationRSQLMapper<DeliverableAnalyzerOperation> {
 
     public DeliverableAnalyzerOperationRSQLMapper() {
         super(DeliverableAnalyzerOperation.class);

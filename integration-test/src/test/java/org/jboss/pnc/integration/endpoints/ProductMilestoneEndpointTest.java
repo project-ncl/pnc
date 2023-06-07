@@ -29,6 +29,7 @@ import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
@@ -60,6 +61,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_MILESTONE1;
 import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_MILESTONE3;
 import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_NAME;
 
@@ -317,5 +319,21 @@ public class ProductMilestoneEndpointTest {
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
 
         assertThat(all).hasSize(3);
+    }
+
+    @Test
+    public void testGetDeliverableAnalyzerOperations() throws ClientException {
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        RemoteCollection<DeliverableAnalyzerOperation> all = client.getAllDeliverableAnalyzerOperations(milestoneId);
+
+        assertThat(all).hasSize(2);
+
+        RemoteCollection<DeliverableAnalyzerOperation> allInProgress = client.getAllDeliverableAnalyzerOperations(
+                milestoneId,
+                Optional.empty(),
+                Optional.of("progressStatus==IN_PROGRESS"));
+
+        assertThat(allInProgress).hasSize(1);
     }
 }
