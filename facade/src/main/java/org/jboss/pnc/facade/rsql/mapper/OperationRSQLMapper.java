@@ -17,59 +17,19 @@
  */
 package org.jboss.pnc.facade.rsql.mapper;
 
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerOperation;
-import org.jboss.pnc.model.DeliverableAnalyzerOperation_;
-import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.Operation;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.persistence.metamodel.SetAttribute;
-import javax.persistence.metamodel.SingularAttribute;
 
 /**
  *
  * @author Honza Brázdil &lt;jbrazdil@redhat.com&gt;
  */
-public abstract class OperationRSQLMapper<T extends Operation> extends AbstractRSQLMapper<Base32LongID, T> {
+@ApplicationScoped
+public class OperationRSQLMapper extends GenericOperationRSQLMapper<Operation> {
 
-    public OperationRSQLMapper(Class<T> type) {
-        super(type);
-    }
-
-    @Override
-    protected SingularAttribute<? super T, ? extends GenericEntity<Integer>> toEntity(String name) {
-        switch (name) {
-            case "user":
-                return DeliverableAnalyzerOperation_.user;
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    protected SetAttribute<T, ? extends GenericEntity<?>> toEntitySet(String name) {
-        return null;
-    }
-
-    @Override
-    protected SingularAttribute<? super T, ?> toAttribute(String name) {
-        switch (name) {
-            case "id":
-                return DeliverableAnalyzerOperation_.id;
-            case "endTime":
-                return DeliverableAnalyzerOperation_.endTime;
-            case "result":
-                return DeliverableAnalyzerOperation_.result;
-            case "progressStatus":
-                return DeliverableAnalyzerOperation_.progressStatus;
-            case "startTime":
-                return DeliverableAnalyzerOperation_.startTime;
-            case "submitTime":
-                return DeliverableAnalyzerOperation_.submitTime;
-            default:
-                return null;
-        }
+    public OperationRSQLMapper() {
+        super(Operation.class);
     }
 
 }
