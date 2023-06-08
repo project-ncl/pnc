@@ -548,15 +548,15 @@ public class BuildConfigurationProviderImpl extends
                 request.getPreBuildSyncEnabled(),
                 JobNotificationType.BUILD_CONFIG_CREATION,
                 Optional.of(newBuildConfigurationWithId));
-        createBuildConfigurationWithRepository(
-                rcResponse.getTaskId() == null ? null : rcResponse.getTaskId().toString(),
-                Integer.parseInt(rcResponse.getRepository().getId()),
-                newBuildConfigurationWithId);
 
         BuildConfigCreationResponse response;
         if (rcResponse.getTaskId() == null) {
             // scm is internal, not running a RepositoryCreationTask.
-            // onRCCreationSuccess already called with id = rcResponse.getRepository().getId()
+            createBuildConfigurationWithRepository(
+                    null,
+                    Integer.parseInt(rcResponse.getRepository().getId()),
+                    newBuildConfigurationWithId);
+
             org.jboss.pnc.model.BuildConfiguration buildConfigurationFromDB = repository
                     .queryByPredicates(withName(newBuildConfigurationWithId.getName()), isNotArchived());
             response = new BuildConfigCreationResponse(mapper.toDTO(buildConfigurationFromDB));
