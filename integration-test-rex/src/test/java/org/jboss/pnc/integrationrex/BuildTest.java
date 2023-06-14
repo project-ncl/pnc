@@ -58,6 +58,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wildfly.common.Assert;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -105,7 +106,7 @@ public class BuildTest extends RemoteServices {
 
     @Before
     public void beforeEach() throws ExecutionException, InterruptedException {
-
+        super.beforeEach();
         String token = KeycloakClient
                 .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
                 .getToken();
@@ -119,7 +120,8 @@ public class BuildTest extends RemoteServices {
     }
 
     @After
-    public void afterEach() {
+    public void afterEach() throws IOException {
+        super.afterEach();
         wsClient.disconnect();
     }
 
@@ -565,9 +567,10 @@ public class BuildTest extends RemoteServices {
         BuildChangedNotification parentStatus = parentBuildChanges.poll(100, TimeUnit.MILLISECONDS);
         assertThat(parentStatus.getBuild().getStatus()).isEqualTo(BuildStatus.WAITING_FOR_DEPENDENCIES);
 
-        // part should not be building yet as the child should be still running
+        // parent should not be building yet as the child should be still running
         assertThat(parentBuildChanges.size()).isEqualTo(0);
 
+        bpm.callbackNow(); // complete child build
         BuildChangedNotification childStatus = childBuildChanges.poll(5, TimeUnit.SECONDS);// SUCCESS
         logger.info("Child status: {}", childStatus.getBuild().getStatus());
         assertThat(childStatus.getBuild().getStatus()).isEqualTo(BuildStatus.SUCCESS);
@@ -577,6 +580,7 @@ public class BuildTest extends RemoteServices {
         parentBuildChanges.poll(5, TimeUnit.SECONDS); // BUILDING (could be different order - async)
 
         // parent should complete
+        bpm.callbackNow();
         parentStatus = parentBuildChanges.poll(5, TimeUnit.SECONDS);
         logger.info("Parent status: {}.", parentStatus.getBuild().getStatus());
         assertThat(parentStatus.getBuild().getStatus()).isEqualTo(BuildStatus.SUCCESS);
