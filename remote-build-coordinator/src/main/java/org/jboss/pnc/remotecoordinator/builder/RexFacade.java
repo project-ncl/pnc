@@ -148,7 +148,10 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
         Collection<RemoteBuildTask> sourceVerticies = GraphUtils.unwrap(buildGraph.getVerticies());
         for (RemoteBuildTask buildTask : sourceVerticies) {
-            vertices.put(buildTask.getId(), getCreateNewTaskDTO(bpmUrl, buildTask, user));
+            // only edges are submitted for already running tasks
+            if (!buildTask.isAlreadyRunning()) {
+                vertices.put(buildTask.getId(), getCreateNewTaskDTO(bpmUrl, buildTask, user));
+            }
         }
 
         for (Edge<RemoteBuildTask> sourceEdge : buildGraph.getEdges()) {

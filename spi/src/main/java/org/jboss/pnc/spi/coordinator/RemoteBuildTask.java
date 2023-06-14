@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.coordinator;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.ProductMilestone;
@@ -33,6 +34,7 @@ import java.util.Optional;
  */
 @AllArgsConstructor
 @Getter
+@ToString
 public class RemoteBuildTask {
 
     private String id;

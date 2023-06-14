@@ -76,7 +76,7 @@ public class BPMWireMock extends WireMockRule {
                                         .withHeader("Authorization", "{{originalRequest.headers.Authorization}}")
                                         .withUrl("{{jsonPath originalRequest.body '$.callback'}}")
                                         .withBody("{ \"status\":true, \"response\": " + mockBuildResult() + "}")
-                                        .withFixedDelay(200)));
+                                        .withFixedDelay(1000)));
     }
 
     @SneakyThrows
