@@ -23,7 +23,7 @@
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <layout class="ch.qos.logback.classic.PatternLayout">
       <Pattern>
-        %d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} ctx:%mdc - %msg%n
+        %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} ctx:%mdc - %msg%n
       </Pattern>
     </layout>
   </appender>
@@ -39,6 +39,7 @@
   <logger name="com.github.dockerjava.zerodep.shaded.org.apache.hc.client5.http.wire" level="OFF"/>
   <logger name="org.hibernate.type.descriptor.sql" level="TRACE"/>
   <logger name="org.eclipse" level="INFO"/>
+  <logger name="org.apache" level="INFO"/>
   <root level="debug">
     <appender-ref ref="STDOUT" />
   </root>

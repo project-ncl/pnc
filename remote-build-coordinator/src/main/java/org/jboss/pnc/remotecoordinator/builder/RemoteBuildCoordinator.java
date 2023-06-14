@@ -376,7 +376,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                     "Scheduling builds {}.",
                     GraphUtils.unwrap(buildGraphCopy.getVerticies())
                             .stream()
-                            .map(RemoteBuildTask::getId)
+                            .map(RemoteBuildTask::toString)
                             .collect(Collectors.toList()));
             buildScheduler.startBuilding(buildGraphCopy, user, buildConfigSetRecordId);
             buildStatusWithDescription = new BuildStatusWithDescription(BuildStatus.BUILDING, null);
