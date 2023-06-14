@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest;
 
+import io.swagger.v3.core.jackson.TypeNameResolver;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
@@ -137,6 +138,7 @@ public class JaxRsActivatorNew extends Application {
     }
 
     private void configureSwagger() {
+        TypeNameResolver.std.setUseFqn(true);
         OpenAPI oas = new OpenAPI();
         Info info = new Info().title("PNC")
                 .description("PNC build system")
