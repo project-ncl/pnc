@@ -18,11 +18,11 @@
 package org.jboss.pnc.integrationrex.mock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.bpm.model.BuildResultRest;
@@ -43,40 +43,53 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.spi.BuildResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
+import org.wiremock.webhooks.WebhookDefinition;
 import org.wiremock.webhooks.Webhooks;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static org.wiremock.webhooks.Webhooks.webhook;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 
 @Slf4j
-public class BPMWireMock extends WireMockRule {
+public class BPMWireMock implements Closeable {
 
     private static final ObjectMapper objectMapper = new JacksonProvider().getMapper();
+    private final WireMockServer wireMockServer;
+    private final TriggeringWebhook triggeringWebhook;
 
     public BPMWireMock(int port) {
-        super(
+        triggeringWebhook = new TriggeringWebhook();
+        wireMockServer = new WireMockServer(
                 WireMockConfiguration.options()
                         .networkTrafficListener(new ConsoleNotifyingWiremockNetworkTrafficListener())
                         .port(port)
                         .extensions(LogJsonAction.class)
                         .extensions(ResponseTemplateTransformer.builder().global(false).maxCacheEntries(0L).build())
-                        .extensions(Webhooks.class));
-        stubFor(
+                        .extensions(Webhooks.class)
+                        .extensions(triggeringWebhook));
+
+        wireMockServer.stubFor(
                 any(urlMatching(".*"))
                         .willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json"))
                         .withPostServeAction(
-                                "webhook",
-                                webhook().withMethod(RequestMethod.POST)
+                                "triggering-webhook",
+                                new WebhookDefinition().withMethod(RequestMethod.POST)
                                         .withHeader("Content-Type", "application/json")
                                         .withHeader("Authorization", "{{originalRequest.headers.Authorization}}")
                                         .withUrl("{{jsonPath originalRequest.body '$.callback'}}")
-                                        .withBody("{ \"status\":true, \"response\": " + mockBuildResult() + "}")
-                                        .withFixedDelay(1000)));
+                                        .withBody("{ \"status\":true, \"response\": " + mockBuildResult() + "}")));
+        wireMockServer.start();
+    }
+
+    public void callbackNow() {
+        triggeringWebhook.callbackNow();
     }
 
     @SneakyThrows
@@ -155,6 +168,11 @@ public class BPMWireMock extends WireMockRule {
                 .repositoryType(RepositoryType.MAVEN)
                 .temporaryRepo(false)
                 .build();
+    }
+
+    @Override
+    public void close() throws IOException {
+        wireMockServer.stop();
     }
 
     // Simple Artifact Mapper
