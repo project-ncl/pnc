@@ -156,7 +156,7 @@ public abstract class AbstractProvider<ID extends Serializable, DB extends Gener
     protected ID parseId(String stringId) {
         try {
             return mapper.getIdMapper().toEntity(stringId);
-        } catch (NumberFormatException ex) {
+        } catch (IllegalArgumentException ex) {
             throw new EmptyEntityException("Error parsing id " + stringId);
         }
     }
