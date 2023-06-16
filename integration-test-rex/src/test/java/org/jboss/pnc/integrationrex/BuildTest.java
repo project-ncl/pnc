@@ -17,6 +17,12 @@
  */
 package org.jboss.pnc.integrationrex;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
+import lombok.extern.slf4j.Slf4j;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.auth.KeycloakClient;
@@ -26,56 +32,51 @@ import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.GroupBuildClient;
 import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.RemoteCollection;
-import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.client.RemoteResourceNotFoundException;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildConfigurationRevisionRef;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
-import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
+import org.jboss.pnc.integrationrex.mock.BPMResultsMock;
+import org.jboss.pnc.integrationrex.mock.LogJsonAction;
+import org.jboss.pnc.integrationrex.utils.BuildUtils;
 import org.jboss.pnc.integrationrex.utils.ResponseUtils;
-import org.jboss.pnc.rest.api.parameters.BuildParameters;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.restclient.AdvancedBuildClient;
-import org.jboss.pnc.restclient.websocket.ConnectionClosedException;
-import org.jboss.pnc.restclient.websocket.ListenerUnsubscriber;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wildfly.common.Assert;
+import org.wiremock.webhooks.WebhookDefinition;
+import org.wiremock.webhooks.Webhooks;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.NOTIFICATION_PATH;
 import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
-import static org.jboss.pnc.restclient.websocket.predicates.BuildChangedNotificationPredicates.withBuildConfiguration;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -88,32 +89,26 @@ public class BuildTest extends RemoteServices {
 
     private GroupConfigurationClient groupConfigurationClient;
 
-    private GroupBuildClient groupBuildClient;
-
     private BuildClient buildClient;
 
-    private static void waitForConditionWithTimeout(Supplier<Boolean> sup, int timeoutSeconds)
-            throws InterruptedException {
-        int secondsPassed = 0;
-        while (!sup.get() && secondsPassed < timeoutSeconds) {
-            Thread.sleep(1000);
-            secondsPassed++;
-        }
-    }
+    BuildUtils buildUtils;
 
     private static final String PNC_SOCKET_URL = "ws://localhost:8080" + NOTIFICATION_PATH;
     WebSocketClient wsClient = new VertxWebSocketClient();
 
+    private BPMWireMock bpm;
+
     @Before
     public void beforeEach() throws ExecutionException, InterruptedException {
-        super.beforeEach();
+        bpm = new BPMWireMock(8088);
+
         String token = KeycloakClient
                 .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
                 .getToken();
 
         buildConfigurationClient = new BuildConfigurationClient(withBearerToken(token));
         groupConfigurationClient = new GroupConfigurationClient(withBearerToken(token));
-        groupBuildClient = new GroupBuildClient(withBearerToken(token));
+        buildUtils = new BuildUtils(new GroupBuildClient(withBearerToken(token)));
         buildClient = new AdvancedBuildClient(withBearerToken(token));
 
         wsClient.connect(PNC_SOCKET_URL).get();
@@ -121,26 +116,26 @@ public class BuildTest extends RemoteServices {
 
     @After
     public void afterEach() throws IOException {
-        super.afterEach();
+        bpm.close();
         wsClient.disconnect();
     }
 
     @Test
-    @Ignore
     public void shouldTriggerBuildAndFinishWithoutProblems() throws ClientException {
         // with
         BuildConfiguration buildConfiguration = buildConfigurationClient.getAll().iterator().next();
 
         // when
-        Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), getPersistentParameters(true));
+        Build build = buildConfigurationClient
+                .trigger(buildConfiguration.getId(), buildUtils.getPersistentParameters(true));
         assertThat(build).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
 
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, null), 300, TimeUnit.SECONDS);
+        ResponseUtils
+                .waitSynchronouslyFor(() -> buildUtils.buildToFinish(build.getId(), isIn, null), 300, TimeUnit.SECONDS);
     }
 
     @Test
-    @Ignore
     public void shouldTriggerGroupBuildAndFinishWithoutProblems() throws ClientException {
         // given
         GroupConfiguration groupConfig = groupConfigurationClient.getAll().iterator().next();
@@ -158,13 +153,12 @@ public class BuildTest extends RemoteServices {
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED);
         ResponseUtils.waitSynchronouslyFor(
-                () -> groupBuildToFinish(groupBuild.getId(), isIn, isNotIn),
+                () -> buildUtils.buildToFinish(groupBuild.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
     }
 
     @Test
-    @Ignore
     public void shouldTriggerBuildWithADependencyAndFinishWithoutProblems() throws ClientException {
         // given - A BC with a dependency on pnc-1.0.0.DR1
         BuildConfiguration buildConfigurationParent = buildConfigurationClient
@@ -189,7 +183,7 @@ public class BuildTest extends RemoteServices {
 
         // when
         Build build = buildConfigurationClient
-                .trigger(buildConfigurationParent.getId(), getBuildParameters(false, true));
+                .trigger(buildConfigurationParent.getId(), buildUtils.getBuildParameters(false, true));
 
         BuildsFilterParameters parameters = new BuildsFilterParameters();
         parameters.setRunning(true);
@@ -204,13 +198,16 @@ public class BuildTest extends RemoteServices {
         assertThat(build).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
 
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, null), 15, TimeUnit.SECONDS);
+        ResponseUtils
+                .waitSynchronouslyFor(() -> buildUtils.buildToFinish(build.getId(), isIn, null), 15, TimeUnit.SECONDS);
 
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(childBuild.getId(), isIn, null), 15, TimeUnit.SECONDS);
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildUtils.buildToFinish(childBuild.getId(), isIn, null),
+                15,
+                TimeUnit.SECONDS);
     }
 
     @Test
-    @Ignore
     public void shouldTriggerGroupBuildWithBCInRevisionAndFinishWithoutProblems() throws ClientException {
         // given
         GroupConfiguration groupConfiguration = groupConfigurationClient.getAll().iterator().next();
@@ -239,13 +236,12 @@ public class BuildTest extends RemoteServices {
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED);
         ResponseUtils.waitSynchronouslyFor(
-                () -> groupBuildToFinish(groupBuild.getId(), isIn, isNotIn),
+                () -> buildUtils.buildToFinish(groupBuild.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
     }
 
     @Test
-    @Ignore
     public void shouldRejectGroupBuildWithNoRebuildsRequired() throws ClientException {
         // given
         GroupConfiguration groupConfig = groupConfigurationClient.getAll().iterator().next();
@@ -260,7 +256,7 @@ public class BuildTest extends RemoteServices {
         assertThat(groupBuild1).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
 
         ResponseUtils.waitSynchronouslyFor(
-                () -> groupBuildToFinish(groupBuild1.getId(), EnumSet.of(BuildStatus.SUCCESS), null),
+                () -> buildUtils.buildToFinish(groupBuild1.getId(), EnumSet.of(BuildStatus.SUCCESS), null),
                 15,
                 TimeUnit.SECONDS);
 
@@ -274,13 +270,12 @@ public class BuildTest extends RemoteServices {
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.SUCCESS, BuildStatus.REJECTED);
         ResponseUtils.waitSynchronouslyFor(
-                () -> groupBuildToFinish(groupBuild2.getId(), isIn, isNotIn),
+                () -> buildUtils.buildToFinish(groupBuild2.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
     }
 
     @Test
-    @Ignore
     public void shouldBuildTemporaryBuildAndNotAssignItToMilestone() throws ClientException {
         // BC pnc-1.0.0.DR1 is assigned to a product version containing an active product milestone see
         // DatabaseDataInitializer#initiliazeProjectProductData
@@ -291,20 +286,20 @@ public class BuildTest extends RemoteServices {
 
         // when
 
-        Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), getTemporaryParameters(true));
+        Build build = buildConfigurationClient
+                .trigger(buildConfiguration.getId(), buildUtils.getTemporaryParameters(true));
 
         // then
 
         assertThat(build).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
 
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId()), 15, TimeUnit.SECONDS);
+        ResponseUtils.waitSynchronouslyFor(() -> buildUtils.buildToFinish(build.getId()), 15, TimeUnit.SECONDS);
 
         Build updatedBuild = buildClient.getSpecific(build.getId());
         assertThat(updatedBuild.getProductMilestone()).isNull();
     }
 
     @Test
-    @Ignore
     public void shouldTriggerPersistentWithoutForceAfterTemporaryOnTheSameRev() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
@@ -324,13 +319,16 @@ public class BuildTest extends RemoteServices {
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
 
-        Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), getTemporaryParameters());
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
+        Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), buildUtils.getTemporaryParameters());
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildUtils.buildToFinish(build.getId(), isIn, isNotIn),
+                15,
+                TimeUnit.SECONDS);
 
         Build afterTempPersistentBuild = buildConfigurationClient
-                .trigger(buildConfiguration.getId(), getPersistentParameters());
+                .trigger(buildConfiguration.getId(), buildUtils.getPersistentParameters());
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(afterTempPersistentBuild.getId(), isIn, isNotIn),
+                () -> buildUtils.buildToFinish(afterTempPersistentBuild.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
     }
@@ -338,7 +336,6 @@ public class BuildTest extends RemoteServices {
     // NCL-5192
     // Replicates NCL-5192 through explicit dependency instead of implicit
     @Test
-    @Ignore
     public void dontRebuildTemporaryBuildWhenThereIsNewerPersistentOnSameRev()
             throws ClientException, InterruptedException {
         BuildConfiguration parent = buildConfigurationClient
@@ -372,29 +369,30 @@ public class BuildTest extends RemoteServices {
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED, BuildStatus.NO_REBUILD_REQUIRED);
 
         // Build temporary builds (parent and dependency) on new revision
-        Build temporaryBuild = buildConfigurationClient.trigger(parent.getId(), getTemporaryParameters());
-        ResponseUtils
-                .waitSynchronouslyFor(() -> buildToFinish(temporaryBuild.getId(), isIn, isNotIn), 15, TimeUnit.SECONDS);
+        Build temporaryBuild = buildConfigurationClient.trigger(parent.getId(), buildUtils.getTemporaryParameters());
+        ResponseUtils.waitSynchronouslyFor(
+                () -> buildUtils.buildToFinish(temporaryBuild.getId(), isIn, isNotIn),
+                15,
+                TimeUnit.SECONDS);
         Thread.sleep(1L);
         // Build persistent build of dependency on the same revision
         Build dependencyPersistentBuild = buildConfigurationClient
-                .trigger(dependency.getId(), getPersistentParameters());
+                .trigger(dependency.getId(), buildUtils.getPersistentParameters());
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(dependencyPersistentBuild.getId(), isIn, isNotIn),
+                () -> buildUtils.buildToFinish(dependencyPersistentBuild.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
 
         // Build temporary build of parent and check it gets REJECTED even if it's dependency has newer record
         // (in this case temp build should ignore persistent one)
-        Build finalRecord = buildConfigurationClient.trigger(parent.getId(), getTemporaryParameters());
+        Build finalRecord = buildConfigurationClient.trigger(parent.getId(), buildUtils.getTemporaryParameters());
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(finalRecord.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
+                () -> buildUtils.buildToFinish(finalRecord.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
                 15,
                 TimeUnit.SECONDS);
     }
 
     @Test
-    @Ignore
     public void shouldRejectAfterBuildingTwoTempBuildsOnSameRevision() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
@@ -408,16 +406,17 @@ public class BuildTest extends RemoteServices {
                 .build();
         buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
 
-        Build temporaryBuild = buildConfigurationClient.trigger(updatedConfiguration.getId(), getTemporaryParameters());
+        Build temporaryBuild = buildConfigurationClient
+                .trigger(updatedConfiguration.getId(), buildUtils.getTemporaryParameters());
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(temporaryBuild.getId(), EnumSet.of(BuildStatus.SUCCESS), null),
+                () -> buildUtils.buildToFinish(temporaryBuild.getId(), EnumSet.of(BuildStatus.SUCCESS), null),
                 15,
                 TimeUnit.SECONDS);
 
         Build secondTempBuild = buildConfigurationClient
-                .trigger(updatedConfiguration.getId(), getTemporaryParameters());
+                .trigger(updatedConfiguration.getId(), buildUtils.getTemporaryParameters());
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(
+                () -> buildUtils.buildToFinish(
                         secondTempBuild.getId(),
                         EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED),
                         EnumSet.of(BuildStatus.SUCCESS, BuildStatus.REJECTED)),
@@ -426,7 +425,6 @@ public class BuildTest extends RemoteServices {
     }
 
     @Test
-    @Ignore
     public void shouldNotTriggerANewPersistentBuildWithoutForceIfOnlyDescriptionChanged() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
@@ -438,9 +436,9 @@ public class BuildTest extends RemoteServices {
 
         // Build persistent builds (parent and dependency) on new revision
         Build persistentBuild = buildConfigurationClient
-                .trigger(buildConfiguration.getId(), getPersistentParameters(true));
+                .trigger(buildConfiguration.getId(), buildUtils.getPersistentParameters(true));
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(persistentBuild.getId(), isIn, isNotIn),
+                () -> buildUtils.buildToFinish(persistentBuild.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
 
@@ -454,15 +452,15 @@ public class BuildTest extends RemoteServices {
         buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
         assertThat(oldLastModDate).isEqualTo(updatedConfiguration.getModificationTime());
 
-        Build build2 = buildConfigurationClient.trigger(updatedConfiguration.getId(), getPersistentParameters());
+        Build build2 = buildConfigurationClient
+                .trigger(updatedConfiguration.getId(), buildUtils.getPersistentParameters());
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(build2.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
+                () -> buildUtils.buildToFinish(build2.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
                 15,
                 TimeUnit.SECONDS);
     }
 
     @Test
-    @Ignore
     public void shouldNotTriggerANewTemporaryBuildWithoutForceIfOnlyDescriptionChanged() throws ClientException {
         BuildConfiguration buildConfiguration = buildConfigurationClient
                 .getAll(Optional.empty(), Optional.of("name==maven-plugin-test"))
@@ -474,9 +472,9 @@ public class BuildTest extends RemoteServices {
 
         // Build temporary builds (parent and dependency) on new revision
         Build persistentBuild = buildConfigurationClient
-                .trigger(buildConfiguration.getId(), getTemporaryParameters(true));
+                .trigger(buildConfiguration.getId(), buildUtils.getTemporaryParameters(true));
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(persistentBuild.getId(), isIn, isNotIn),
+                () -> buildUtils.buildToFinish(persistentBuild.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
 
@@ -490,31 +488,34 @@ public class BuildTest extends RemoteServices {
         buildConfigurationClient.update(updatedConfiguration.getId(), updatedConfiguration);
         assertThat(oldLastModDate).isEqualTo(updatedConfiguration.getModificationTime());
 
-        Build build2 = buildConfigurationClient.trigger(updatedConfiguration.getId(), getTemporaryParameters());
+        Build build2 = buildConfigurationClient
+                .trigger(updatedConfiguration.getId(), buildUtils.getTemporaryParameters());
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(build2.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
+                () -> buildUtils.buildToFinish(build2.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), null),
                 15,
                 TimeUnit.SECONDS);
     }
 
     @Test
-    @Ignore
     public void shouldHaveNoRebuildCauseFilled() throws Exception {
         // with
         BuildConfiguration buildConfiguration = buildConfigurationClient.getAll().iterator().next();
 
         // when #1
-        Build build = buildConfigurationClient.trigger(buildConfiguration.getId(), getPersistentParameters(true));
+        Build build = buildConfigurationClient
+                .trigger(buildConfiguration.getId(), buildUtils.getPersistentParameters(true));
         assertThat(build).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
 
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
-        ResponseUtils.waitSynchronouslyFor(() -> buildToFinish(build.getId(), isIn, null), 15, TimeUnit.SECONDS);
+        ResponseUtils
+                .waitSynchronouslyFor(() -> buildUtils.buildToFinish(build.getId(), isIn, null), 15, TimeUnit.SECONDS);
 
         // when #2
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.SUCCESS, BuildStatus.FAILED);
-        Build rebuild = buildConfigurationClient.trigger(buildConfiguration.getId(), getBuildParameters(false, false));
+        Build rebuild = buildConfigurationClient
+                .trigger(buildConfiguration.getId(), buildUtils.getBuildParameters(false, false));
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildToFinish(rebuild.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), isNotIn),
+                () -> buildUtils.buildToFinish(rebuild.getId(), EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED), isNotIn),
                 15,
                 TimeUnit.SECONDS);
 
@@ -523,160 +524,41 @@ public class BuildTest extends RemoteServices {
         assertThat(refresh.getNoRebuildCause()).isNotNull().extracting("id").isEqualTo(build.getId());
     }
 
-    @Test
-    public void shouldNotStartParentBuildWhenDependencyIsRunning()
-            throws RemoteResourceException, InterruptedException {
-        BlockingQueue<BuildChangedNotification> childBuildChanges = new ArrayBlockingQueue<>(100);
-        BlockingQueue<BuildChangedNotification> parentBuildChanges = new ArrayBlockingQueue<>(100);
+    @Slf4j
+    public static class BPMWireMock implements Closeable {
 
-        BuildConfiguration buildConfigurationParent = buildConfigurationClient
-                .getAll(Optional.empty(), Optional.of("name==dependency-analysis-1.3"))
-                .iterator()
-                .next();
+        private final WireMockServer wireMockServer;
 
-        // Update dependency
-        BuildConfiguration buildConfigurationChild = buildConfigurationClient
-                .getAll(Optional.empty(), Optional.of("name==pnc-1.0.0.DR1"))
-                .iterator()
-                .next();
+        public BPMWireMock(int port) {
+            wireMockServer = new WireMockServer(
+                    WireMockConfiguration.options()
+                            .networkTrafficListener(new ConsoleNotifyingWiremockNetworkTrafficListener())
+                            .port(port)
+                            .extensions(LogJsonAction.class)
+                            .extensions(ResponseTemplateTransformer.builder().global(false).maxCacheEntries(0L).build())
+                            .extensions(Webhooks.class));
 
-        Consumer<BuildChangedNotification> onChildChange = (e -> {
-            logger.info("Child build status changed: {}", e.getBuild().getStatus());
-            childBuildChanges.add(e);
-        });
-        Consumer<BuildChangedNotification> onParentChange = (e -> {
-            logger.info("Parent build status changed: {}", e.getBuild().getStatus());
-            parentBuildChanges.add(e);
-        });
-        onBuildChangedNotification(buildConfigurationChild.getId(), onChildChange);
-        onBuildChangedNotification(buildConfigurationParent.getId(), onParentChange);
-
-        // start child
-        buildConfigurationClient.trigger(buildConfigurationChild.getId(), getBuildParameters(false, true));
-        // wait for the child to start building
-        Assert.assertNotNull(childBuildChanges.poll(5, TimeUnit.SECONDS)); // ENQUEUED
-        Assert.assertNotNull(childBuildChanges.poll(5, TimeUnit.SECONDS)); // BUILDING (could be different order -
-                                                                           // async)
-
-        buildConfigurationClient.trigger(buildConfigurationParent.getId(), getBuildParameters(false, true));
-        logger.info("Triggered parent build.");
-
-        // make sure child is still running and parent did not start yet
-        assertThat(childBuildChanges.size()).isEqualTo(0);
-
-        BuildChangedNotification parentStatus = parentBuildChanges.poll(100, TimeUnit.MILLISECONDS);
-        assertThat(parentStatus.getBuild().getStatus()).isEqualTo(BuildStatus.WAITING_FOR_DEPENDENCIES);
-
-        // parent should not be building yet as the child should be still running
-        assertThat(parentBuildChanges.size()).isEqualTo(0);
-
-        bpm.callbackNow(); // complete child build
-        BuildChangedNotification childStatus = childBuildChanges.poll(5, TimeUnit.SECONDS);// SUCCESS
-        logger.info("Child status: {}", childStatus.getBuild().getStatus());
-        assertThat(childStatus.getBuild().getStatus()).isEqualTo(BuildStatus.SUCCESS);
-
-        // check if parent has started
-        parentBuildChanges.poll(5, TimeUnit.SECONDS); // ENQUEUED
-        parentBuildChanges.poll(5, TimeUnit.SECONDS); // BUILDING (could be different order - async)
-
-        // parent should complete
-        bpm.callbackNow();
-        parentStatus = parentBuildChanges.poll(5, TimeUnit.SECONDS);
-        logger.info("Parent status: {}.", parentStatus.getBuild().getStatus());
-        assertThat(parentStatus.getBuild().getStatus()).isEqualTo(BuildStatus.SUCCESS);
-    }
-
-    public ListenerUnsubscriber onBuildChangedNotification(
-            String buildConfigId,
-            Consumer<BuildChangedNotification> onChange) {
-        // wsClient.connect(PNC_SOCKET_URL).join();
-        try {
-            return wsClient.onBuildChangedNotification(onChange, withBuildConfiguration(buildConfigId));
-        } catch (ConnectionClosedException e) {
-            throw new RuntimeException(e);
-        } finally {
-            // wsClient.disconnect();
+            wireMockServer.stubFor(
+                    any(urlMatching(".*"))
+                            .willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json"))
+                            .withPostServeAction(
+                                    "webhook",
+                                    new WebhookDefinition().withMethod(RequestMethod.POST)
+                                            .withHeader("Content-Type", "application/json")
+                                            .withHeader("Authorization", "{{originalRequest.headers.Authorization}}")
+                                            .withUrl("{{jsonPath originalRequest.body '$.callback'}}")
+                                            .withBody(
+                                                    "{ \"status\":true, \"response\": "
+                                                            + BPMResultsMock.mockBuildResult() + "}")
+                                            .withFixedDelay(500)));
+            wireMockServer.start();
         }
-    }
 
-    private BuildParameters getTemporaryParameters() {
-        return getBuildParameters(true, false);
-    }
-
-    private BuildParameters getPersistentParameters() {
-        return getBuildParameters(false, false);
-    }
-
-    private BuildParameters getTemporaryParameters(boolean force) {
-        return getBuildParameters(true, force);
-    }
-
-    private BuildParameters getPersistentParameters(boolean force) {
-        return getBuildParameters(false, force);
-    }
-
-    private BuildParameters getBuildParameters(boolean temporary, boolean force) {
-        BuildParameters buildParameters = new BuildParameters();
-
-        buildParameters.setTemporaryBuild(temporary);
-        buildParameters.setBuildDependencies(true);
-        if (force)
-            buildParameters.setRebuildMode(RebuildMode.FORCE);
-
-        return buildParameters;
-    }
-
-    private Boolean buildToFinish(String id) {
-        return buildToFinish(id, null, null);
-    }
-
-    private Boolean groupBuildToFinish(String id) {
-        return groupBuildToFinish(id, null, null);
-    }
-
-    private Boolean buildToFinish(String buildId, EnumSet<BuildStatus> isIn, EnumSet<BuildStatus> isNotIn) {
-        Build build = null;
-        logger.debug("Waiting for build {} to finish", buildId);
-        try {
-            build = buildClient.getSpecific(buildId);
-            assertThat(build).isNotNull();
-            logger.debug("Gotten build with status: {}", build.getStatus());
-            if (!build.getStatus().isFinal())
-                return false;
-        } catch (RemoteResourceNotFoundException e) {
-            fail(String.format("Build with id:%s not present", buildId), e);
-        } catch (ClientException e) {
-            fail("Client has failed in an unexpected way.", e);
+        @Override
+        public void close() throws IOException {
+            wireMockServer.stop();
         }
-        assertThat(build).isNotNull();
-        assertThat(build.getStatus()).isNotNull();
-        if (isIn != null && !isIn.isEmpty())
-            assertThat(build.getStatus()).isIn(isIn);
-        if (isNotIn != null && !isNotIn.isEmpty())
-            assertThat(build.getStatus()).isNotIn(isNotIn);
-        return true;
+
     }
 
-    private Boolean groupBuildToFinish(String groupBuildId, EnumSet<BuildStatus> isIn, EnumSet<BuildStatus> isNotIn) {
-        if (isIn == null)
-            isIn = EnumSet.noneOf(BuildStatus.class);
-        if (isNotIn == null)
-            isNotIn = EnumSet.noneOf(BuildStatus.class);
-
-        GroupBuild build = null;
-        logger.debug("Waiting for build {} to finish", groupBuildId);
-        try {
-            build = groupBuildClient.getSpecific(groupBuildId);
-            assertThat(build).isNotNull();
-            logger.debug("Gotten build with status: {}", build.getStatus());
-            if (!build.getStatus().isFinal())
-                return false;
-        } catch (RemoteResourceNotFoundException e) {
-            fail(String.format("Group Build with id:%s not present", groupBuildId), e);
-        } catch (ClientException e) {
-            fail("Client has failed in an unexpected way.", e);
-        }
-        assertThat(build.getStatus()).isNotIn(isNotIn).isIn(isIn);
-        return true;
-    }
 }
