@@ -18,15 +18,12 @@
 package org.jboss.pnc.integrationrex;
 
 import org.jboss.arquillian.container.test.api.Deployment;
-import org.jboss.pnc.integrationrex.mock.BPMWireMock;
 import org.jboss.pnc.integrationrex.setup.Deployments;
 import org.jboss.pnc.integrationrex.testcontainers.CustomKeycloakContainer;
 import org.jboss.pnc.integrationrex.testcontainers.InfinispanContainer;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.util.StringPropertyReplacer;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +42,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 import static org.jboss.pnc.common.json.moduleconfig.microprofile.SchedulerMicroprofileConfig.SCHEDULER_URL_KEY;
@@ -53,8 +49,6 @@ import static org.jboss.pnc.common.json.moduleconfig.microprofile.SchedulerMicro
 public class RemoteServices {
 
     private static final Logger logger = LoggerFactory.getLogger(RemoteServices.class);
-
-    public BPMWireMock bpm;
 
     protected static String authServerUrl;
 
@@ -86,16 +80,6 @@ public class RemoteServices {
         rexContainer.stop();
         logger.info("Containers stopped.");
         Thread.sleep(1000L); // make sure all resources are released
-    }
-
-    @Before
-    public void beforeEach() throws ExecutionException, InterruptedException {
-        bpm = new BPMWireMock(8088);
-    }
-
-    @After
-    public void afterEach() throws IOException {
-        bpm.close();
     }
 
     protected static void startRemoteServices() throws IOException {

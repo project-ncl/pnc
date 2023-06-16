@@ -43,4 +43,14 @@ public class ResponseUtils {
             }
         } while (!condition.get());
     }
+
+    public static void waitForConditionWithTimeout(Supplier<Boolean> sup, int timeoutSeconds)
+            throws InterruptedException {
+        int secondsPassed = 0;
+        while (!sup.get() && secondsPassed < timeoutSeconds) {
+            Thread.sleep(1000);
+            secondsPassed++;
+        }
+    }
+
 }
