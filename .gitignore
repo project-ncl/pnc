@@ -28,3 +28,6 @@ indy-repository-manager/org.commonjava.indy.folo.model.TrackedContentEntry
 
 # Mac
 .DS_Store
+
+# ignore code generated class for build information
+common/src/main/java/org/jboss/pnc/common/BuildInformationConstants.java
