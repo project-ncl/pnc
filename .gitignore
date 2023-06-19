@@ -25,3 +25,9 @@ indy-repository-manager/org.commonjava.indy.folo.model.TrackedContentEntry
 
 # From formatter-maven-plugin
 .cache
+
+# Mac
+.DS_Store
+
+# ignore code generated class for build information
+common/src/main/java/org/jboss/pnc/common/BuildInformationConstants.java
