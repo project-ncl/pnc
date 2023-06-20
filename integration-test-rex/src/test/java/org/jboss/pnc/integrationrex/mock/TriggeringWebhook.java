@@ -73,7 +73,7 @@ public class TriggeringWebhook extends PostServeAction {
         this.templateEngine = new TemplateEngine(Collections.emptyMap(), null, Collections.emptySet());
     }
 
-    @JsonCreator // TODO do we need this annotation
+    @JsonCreator
     public TriggeringWebhook() {
         this(createHttpClient(), new ArrayList<>());
     }

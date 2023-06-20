@@ -17,26 +17,34 @@
  */
 package org.jboss.pnc.remotecoordinator.builder;
 
+import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.model.BuildConfiguration;
+import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.util.graph.Graph;
 import org.jboss.util.graph.Vertex;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
+@Slf4j
 public class GraphValidationTest {
 
     @Test
-    public void shouldThrowIfAnyDependencyOfAlreadyRunningIsSubmitted() throws BuildConflictException {
+    public void shouldThrowIfAnyDependencyOfAlreadyRunningIsSubmitted() {
+
         // given
+        BuildConfiguration bc1 = BuildConfiguration.Builder.newBuilder().name("bc1").build();
+        BuildConfigurationAudited bca1 = BuildConfigurationAudited.Builder.newBuilder().buildConfiguration(bc1).build();
         RemoteBuildTask running = new RemoteBuildTask(
                 "1",
                 Instant.now().minus(1, ChronoUnit.MINUTES),
-                null,
+                bca1,
                 new BuildOptions(),
                 "1",
                 true,
@@ -44,13 +52,16 @@ public class GraphValidationTest {
                 null,
                 new ArrayList<>(),
                 new ArrayList<>());
+
+        BuildConfiguration bc2 = BuildConfiguration.Builder.newBuilder().name("bc2").build();
+        BuildConfigurationAudited bca2 = BuildConfigurationAudited.Builder.newBuilder().buildConfiguration(bc2).build();
         RemoteBuildTask submitted = new RemoteBuildTask(
                 "2",
                 Instant.now(),
-                null,
+                bca2,
                 new BuildOptions(),
                 "1",
-                true,
+                false,
                 null,
                 null,
                 new ArrayList<>(),
@@ -64,7 +75,13 @@ public class GraphValidationTest {
         buildGraph.addVertex(submittedVertex);
         buildGraph.addEdge(runningVertex, submittedVertex, 1);
 
-        GraphValidation.checkIfAnyDependencyOfAlreadyRunningIsSubmitted(buildGraph);
+        try {
+            GraphValidation.checkIfAnyDependencyOfAlreadyRunningIsSubmitted(buildGraph);
+            Assert.fail("Validation should thrown an exception.");
+        } catch (Exception e) {
+            log.info("Exception:", e);
+            Assert.assertTrue(e instanceof BuildConflictException);
+        }
 
     }
 }
