@@ -50,9 +50,9 @@ public class GraphValidation {
                             && child.getNoRebuildCause().isPresent();
                     if (!hasNoRebuildCause && !child.isAlreadyRunning()) {
                         throw new BuildConflictException(
-                                "Submitted build " + parent.getData().getBuildConfigurationAudited().getName()
+                                "Submitted build " + child.getBuildConfigurationAudited().getName()
                                         + " is a dependency of already running build: "
-                                        + child.getBuildConfigurationAudited().getName());
+                                        + parent.getData().getBuildConfigurationAudited().getName());
                     }
                 }
             }

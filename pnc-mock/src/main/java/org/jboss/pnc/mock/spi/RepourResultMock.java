@@ -29,4 +29,8 @@ public class RepourResultMock {
         return new RepourResult(CompletionStatus.SUCCESS, "Some log from Repour.", "rootName", "rootVersion");
     }
 
+    public static RepourResult mockFailed() {
+        return new RepourResult(CompletionStatus.FAILED, "Some log from Repour.", "rootName", "rootVersion");
+    }
+
 }

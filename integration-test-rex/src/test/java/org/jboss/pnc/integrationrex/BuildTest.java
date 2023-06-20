@@ -106,10 +106,10 @@ public class BuildTest extends RemoteServices {
                 .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
                 .getToken();
 
+        buildClient = new AdvancedBuildClient(withBearerToken(token));
         buildConfigurationClient = new BuildConfigurationClient(withBearerToken(token));
         groupConfigurationClient = new GroupConfigurationClient(withBearerToken(token));
-        buildUtils = new BuildUtils(new GroupBuildClient(withBearerToken(token)));
-        buildClient = new AdvancedBuildClient(withBearerToken(token));
+        buildUtils = new BuildUtils(buildClient, new GroupBuildClient(withBearerToken(token)));
 
         wsClient.connect(PNC_SOCKET_URL).get();
     }
@@ -153,7 +153,7 @@ public class BuildTest extends RemoteServices {
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED);
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildUtils.buildToFinish(groupBuild.getId(), isIn, isNotIn),
+                () -> buildUtils.groupBuildToFinish(groupBuild.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
     }
@@ -236,7 +236,7 @@ public class BuildTest extends RemoteServices {
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.REJECTED);
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildUtils.buildToFinish(groupBuild.getId(), isIn, isNotIn),
+                () -> buildUtils.groupBuildToFinish(groupBuild.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
     }
@@ -256,7 +256,7 @@ public class BuildTest extends RemoteServices {
         assertThat(groupBuild1).isNotNull().extracting("id").isNotNull().isNotEqualTo("");
 
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildUtils.buildToFinish(groupBuild1.getId(), EnumSet.of(BuildStatus.SUCCESS), null),
+                () -> buildUtils.groupBuildToFinish(groupBuild1.getId(), EnumSet.of(BuildStatus.SUCCESS), null),
                 15,
                 TimeUnit.SECONDS);
 
@@ -270,7 +270,7 @@ public class BuildTest extends RemoteServices {
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.NO_REBUILD_REQUIRED);
         EnumSet<BuildStatus> isNotIn = EnumSet.of(BuildStatus.SUCCESS, BuildStatus.REJECTED);
         ResponseUtils.waitSynchronouslyFor(
-                () -> buildUtils.buildToFinish(groupBuild2.getId(), isIn, isNotIn),
+                () -> buildUtils.groupBuildToFinish(groupBuild2.getId(), isIn, isNotIn),
                 15,
                 TimeUnit.SECONDS);
     }
