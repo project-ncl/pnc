@@ -108,7 +108,7 @@ public class BuildTest extends RemoteServices {
 
         buildConfigurationClient = new BuildConfigurationClient(withBearerToken(token));
         groupConfigurationClient = new GroupConfigurationClient(withBearerToken(token));
-        buildUtils = new BuildUtils(new GroupBuildClient(withBearerToken(token)));
+        buildUtils = new BuildUtils(buildClient, new GroupBuildClient(withBearerToken(token)));
         buildClient = new AdvancedBuildClient(withBearerToken(token));
 
         wsClient.connect(PNC_SOCKET_URL).get();
