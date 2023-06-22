@@ -16,8 +16,9 @@
 -- limitations under the License.
 --
 
-
 BEGIN;
+    ALTER TABLE buildconfigsetrecord ALTER COLUMN id SET DATA TYPE bigint;
+
     CREATE TABLE build_configuration_align_strats
     (
         buildconfiguration_id integer                NOT NULL,
