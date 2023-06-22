@@ -324,14 +324,35 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
                 .map(ServerResponse::getBody)
                 .findFirst();
 
-        Optional<BuildResult> buildResultRest;
-
         if (bpmResponse.isEmpty()) {
             // BPM returned null message
-            buildResultRest = Optional.of(
-                    createEmptyExceptionalResult(
-                            new ProcessException("BPM response is missing for build " + rexTask.getName())));
+
+            switch (rexTask.getStopFlag()) {
+                case NONE:
+                case UNSUCCESSFUL: {
+                    // SYSTEM_ERRORS
+                    if (rexTask.getState() == State.START_FAILED) {
+                        return Optional.of(
+                                createEmptyExceptionalResult(
+                                        new ProcessException(
+                                                "Failed to start BPM process for build " + rexTask.getName())));
+                    } else if (rexTask.getState() == State.FAILED) {
+                        return Optional.of(
+                                createEmptyExceptionalResult(
+                                        new ProcessException(
+                                                "BPM response is missing for build " + rexTask.getName())));
+                    }
+
+                    return Optional.empty();
+                }
+                // dependency was cancelled or failed
+                case CANCELLED:
+                case DEPENDENCY_FAILED:
+                    return Optional.empty();
+            }
         }
+
+        Optional<BuildResult> buildResultRest;
 
         try {
             // valid response from BPM
