@@ -16,10 +16,6 @@
 -- limitations under the License.
 --
 
-BEGIN;
-    ALTER TABLE buildconfigsetrecord ALTER COLUMN id SET DATA TYPE bigint;
-COMMIT;
-
 -- ****************************************************************************
 -- Run the script in NCL-7238 to fix duplicate artifact bugs
 -- ****************************************************************************
