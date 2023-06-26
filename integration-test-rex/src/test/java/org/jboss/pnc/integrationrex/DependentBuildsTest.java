@@ -127,8 +127,6 @@ public class DependentBuildsTest extends RemoteServices {
         GroupConfiguration group = buildConfigurationCreator
                 .newGroupConfiguration("group-pass", Set.of(bc1, bc2, bc3, bc4, bc5));
 
-        // bpm.nextResponseBody(BPMResultsMock.mockBuildResult().getBytes(StandardCharsets.UTF_8), 5);
-
         GroupBuildParameters params = new GroupBuildParameters();
         params.setRebuildMode(RebuildMode.FORCE);
         GroupBuildRequest request = GroupBuildRequest.builder().build();
@@ -177,7 +175,6 @@ public class DependentBuildsTest extends RemoteServices {
                 10,
                 TimeUnit.SECONDS);
 
-        // Thread.sleep(1000L);
         BuildsFilterParameters parameters = new BuildsFilterParameters();
         parameters.setLatest(true);
         parameters.setRunning(false);

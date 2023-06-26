@@ -77,9 +77,6 @@ public class BuildConfigurationCreator {
                 .environment(environment)
                 .scmRepository(scmRepository)
                 .project(project);
-        // if (group != null) {
-        // bcBuilder.groupConfigs(Map.of(group.getId(), group));
-        // }
         if (dependencies != null) {
             Map<String, BuildConfigurationRef> map = dependencies.stream()
                     .collect(Collectors.toMap(BuildConfigurationRef::getName, Function.identity()));
