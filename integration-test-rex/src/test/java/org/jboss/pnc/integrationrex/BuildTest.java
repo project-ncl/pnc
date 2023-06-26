@@ -91,7 +91,7 @@ public class BuildTest extends RemoteServices {
 
     private BuildClient buildClient;
 
-    BuildUtils buildUtils;
+    private BuildUtils buildUtils;
 
     private static final String PNC_SOCKET_URL = "ws://localhost:8080" + NOTIFICATION_PATH;
     WebSocketClient wsClient = new VertxWebSocketClient();

@@ -174,13 +174,10 @@ public class WaitingBuildTest extends RemoteServices {
     public ListenerUnsubscriber onBuildChangedNotification(
             String buildConfigId,
             Consumer<BuildChangedNotification> onChange) {
-        // wsClient.connect(PNC_SOCKET_URL).join();
         try {
             return wsClient.onBuildChangedNotification(onChange, withBuildConfiguration(buildConfigId));
         } catch (ConnectionClosedException e) {
             throw new RuntimeException(e);
-        } finally {
-            // wsClient.disconnect();
         }
     }
 
