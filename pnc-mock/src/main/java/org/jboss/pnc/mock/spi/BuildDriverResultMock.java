@@ -28,14 +28,8 @@ import java.util.Optional;
  */
 public class BuildDriverResultMock {
 
-    public static final String BUILD_LOG = "The quick brown fox jumps over the lazy dog.\nFinished: SUCCESS";
-
     public static BuildDriverResult mockResult(BuildStatus status) {
         return new BuildDriverResult() {
-            @Override
-            public String getBuildLog() {
-                return BUILD_LOG;
-            }
 
             @Override
             public BuildStatus getBuildStatus() {

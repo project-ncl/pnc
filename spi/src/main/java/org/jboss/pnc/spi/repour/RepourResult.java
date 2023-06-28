@@ -40,9 +40,6 @@ public class RepourResult implements Serializable {
     private final CompletionStatus completionStatus;
 
     @Getter
-    private final String log;
-
-    @Getter
     private final String executionRootName;
 
     @Getter
@@ -54,12 +51,6 @@ public class RepourResult implements Serializable {
 
     @Override
     public String toString() {
-        return "RepourResult{" + "completionStatus=" + completionStatus + ", log='" + log + '\''
-                + ", executionRootName='" + executionRootName + '\'' + ", executionRootVersion='" + executionRootVersion
-                + '\'' + '}';
-    }
-
-    public String toStringLimited() {
         return "RepourResult{" + "completionStatus=" + completionStatus + ", executionRootName='" + executionRootName
                 + '\'' + ", executionRootVersion='" + executionRootVersion + '\'' + '}';
     }

@@ -135,7 +135,7 @@ public class DatastoreAdapter {
 
             if (buildResult.getRepourResult().isPresent()) {
                 RepourResult repourResult = buildResult.getRepourResult().get();
-                buildRecordBuilder.repourLog(repourResult.getLog());
+                buildRecordBuilder.repourLog("TODO: Remove me");
                 buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
                 CompletionStatus repourCompletionStatus = repourResult.getCompletionStatus();
@@ -186,7 +186,7 @@ public class DatastoreAdapter {
 
             if (buildResult.getBuildDriverResult().isPresent()) {
                 BuildDriverResult buildDriverResult = buildResult.getBuildDriverResult().get();
-                buildRecordBuilder.appendLog(buildDriverResult.getBuildLog());
+                buildRecordBuilder.appendLog("TODO: remove me");
                 buildDriverResult.getOutputChecksum().ifPresent(buildRecordBuilder::buildOutputChecksum);
                 buildRecordStatus = buildDriverResult.getBuildStatus(); // TODO buildRecord should use CompletionStatus
             } else if (!buildResult.hasFailed()) {
@@ -236,7 +236,7 @@ public class DatastoreAdapter {
             if (buildResult.getRepositoryManagerResult().isPresent()) {
                 RepositoryManagerResult repositoryManagerResult = buildResult.getRepositoryManagerResult().get();
 
-                buildRecordBuilder.appendLog(repositoryManagerResult.getLog());
+                buildRecordBuilder.appendLog("TODO: remove me");
                 if (repositoryManagerResult.getCompletionStatus() != null) {
                     switch (repositoryManagerResult.getCompletionStatus()) { // TODO, do not mix statuses
                         case SUCCESS:
@@ -386,16 +386,16 @@ public class DatastoreAdapter {
             result.getRepourResult().ifPresent(repourResult -> {
                 buildRecordBuilder.executionRootName(repourResult.getExecutionRootName());
                 buildRecordBuilder.executionRootVersion(repourResult.getExecutionRootVersion());
-                buildRecordBuilder.repourLog(repourResult.getLog());
+                buildRecordBuilder.repourLog("TODO: remove me");
             });
 
             result.getBuildDriverResult().ifPresent(buildDriverResult -> {
-                errorLog.append(buildDriverResult.getBuildLog());
+                errorLog.append("TODO: remove me");
                 errorLog.append("\n---- End Build Log ----\n");
             });
 
             result.getRepositoryManagerResult().ifPresent(rmr -> {
-                errorLog.append(rmr.getLog());
+                errorLog.append("TODO: remove me");
                 errorLog.append("\n---- End Repository Manager Log ----\n");
                 errorLog.append("\n---- Start Built Artifacts List ----\n");
                 rmr.getBuiltArtifacts().forEach(b -> errorLog.append(b).append('\n'));

@@ -97,12 +97,11 @@ public class BuildResultRest extends BpmEvent implements Serializable {
         return "BuildResultRest{" + "completionStatus=" + completionStatus + ", processException=" + processException
                 + ", processLog='" + StringUtils.trim(processLog, 100) + '\'' + ", buildExecutionConfiguration="
                 + buildExecutionConfiguration + ", buildDriverResult="
-                + (buildDriverResult == null ? null : buildDriverResult.toStringLimited())
-                + ", repositoryManagerResult="
+                + (buildDriverResult == null ? null : buildDriverResult) + ", repositoryManagerResult="
                 + (repositoryManagerResult == null ? null : repositoryManagerResult.toStringLimited())
                 + ", environmentDriverResult="
                 + (environmentDriverResult == null ? null : environmentDriverResult.toStringLimited())
-                + ", repourResult=" + (repourResult == null ? null : repourResult.toStringLimited()) + '}';
+                + ", repourResult=" + (repourResult == null ? null : repourResult) + '}';
     }
 
     public String toFullLogString() {

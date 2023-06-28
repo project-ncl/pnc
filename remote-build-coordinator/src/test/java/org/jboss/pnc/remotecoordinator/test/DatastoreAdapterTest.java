@@ -60,9 +60,6 @@ import static org.mockito.Mockito.when;
  */
 public class DatastoreAdapterTest {
 
-    private static final String REPOSITORY_MANAGER_LOG = "Repository manager log.";
-    private static final String BUILD_LOG = "Build Driver log.";
-
     @Test
     public void shouldStoreNoRequiredRebuild() throws DatastoreException {
         // given
@@ -98,8 +95,6 @@ public class DatastoreAdapterTest {
         BuildRecord buildRecord = buildRecords.get(0);
 
         Assert.assertEquals(buildRecord.getStatus(), BuildStatus.SUCCESS);
-        Assert.assertTrue(buildRecord.getBuildLog().contains(BUILD_LOG));
-        Assert.assertTrue(buildRecord.getBuildLog().contains(REPOSITORY_MANAGER_LOG));
     }
 
     @Test
@@ -120,8 +115,6 @@ public class DatastoreAdapterTest {
         BuildRecord buildRecord = buildRecords.get(0);
 
         Assert.assertEquals(BuildStatus.FAILED, buildRecord.getStatus());
-        Assert.assertTrue(buildRecord.getBuildLog().contains(BUILD_LOG));
-        Assert.assertTrue(buildRecord.getBuildLog().contains(REPOSITORY_MANAGER_LOG));
     }
 
     @Test
@@ -162,7 +155,6 @@ public class DatastoreAdapterTest {
         Assert.assertEquals(buildRecord.getStatus(), BuildStatus.SUCCESS);
         Assert.assertEquals(repourResult.getExecutionRootName(), buildRecord.getExecutionRootName());
         Assert.assertEquals(repourResult.getExecutionRootVersion(), buildRecord.getExecutionRootVersion());
-        Assert.assertEquals(repourResult.getLog(), buildRecord.getRepourLog());
     }
 
     @Test
@@ -215,11 +207,9 @@ public class DatastoreAdapterTest {
             CompletionStatus completionStatus) throws DatastoreException {
         BuildDriverResult buildDriverResult = mock(BuildDriverResult.class);
         when(buildDriverResult.getBuildStatus()).thenReturn(buildStatus);
-        when(buildDriverResult.getBuildLog()).thenReturn(BUILD_LOG);
 
         RepositoryManagerResult repositoryManagerResult = mock(RepositoryManagerResult.class);
         when(repositoryManagerResult.getCompletionStatus()).thenReturn(completionStatus);
-        when(repositoryManagerResult.getLog()).thenReturn(REPOSITORY_MANAGER_LOG);
 
         BuildExecutionConfiguration buildExecutionConfiguration = mock(BuildExecutionConfiguration.class);
 

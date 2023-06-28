@@ -637,9 +637,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                             if (repourResult.getCompletionStatus().isFailed()) {
                                 exception = new ProcessException("Repour completed with system error.");
                                 log.debug(
-                                        "[buildTaskId: {}] Storing build result with system error from repour: {}.",
-                                        buildTaskId,
-                                        repourResult.getLog());
+                                        "[buildTaskId: {}] Storing build result with system error from repour.",
+                                        buildTaskId);
                             } else {
                                 exception = new ProcessException("Build completed with system error but no exception.");
                                 log.error(

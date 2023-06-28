@@ -56,8 +56,8 @@ public class BuildResultRestTest {
                 Optional.empty());
         buildResultRest.setEnvironmentDriverResult(environmentDriverResult);
 
-        buildResultRest.setRepourResult(
-                new RepourResult(CompletionStatus.SUCCESS, "Repour Success", "org.jboss", "1.1.0.Final-redhat-1"));
+        buildResultRest
+                .setRepourResult(new RepourResult(CompletionStatus.SUCCESS, "org.jboss", "1.1.0.Final-redhat-1"));
 
         buildResultRest.toString();
     }

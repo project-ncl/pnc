@@ -198,10 +198,6 @@ public class StatusUpdatesTest {
 
     private BuildResult createBuildResult() {
         BuildDriverResult driverResult = new BuildDriverResult() {
-            @Override
-            public String getBuildLog() {
-                return "";
-            }
 
             @Override
             public BuildStatus getBuildStatus() {

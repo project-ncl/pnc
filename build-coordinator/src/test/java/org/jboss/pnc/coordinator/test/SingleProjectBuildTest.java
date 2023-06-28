@@ -71,7 +71,6 @@ public class SingleProjectBuildTest extends ProjectBuilder {
 
         BuildRecord buildRecord = buildRecords.get(0);
         String buildLog = buildRecord.getBuildLog();
-        Assert.assertTrue("Invalid build log.", buildLog.contains(BuildDriverResultMock.BUILD_LOG));
 
         assertArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertArtifactsPresent(buildRecord.getDependencies());

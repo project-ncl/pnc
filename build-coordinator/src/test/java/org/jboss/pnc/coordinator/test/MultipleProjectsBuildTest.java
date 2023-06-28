@@ -103,8 +103,6 @@ public class MultipleProjectsBuildTest extends ProjectBuilder {
         Assert.assertEquals("Wrong datastore results count.", N_PROJECTS, buildRecords.size());
 
         BuildRecord buildRecord = buildRecords.get(0);
-        String buildLog = buildRecord.getBuildLog();
-        Assert.assertTrue("Invalid build log: " + buildLog, buildLog.contains("Finished: SUCCESS"));
 
         assertArtifactsPresent(buildRecord.getBuiltArtifacts());
         assertArtifactsPresent(buildRecord.getDependencies());

@@ -112,10 +112,9 @@ public class BPMWireMock extends WireMockRule {
                 mockImportedArtifact(buildID + "-12"),
                 mockArtifact(buildID + "-3"));
         String buildContentId = "build-" + buildID;
-        String log = "Success";
         CompletionStatus completionStatus = CompletionStatus.SUCCESS;
 
-        return new RepositoryManagerResultRest(builtArtifacts, dependencies, buildContentId, log, completionStatus);
+        return new RepositoryManagerResultRest(builtArtifacts, dependencies, buildContentId, completionStatus);
     }
 
     public static final String IDENTIFIER_PREFIX = "org.jboss.pnc:mock.artifact";
