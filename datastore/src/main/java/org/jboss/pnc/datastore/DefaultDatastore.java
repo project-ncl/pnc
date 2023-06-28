@@ -223,7 +223,7 @@ public class DefaultDatastore implements Datastore {
             // [NCLSUP-912] partition the constraints in maximum size to avoid a stackoverflow in Hibernate
             // We use the Guava Lists.partition, which requires a List. Hence we have to convert it also
             List<List<Artifact.IdentifierSha256>> partitionedList = Lists
-                    .partition(artifactConstraints.stream().collect(Collectors.toList()), QUERY_ARTIFACT_PARITION_SIZE);
+                    .partition(new ArrayList(artifactConstraints)), QUERY_ARTIFACT_PARITION_SIZE);
             for (List<Artifact.IdentifierSha256> partition : partitionedList) {
                 List<Artifact> artifactsInDb = artifactRepository
                         .queryWithPredicates(ArtifactPredicates.withIdentifierAndSha256(partition));
