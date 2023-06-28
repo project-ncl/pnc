@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore;
 
+import com.google.common.collect.Lists;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
@@ -63,6 +64,11 @@ import static org.jboss.pnc.spi.datastore.predicates.UserPredicates.withUserName
 
 @Stateless
 public class DefaultDatastore implements Datastore {
+
+    /**
+     * [NCLSUP-912] Partition the search for existing artifacts by this size to avoid a StackOverflow error in Hibernate
+     */
+    public static final int QUERY_ARTIFACT_PARITION_SIZE = 1000;
 
     public static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -214,11 +220,17 @@ public class DefaultDatastore implements Datastore {
 
         if (artifactConstraints.size() > 0) {
             logger.debug("Searching artifacts by {} constraints.", artifactConstraints.size());
-            List<Artifact> artifactsInDb = artifactRepository
-                    .queryWithPredicates(ArtifactPredicates.withIdentifierAndSha256(artifactConstraints));
-            for (Artifact artifact : artifactsInDb) {
-                logger.trace("Found in DB, adding to cache. Artifact {}", artifact);
-                artifactCache.put(artifact.getIdentifierSha256(), artifact);
+            // [NCLSUP-912] partition the constraints in maximum size to avoid a stackoverflow in Hibernate
+            // We use the Guava Lists.partition, which requires a List. Hence we have to convert it also
+            List<List<Artifact.IdentifierSha256>> partitionedList = Lists
+                    .partition(artifactConstraints.stream().collect(Collectors.toList()), QUERY_ARTIFACT_PARITION_SIZE);
+            for (List<Artifact.IdentifierSha256> partition : partitionedList) {
+                List<Artifact> artifactsInDb = artifactRepository
+                        .queryWithPredicates(ArtifactPredicates.withIdentifierAndSha256(partition));
+                for (Artifact artifact : artifactsInDb) {
+                    logger.trace("Found in DB, adding to cache. Artifact {}", artifact);
+                    artifactCache.put(artifact.getIdentifierSha256(), artifact);
+                }
             }
         }
 

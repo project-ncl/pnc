@@ -143,7 +143,7 @@ public class ArtifactPredicates {
                 : cb.and());
     }
 
-    public static Predicate<Artifact> withIdentifierAndSha256(Set<Artifact.IdentifierSha256> identifierSha256Set) {
+    public static Predicate<Artifact> withIdentifierAndSha256(Iterable<Artifact.IdentifierSha256> identifierSha256Set) {
         return ((root, query, cb) -> {
             List<javax.persistence.criteria.Predicate> predicates = new ArrayList<>();
             for (Artifact.IdentifierSha256 identifierSha256 : identifierSha256Set) {
