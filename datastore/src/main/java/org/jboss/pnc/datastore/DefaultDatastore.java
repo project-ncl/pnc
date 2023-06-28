@@ -19,7 +19,6 @@ package org.jboss.pnc.datastore;
 
 import com.google.common.collect.Lists;
 import org.jboss.pnc.api.enums.AlignmentPreference;
-import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -49,6 +48,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -225,7 +225,7 @@ public class DefaultDatastore implements Datastore {
             // [NCLSUP-912] partition the constraints in maximum size to avoid a stackoverflow in Hibernate
             // We use the Guava Lists.partition, which requires a List. Hence we have to convert it also
             List<List<Artifact.IdentifierSha256>> partitionedList = Lists
-                    .partition(artifactConstraints.stream().collect(Collectors.toList()), QUERY_ARTIFACT_PARITION_SIZE);
+                    .partition(new ArrayList<>(artifactConstraints), QUERY_ARTIFACT_PARITION_SIZE);
             for (List<Artifact.IdentifierSha256> partition : partitionedList) {
                 List<Artifact> artifactsInDb = artifactRepository
                         .queryWithPredicates(ArtifactPredicates.withIdentifierAndSha256(partition));
