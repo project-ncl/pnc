@@ -475,17 +475,30 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
 
     public void updateBuildTaskStatus(BuildTaskRef task, BuildCoordinationStatus status) {
         Build build = buildMapper.fromBuildTask(taskMappers.toBuildTask(task));
-        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(
-                build,
-                build.getStatus(),
-                BuildStatus.fromBuildCoordinationStatus(status));
+        BuildStatus oldStatus = build.getStatus();
+        BuildStatus newStatus = BuildStatus.fromBuildCoordinationStatus(status);
+        BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(build, oldStatus, newStatus);
         log.debug("Updated build task {} status to {}; new coord status: {}", task.getId(), buildStatusChanged, status);
 
-        userLog.info("Build status updated to {}.", status);
+        logProcessStageChange(oldStatus, newStatus);
 
         // TODO make sure it satisfies NCL-5885
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
         log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
+    }
+
+    private void logProcessStageChange(BuildStatus oldStatus, BuildStatus newStatus) {
+        if (BuildStatus.WAITING_FOR_DEPENDENCIES.equals(oldStatus)) {
+            ProcessStageUtils.logProcessStageEnd(BuildStatus.WAITING_FOR_DEPENDENCIES.toString());
+        } else if (BuildStatus.ENQUEUED.equals(newStatus)) {
+            ProcessStageUtils.logProcessStageEnd(BuildStatus.ENQUEUED.toString());
+        }
+
+        if (BuildStatus.WAITING_FOR_DEPENDENCIES.equals(newStatus)) {
+            ProcessStageUtils.logProcessStageBegin(BuildStatus.WAITING_FOR_DEPENDENCIES.toString());
+        } else if (BuildStatus.ENQUEUED.equals(newStatus)) {
+            ProcessStageUtils.logProcessStageBegin(BuildStatus.ENQUEUED.toString());
+        }
     }
 
     /**
@@ -608,10 +621,15 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     @Override
     // TODO propagate DatastoreException?
     public void completeBuild(BuildTaskRef buildTask, Optional<BuildResult> buildResult) {
-        if (buildResult.isPresent()) {
-            completeBuildWithResult(buildTask, buildResult.get());
-        } else {
-            completeRejectedBuild(buildTask);
+        try {
+            if (buildResult.isPresent()) {
+                completeBuildWithResult(buildTask, buildResult.get());
+            } else {
+                completeRejectedBuild(buildTask);
+            }
+        } finally {
+            // Starts when the build execution completes
+            ProcessStageUtils.logProcessStageEnd("FINALIZING_BUILD", "Finalizing completed.");
         }
     }
 
@@ -700,9 +718,6 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         } catch (Throwable e) {
             log.error("[buildTaskId: " + buildTaskId + "] Cannot store results to datastore.", e);
             updateBuildTaskStatus(buildTaskRef, BuildCoordinationStatus.SYSTEM_ERROR);
-        } finally {
-            // Starts when the build execution completes
-            ProcessStageUtils.logProcessStageEnd("FINALIZING_BUILD", "Finalizing completed.");
         }
     }
 
