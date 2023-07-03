@@ -490,7 +490,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     private void logProcessStageChange(BuildStatus oldStatus, BuildStatus newStatus) {
         if (BuildStatus.WAITING_FOR_DEPENDENCIES.equals(oldStatus)) {
             ProcessStageUtils.logProcessStageEnd(BuildStatus.WAITING_FOR_DEPENDENCIES.toString());
-        } else if (BuildStatus.ENQUEUED.equals(newStatus)) {
+        } else if (BuildStatus.ENQUEUED.equals(oldStatus)) {
             ProcessStageUtils.logProcessStageEnd(BuildStatus.ENQUEUED.toString());
         }
 
