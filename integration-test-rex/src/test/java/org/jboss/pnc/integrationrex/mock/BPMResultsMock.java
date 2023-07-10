@@ -42,7 +42,9 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class BPMResultsMock {
@@ -50,6 +52,22 @@ public class BPMResultsMock {
     private static final Logger logger = LoggerFactory.getLogger(BPMResultsMock.class);
 
     private static final ObjectMapper objectMapper = new JacksonProvider().getMapper();
+
+    @SneakyThrows
+    public static String mockBuildResultSuccess() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", true);
+        result.put("response", mockBuildResult());
+        return objectMapper.writeValueAsString(result);
+    }
+
+    @SneakyThrows
+    public static String mockBuildResultFailed() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("status", false);
+        result.put("response", mockFailedBuildResult());
+        return objectMapper.writeValueAsString(result);
+    }
 
     @SneakyThrows
     public static String mockBuildResult() {
