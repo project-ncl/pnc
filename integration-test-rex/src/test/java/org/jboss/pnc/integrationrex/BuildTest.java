@@ -18,10 +18,6 @@
 package org.jboss.pnc.integrationrex;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
-import com.github.tomakehurst.wiremock.http.RequestMethod;
-import com.github.tomakehurst.wiremock.http.trafficlistener.ConsoleNotifyingWiremockNetworkTrafficListener;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -42,7 +38,6 @@ import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.integrationrex.mock.BPMResultsMock;
-import org.jboss.pnc.integrationrex.mock.LogJsonAction;
 import org.jboss.pnc.integrationrex.utils.BuildUtils;
 import org.jboss.pnc.integrationrex.utils.ResponseUtils;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -58,8 +53,6 @@ import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wiremock.webhooks.WebhookDefinition;
-import org.wiremock.webhooks.Webhooks;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -71,10 +64,12 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.integrationrex.WireMockUtils.baseBPMWebhook;
+import static org.jboss.pnc.integrationrex.WireMockUtils.defaultConfiguration;
+import static org.jboss.pnc.integrationrex.WireMockUtils.response200;
 import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.NOTIFICATION_PATH;
 import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
 
@@ -530,26 +525,13 @@ public class BuildTest extends RemoteServices {
         private final WireMockServer wireMockServer;
 
         public BPMWireMock(int port) {
-            wireMockServer = new WireMockServer(
-                    WireMockConfiguration.options()
-                            .networkTrafficListener(new ConsoleNotifyingWiremockNetworkTrafficListener())
-                            .port(port)
-                            .extensions(LogJsonAction.class)
-                            .extensions(ResponseTemplateTransformer.builder().global(false).maxCacheEntries(0L).build())
-                            .extensions(Webhooks.class));
+            wireMockServer = new WireMockServer(defaultConfiguration(port));
 
             wireMockServer.stubFor(
-                    any(urlMatching(".*"))
-                            .willReturn(aResponse().withStatus(200).withHeader("Content-Type", "application/json"))
+                    any(urlMatching(".*")).willReturn(response200())
                             .withPostServeAction(
                                     "webhook",
-                                    new WebhookDefinition().withMethod(RequestMethod.POST)
-                                            .withHeader("Content-Type", "application/json")
-                                            .withHeader("Authorization", "{{originalRequest.headers.Authorization}}")
-                                            .withUrl("{{jsonPath originalRequest.body '$.callback'}}")
-                                            .withBody(
-                                                    "{ \"status\":true, \"response\": "
-                                                            + BPMResultsMock.mockBuildResult() + "}")
+                                    baseBPMWebhook().withBody(BPMResultsMock.mockBuildResultSuccess())
                                             .withFixedDelay(500)));
             wireMockServer.start();
         }
