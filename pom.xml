@@ -148,6 +148,7 @@
     <version.arquillian-wildfly>3.0.1.Final</version.arquillian-wildfly>
     <version.logback>1.2.3</version.logback>
     <version.git-commit-id-plugin>4.9.10</version.git-commit-id-plugin>
+    <version.org.jsoup.jsoup>1.16.1</version.org.jsoup.jsoup>
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
 
     <datetime>${timestamp}</datetime>
@@ -1109,7 +1110,11 @@
         <artifactId>infinispan-core</artifactId>
         <version>${version.org.infinispan.infinispan-core}</version>
       </dependency>
-
+      <dependency>
+          <groupId>org.jsoup</groupId>
+          <artifactId>jsoup</artifactId>
+          <version>${version.org.jsoup.jsoup}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
