@@ -266,7 +266,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
     private boolean shouldSkip(State previousState, State newState, StopFlag stopFlag) {
         // For ongoing cancellations, we don't have BuildStatuses
-        EnumSet<State> ignoredStates = EnumSet.of(State.STOPPING);
+        EnumSet<State> ignoredStates = EnumSet.of(State.STOP_REQUESTED, State.STOPPING);
         if (ignoredStates.contains(newState)) {
             logger.debug("Skipping transition for state {}.", newState);
             return true;

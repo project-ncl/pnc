@@ -144,6 +144,7 @@ public interface BuildTaskMappers {
                 return BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES;
             case ENQUEUED:
                 return BuildCoordinationStatus.ENQUEUED;
+            case STOP_REQUESTED:
             case STARTING:
             case STOPPING:
             case UP:
