@@ -19,6 +19,7 @@
 package org.jboss.pnc.remotecoordinator.builder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.entity.ContentType;
 import org.jboss.pnc.api.constants.HttpHeaders;
@@ -139,6 +140,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         this.rexClient = rexClient;
     }
 
+    @WithSpan
     public void startBuilding(Graph<RemoteBuildTask> buildGraph, User user, Long buildConfigSetRecordId)
             throws ScheduleException {
         BpmEndpointUrlFactory bpmUrl = new BpmEndpointUrlFactory(bpmConfig.getBpmNewBaseUrl());
@@ -178,6 +180,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         }
     }
 
+    @WithSpan
     @Override
     public void cancel(String taskId) throws RemoteRequestException {
         try {
@@ -187,6 +190,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         }
     }
 
+    @WithSpan
     @Override
     public Optional<BuildTaskRef> getSpecific(String taskId) throws RemoteRequestException, MissingDataException {
         try {
@@ -214,6 +218,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         }
     }
 
+    @WithSpan
     @Override
     public List<BuildTaskRef> getBuildTasksByBCSRId(Long buildConfigSetRecordId)
             throws RemoteRequestException, MissingDataException {
@@ -238,6 +243,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         throw new UnsupportedOperationException();
     }
 
+    @WithSpan
     @Override
     public Collection<BuildTaskRef> getUnfinishedTasks() throws RemoteRequestException, MissingDataException {
         return getBuildTasksInState(UNFINISHED_STATES);
