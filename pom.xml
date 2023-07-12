@@ -149,6 +149,7 @@
     <version.logback>1.2.3</version.logback>
     <version.git-commit-id-plugin>4.9.10</version.git-commit-id-plugin>
     <version.maven-replacer-plugin>1.4.1</version.maven-replacer-plugin>
+    <version.org.jsoup.jsoup>1.16.1</version.org.jsoup.jsoup>
 
     <datetime>${timestamp}</datetime>
     <pushChanges>true</pushChanges>
@@ -1109,7 +1110,16 @@
         <artifactId>infinispan-core</artifactId>
         <version>${version.org.infinispan.infinispan-core}</version>
       </dependency>
-
+      <dependency>
+        <groupId>org.hibernate.validator</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>${version.org.hibernate.validator}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.jsoup</groupId>
+          <artifactId>jsoup</artifactId>
+          <version>${version.org.jsoup.jsoup}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

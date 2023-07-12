@@ -18,6 +18,7 @@
 package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.SystemImageType;
@@ -49,27 +50,32 @@ public class Environment implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     private final String id;
 
     /**
      * Environment name.
      */
+    @NoHtml
     private final String name;
 
     /**
      * Environment description.
      */
+    @NoHtml
     private final String description;
 
     /**
      * The URL of the repository which contains the build system image.
      */
+    @NoHtml
     private final String systemImageRepositoryUrl;
 
     /**
      * A unique identifier representing the system image, for example a Docker container ID or a checksum of a VM image.
      */
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml
     private final String systemImageId;
 
     /**

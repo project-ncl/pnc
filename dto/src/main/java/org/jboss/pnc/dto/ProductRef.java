@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
@@ -52,6 +53,7 @@ public class ProductRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**
@@ -59,12 +61,14 @@ public class ProductRef implements DTOEntity {
      */
     @PatchSupport({ REPLACE })
     @NotBlank(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml
     protected final String name;
 
     /**
      * Product description.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String description;
 
     /**
@@ -75,18 +79,21 @@ public class ProductRef implements DTOEntity {
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     @Pattern(regexp = Patterns.PRODUCT_ABBREVIATION, groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml
     protected final String abbreviation;
 
     /**
      * Comma separated list of product managers.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String productManagers;
 
     /**
      * The code given to the product by Product Pages.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String productPagesCode;
 
     @JsonPOJOBuilder(withPrefix = "")

@@ -47,6 +47,10 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>pnc-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.jboss.pnc</groupId>
+            <artifactId>pnc-common</artifactId>
+        </dependency>
         <!-- REST dependencies -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -98,6 +102,14 @@
             <groupId>org.jboss.pnc</groupId>
             <artifactId>test-common</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
         </dependency>
     </dependencies>
 

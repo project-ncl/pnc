@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
@@ -44,6 +45,7 @@ public class ProductMilestoneCloseResultRef implements DTOEntity {
      * ID of the close attempt.
      */
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml
     protected final String id;
 
     /**

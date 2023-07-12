@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.SupportLevel;
@@ -52,12 +53,14 @@ public class ProductReleaseRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**
      * Release version.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String version;
 
     /**
@@ -79,12 +82,14 @@ public class ProductReleaseRef implements DTOEntity {
      * products and by the CVE Engine to map errata to containers when grading.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String commonPlatformEnumeration;
 
     /**
      * Code given by the Product Pages to the release.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String productPagesCode;
 
     @JsonPOJOBuilder(withPrefix = "")

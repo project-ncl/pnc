@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
+import org.jboss.pnc.common.validator.NoHtml;
 
 import java.util.List;
 
@@ -33,6 +34,10 @@ import java.util.List;
 public class AlignmentStrategy {
     private final String dependencyOverride;
     private final List<String> ranks;
+
+    @NoHtml
     private final String denyList;
+
+    @NoHtml
     private final String allowList;
 }

@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.processor.annotation.PatchSupport;
@@ -50,6 +51,7 @@ public class ProjectRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**
@@ -57,36 +59,42 @@ public class ProjectRef implements DTOEntity {
      */
     @PatchSupport({ REPLACE })
     @NotBlank(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml
     protected final String name;
 
     /**
      * Project description.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String description;
 
     /**
      * URL of the issue tracker for the project.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String issueTrackerUrl;
 
     /**
      * URL of the project.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String projectUrl;
 
     /**
      * The engineering team in charge of the project.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String engineeringTeam;
 
     /**
      * The technical leader of the project.
      */
     @PatchSupport({ REPLACE })
+    @NoHtml
     protected final String technicalLeader;
 
     @JsonPOJOBuilder(withPrefix = "")
