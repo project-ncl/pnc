@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
@@ -44,11 +45,13 @@ public class User implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**
      * Username of the user.
      */
+    @NoHtml
     protected final String username;
 
     @JsonPOJOBuilder(withPrefix = "")

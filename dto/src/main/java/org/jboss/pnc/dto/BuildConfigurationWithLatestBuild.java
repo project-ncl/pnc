@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.ToString;
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.enums.BuildType;
 
 import java.time.Instant;
@@ -45,6 +46,7 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
     /**
      * Username of the user who ran the last build.
      */
+    @NoHtml
     private final String latestBuildUsername;
 
     @lombok.Builder(builderClassName = "Builder", builderMethodName = "builderWithLatestBuild")

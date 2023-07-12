@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
@@ -55,6 +56,7 @@ public class ProductMilestoneRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**

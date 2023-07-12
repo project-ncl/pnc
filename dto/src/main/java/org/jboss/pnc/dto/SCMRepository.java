@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.constraints.SCMUrl;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
@@ -50,6 +51,7 @@ public class SCMRepository implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**
@@ -58,6 +60,7 @@ public class SCMRepository implements DTOEntity {
      */
     @NotBlank(groups = { WhenUpdating.class, WhenCreatingNew.class })
     @SCMUrl(groups = { WhenUpdating.class, WhenCreatingNew.class })
+    @NoHtml
     protected final String internalUrl;
 
     /**
@@ -65,6 +68,7 @@ public class SCMRepository implements DTOEntity {
      */
     @PatchSupport({ REPLACE })
     @SCMUrl(groups = { WhenUpdating.class, WhenCreatingNew.class })
+    @NoHtml
     protected final String externalUrl;
 
     /**

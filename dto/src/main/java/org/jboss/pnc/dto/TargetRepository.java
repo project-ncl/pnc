@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
 
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.RepositoryType;
@@ -45,6 +46,7 @@ public class TargetRepository implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**
@@ -57,6 +59,7 @@ public class TargetRepository implements DTOEntity {
      * Identifier to link repository configurations (eg. hostname)
      */
     @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
+    @NoHtml
     protected final String identifier;
 
     /**
@@ -71,6 +74,7 @@ public class TargetRepository implements DTOEntity {
      * for https://repo1.maven.org/maven2/ or "" (empty string) when the repository content starts at root
      */
     @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
+    @NoHtml
     protected final String repositoryPath;
 
     @JsonPOJOBuilder(withPrefix = "")

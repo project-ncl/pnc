@@ -18,6 +18,7 @@
 package org.jboss.pnc.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildType;
@@ -49,6 +50,7 @@ public class BuildConfigurationRevisionRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**
@@ -59,6 +61,7 @@ public class BuildConfigurationRevisionRef implements DTOEntity {
     /**
      * Build config name.
      */
+    @NoHtml
     protected final String name;
 
     /**
@@ -69,6 +72,7 @@ public class BuildConfigurationRevisionRef implements DTOEntity {
     /**
      * SCM revision to build.
      */
+    @NoHtml
     protected final String scmRevision;
 
     /**

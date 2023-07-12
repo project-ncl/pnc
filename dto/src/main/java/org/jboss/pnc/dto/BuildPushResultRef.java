@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildPushStatus;
@@ -45,12 +46,14 @@ public class BuildPushResultRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**
      * ID of the build pushed.
      */
     @NotNull
+    @NoHtml
     protected final String buildId;
 
     /**
@@ -67,11 +70,13 @@ public class BuildPushResultRef implements DTOEntity {
     /**
      * Link to Brew.
      */
+    @NoHtml
     protected final String brewBuildUrl;
 
     /**
      * Identificator of log context. Logs related to this operation will have this log context id set.
      */
+    @NoHtml
     protected final String logContext;
 
     /**

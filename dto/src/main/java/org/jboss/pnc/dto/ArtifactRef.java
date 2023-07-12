@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.dto;
 
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -52,6 +53,7 @@ public class ArtifactRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**
@@ -60,12 +62,14 @@ public class ArtifactRef implements DTOEntity {
      * type.
      */
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    @NoHtml
     protected final String identifier;
 
     /**
      * A purl is a URL string with format scheme:type/namespace/name@version?qualifiers#subpath useful to reliably
      * reference the same software package using a simple and expressive syntax and conventions based on familiar URLs
      */
+    @NoHtml
     protected final String purl;
 
     /**
@@ -85,26 +89,31 @@ public class ArtifactRef implements DTOEntity {
     /**
      * MD5 checksum of the artifact.
      */
+    @NoHtml
     protected final String md5;
 
     /**
      * SHA-1 checksum of the artifact.
      */
+    @NoHtml
     protected final String sha1;
 
     /**
      * SHA-256 checksum of the artifact.
      */
+    @NoHtml
     protected final String sha256;
 
     /**
      * Filename of the artifact.
      */
+    @NoHtml
     protected final String filename;
 
     /**
      * Path in the repository where the artifact file is available.
      */
+    @NoHtml
     protected final String deployPath;
 
     /**
@@ -116,6 +125,7 @@ public class ArtifactRef implements DTOEntity {
      * The location from which this artifact was originally downloaded for import. When this artifact was built by PNC
      * the value is null.
      */
+    @NoHtml
     protected final String originUrl;
 
     /**
@@ -126,11 +136,13 @@ public class ArtifactRef implements DTOEntity {
     /**
      * Internal url to the artifact using internal (cloud) network domain.
      */
+    @NoHtml
     protected final String deployUrl;
 
     /**
      * Public url to the artifact using public network domain.
      */
+    @NoHtml
     protected final String publicUrl;
     /**
      * The time when the artifact was created.

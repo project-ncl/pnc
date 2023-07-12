@@ -31,6 +31,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.NPMArtifact;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
+import org.jboss.pnc.common.validator.NoHtml;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
@@ -51,6 +52,7 @@ public class OperationRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
+    @NoHtml
     protected final String id;
 
     /**
