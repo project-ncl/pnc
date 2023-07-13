@@ -26,16 +26,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
-import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
+import org.jboss.pnc.rest.api.parameters.GroupBuildsFilterParameters;
 import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 
@@ -74,7 +72,14 @@ public class AdvancedGroupConfigurationClient extends GroupConfigurationClient i
     private GroupBuild fallbackSupplier(String gcId) throws RemoteResourceException {
         GroupBuild build = null;
         try (GroupConfigurationClient client = new GroupConfigurationClient(configuration)) {
-            build = client.getAllGroupBuilds(gcId, Optional.of("=desc=startTime"), Optional.empty()).iterator().next();
+            build = client
+                    .getAllGroupBuilds(
+                            gcId,
+                            new GroupBuildsFilterParameters(),
+                            Optional.of("=desc=startTime"),
+                            Optional.empty())
+                    .iterator()
+                    .next();
         }
         return build;
     }

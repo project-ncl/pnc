@@ -23,19 +23,26 @@ import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupBuildRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.providers.api.GroupBuildPageInfo;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.DTOValidationException;
 import org.jboss.pnc.facade.validation.RepositoryViolationException;
 import org.jboss.pnc.mapper.api.GroupBuildMapper;
+import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.mapper.api.ResultMapper;
 import org.jboss.pnc.model.BuildConfigSetRecord;
+import org.jboss.pnc.model.BuildConfigSetRecord_;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.ValidationException;
 import org.slf4j.Logger;
@@ -47,7 +54,9 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Context;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates.withBuildConfigSetId;
@@ -70,6 +79,9 @@ public class GroupBuildProviderImpl extends AbstractProvider<Long, BuildConfigSe
 
     @Inject
     private BuildCoordinator buildCoordinator;
+
+    @Inject
+    private GroupConfigurationMapper groupConfigurationMapper;
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -130,18 +142,23 @@ public class GroupBuildProviderImpl extends AbstractProvider<Long, BuildConfigSe
     }
 
     @Override
-    public Page<GroupBuild> getGroupBuilds(
-            int pageIndex,
-            int pageSize,
-            String sort,
-            String q,
-            String groupConfigurationId) {
-        return queryForCollection(
-                pageIndex,
-                pageSize,
-                sort,
-                q,
-                withBuildConfigSetId(Integer.valueOf(groupConfigurationId)));
+    public Page<GroupBuild> getGroupBuilds(GroupBuildPageInfo groupBuildPageInfo, String groupConfigId) {
+        Integer groupConfigIdModel = groupConfigurationMapper.getIdMapper().toEntity(groupConfigId);
+        if (groupBuildPageInfo.isLatest()) {
+            PageInfo firstPageInfo = new DefaultPageInfo(0, 1);
+            SortInfo<BuildConfigSetRecord> sortInfo = DefaultSortInfo.desc(BuildConfigSetRecord_.startTime);
+            List<BuildConfigSetRecord> groupBuildsEntities = repository
+                    .queryWithPredicates(firstPageInfo, sortInfo, withBuildConfigSetId(groupConfigIdModel));
+            List<GroupBuild> groupBuilds = groupBuildsEntities.stream().map(mapper::toDTO).collect(Collectors.toList());
+            return new Page<>(0, 1, groupBuilds.size(), groupBuilds.size(), groupBuilds);
+        } else {
+            return queryForCollection(
+                    groupBuildPageInfo.getPageIndex(),
+                    groupBuildPageInfo.getPageSize(),
+                    groupBuildPageInfo.getSort(),
+                    groupBuildPageInfo.getQ(),
+                    withBuildConfigSetId(groupConfigIdModel));
+        }
     }
 
     @Override

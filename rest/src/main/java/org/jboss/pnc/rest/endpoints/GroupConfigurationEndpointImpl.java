@@ -28,15 +28,17 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.BuildTriggerer;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
+import org.jboss.pnc.facade.providers.api.GroupBuildPageInfo;
 import org.jboss.pnc.facade.providers.api.GroupBuildProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.InvalidRequestException;
-import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.rest.api.endpoints.GroupConfigurationEndpoint;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
+import org.jboss.pnc.rest.api.parameters.GroupBuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.spi.BuildOptions;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.BuildRequestException;
 import org.jboss.pnc.spi.exception.CoreException;
@@ -139,13 +141,11 @@ public class GroupConfigurationEndpointImpl implements GroupConfigurationEndpoin
     }
 
     @Override
-    public Page<GroupBuild> getAllGroupBuilds(String id, PageParameters pageParams) {
-        return groupBuildProvider.getGroupBuilds(
-                pageParams.getPageIndex(),
-                pageParams.getPageSize(),
-                pageParams.getSort(),
-                pageParams.getQ(),
-                id);
+    public Page<GroupBuild> getAllGroupBuilds(
+            String id,
+            PageParameters pageParams,
+            GroupBuildsFilterParameters filterParams) {
+        return groupBuildProvider.getGroupBuilds(GroupBuildPageInfo.toGroupBuildPageInfo(pageParams, filterParams), id);
     }
 
     private GroupBuild triggerBuild(

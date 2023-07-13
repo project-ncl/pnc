@@ -15,18 +15,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.providers.api;
+package org.jboss.pnc.rest.api.parameters;
 
-import org.jboss.pnc.dto.GroupBuild;
-import org.jboss.pnc.dto.GroupBuildRef;
-import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.model.BuildConfigSetRecord;
+import io.swagger.v3.oas.annotations.Parameter;
+import lombok.Data;
+import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
-public interface GroupBuildProvider extends Provider<Long, BuildConfigSetRecord, GroupBuild, GroupBuildRef> {
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.QueryParam;
 
-    Page<GroupBuild> getGroupBuilds(GroupBuildPageInfo groupBuildPageInfo, String groupConfigId);
+/**
+ * Parameters for filtering group builds lists.
+ *
+ * @author Adam Krídl &lt;akridl@redhat.com&gt;
+ */
+@Data
+public class GroupBuildsFilterParameters {
 
-    void cancel(String id);
-
-    boolean delete(String id, String callback);
+    /**
+     * {@value SwaggerConstants#LATEST_GROUP_BUILD_DESC}
+     */
+    @Parameter(description = SwaggerConstants.LATEST_GROUP_BUILD_DESC)
+    @QueryParam("latest")
+    @DefaultValue("false")
+    private boolean latest;
 }
