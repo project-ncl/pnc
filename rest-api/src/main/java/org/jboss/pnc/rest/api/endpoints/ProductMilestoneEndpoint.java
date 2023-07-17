@@ -323,7 +323,6 @@ public interface ProductMilestoneEndpoint {
      *
      * @param id {@value PM_ID}
      * @param pageParameters
-     * @param buildsFilter
      * @return
      */
     @Operation(
@@ -352,10 +351,8 @@ public interface ProductMilestoneEndpoint {
     /**
      * {@value GET_ALL_DELIVERABLE_ANALYZER_OPERATIONS_FILTERED_DESC}
      *
-     * @param paginationParameters
-     * @param identifier {@value FILTER_IDENTIFIER_DESC}
-     * @param qualities {@value FILTER_QUALITY_DESC}
-     * @param repoType {@value FILTER_REPOSITORY_TYPE_DESC}
+     * @param id {@value PM_ID}
+     * @param pageParameters
      * @return
      */
     @Operation(
