@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.Artifact;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.ArtifactType;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.Build;
+import org.jboss.pnc.api.deliverablesanalyzer.dto.BuildSystemType;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
 import org.jboss.pnc.api.dto.Request;
@@ -71,6 +72,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -156,6 +158,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         Consumer<org.jboss.pnc.model.Artifact> artifactUpdater = artifactUpdater(
                 "Added as delivered artifact for milestone " + milestoneId);
         ArtifactStats stats = new ArtifactStats();
+
+        ArtifactCache artifactCache = new ArtifactCache(builds);
         for (Build build : builds) {
             log.debug("Processing build {}", build);
             Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
@@ -166,7 +170,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             switch (build.getBuildSystemType()) {
                 case PNC:
                     statCounter = stats.pncCounter();
-                    artifactParser = this::getPncArtifact;
+                    artifactParser = artifactCache;
                     break;
                 case BREW:
                     statCounter = stats.brewCounter();
@@ -256,15 +260,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
         targetRepo.getArtifacts().add(savedArtifact);
         return savedArtifact;
-    }
-
-    private org.jboss.pnc.model.Artifact getPncArtifact(Artifact art) {
-        org.jboss.pnc.model.Artifact artifact = artifactRepository
-                .queryById(artifactMapper.getIdMapper().toEntity(art.getPncId()));
-        if (artifact == null) {
-            throw new IllegalArgumentException("PNC artifact with id " + art.getPncId() + " doesn't exist.");
-        }
-        return artifact;
     }
 
     private org.jboss.pnc.model.Artifact mapNotFoundArtifact(Artifact artifact) {
@@ -506,6 +501,35 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             if (totalNotBuild > 0) {
                 log.info("  There are total {} artifacts not built from source!", totalNotBuild);
             }
+        }
+    }
+
+    private class ArtifactCache implements Function<Artifact, org.jboss.pnc.model.Artifact> {
+
+        private Map<Integer, org.jboss.pnc.model.Artifact> cache;
+
+        private ArtifactCache(Collection<Build> builds) {
+            log.debug("Preloading PNC artifacts");
+            Set<Integer> ids = builds.stream()
+                    .filter(b -> b.getBuildSystemType() == BuildSystemType.PNC)
+                    .flatMap(b -> b.getArtifacts().stream())
+                    .map(a -> a.getPncId())
+                    .map(artifactMapper.getIdMapper()::toEntity)
+                    .collect(Collectors.toSet());
+
+            cache = artifactRepository.queryWithPredicates(ArtifactPredicates.withIds(ids))
+                    .stream()
+                    .collect(Collectors.toMap(org.jboss.pnc.model.Artifact::getId, Function.identity()));
+            log.debug("Preloaded {} artifacts to cache.", cache.size());
+        }
+
+        @Override
+        public org.jboss.pnc.model.Artifact apply(Artifact art) {
+            org.jboss.pnc.model.Artifact artifact = cache.get(artifactMapper.getIdMapper().toEntity(art.getPncId()));
+            if (artifact == null) {
+                throw new IllegalArgumentException("PNC artifact with id " + art.getPncId() + " doesn't exist.");
+            }
+            return artifact;
         }
     }
 }

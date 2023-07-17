@@ -98,6 +98,7 @@ public class DeliverableAnalyzerManagerTest {
             Integer id = invocation.getArgument(0);
             return artifacts.stream().filter(a -> id.equals(a.getId())).findAny().orElse(null);
         });
+        when(artifactRepository.queryWithPredicates(any())).thenReturn(artifacts); // just return all for the cache
         when((userService.currentUser())).thenReturn(USER);
         when(globalConfig.getBrewContentUrl()).thenReturn("https://example.com/");
     }
@@ -179,7 +180,7 @@ public class DeliverableAnalyzerManagerTest {
         Set<Artifact> artifacts = new HashSet<>();
         artifacts.add(prepareMavenArtifact("foo.bar", "baz" + id, "1.0.0.redhat-1", "1234" + id));
         artifacts.add(prepareMavenArtifact("foo.bar", "buzz" + id, "1.0.0.redhat-1", "5678" + id));
-        artifacts.add(prepareNPMArtifact("@redhat/foo-bar" + id, "1.0.0", "5678" + id));
+        artifacts.add(prepareNPMArtifact("@redhat/foo-bar" + id, "1.0.0", "7890" + id));
         return Build.builder().buildSystemType(BuildSystemType.PNC).pncId(id).artifacts(artifacts).build();
     }
 
