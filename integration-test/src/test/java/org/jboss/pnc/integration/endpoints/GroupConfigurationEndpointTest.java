@@ -33,13 +33,16 @@ import org.jboss.pnc.client.patch.PatchBuilderException;
 import org.jboss.pnc.common.concurrent.MDCExecutors;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.BuildConfigurationRef;
+import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.Product;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
+import org.jboss.pnc.rest.api.parameters.GroupBuildsFilterParameters;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.Test;
@@ -307,6 +310,64 @@ public class GroupConfigurationEndpointTest {
         GroupConfiguration refresh = groupConfigurationClient.getSpecific(gc.getId());
 
         assertThat(refresh.getBuildConfigs().keySet()).doesNotContain(toRemove.getId());
+    }
+
+    @Test
+    public void shouldReturnAllGroupBuilds() throws ClientException {
+        // given
+        GroupConfigurationClient groupConfigurationClient = new GroupConfigurationClient(
+                RestClientConfiguration.asUser());
+        var filterParamsLatestFalse = new GroupBuildsFilterParameters(); // latest is false by default
+
+        // when
+        RemoteCollection<GroupBuild> groupBuilds = groupConfigurationClient
+                .getAllGroupBuilds("100", filterParamsLatestFalse);
+
+        // then
+        assertThat(groupBuilds).hasSize(3);
+        assertThat(groupBuilds).anySatisfy(gb -> assertGroupBuildStatusAndBuildFlag(gb, BuildStatus.FAILED, false));
+        assertThat(groupBuilds).anySatisfy(gb -> assertGroupBuildStatusAndBuildFlag(gb, BuildStatus.SUCCESS, false));
+        assertThat(groupBuilds).anySatisfy(gb -> assertGroupBuildStatusAndBuildFlag(gb, BuildStatus.SUCCESS, true));
+    }
+
+    @Test
+    public void shouldReturnOnlyLatestGroupBuild() throws ClientException {
+        // given
+        GroupConfigurationClient groupConfigurationClient = new GroupConfigurationClient(
+                RestClientConfiguration.asUser());
+        var filterParamsLatestTrue = new GroupBuildsFilterParameters();
+        filterParamsLatestTrue.setLatest(true);
+
+        // when
+        RemoteCollection<GroupBuild> groupBuilds = groupConfigurationClient
+                .getAllGroupBuilds("100", filterParamsLatestTrue);
+
+        // then
+        assertThat(groupBuilds).hasSize(1);
+        assertThat(groupBuilds).allSatisfy(gb -> assertGroupBuildStatusAndBuildFlag(gb, BuildStatus.SUCCESS, false));
+    }
+
+    @Test
+    public void shouldReturnNoGroupBuilds() throws ClientException {
+        // given
+        GroupConfigurationClient groupConfigurationClient = new GroupConfigurationClient(
+                RestClientConfiguration.asUser());
+        var filterParamsLatestFalse = new GroupBuildsFilterParameters(); // latest is false by default
+
+        // when
+        RemoteCollection<GroupBuild> groupBuilds = groupConfigurationClient
+                .getAllGroupBuilds("101", filterParamsLatestFalse);
+
+        // then
+        assertThat(groupBuilds).isEmpty();
+    }
+
+    private void assertGroupBuildStatusAndBuildFlag(
+            GroupBuild groupBuild,
+            BuildStatus buildStatusFlag,
+            boolean temporaryBuildFlag) {
+        assertThat(groupBuild.getStatus()).isEqualTo(buildStatusFlag);
+        assertThat(groupBuild.getTemporaryBuild()).isEqualTo(temporaryBuildFlag);
     }
 
 }

@@ -36,6 +36,7 @@ import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
+import org.jboss.pnc.rest.api.parameters.GroupBuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildPage;
@@ -402,6 +403,7 @@ public interface GroupConfigurationEndpoint {
     @Path("/{id}/group-builds")
     Page<GroupBuild> getAllGroupBuilds(
             @Parameter(description = GC_ID) @PathParam("id") String id,
-            @Valid @BeanParam PageParameters pageParams);
+            @Valid @BeanParam PageParameters pageParams,
+            @BeanParam GroupBuildsFilterParameters filterParams);
 
 }

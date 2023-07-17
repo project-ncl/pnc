@@ -85,6 +85,7 @@ public interface SwaggerConstants {
     public static final String BUILD_DEPENDENCIES_DESC = "Should we build also dependencies of this Build Config?";
     public static final String KEEP_POD_ON_FAIL_DESC = "Should we keep the build container running, if the build fails?";
     public static final String LATEST_BUILD_DESC = "Should return only latest build?";
+    public static final String LATEST_GROUP_BUILD_DESC = "Should return only latest group build?";
     public static final String RUNNING_BUILDS_DESC = "Should return only running builds?";
     public static final String LATEST_MILESTONE_CLOSE_DESC = "Should return only latest milestone close result?";
     public static final String RUNNING_MILESTONE_CLOSE_DESC = "Should return only running milestone close result?";
