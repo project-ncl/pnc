@@ -36,6 +36,7 @@ import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.facade.DeliverableAnalyzerManager;
 import org.jboss.pnc.facade.providers.api.ArtifactProvider;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
@@ -159,6 +160,11 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
                 pageParams.getSort(),
                 pageParams.getQ(),
                 id);
+    }
+
+    @Override
+    public ProductMilestoneStatistics getStatistics(String id) {
+        return null;
     }
 
     @Override
