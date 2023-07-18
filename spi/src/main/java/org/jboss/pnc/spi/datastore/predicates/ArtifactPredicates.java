@@ -131,6 +131,9 @@ public class ArtifactPredicates {
     }
 
     public static Predicate<Artifact> withIds(Set<Integer> ids) {
+        if (ids.isEmpty()) {
+            return (root, query, cb) -> cb.or();
+        }
         return (root, query, cb) -> root.get(Artifact_.id).in(ids);
     }
 
