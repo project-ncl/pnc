@@ -283,6 +283,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
     public void cancel(String buildId) {
         try {
             MDC.put(MDCKeys.PROCESS_CONTEXT_KEY, ContentIdentityManager.getBuildContentId(buildId));
+            MDC.put(MDCKeys.BUILD_ID_KEY, buildId);
             logger.debug("Received cancel request for buildTaskId: {}.", buildId);
 
             if (!buildTriggerer.cancelBuild(buildId)) {
@@ -294,6 +295,7 @@ public class BuildEndpointImpl implements BuildEndpoint {
             throw new RuntimeException("Unable to cancel the build [" + buildId + "].", e);
         } finally {
             MDC.remove(MDCKeys.PROCESS_CONTEXT_KEY);
+            MDC.remove(MDCKeys.BUILD_ID_KEY);
         }
     }
 
