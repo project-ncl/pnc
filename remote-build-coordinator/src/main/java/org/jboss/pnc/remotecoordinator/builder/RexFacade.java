@@ -23,16 +23,20 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.entity.ContentType;
 import org.jboss.pnc.api.constants.HttpHeaders;
+import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
+import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.graph.GraphUtils;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.json.moduleconfig.BpmModuleConfig;
+import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.log.MDCUtils;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.mapper.api.BuildTaskMappers;
 import org.jboss.pnc.model.User;
+import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.BpmEndpointUrlFactory;
 import org.jboss.pnc.remotecoordinator.rexclient.RexHttpClient;
 import org.jboss.pnc.remotecoordinator.rexclient.exception.ConflictResponseException;
@@ -59,6 +63,7 @@ import org.jboss.util.graph.Edge;
 import org.jboss.util.graph.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -119,6 +124,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
     private static final String INIT_DATA = "initData";
 
+    private SystemConfig systemConfig;
     private GlobalModuleGroup globalConfig;
     private BpmModuleConfig bpmConfig;
     private BuildTaskMappers mappers;
@@ -130,10 +136,12 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
 
     @Inject
     public RexFacade(
+            SystemConfig systemConfig,
             GlobalModuleGroup globalConfig,
             BpmModuleConfig bpmConfig,
             BuildTaskMappers mappers,
             RexHttpClient rexClient) {
+        this.systemConfig = systemConfig;
         this.globalConfig = globalConfig;
         this.bpmConfig = bpmConfig;
         this.mappers = mappers;
@@ -152,7 +160,21 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         for (RemoteBuildTask buildTask : sourceVerticies) {
             // only edges are submitted for already running tasks
             if (!buildTask.isAlreadyRunning()) {
-                vertices.put(buildTask.getId(), getCreateNewTaskDTO(bpmUrl, buildTask, user));
+                boolean temporaryBuild = buildTask.getBuildOptions().isTemporaryBuild();
+                try (MDC.MDCCloseable a = MDC.putCloseable(
+                        MDCKeys.PROCESS_CONTEXT_KEY,
+                        ContentIdentityManager.getBuildContentId(buildTask.getId()));
+                        MDC.MDCCloseable b = MDC.putCloseable(MDCKeys.BUILD_ID_KEY, buildTask.getId());
+                        MDC.MDCCloseable c = MDC.putCloseable(MDCKeys.TMP_KEY, Objects.toString(temporaryBuild));
+                        MDC.MDCCloseable d = MDC.putCloseable(
+                                MDCKeys.EXP_KEY,
+                                ExpiresDate
+                                        .getTemporaryBuildExpireDate(
+                                                systemConfig.getTemporaryBuildsLifeSpan(),
+                                                temporaryBuild)
+                                        .toString());) {
+                    vertices.put(buildTask.getId(), getCreateNewTaskDTO(bpmUrl, buildTask, user));
+                }
             }
         }
 
@@ -180,6 +202,10 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         }
     }
 
+    /**
+     * @param taskId buildId
+     * @throws RemoteRequestException
+     */
     @WithSpan
     @Override
     public void cancel(String taskId) throws RemoteRequestException {
@@ -302,6 +328,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         BpmBuildTask bpmBuildTask = new BpmBuildTask(toBuildTask(buildTask, user, new Date()), globalConfig);
         Map<String, Serializable> bpmTask = Collections
                 .singletonMap("processParameters", bpmBuildTask.getProcessParameters());
+
         Map<String, Object> processParameters = new HashMap<>();
         processParameters.put("auth", Collections.singletonMap("token", loginToken));
         processParameters.put("mdc", new MDCParameters());
