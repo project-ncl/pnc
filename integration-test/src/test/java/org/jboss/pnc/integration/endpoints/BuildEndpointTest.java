@@ -464,7 +464,7 @@ public class BuildEndpointTest {
         String buildRecordId = buildId;
         RemoteCollection<Artifact> artifacts = client.getBuiltArtifacts(buildRecordId);
         Set<Integer> artifactIds = artifactIds(artifacts);
-        assertThat(artifactIds).containsExactlyInAnyOrder(100, 101);
+        assertThat(artifactIds).containsExactlyInAnyOrder(100, 101, 110);
 
         client.setBuiltArtifacts(buildRecordId, Collections.singletonList("104"));
         RemoteCollection<Artifact> newBuiltArtifacts = client.getBuiltArtifacts(buildRecordId);

@@ -319,7 +319,7 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
 
-        assertThat(all).hasSize(3);
+        assertThat(all).hasSize(4);
     }
 
     @Test
@@ -343,14 +343,14 @@ public class ProductMilestoneEndpointTest {
         // given
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
         DeliveredArtifactsStatistics expectedDeliveredArtifactsStats = DeliveredArtifactsStatistics.builder()
-                .thisMilestone(2) // builtArtifact1, TODO 1
+                .thisMilestone(2) // builtArtifact1, builtArtifact9
                 .previousMilestones(1) // TODO 2
                 .otherProducts(2) // TODO 3, TODO 4
                 .noMilestone(1) // builtArtifact5
                 .noBuild(1) // importedArtifact2
                 .build();
         ProductMilestoneStatistics expectedStats = ProductMilestoneStatistics.builder()
-                .artifactsInMilestone(3) // builtArtifact1, builtArtifact2, TODO 1
+                .artifactsInMilestone(3) // builtArtifact1, builtArtifact2, builtArtifact9
                 .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
                 // .artifactQuality()
                 // .repositoryType()

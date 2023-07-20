@@ -610,6 +610,18 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.NEW)
                 .buildCategory(BuildCategory.SERVICE)
                 .build();
+        // builtArtifact9 defined in this place in order to be part of savedBuildRecord1
+        Artifact builtArtifact9 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact7:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 9")
+                .md5("md-fake-abcdefg4321")
+                .sha1("sha1-fake-abcdefg4321")
+                .sha256("sha256-fake-abcdefg4321")
+                .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/built7")
+                .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
         builtArtifact2 = artifactRepository.save(builtArtifact2);
@@ -686,6 +698,7 @@ public class DatabaseDataInitializer {
             BuildRecord savedBuildRecord1 = buildRecordRepository.save(buildRecord1);
             builtArtifact1.setBuildRecord(savedBuildRecord1);
             builtArtifact2.setBuildRecord(savedBuildRecord1);
+            builtArtifact9.setBuildRecord(savedBuildRecord1);
 
             log.info(
                     "Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: "
@@ -746,7 +759,6 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/built4")
                 .build();
-
         Artifact builtArtifact7 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact5:jar:1.0")
                 .targetRepository(targetRepository)
@@ -774,6 +786,7 @@ public class DatabaseDataInitializer {
         builtArtifact6 = artifactRepository.save(builtArtifact6);
         builtArtifact7 = artifactRepository.save(builtArtifact7);
         builtArtifact8 = artifactRepository.save(builtArtifact8);
+        builtArtifact9 = artifactRepository.save(builtArtifact9);
 
         Artifact dependencyBuiltArtifact1 = artifactRepository
                 .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(), builtArtifact1.getSha256()));
@@ -873,6 +886,7 @@ public class DatabaseDataInitializer {
         demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
         demoProductMilestone1.addDeliveredArtifact(builtArtifact1);
         demoProductMilestone1.addDeliveredArtifact(builtArtifact5);
+        demoProductMilestone1.addDeliveredArtifact(builtArtifact9);
         demoProductMilestone1.addDeliveredArtifact(importedArtifact2);
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
 
