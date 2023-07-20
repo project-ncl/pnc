@@ -165,7 +165,7 @@ public class BuildConfigurationEndpointTest {
 
         RemoteCollection<BuildConfiguration> all = client.getAll();
 
-        assertThat(all).hasSize(5); // from DatabaseDataInitializer
+        assertThat(all).hasSize(6); // from DatabaseDataInitializer
     }
 
     @Test
@@ -178,7 +178,7 @@ public class BuildConfigurationEndpointTest {
         BuildsFilterParameters filter = new BuildsFilterParameters();
         filter.setLatest(true);
 
-        assertThat(bcsWithLatest).hasSize(5); // from DatabaseDataInitializer
+        assertThat(bcsWithLatest).hasSize(6); // from DatabaseDataInitializer
 
         for (BuildConfigurationWithLatestBuild bc : bcsWithLatest.getAll()) {
             List<Build> associatedBuilds = new ArrayList<>(client.getBuilds(bc.getId(), filter).getAll());

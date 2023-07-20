@@ -345,7 +345,7 @@ public class ProductMilestoneEndpointTest {
         DeliveredArtifactsStatistics expectedDeliveredArtifactsStats = DeliveredArtifactsStatistics.builder()
                 .thisMilestone(2) // builtArtifact1, builtArtifact9
                 .previousMilestones(1) // builtArtifact10
-                .otherProducts(2) // TODO 3, TODO 4
+                .otherProducts(2) // builtArtifact11, builtArtifact12
                 .noMilestone(1) // builtArtifact5
                 .noBuild(1) // importedArtifact2
                 .build();

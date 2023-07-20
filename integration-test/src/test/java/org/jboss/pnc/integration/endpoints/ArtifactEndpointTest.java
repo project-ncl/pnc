@@ -115,7 +115,7 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> all = client.getAll(null, null, null);
 
-        assertThat(all).hasSize(12); // from DatabaseDataInitializer
+        assertThat(all).hasSize(14); // from DatabaseDataInitializer
     }
 
     @Test
@@ -146,7 +146,7 @@ public class ArtifactEndpointTest {
                 null,
                 new HashSet<>(Arrays.asList(ArtifactQuality.VERIFIED, ArtifactQuality.DELETED)),
                 null);
-        assertThat(result).hasSize(2); // from DatabaseDataInitializer
+        assertThat(result).hasSize(3); // from DatabaseDataInitializer
     }
 
     @Test
@@ -537,7 +537,7 @@ public class ArtifactEndpointTest {
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
         // just one Artifact has VERIFIED Quality
-        assertQualifier(qualifier, value, result, 1);
+        assertQualifier(qualifier, value, result, 2);
     }
 
     @Test
@@ -592,7 +592,7 @@ public class ArtifactEndpointTest {
         assertQualifier(Qualifier.MILESTONE, productAbbrev + ' ' + milestoneString, result, 3);
         assertQualifier(Qualifier.MILESTONE_ID, milestoneID, result, 3);
         assertQualifier(Qualifier.BUILD_CONFIG, buildConfigName, result, 5);
-        assertQualifier(Qualifier.QUALITY, quality.name(), result, 1);
+        assertQualifier(Qualifier.QUALITY, quality.name(), result, 2);
         assertQualifier(Qualifier.GROUP_CONFIG, groupConfigName, result, 9);
     }
 

@@ -85,7 +85,7 @@ public class RSQLTest {
 
         String queryPersistent = "temporaryBuild==FALSE";
         RemoteCollection<Build> persistent = buildClient.getAll(null, null, empty(), Optional.of(queryPersistent));
-        assertThat(persistent).hasSize(3);
+        assertThat(persistent).hasSize(5);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class RSQLTest {
 
         String querySuccess = "status==SUCCESS";
         RemoteCollection<Build> persistent = buildClient.getAll(null, null, empty(), Optional.of(querySuccess));
-        assertThat(persistent).hasSize(5);
+        assertThat(persistent).hasSize(7);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class RSQLTest {
 
         String queryGT = "endTime=gt=2019-01-01T00:00:00Z";
         RemoteCollection<Build> persistent = buildClient.getAll(null, null, empty(), Optional.of(queryGT));
-        assertThat(persistent).hasSize(5);
+        assertThat(persistent).hasSize(7);
     }
 
     @Test
@@ -205,9 +205,9 @@ public class RSQLTest {
         String[] queries = new String[] { "name=like=%De%", "name=like=%de%", "name=like=*de*", "name=like=P%",
                 "name=like=P*", "name=like=%termd%", "name=like=_auseway", "name=like=?auseway" };
         String[][] results = new String[][] { // must be sorted lexicographically
-                { "Dependency Analysis", "Project Newcastle Demo Project 1" },
-                { "Dependency Analysis", "Project Newcastle Demo Project 1" },
-                { "Dependency Analysis", "Project Newcastle Demo Project 1" },
+                { "Dependency Analysis", "JBoss EAP Demo Project", "Project Newcastle Demo Project 1" },
+                { "Dependency Analysis", "JBoss EAP Demo Project", "Project Newcastle Demo Project 1" },
+                { "Dependency Analysis", "JBoss EAP Demo Project", "Project Newcastle Demo Project 1" },
                 { "Pnc Build Agent", "Project Newcastle Demo Project 1" },
                 { "Pnc Build Agent", "Project Newcastle Demo Project 1" }, { "termd" }, {}, { "Causeway" } };
 
@@ -225,11 +225,15 @@ public class RSQLTest {
                 "name=notlike=?auseway" };
         String[][] results = new String[][] { // must be sorted lexicographically
                 { "Causeway", "Pnc Build Agent", "termd" }, { "Causeway", "Pnc Build Agent", "termd" },
-                { "Causeway", "Pnc Build Agent", "termd" }, { "Causeway", "Dependency Analysis", "termd" },
-                { "Causeway", "Dependency Analysis", "termd" },
-                { "Causeway", "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1" },
-                { "Causeway", "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1", "termd" },
-                { "Dependency Analysis", "Pnc Build Agent", "Project Newcastle Demo Project 1", "termd" } };
+                { "Causeway", "Pnc Build Agent", "termd" },
+                { "Causeway", "Dependency Analysis", "JBoss EAP Demo Project", "termd" },
+                { "Causeway", "Dependency Analysis", "JBoss EAP Demo Project", "termd" },
+                { "Causeway", "Dependency Analysis", "JBoss EAP Demo Project", "Pnc Build Agent",
+                        "Project Newcastle Demo Project 1" },
+                { "Causeway", "Dependency Analysis", "JBoss EAP Demo Project", "Pnc Build Agent",
+                        "Project Newcastle Demo Project 1", "termd" },
+                { "Dependency Analysis", "JBoss EAP Demo Project", "Pnc Build Agent",
+                        "Project Newcastle Demo Project 1", "termd" } };
 
         for (int i = 0; i < queries.length; i++) {
             RemoteCollection<Project> projects = projectClient.getAll(Optional.of(sortQury), Optional.of(queries[i]));
@@ -248,7 +252,7 @@ public class RSQLTest {
     public void shouldFilterBuildConfigsWithoutAssociatedProductVersion() throws RemoteResourceException {
         String query = "productVersion=isnull=true";
         RemoteCollection<BuildConfiguration> bcs = buildConfigClient.getAll(empty(), Optional.of(query));
-        assertThat(bcs).hasSize(2);
+        assertThat(bcs).hasSize(3);
     }
 
     @Test
