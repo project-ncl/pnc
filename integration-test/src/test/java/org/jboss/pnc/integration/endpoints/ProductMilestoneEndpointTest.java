@@ -37,6 +37,8 @@ import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ValidationResponse;
+import org.jboss.pnc.dto.response.statistics.DeliveredArtifactsStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
 import org.jboss.pnc.enums.ValidationErrorType;
 import org.jboss.pnc.integration.setup.Deployments;
@@ -61,7 +63,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_MILESTONE1;
 import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_MILESTONE3;
 import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_NAME;
 
@@ -335,5 +336,30 @@ public class ProductMilestoneEndpointTest {
                 Optional.of("progressStatus==IN_PROGRESS"));
 
         assertThat(allInProgress).hasSize(1);
+    }
+
+    @Test
+    public void testGetStatistics() throws ClientException {
+        // given
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+        DeliveredArtifactsStatistics expectedDeliveredArtifactsStats = DeliveredArtifactsStatistics.builder()
+                .thisMilestone(2) // builtArtifact1, TODO 1
+                .previousMilestones(1) // TODO 2
+                .otherProducts(2) // TODO 3, TODO 4
+                .noMilestone(1) // builtArtifact5
+                .noBuild(1) // importedArtifact2
+                .build();
+        ProductMilestoneStatistics expectedStats = ProductMilestoneStatistics.builder()
+                .artifactsInMilestone(3) // builtArtifact1, builtArtifact2, TODO 1
+                .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
+                // .artifactQuality()
+                // .repositoryType()
+                .build();
+
+        // then
+        ProductMilestoneStatistics actualStats = client.getStatistics(milestoneId);
+
+        // assert
+        // assertThat(actualStats).isEqualTo(expectedStats);
     }
 }
