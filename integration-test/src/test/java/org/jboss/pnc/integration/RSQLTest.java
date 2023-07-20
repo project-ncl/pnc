@@ -85,7 +85,7 @@ public class RSQLTest {
 
         String queryPersistent = "temporaryBuild==FALSE";
         RemoteCollection<Build> persistent = buildClient.getAll(null, null, empty(), Optional.of(queryPersistent));
-        assertThat(persistent).hasSize(2);
+        assertThat(persistent).hasSize(3);
     }
 
     @Test
@@ -103,7 +103,7 @@ public class RSQLTest {
 
         String querySuccess = "status==SUCCESS";
         RemoteCollection<Build> persistent = buildClient.getAll(null, null, empty(), Optional.of(querySuccess));
-        assertThat(persistent).hasSize(4);
+        assertThat(persistent).hasSize(5);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class RSQLTest {
 
         String queryGT = "endTime=gt=2019-01-01T00:00:00Z";
         RemoteCollection<Build> persistent = buildClient.getAll(null, null, empty(), Optional.of(queryGT));
-        assertThat(persistent).hasSize(4);
+        assertThat(persistent).hasSize(5);
     }
 
     @Test

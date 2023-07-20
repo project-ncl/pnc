@@ -205,7 +205,7 @@ public class BuildEndpointTest {
 
         int pageCount = response.getBody().jsonPath().get("totalPages");
 
-        assertThat(pageCount).isEqualTo(4);
+        assertThat(pageCount).isEqualTo(5);
     }
 
     @Test
@@ -240,7 +240,7 @@ public class BuildEndpointTest {
                 .map(User::getUsername)
                 .collect(Collectors.toList());
 
-        assertThat(userNames).hasSize(2); // from DatabaseDataInitializer
+        assertThat(userNames).hasSize(3); // from DatabaseDataInitializer
         assertThat(userNames).containsOnly(username);
     }
 
@@ -294,7 +294,7 @@ public class BuildEndpointTest {
                 .map(BuildConfigurationRevisionRef::getName)
                 .collect(Collectors.toList());
 
-        assertThat(buildConfigNames).hasSize(2); // from DatabaseDataInitializer
+        assertThat(buildConfigNames).hasSize(3); // from DatabaseDataInitializer
         assertThat(buildConfigNames).doesNotContain(buildConfigName);
     }
 
@@ -404,7 +404,7 @@ public class BuildEndpointTest {
 
         RemoteCollection<Build> all = client.getAll(null, null);
 
-        assertThat(all).hasSize(4);
+        assertThat(all).hasSize(5);
     }
 
     @Test

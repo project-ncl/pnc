@@ -115,7 +115,7 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> all = client.getAll(null, null, null);
 
-        assertThat(all).hasSize(11); // from DatabaseDataInitializer
+        assertThat(all).hasSize(12); // from DatabaseDataInitializer
     }
 
     @Test
@@ -176,7 +176,7 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 3);
+        assertQualifier(qualifier, value, result, 4);
     }
 
     @Test
@@ -194,7 +194,7 @@ public class ArtifactEndpointTest {
                 Set.of(BuildCategory.STANDARD),
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 3);
+        assertQualifier(qualifier, value, result, 4);
     }
 
     @Test
@@ -218,7 +218,7 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 3);
+        assertQualifier(qualifier, value, result, 4);
     }
 
     @Test
@@ -235,7 +235,7 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 3);
+        assertQualifier(qualifier, value, result, 4);
     }
 
     @Test
@@ -268,7 +268,7 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 3);
+        assertQualifier(qualifier, value, result, 4);
     }
 
     @Test
@@ -358,11 +358,12 @@ public class ArtifactEndpointTest {
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
         assertThat(result).isNotEmpty()
-                .extracting(ArtifactInfo::getQualifiers)
-                // all demo-data builds are part of the same BCSR
-                .allMatch(
+                .map(ArtifactInfo::getQualifiers)
+                // exactly 9 demo-data builds are part of the BCSR with the first id
+                .filteredOn(
                         qualifierMap -> qualifierMap.get(qualifier) != null
-                                && qualifierMap.get(qualifier).contains(value));
+                                && qualifierMap.get(qualifier).contains(value))
+                .hasSize(9);
     }
 
     @Test
@@ -444,11 +445,12 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertThat(result).extracting(ArtifactInfo::getQualifiers)
-                // all demo-data builds are part of BCS with name "Example-Build-Group-1"
-                .allMatch(
+        assertThat(result).map(ArtifactInfo::getQualifiers)
+                // exactly 9 demo-data builds are part of BCS with name "Example-Build-Group-1"
+                .filteredOn(
                         qualifierMap -> qualifierMap.get(qualifier) != null
-                                && qualifierMap.get(qualifier).contains(value));
+                                && qualifierMap.get(qualifier).contains(value))
+                .hasSize(9);
     }
 
     @Test
@@ -483,11 +485,12 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertThat(result).extracting(ArtifactInfo::getQualifiers)
-                // all demo-data builds are part of the same group-config
-                .allMatch(
+        assertThat(result).map(ArtifactInfo::getQualifiers)
+                // exactly 9 demo-data builds are part of the group-config with the first id
+                .filteredOn(
                         qualifierMap -> qualifierMap.get(qualifier) != null
-                                && qualifierMap.get(qualifier).contains(value));
+                                && qualifierMap.get(qualifier).contains(value))
+                .hasSize(9);
     }
 
     @Test
@@ -582,10 +585,10 @@ public class ArtifactEndpointTest {
 
         var result = client.getAllFiltered(identifierFilter, null, null, null, requestedQualifiers);
 
-        assertQualifier(Qualifier.PRODUCT, productAbbrev, result, 3);
-        assertQualifier(Qualifier.PRODUCT_ID, productID, result, 3);
-        assertQualifier(Qualifier.VERSION, productAbbrev + ' ' + versionString, result, 3);
-        assertQualifier(Qualifier.VERSION_ID, versionID, result, 3);
+        assertQualifier(Qualifier.PRODUCT, productAbbrev, result, 4);
+        assertQualifier(Qualifier.PRODUCT_ID, productID, result, 4);
+        assertQualifier(Qualifier.VERSION, productAbbrev + ' ' + versionString, result, 4);
+        assertQualifier(Qualifier.VERSION_ID, versionID, result, 4);
         assertQualifier(Qualifier.MILESTONE, productAbbrev + ' ' + milestoneString, result, 3);
         assertQualifier(Qualifier.MILESTONE_ID, milestoneID, result, 3);
         assertQualifier(Qualifier.BUILD_CONFIG, buildConfigName, result, 5);

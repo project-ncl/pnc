@@ -344,7 +344,7 @@ public class ProductMilestoneEndpointTest {
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
         DeliveredArtifactsStatistics expectedDeliveredArtifactsStats = DeliveredArtifactsStatistics.builder()
                 .thisMilestone(2) // builtArtifact1, builtArtifact9
-                .previousMilestones(1) // TODO 2
+                .previousMilestones(1) // builtArtifact10
                 .otherProducts(2) // TODO 3, TODO 4
                 .noMilestone(1) // builtArtifact5
                 .noBuild(1) // importedArtifact2

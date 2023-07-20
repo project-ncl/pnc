@@ -187,6 +187,8 @@ public class DatabaseDataInitializer {
 
     ProductMilestone demoProductMilestone1;
 
+    ProductMilestone demoProductMilestone2;
+
     User demoUser;
 
     User pncAdminUser;
@@ -315,7 +317,7 @@ public class DatabaseDataInitializer {
                 .build();
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
 
-        ProductMilestone demoProductMilestone2 = ProductMilestone.Builder.newBuilder()
+        demoProductMilestone2 = ProductMilestone.Builder.newBuilder()
                 .version(PNC_PRODUCT_MILESTONE2)
                 .startingDate(TODAY)
                 .plannedEndDate(ONE_WEEK_AFTER_TODAY)
@@ -663,6 +665,7 @@ public class DatabaseDataInitializer {
         Set<BuildRecord> buildRecords = new HashSet<>();
 
         final int INITIAL_REVISION = 1;
+        final int SECOND_REVISION = 2;
         IdRev buildConfig1AuditIdRev = new IdRev(buildConfiguration1.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository
                 .queryById(buildConfig1AuditIdRev);
@@ -781,12 +784,24 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/built6")
                 .build();
+        Artifact builtArtifact10 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact7:jar:1.1")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 10")
+                .md5("md5-fake-abc123")
+                .sha1("sha1-fake-abc123")
+                .sha256("sha256-fake-abc123")
+                .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/built7")
+                .build();
 
         builtArtifact5 = artifactRepository.save(builtArtifact5);
         builtArtifact6 = artifactRepository.save(builtArtifact6);
         builtArtifact7 = artifactRepository.save(builtArtifact7);
         builtArtifact8 = artifactRepository.save(builtArtifact8);
         builtArtifact9 = artifactRepository.save(builtArtifact9);
+        builtArtifact10 = artifactRepository.save(builtArtifact10);
 
         Artifact dependencyBuiltArtifact1 = artifactRepository
                 .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(), builtArtifact1.getSha256()));
@@ -797,7 +812,10 @@ public class DatabaseDataInitializer {
         IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository
                 .queryById(buildConfig2AuditIdRev);
-        if (buildConfigAudited2 != null) {
+        IdRev buildConfig2AnotherAuditIdRev = new IdRev(buildConfiguration2.getId(), SECOND_REVISION);
+        BuildConfigurationAudited buildConfigAudited2Another = buildConfigurationAuditedRepository
+                .queryById(buildConfig2AnotherAuditIdRev);
+        if (buildConfigAudited2 != null && buildConfigAudited2Another != null) {
 
             String nextId = Sequence.nextBase32Id();
             log.info("####nextId: " + nextId);
@@ -844,8 +862,30 @@ public class DatabaseDataInitializer {
 
             BuildRecord savedTempRecord1 = buildRecordRepository.save(tempRecord1);
 
+            nextId = Sequence.nextBase32Id();
+            log.info("####nextId: " + nextId);
+
+            BuildRecord buildRecord3 = BuildRecord.Builder.newBuilder()
+                    .id(nextId)
+                    .buildConfigurationAudited(buildConfigAudited2Another)
+                    .productMilestone(demoProductMilestone2)
+                    .submitTime(ONE_WEEK_BEFORE_TODAY)
+                    .startTime(Timestamp.from(calendar.toInstant().minus(1, ChronoUnit.HOURS)))
+                    .endTime(Timestamp.from(calendar.toInstant()))
+                    .user(demoUser)
+                    .buildLog("Nope. Nothing important to log.")
+                    .status(BuildStatus.SUCCESS)
+                    .buildEnvironment(buildConfigAudited2.getBuildEnvironment())
+                    .executionRootName("org.jboss.pnc:parent")
+                    .executionRootVersion("1.4.2")
+                    .temporaryBuild(false)
+                    .build();
+
+            BuildRecord savedBuildRecord3 = buildRecordRepository.save(buildRecord3);
+
             builtArtifact7.setBuildRecord(savedTempRecord1);
             builtArtifact8.setBuildRecord(savedTempRecord1);
+            builtArtifact10.setBuildRecord(savedBuildRecord3);
             buildRecords.add(tempRecord1);
         }
 
