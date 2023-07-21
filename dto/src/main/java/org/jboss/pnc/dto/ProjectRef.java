@@ -51,7 +51,7 @@ public class ProjectRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String id;
 
     /**
@@ -59,42 +59,42 @@ public class ProjectRef implements DTOEntity {
      */
     @PatchSupport({ REPLACE })
     @NotBlank(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String name;
 
     /**
      * Project description.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String description;
 
     /**
      * URL of the issue tracker for the project.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String issueTrackerUrl;
 
     /**
      * URL of the project.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String projectUrl;
 
     /**
      * The engineering team in charge of the project.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String engineeringTeam;
 
     /**
      * The technical leader of the project.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String technicalLeader;
 
     @JsonPOJOBuilder(withPrefix = "")

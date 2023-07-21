@@ -46,7 +46,7 @@ public class TargetRepository implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String id;
 
     /**
@@ -59,7 +59,7 @@ public class TargetRepository implements DTOEntity {
      * Identifier to link repository configurations (eg. hostname)
      */
     @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String identifier;
 
     /**
@@ -74,7 +74,7 @@ public class TargetRepository implements DTOEntity {
      * for https://repo1.maven.org/maven2/ or "" (empty string) when the repository content starts at root
      */
     @NotNull(groups = { WhenUpdating.class, WhenCreatingNew.class })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String repositoryPath;
 
     @JsonPOJOBuilder(withPrefix = "")

@@ -51,7 +51,7 @@ public class SCMRepository implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String id;
 
     /**
@@ -60,7 +60,7 @@ public class SCMRepository implements DTOEntity {
      */
     @NotBlank(groups = { WhenUpdating.class, WhenCreatingNew.class })
     @SCMUrl(groups = { WhenUpdating.class, WhenCreatingNew.class })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String internalUrl;
 
     /**
@@ -68,7 +68,7 @@ public class SCMRepository implements DTOEntity {
      */
     @PatchSupport({ REPLACE })
     @SCMUrl(groups = { WhenUpdating.class, WhenCreatingNew.class })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String externalUrl;
 
     /**

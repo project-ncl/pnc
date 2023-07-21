@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Data;
 import lombok.ToString;
 import org.jboss.pnc.common.validator.NoHtml;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.BuildType;
 
 import java.time.Instant;
@@ -46,7 +48,7 @@ public class BuildConfigurationWithLatestBuild extends BuildConfiguration {
     /**
      * Username of the user who ran the last build.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String latestBuildUsername;
 
     @lombok.Builder(builderClassName = "Builder", builderMethodName = "builderWithLatestBuild")

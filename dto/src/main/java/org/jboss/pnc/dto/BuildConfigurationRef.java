@@ -53,7 +53,7 @@ public class BuildConfigurationRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String id;
 
     /**
@@ -70,7 +70,7 @@ public class BuildConfigurationRef implements DTOEntity {
      * Build config description.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String description;
 
     /**
@@ -83,7 +83,7 @@ public class BuildConfigurationRef implements DTOEntity {
      * SCM revision to build.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String scmRevision;
 
     /**
