@@ -18,6 +18,8 @@
 package org.jboss.pnc.dto;
 
 import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -43,21 +45,21 @@ public class UserTest {
 
     @Test
     public void testUserNoHtml() {
-        User user = new User("<a href=\"http://topsecret.com\" />", "Jack Ryan");
-        Set<ConstraintViolation<User>> constraintViolations = validator.validate(user);
+        User user = new User(null, "Jack Ryan<a href=\"hahaha.com\"/>");
+        Set<ConstraintViolation<User>> constraintViolations = validator.validate(user, WhenCreatingNew.class);
         assertEquals(1, constraintViolations.size());
 
         user = new User("1234", "<blink>hello</blink>");
-        constraintViolations = validator.validate(user);
+        constraintViolations = validator.validate(user, WhenUpdating.class);
         assertEquals(1, constraintViolations.size());
 
         user = new User("<script>hi</script>", "<blink>hello</blink>");
-        constraintViolations = validator.validate(user);
+        constraintViolations = validator.validate(user, WhenUpdating.class);
         assertEquals(2, constraintViolations.size());
 
         // should not flag any issues
         user = new User("1234", "Feist");
-        constraintViolations = validator.validate(user);
+        constraintViolations = validator.validate(user, WhenUpdating.class);
         assertEquals(0, constraintViolations.size());
 
     }

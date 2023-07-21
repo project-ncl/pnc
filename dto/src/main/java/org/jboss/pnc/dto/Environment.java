@@ -50,32 +50,32 @@ public class Environment implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String id;
 
     /**
      * Environment name.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String name;
 
     /**
      * Environment description.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String description;
 
     /**
      * The URL of the repository which contains the build system image.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String systemImageRepositoryUrl;
 
     /**
      * A unique identifier representing the system image, for example a Docker container ID or a checksum of a VM image.
      */
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String systemImageId;
 
     /**

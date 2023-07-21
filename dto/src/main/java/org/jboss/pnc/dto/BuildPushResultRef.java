@@ -46,14 +46,14 @@ public class BuildPushResultRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String id;
 
     /**
      * ID of the build pushed.
      */
     @NotNull
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String buildId;
 
     /**
@@ -70,13 +70,13 @@ public class BuildPushResultRef implements DTOEntity {
     /**
      * Link to Brew.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String brewBuildUrl;
 
     /**
      * Identificator of log context. Logs related to this operation will have this log context id set.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String logContext;
 
     /**

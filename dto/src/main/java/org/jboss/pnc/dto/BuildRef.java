@@ -49,7 +49,7 @@ public class BuildRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String id;
 
     /**
@@ -80,7 +80,7 @@ public class BuildRef implements DTOEntity {
     /**
      * The identifier to use when accessing repository or other content stored via external services.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String buildContentId;
 
     /**
@@ -96,25 +96,25 @@ public class BuildRef implements DTOEntity {
     /**
      * Url to the SCM repository with the sources being built.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String scmUrl;
 
     /**
      * The revision number in the SCM repository of the sources being built.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String scmRevision;
 
     /**
      * The tag in the SCM repository that was built.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String scmTag;
 
     /**
      * Checksum of build logs. Used to verify the integrity of the logs in the remote storage eg. Elasticsearch.
      */
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String buildOutputChecksum;
 
     /**

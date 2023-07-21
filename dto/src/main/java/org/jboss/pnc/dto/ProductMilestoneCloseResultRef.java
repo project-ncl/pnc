@@ -45,7 +45,7 @@ public class ProductMilestoneCloseResultRef implements DTOEntity {
      * ID of the close attempt.
      */
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String id;
 
     /**

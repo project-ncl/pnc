@@ -23,6 +23,8 @@ import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.common.validator.NoHtml;
+import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
+import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 
 import java.util.List;
 
@@ -35,9 +37,9 @@ public class AlignmentStrategy {
     private final String dependencyOverride;
     private final List<String> ranks;
 
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String denyList;
 
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     private final String allowList;
 }

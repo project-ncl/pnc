@@ -53,7 +53,7 @@ public class ProductRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String id;
 
     /**
@@ -61,14 +61,14 @@ public class ProductRef implements DTOEntity {
      */
     @PatchSupport({ REPLACE })
     @NotBlank(groups = { WhenCreatingNew.class, WhenUpdating.class })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String name;
 
     /**
      * Product description.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String description;
 
     /**
@@ -79,21 +79,21 @@ public class ProductRef implements DTOEntity {
     @PatchSupport({ REPLACE })
     @NotNull(groups = { WhenCreatingNew.class, WhenUpdating.class })
     @Pattern(regexp = Patterns.PRODUCT_ABBREVIATION, groups = { WhenCreatingNew.class, WhenUpdating.class })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String abbreviation;
 
     /**
      * Comma separated list of product managers.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String productManagers;
 
     /**
      * The code given to the product by Product Pages.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String productPagesCode;
 
     @JsonPOJOBuilder(withPrefix = "")

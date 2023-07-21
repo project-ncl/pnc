@@ -53,14 +53,14 @@ public class ProductReleaseRef implements DTOEntity {
      */
     @NotNull(groups = WhenUpdating.class)
     @Null(groups = WhenCreatingNew.class)
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String id;
 
     /**
      * Release version.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String version;
 
     /**
@@ -82,14 +82,14 @@ public class ProductReleaseRef implements DTOEntity {
      * products and by the CVE Engine to map errata to containers when grading.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String commonPlatformEnumeration;
 
     /**
      * Code given by the Product Pages to the release.
      */
     @PatchSupport({ REPLACE })
-    @NoHtml
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
     protected final String productPagesCode;
 
     @JsonPOJOBuilder(withPrefix = "")
