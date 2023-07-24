@@ -376,7 +376,8 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 remoteStart,
                 remoteCancel,
                 callback,
-                Mode.ACTIVE);
+                Mode.ACTIVE,
+                null);
         return createTaskDTO;
     }
 
