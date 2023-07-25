@@ -20,12 +20,15 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.enums.ArtifactQuality;
+import org.jboss.pnc.api.enums.RepositoryType;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.ProductClient;
 import org.jboss.pnc.client.ProductMilestoneClient;
 import org.jboss.pnc.client.ProductVersionClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.common.util.EnumMapUtils;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
@@ -57,9 +60,11 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.BadRequestException;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -342,6 +347,7 @@ public class ProductMilestoneEndpointTest {
     public void testGetStatistics() throws ClientException {
         // given
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
         DeliveredArtifactsStatistics expectedDeliveredArtifactsStats = DeliveredArtifactsStatistics.builder()
                 .thisMilestone(2) // builtArtifact1, builtArtifact9
                 .previousMilestones(1) // builtArtifact10
@@ -349,11 +355,22 @@ public class ProductMilestoneEndpointTest {
                 .noMilestone(1) // builtArtifact5
                 .noBuild(1) // importedArtifact2
                 .build();
+
+        Supplier<Integer> constantZeroSupplier = () -> 0;
+        EnumMap<ArtifactQuality, Integer> expectedArtifactQualities = EnumMapUtils
+                .initEnumMapWithDefaultValue(ArtifactQuality.class, constantZeroSupplier);
+        expectedArtifactQualities.put(ArtifactQuality.NEW, 6);
+        expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1);
+
+        EnumMap<RepositoryType, Integer> expectedRepositoryTypes = EnumMapUtils
+                .initEnumMapWithDefaultValue(RepositoryType.class, constantZeroSupplier);
+        expectedRepositoryTypes.put(RepositoryType.MAVEN, 7);
+
         ProductMilestoneStatistics expectedStats = ProductMilestoneStatistics.builder()
                 .artifactsInMilestone(3) // builtArtifact1, builtArtifact2, builtArtifact9
                 .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
-                // .artifactQuality()
-                // .repositoryType()
+                .artifactQuality(expectedArtifactQualities)
+                .repositoryType(expectedRepositoryTypes)
                 .build();
 
         // then
