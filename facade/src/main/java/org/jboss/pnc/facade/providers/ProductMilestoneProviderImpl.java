@@ -27,6 +27,7 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.util.UserService;
@@ -280,6 +281,11 @@ public class ProductMilestoneProviderImpl extends
         }
 
         return builder.isValid(matches).build();
+    }
+
+    @Override
+    public ProductMilestoneStatistics getStatistics(String id) {
+        return null;
     }
 
     private CriteriaQuery<Tuple> milestoneInfoQuery(CriteriaBuilder cb, Set<Integer> milestoneIds) {

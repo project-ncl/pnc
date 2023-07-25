@@ -164,7 +164,7 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
 
     @Override
     public ProductMilestoneStatistics getStatistics(String id) {
-        return null;
+        return productMilestoneProvider.getStatistics(id);
     }
 
     @Override
