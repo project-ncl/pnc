@@ -27,6 +27,7 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
+import org.jboss.pnc.dto.response.statistics.DeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
@@ -65,6 +66,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 import java.time.Instant;
@@ -285,7 +287,14 @@ public class ProductMilestoneProviderImpl extends
 
     @Override
     public ProductMilestoneStatistics getStatistics(String id) {
-        return null;
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+
+        return ProductMilestoneStatistics.builder()
+                .artifactsInMilestone(getBuiltArtifactsInMilestone(cb, id).size())
+                .deliveredArtifactsSource(null)
+                .artifactQuality(null)
+                .repositoryType(null)
+                .build();
     }
 
     private CriteriaQuery<Tuple> milestoneInfoQuery(CriteriaBuilder cb, Set<Integer> milestoneIds) {
@@ -361,6 +370,19 @@ public class ProductMilestoneProviderImpl extends
         SetJoin<Artifact, BuildRecord> build = artifact.join(Artifact_.dependantBuildRecords);
         buildQuery.where(cb.equal(artifact.get(Artifact_.id), Integer.valueOf(id)));
         buildQuery.select(build.get(BuildRecord_.productMilestone).get(ProductMilestone_.id));
+        buildQuery.distinct(true);
+
+        return em.createQuery(buildQuery).getResultList();
+    }
+
+    private List<Artifact> getBuiltArtifactsInMilestone(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Artifact> buildQuery = cb.createQuery(Artifact.class);
+
+        Root<Artifact> artifact = buildQuery.from(Artifact.class);
+        Join<Artifact, BuildRecord> build = artifact.join(Artifact_.buildRecord);
+        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> productMilestone = build
+                .join(BuildRecord_.productMilestone);
+        buildQuery.where(cb.equal(productMilestone.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
         buildQuery.distinct(true);
 
         return em.createQuery(buildQuery).getResultList();
