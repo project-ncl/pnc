@@ -377,6 +377,20 @@ public class ProductMilestoneEndpointTest {
         ProductMilestoneStatistics actualStats = client.getStatistics(milestoneId);
 
         // assert
+        assertThat(actualStats.getArtifactsInMilestone()).isEqualTo(expectedStats.getArtifactsInMilestone());
+        assertThat(actualStats.getDeliveredArtifactsSource().getThisMilestone())
+                .isEqualTo(expectedDeliveredArtifactsStats.getThisMilestone());
+        assertThat(actualStats.getDeliveredArtifactsSource().getPreviousMilestones())
+                .isEqualTo(expectedDeliveredArtifactsStats.getPreviousMilestones());
+        assertThat(actualStats.getDeliveredArtifactsSource().getOtherProducts())
+                .isEqualTo(expectedDeliveredArtifactsStats.getOtherProducts());
+        assertThat(actualStats.getDeliveredArtifactsSource().getNoMilestone())
+                .isEqualTo(expectedDeliveredArtifactsStats.getNoMilestone());
+        assertThat(actualStats.getDeliveredArtifactsSource().getNoBuild())
+                .isEqualTo(expectedDeliveredArtifactsStats.getNoBuild());
+        assertThat(actualStats.getArtifactQuality()).isEqualTo(expectedArtifactQualities);
+        assertThat(actualStats.getRepositoryType()).isEqualTo(expectedRepositoryTypes);
+        // TODO: Comment assertions above and uncomment only this one
         // assertThat(actualStats).isEqualTo(expectedStats);
     }
 }
