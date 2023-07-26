@@ -1041,6 +1041,7 @@ public class DatabaseDataInitializer {
             builtArtifact11 = artifactRepository.save(builtArtifact11);
             builtArtifact12 = artifactRepository.save(builtArtifact12);
 
+            demoProductMilestone1.addDeliveredArtifact(builtArtifact10);
             demoProductMilestone1.addDeliveredArtifact(builtArtifact11);
             demoProductMilestone1.addDeliveredArtifact(builtArtifact12);
         }
