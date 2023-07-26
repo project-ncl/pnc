@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.logging.MDCUtils;
+import org.jboss.pnc.common.util.EnumMapUtils;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
@@ -27,9 +28,10 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
-import org.jboss.pnc.dto.response.statistics.DeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -52,6 +54,8 @@ import org.jboss.pnc.model.ProductRelease_;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.Product_;
+import org.jboss.pnc.model.TargetRepository;
+import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +70,12 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -292,8 +296,8 @@ public class ProductMilestoneProviderImpl extends
         return ProductMilestoneStatistics.builder()
                 .artifactsInMilestone(getBuiltArtifactsInMilestone(cb, id).size())
                 .deliveredArtifactsSource(null)
-                .artifactQuality(null)
-                .repositoryType(null)
+                .artifactQuality(getArtifactQualities(cb, id))
+                .repositoryType(getRepositoryTypes(cb, id))
                 .build();
     }
 
@@ -386,5 +390,55 @@ public class ProductMilestoneProviderImpl extends
         buildQuery.distinct(true);
 
         return em.createQuery(buildQuery).getResultList();
+    }
+
+    private EnumMap<ArtifactQuality, Integer> getArtifactQualities(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+
+        Root<org.jboss.pnc.model.ProductMilestone> productMilestones = query
+                .from(org.jboss.pnc.model.ProductMilestone.class);
+        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
+        SetJoin<org.jboss.pnc.model.ProductMilestone, Artifact> deliveredArtifacts = productMilestones
+                .join(ProductMilestone_.deliveredArtifacts);
+
+        query.multiselect(
+                deliveredArtifacts.get(Artifact_.artifactQuality),
+                cb.count(deliveredArtifacts.get(Artifact_.artifactQuality)));
+        query.groupBy(deliveredArtifacts.get(Artifact_.artifactQuality));
+
+        List<Tuple> tuples = em.createQuery(query).getResultList();
+        return transformListTupleToEnumMap(tuples, ArtifactQuality.class);
+    }
+
+    private EnumMap<RepositoryType, Integer> getRepositoryTypes(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+
+        Root<org.jboss.pnc.model.ProductMilestone> productMilestones = query
+                .from(org.jboss.pnc.model.ProductMilestone.class);
+        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
+        SetJoin<org.jboss.pnc.model.ProductMilestone, Artifact> deliveredArtifacts = productMilestones
+                .join(ProductMilestone_.deliveredArtifacts);
+        Join<Artifact, TargetRepository> targetRepositories = deliveredArtifacts.join(Artifact_.targetRepository);
+
+        query.multiselect(
+                targetRepositories.get(TargetRepository_.repositoryType),
+                cb.count(targetRepositories.get(TargetRepository_.repositoryType)));
+        query.groupBy(targetRepositories.get(TargetRepository_.repositoryType));
+
+        List<Tuple> tuples = em.createQuery(query).getResultList();
+        return transformListTupleToEnumMap(tuples, RepositoryType.class);
+    }
+
+    private static <K extends Enum<K>> EnumMap<K, Integer> transformListTupleToEnumMap(
+            List<Tuple> tuples,
+            Class<K> keyType) {
+        EnumMap<K, Integer> enumMap = EnumMapUtils.initEnumMapWithDefaultValue(keyType, () -> 0);
+
+        for (var t : tuples) {
+            // Workaround with .intValue() has to be done instead of Integer.class
+            enumMap.put(t.get(0, keyType), t.get(1, Long.class).intValue());
+        }
+
+        return enumMap;
     }
 }
