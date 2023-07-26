@@ -1041,6 +1041,7 @@ public class DatabaseDataInitializer {
             builtArtifact11 = artifactRepository.save(builtArtifact11);
             builtArtifact12 = artifactRepository.save(builtArtifact12);
 
+            demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
             demoProductMilestone1.addDeliveredArtifact(builtArtifact10);
             demoProductMilestone1.addDeliveredArtifact(builtArtifact11);
             demoProductMilestone1.addDeliveredArtifact(builtArtifact12);
@@ -1080,7 +1081,6 @@ public class DatabaseDataInitializer {
                 .build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord3);
 
-        demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
         demoProductMilestone1.addDeliveredArtifact(builtArtifact1);
         demoProductMilestone1.addDeliveredArtifact(builtArtifact5);
         demoProductMilestone1.addDeliveredArtifact(builtArtifact9);
