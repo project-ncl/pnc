@@ -22,8 +22,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Value;
-import org.jboss.pnc.api.enums.ArtifactQuality;
-import org.jboss.pnc.api.enums.RepositoryType;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 
 import java.util.EnumMap;
 
