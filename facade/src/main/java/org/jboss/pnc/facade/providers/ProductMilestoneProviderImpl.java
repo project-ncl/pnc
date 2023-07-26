@@ -28,6 +28,7 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
+import org.jboss.pnc.dto.response.statistics.DeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -295,7 +296,10 @@ public class ProductMilestoneProviderImpl extends
 
         return ProductMilestoneStatistics.builder()
                 .artifactsInMilestone(getBuiltArtifactsInMilestone(cb, id).size())
-                .deliveredArtifactsSource(null)
+                .deliveredArtifactsSource(
+                        DeliveredArtifactsStatistics.builder()
+                                .thisMilestone(getDeliveredArtifactsBuiltInThisMilestone(cb, id).size())
+                                .build())
                 .artifactQuality(getArtifactQualities(cb, id))
                 .repositoryType(getRepositoryTypes(cb, id))
                 .build();
@@ -397,9 +401,9 @@ public class ProductMilestoneProviderImpl extends
 
         Root<org.jboss.pnc.model.ProductMilestone> productMilestones = query
                 .from(org.jboss.pnc.model.ProductMilestone.class);
-        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
         SetJoin<org.jboss.pnc.model.ProductMilestone, Artifact> deliveredArtifacts = productMilestones
                 .join(ProductMilestone_.deliveredArtifacts);
+        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
 
         query.multiselect(
                 deliveredArtifacts.get(Artifact_.artifactQuality),
@@ -415,9 +419,9 @@ public class ProductMilestoneProviderImpl extends
 
         Root<org.jboss.pnc.model.ProductMilestone> productMilestones = query
                 .from(org.jboss.pnc.model.ProductMilestone.class);
-        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
         SetJoin<org.jboss.pnc.model.ProductMilestone, Artifact> deliveredArtifacts = productMilestones
                 .join(ProductMilestone_.deliveredArtifacts);
+        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
         Join<Artifact, TargetRepository> targetRepositories = deliveredArtifacts.join(Artifact_.targetRepository);
 
         query.multiselect(
@@ -427,6 +431,23 @@ public class ProductMilestoneProviderImpl extends
 
         List<Tuple> tuples = em.createQuery(query).getResultList();
         return transformListTupleToEnumMap(tuples, RepositoryType.class);
+    }
+
+    private List<Artifact> getDeliveredArtifactsBuiltInThisMilestone(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
+        Integer productMilestoneId = mapper.getIdMapper().toEntity(id);
+
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> milestones = artifacts
+                .join(Artifact_.deliveredInProductMilestones);
+        query.where(cb.equal(milestones.get(ProductMilestone_.id), productMilestoneId));
+
+        // delivered artifacts, which were *built in this milestone*
+        Join<Artifact, BuildRecord> builds = artifacts.join(Artifact_.buildRecord);
+        // INNER JOIN guarantees the artifact was built
+        query.where(cb.equal(builds.get(BuildRecord_.productMilestone).get(ProductMilestone_.id), productMilestoneId));
+
+        return em.createQuery(query).getResultList();
     }
 
     private static <K extends Enum<K>> EnumMap<K, Integer> transformListTupleToEnumMap(

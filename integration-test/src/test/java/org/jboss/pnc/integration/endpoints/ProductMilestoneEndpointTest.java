@@ -378,8 +378,8 @@ public class ProductMilestoneEndpointTest {
 
         // assert
         assertThat(actualStats.getArtifactsInMilestone()).isEqualTo(expectedStats.getArtifactsInMilestone());
-        // assertThat(actualStats.getDeliveredArtifactsSource().getThisMilestone())
-        // .isEqualTo(expectedDeliveredArtifactsStats.getThisMilestone());
+        assertThat(actualStats.getDeliveredArtifactsSource().getThisMilestone())
+                .isEqualTo(expectedDeliveredArtifactsStats.getThisMilestone());
         // assertThat(actualStats.getDeliveredArtifactsSource().getPreviousMilestones())
         // .isEqualTo(expectedDeliveredArtifactsStats.getPreviousMilestones());
         // assertThat(actualStats.getDeliveredArtifactsSource().getOtherProducts())
