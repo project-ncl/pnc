@@ -386,8 +386,8 @@ public class ProductMilestoneEndpointTest {
                 .isEqualTo(expectedDeliveredArtifactsStats.getOtherProducts());
         assertThat(actualStats.getDeliveredArtifactsSource().getNoMilestone())
                 .isEqualTo(expectedDeliveredArtifactsStats.getNoMilestone());
-        // assertThat(actualStats.getDeliveredArtifactsSource().getNoBuild())
-        // .isEqualTo(expectedDeliveredArtifactsStats.getNoBuild());
+        assertThat(actualStats.getDeliveredArtifactsSource().getNoBuild())
+                .isEqualTo(expectedDeliveredArtifactsStats.getNoBuild());
         assertThat(actualStats.getArtifactQuality()).isEqualTo(expectedArtifactQualities);
         assertThat(actualStats.getRepositoryType()).isEqualTo(expectedRepositoryTypes);
         // TODO: Comment assertions above and uncomment only this one
