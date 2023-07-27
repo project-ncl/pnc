@@ -422,12 +422,12 @@ public class ProductMilestoneProviderImpl extends
                 .from(org.jboss.pnc.model.ProductMilestone.class);
         SetJoin<org.jboss.pnc.model.ProductMilestone, Artifact> deliveredArtifacts = productMilestones
                 .join(ProductMilestone_.deliveredArtifacts);
-        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
         Join<Artifact, TargetRepository> targetRepositories = deliveredArtifacts.join(Artifact_.targetRepository);
 
         query.multiselect(
                 targetRepositories.get(TargetRepository_.repositoryType),
                 cb.count(targetRepositories.get(TargetRepository_.repositoryType)));
+        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
         query.groupBy(targetRepositories.get(TargetRepository_.repositoryType));
 
         List<Tuple> tuples = em.createQuery(query).getResultList();
@@ -441,12 +441,13 @@ public class ProductMilestoneProviderImpl extends
         Root<Artifact> artifacts = query.from(Artifact.class);
         SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> milestones = artifacts
                 .join(Artifact_.deliveredInProductMilestones);
-        query.where(cb.equal(milestones.get(ProductMilestone_.id), productMilestoneId));
 
         // delivered artifacts, which were *built in this milestone*
         Join<Artifact, BuildRecord> builds = artifacts.join(Artifact_.buildRecord);
         // INNER JOIN guarantees the artifact was built
-        query.where(cb.equal(builds.get(BuildRecord_.productMilestone).get(ProductMilestone_.id), productMilestoneId));
+        query.where(
+                cb.equal(builds.get(BuildRecord_.productMilestone).get(ProductMilestone_.id), productMilestoneId),
+                cb.equal(milestones.get(ProductMilestone_.id), productMilestoneId));
 
         return em.createQuery(query).getResultList();
     }
@@ -479,11 +480,11 @@ public class ProductMilestoneProviderImpl extends
         CriteriaQuery<Integer> query = cb.createQuery(Integer.class);
 
         Root<org.jboss.pnc.model.ProductMilestone> milestone = query.from(org.jboss.pnc.model.ProductMilestone.class);
-        query.where(cb.equal(milestone.get(ProductMilestone_.id), productMilestoneId));
         Join<org.jboss.pnc.model.ProductMilestone, ProductVersion> productVersion = milestone
                 .join(ProductMilestone_.productVersion);
         Join<ProductVersion, Product> product = productVersion.join(ProductVersion_.product);
         query.select(product.get(Product_.id));
+        query.where(cb.equal(milestone.get(ProductMilestone_.id), productMilestoneId));
 
         return em.createQuery(query).getResultList().get(0);
     }
