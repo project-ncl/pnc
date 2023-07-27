@@ -388,16 +388,113 @@ public class ProductMilestoneProviderImpl extends
     }
 
     private List<Artifact> getBuiltArtifactsInMilestone(CriteriaBuilder cb, String id) {
-        CriteriaQuery<Artifact> buildQuery = cb.createQuery(Artifact.class);
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
 
-        Root<Artifact> artifact = buildQuery.from(Artifact.class);
-        Join<Artifact, BuildRecord> build = artifact.join(Artifact_.buildRecord);
-        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> productMilestone = build
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        Join<Artifact, BuildRecord> builtArtifacts = artifacts.join(Artifact_.buildRecord);
+        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> builtArtifactsMilestones = builtArtifacts
                 .join(BuildRecord_.productMilestone);
-        buildQuery.where(cb.equal(productMilestone.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
-        buildQuery.distinct(true);
 
-        return em.createQuery(buildQuery).getResultList();
+        query.where(cb.equal(builtArtifactsMilestones.get(ProductMilestone_.id), getEntityIdFromRestId(id)));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    private List<Artifact> getDeliveredArtifactsBuiltInThisMilestone(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
+
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> deliveredArtifacts = artifacts
+                .join(Artifact_.deliveredInProductMilestones);
+        Join<Artifact, BuildRecord> builtArtifacts = artifacts.join(Artifact_.buildRecord);
+
+        Integer productMilestoneId = getEntityIdFromRestId(id);
+        query.where(
+                cb.equal(
+                        builtArtifacts.get(BuildRecord_.productMilestone).get(ProductMilestone_.id),
+                        productMilestoneId),
+                cb.equal(deliveredArtifacts.get(ProductMilestone_.id), productMilestoneId));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    private List<Artifact> getDeliveredArtifactsBuiltInOtherMilestones(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
+
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> deliveredArtifacts = artifacts
+                .join(Artifact_.deliveredInProductMilestones);
+        Join<Artifact, BuildRecord> builtArtifacts = artifacts.join(Artifact_.buildRecord);
+        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> milestoneBuiltArtifacts = builtArtifacts
+                .join(BuildRecord_.productMilestone);
+        Join<org.jboss.pnc.model.ProductMilestone, ProductVersion> versionBuiltArtifacts = milestoneBuiltArtifacts
+                .join(ProductMilestone_.productVersion);
+        Join<ProductVersion, Product> productBuiltArtifacts = versionBuiltArtifacts.join(ProductVersion_.product);
+
+        Integer productMilestoneId = getEntityIdFromRestId(id);
+        Integer productId = getProductIdByItsMilestone(cb, productMilestoneId);
+        query.where(
+                cb.equal(deliveredArtifacts.get(ProductMilestone_.id), productMilestoneId),
+                cb.equal(productBuiltArtifacts.get(Product_.id), productId),
+                cb.notEqual(milestoneBuiltArtifacts.get(ProductMilestone_.id), productMilestoneId));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    private List<Artifact> getDeliveredArtifactsBuiltByOtherProducts(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
+
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> deliveredArtifacts = artifacts
+                .join(Artifact_.deliveredInProductMilestones);
+        Join<Artifact, BuildRecord> builtArtifacts = artifacts.join(Artifact_.buildRecord);
+        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> milestoneBuiltArtifacts = builtArtifacts
+                .join(BuildRecord_.productMilestone);
+        Join<org.jboss.pnc.model.ProductMilestone, ProductVersion> versionBuiltArtifacts = milestoneBuiltArtifacts
+                .join(ProductMilestone_.productVersion);
+        Join<ProductVersion, Product> productBuiltArtifacts = versionBuiltArtifacts.join(ProductVersion_.product);
+
+        Integer productMilestoneId = getEntityIdFromRestId(id);
+        Integer productId = getProductIdByItsMilestone(cb, productMilestoneId);
+        query.where(
+                cb.equal(deliveredArtifacts.get(ProductMilestone_.id), productMilestoneId),
+                cb.notEqual(productBuiltArtifacts.get(Product_.id), productId));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    private List<Artifact> getDeliveredArtifactsBuiltInNoMilestone(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
+
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> deliveredArtifacts = artifacts
+                .join(Artifact_.deliveredInProductMilestones);
+        Join<Artifact, BuildRecord> builtArtifacts = artifacts.join(Artifact_.buildRecord);
+        // LEFT INNER JOIN: we want also those built artifacts, which doesn't have assigned any milestone
+        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> allBuiltArtifacts = builtArtifacts
+                .join(BuildRecord_.productMilestone, JoinType.LEFT);
+
+        query.where(
+                cb.equal(deliveredArtifacts.get(ProductMilestone_.id), getEntityIdFromRestId(id)),
+                cb.isNull(allBuiltArtifacts.get(ProductMilestone_.id)));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    private List<Artifact> getDeliveredArtifactsNotBuilt(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
+
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> deliveredArtifacts = artifacts
+                .join(Artifact_.deliveredInProductMilestones);
+        // LEFT INNER JOIN: we want also artifacts, which were not built
+        Join<Artifact, BuildRecord> allArtifacts = artifacts.join(Artifact_.buildRecord, JoinType.LEFT);
+
+        query.where(
+                cb.equal(deliveredArtifacts.get(ProductMilestone_.id), getEntityIdFromRestId(id)),
+                cb.isNull(allArtifacts.get(BuildRecord_.id)));
+
+        return em.createQuery(query).getResultList();
     }
 
     private EnumMap<ArtifactQuality, Integer> getArtifactQualities(CriteriaBuilder cb, String id) {
@@ -407,8 +504,8 @@ public class ProductMilestoneProviderImpl extends
                 .from(org.jboss.pnc.model.ProductMilestone.class);
         SetJoin<org.jboss.pnc.model.ProductMilestone, Artifact> deliveredArtifacts = productMilestones
                 .join(ProductMilestone_.deliveredArtifacts);
-        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
 
+        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), getEntityIdFromRestId(id)));
         query.multiselect(
                 deliveredArtifacts.get(Artifact_.artifactQuality),
                 cb.count(deliveredArtifacts.get(Artifact_.artifactQuality)));
@@ -427,127 +524,32 @@ public class ProductMilestoneProviderImpl extends
                 .join(ProductMilestone_.deliveredArtifacts);
         Join<Artifact, TargetRepository> targetRepositories = deliveredArtifacts.join(Artifact_.targetRepository);
 
+        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), getEntityIdFromRestId(id)));
         query.multiselect(
                 targetRepositories.get(TargetRepository_.repositoryType),
                 cb.count(targetRepositories.get(TargetRepository_.repositoryType)));
-        query.where(cb.equal(productMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)));
         query.groupBy(targetRepositories.get(TargetRepository_.repositoryType));
 
         List<Tuple> tuples = em.createQuery(query).getResultList();
         return transformListTupleToEnumMap(tuples, RepositoryType.class);
     }
 
-    private List<Artifact> getDeliveredArtifactsBuiltInThisMilestone(CriteriaBuilder cb, String id) {
-        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
-        Integer productMilestoneId = mapper.getIdMapper().toEntity(id);
-
-        Root<Artifact> artifacts = query.from(Artifact.class);
-        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> milestones = artifacts
-                .join(Artifact_.deliveredInProductMilestones);
-
-        // delivered artifacts, which were *built in this milestone*
-        Join<Artifact, BuildRecord> builds = artifacts.join(Artifact_.buildRecord);
-        // INNER JOIN guarantees the artifact was built
-        query.where(
-                cb.equal(builds.get(BuildRecord_.productMilestone).get(ProductMilestone_.id), productMilestoneId),
-                cb.equal(milestones.get(ProductMilestone_.id), productMilestoneId));
-
-        return em.createQuery(query).getResultList();
-    }
-
-    private List<Artifact> getDeliveredArtifactsBuiltInOtherMilestones(CriteriaBuilder cb, String id) {
-        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
-        Integer productMilestoneId = mapper.getIdMapper().toEntity(id);
-
-        Root<Artifact> artifacts = query.from(Artifact.class);
-        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> artifactsMilestone = artifacts
-                .join(Artifact_.deliveredInProductMilestones);
-
-        // delivered artifacts, which were *built in other milestones, but are of the same product*
-        Join<Artifact, BuildRecord> build = artifacts.join(Artifact_.buildRecord);
-        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> buildsMilestone = build
-                .join(BuildRecord_.productMilestone);
-        Join<org.jboss.pnc.model.ProductMilestone, ProductVersion> buildsVersion = buildsMilestone
-                .join(ProductMilestone_.productVersion);
-        Join<ProductVersion, Product> buildsProduct = buildsVersion.join(ProductVersion_.product);
-        Integer productId = getProductIdByItsMilestone(cb, productMilestoneId);
-        query.where(
-                cb.equal(artifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
-                cb.equal(buildsProduct.get(Product_.id), productId),
-                cb.notEqual(buildsMilestone.get(ProductMilestone_.id), productMilestoneId));
-
-        return em.createQuery(query).getResultList();
-    }
-
-    private List<Artifact> getDeliveredArtifactsBuiltByOtherProducts(CriteriaBuilder cb, String id) {
-        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
-        Integer productMilestoneId = mapper.getIdMapper().toEntity(id);
-
-        Root<Artifact> artifacts = query.from(Artifact.class);
-        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> artifactsMilestone = artifacts
-                .join(Artifact_.deliveredInProductMilestones);
-
-        // select such delivered artifacts, which were *built by other products*
-        Join<Artifact, BuildRecord> build = artifacts.join(Artifact_.buildRecord);
-        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> buildsMilestone = build
-                .join(BuildRecord_.productMilestone);
-        Join<org.jboss.pnc.model.ProductMilestone, ProductVersion> buildsVersion = buildsMilestone
-                .join(ProductMilestone_.productVersion);
-        Join<ProductVersion, Product> buildsProduct = buildsVersion.join(ProductVersion_.product);
-        Integer productId = getProductIdByItsMilestone(cb, productMilestoneId);
-        query.where(
-                cb.equal(artifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
-                cb.notEqual(buildsProduct.get(Product_.id), productId));
-
-        return em.createQuery(query).getResultList();
-    }
-
-    private List<Artifact> getDeliveredArtifactsBuiltInNoMilestone(CriteriaBuilder cb, String id) {
-        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
-
-        Root<Artifact> artifacts = query.from(Artifact.class);
-        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> artifactsMilestones = artifacts
-                .join(Artifact_.deliveredInProductMilestones);
-
-        // select such delivered *which were built in no milestone*
-        Join<Artifact, BuildRecord> artifactsBuild = artifacts.join(Artifact_.buildRecord);
-        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> buildsMilestone = artifactsBuild
-                .join(BuildRecord_.productMilestone, JoinType.LEFT); // we want also builds who doesn't have milestone
-        query.where(
-                cb.equal(artifactsMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)),
-                cb.isNull(buildsMilestone.get(ProductMilestone_.id)));
-
-        return em.createQuery(query).getResultList();
-    }
-
-    private List<Artifact> getDeliveredArtifactsNotBuilt(CriteriaBuilder cb, String id) {
-        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
-
-        Root<Artifact> artifacts = query.from(Artifact.class);
-        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> artifactsMilestones = artifacts
-                .join(Artifact_.deliveredInProductMilestones);
-
-        // select such delivered artifacts *which were built in no milestone*
-        // LEFT INNER JOIN, since we want also artifacts, which were not built
-        Join<Artifact, BuildRecord> artifactsBuilds = artifacts.join(Artifact_.buildRecord, JoinType.LEFT);
-        query.where(
-                cb.equal(artifactsMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)),
-                cb.isNull(artifactsBuilds.get(BuildRecord_.id)));
-
-        return em.createQuery(query).getResultList();
-    }
-
     private Integer getProductIdByItsMilestone(CriteriaBuilder cb, Integer productMilestoneId) {
         CriteriaQuery<Integer> query = cb.createQuery(Integer.class);
 
-        Root<org.jboss.pnc.model.ProductMilestone> milestone = query.from(org.jboss.pnc.model.ProductMilestone.class);
-        Join<org.jboss.pnc.model.ProductMilestone, ProductVersion> productVersion = milestone
+        Root<org.jboss.pnc.model.ProductMilestone> milestones = query.from(org.jboss.pnc.model.ProductMilestone.class);
+        Join<org.jboss.pnc.model.ProductMilestone, ProductVersion> productVersions = milestones
                 .join(ProductMilestone_.productVersion);
-        Join<ProductVersion, Product> product = productVersion.join(ProductVersion_.product);
-        query.select(product.get(Product_.id));
-        query.where(cb.equal(milestone.get(ProductMilestone_.id), productMilestoneId));
+        Join<ProductVersion, Product> products = productVersions.join(ProductVersion_.product);
+
+        query.where(cb.equal(milestones.get(ProductMilestone_.id), productMilestoneId));
+        query.select(products.get(Product_.id));
 
         return em.createQuery(query).getResultList().get(0);
+    }
+
+    private Integer getEntityIdFromRestId(String id) {
+        return mapper.getIdMapper().toEntity(id);
     }
 
     private static <K extends Enum<K>> EnumMap<K, Integer> transformListTupleToEnumMap(
@@ -556,7 +558,7 @@ public class ProductMilestoneProviderImpl extends
         EnumMap<K, Integer> enumMap = EnumMapUtils.initEnumMapWithDefaultValue(keyType, () -> 0);
 
         for (var t : tuples) {
-            // Workaround with .intValue() has to be done instead of Integer.class
+            // workaround with .intValue() has to be done instead of Integer.class
             enumMap.put(t.get(0, keyType), t.get(1, Long.class).intValue());
         }
 

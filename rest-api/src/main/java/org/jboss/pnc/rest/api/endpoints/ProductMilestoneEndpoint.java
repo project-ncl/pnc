@@ -377,7 +377,7 @@ public interface ProductMilestoneEndpoint {
             @Parameter(description = PM_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
-    static final String GET_PM_STATISTICS = "Gets all artifacts' statistics from this and previous milestones.";
+    static final String GET_PM_STATISTICS = "Gets statistics about all artifacts from this and other milestones of this product.";
 
     /**
      * {@value GET_PM_STATISTICS}
