@@ -300,6 +300,7 @@ public class ProductMilestoneProviderImpl extends
                         DeliveredArtifactsStatistics.builder()
                                 .thisMilestone(getDeliveredArtifactsBuiltInThisMilestone(cb, id).size())
                                 .previousMilestones(getDeliveredArtifactsBuiltInOtherMilestones(cb, id).size())
+                                .otherProducts(getDeliveredArtifactsBuiltByOtherProducts(cb, id).size())
                                 .build())
                 .artifactQuality(getArtifactQualities(cb, id))
                 .repositoryType(getRepositoryTypes(cb, id))
@@ -472,6 +473,29 @@ public class ProductMilestoneProviderImpl extends
                 cb.equal(artifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
                 cb.equal(buildsProduct.get(Product_.id), productId),
                 cb.notEqual(buildsMilestone.get(ProductMilestone_.id), productMilestoneId));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    private List<Artifact> getDeliveredArtifactsBuiltByOtherProducts(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
+        Integer productMilestoneId = mapper.getIdMapper().toEntity(id);
+
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> artifactsMilestone = artifacts
+                .join(Artifact_.deliveredInProductMilestones);
+
+        // select such delivered artifacts, which were *built by other products*
+        Join<Artifact, BuildRecord> build = artifacts.join(Artifact_.buildRecord);
+        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> buildsMilestone = build
+                .join(BuildRecord_.productMilestone);
+        Join<org.jboss.pnc.model.ProductMilestone, ProductVersion> buildsVersion = buildsMilestone
+                .join(ProductMilestone_.productVersion);
+        Join<ProductVersion, Product> buildsProduct = buildsVersion.join(ProductVersion_.product);
+        Integer productId = getProductIdByItsMilestone(cb, productMilestoneId);
+        query.where(
+                cb.equal(artifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
+                cb.notEqual(buildsProduct.get(Product_.id), productId));
 
         return em.createQuery(query).getResultList();
     }
