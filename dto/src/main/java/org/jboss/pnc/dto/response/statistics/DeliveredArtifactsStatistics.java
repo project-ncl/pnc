@@ -40,9 +40,9 @@ public class DeliveredArtifactsStatistics {
     Integer thisMilestone;
 
     /**
-     * Number of delivered artifacts produced by builds contained in previous milestones of the same product.
+     * Number of delivered artifacts produced by builds contained in other milestones of the same product.
      */
-    Integer previousMilestones;
+    Integer otherMilestones;
 
     /**
      * Number of delivered artifacts produced by builds contained in milestones of other products.

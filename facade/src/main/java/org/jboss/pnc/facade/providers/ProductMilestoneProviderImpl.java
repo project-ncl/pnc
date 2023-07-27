@@ -299,7 +299,7 @@ public class ProductMilestoneProviderImpl extends
                 .deliveredArtifactsSource(
                         DeliveredArtifactsStatistics.builder()
                                 .thisMilestone(getDeliveredArtifactsBuiltInThisMilestone(cb, id).size())
-                                .previousMilestones(getDeliveredArtifactsBuiltInOtherMilestones(cb, id).size())
+                                .otherMilestones(getDeliveredArtifactsBuiltInOtherMilestones(cb, id).size())
                                 .otherProducts(getDeliveredArtifactsBuiltByOtherProducts(cb, id).size())
                                 .noMilestone(getDeliveredArtifactsBuiltInNoMilestone(cb, id).size())
                                 .noBuild(getDeliveredArtifactsNotBuilt(cb, id).size())

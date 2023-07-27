@@ -350,7 +350,7 @@ public class ProductMilestoneEndpointTest {
 
         DeliveredArtifactsStatistics expectedDeliveredArtifactsStats = DeliveredArtifactsStatistics.builder()
                 .thisMilestone(2) // builtArtifact1, builtArtifact9
-                .previousMilestones(1) // builtArtifact10
+                .otherMilestones(1) // builtArtifact10
                 .otherProducts(2) // builtArtifact11, builtArtifact12
                 .noMilestone(1) // builtArtifact5
                 .noBuild(1) // importedArtifact2
@@ -380,8 +380,8 @@ public class ProductMilestoneEndpointTest {
         assertThat(actualStats.getArtifactsInMilestone()).isEqualTo(expectedStats.getArtifactsInMilestone());
         assertThat(actualStats.getDeliveredArtifactsSource().getThisMilestone())
                 .isEqualTo(expectedDeliveredArtifactsStats.getThisMilestone());
-        assertThat(actualStats.getDeliveredArtifactsSource().getPreviousMilestones())
-                .isEqualTo(expectedDeliveredArtifactsStats.getPreviousMilestones());
+        assertThat(actualStats.getDeliveredArtifactsSource().getOtherMilestones())
+                .isEqualTo(expectedDeliveredArtifactsStats.getOtherMilestones());
         assertThat(actualStats.getDeliveredArtifactsSource().getOtherProducts())
                 .isEqualTo(expectedDeliveredArtifactsStats.getOtherProducts());
         assertThat(actualStats.getDeliveredArtifactsSource().getNoMilestone())
