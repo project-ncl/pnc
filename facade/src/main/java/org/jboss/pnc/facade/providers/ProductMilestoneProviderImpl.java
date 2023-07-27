@@ -301,6 +301,7 @@ public class ProductMilestoneProviderImpl extends
                                 .thisMilestone(getDeliveredArtifactsBuiltInThisMilestone(cb, id).size())
                                 .previousMilestones(getDeliveredArtifactsBuiltInOtherMilestones(cb, id).size())
                                 .otherProducts(getDeliveredArtifactsBuiltByOtherProducts(cb, id).size())
+                                .noMilestone(getDeliveredArtifactsBuiltInNoMilestone(cb, id).size())
                                 .build())
                 .artifactQuality(getArtifactQualities(cb, id))
                 .repositoryType(getRepositoryTypes(cb, id))
@@ -496,6 +497,24 @@ public class ProductMilestoneProviderImpl extends
         query.where(
                 cb.equal(artifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
                 cb.notEqual(buildsProduct.get(Product_.id), productId));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    private List<Artifact> getDeliveredArtifactsBuiltInNoMilestone(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
+
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> artifactsMilestones = artifacts
+                .join(Artifact_.deliveredInProductMilestones);
+
+        // select such delivered *which were built in no milestone*
+        Join<Artifact, BuildRecord> artifactsBuild = artifacts.join(Artifact_.buildRecord);
+        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> buildsMilestone = artifactsBuild
+                .join(BuildRecord_.productMilestone, JoinType.LEFT); // we want also builds who doesn't have milestone
+        query.where(
+                cb.equal(artifactsMilestones.get(ProductMilestone_.id), mapper.getIdMapper().toEntity(id)),
+                cb.isNull(buildsMilestone.get(ProductMilestone_.id)));
 
         return em.createQuery(query).getResultList();
     }
