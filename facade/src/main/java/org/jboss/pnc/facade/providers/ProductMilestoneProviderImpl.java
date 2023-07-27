@@ -299,6 +299,7 @@ public class ProductMilestoneProviderImpl extends
                 .deliveredArtifactsSource(
                         DeliveredArtifactsStatistics.builder()
                                 .thisMilestone(getDeliveredArtifactsBuiltInThisMilestone(cb, id).size())
+                                .previousMilestones(getDeliveredArtifactsBuiltInOtherMilestones(cb, id).size())
                                 .build())
                 .artifactQuality(getArtifactQualities(cb, id))
                 .repositoryType(getRepositoryTypes(cb, id))
@@ -448,6 +449,43 @@ public class ProductMilestoneProviderImpl extends
         query.where(cb.equal(builds.get(BuildRecord_.productMilestone).get(ProductMilestone_.id), productMilestoneId));
 
         return em.createQuery(query).getResultList();
+    }
+
+    private List<Artifact> getDeliveredArtifactsBuiltInOtherMilestones(CriteriaBuilder cb, String id) {
+        CriteriaQuery<Artifact> query = cb.createQuery(Artifact.class);
+        Integer productMilestoneId = mapper.getIdMapper().toEntity(id);
+
+        Root<Artifact> artifacts = query.from(Artifact.class);
+        SetJoin<Artifact, org.jboss.pnc.model.ProductMilestone> artifactsMilestone = artifacts
+                .join(Artifact_.deliveredInProductMilestones);
+
+        // delivered artifacts, which were *built in other milestones, but are of the same product*
+        Join<Artifact, BuildRecord> build = artifacts.join(Artifact_.buildRecord);
+        Join<BuildRecord, org.jboss.pnc.model.ProductMilestone> buildsMilestone = build
+                .join(BuildRecord_.productMilestone);
+        Join<org.jboss.pnc.model.ProductMilestone, ProductVersion> buildsVersion = buildsMilestone
+                .join(ProductMilestone_.productVersion);
+        Join<ProductVersion, Product> buildsProduct = buildsVersion.join(ProductVersion_.product);
+        Integer productId = getProductIdByItsMilestone(cb, productMilestoneId);
+        query.where(
+                cb.equal(artifactsMilestone.get(ProductMilestone_.id), productMilestoneId),
+                cb.equal(buildsProduct.get(Product_.id), productId),
+                cb.notEqual(buildsMilestone.get(ProductMilestone_.id), productMilestoneId));
+
+        return em.createQuery(query).getResultList();
+    }
+
+    private Integer getProductIdByItsMilestone(CriteriaBuilder cb, Integer productMilestoneId) {
+        CriteriaQuery<Integer> query = cb.createQuery(Integer.class);
+
+        Root<org.jboss.pnc.model.ProductMilestone> milestone = query.from(org.jboss.pnc.model.ProductMilestone.class);
+        query.where(cb.equal(milestone.get(ProductMilestone_.id), productMilestoneId));
+        Join<org.jboss.pnc.model.ProductMilestone, ProductVersion> productVersion = milestone
+                .join(ProductMilestone_.productVersion);
+        Join<ProductVersion, Product> product = productVersion.join(ProductVersion_.product);
+        query.select(product.get(Product_.id));
+
+        return em.createQuery(query).getResultList().get(0);
     }
 
     private static <K extends Enum<K>> EnumMap<K, Integer> transformListTupleToEnumMap(
