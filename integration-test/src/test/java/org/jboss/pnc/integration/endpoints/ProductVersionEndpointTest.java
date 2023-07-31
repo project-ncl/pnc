@@ -39,6 +39,8 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
+import org.jboss.pnc.dto.response.statistics.ProductVersionDeliveredArtifactsStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -419,5 +421,47 @@ public class ProductVersionEndpointTest {
         // then
         ProductVersion refresh = client.getSpecific(productVersionsId2);
         assertThat(refresh.getBuildConfigs().keySet()).doesNotContain(toRemove.getId());
+    }
+
+    @Test
+    public void testGetStatistics() throws ClientException {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+
+        ProductVersionDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductVersionDeliveredArtifactsStatistics.builder()
+//                .thisVersion()
+//                .otherVersions()
+//                .otherProducts()
+//                .noMilestone()
+//                .noBuild()
+                .build();
+
+        ProductVersionStatistics expectedStats = ProductVersionStatistics.builder()
+//                .milestones()
+//                .productDependencies()
+//                .milestoneDependencies()
+//                .artifactsInVersion()
+//                .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
+                .build();
+
+        // when
+        ProductVersionStatistics actualStats = client.getStatistics(productVersionsId);
+
+        // then
+        assertThat(actualStats.getMilestones()).isEqualTo(expectedStats.getMilestones());
+        assertThat(actualStats.getProductDependencies()).isEqualTo(expectedStats.getProductDependencies());
+        assertThat(actualStats.getMilestoneDependencies()).isEqualTo(expectedStats.getMilestoneDependencies());
+        assertThat(actualStats.getArtifactsInVersion()).isEqualTo(expectedStats.getArtifactsInVersion());
+        assertThat(actualStats.getDeliveredArtifactsSource().getThisVersion())
+                .isEqualTo(expectedDeliveredArtifactsStats.getThisVersion());
+        assertThat(actualStats.getDeliveredArtifactsSource().getOtherVersions())
+                .isEqualTo(expectedDeliveredArtifactsStats.getOtherVersions());
+        assertThat(actualStats.getDeliveredArtifactsSource().getOtherProducts())
+                .isEqualTo(expectedDeliveredArtifactsStats.getOtherProducts());
+        assertThat(actualStats.getDeliveredArtifactsSource().getNoMilestone())
+                .isEqualTo(expectedDeliveredArtifactsStats.getNoMilestone());
+        assertThat(actualStats.getDeliveredArtifactsSource().getNoBuild())
+                .isEqualTo(expectedDeliveredArtifactsStats.getNoBuild());
+        assertThat(actualStats).isEqualTo(expectedStats); // also test it as a whole
     }
 }
