@@ -31,6 +31,7 @@ import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
@@ -310,4 +311,31 @@ public interface ProductVersionEndpoint {
     Page<ProductRelease> getReleases(
             @Parameter(description = PV_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
+
+    static final String GET_STATISTICS = "Gets statistics about all artifacts from this and other versions of this product.";
+
+    /**
+     * {@value GET_STATISTICS}
+     *
+     * @param id {@value PV_ID}
+     * @return
+     */
+    @Operation(
+            summary = GET_STATISTICS,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ProductVersionStatistics.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/statistics")
+    ProductVersionStatistics getStatistics(@Parameter(description = PV_ID) @PathParam("id") String id);
 }
