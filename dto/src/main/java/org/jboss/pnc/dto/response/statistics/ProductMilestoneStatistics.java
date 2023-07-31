@@ -51,12 +51,12 @@ public class ProductMilestoneStatistics {
     /**
      * Proportion of quality of Delivered Artifacts.
      */
-    EnumMap<ArtifactQuality, Integer> artifactQuality;
+    EnumMap<ArtifactQuality, Long> artifactQuality;
 
     /**
      * Proportion of repository type of Delivered Artifacts.
      */
-    EnumMap<RepositoryType, Integer> repositoryType;
+    EnumMap<RepositoryType, Long> repositoryType;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)

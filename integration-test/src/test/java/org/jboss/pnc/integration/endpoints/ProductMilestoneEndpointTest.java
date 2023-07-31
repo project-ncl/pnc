@@ -349,25 +349,25 @@ public class ProductMilestoneEndpointTest {
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
 
         DeliveredArtifactsStatistics expectedDeliveredArtifactsStats = DeliveredArtifactsStatistics.builder()
-                .thisMilestone(2) // builtArtifact1, builtArtifact9
-                .otherMilestones(1) // builtArtifact10
-                .otherProducts(2) // builtArtifact11, builtArtifact12
-                .noMilestone(1) // builtArtifact5
-                .noBuild(1) // importedArtifact2
+                .thisMilestone(2L) // builtArtifact1, builtArtifact9
+                .otherMilestones(1L) // builtArtifact10
+                .otherProducts(2L) // builtArtifact11, builtArtifact12
+                .noMilestone(1L) // builtArtifact5
+                .noBuild(1L) // importedArtifact2
                 .build();
 
-        Supplier<Integer> constantZeroSupplier = () -> 0;
-        EnumMap<ArtifactQuality, Integer> expectedArtifactQualities = EnumMapUtils
+        Supplier<Long> constantZeroSupplier = () -> 0L;
+        EnumMap<ArtifactQuality, Long> expectedArtifactQualities = EnumMapUtils
                 .initEnumMapWithDefaultValue(ArtifactQuality.class, constantZeroSupplier);
-        expectedArtifactQualities.put(ArtifactQuality.NEW, 6);
-        expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1);
+        expectedArtifactQualities.put(ArtifactQuality.NEW, 6L);
+        expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1L);
 
-        EnumMap<RepositoryType, Integer> expectedRepositoryTypes = EnumMapUtils
+        EnumMap<RepositoryType, Long> expectedRepositoryTypes = EnumMapUtils
                 .initEnumMapWithDefaultValue(RepositoryType.class, constantZeroSupplier);
-        expectedRepositoryTypes.put(RepositoryType.MAVEN, 7);
+        expectedRepositoryTypes.put(RepositoryType.MAVEN, 7L);
 
         ProductMilestoneStatistics expectedStats = ProductMilestoneStatistics.builder()
-                .artifactsInMilestone(3) // builtArtifact1, builtArtifact2, builtArtifact9
+                .artifactsInMilestone(3L) // builtArtifact1, builtArtifact2, builtArtifact9
                 .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
                 .artifactQuality(expectedArtifactQualities)
                 .repositoryType(expectedRepositoryTypes)
