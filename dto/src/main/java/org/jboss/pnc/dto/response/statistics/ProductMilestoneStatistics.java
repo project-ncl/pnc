@@ -46,7 +46,7 @@ public class ProductMilestoneStatistics {
     /**
      * Statistics about this milestone's delivered artifacts.
      */
-    DeliveredArtifactsStatistics deliveredArtifactsSource;
+    ProductMilestoneDeliveredArtifactsStatistics deliveredArtifactsSource;
 
     /**
      * Proportion of quality of Delivered Artifacts.

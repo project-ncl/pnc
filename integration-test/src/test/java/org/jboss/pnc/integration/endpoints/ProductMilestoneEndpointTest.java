@@ -38,7 +38,7 @@ import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ValidationResponse;
-import org.jboss.pnc.dto.response.statistics.DeliveredArtifactsStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
@@ -348,7 +348,7 @@ public class ProductMilestoneEndpointTest {
         // given
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
 
-        DeliveredArtifactsStatistics expectedDeliveredArtifactsStats = DeliveredArtifactsStatistics.builder()
+        ProductMilestoneDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductMilestoneDeliveredArtifactsStatistics.builder()
                 .thisMilestone(2L) // builtArtifact1, builtArtifact9
                 .otherMilestones(1L) // builtArtifact10
                 .otherProducts(2L) // builtArtifact11, builtArtifact12

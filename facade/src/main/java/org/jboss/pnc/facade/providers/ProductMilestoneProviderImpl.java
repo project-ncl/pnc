@@ -28,7 +28,7 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
-import org.jboss.pnc.dto.response.statistics.DeliveredArtifactsStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -297,7 +297,7 @@ public class ProductMilestoneProviderImpl extends
         return ProductMilestoneStatistics.builder()
                 .artifactsInMilestone(getBuiltArtifactsInMilestone(cb, id))
                 .deliveredArtifactsSource(
-                        DeliveredArtifactsStatistics.builder()
+                        ProductMilestoneDeliveredArtifactsStatistics.builder()
                                 .thisMilestone(getDeliveredArtifactsBuiltInThisMilestone(cb, id))
                                 .otherMilestones(getDeliveredArtifactsBuiltInOtherMilestones(cb, id))
                                 .otherProducts(getDeliveredArtifactsBuiltByOtherProducts(cb, id))

@@ -31,8 +31,8 @@ import lombok.Value;
 @Value
 @Builder(builderClassName = "Builder")
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonDeserialize(builder = DeliveredArtifactsStatistics.Builder.class)
-public class DeliveredArtifactsStatistics {
+@JsonDeserialize(builder = ProductMilestoneDeliveredArtifactsStatistics.Builder.class)
+public class ProductMilestoneDeliveredArtifactsStatistics {
 
     /**
      * Number of delivered artifacts produced by builds in this milestone.
