@@ -37,27 +37,27 @@ public class DeliveredArtifactsStatistics {
     /**
      * Number of delivered artifacts produced by builds in this milestone.
      */
-    Integer thisMilestone;
+    Long thisMilestone;
 
     /**
      * Number of delivered artifacts produced by builds contained in other milestones of the same product.
      */
-    Integer otherMilestones;
+    Long otherMilestones;
 
     /**
      * Number of delivered artifacts produced by builds contained in milestones of other products.
      */
-    Integer otherProducts;
+    Long otherProducts;
 
     /**
      * Number of delivered artifacts produced by builds not contained in any milestone.
      */
-    Integer noMilestone;
+    Long noMilestone;
 
     /**
      * Number of delivered artifacts not produced in any build.
      */
-    Integer noBuild;
+    Long noBuild;
 
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
