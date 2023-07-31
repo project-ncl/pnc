@@ -363,7 +363,8 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             // Can't parse BPM message or Rex finished Task with Server error
             buildResultRest = Optional.of(
                     createEmptyExceptionalResult(
-                            new ProcessException("Can't parse result for build " + rexTask.getName())));
+                            new ProcessException(
+                                    "Can't parse result for build " + rexTask.getName() + ". " + e.getMessage())));
         }
         return buildResultRest;
     }
