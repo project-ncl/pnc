@@ -25,10 +25,8 @@ import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
-import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
-import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
 import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.model.TargetRepository;
@@ -110,7 +108,7 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
                         builtDeliveredArtifactsMilestone.get(ProductMilestone_.productVersion)
                                 .get(ProductVersion_.product)
                                 .get(Product_.id),
-                        getProductIdByItsMilestone(id)),
+                        milestones.get(ProductMilestone_.productVersion).get(ProductVersion_.product).get(Product_.id)),
                 cb.notEqual(builtDeliveredArtifactsMilestone.get(ProductMilestone_.id), id));
         query.select(cb.count(deliveredArtifacts.get(Artifact_.id)));
 
@@ -135,7 +133,7 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
                         builtDeliveredArtifactsMilestone.get(ProductMilestone_.productVersion)
                                 .get(ProductVersion_.product)
                                 .get(Product_.id),
-                        getProductIdByItsMilestone(id)));
+                        milestones.get(ProductMilestone_.productVersion).get(ProductVersion_.product).get(Product_.id)));
         query.select(cb.count(deliveredArtifacts.get(Artifact_.id)));
 
         return entityManager.createQuery(query).getSingleResult();
@@ -167,14 +165,12 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
 
         Root<ProductMilestone> milestones = query.from(ProductMilestone.class);
         SetJoin<ProductMilestone, Artifact> deliveredArtifacts = milestones.join(ProductMilestone_.deliveredArtifacts);
-        Join<Artifact, BuildRecord> deliveredArtifactsBuild = deliveredArtifacts
-                .join(Artifact_.buildRecord, JoinType.LEFT);
 
         // 1) we care about artifacts from the milestone given by id
         // 2) only delivered artifacts which were *not* built
         query.where(
                 cb.equal(milestones.get(ProductMilestone_.id), id),
-                cb.isNull(deliveredArtifactsBuild.get(BuildRecord_.id)));
+                cb.isNull(deliveredArtifacts.get(Artifact_.buildRecord)));
         query.select(cb.count(deliveredArtifacts.get(Artifact_.id)));
 
         return entityManager.createQuery(query).getSingleResult();
@@ -219,20 +215,6 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
 
         List<Tuple> tuples = entityManager.createQuery(query).getResultList();
         return transformListTupleToEnumMap(tuples, RepositoryType.class);
-    }
-
-    private Integer getProductIdByItsMilestone(Integer id) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Integer> query = cb.createQuery(Integer.class);
-
-        Root<org.jboss.pnc.model.ProductMilestone> milestones = query.from(org.jboss.pnc.model.ProductMilestone.class);
-        Join<ProductVersion, Product> productsWithMilestones = milestones.join(ProductMilestone_.productVersion)
-                .join(ProductVersion_.product);
-
-        query.where(cb.equal(milestones.get(ProductMilestone_.id), id));
-        query.select(productsWithMilestones.get(Product_.id));
-
-        return entityManager.createQuery(query).getResultList().get(0);
     }
 
     private <K extends Enum<K>> EnumMap<K, Long> transformListTupleToEnumMap(List<Tuple> tuples, Class<K> keyType) {
