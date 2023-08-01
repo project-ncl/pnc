@@ -377,16 +377,16 @@ public interface ProductMilestoneEndpoint {
             @Parameter(description = PM_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
-    static final String GET_PM_STATISTICS = "Gets statistics about all artifacts from this and other milestones of this product.";
+    static final String GET_STATISTICS = "Gets statistics about produced and delivered artifacts from this milestone.";
 
     /**
-     * {@value GET_PM_STATISTICS}
+     * {@value GET_STATISTICS}
      *
      * @param id {@value PM_ID}
      * @return
      */
     @Operation(
-            summary = GET_PM_STATISTICS,
+            summary = GET_STATISTICS,
             responses = {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
