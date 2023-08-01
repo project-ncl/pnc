@@ -6,23 +6,26 @@
       "bpmUrl": "http://bpmHost/",
       "daUrl": "http://daHost/",
       "indyUrl": "http://indyHost/",
-      "pncUrl": "http://pncHost/",
+      "pncUrl": "http://host.testcontainers.internal:8080/pnc-rest/v2",
       "repourUrl": "http://repourHost/",
 
       "externalDaUrl": "",
       "externalIndyUrl": "http://localhost/indy-external/",
-      "externalPncUrl": ""
+      "externalPncUrl": "",
+      "externalBifrostUrl": "http://localhost:8081/"
     },
     {
       "@module-group":"pnc",
       "configs": [
         {
           "@module-config": "system-config",
-          "authenticationProviderId": "JAAS",
+          "authenticationProviderId": "Keycloak",
           "coordinatorThreadPoolSize": "1",
           "coordinatorMaxConcurrentBuilds": "10",
           "brewTagPattern" : "${product_short_name}-${product_version}-pnc",
-          "temporaryBuildsLifeSpan" : "14"
+          "temporaryBuildsLifeSpan" : "14",
+          "legacyBuildCoordinator" : "false",
+          "recordUpdateJobEnabled" : "false"
         },
         {
           "@module-config": "demo-data-config",
@@ -39,17 +42,17 @@
           "@module-config": "alignment-config",
           "alignmentParameters" : {
             "MVN" : "-DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DversionSuffixStrip= -DreportNonAligned=true",
-            "NPM" : "-Dnpm=setup",
+            "NPM" : "",
             "GRADLE": "--info -DdependencySource=REST -DrepoRemovalBackup=repositories-backup.xml -DignoreUnresolvableDependencies=true",
-            "SBT" : "-Dsbt=setup"
+            "SBT" : ""
           }
         },
         {
           "@module-config": "bpm-config",
-          "analyzeDeliverablesBpmProcessId": "100",
-          "bpmNewBaseUrl": "http://localhost:8288",
-          "bpmNewDeploymentId": "bpm",
-          "httpConnectionRequestTimeout": "${env.HTTP_CONNECTION_REQUEST_TIMEOUT}"
+          "httpConnectionRequestTimeout": "${env.HTTP_CONNECTION_REQUEST_TIMEOUT}",
+          "bpmNewBaseUrl": "http://host.testcontainers.internal:8088/",
+          "bpmNewDeploymentId": "wiremock",
+          "bpmNewBuildProcessName": "big-process"
         },
         {
           "@module-config": "ui",
@@ -57,9 +60,9 @@
           "ssoTokenLifespan": "${env.SSO_TOKEN_FILESPAN}",
           "keycloak":
           {
-            "url": "${env.PNC_UI_KEYCLOAK_URL}",
-            "realm": "${env.PNC_UI_KEYCLOAK_REALM}",
-            "clientId": "${env.PNC_UI_KEYCLOAK_CLIENT_ID}"
+            "url": "http://not-used-in-the-tests",
+            "realm": "",
+            "clientId": ""
           }
         },
         {
@@ -68,7 +71,7 @@
         },
         {
           "@module-config": "scheduler-config",
-          "schedulerBaseUrl": "http://localhost:8181/"
+          "schedulerBaseUrl": "http://localhost:5679"
         }
       ]
     }

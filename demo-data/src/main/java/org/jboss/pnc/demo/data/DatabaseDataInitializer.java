@@ -129,6 +129,18 @@ public class DatabaseDataInitializer {
 
     public static final String PNC_PROJECT_BUILD_CFG_ID = "pnc-1.0.0.DR1";
 
+    public static final String EAP_PRODUCT_NAME = "JBoss EAP Demo Product";
+
+    public static final String EAP_PRODUCT_VERSION = "7.0";
+
+    public static final String EAP_PRODUCT_MILESTONE_1 = "7.0.0.Build1";
+
+    public static final String EAP_PRODUCT_MILESTONE_2 = "7.0.0.Build2";
+
+    public static final String EAP_PROJECT_NAME = "JBoss EAP Demo Project";
+
+    public static final String EAP_PROJECT_BUILD_CFG_ID = "eap-7.0.0.CR1";
+
     @Inject
     private ArtifactRepository artifactRepository;
 
@@ -208,9 +220,17 @@ public class DatabaseDataInitializer {
 
     BuildConfiguration buildConfiguration2;
 
+    BuildConfiguration buildConfiguration6;
+
     BuildConfigurationSet buildConfigurationSet1;
 
     ProductMilestone demoProductMilestone1;
+
+    ProductMilestone demoProductMilestone2;
+
+    ProductMilestone demoProductMilestone5;
+
+    ProductMilestone demoProductMilestone6;
 
     User demoUser;
 
@@ -304,19 +324,26 @@ public class DatabaseDataInitializer {
          * All the bi-directional mapping settings are managed inside the Builders
          */
         // Example product and product version
-        Product product = Product.Builder.newBuilder()
+        Product product1 = Product.Builder.newBuilder()
                 .name(PNC_PRODUCT_NAME)
                 .abbreviation("PNC")
                 .description("Example Product for Project Newcastle Demo")
                 .build();
-        product = productRepository.save(product);
+        product1 = productRepository.save(product1);
+
+        Product product2 = Product.Builder.newBuilder()
+                .name(EAP_PRODUCT_NAME)
+                .abbreviation("EAP")
+                .description("Example Product for JBoss EAP Demo")
+                .build();
+        product2 = productRepository.save(product2);
 
         // Example product version, release, and milestone of the product
         ProductVersion productVersion1 = ProductVersion.Builder.newBuilder()
                 .version(PNC_PRODUCT_VERSION_1)
-                .product(product)
+                .product(product1)
                 .generateBrewTagPrefix(
-                        product.getAbbreviation(),
+                        product1.getAbbreviation(),
                         PNC_PRODUCT_VERSION_1,
                         systemConfig.getBrewTagPattern())
                 .build();
@@ -324,13 +351,23 @@ public class DatabaseDataInitializer {
 
         ProductVersion productVersion2 = ProductVersion.Builder.newBuilder()
                 .version(PNC_PRODUCT_VERSION_2)
-                .product(product)
+                .product(product1)
                 .generateBrewTagPrefix(
-                        product.getAbbreviation(),
+                        product1.getAbbreviation(),
                         PNC_PRODUCT_VERSION_2,
                         systemConfig.getBrewTagPattern())
                 .build();
         productVersion2 = productVersionRepository.save(productVersion2);
+
+        ProductVersion productVersion3 = ProductVersion.Builder.newBuilder()
+                .version(EAP_PRODUCT_VERSION)
+                .product(product2)
+                .generateBrewTagPrefix(
+                        product2.getAbbreviation(),
+                        EAP_PRODUCT_VERSION,
+                        systemConfig.getBrewTagPattern())
+                .build();
+        productVersion3 = productVersionRepository.save(productVersion3);
 
         demoProductMilestone1 = ProductMilestone.Builder.newBuilder()
                 .version(PNC_PRODUCT_MILESTONE1)
@@ -340,7 +377,7 @@ public class DatabaseDataInitializer {
                 .build();
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
 
-        ProductMilestone demoProductMilestone2 = ProductMilestone.Builder.newBuilder()
+        demoProductMilestone2 = ProductMilestone.Builder.newBuilder()
                 .version(PNC_PRODUCT_MILESTONE2)
                 .startingDate(TODAY)
                 .plannedEndDate(ONE_WEEK_AFTER_TODAY)
@@ -368,6 +405,23 @@ public class DatabaseDataInitializer {
                 .productVersion(productVersion1)
                 .build();
         demoProductMilestone4 = productMilestoneRepository.save(demoProductMilestone4);
+
+        demoProductMilestone5 = ProductMilestone.Builder.newBuilder()
+                .version(EAP_PRODUCT_MILESTONE_1)
+                .startingDate(ONE_WEEK_BEFORE_TODAY)
+                .plannedEndDate(TODAY)
+                .endDate(TODAY)
+                .productVersion(productVersion3)
+                .build();
+        demoProductMilestone5 = productMilestoneRepository.save(demoProductMilestone5);
+
+        demoProductMilestone6 = ProductMilestone.Builder.newBuilder()
+                .version(EAP_PRODUCT_MILESTONE_2)
+                .startingDate(TODAY)
+                .plannedEndDate(ONE_WEEK_AFTER_TODAY)
+                .productVersion(productVersion3)
+                .build();
+        demoProductMilestone6 = productMilestoneRepository.save(demoProductMilestone6);
 
         ProductMilestoneRelease milestoneRelease1 = new ProductMilestoneRelease();
         milestoneRelease1.setId(Sequence.nextId());
@@ -427,12 +481,18 @@ public class DatabaseDataInitializer {
                 .description("Remote shell.")
                 .projectUrl("https://github.com/project-ncl/termd")
                 .build();
+        Project project6 = Project.Builder.newBuilder()
+                .name(EAP_PROJECT_NAME)
+                .description("Example Project for JBoss EAP Demo")
+                .projectUrl("https://github.com/jboss/eap")
+                .build();
 
         projectRepository.save(project1);
         projectRepository.save(project2);
         projectRepository.save(project3);
         projectRepository.save(project4);
         projectRepository.save(project5);
+        projectRepository.save(project6);
 
         RepositoryConfiguration repositoryConfiguration1 = createRepositoryConfiguration(
                 demoDataConfig.getInternalRepo(0),
@@ -449,12 +509,16 @@ public class DatabaseDataInitializer {
         RepositoryConfiguration repositoryConfiguration5 = createRepositoryConfiguration(
                 demoDataConfig.getInternalRepo(4),
                 null);
+        RepositoryConfiguration repositoryConfiguration6 = createRepositoryConfiguration(
+                demoDataConfig.getInternalRepo(5),
+                "https://github.com/jboss/eap.git");
 
         repositoryConfigurationRepository.save(repositoryConfiguration1);
         repositoryConfigurationRepository.save(repositoryConfiguration2);
         repositoryConfigurationRepository.save(repositoryConfiguration3);
         repositoryConfigurationRepository.save(repositoryConfiguration4);
         repositoryConfigurationRepository.save(repositoryConfiguration5);
+        repositoryConfigurationRepository.save(repositoryConfiguration6);
 
         // Example build configurations
         Map<String, String> genericParameters = new HashMap<>();
@@ -526,6 +590,18 @@ public class DatabaseDataInitializer {
                 .repositoryConfiguration(repositoryConfiguration5)
                 .build();
         buildConfiguration5 = buildConfigurationRepository.save(buildConfiguration5);
+
+        buildConfiguration6 = BuildConfiguration.Builder.newBuilder()
+                .id(sequenceHandlerRepository.getNextID(BuildConfiguration.SEQUENCE_NAME).intValue())
+                .name(EAP_PROJECT_BUILD_CFG_ID)
+                .project(project6)
+                .description("Test build config for project eap")
+                .buildType(BuildType.MVN)
+                .buildEnvironment(environment1)
+                .buildScript("mvn clean deploy")
+                .repositoryConfiguration(repositoryConfiguration6)
+                .build();
+        buildConfiguration6 = buildConfigurationRepository.save(buildConfiguration6);
 
         // Build config set containing the three example build configs
         buildConfigurationSet1 = BuildConfigurationSet.Builder.newBuilder()
@@ -635,6 +711,18 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.NEW)
                 .buildCategory(BuildCategory.SERVICE)
                 .build();
+        // builtArtifact9 defined in this place in order to be part of savedBuildRecord1
+        Artifact builtArtifact9 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact7:jar:1.0")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 9")
+                .md5("md-fake-abcdefg4321")
+                .sha1("sha1-fake-abcdefg4321")
+                .sha256("sha256-fake-abcdefg4321")
+                .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/built7")
+                .build();
 
         builtArtifact1 = artifactRepository.save(builtArtifact1);
         builtArtifact2 = artifactRepository.save(builtArtifact2);
@@ -676,6 +764,7 @@ public class DatabaseDataInitializer {
         Set<BuildRecord> buildRecords = new HashSet<>();
 
         final int INITIAL_REVISION = 1;
+        final int SECOND_REVISION = 2;
         IdRev buildConfig1AuditIdRev = new IdRev(buildConfiguration1.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository
                 .queryById(buildConfig1AuditIdRev);
@@ -712,6 +801,7 @@ public class DatabaseDataInitializer {
         BuildRecord savedBuildRecord1 = buildRecordRepository.save(buildRecord1);
         builtArtifact1.setBuildRecord(savedBuildRecord1);
         builtArtifact2.setBuildRecord(savedBuildRecord1);
+        builtArtifact9.setBuildRecord(savedBuildRecord1);
 
         log.info(
                 "Saved buildRecord1: " + savedBuildRecord1 + "BuildConfigurationAuditedIdRev: "
@@ -770,7 +860,6 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/built4")
                 .build();
-
         Artifact builtArtifact7 = Artifact.Builder.newBuilder()
                 .identifier("demo:built-artifact5:jar:1.0")
                 .targetRepository(targetRepository)
@@ -793,11 +882,24 @@ public class DatabaseDataInitializer {
                 .artifactQuality(ArtifactQuality.NEW)
                 .deployPath("/built6")
                 .build();
+        Artifact builtArtifact10 = Artifact.Builder.newBuilder()
+                .identifier("demo:built-artifact7:jar:1.1")
+                .targetRepository(targetRepository)
+                .filename("demo built artifact 10")
+                .md5("md5-fake-abc123")
+                .sha1("sha1-fake-abc123")
+                .sha256("sha256-fake-abc123")
+                .size(10L)
+                .artifactQuality(ArtifactQuality.NEW)
+                .deployPath("/built7")
+                .build();
 
         builtArtifact5 = artifactRepository.save(builtArtifact5);
         builtArtifact6 = artifactRepository.save(builtArtifact6);
         builtArtifact7 = artifactRepository.save(builtArtifact7);
         builtArtifact8 = artifactRepository.save(builtArtifact8);
+        builtArtifact9 = artifactRepository.save(builtArtifact9);
+        builtArtifact10 = artifactRepository.save(builtArtifact10);
 
         Artifact dependencyBuiltArtifact1 = artifactRepository
                 .queryByPredicates(withIdentifierAndSha256(builtArtifact1.getIdentifier(), builtArtifact1.getSha256()));
@@ -805,17 +907,20 @@ public class DatabaseDataInitializer {
         // For timestamp tests where concrete timestamp is needed
         Calendar calendar = Calendar.getInstance();
         calendar.set(2019, Calendar.JANUARY, 10);
-        IdRev buildConfig2AuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
-        BuildConfigurationAudited buildConfigAudited2 = buildConfigurationAuditedRepository
-                .queryById(buildConfig2AuditIdRev);
-        if (buildConfigAudited2 != null) {
+        IdRev buildConfig2InitialAuditIdRev = new IdRev(buildConfiguration2.getId(), INITIAL_REVISION);
+        BuildConfigurationAudited buildConfig2InitialAudit = buildConfigurationAuditedRepository
+                .queryById(buildConfig2InitialAuditIdRev);
+        IdRev buildConfig2SecondAuditIdRev = new IdRev(buildConfiguration2.getId(), SECOND_REVISION);
+        BuildConfigurationAudited buildConfig2SecondAudit = buildConfigurationAuditedRepository
+                .queryById(buildConfig2SecondAuditIdRev);
+        if (buildConfig2InitialAudit != null && buildConfig2SecondAudit != null) {
 
             nextId = Sequence.nextBase32Id();
             log.info("####nextId: " + nextId);
 
             BuildRecord buildRecord2 = BuildRecord.Builder.newBuilder()
                     .id(nextId)
-                    .buildConfigurationAudited(buildConfigAudited2)
+                    .buildConfigurationAudited(buildConfig2InitialAudit)
                     .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(5, ChronoUnit.MINUTES)))
                     .endTime(Timestamp.from(Instant.now()))
@@ -824,7 +929,7 @@ public class DatabaseDataInitializer {
                     .user(demoUser)
                     .buildLog("Very short demo log: The quick brown fox jumps over the lazy dog.")
                     .status(BuildStatus.SUCCESS)
-                    .buildEnvironment(buildConfigAudited2.getBuildEnvironment())
+                    .buildEnvironment(buildConfig2InitialAudit.getBuildEnvironment())
                     .executionRootName("org.jboss.pnc:parent")
                     .executionRootVersion("1.2.4")
                     .temporaryBuild(false)
@@ -840,14 +945,14 @@ public class DatabaseDataInitializer {
 
             BuildRecord tempRecord2 = BuildRecord.Builder.newBuilder()
                     .id(nextId)
-                    .buildConfigurationAudited(buildConfigAudited2)
+                    .buildConfigurationAudited(buildConfig2InitialAudit)
                     .submitTime(Timestamp.from(calendar.toInstant().minus(8, ChronoUnit.HOURS)))
                     .startTime(Timestamp.from(calendar.toInstant().minus(5, ChronoUnit.HOURS)))
                     .endTime(Timestamp.from(calendar.toInstant()))
                     .user(demoUser)
                     .buildLog("Is it free?")
                     .status(BuildStatus.SUCCESS)
-                    .buildEnvironment(buildConfigAudited2.getBuildEnvironment())
+                    .buildEnvironment(buildConfig2InitialAudit.getBuildEnvironment())
                     .executionRootName("org.jboss.pnc:parent")
                     .executionRootVersion("1.2.4")
                     .temporaryBuild(true)
@@ -858,6 +963,113 @@ public class DatabaseDataInitializer {
             builtArtifact7.setBuildRecord(savedTempRecord2);
             builtArtifact8.setBuildRecord(savedTempRecord2);
             buildRecords.add(tempRecord2);
+
+            nextId = Sequence.nextBase32Id();
+            log.info("####nextId: " + nextId);
+
+            BuildRecord buildRecord3 = BuildRecord.Builder.newBuilder()
+                    .id(nextId)
+                    .buildConfigurationAudited(buildConfig2SecondAudit)
+                    .productMilestone(demoProductMilestone2)
+                    .submitTime(ONE_WEEK_BEFORE_TODAY)
+                    .startTime(Timestamp.from(calendar.toInstant().minus(1, ChronoUnit.HOURS)))
+                    .endTime(Timestamp.from(calendar.toInstant()))
+                    .user(demoUser)
+                    .buildLog("Nope. Nothing important to log.")
+                    .status(BuildStatus.SUCCESS)
+                    .buildEnvironment(buildConfig2InitialAudit.getBuildEnvironment())
+                    .executionRootName("org.jboss.pnc:parent")
+                    .executionRootVersion("1.4.2")
+                    .temporaryBuild(false)
+                    .build();
+
+            BuildRecord savedBuildRecord3 = buildRecordRepository.save(buildRecord3);
+
+            builtArtifact10.setBuildRecord(savedBuildRecord3);
+        }
+
+        IdRev buildConfig6InitialAuditIdRev = new IdRev(buildConfiguration6.getId(), INITIAL_REVISION);
+        BuildConfigurationAudited buildConfig6InitialAudit = buildConfigurationAuditedRepository
+                .queryById(buildConfig6InitialAuditIdRev);
+        IdRev buildConfig6SecondAuditIdRev = new IdRev(buildConfiguration6.getId(), SECOND_REVISION);
+        BuildConfigurationAudited buildConfig6SecondAudit = buildConfigurationAuditedRepository
+                .queryById(buildConfig6SecondAuditIdRev);
+
+        if (buildConfig6InitialAudit != null && buildConfig6SecondAudit != null) {
+            String nextId = Sequence.nextBase32Id();
+            log.info("####nextId: " + nextId);
+
+            BuildRecord buildRecord4 = BuildRecord.Builder.newBuilder()
+                    .id(nextId)
+                    .buildConfigurationAudited(buildConfig6InitialAudit)
+                    .productMilestone(demoProductMilestone5)
+                    .submitTime(Timestamp.from(Instant.now().minus(8, ChronoUnit.MINUTES)))
+                    .startTime(Timestamp.from(Instant.now().minus(7, ChronoUnit.MINUTES)))
+                    .endTime(Timestamp.from(Instant.now().minus(6, ChronoUnit.MINUTES)))
+                    .user(demoUser)
+                    .buildLog("")
+                    .status(BuildStatus.SUCCESS)
+                    .buildEnvironment(buildConfig6InitialAudit.getBuildEnvironment())
+                    .executionRootName("org.jboss.eap:parent")
+                    .executionRootVersion("7.0.3")
+                    .temporaryBuild(false)
+                    .build();
+
+            nextId = Sequence.nextBase32Id();
+            log.info("####nextId: " + nextId);
+
+            BuildRecord buildRecord5 = BuildRecord.Builder.newBuilder()
+                    .id(nextId)
+                    .buildConfigurationAudited(buildConfig6SecondAudit)
+                    .productMilestone(demoProductMilestone6)
+                    .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.MINUTES)))
+                    .startTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.MINUTES)))
+                    .endTime(Timestamp.from(Instant.now()))
+                    .user(demoUser)
+                    .buildLog("Everything's just fine")
+                    .status(BuildStatus.SUCCESS)
+                    .buildEnvironment(buildConfig6SecondAudit.getBuildEnvironment())
+                    .executionRootName("org.jboss.eap:parent")
+                    .executionRootVersion("7.0.4")
+                    .temporaryBuild(false)
+                    .build();
+
+            buildRecord4 = buildRecordRepository.save(buildRecord4);
+            buildRecord5 = buildRecordRepository.save(buildRecord5);
+
+            Artifact builtArtifact11 = Artifact.Builder.newBuilder()
+                    .buildRecord(buildRecord4)
+                    .identifier("demo:built-artifact11:jar:1.1")
+                    .targetRepository(targetRepository)
+                    .filename("demo built artifact 11")
+                    .md5("md5-fake-abc123")
+                    .sha1("sha1-fake-abc123")
+                    .sha256("sha256-fake-abc123")
+                    .size(10L)
+                    .artifactQuality(ArtifactQuality.NEW)
+                    .deployPath("/built11")
+                    .build();
+
+            Artifact builtArtifact12 = Artifact.Builder.newBuilder()
+                    .buildRecord(buildRecord5)
+                    .identifier("demo:built-artifact12:jar:1.0")
+                    .targetRepository(targetRepository)
+                    .filename("demo built artifact 12")
+                    .md5("md5-fake-123abc")
+                    .sha1("sha1-fake-123abc")
+                    .sha256("sha256-fake-123abc")
+                    .size(11L)
+                    .artifactQuality(ArtifactQuality.VERIFIED)
+                    .deployPath("/built12")
+                    .build();
+
+            builtArtifact11 = artifactRepository.save(builtArtifact11);
+            builtArtifact12 = artifactRepository.save(builtArtifact12);
+
+            demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
+            demoProductMilestone1.addDeliveredArtifact(builtArtifact10);
+            demoProductMilestone1.addDeliveredArtifact(builtArtifact11);
+            demoProductMilestone1.addDeliveredArtifact(builtArtifact12);
         }
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
@@ -893,9 +1105,9 @@ public class DatabaseDataInitializer {
                 .build();
         buildConfigSetRecordRepository.save(buildConfigSetRecord3);
 
-        demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
         demoProductMilestone1.addDeliveredArtifact(builtArtifact1);
         demoProductMilestone1.addDeliveredArtifact(builtArtifact5);
+        demoProductMilestone1.addDeliveredArtifact(builtArtifact9);
         demoProductMilestone1.addDeliveredArtifact(importedArtifact2);
         demoProductMilestone1 = productMilestoneRepository.save(demoProductMilestone1);
 

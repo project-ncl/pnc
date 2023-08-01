@@ -17,12 +17,56 @@
  */
 package org.jboss.pnc.mock.repository;
 
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
+
+import java.util.EnumMap;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 12/1/16 Time: 3:24 PM
  */
 public class ProductMilestoneRepositoryMock extends IntIdRepositoryMock<ProductMilestone>
         implements ProductMilestoneRepository {
+
+    @Override
+    public long countBuiltArtifactsInMilestone(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countDeliveredArtifactsBuiltInThisMilestone(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countDeliveredArtifactsBuiltInOtherMilestones(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countDeliveredArtifactsBuiltByOtherProducts(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countDeliveredArtifactsBuiltInNoMilestone(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countDeliveredArtifactsNotBuilt(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public EnumMap<ArtifactQuality, Long> getArtifactQualitiesCounts(Integer id) {
+        return null;
+    }
+
+    @Override
+    public EnumMap<RepositoryType, Long> getRepositoryTypesCounts(Integer id) {
+        return null;
+    }
 }
