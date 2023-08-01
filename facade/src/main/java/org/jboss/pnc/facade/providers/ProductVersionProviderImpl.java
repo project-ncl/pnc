@@ -21,6 +21,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -195,6 +196,11 @@ public class ProductVersionProviderImpl extends
             String productId) {
 
         return queryForCollection(pageIndex, pageSize, sortingRsql, query, withProductId(Integer.valueOf(productId)));
+    }
+
+    @Override
+    public ProductVersionStatistics getStatistics(String id) {
+        return null;
     }
 
 }

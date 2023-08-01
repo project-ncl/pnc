@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 
 public interface ProductVersionProvider
         extends Provider<Integer, org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef> {
@@ -30,4 +31,6 @@ public interface ProductVersionProvider
             String sortingRsql,
             String query,
             String productId);
+
+    ProductVersionStatistics getStatistics(String id);
 }
