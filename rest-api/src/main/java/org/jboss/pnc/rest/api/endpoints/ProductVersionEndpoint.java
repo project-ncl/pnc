@@ -312,7 +312,7 @@ public interface ProductVersionEndpoint {
             @Parameter(description = PV_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
-    static final String GET_STATISTICS = "Gets statistics about all artifacts from this and other versions of this product.";
+    static final String GET_STATISTICS = "Gets statistics about produced and delivered artifacts from this version.";
 
     /**
      * {@value GET_STATISTICS}
