@@ -26,6 +26,7 @@ import org.jboss.pnc.client.ProductMilestoneClient;
 import org.jboss.pnc.client.ProductVersionClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
@@ -37,7 +38,11 @@ import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ValidationResponse;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.MilestoneCloseStatus;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.enums.ValidationErrorType;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
@@ -55,13 +60,14 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.BadRequestException;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_MILESTONE1;
 import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_MILESTONE3;
 import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_NAME;
 
@@ -318,7 +324,7 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<Artifact> all = client.getDeliveredArtifacts(milestoneId);
 
-        assertThat(all).hasSize(3);
+        assertThat(all).hasSize(7);
     }
 
     @Test
@@ -335,5 +341,55 @@ public class ProductMilestoneEndpointTest {
                 Optional.of("progressStatus==IN_PROGRESS"));
 
         assertThat(allInProgress).hasSize(1);
+    }
+
+    @Test
+    public void testGetStatistics() throws ClientException {
+        // given
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
+
+        ProductMilestoneDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductMilestoneDeliveredArtifactsStatistics
+                .builder()
+                .thisMilestone(2L) // builtArtifact1, builtArtifact9
+                .otherMilestones(1L) // builtArtifact10
+                .otherProducts(2L) // builtArtifact11, builtArtifact12
+                .noMilestone(1L) // builtArtifact5
+                .noBuild(1L) // importedArtifact2
+                .build();
+
+        EnumMap<ArtifactQuality, Long> expectedArtifactQualities = Maps
+                .initEnumMapWithDefaultValue(ArtifactQuality.class, 0L);
+        expectedArtifactQualities.put(ArtifactQuality.NEW, 6L);
+        expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1L);
+
+        EnumMap<RepositoryType, Long> expectedRepositoryTypes = Maps
+                .initEnumMapWithDefaultValue(RepositoryType.class, 0L);
+        expectedRepositoryTypes.put(RepositoryType.MAVEN, 7L);
+
+        ProductMilestoneStatistics expectedStats = ProductMilestoneStatistics.builder()
+                .artifactsInMilestone(3L) // builtArtifact1, builtArtifact2, builtArtifact9
+                .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
+                .artifactQuality(expectedArtifactQualities)
+                .repositoryType(expectedRepositoryTypes)
+                .build();
+
+        // then
+        ProductMilestoneStatistics actualStats = client.getStatistics(milestoneId);
+
+        // assert
+        assertThat(actualStats.getArtifactsInMilestone()).isEqualTo(expectedStats.getArtifactsInMilestone());
+        assertThat(actualStats.getDeliveredArtifactsSource().getThisMilestone())
+                .isEqualTo(expectedDeliveredArtifactsStats.getThisMilestone());
+        assertThat(actualStats.getDeliveredArtifactsSource().getOtherMilestones())
+                .isEqualTo(expectedDeliveredArtifactsStats.getOtherMilestones());
+        assertThat(actualStats.getDeliveredArtifactsSource().getOtherProducts())
+                .isEqualTo(expectedDeliveredArtifactsStats.getOtherProducts());
+        assertThat(actualStats.getDeliveredArtifactsSource().getNoMilestone())
+                .isEqualTo(expectedDeliveredArtifactsStats.getNoMilestone());
+        assertThat(actualStats.getDeliveredArtifactsSource().getNoBuild())
+                .isEqualTo(expectedDeliveredArtifactsStats.getNoBuild());
+        assertThat(actualStats.getArtifactQuality()).isEqualTo(expectedArtifactQualities);
+        assertThat(actualStats.getRepositoryType()).isEqualTo(expectedRepositoryTypes);
+        assertThat(actualStats).isEqualTo(expectedStats); // also test it as a whole
     }
 }

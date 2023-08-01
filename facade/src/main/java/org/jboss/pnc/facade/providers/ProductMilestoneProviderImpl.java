@@ -27,6 +27,8 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
 import org.jboss.pnc.facade.util.UserService;
@@ -96,6 +98,8 @@ public class ProductMilestoneProviderImpl extends
     @Inject
     private UserService userService;
 
+    private final ProductMilestoneRepository milestoneRepository;
+
     @Inject
     private EntityManager em;
 
@@ -110,6 +114,7 @@ public class ProductMilestoneProviderImpl extends
 
         this.releaseManager = releaseManager;
         this.milestoneReleaseMapper = milestoneReleaseMapper;
+        this.milestoneRepository = repository;
     }
 
     @Override
@@ -133,7 +138,7 @@ public class ProductMilestoneProviderImpl extends
     private void validateDoesNotConflict(ProductMilestone restEntity)
             throws ConflictedEntryException, InvalidEntityException {
         ValidationBuilder.validateObject(restEntity, WhenUpdating.class).validateConflict(() -> {
-            org.jboss.pnc.model.ProductMilestone milestoneFromDB = repository.queryByPredicates(
+            org.jboss.pnc.model.ProductMilestone milestoneFromDB = milestoneRepository.queryByPredicates(
                     withProductVersionIdAndVersion(
                             Integer.valueOf(restEntity.getProductVersion().getId()),
                             restEntity.getVersion()));
@@ -169,7 +174,7 @@ public class ProductMilestoneProviderImpl extends
     }
 
     private ProductMilestoneCloseResult doCloseMilestone(String id, Long milestoneReleaseId) {
-        org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
+        org.jboss.pnc.model.ProductMilestone milestoneInDb = milestoneRepository.queryById(Integer.valueOf(id));
 
         if (milestoneInDb.getEndDate() != null) {
             userLog.info("Milestone is already closed: no more modifications allowed");
@@ -195,7 +200,7 @@ public class ProductMilestoneProviderImpl extends
 
     @Override
     public void cancelMilestoneCloseProcess(String id) throws RepositoryViolationException, EmptyEntityException {
-        org.jboss.pnc.model.ProductMilestone milestoneInDb = repository.queryById(Integer.valueOf(id));
+        org.jboss.pnc.model.ProductMilestone milestoneInDb = milestoneRepository.queryById(Integer.valueOf(id));
         // If we want to close a milestone, make sure it's not already released (by checking end date)
         // and there are no release in progress
         if (milestoneInDb.getEndDate() != null) {
@@ -269,7 +274,7 @@ public class ProductMilestoneProviderImpl extends
                     .build();
         }
 
-        org.jboss.pnc.model.ProductMilestone duplicate = repository
+        org.jboss.pnc.model.ProductMilestone duplicate = milestoneRepository
                 .queryByPredicates(withProductVersionIdAndVersion(Integer.parseInt(productVersionId), version));
 
         if (duplicate != null) {
@@ -280,6 +285,28 @@ public class ProductMilestoneProviderImpl extends
         }
 
         return builder.isValid(matches).build();
+    }
+
+    @Override
+    public ProductMilestoneStatistics getStatistics(String id) {
+        Integer entityId = mapper.getIdMapper().toEntity(id);
+
+        return ProductMilestoneStatistics.builder()
+                .artifactsInMilestone(milestoneRepository.countBuiltArtifactsInMilestone(entityId))
+                .deliveredArtifactsSource(
+                        ProductMilestoneDeliveredArtifactsStatistics.builder()
+                                .thisMilestone(
+                                        milestoneRepository.countDeliveredArtifactsBuiltInThisMilestone(entityId))
+                                .otherMilestones(
+                                        milestoneRepository.countDeliveredArtifactsBuiltInOtherMilestones(entityId))
+                                .otherProducts(
+                                        milestoneRepository.countDeliveredArtifactsBuiltByOtherProducts(entityId))
+                                .noMilestone(milestoneRepository.countDeliveredArtifactsBuiltInNoMilestone(entityId))
+                                .noBuild(milestoneRepository.countDeliveredArtifactsNotBuilt(entityId))
+                                .build())
+                .artifactQuality(milestoneRepository.getArtifactQualitiesCounts(entityId))
+                .repositoryType(milestoneRepository.getRepositoryTypesCounts(entityId))
+                .build();
     }
 
     private CriteriaQuery<Tuple> milestoneInfoQuery(CriteriaBuilder cb, Set<Integer> milestoneIds) {

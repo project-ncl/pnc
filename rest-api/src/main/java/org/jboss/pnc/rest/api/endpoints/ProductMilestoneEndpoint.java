@@ -34,6 +34,7 @@ import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneStatistics;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
@@ -71,7 +72,6 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.NOT_FOUND_DESCRIPTION;
-import static org.jboss.pnc.rest.configuration.SwaggerConstants.SCM_REPOSITORY_CREATING;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
@@ -376,6 +376,33 @@ public interface ProductMilestoneEndpoint {
     Page<DeliverableAnalyzerOperation> getAllDeliverableAnalyzerOperations(
             @Parameter(description = PM_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
+
+    static final String GET_STATISTICS = "Gets statistics about produced and delivered artifacts from this milestone.";
+
+    /**
+     * {@value GET_STATISTICS}
+     *
+     * @param id {@value PM_ID}
+     * @return
+     */
+    @Operation(
+            summary = GET_STATISTICS,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ProductMilestoneStatistics.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("{id}/statistics")
+    ProductMilestoneStatistics getStatistics(@Parameter(description = PM_ID) @PathParam("id") String id);
 
     static final String VALIDATE_VERSION = "Validate product milestone version.";
 

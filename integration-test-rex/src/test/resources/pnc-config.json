@@ -34,7 +34,8 @@
             "ssh://git@github.com:22/project-ncl/termd.git",
             "ssh://git@github.com:22/project-ncl/pnc-build-agent.git",
             "ssh://git@github.com:22/project-ncl/dependency-analysis.git",
-            "ssh://git@github.com:22/project-ncl/causeway.git"
+            "ssh://git@github.com:22/project-ncl/causeway.git",
+            "ssh://git@github.com:22/jboss/eap.git"
           ]
         },
         {

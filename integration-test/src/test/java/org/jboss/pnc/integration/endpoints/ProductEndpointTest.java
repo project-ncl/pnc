@@ -93,7 +93,7 @@ public class ProductEndpointTest {
 
         RemoteCollection<Product> all = client.getAll();
 
-        assertThat(all).hasSize(1); // from DatabaseDataInitializer
+        assertThat(all).hasSize(2); // from DatabaseDataInitializer
     }
 
     @Test
