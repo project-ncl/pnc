@@ -40,7 +40,7 @@ public class ProductMilestoneStatistics {
     /**
      * Number of artifacts produced by builds contained in this milestone.
      */
-    Long artifactsInMilestone;
+    long artifactsInMilestone;
 
     /**
      * Statistics about this milestone's delivered artifacts.

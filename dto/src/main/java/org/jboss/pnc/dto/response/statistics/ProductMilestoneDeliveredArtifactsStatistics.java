@@ -36,25 +36,25 @@ public class ProductMilestoneDeliveredArtifactsStatistics {
     /**
      * Number of delivered artifacts produced by builds in this milestone.
      */
-    Long thisMilestone;
+    long thisMilestone;
 
     /**
      * Number of delivered artifacts produced by builds contained in other milestones of the same product.
      */
-    Long otherMilestones;
+    long otherMilestones;
 
     /**
      * Number of delivered artifacts produced by builds contained in milestones of other products.
      */
-    Long otherProducts;
+    long otherProducts;
 
     /**
      * Number of delivered artifacts produced by builds not contained in any milestone.
      */
-    Long noMilestone;
+    long noMilestone;
 
     /**
      * Number of delivered artifacts not produced in any build.
      */
-    Long noBuild;
+    long noBuild;
 }
