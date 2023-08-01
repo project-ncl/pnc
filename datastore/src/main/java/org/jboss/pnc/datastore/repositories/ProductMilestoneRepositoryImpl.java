@@ -28,7 +28,6 @@ import org.jboss.pnc.model.BuildRecord_;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.model.ProductVersion_;
-import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
@@ -38,7 +37,6 @@ import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
@@ -106,9 +104,8 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
                 cb.equal(milestones.get(ProductMilestone_.id), id),
                 cb.equal(
                         builtDeliveredArtifactsMilestone.get(ProductMilestone_.productVersion)
-                                .get(ProductVersion_.product)
-                                .get(Product_.id),
-                        milestones.get(ProductMilestone_.productVersion).get(ProductVersion_.product).get(Product_.id)),
+                                .get(ProductVersion_.product),
+                        milestones.get(ProductMilestone_.productVersion).get(ProductVersion_.product)),
                 cb.notEqual(builtDeliveredArtifactsMilestone.get(ProductMilestone_.id), id));
         query.select(cb.count(deliveredArtifacts.get(Artifact_.id)));
 
@@ -131,9 +128,8 @@ public class ProductMilestoneRepositoryImpl extends AbstractRepository<ProductMi
                 cb.equal(milestones.get(ProductMilestone_.id), id),
                 cb.notEqual(
                         builtDeliveredArtifactsMilestone.get(ProductMilestone_.productVersion)
-                                .get(ProductVersion_.product)
-                                .get(Product_.id),
-                        milestones.get(ProductMilestone_.productVersion).get(ProductVersion_.product).get(Product_.id)));
+                                .get(ProductVersion_.product),
+                        milestones.get(ProductMilestone_.productVersion).get(ProductVersion_.product)));
         query.select(cb.count(deliveredArtifacts.get(Artifact_.id)));
 
         return entityManager.createQuery(query).getSingleResult();
