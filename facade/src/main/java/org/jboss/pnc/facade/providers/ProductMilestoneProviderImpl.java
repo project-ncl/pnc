@@ -295,9 +295,12 @@ public class ProductMilestoneProviderImpl extends
                 .artifactsInMilestone(milestoneRepository.countBuiltArtifactsInMilestone(entityId))
                 .deliveredArtifactsSource(
                         ProductMilestoneDeliveredArtifactsStatistics.builder()
-                                .thisMilestone(milestoneRepository.countDeliveredArtifactsBuiltInThisMilestone(entityId))
-                                .otherMilestones(milestoneRepository.countDeliveredArtifactsBuiltInOtherMilestones(entityId))
-                                .otherProducts(milestoneRepository.countDeliveredArtifactsBuiltByOtherProducts(entityId))
+                                .thisMilestone(
+                                        milestoneRepository.countDeliveredArtifactsBuiltInThisMilestone(entityId))
+                                .otherMilestones(
+                                        milestoneRepository.countDeliveredArtifactsBuiltInOtherMilestones(entityId))
+                                .otherProducts(
+                                        milestoneRepository.countDeliveredArtifactsBuiltByOtherProducts(entityId))
                                 .noMilestone(milestoneRepository.countDeliveredArtifactsBuiltInNoMilestone(entityId))
                                 .noBuild(milestoneRepository.countDeliveredArtifactsNotBuilt(entityId))
                                 .build())
