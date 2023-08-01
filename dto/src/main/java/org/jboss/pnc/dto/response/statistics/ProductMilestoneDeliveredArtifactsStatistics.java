@@ -18,10 +18,9 @@
 package org.jboss.pnc.dto.response.statistics;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * Statistics about the delivered artifacts of a milestone.
@@ -31,7 +30,7 @@ import lombok.Value;
 @Value
 @Builder(builderClassName = "Builder")
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonDeserialize(builder = ProductMilestoneDeliveredArtifactsStatistics.Builder.class)
+@Jacksonized
 public class ProductMilestoneDeliveredArtifactsStatistics {
 
     /**
@@ -58,9 +57,4 @@ public class ProductMilestoneDeliveredArtifactsStatistics {
      * Number of delivered artifacts not produced in any build.
      */
     Long noBuild;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class Builder {
-    }
 }

@@ -18,10 +18,9 @@
 package org.jboss.pnc.dto.response.statistics;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 
@@ -35,7 +34,7 @@ import java.util.EnumMap;
 @Value
 @Builder(builderClassName = "Builder")
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonDeserialize(builder = ProductMilestoneStatistics.Builder.class)
+@Jacksonized
 public class ProductMilestoneStatistics {
 
     /**
@@ -57,9 +56,4 @@ public class ProductMilestoneStatistics {
      * Proportion of repository type of Delivered Artifacts.
      */
     EnumMap<RepositoryType, Long> repositoryType;
-
-    @JsonPOJOBuilder(withPrefix = "")
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class Builder {
-    }
 }
