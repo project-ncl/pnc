@@ -18,9 +18,9 @@
 package org.jboss.pnc.facade.providers;
 
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
+import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.common.util.EnumMapUtils;
 import org.jboss.pnc.constants.Patterns;
 import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
@@ -561,7 +561,7 @@ public class ProductMilestoneProviderImpl extends
     private static <K extends Enum<K>> EnumMap<K, Long> transformListTupleToEnumMap(
             List<Tuple> tuples,
             Class<K> keyType) {
-        EnumMap<K, Long> enumMap = EnumMapUtils.initEnumMapWithDefaultValue(keyType, () -> 0L);
+        EnumMap<K, Long> enumMap = Maps.initEnumMapWithDefaultValue(keyType, 0L);
 
         for (var t : tuples) {
             enumMap.put(t.get(0, keyType), t.get(1, Long.class));

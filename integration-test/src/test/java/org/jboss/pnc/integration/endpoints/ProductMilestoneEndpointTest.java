@@ -26,7 +26,7 @@ import org.jboss.pnc.client.ProductMilestoneClient;
 import org.jboss.pnc.client.ProductVersionClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.common.util.EnumMapUtils;
+import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.Artifact;
 import org.jboss.pnc.dto.Build;
@@ -348,7 +348,8 @@ public class ProductMilestoneEndpointTest {
         // given
         ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asAnonymous());
 
-        ProductMilestoneDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductMilestoneDeliveredArtifactsStatistics.builder()
+        ProductMilestoneDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductMilestoneDeliveredArtifactsStatistics
+                .builder()
                 .thisMilestone(2L) // builtArtifact1, builtArtifact9
                 .otherMilestones(1L) // builtArtifact10
                 .otherProducts(2L) // builtArtifact11, builtArtifact12
@@ -356,14 +357,13 @@ public class ProductMilestoneEndpointTest {
                 .noBuild(1L) // importedArtifact2
                 .build();
 
-        Supplier<Long> constantZeroSupplier = () -> 0L;
-        EnumMap<ArtifactQuality, Long> expectedArtifactQualities = EnumMapUtils
-                .initEnumMapWithDefaultValue(ArtifactQuality.class, constantZeroSupplier);
+        EnumMap<ArtifactQuality, Long> expectedArtifactQualities = Maps
+                .initEnumMapWithDefaultValue(ArtifactQuality.class, 0L);
         expectedArtifactQualities.put(ArtifactQuality.NEW, 6L);
         expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1L);
 
-        EnumMap<RepositoryType, Long> expectedRepositoryTypes = EnumMapUtils
-                .initEnumMapWithDefaultValue(RepositoryType.class, constantZeroSupplier);
+        EnumMap<RepositoryType, Long> expectedRepositoryTypes = Maps
+                .initEnumMapWithDefaultValue(RepositoryType.class, 0L);
         expectedRepositoryTypes.put(RepositoryType.MAVEN, 7L);
 
         ProductMilestoneStatistics expectedStats = ProductMilestoneStatistics.builder()
