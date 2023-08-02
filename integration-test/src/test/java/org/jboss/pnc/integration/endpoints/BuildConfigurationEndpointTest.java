@@ -377,7 +377,7 @@ public class BuildConfigurationEndpointTest {
 
         RemoteCollection<Build> all = client.getBuilds(configurationId, null);
 
-        assertThat(all).hasSize(2).allMatch(b -> configurationId.equals(b.getBuildConfigRevision().getId()));
+        assertThat(all).hasSize(3).allMatch(b -> configurationId.equals(b.getBuildConfigRevision().getId()));
     }
 
     @Test

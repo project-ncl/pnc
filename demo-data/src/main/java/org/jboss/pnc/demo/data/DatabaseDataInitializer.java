@@ -203,6 +203,8 @@ public class DatabaseDataInitializer {
 
     ProductMilestone demoProductMilestone2;
 
+    ProductMilestone demoProductMilestone3;
+
     ProductMilestone demoProductMilestone5;
 
     ProductMilestone demoProductMilestone6;
@@ -363,7 +365,7 @@ public class DatabaseDataInitializer {
         Instant t0 = TODAY.toInstant();
         Instant successTime = t0.plus(10, ChronoUnit.MINUTES);
 
-        ProductMilestone demoProductMilestone3 = ProductMilestone.Builder.newBuilder()
+        demoProductMilestone3 = ProductMilestone.Builder.newBuilder()
                 .version(PNC_PRODUCT_MILESTONE3)
                 .startingDate(TODAY)
                 .plannedEndDate(ONE_WEEK_AFTER_TODAY)
@@ -969,6 +971,9 @@ public class DatabaseDataInitializer {
         IdRev buildConfig6SecondAuditIdRev = new IdRev(buildConfiguration6.getId(), SECOND_REVISION);
         BuildConfigurationAudited buildConfig6SecondAudit = buildConfigurationAuditedRepository
                 .queryById(buildConfig6SecondAuditIdRev);
+        IdRev buildConfig1SecondAuditIdRev = new IdRev(buildConfiguration1.getId(), SECOND_REVISION);
+        BuildConfigurationAudited buildConfig1SecondAudit = buildConfigurationAuditedRepository
+                .queryById(buildConfig1SecondAuditIdRev);
 
         if (buildConfig6InitialAudit != null && buildConfig6SecondAudit != null) {
             String nextId = Sequence.nextBase32Id();
@@ -1009,8 +1014,27 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(false)
                     .build();
 
+            nextId = Sequence.nextBase32Id();
+            log.info("####nextId: " + nextId);
+
+            BuildRecord buildRecord6 = BuildRecord.Builder.newBuilder()
+                    .id(nextId)
+                    .buildConfigurationAudited(buildConfig1SecondAudit)
+                    .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.MINUTES)))
+                    .startTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.MINUTES)))
+                    .endTime(Timestamp.from(Instant.now()))
+                    .user(demoUser)
+                    .buildLog("Everything's just fine")
+                    .status(BuildStatus.SUCCESS)
+                    .buildEnvironment(buildConfig1SecondAudit.getBuildEnvironment())
+                    .executionRootName("org.jboss.pnc:parent")
+                    .executionRootVersion("1.2.3")
+                    .temporaryBuild(false)
+                    .build();
+
             buildRecord4 = buildRecordRepository.save(buildRecord4);
             buildRecord5 = buildRecordRepository.save(buildRecord5);
+            buildRecord6 = buildRecordRepository.save(buildRecord6);
 
             Artifact builtArtifact11 = Artifact.Builder.newBuilder()
                     .buildRecord(buildRecord4)
@@ -1038,13 +1062,28 @@ public class DatabaseDataInitializer {
                     .deployPath("/built12")
                     .build();
 
+            Artifact builtArtifact13 = Artifact.Builder.newBuilder()
+                    .buildRecord(buildRecord6)
+                    .identifier("demo:built-artifact13:jar:1.0")
+                    .targetRepository(targetRepository)
+                    .filename("demo built artifact 13")
+                    .md5("md5-fake-123abc")
+                    .sha1("sha1-fake-123abc")
+                    .sha256("sha256-fake-123abc")
+                    .size(13L)
+                    .artifactQuality(ArtifactQuality.NEW)
+                    .deployPath("/built13")
+                    .build();
+
             builtArtifact11 = artifactRepository.save(builtArtifact11);
             builtArtifact12 = artifactRepository.save(builtArtifact12);
+            builtArtifact13 = artifactRepository.save(builtArtifact13);
 
             demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
             demoProductMilestone1.addDeliveredArtifact(builtArtifact10);
             demoProductMilestone1.addDeliveredArtifact(builtArtifact11);
             demoProductMilestone1.addDeliveredArtifact(builtArtifact12);
+            demoProductMilestone3.addDeliveredArtifact(builtArtifact13);
         }
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
