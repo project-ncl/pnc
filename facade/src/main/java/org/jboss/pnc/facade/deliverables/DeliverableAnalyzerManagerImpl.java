@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.deliverables;
 import com.github.packageurl.MalformedPackageURLException;
 import com.github.packageurl.PackageURL;
 import com.github.packageurl.PackageURLBuilder;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.Artifact;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.ArtifactType;
@@ -78,6 +79,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
@@ -170,15 +172,13 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             switch (build.getBuildSystemType()) {
                 case PNC:
                     statCounter = stats.pncCounter();
-                    artifactParser = artifactCache;
+                    artifactParser = artifactCache::findPNCArtifact;
                     break;
                 case BREW:
                     statCounter = stats.brewCounter();
-                    TargetRepository brewRepository = getBrewRepository(build);
-                    artifactParser = art -> findOrCreateBrewArtifact(
-                            assertBrewArtifacts(art),
-                            brewRepository,
-                            build.getBrewNVR());
+                    TargetRepository brewRepository = artifactCache.getOrCreateTargetRepository(build);
+                    artifactParser = art -> artifactCache
+                            .findOrCreateBrewArtifact(art, brewRepository, build.getBrewNVR());
                     break;
                 default:
                     throw new UnsupportedOperationException("Unknown build system type " + build.getBuildSystemType());
@@ -233,13 +233,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         milestone.getDeliveredArtifacts().clear();
     }
 
-    private org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(
-            Artifact artifact,
-            TargetRepository targetRepo,
-            String nvr) {
-        return findOrCreateArtifact(mapBrewArtifact(artifact, nvr), targetRepo);
-    }
-
     private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(Artifact artifact, TargetRepository targetRepo) {
         return findOrCreateArtifact(mapNotFoundArtifact(artifact), targetRepo);
     }
@@ -273,7 +266,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return builder.build();
     }
 
-    private org.jboss.pnc.model.Artifact mapBrewArtifact(Artifact artifact, String nvr) {
+    private org.jboss.pnc.model.Artifact mapBrewArtifact(
+            Artifact artifact,
+            String nvr,
+            TargetRepository targetRepository) {
         if (artifact.getArtifactType() != ArtifactType.MAVEN) {
             throw new UnsupportedOperationException("Brew artifact " + artifact + " is not Maven!");
         }
@@ -285,6 +281,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         builder.deployPath(createDeployPath(mavenArtifact));
         builder.originUrl(createBrewOriginURL(mavenArtifact, nvr));
         builder.purl(createPURL(mavenArtifact));
+        builder.targetRepository(targetRepository);
 
         return builder.build();
     }
@@ -398,15 +395,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return targetRepositoryRepository.save(tr);
     }
 
-    private Artifact assertBrewArtifacts(Artifact artifact) {
-        if (!(artifact.getArtifactType() == null || artifact.getArtifactType() == ArtifactType.MAVEN)) {
-            throw new IllegalArgumentException(
-                    "Brew artifacts are expected to be either MAVEN or unknown, artifact " + artifact + " is "
-                            + artifact.getArtifactType());
-        }
-        return artifact;
-    }
-
     private void startAnalysis(String milestoneId, List<String> deliverablesUrls, Base32LongID operationId) {
         Request callback = operationsManager.getOperationCallback(operationId);
         String id = operationId.getId();
@@ -504,11 +492,19 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
     }
 
-    private class ArtifactCache implements Function<Artifact, org.jboss.pnc.model.Artifact> {
+    private class ArtifactCache {
 
-        private Map<Integer, org.jboss.pnc.model.Artifact> cache;
+        private Map<Integer, org.jboss.pnc.model.Artifact> pncCache = new HashMap<>();
 
-        private ArtifactCache(Collection<Build> builds) {
+        private Map<IdentifierShaRepo, org.jboss.pnc.model.Artifact> brewCache = new HashMap<>();
+        private Map<String, TargetRepository> targetRepositoryCache = new HashMap<>();
+
+        public ArtifactCache(Collection<Build> builds) {
+            prefetchPNCArtifacts(builds);
+            prefetchBrewArtifacts(builds);
+        }
+
+        private void prefetchPNCArtifacts(Collection<Build> builds) {
             log.debug("Preloading PNC artifacts");
             Set<Integer> ids = builds.stream()
                     .filter(b -> b.getBuildSystemType() == BuildSystemType.PNC)
@@ -517,19 +513,107 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     .map(artifactMapper.getIdMapper()::toEntity)
                     .collect(Collectors.toSet());
 
-            cache = artifactRepository.queryWithPredicates(ArtifactPredicates.withIds(ids))
+            pncCache = artifactRepository.queryWithPredicates(ArtifactPredicates.withIds(ids))
                     .stream()
                     .collect(Collectors.toMap(org.jboss.pnc.model.Artifact::getId, Function.identity()));
-            log.debug("Preloaded {} artifacts to cache.", cache.size());
+            log.debug("Preloaded {} artifacts to cache.", pncCache.size());
         }
 
-        @Override
-        public org.jboss.pnc.model.Artifact apply(Artifact art) {
-            org.jboss.pnc.model.Artifact artifact = cache.get(artifactMapper.getIdMapper().toEntity(art.getPncId()));
+        private void prefetchBrewArtifacts(Collection<Build> builds) {
+            Set<IdentifierShaRepo> queries = builds.stream()
+                    .filter(b -> b.getBuildSystemType() == BuildSystemType.BREW)
+                    .flatMap(this::prefetchBrewBuild)
+                    .collect(Collectors.toSet());
+
+            Set<org.jboss.pnc.model.Artifact.IdentifierSha256> identifierSha256Set = queries.stream()
+                    .map(IdentifierShaRepo::getIdentifierSha256)
+                    .collect(Collectors.toSet());
+            Set<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
+                    .withIdentifierAndSha256(identifierSha256Set);
+            for (org.jboss.pnc.model.Artifact artifact : artifacts) {
+                IdentifierShaRepo key = new IdentifierShaRepo(
+                        artifact.getIdentifierSha256(),
+                        artifact.getTargetRepository());
+                if (queries.contains(key)) {
+                    brewCache.put(key, artifact);
+                }
+            }
+            log.debug(
+                    "Preloaded {} target repos and {} artifacts to cache.",
+                    targetRepositoryCache.size(),
+                    brewCache.size());
+        }
+
+        public Stream<IdentifierShaRepo> prefetchBrewBuild(Build build) {
+            String path = getKojiPath(build);
+            TargetRepository tr = targetRepositoryRepository.queryByIdentifierAndPath(INDY_MAVEN, path);
+            if (tr == null) {
+                tr = createRepository(path, INDY_MAVEN, RepositoryType.MAVEN);
+                targetRepositoryCache.put(path, tr);
+                return Stream.empty();
+            } else {
+                final TargetRepository targetRepository = tr;
+                return build.getArtifacts()
+                        .stream()
+                        .peek(this::assertBrewArtifacts)
+                        .map(a -> mapBrewArtifact(a, build.getBrewNVR(), targetRepository))
+                        .map(a -> new IdentifierShaRepo(a.getIdentifierSha256(), targetRepository));
+            }
+        }
+
+        private String getKojiPath(Build build) {
+            return KOJI_PATH_MAVEN_PREFIX + build.getBrewNVR();
+        }
+
+        private void assertBrewArtifacts(Artifact artifact) {
+            if (!(artifact.getArtifactType() == null || artifact.getArtifactType() == ArtifactType.MAVEN)) {
+                throw new IllegalArgumentException(
+                        "Brew artifacts are expected to be either MAVEN or unknown, artifact " + artifact + " is "
+                                + artifact.getArtifactType());
+            }
+        }
+
+        public org.jboss.pnc.model.Artifact findPNCArtifact(Artifact art) {
+            org.jboss.pnc.model.Artifact artifact = pncCache.get(artifactMapper.getIdMapper().toEntity(art.getPncId()));
             if (artifact == null) {
                 throw new IllegalArgumentException("PNC artifact with id " + art.getPncId() + " doesn't exist.");
             }
             return artifact;
         }
+
+        public TargetRepository getOrCreateTargetRepository(Build build) {
+            String path = getKojiPath(build);
+            TargetRepository tr = targetRepositoryCache.get(path);
+            if (tr == null) {
+                tr = createRepository(path, INDY_MAVEN, RepositoryType.MAVEN);
+            }
+            return tr;
+        }
+
+        public org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(
+                Artifact artifact,
+                TargetRepository targetRepository,
+                String nvr) {
+            return findOrCreateBrewArtifact(mapBrewArtifact(artifact, nvr, targetRepository));
+        }
+
+        private org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(org.jboss.pnc.model.Artifact artifact) {
+            TargetRepository targetRepository = targetRepositoryCache
+                    .get(artifact.getTargetRepository().getRepositoryPath());
+            IdentifierShaRepo key = new IdentifierShaRepo(artifact.getIdentifierSha256(), targetRepository);
+            org.jboss.pnc.model.Artifact cachedArtifact = brewCache.get(key);
+            if (cachedArtifact != null) {
+                return cachedArtifact;
+            }
+            org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
+            targetRepository.getArtifacts().add(savedArtifact);
+            return savedArtifact;
+        }
+    }
+
+    @Value
+    private static class IdentifierShaRepo {
+        org.jboss.pnc.model.Artifact.IdentifierSha256 identifierSha256;
+        TargetRepository targetRepository;
     }
 }
