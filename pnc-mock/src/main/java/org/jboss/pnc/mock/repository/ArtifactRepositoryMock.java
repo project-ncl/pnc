@@ -20,6 +20,9 @@ package org.jboss.pnc.mock.repository;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 
+import java.util.Collection;
+import java.util.Set;
+
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:05 PM
  */
@@ -27,6 +30,11 @@ public class ArtifactRepositoryMock extends IntIdRepositoryMock<Artifact> implem
 
     @Override
     public Artifact withPurl(String purl) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<Artifact> withIdentifierAndSha256(Collection<Artifact.IdentifierSha256> identifierSha256Set) {
         throw new UnsupportedOperationException();
     }
 }

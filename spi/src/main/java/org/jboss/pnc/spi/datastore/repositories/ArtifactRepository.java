@@ -20,6 +20,7 @@ package org.jboss.pnc.spi.datastore.repositories;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -28,4 +29,6 @@ import java.util.Set;
 public interface ArtifactRepository extends Repository<Artifact, Integer> {
 
     Artifact withPurl(String purl);
+
+    Set<Artifact> withIdentifierAndSha256(Collection<Artifact.IdentifierSha256> identifierSha256Set);
 }
