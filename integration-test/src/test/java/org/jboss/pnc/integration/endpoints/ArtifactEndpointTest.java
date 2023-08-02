@@ -115,7 +115,7 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> all = client.getAll(null, null, null);
 
-        assertThat(all).hasSize(15); // from DatabaseDataInitializer
+        assertThat(all).hasSize(17); // from DatabaseDataInitializer
     }
 
     @Test
@@ -176,7 +176,7 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 4);
+        assertQualifier(qualifier, value, result, 5);
     }
 
     @Test
@@ -194,7 +194,7 @@ public class ArtifactEndpointTest {
                 Set.of(BuildCategory.STANDARD),
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 4);
+        assertQualifier(qualifier, value, result, 5);
     }
 
     @Test
@@ -218,7 +218,7 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 4);
+        assertQualifier(qualifier, value, result, 5);
     }
 
     @Test
@@ -404,7 +404,7 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 6);
+        assertQualifier(qualifier, value, result, 8);
     }
 
     @Test
@@ -428,7 +428,7 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 6);
+        assertQualifier(qualifier, value, result, 8);
     }
 
     @Test
@@ -585,13 +585,13 @@ public class ArtifactEndpointTest {
 
         var result = client.getAllFiltered(identifierFilter, null, null, null, requestedQualifiers);
 
-        assertQualifier(Qualifier.PRODUCT, productAbbrev, result, 4);
-        assertQualifier(Qualifier.PRODUCT_ID, productID, result, 4);
+        assertQualifier(Qualifier.PRODUCT, productAbbrev, result, 5);
+        assertQualifier(Qualifier.PRODUCT_ID, productID, result, 5);
         assertQualifier(Qualifier.VERSION, productAbbrev + ' ' + versionString, result, 4);
         assertQualifier(Qualifier.VERSION_ID, versionID, result, 4);
         assertQualifier(Qualifier.MILESTONE, productAbbrev + ' ' + milestoneString, result, 3);
         assertQualifier(Qualifier.MILESTONE_ID, milestoneID, result, 3);
-        assertQualifier(Qualifier.BUILD_CONFIG, buildConfigName, result, 6);
+        assertQualifier(Qualifier.BUILD_CONFIG, buildConfigName, result, 8);
         assertQualifier(Qualifier.QUALITY, quality.name(), result, 2);
         assertQualifier(Qualifier.GROUP_CONFIG, groupConfigName, result, 9);
     }

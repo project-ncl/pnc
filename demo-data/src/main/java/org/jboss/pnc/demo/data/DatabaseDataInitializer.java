@@ -109,6 +109,8 @@ public class DatabaseDataInitializer {
 
     public static final String PNC_PRODUCT_MILESTONE4 = "1.0.0.Build4";
 
+    public static final String PNC_PRODUCT_MILESTONE5 = "2.0.0.Build1";
+
     public static final String PNC_PROJECT_1_NAME = "Project Newcastle Demo Project 1";
 
     public static final String PNC_PROJECT_BUILD_CFG_ID = "pnc-1.0.0.DR1";
@@ -208,6 +210,8 @@ public class DatabaseDataInitializer {
     ProductMilestone demoProductMilestone5;
 
     ProductMilestone demoProductMilestone6;
+
+    ProductMilestone demoProductMilestone7;
 
     User demoUser;
 
@@ -399,6 +403,14 @@ public class DatabaseDataInitializer {
                 .productVersion(productVersion3)
                 .build();
         demoProductMilestone6 = productMilestoneRepository.save(demoProductMilestone6);
+
+        demoProductMilestone7 = ProductMilestone.Builder.newBuilder()
+                .version(PNC_PRODUCT_MILESTONE5)
+                .startingDate(TODAY)
+                .plannedEndDate(ONE_WEEK_AFTER_TODAY)
+                .productVersion(productVersion2)
+                .build();
+        demoProductMilestone7 = productMilestoneRepository.save(demoProductMilestone7);
 
         ProductMilestoneRelease milestoneRelease1 = new ProductMilestoneRelease();
         milestoneRelease1.setId(Sequence.nextId());
@@ -742,6 +754,7 @@ public class DatabaseDataInitializer {
 
         final int INITIAL_REVISION = 1;
         final int SECOND_REVISION = 2;
+        final int THIRD_REVISION = 3;
         IdRev buildConfig1AuditIdRev = new IdRev(buildConfiguration1.getId(), INITIAL_REVISION);
         BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository
                 .queryById(buildConfig1AuditIdRev);
@@ -974,6 +987,9 @@ public class DatabaseDataInitializer {
         IdRev buildConfig1SecondAuditIdRev = new IdRev(buildConfiguration1.getId(), SECOND_REVISION);
         BuildConfigurationAudited buildConfig1SecondAudit = buildConfigurationAuditedRepository
                 .queryById(buildConfig1SecondAuditIdRev);
+        IdRev buildConfig1ThirdAuditIdRev = new IdRev(buildConfiguration1.getId(), THIRD_REVISION);
+        BuildConfigurationAudited buildConfig1ThirdAudit = buildConfigurationAuditedRepository
+                .queryById(buildConfig1ThirdAuditIdRev);
 
         if (buildConfig6InitialAudit != null && buildConfig6SecondAudit != null) {
             String nextId = Sequence.nextBase32Id();
@@ -1019,6 +1035,7 @@ public class DatabaseDataInitializer {
 
             BuildRecord buildRecord6 = BuildRecord.Builder.newBuilder()
                     .id(nextId)
+                    .productMilestone(demoProductMilestone7)
                     .buildConfigurationAudited(buildConfig1SecondAudit)
                     .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.MINUTES)))
                     .startTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.MINUTES)))
@@ -1032,9 +1049,28 @@ public class DatabaseDataInitializer {
                     .temporaryBuild(false)
                     .build();
 
+            nextId = Sequence.nextBase32Id();
+            log.info("####nextId: " + nextId);
+
+            BuildRecord buildRecord7 = BuildRecord.Builder.newBuilder()
+                    .id(nextId)
+                    .buildConfigurationAudited(buildConfig1ThirdAudit)
+                    .submitTime(Timestamp.from(Instant.now().minus(2, ChronoUnit.MINUTES)))
+                    .startTime(Timestamp.from(Instant.now().minus(1, ChronoUnit.MINUTES)))
+                    .endTime(Timestamp.from(Instant.now()))
+                    .user(demoUser)
+                    .buildLog("Naaah, is it even needed?")
+                    .status(BuildStatus.SUCCESS)
+                    .buildEnvironment(buildConfig1ThirdAudit.getBuildEnvironment())
+                    .executionRootName("org.jboss.pnc:parent")
+                    .executionRootVersion("1.2.3")
+                    .temporaryBuild(false)
+                    .build();
+
             buildRecord4 = buildRecordRepository.save(buildRecord4);
             buildRecord5 = buildRecordRepository.save(buildRecord5);
             buildRecord6 = buildRecordRepository.save(buildRecord6);
+            buildRecord7 = buildRecordRepository.save(buildRecord7);
 
             Artifact builtArtifact11 = Artifact.Builder.newBuilder()
                     .buildRecord(buildRecord4)
@@ -1075,15 +1111,45 @@ public class DatabaseDataInitializer {
                     .deployPath("/built13")
                     .build();
 
+            Artifact builtArtifact14 = Artifact.Builder.newBuilder()
+                    .buildRecord(buildRecord7)
+                    .identifier("demo:built-artifact14:jar:1.0")
+                    .targetRepository(targetRepository)
+                    .filename("demo built artifact 14")
+                    .md5("md5-fake-123abc")
+                    .sha1("sha1-fake-123abc")
+                    .sha256("sha256-fake-123abc")
+                    .size(14L)
+                    .artifactQuality(ArtifactQuality.NEW)
+                    .deployPath("/built14")
+                    .build();
+
+            Artifact builtArtifact15 = Artifact.Builder.newBuilder()
+                    .buildRecord(buildRecord7)
+                    .identifier("demo:built-artifact15:jar:1.0")
+                    .targetRepository(targetRepository)
+                    .filename("demo built artifact 15")
+                    .md5("md5-fake-123abc")
+                    .sha1("sha1-fake-123abc")
+                    .sha256("sha256-fake-123abc")
+                    .size(15L)
+                    .artifactQuality(ArtifactQuality.NEW)
+                    .deployPath("/built15")
+                    .build();
+
             builtArtifact11 = artifactRepository.save(builtArtifact11);
             builtArtifact12 = artifactRepository.save(builtArtifact12);
             builtArtifact13 = artifactRepository.save(builtArtifact13);
+            builtArtifact14 = artifactRepository.save(builtArtifact14);
+            builtArtifact15 = artifactRepository.save(builtArtifact15);
 
             demoProductMilestone1 = productMilestoneRepository.queryById(demoProductMilestone1.getId());
             demoProductMilestone1.addDeliveredArtifact(builtArtifact10);
             demoProductMilestone1.addDeliveredArtifact(builtArtifact11);
             demoProductMilestone1.addDeliveredArtifact(builtArtifact12);
             demoProductMilestone3.addDeliveredArtifact(builtArtifact13);
+            demoProductMilestone7.addDeliveredArtifact(builtArtifact14);
+            demoProductMilestone7.addDeliveredArtifact(builtArtifact15);
         }
 
         BuildConfigSetRecord buildConfigSetRecord1 = BuildConfigSetRecord.Builder.newBuilder()
