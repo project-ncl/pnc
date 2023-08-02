@@ -428,21 +428,22 @@ public class ProductVersionEndpointTest {
         // given
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
 
+        // from DatabaseDataInitializer: dPM = demoProductMilestone, bA = builtArtifact, iA = importedArtifact
         ProductVersionDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductVersionDeliveredArtifactsStatistics
                 .builder()
-                // .thisVersion()
-                // .otherVersions()
-                // .otherProducts()
-                // .noMilestone()
-                // .noBuild()
+                .thisVersion(3L) // bA1, bA9, bA10
+                .otherVersions(1L) // bA13
+                .otherProducts(2L) // bA11, bA12
+                .noMilestone(1L) // bA5
+                .noBuild(1L) // iA2
                 .build();
 
         ProductVersionStatistics expectedStats = ProductVersionStatistics.builder()
-                // .milestones()
-                // .productDependencies()
-                // .milestoneDependencies()
-                // .artifactsInVersion()
-                // .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
+                .milestones(4L) // dPM1, dPM2, dPM3, dPM4
+                .productDependencies(2L) // PNC, EAP
+                .milestoneDependencies(5L) // dPM1, dPM2, dPM3, dPM5, dPM6
+                .artifactsInVersion(4L) // bA1, bA9, bA10, bA13
+                .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
                 .build();
 
         // when
