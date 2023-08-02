@@ -428,20 +428,21 @@ public class ProductVersionEndpointTest {
         // given
         ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
 
-        ProductVersionDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductVersionDeliveredArtifactsStatistics.builder()
-//                .thisVersion()
-//                .otherVersions()
-//                .otherProducts()
-//                .noMilestone()
-//                .noBuild()
+        ProductVersionDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductVersionDeliveredArtifactsStatistics
+                .builder()
+                // .thisVersion()
+                // .otherVersions()
+                // .otherProducts()
+                // .noMilestone()
+                // .noBuild()
                 .build();
 
         ProductVersionStatistics expectedStats = ProductVersionStatistics.builder()
-//                .milestones()
-//                .productDependencies()
-//                .milestoneDependencies()
-//                .artifactsInVersion()
-//                .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
+                // .milestones()
+                // .productDependencies()
+                // .milestoneDependencies()
+                // .artifactsInVersion()
+                // .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
                 .build();
 
         // when

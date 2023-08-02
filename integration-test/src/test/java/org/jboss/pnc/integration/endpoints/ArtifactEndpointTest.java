@@ -115,7 +115,7 @@ public class ArtifactEndpointTest {
 
         RemoteCollection<Artifact> all = client.getAll(null, null, null);
 
-        assertThat(all).hasSize(14); // from DatabaseDataInitializer
+        assertThat(all).hasSize(15); // from DatabaseDataInitializer
     }
 
     @Test
@@ -404,7 +404,7 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 5);
+        assertQualifier(qualifier, value, result, 6);
     }
 
     @Test
@@ -428,7 +428,7 @@ public class ArtifactEndpointTest {
                 null,
                 Set.of(QValue.valueOf(qualifier.name() + ':' + value)));
 
-        assertQualifier(qualifier, value, result, 5);
+        assertQualifier(qualifier, value, result, 6);
     }
 
     @Test
@@ -591,7 +591,7 @@ public class ArtifactEndpointTest {
         assertQualifier(Qualifier.VERSION_ID, versionID, result, 4);
         assertQualifier(Qualifier.MILESTONE, productAbbrev + ' ' + milestoneString, result, 3);
         assertQualifier(Qualifier.MILESTONE_ID, milestoneID, result, 3);
-        assertQualifier(Qualifier.BUILD_CONFIG, buildConfigName, result, 5);
+        assertQualifier(Qualifier.BUILD_CONFIG, buildConfigName, result, 6);
         assertQualifier(Qualifier.QUALITY, quality.name(), result, 2);
         assertQualifier(Qualifier.GROUP_CONFIG, groupConfigName, result, 9);
     }
