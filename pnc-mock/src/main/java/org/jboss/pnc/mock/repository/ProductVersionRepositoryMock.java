@@ -27,4 +27,49 @@ import javax.enterprise.inject.Alternative;
 @ApplicationScoped
 public class ProductVersionRepositoryMock extends IntIdRepositoryMock<ProductVersion>
         implements ProductVersionRepository {
+
+    @Override
+    public long countMilestonesInVersion(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countProductDependenciesInVersion(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countMilestoneDependenciesInVersion(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countBuiltArtifactsInVersion(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countDeliveredArtifactsBuiltInThisVersion(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countDeliveredArtifactsBuiltInOtherVersions(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countDeliveredArtifactsBuiltByOtherProducts(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countDeliveredArtifactsBuiltInNoMilestone(Integer id) {
+        return 0;
+    }
+
+    @Override
+    public long countDeliveredArtifactsNotBuilt(Integer id) {
+        return 0;
+    }
 }
