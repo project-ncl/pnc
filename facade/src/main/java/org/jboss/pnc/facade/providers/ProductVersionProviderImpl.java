@@ -21,6 +21,7 @@ import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.statistics.ProductVersionDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
@@ -52,12 +53,13 @@ public class ProductVersionProviderImpl extends
         AbstractUpdatableProvider<Integer, org.jboss.pnc.model.ProductVersion, ProductVersion, ProductVersionRef>
         implements ProductVersionProvider {
 
-    private ProductRepository productRepository;
-    private ProductMilestoneRepository milestoneRepository;
-    private BuildConfigurationSetRepository groupConfigRepository;
-    private SystemConfig systemConfig;
-    private BuildConfigurationRepository buildConfigurationRepository;
-    private ProductMilestoneMapper milestoneMapper;
+    private final ProductVersionRepository versionRepository;
+    private final ProductRepository productRepository;
+    private final ProductMilestoneRepository milestoneRepository;
+    private final BuildConfigurationSetRepository groupConfigRepository;
+    private final SystemConfig systemConfig;
+    private final BuildConfigurationRepository buildConfigurationRepository;
+    private final ProductMilestoneMapper milestoneMapper;
 
     @Inject
     public ProductVersionProviderImpl(
@@ -72,6 +74,7 @@ public class ProductVersionProviderImpl extends
 
         super(repository, mapper, org.jboss.pnc.model.ProductVersion.class);
 
+        this.versionRepository = repository;
         this.milestoneMapper = milestoneMapper;
         this.productRepository = productRepository;
         this.groupConfigRepository = groupConfigRepository;
@@ -200,7 +203,22 @@ public class ProductVersionProviderImpl extends
 
     @Override
     public ProductVersionStatistics getStatistics(String id) {
-        return null;
+        Integer entityId = mapper.getIdMapper().toEntity(id);
+
+        return ProductVersionStatistics.builder()
+                // .milestones()
+                // .productDependencies()
+                // .milestoneDependencies()
+                // .artifactsInVersion()
+                .deliveredArtifactsSource(
+                        ProductVersionDeliveredArtifactsStatistics.builder()
+                                // .thisVersion()
+                                // .otherVersions()
+                                // .otherProducts()
+                                // .noMilestone()
+                                // .noBuild()
+                                .build())
+                .build();
     }
 
 }
