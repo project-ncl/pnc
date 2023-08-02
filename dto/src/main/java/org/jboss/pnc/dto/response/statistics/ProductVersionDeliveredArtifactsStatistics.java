@@ -37,27 +37,27 @@ public class ProductVersionDeliveredArtifactsStatistics {
      * Number of Delivered Artifacts of Milestones of this Version produced by Builds contained in Milestones of this
      * Version.
      */
-    Long thisVersion;
+    long thisVersion;
 
     /**
      * Number of Delivered Artifacts of Milestones of this Version produced by Builds contained in Milestones of
      * previous Versions of the same Product.
      */
-    Long otherVersions;
+    long otherVersions;
 
     /**
      * Number of Delivered Artifacts of Milestones of this Version produced by Builds contained in Milestones of other
      * Products.
      */
-    Long otherProducts;
+    long otherProducts;
 
     /**
      * Number of Delivered Artifacts of Milestones of this Version produced by Builds not contained in any Milestone.
      */
-    Long noMilestone;
+    long noMilestone;
 
     /**
      * Number of Delivered Artifacts of Milestones of this Version not produced in any Build.
      */
-    Long noBuild;
+    long noBuild;
 }
