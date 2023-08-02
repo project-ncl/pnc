@@ -128,6 +128,6 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
 
     @Override
     public ProductVersionStatistics getStatistics(String id) {
-        return null;
+        return productVersionProvider.getStatistics(id);
     }
 }
