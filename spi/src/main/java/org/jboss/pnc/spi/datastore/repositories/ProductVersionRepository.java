@@ -24,4 +24,22 @@ import org.jboss.pnc.spi.datastore.repositories.api.Repository;
  * Interface for manipulating {@link org.jboss.pnc.model.ProductVersion} entity.
  */
 public interface ProductVersionRepository extends Repository<ProductVersion, Integer> {
+
+    long countMilestonesInVersion(Integer id);
+
+    long countProductDependenciesInVersion(Integer id);
+
+    long countMilestoneDependenciesInVersion(Integer id);
+
+    long countBuiltArtifactsInVersion(Integer id);
+
+    long countDeliveredArtifactsBuiltInThisVersion(Integer id);
+
+    long countDeliveredArtifactsBuiltInOtherVersions(Integer id);
+
+    long countDeliveredArtifactsBuiltByOtherProducts(Integer id);
+
+    long countDeliveredArtifactsBuiltInNoMilestone(Integer id);
+
+    long countDeliveredArtifactsNotBuilt(Integer id);
 }
