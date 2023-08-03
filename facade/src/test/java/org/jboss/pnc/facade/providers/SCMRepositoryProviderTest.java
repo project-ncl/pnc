@@ -277,6 +277,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
         // when
         when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
+        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
 
         RepositoryCreationResponse response = provider
                 .createSCMRepository("git+ssh://github.com/project-ncl/cleaner.git", true);
@@ -297,6 +298,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
         // when
         when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
+        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
 
         // then
         assertThatThrownBy(() -> provider.createSCMRepository("git+ssh://github.com/notvalid", true))
@@ -309,6 +311,7 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
         // when
         when(configuration.getModuleConfig(any())).thenReturn(scmModuleConfig);
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("github.com");
+        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
 
         // then
         assertThatThrownBy(() -> provider.createSCMRepository("https://github.com/project-ncl/cleaner.git", true))
@@ -327,11 +330,33 @@ public class SCMRepositoryProviderTest extends AbstractIntIdProviderTest<Reposit
 
         // when
         when(scmModuleConfig.getInternalScmAuthority()).thenReturn("internalrepo.com");
+        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn(null);
         String invalidInternal = scmModuleConfig.getInternalScmAuthority() + "/gerrit/random-project.git";
 
         // then
         assertThatThrownBy(() -> provider.createSCMRepository(invalidInternal, false))
                 .isInstanceOf(InvalidEntityException.class);
+    }
+
+    @Test
+    public void testCreateSCMRepositoryWithSecondaryInternalRepository() {
+
+        // when
+        when(scmModuleConfig.getInternalScmAuthority()).thenReturn("internalrepo.com");
+        when(scmModuleConfig.getSecondaryInternalScmAuthority()).thenReturn("github.com");
+        String internalUrl = "git+ssh://github.com/project-ncl/cleaner.git";
+
+        RepositoryCreationResponse response = provider.createSCMRepository(internalUrl, false);
+
+        // then
+        assertThat(response).isNotNull();
+
+        if (response.getRepository() == null) {
+            Assert.fail("repository must not be null when creating SCM repository from internal SCM URL!");
+        }
+        if (response.getTaskId() != null) {
+            Assert.fail("taskId must be null when creating SCM repository from internal SCM URL!");
+        }
     }
 
     @Test
