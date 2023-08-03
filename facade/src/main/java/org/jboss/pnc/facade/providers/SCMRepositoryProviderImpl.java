@@ -182,8 +182,9 @@ public class SCMRepositoryProviderImpl
     private void notifySCMRepositoryCreated(RepositoryCreated event) {
         final SCMRepository repository = getSpecific(Integer.toString(event.getRepositoryId()));
         final String taskId = event.getTaskId() == null ? null : event.getTaskId().toString();
-        if (taskId != null)
+        if (taskId != null) {
             notifier.sendMessage(new SCMRepositoryCreationSuccess(repository, taskId));
+        }
     }
 
     /**
@@ -196,6 +197,7 @@ public class SCMRepositoryProviderImpl
      * @param jobType Type of the job that requested the SCM repository creation (for notification purposes).
      * @return id of the created
      */
+    @Override
     public RepositoryCreationResponse createSCMRepository(
             String scmUrl,
             Boolean preBuildSyncEnabled,
@@ -214,10 +216,12 @@ public class SCMRepositoryProviderImpl
         log.trace(
                 "Received request to start RC creation with url autodetect: " + scmUrl + " (sync enabled? "
                         + preBuildSyncEnabled + ")");
-        if (StringUtils.isEmpty(scmUrl))
+        if (StringUtils.isEmpty(scmUrl)) {
             throw new InvalidEntityException("You must specify the SCM URL.");
+        }
 
-        if (scmUrl.contains(config.getInternalScmAuthority())) { // is internal repository
+        if (scmUrl.contains(config.getInternalScmAuthority())
+                || scmUrl.contains(config.getSecondaryInternalScmAuthority())) { // is internal repository
             // validation phase
             validateInternalRepository(scmUrl);
             validateRepositoryWithInternalURLDoesNotExist(scmUrl, null);
@@ -270,7 +274,8 @@ public class SCMRepositoryProviderImpl
 
     public void validateInternalRepository(String internalRepoUrl) throws InvalidEntityException {
         String internalScmAuthority = config.getInternalScmAuthority();
-        if (!isInternalRepository(internalScmAuthority, internalRepoUrl)) {
+        String secondaryInternalScmAuthority = config.getSecondaryInternalScmAuthority();
+        if (!isInternalRepository(internalScmAuthority, secondaryInternalScmAuthority, internalRepoUrl)) {
             log.info("Invalid internal repo url: " + internalRepoUrl);
             throw new InvalidEntityException(
                     "Internal repository url has to start with: <protocol>://" + internalScmAuthority
@@ -287,14 +292,28 @@ public class SCMRepositoryProviderImpl
         }
     }
 
-    public static Boolean isInternalRepository(String internalScmAuthority, String internalRepoUrl) {
+    protected static Boolean isInternalRepository(
+            String internalScmAuthority,
+            String secondaryInternalScmAuthority,
+            String internalRepoUrl) {
         if (StringUtils.isEmpty(internalRepoUrl) || internalScmAuthority == null) {
             throw new IllegalArgumentException("InternalScmAuthority and internalRepoUrl parameters must be set.");
         }
         String internalRepoUrlNoProto = UrlUtils.stripProtocol(internalRepoUrl);
-        String internalRepoName = internalRepoUrlNoProto.replace(internalScmAuthority, "");
-        return internalRepoUrlNoProto.startsWith(internalScmAuthority)
-                && REPOSITORY_NAME_PATTERN.matcher(internalRepoName).matches();
+        String internalRepoName;
+        internalRepoName = internalRepoUrlNoProto.replace(internalScmAuthority, "");
+
+        boolean isInternal = internalRepoUrlNoProto.startsWith(internalScmAuthority);
+        if (isInternal) {
+            internalRepoName = internalRepoUrlNoProto.replace(internalScmAuthority, "");
+        } else if (!StringUtils.isEmpty(secondaryInternalScmAuthority)) {
+            isInternal = internalRepoUrlNoProto.startsWith(secondaryInternalScmAuthority);
+            if (isInternal) {
+                internalRepoName = internalRepoUrlNoProto.replace(secondaryInternalScmAuthority, "");
+            }
+        }
+
+        return isInternal && REPOSITORY_NAME_PATTERN.matcher(internalRepoName).matches();
     }
 
     private void validateRepositoryWithInternalURLDoesNotExist(String internalUrl, Integer ignoreId)
