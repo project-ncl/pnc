@@ -25,7 +25,7 @@ import org.jboss.pnc.remotecoordinator.rexclient.provider.BadRequestMapper;
 import org.jboss.pnc.remotecoordinator.rexclient.provider.ConflictResponseMapper;
 import org.jboss.pnc.remotecoordinator.rexclient.provider.LoggingFilter;
 import org.jboss.pnc.remotecoordinator.rexclient.provider.NotFoundMapper;
-import org.jboss.pnc.rest.jackson.JacksonProvider;
+import org.jboss.pnc.remotecoordinator.rexclient.provider.RexJacksonProvider;
 import org.jboss.pnc.rex.api.TaskEndpoint;
 
 import javax.ws.rs.Path;
@@ -35,6 +35,6 @@ import javax.ws.rs.Path;
 @RegisterClientHeaders(MyHeaderPropagator.class)
 @RegisterProviders({ @RegisterProvider(ConflictResponseMapper.class), @RegisterProvider(BadRequestMapper.class),
         @RegisterProvider(NotFoundMapper.class), @RegisterProvider(LoggingFilter.class),
-        @RegisterProvider(JacksonProvider.class) })
+        @RegisterProvider(RexJacksonProvider.class) })
 public interface RexHttpClient extends TaskEndpoint {
 }
