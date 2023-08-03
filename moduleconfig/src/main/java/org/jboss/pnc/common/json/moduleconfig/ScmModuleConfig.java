@@ -30,17 +30,27 @@ public class ScmModuleConfig extends AbstractModuleConfig {
 
     private String internalScmAuthority;
 
-    public ScmModuleConfig(@JsonProperty("internalScmAuthority") String internalScmAuthority) {
+    private String secondaryInternalScmAuthority;
+
+    public ScmModuleConfig(
+            @JsonProperty("internalScmAuthority") String internalScmAuthority,
+            @JsonProperty("secondaryInternalScmAuthority") String secondaryInternalScmAuthority) {
         super();
         this.internalScmAuthority = StringUtils.stripEndingSlash(internalScmAuthority);
+        this.secondaryInternalScmAuthority = StringUtils.stripEndingSlash(secondaryInternalScmAuthority);
     }
 
     public String getInternalScmAuthority() {
         return internalScmAuthority;
     }
 
+    public String getSecondaryInternalScmAuthority() {
+        return secondaryInternalScmAuthority;
+    }
+
     @Override
     public String toString() {
-        return "ScmModuleConfig [internalScmAuthority=" + internalScmAuthority + "]";
+        return "ScmModuleConfig [internalScmAuthority=" + internalScmAuthority + ",secondaryInternalScmAuthority="
+                + secondaryInternalScmAuthority + "]";
     }
 }
