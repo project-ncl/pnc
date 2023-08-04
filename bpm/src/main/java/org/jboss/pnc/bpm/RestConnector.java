@@ -146,7 +146,6 @@ public class RestConnector implements Connector {
             log.debug("Starting new process using http endpoint: {}", request.getURI());
 
             Map<String, Object> processParameters = new HashMap<>();
-            processParameters.put("auth", Collections.singletonMap("token", accessToken));
             processParameters.put("mdc", new MDCParameters());
             processParameters.put("task", requestObject);
 
