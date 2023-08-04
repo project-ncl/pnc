@@ -206,17 +206,17 @@ public class ProductVersionProviderImpl extends
         Integer entityId = mapper.getIdMapper().toEntity(id);
 
         return ProductVersionStatistics.builder()
-                // .milestones()
-                // .productDependencies()
-                // .milestoneDependencies()
-                // .artifactsInVersion()
+                .milestones(versionRepository.countMilestonesInVersion(entityId))
+                .productDependencies(versionRepository.countProductDependenciesInVersion(entityId))
+                .milestoneDependencies(versionRepository.countMilestoneDependenciesInVersion(entityId))
+                .artifactsInVersion(versionRepository.countBuiltArtifactsInVersion(entityId))
                 .deliveredArtifactsSource(
                         ProductVersionDeliveredArtifactsStatistics.builder()
-                                // .thisVersion()
-                                // .otherVersions()
-                                // .otherProducts()
-                                // .noMilestone()
-                                // .noBuild()
+                                .thisVersion(versionRepository.countDeliveredArtifactsBuiltInThisVersion(entityId))
+                                .otherVersions(versionRepository.countDeliveredArtifactsBuiltInOtherVersions(entityId))
+                                .otherProducts(versionRepository.countDeliveredArtifactsBuiltByOtherProducts(entityId))
+                                .noMilestone(versionRepository.countDeliveredArtifactsBuiltInNoMilestone(entityId))
+                                .noBuild(versionRepository.countDeliveredArtifactsNotBuilt(entityId))
                                 .build())
                 .build();
     }
