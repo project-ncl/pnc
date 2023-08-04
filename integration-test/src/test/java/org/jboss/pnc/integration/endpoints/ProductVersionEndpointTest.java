@@ -441,8 +441,8 @@ public class ProductVersionEndpointTest {
         ProductVersionStatistics expectedStats = ProductVersionStatistics.builder()
                 .milestones(4L) // dPM1, dPM2, dPM3, dPM4
                 .productDependencies(2L) // PNC, EAP
-                .milestoneDependencies(5L) // dPM1, dPM2, dPM3, dPM5, dPM6
-                .artifactsInVersion(4L) // bA1, bA9, bA10, bA13
+                .milestoneDependencies(5L) // dPM1, dPM2, dPM3, dPM5, dPM7
+                .artifactsInVersion(4L) // bA1, bA2, bA9, bA10
                 .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
                 .build();
 
