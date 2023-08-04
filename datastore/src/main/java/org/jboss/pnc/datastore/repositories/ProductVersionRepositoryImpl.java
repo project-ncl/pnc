@@ -54,10 +54,9 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<ProductVersion> versions = query.from(ProductVersion.class);
-        SetJoin<ProductVersion, ProductMilestone> versionsMilestones = versions.join(ProductVersion_.productMilestones);
 
         query.where(cb.equal(versions.get(ProductVersion_.id), id));
-        query.select(cb.count(versionsMilestones.get(ProductMilestone_.id)));
+        query.select(cb.count(versions.join(ProductVersion_.productMilestones)));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -68,16 +67,17 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<ProductVersion> versions = query.from(ProductVersion.class);
-        Path<BuildRecord> versionDeliveredArtifactsBuild = versions.join(ProductVersion_.productMilestones)
-                .join(ProductMilestone_.deliveredArtifacts)
-                .join(Artifact_.buildRecord);
 
         query.where(cb.equal(versions.get(ProductVersion_.id), id));
         query.select(
+                // Take distinct products, since one product can build more than one delivered artifact
                 cb.countDistinct(
-                        versionDeliveredArtifactsBuild.get(BuildRecord_.productMilestone)
-                                .get(ProductMilestone_.productVersion)
-                                .get(ProductVersion_.product)));
+                        versions.join(ProductVersion_.productMilestones)
+                                .join(ProductMilestone_.deliveredArtifacts)
+                                .join(Artifact_.buildRecord)
+                                .join(BuildRecord_.productMilestone)
+                                .join(ProductMilestone_.productVersion)
+                                .join(ProductVersion_.product)));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -88,12 +88,15 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<ProductVersion> versions = query.from(ProductVersion.class);
-        Path<BuildRecord> versionDeliveredArtifactsBuild = versions.join(ProductVersion_.productMilestones)
-                .join(ProductMilestone_.deliveredArtifacts)
-                .join(Artifact_.buildRecord);
 
         query.where(cb.equal(versions.get(ProductVersion_.id), id));
-        query.select(cb.countDistinct(versionDeliveredArtifactsBuild.get(BuildRecord_.productMilestone)));
+        query.select(
+                // Take distinct milestones, since one milestone can build more than one delivered artifact
+                cb.countDistinct(
+                        versions.join(ProductVersion_.productMilestones)
+                                .join(ProductMilestone_.deliveredArtifacts)
+                                .join(Artifact_.buildRecord)
+                                .join(BuildRecord_.productMilestone)));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -104,12 +107,13 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
 
         Root<ProductVersion> versions = query.from(ProductVersion.class);
-        SetJoin<BuildRecord, Artifact> versionBuiltArtifacts = versions.join(ProductVersion_.productMilestones)
-                .join(ProductMilestone_.performedBuilds)
-                .join(BuildRecord_.builtArtifacts);
 
         query.where(cb.equal(versions.get(ProductVersion_.id), id));
-        query.select(cb.count(versionBuiltArtifacts.get(Artifact_.id)));
+        query.select(
+                cb.count(
+                        versions.join(ProductVersion_.productMilestones)
+                                .join(ProductMilestone_.performedBuilds)
+                                .join(BuildRecord_.builtArtifacts)));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -122,7 +126,6 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
         Root<ProductVersion> versions = query.from(ProductVersion.class);
         SetJoin<ProductMilestone, Artifact> versionDeliveredArtifacts = versions.join(ProductVersion_.productMilestones)
                 .join(ProductMilestone_.deliveredArtifacts);
-        Path<BuildRecord> deliveredArtifactsBuild = versionDeliveredArtifacts.join(Artifact_.buildRecord);
 
         // 1) only artifacts from this version
         // 2) delivered built artifacts, which were built in this version
@@ -130,11 +133,12 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
         query.where(
                 cb.equal(versions.get(ProductVersion_.id), id),
                 cb.equal(
-                        deliveredArtifactsBuild.get(BuildRecord_.productMilestone)
+                        versionDeliveredArtifacts.join(Artifact_.buildRecord)
+                                .get(BuildRecord_.productMilestone)
                                 .get(ProductMilestone_.productVersion)
                                 .get(ProductVersion_.id),
                         id));
-        query.select(cb.count(versionDeliveredArtifacts.get(Artifact_.id)));
+        query.select(cb.count(versionDeliveredArtifacts));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -164,7 +168,7 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
                                 .get(ProductMilestone_.productVersion)
                                 .get(ProductVersion_.id),
                         id));
-        query.select(cb.count(versionDeliveredArtifacts.get(Artifact_.id)));
+        query.select(cb.count(versionDeliveredArtifacts));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -177,18 +181,18 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
         Root<ProductVersion> versions = query.from(ProductVersion.class);
         SetJoin<ProductMilestone, Artifact> versionDeliveredArtifacts = versions.join(ProductVersion_.productMilestones)
                 .join(ProductMilestone_.deliveredArtifacts);
-        Path<BuildRecord> deliveredArtifactBuild = versionDeliveredArtifacts.join(Artifact_.buildRecord);
 
         // 1) only artifacts from this version
         // 2) delivered built artifacts, which were built by other products
         query.where(
                 cb.equal(versions.get(ProductVersion_.id), id),
                 cb.notEqual(
-                        deliveredArtifactBuild.get(BuildRecord_.productMilestone)
+                        versionDeliveredArtifacts.join(Artifact_.buildRecord)
+                                .get(BuildRecord_.productMilestone)
                                 .get(ProductMilestone_.productVersion)
                                 .get(ProductVersion_.product),
                         versions.get(ProductVersion_.product)));
-        query.select(cb.count(versionDeliveredArtifacts.get(Artifact_.id)));
+        query.select(cb.count(versionDeliveredArtifacts));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -201,14 +205,13 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
         Root<ProductVersion> versions = query.from(ProductVersion.class);
         SetJoin<ProductMilestone, Artifact> versionDeliveredArtifacts = versions.join(ProductVersion_.productMilestones)
                 .join(ProductMilestone_.deliveredArtifacts);
-        Path<BuildRecord> deliveredArtifactBuild = versionDeliveredArtifacts.join(Artifact_.buildRecord);
 
         // 1) only artifacts from this version
         // 2) delivered built artifacts, which were built in no milestone
         query.where(
                 cb.equal(versions.get(ProductVersion_.id), id),
-                cb.isNull(deliveredArtifactBuild.get(BuildRecord_.productMilestone)));
-        query.select(cb.count(versionDeliveredArtifacts.get(Artifact_.id)));
+                cb.isNull(versionDeliveredArtifacts.join(Artifact_.buildRecord).get(BuildRecord_.productMilestone)));
+        query.select(cb.count(versionDeliveredArtifacts));
 
         return entityManager.createQuery(query).getSingleResult();
     }
@@ -227,7 +230,7 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
         query.where(
                 cb.equal(versions.get(ProductVersion_.id), id),
                 cb.isNull(versionDeliveredArtifacts.get(Artifact_.buildRecord)));
-        query.select(cb.count(versionDeliveredArtifacts.get(Artifact_.id)));
+        query.select(cb.count(versionDeliveredArtifacts));
 
         return entityManager.createQuery(query).getSingleResult();
     }
