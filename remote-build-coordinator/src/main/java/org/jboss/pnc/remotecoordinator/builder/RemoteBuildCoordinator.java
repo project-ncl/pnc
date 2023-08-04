@@ -215,7 +215,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                     buildConfigurationAudited,
                     null,
                     null,
-                    findTaskIdForCongifId(scheduleResult.buildGraph, buildConfigurationAudited.getId()),
+                    findTaskIdForConfigId(scheduleResult.buildGraph, buildConfigurationAudited.getId()),
                     null,
                     null,
                     null,
@@ -791,7 +791,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    private String findTaskIdForCongifId(Graph<RemoteBuildTask> buildGraph, Integer id) {
+    private String findTaskIdForConfigId(Graph<RemoteBuildTask> buildGraph, Integer id) {
         return GraphUtils.unwrap(buildGraph.getVerticies())
                 .stream()
                 .filter(rbt -> rbt.getBuildConfigurationAudited().getId().equals(id))

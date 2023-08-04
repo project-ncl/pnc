@@ -69,8 +69,8 @@ public class DemoDataInitializer {
             logger.info("There are >0 ({}) projects in DB. Skipping initialization." + numberOfProjectInDB);
         } else {
             logger.info("Initializing DEMO data");
-            dbDataInitializer.initiliazeProjectProductData();
-            dbDataInitializer.initiliazeBuildRecordDemoData();
+            dbDataInitializer.initializeProjectProductData();
+            dbDataInitializer.initializeBuildRecordDemoData();
             dbDataInitializer.verifyData();
             logger.info("Finished initializing DEMO data");
         }

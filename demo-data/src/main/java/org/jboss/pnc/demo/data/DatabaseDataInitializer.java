@@ -269,7 +269,7 @@ public class DatabaseDataInitializer {
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void initiliazeProjectProductData() {
+    public void initializeProjectProductData() {
 
         BuildEnvironment environment1Unsaved = BuildEnvironment.Builder.newBuilder()
                 .name("Demo Environment 1")
@@ -619,7 +619,7 @@ public class DatabaseDataInitializer {
      * set.
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void initiliazeBuildRecordDemoData() {
+    public void initializeBuildRecordDemoData() {
 
         TargetRepository targetRepository = TargetRepository.newBuilder()
                 .repositoryType(RepositoryType.MAVEN)
