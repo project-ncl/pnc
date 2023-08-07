@@ -24,8 +24,11 @@ import org.jboss.pnc.mapper.UserFetcher;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.rex.common.enums.StopFlag;
+import org.jboss.pnc.rex.common.enums.Transition;
 import org.jboss.pnc.rex.dto.TaskDTO;
 import org.jboss.pnc.rex.common.enums.State;
+import org.jboss.pnc.rex.dto.TransitionTimeDTO;
+import org.jboss.pnc.rex.model.TransitionTime;
 import org.jboss.pnc.rex.model.requests.MinimizedTask;
 import org.jboss.pnc.spi.coordinator.BuildMeta;
 import org.jboss.pnc.spi.coordinator.BuildTask;
@@ -33,11 +36,18 @@ import org.jboss.pnc.spi.coordinator.BuildTaskRef;
 import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.mapstruct.BeanMapping;
+import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 @Mapper(
         config = MapperCentralConfig.class,
@@ -51,8 +61,8 @@ public interface BuildTaskMappers {
     @Mapping(target = "buildConfigSetRecordId", source = "task.correlationID")
     @Mapping(target = "productMilestone", source = "meta.productMilestoneId")
     @Mapping(target = "submitTime", source = "meta.submitTime")
-    @Mapping(target = "startTime", ignore = true) // TODO generate in REX
-    @Mapping(target = "endTime", ignore = true) // TODO generate in REX
+    @Mapping(target = "startTime", ignore = true) // generated in fillStartAndEndTime
+    @Mapping(target = "endTime", ignore = true) // generated in fillStartAndEndTime
     @Mapping(target = "user", source = "meta.username", qualifiedBy = ByUsername.class)
     @Mapping(target = "noRebuildCause", source = "meta.noRebuildCauseId")
     @Mapping(
@@ -64,7 +74,7 @@ public interface BuildTaskMappers {
     @Mapping(target = "taskDependencies", source = "task.dependencies")
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "remoteStart", "remoteCancel", "callerNotifications", "state",
-                    "stopFlag", "serverResponses", "id", "idRev", "configuration" })
+                    "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps" })
     DefaultBuildTaskRef toBuildTaskRef(TaskDTO task, BuildMeta meta);
 
     @Mapping(target = "id", source = "task.name")
@@ -72,8 +82,8 @@ public interface BuildTaskMappers {
     @Mapping(target = "buildConfigSetRecordId", source = "task.correlationID")
     @Mapping(target = "productMilestone", source = "meta.productMilestoneId")
     @Mapping(target = "submitTime", source = "meta.submitTime")
-    @Mapping(target = "startTime", ignore = true) // TODO generate in REX
-    @Mapping(target = "endTime", ignore = true) // TODO generate in REX
+    @Mapping(target = "startTime", ignore = true) // generated in fillStartAndEndTime
+    @Mapping(target = "endTime", ignore = true) // generated in fillStartAndEndTime
     @Mapping(
             target = "status",
             expression = "java(BuildTaskMappers.toBuildStatus(task.getState(), task.getStopFlag()))")
@@ -85,8 +95,97 @@ public interface BuildTaskMappers {
     @Mapping(target = "taskDependencies", source = "task.dependencies")
     @BeanMapping(
             ignoreUnmappedSourceProperties = { "remoteStart", "remoteCancel", "callerNotifications", "state",
-                    "stopFlag", "serverResponses", "id", "idRev", "configuration" })
+                    "stopFlag", "serverResponses", "id", "idRev", "configuration", "timestamps" })
     DefaultBuildTaskRef toBuildTaskRef(MinimizedTask task, BuildMeta meta);
+
+    @BeforeMapping
+    default void fillStartAndEndTime(TaskDTO source, @MappingTarget DefaultBuildTaskRef.Builder builder) {
+        if (source.getTimestamps() == null) {
+            return;
+        }
+
+        Optional<Instant> startTime = getStartTimeDTO(source.getTimestamps());
+        Optional<Instant> endTime = getEndTimeDTO(source.getTimestamps());
+
+        startTime.ifPresent(builder::startTime);
+        endTime.ifPresent(builder::endTime);
+    }
+
+    @BeforeMapping
+    default void fillStartAndEndTime(MinimizedTask source, @MappingTarget DefaultBuildTaskRef.Builder builder) {
+        if (source.getTimestamps() == null) {
+            return;
+        }
+
+        Optional<Instant> startTime = getStartTime(source.getTimestamps());
+        Optional<Instant> endTime = getEndTime(source.getTimestamps());
+
+        startTime.ifPresent(builder::startTime);
+        endTime.ifPresent(builder::endTime);
+    }
+
+    static Optional<Instant> getStartTime(List<TransitionTime> transitionTimes) {
+        return getTimestamp(
+                transitionTimes,
+                TransitionTime::getTransition,
+                TransitionTime::getTime,
+                BuildTaskMappers::identifyStart,
+                true);
+    }
+
+    static Optional<Instant> getStartTimeDTO(List<TransitionTimeDTO> transitionTimes) {
+        return getTimestamp(
+                transitionTimes,
+                TransitionTimeDTO::getTransition,
+                TransitionTimeDTO::getTime,
+                BuildTaskMappers::identifyStart,
+                true);
+    }
+
+    static Optional<Instant> getEndTime(List<TransitionTime> transitionTimes) {
+        return getTimestamp(
+                transitionTimes,
+                TransitionTime::getTransition,
+                TransitionTime::getTime,
+                BuildTaskMappers::identifyEnd,
+                false);
+    }
+
+    static Optional<Instant> getEndTimeDTO(List<TransitionTimeDTO> transitionTimes) {
+        return getTimestamp(
+                transitionTimes,
+                TransitionTimeDTO::getTransition,
+                TransitionTimeDTO::getTime,
+                BuildTaskMappers::identifyEnd,
+                false);
+    }
+
+    /**
+     * Transition FROM ENQUEUED state is a start of building phase
+     */
+    private static Boolean identifyStart(Transition transition) {
+        return transition.getBefore() == State.ENQUEUED;
+    }
+
+    /**
+     * Transition INTO final state is the final transition with the end time
+     */
+    private static Boolean identifyEnd(Transition transition) {
+        return transition.getAfter().isFinal();
+    }
+
+    static <T> Optional<Instant> getTimestamp(
+            List<T> collection,
+            Function<T, Transition> extractTransition,
+            Function<T, Instant> extractTime,
+            Predicate<Transition> transitionPredicate,
+            boolean earliest) {
+        return collection.stream()
+                .filter((transitionTime) -> transitionPredicate.test(extractTransition.apply(transitionTime)))
+                .map(extractTime)
+                // for edge-cases where predicate matches more than one transition (retries?)
+                .min(earliest ? Comparator.naturalOrder() : Comparator.reverseOrder());
+    }
 
     @Mapping(target = "buildConfigurationAudited", source = "idRev")
     @Mapping(target = "statusDescription", ignore = true)
