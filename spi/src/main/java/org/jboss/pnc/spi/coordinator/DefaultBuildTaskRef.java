@@ -34,7 +34,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @AllArgsConstructor
-@Builder(toBuilder = true)
+@Builder(toBuilder = true, builderClassName = "Builder")
 @ToString
 public class DefaultBuildTaskRef implements BuildTaskRef {
 
