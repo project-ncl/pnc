@@ -18,7 +18,6 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
-import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildRecord;
@@ -27,6 +26,7 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
+import org.jboss.pnc.model.TargetRepository_;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 
 import javax.ejb.Stateless;
@@ -39,7 +39,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Stateless
 public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVersion, Integer>
@@ -259,13 +258,24 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
     }
 
     @Override
-    public List<ProductMilestone> getProductMilestonesTemp(Integer entityId) {
+    public List<Tuple> getRepositoryTypesStatistics(Set<Integer> ids) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<ProductMilestone> query = cb.createQuery(ProductMilestone.class);
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
 
         Root<ProductMilestone> milestones = query.from(ProductMilestone.class);
+        SetJoin<ProductMilestone, Artifact> milestonesDeliveredArtifacts = milestones
+                .join(ProductMilestone_.deliveredArtifacts);
 
-        query.where(cb.equal(milestones.get(ProductMilestone_.productVersion), entityId));
+        query.where(milestones.get(ProductMilestone_.id).in(ids));
+        query.multiselect(
+                milestones.get(ProductMilestone_.id),
+                milestonesDeliveredArtifacts.get(Artifact_.targetRepository).get(TargetRepository_.repositoryType),
+                cb.count(
+                        milestonesDeliveredArtifacts.get(Artifact_.targetRepository)
+                                .get(TargetRepository_.repositoryType)));
+        query.groupBy(
+                milestones.get(ProductMilestone_.id),
+                milestonesDeliveredArtifacts.get(Artifact_.targetRepository).get(TargetRepository_.repositoryType));
 
         return entityManager.createQuery(query).getResultList();
     }

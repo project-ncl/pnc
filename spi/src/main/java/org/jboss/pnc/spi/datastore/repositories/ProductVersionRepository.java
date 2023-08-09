@@ -51,5 +51,5 @@ public interface ProductVersionRepository extends Repository<ProductVersion, Int
 
     List<Tuple> getArtifactQualityStatistics(Set<Integer> ids);
 
-    List<ProductMilestone> getProductMilestonesTemp(Integer entityId);
+    List<Tuple> getRepositoryTypesStatistics(Set<Integer> ids);
 }

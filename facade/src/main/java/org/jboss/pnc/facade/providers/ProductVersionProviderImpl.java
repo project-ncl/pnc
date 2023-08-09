@@ -17,22 +17,25 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.datastore.limits.rsql.EmptySortInfo;
 import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneRepositoryTypeStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.providers.api.ProductVersionProvider;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.mapper.api.ProductVersionMapper;
+import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
@@ -42,6 +45,9 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -57,10 +63,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import lombok.extern.slf4j.Slf4j;
-import org.jboss.pnc.model.BuildConfiguration;
-import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 
 import static org.jboss.pnc.spi.datastore.predicates.ProductVersionPredicates.withProductId;
 
@@ -244,42 +246,78 @@ public class ProductVersionProviderImpl extends
             int pageIndex,
             int pageSize,
             String sort,
+            String query,
             String id) {
         Integer entityId = mapper.getIdMapper().toEntity(id);
-
-        // List<ProductMilestone> productMilestones = versionRepository.getProductMilestonesTemp(entityId);
-        List<ProductMilestone> productMilestones = milestoneRepository.queryWithPredicates(
-                new DefaultPageInfo(pageIndex, pageSize),
-                new EmptySortInfo<>(), // FIXME
-                ProductMilestonePredicates.withProductVersionId(entityId));
-        Set<Integer> ids = productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet());
-        Map<Integer, EnumMap<ArtifactQuality, Long>> qualityStatistics = transformToMapByIds(
-                versionRepository.getArtifactQualityStatistics(ids));
+        List<ProductMilestone> productMilestones = getProductMilestones(pageIndex, pageSize, sort, query, entityId);
+        Map<Integer, EnumMap<ArtifactQuality, Long>> artifactQualityStatsById = transformToMapByIds(
+                versionRepository.getArtifactQualityStatistics(
+                        productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet())),
+                ArtifactQuality.class);
         List<ProductMilestoneArtifactQualityStatistics> artifactQualityStatistics = toProductMilestoneArtifactQualityStatistics(
                 productMilestones,
-                qualityStatistics);
+                artifactQualityStatsById);
 
         return new Page<>(pageIndex, pageSize, artifactQualityStatistics.size(), artifactQualityStatistics);
     }
 
-    private static Map<Integer, EnumMap<ArtifactQuality, Long>> transformToMapByIds(List<Tuple> tuples) {
-        var artifactQualities = new HashMap<Integer, EnumMap<ArtifactQuality, Long>>();
+    @Override
+    public Page<ProductMilestoneRepositoryTypeStatistics> getRepositoryTypesStatistics(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String query,
+            String id) {
+        Integer entityId = mapper.getIdMapper().toEntity(id);
+        List<ProductMilestone> productMilestones = getProductMilestones(pageIndex, pageSize, sort, query, entityId);
+        Map<Integer, EnumMap<RepositoryType, Long>> repositoryTypesStatsById = transformToMapByIds(
+                versionRepository.getRepositoryTypesStatistics(
+                        productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet())),
+                RepositoryType.class);
+        List<ProductMilestoneRepositoryTypeStatistics> repositoryTypesStats = toProductMilestoneRepositoryTypeStatistics(
+                productMilestones,
+                repositoryTypesStatsById);
 
-        // tuple = (product_milestone_id, product_milestone.artifact_quality, count(product_milestone.artifact_quality))
+        return new Page<>(pageIndex, pageSize, repositoryTypesStats.size(), repositoryTypesStats);
+    }
+
+    private List<ProductMilestone> getProductMilestones(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String query,
+            Integer entityId) {
+        Predicate<ProductMilestone> rsqlPredicate = rsqlPredicateProducer
+                .getCriteriaPredicate(ProductMilestone.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo<ProductMilestone> sortInfo = rsqlPredicateProducer.getSortInfo(ProductMilestone.class, sort);
+
+        return milestoneRepository.queryWithPredicates(
+                pageInfo,
+                sortInfo,
+                rsqlPredicate,
+                ProductMilestonePredicates.withProductVersionId(entityId));
+    }
+
+    private static <E extends Enum<E>> Map<Integer, EnumMap<E, Long>> transformToMapByIds(
+            List<Tuple> tuples,
+            Class<E> entityClass) {
+        var statisticsById = new HashMap<Integer, EnumMap<E, Long>>();
+
         for (var t : tuples) {
             var id = t.get(0, Integer.class);
-            EnumMap<ArtifactQuality, Long> artifactQualitiesOfThisId = artifactQualities
-                    .getOrDefault(id, Maps.initEnumMapWithDefaultValue(ArtifactQuality.class, 0L));
-            artifactQualitiesOfThisId.put(t.get(1, ArtifactQuality.class), t.get(2, Long.class));
-            artifactQualities.put(id, artifactQualitiesOfThisId);
+            EnumMap<E, Long> artifactQualitiesOfThisId = statisticsById
+                    .getOrDefault(id, Maps.initEnumMapWithDefaultValue(entityClass, 0L));
+            artifactQualitiesOfThisId.put(t.get(1, entityClass), t.get(2, Long.class));
+            statisticsById.put(id, artifactQualitiesOfThisId);
         }
 
-        return artifactQualities;
+        return statisticsById;
     }
 
     private List<ProductMilestoneArtifactQualityStatistics> toProductMilestoneArtifactQualityStatistics(
             List<ProductMilestone> productMilestones,
-            Map<Integer, EnumMap<ArtifactQuality, Long>> qualityStatistics) {
+            Map<Integer, EnumMap<ArtifactQuality, Long>> artifactQualityStatsById) {
         List<ProductMilestoneArtifactQualityStatistics> productMilestoneArtifactQualityStats = new ArrayList<>();
 
         for (var pm : productMilestones) {
@@ -294,13 +332,39 @@ public class ProductVersionProviderImpl extends
                                             .plannedEndDate(dateToInstant(pm.getPlannedEndDate()))
                                             .build())
                             .artifactQuality(
-                                    qualityStatistics.getOrDefault(
+                                    artifactQualityStatsById.getOrDefault(
                                             pm.getId(),
                                             Maps.initEnumMapWithDefaultValue(ArtifactQuality.class, 0L)))
                             .build());
         }
 
         return productMilestoneArtifactQualityStats;
+    }
+
+    private List<ProductMilestoneRepositoryTypeStatistics> toProductMilestoneRepositoryTypeStatistics(
+            List<ProductMilestone> productMilestones,
+            Map<Integer, EnumMap<RepositoryType, Long>> repositoryTypesStatsById) {
+        List<ProductMilestoneRepositoryTypeStatistics> productMilestoneRepositoryTypeStats = new ArrayList<>();
+
+        for (var pm : productMilestones) {
+            productMilestoneRepositoryTypeStats.add(
+                    ProductMilestoneRepositoryTypeStatistics.builder()
+                            .productMilestone(
+                                    ProductMilestoneRef.refBuilder()
+                                            .id(milestoneMapper.getIdMapper().toDto(pm.getId()))
+                                            .version(pm.getVersion())
+                                            .startingDate(dateToInstant(pm.getStartingDate()))
+                                            .endDate(dateToInstant(pm.getEndDate()))
+                                            .plannedEndDate(dateToInstant(pm.getPlannedEndDate()))
+                                            .build())
+                            .repositoryType(
+                                    repositoryTypesStatsById.getOrDefault(
+                                            pm.getId(),
+                                            Maps.initEnumMapWithDefaultValue(RepositoryType.class, 0L)))
+                            .build());
+        }
+
+        return productMilestoneRepositoryTypeStats;
     }
 
     private Instant dateToInstant(Date date) {

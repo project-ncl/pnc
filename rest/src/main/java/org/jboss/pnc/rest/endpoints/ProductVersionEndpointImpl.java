@@ -25,6 +25,7 @@ import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneRepositoryTypeStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
@@ -140,6 +141,19 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
                 pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),
                 pageParameters.getSort(),
+                pageParameters.getQ(),
+                id);
+    }
+
+    @Override
+    public Page<ProductMilestoneRepositoryTypeStatistics> getRepositoryTypesStatistics(
+            String id,
+            PageParameters pageParameters) {
+        return productVersionProvider.getRepositoryTypesStatistics(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
                 id);
     }
 }

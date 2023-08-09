@@ -42,9 +42,11 @@ import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneRepositoryTypeStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -507,4 +509,40 @@ public class ProductVersionEndpointTest {
                 .isEqualTo(expectedArtQualityStats.getProductMilestone().getVersion());
         assertThat(actualArtQualStats.getArtifactQuality()).isEqualTo(expectedArtifactQualities);
     }
+
+    @Test
+    public void testGetRepositoryTypesStatistics() throws ClientException {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+
+        EnumMap<RepositoryType, Long> expectedRepositoryTypes = Maps
+                .initEnumMapWithDefaultValue(RepositoryType.class, 0L);
+        expectedRepositoryTypes.put(RepositoryType.MAVEN, 7L);
+
+        ProductMilestoneRepositoryTypeStatistics expectedRepoTypeStats = ProductMilestoneRepositoryTypeStatistics
+                .builder()
+                .productMilestone(
+                        ProductMilestoneRef.refBuilder()
+                                .id("100")
+                                .version(DatabaseDataInitializer.PNC_PRODUCT_MILESTONE1)
+                                .build())
+                .repositoryType(expectedRepositoryTypes)
+                .build();
+
+        // when
+        RemoteCollection<ProductMilestoneRepositoryTypeStatistics> all = client
+                .getRepositoryTypesStatistics(productVersionsId);
+        var actualRepoTypeStats = all.iterator().next();
+
+        // then
+        assertThat(all).hasSize(4);
+
+        // do not assert date attributes of ProductMilestoneRef
+        assertThat(actualRepoTypeStats.getProductMilestone().getId())
+                .isEqualTo(expectedRepoTypeStats.getProductMilestone().getId());
+        assertThat(actualRepoTypeStats.getProductMilestone().getVersion())
+                .isEqualTo(expectedRepoTypeStats.getProductMilestone().getVersion());
+        assertThat(actualRepoTypeStats.getRepositoryType()).isEqualTo(expectedRepositoryTypes);
+    }
+
 }

@@ -31,6 +31,7 @@ import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneRepositoryTypeStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
@@ -364,6 +365,30 @@ public interface ProductVersionEndpoint {
     @GET
     @Path("/{id}/artifact-quality-statistics")
     Page<ProductMilestoneArtifactQualityStatistics> getArtifactQualitiesStatistics(
+            @Parameter(description = PV_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParameters);
+
+    static final String GET_REPOSITORY_TYPES_STATISTICS = "Gets statistics about proportion of repository types of delivered artifacts in this version.";
+
+    @Operation(
+            summary = GET_REPOSITORY_TYPES_STATISTICS,
+            responses = { @ApiResponse(
+                    responseCode = SUCCESS_CODE,
+                    description = SUCCESS_DESCRIPTION,
+                    content = @Content(
+                            schema = @Schema(
+                                    implementation = SwaggerPages.ProductVersionRepositoryTypeStatisticsPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/repository-type-statistics")
+    Page<ProductMilestoneRepositoryTypeStatistics> getRepositoryTypesStatistics(
             @Parameter(description = PV_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 }

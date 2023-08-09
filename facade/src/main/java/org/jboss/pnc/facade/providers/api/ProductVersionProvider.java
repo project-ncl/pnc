@@ -21,6 +21,7 @@ import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneRepositoryTypeStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 
 public interface ProductVersionProvider
@@ -39,5 +40,13 @@ public interface ProductVersionProvider
             int pageIndex,
             int pageSize,
             String sort,
+            String query,
+            String id);
+
+    Page<ProductMilestoneRepositoryTypeStatistics> getRepositoryTypesStatistics(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String query,
             String id);
 }

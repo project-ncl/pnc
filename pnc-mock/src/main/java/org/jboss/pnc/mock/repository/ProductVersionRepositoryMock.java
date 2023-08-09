@@ -83,7 +83,7 @@ public class ProductVersionRepositoryMock extends IntIdRepositoryMock<ProductVer
     }
 
     @Override
-    public List<ProductMilestone> getProductMilestonesTemp(Integer entityId) {
+    public List<Tuple> getRepositoryTypesStatistics(Set<Integer> ids) {
         return null;
     }
 }
