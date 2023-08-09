@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.providers.api;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 
 public interface ProductVersionProvider
@@ -33,4 +34,10 @@ public interface ProductVersionProvider
             String productId);
 
     ProductVersionStatistics getStatistics(String id);
+
+    Page<ProductMilestoneArtifactQualityStatistics> getArtifactQualitiesStatistics(
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String id);
 }

@@ -18,26 +18,28 @@
 package org.jboss.pnc.datastore.repositories;
 
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.BuildRecord_;
-import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestone_;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.model.ProductVersion_;
-import org.jboss.pnc.model.Product_;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.SetJoin;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Stateless
 public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVersion, Integer>
@@ -233,5 +235,38 @@ public class ProductVersionRepositoryImpl extends AbstractRepository<ProductVers
         query.select(cb.count(versionDeliveredArtifacts));
 
         return entityManager.createQuery(query).getSingleResult();
+    }
+
+    @Override
+    public List<Tuple> getArtifactQualityStatistics(Set<Integer> ids) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = cb.createTupleQuery();
+
+        Root<ProductMilestone> milestones = query.from(ProductMilestone.class);
+        SetJoin<ProductMilestone, Artifact> milestonesDeliveredArtifacts = milestones
+                .join(ProductMilestone_.deliveredArtifacts);
+
+        query.where(milestones.get(ProductMilestone_.id).in(ids));
+        query.multiselect(
+                milestones.get(ProductMilestone_.id),
+                milestonesDeliveredArtifacts.get(Artifact_.artifactQuality),
+                cb.count(milestonesDeliveredArtifacts.get(Artifact_.artifactQuality)));
+        query.groupBy(
+                milestones.get(ProductMilestone_.id),
+                milestonesDeliveredArtifacts.get(Artifact_.artifactQuality));
+
+        return entityManager.createQuery(query).getResultList();
+    }
+
+    @Override
+    public List<ProductMilestone> getProductMilestonesTemp(Integer entityId) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<ProductMilestone> query = cb.createQuery(ProductMilestone.class);
+
+        Root<ProductMilestone> milestones = query.from(ProductMilestone.class);
+
+        query.where(cb.equal(milestones.get(ProductMilestone_.productVersion), entityId));
+
+        return entityManager.createQuery(query).getResultList();
     }
 }

@@ -29,7 +29,9 @@ import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.patch.PatchBuilderException;
 import org.jboss.pnc.client.patch.ProductVersionPatchBuilder;
+import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.constants.Attributes;
+import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
@@ -39,8 +41,10 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionDeliveredArtifactsStatistics;
 import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
+import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -53,6 +57,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -465,5 +470,41 @@ public class ProductVersionEndpointTest {
         assertThat(actualStats.getDeliveredArtifactsSource().getNoBuild())
                 .isEqualTo(expectedDeliveredArtifactsStats.getNoBuild());
         assertThat(actualStats).isEqualTo(expectedStats); // also test it as a whole
+    }
+
+    @Test
+    public void testGetArtifactQualitiesStatistics() throws ClientException {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+
+        EnumMap<ArtifactQuality, Long> expectedArtifactQualities = Maps
+                .initEnumMapWithDefaultValue(ArtifactQuality.class, 0L);
+        expectedArtifactQualities.put(ArtifactQuality.NEW, 6L);
+        expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1L);
+
+        ProductMilestoneArtifactQualityStatistics expectedArtQualityStats = ProductMilestoneArtifactQualityStatistics
+                .builder()
+                .productMilestone(
+                        ProductMilestoneRef.refBuilder()
+                                .id("100")
+                                .version(DatabaseDataInitializer.PNC_PRODUCT_MILESTONE1)
+                                .build())
+                .artifactQuality(expectedArtifactQualities)
+                .build();
+
+        // when
+        RemoteCollection<ProductMilestoneArtifactQualityStatistics> all = client
+                .getArtifactQualitiesStatistics(productVersionsId);
+
+        // then
+        assertThat(all).hasSize(4);
+        var actualArtQualStats = all.iterator().next();
+
+        // do not assert date attributes of ProductMilestoneRef
+        assertThat(actualArtQualStats.getProductMilestone().getId())
+                .isEqualTo(expectedArtQualityStats.getProductMilestone().getId());
+        assertThat(actualArtQualStats.getProductMilestone().getVersion())
+                .isEqualTo(expectedArtQualityStats.getProductMilestone().getVersion());
+        assertThat(actualArtQualStats.getArtifactQuality()).isEqualTo(expectedArtifactQualities);
     }
 }

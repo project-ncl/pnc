@@ -17,11 +17,15 @@
  */
 package org.jboss.pnc.mock.repository;
 
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.ProductVersionRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
+import javax.persistence.Tuple;
+import java.util.List;
+import java.util.Set;
 
 @Alternative
 @ApplicationScoped
@@ -71,5 +75,15 @@ public class ProductVersionRepositoryMock extends IntIdRepositoryMock<ProductVer
     @Override
     public long countDeliveredArtifactsNotBuilt(Integer id) {
         return 0;
+    }
+
+    @Override
+    public List<Tuple> getArtifactQualityStatistics(Set<Integer> ids) {
+        return null;
+    }
+
+    @Override
+    public List<ProductMilestone> getProductMilestonesTemp(Integer entityId) {
+        return null;
     }
 }
