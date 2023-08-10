@@ -586,6 +586,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             TargetRepository tr = targetRepositoryCache.get(path);
             if (tr == null) {
                 tr = createRepository(path, INDY_MAVEN, RepositoryType.MAVEN);
+                targetRepositoryCache.put(path, tr);
             }
             return tr;
         }
@@ -598,8 +599,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         private org.jboss.pnc.model.Artifact findOrCreateBrewArtifact(org.jboss.pnc.model.Artifact artifact) {
-            TargetRepository targetRepository = targetRepositoryCache
-                    .get(artifact.getTargetRepository().getRepositoryPath());
+            TargetRepository targetRepository = artifact.getTargetRepository();
             IdentifierShaRepo key = new IdentifierShaRepo(artifact.getIdentifierSha256(), targetRepository);
             org.jboss.pnc.model.Artifact cachedArtifact = brewCache.get(key);
             if (cachedArtifact != null) {
@@ -607,6 +607,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             }
             org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
             targetRepository.getArtifacts().add(savedArtifact);
+            brewCache.put(key, savedArtifact);
             return savedArtifact;
         }
     }
