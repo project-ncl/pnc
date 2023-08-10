@@ -53,7 +53,6 @@ import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -259,7 +258,7 @@ public class BuildEndpointTest {
                 .map(BuildConfigurationRevisionRef::getName)
                 .collect(Collectors.toList());
 
-        assertThat(buildConfigNames).hasSize(2); // from DatabaseDataInitializer
+        assertThat(buildConfigNames).hasSize(4); // from DatabaseDataInitializer
         assertThat(buildConfigNames).containsOnly(buildConfigName);
     }
 
@@ -277,12 +276,10 @@ public class BuildEndpointTest {
                 .map(BuildConfigurationRevisionRef::getName)
                 .collect(Collectors.toList());
 
-        assertThat(buildConfigNames).hasSize(2); // from DatabaseDataInitializer
+        assertThat(buildConfigNames).hasSize(4); // from DatabaseDataInitializer
         assertThat(buildConfigNames).containsOnly(buildConfigName);
     }
 
-    // FIXME: Why does it find also the builds with config which *is like* pattern?
-    @Ignore
     @Test
     public void shouldFilterByBuildConfigurationNameNotLike() throws Exception {
         BuildClient client = new BuildClient(RestClientConfiguration.asAnonymous());
@@ -322,9 +319,8 @@ public class BuildEndpointTest {
 
         System.out.println(buildConfigNamesDash);
 
-        assertThat(buildConfigNamesDash).hasSize(2); // from DatabaseDataInitializer
-        assertThat(buildConfigNamesDash).contains(buildConfigName);
-        assertThat(buildConfigNamesDash).contains(buildConfigName);
+        assertThat(buildConfigNamesDash).hasSize(4); // from DatabaseDataInitializer
+        assertThat(buildConfigNamesDash).containsOnly(buildConfigName);
         assertThat(buildConfigNamesDash).doesNotContain(underscoredName);
 
         // When
