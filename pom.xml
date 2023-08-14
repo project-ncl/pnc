@@ -1657,22 +1657,6 @@
               </execution>
           </executions>
       </plugin>
-      <!-- Reports CVEs in each module in target/dependency-check.html-->
-      <plugin>
-        <groupId>org.owasp</groupId>
-        <artifactId>dependency-check-maven</artifactId>
-        <version>8.0.1</version>
-        <configuration>
-          <name>cve-list</name>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>aggregate</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 
@@ -1860,15 +1844,23 @@
     </profile>
 
     <profile>
-      <id>no-dependency-check</id>
+      <id>cve-check</id>
       <build>
         <plugins>
+          <!-- Reports CVEs in each module in target/dependency-check.html-->
           <plugin>
             <groupId>org.owasp</groupId>
             <artifactId>dependency-check-maven</artifactId>
             <version>8.0.1</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>aggregate</goal>
+                </goals>
+              </execution>
+            </executions>
             <configuration>
-              <skip>true</skip>
+              <name>cve-list</name>
             </configuration>
           </plugin>
         </plugins>
