@@ -177,7 +177,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     break;
                 case BREW:
                     statCounter = stats.brewCounter();
-                    TargetRepository brewRepository = artifactCache.getOrCreateTargetRepository(build);
+                    TargetRepository brewRepository = artifactCache.findOrCreateTargetRepository(build);
                     artifactParser = art -> artifactCache
                             .findOrCreateBrewArtifact(art, brewRepository, build.getBrewNVR());
                     break;
@@ -503,6 +503,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         public ArtifactCache(Collection<Build> builds) {
             prefetchPNCArtifacts(builds);
+            prefetchTargetRepos(builds);
             prefetchBrewArtifacts(builds);
         }
 
@@ -519,6 +520,20 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     .stream()
                     .collect(Collectors.toMap(org.jboss.pnc.model.Artifact::getId, Function.identity()));
             log.debug("Preloaded {} artifacts to cache.", pncCache.size());
+        }
+
+        private void prefetchTargetRepos(Collection<Build> builds) {
+            Set<TargetRepository.IdentifierPath> queries = builds.stream()
+                    .filter(b -> b.getBuildSystemType() == BuildSystemType.BREW)
+                    .map(this::getKojiPath)
+                    .map(path -> new TargetRepository.IdentifierPath(INDY_MAVEN, path))
+                    .collect(Collectors.toSet());
+
+            List<TargetRepository> targetRepositories = targetRepositoryRepository.queryByIdentifiersAndPaths(queries);
+            for (TargetRepository targetRepository : targetRepositories) {
+                targetRepositoryCache.put(targetRepository.getRepositoryPath(), targetRepository);
+            }
+            log.debug("Preloaded {} target repos.", targetRepositoryCache.size());
         }
 
         private void prefetchBrewArtifacts(Collection<Build> builds) {
@@ -540,21 +555,15 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     brewCache.put(key, artifact);
                 }
             }
-            log.debug(
-                    "Preloaded {} target repos and {} artifacts to cache.",
-                    targetRepositoryCache.size(),
-                    brewCache.size());
+            log.debug("Preloaded {} brew artifacts to cache.", targetRepositoryCache.size(), brewCache.size());
         }
 
         public Stream<IdentifierShaRepo> prefetchBrewBuild(Build build) {
             String path = getKojiPath(build);
-            TargetRepository tr = targetRepositoryRepository.queryByIdentifierAndPath(INDY_MAVEN, path);
-            if (tr == null) {
-                tr = createRepository(path, INDY_MAVEN, RepositoryType.MAVEN);
-                targetRepositoryCache.put(path, tr);
+            TargetRepository targetRepository = targetRepositoryCache.get(path);
+            if (targetRepository == null) {
                 return Stream.empty();
             } else {
-                final TargetRepository targetRepository = tr;
                 return build.getArtifacts()
                         .stream()
                         .peek(this::assertBrewArtifacts)
@@ -583,7 +592,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             return artifact;
         }
 
-        public TargetRepository getOrCreateTargetRepository(Build build) {
+        public TargetRepository findOrCreateTargetRepository(Build build) {
             String path = getKojiPath(build);
             TargetRepository tr = targetRepositoryCache.get(path);
             if (tr == null) {
