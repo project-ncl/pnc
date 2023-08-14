@@ -250,9 +250,10 @@ public class ProductVersionProviderImpl extends
             String id) {
         Integer entityId = mapper.getIdMapper().toEntity(id);
         List<ProductMilestone> productMilestones = getProductMilestones(pageIndex, pageSize, sort, query, entityId);
+        List<Tuple> artifactQualities = versionRepository.getArtifactQualityStatistics(
+                productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet()));
         Map<Integer, EnumMap<ArtifactQuality, Long>> artifactQualityStatsById = transformToMapByIds(
-                versionRepository.getArtifactQualityStatistics(
-                        productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet())),
+                artifactQualities,
                 ArtifactQuality.class);
         List<ProductMilestoneArtifactQualityStatistics> artifactQualityStatistics = toProductMilestoneArtifactQualityStatistics(
                 productMilestones,
@@ -270,9 +271,10 @@ public class ProductVersionProviderImpl extends
             String id) {
         Integer entityId = mapper.getIdMapper().toEntity(id);
         List<ProductMilestone> productMilestones = getProductMilestones(pageIndex, pageSize, sort, query, entityId);
+        List<Tuple> repositoryTypes = versionRepository.getRepositoryTypesStatistics(
+                productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet()));
         Map<Integer, EnumMap<RepositoryType, Long>> repositoryTypesStatsById = transformToMapByIds(
-                versionRepository.getRepositoryTypesStatistics(
-                        productMilestones.stream().map(ProductMilestone::getId).collect(Collectors.toSet())),
+                repositoryTypes,
                 RepositoryType.class);
         List<ProductMilestoneRepositoryTypeStatistics> repositoryTypesStats = toProductMilestoneRepositoryTypeStatistics(
                 productMilestones,
@@ -304,11 +306,11 @@ public class ProductVersionProviderImpl extends
             Class<E> entityClass) {
         var statisticsById = new HashMap<Integer, EnumMap<E, Long>>();
 
-        for (var t : tuples) {
-            var id = t.get(0, Integer.class);
+        for (Tuple tuple : tuples) {
+            var id = tuple.get(0, Integer.class);
             EnumMap<E, Long> artifactQualitiesOfThisId = statisticsById
                     .getOrDefault(id, Maps.initEnumMapWithDefaultValue(entityClass, 0L));
-            artifactQualitiesOfThisId.put(t.get(1, entityClass), t.get(2, Long.class));
+            artifactQualitiesOfThisId.put(tuple.get(1, entityClass), tuple.get(2, Long.class));
             statisticsById.put(id, artifactQualitiesOfThisId);
         }
 
@@ -323,14 +325,7 @@ public class ProductVersionProviderImpl extends
         for (var pm : productMilestones) {
             productMilestoneArtifactQualityStats.add(
                     ProductMilestoneArtifactQualityStatistics.builder()
-                            .productMilestone(
-                                    ProductMilestoneRef.refBuilder()
-                                            .id(milestoneMapper.getIdMapper().toDto(pm.getId()))
-                                            .version(pm.getVersion())
-                                            .startingDate(dateToInstant(pm.getStartingDate()))
-                                            .endDate(dateToInstant(pm.getEndDate()))
-                                            .plannedEndDate(dateToInstant(pm.getPlannedEndDate()))
-                                            .build())
+                            .productMilestone(milestoneMapper.toRef(pm))
                             .artifactQuality(
                                     artifactQualityStatsById.getOrDefault(
                                             pm.getId(),
@@ -349,14 +344,7 @@ public class ProductVersionProviderImpl extends
         for (var pm : productMilestones) {
             productMilestoneRepositoryTypeStats.add(
                     ProductMilestoneRepositoryTypeStatistics.builder()
-                            .productMilestone(
-                                    ProductMilestoneRef.refBuilder()
-                                            .id(milestoneMapper.getIdMapper().toDto(pm.getId()))
-                                            .version(pm.getVersion())
-                                            .startingDate(dateToInstant(pm.getStartingDate()))
-                                            .endDate(dateToInstant(pm.getEndDate()))
-                                            .plannedEndDate(dateToInstant(pm.getPlannedEndDate()))
-                                            .build())
+                            .productMilestone(milestoneMapper.toRef(pm))
                             .repositoryType(
                                     repositoryTypesStatsById.getOrDefault(
                                             pm.getId(),

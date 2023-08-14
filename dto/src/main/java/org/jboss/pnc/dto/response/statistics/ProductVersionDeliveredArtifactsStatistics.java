@@ -23,7 +23,7 @@ import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 
 /**
- * Statistics about the delivered artifacts of a version.
+ * Statistics about the delivered artifacts of a product version.
  *
  * @author Adam Kridl &lt;akridl@redhat.com&gt;
  */
@@ -41,7 +41,7 @@ public class ProductVersionDeliveredArtifactsStatistics {
 
     /**
      * Number of Delivered Artifacts of Milestones of this Version produced by Builds contained in Milestones of
-     * previous Versions of the same Product.
+     * other Versions of the same Product.
      */
     long otherVersions;
 

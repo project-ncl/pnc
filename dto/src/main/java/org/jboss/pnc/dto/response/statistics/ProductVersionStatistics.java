@@ -42,7 +42,7 @@ public class ProductVersionStatistics {
      * Number of Products to which belong Milestones containing Builds which produced Delivered Artifacts of Milestones
      * of this Version.
      * <p>
-     * Note: Product linked with this product version is also counted into this number.
+     * Note: The product associated with this product version is also included in this number.
      * </p>
      */
     long productDependencies;
@@ -50,7 +50,7 @@ public class ProductVersionStatistics {
     /**
      * Number of Milestones containing Builds which produced Delivered Artifacts of Milestones of this Version.
      * <p>
-     * Note: Milestones from this product version are also counted into this number.
+     * Note: Milestones from this product version are also included in this number.
      * </p>
      */
     long milestoneDependencies;
