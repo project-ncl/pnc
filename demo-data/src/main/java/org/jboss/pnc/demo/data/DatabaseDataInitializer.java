@@ -34,7 +34,6 @@ import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
-import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
@@ -78,6 +77,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -631,12 +631,30 @@ public class DatabaseDataInitializer {
 
     }
 
+    @TransactionAttribute
+    public void updateBuildConfigurations() {
+        buildConfiguration2.setBuildScript("mvn deploy -DskipTests");
+        helper.save(buildConfiguration2);
+
+        buildConfiguration6.setBuildScript(buildConfiguration6.getBuildScript() + " -DskipTests");
+        helper.save(buildConfiguration6);
+
+        buildConfiguration1.setBuildScript("mvn clean install -DskipTests=true");
+        helper.save(buildConfiguration1);
+
+        buildConfiguration1.setBuildScript("mvn clean install");
+        helper.save(buildConfiguration1);
+    }
+
     /**
      * Build record needs to be initialized in a separate transaction so that the audited build configuration can be
      * set.
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initiliazeBuildRecordDemoData() {
+        final int INITIAL_REVISION = 1;
+        final int SECOND_REVISION = 2;
+        final int THIRD_REVISION = 3;
 
         TargetRepository targetRepository = TargetRepository.newBuilder()
                 .repositoryType(RepositoryType.MAVEN)
@@ -755,8 +773,12 @@ public class DatabaseDataInitializer {
 
         Set<BuildRecord> buildRecords = new HashSet<>();
 
-        BuildConfigurationAudited buildConfigAudited1 = buildConfigurationAuditedRepository
-                .findLatestById(buildConfiguration1.getId());
+        List<BuildConfigurationAudited> buildConfig1Revisions = buildConfigurationAuditedRepository
+                .findAllByIdOrderByRevDesc(buildConfiguration1.getId());
+        int buildConfig1RevisionsCount = buildConfig1Revisions.size();
+
+        BuildConfigurationAudited buildConfigAudited1 = buildConfig1Revisions
+                .get(buildConfig1RevisionsCount - INITIAL_REVISION);
         if (buildConfigAudited1 != null) {
 
             String nextId = Sequence.nextBase32Id();
@@ -897,13 +919,16 @@ public class DatabaseDataInitializer {
         // For timestamp tests where concrete timestamp is needed
         Calendar calendar = Calendar.getInstance();
         calendar.set(2019, Calendar.JANUARY, 10);
-        BuildConfigurationAudited buildConfig2InitialAudit = buildConfigurationAuditedRepository
-                .findLatestById(buildConfiguration2.getId());
-        // update buildConfiguration2 to really get its next revision
-        buildConfiguration2.setBuildScript("mvn deploy -DskipTests");
-        helper.save(buildConfiguration2);
-        BuildConfigurationAudited buildConfig2SecondAudit = buildConfigurationAuditedRepository
-                .findLatestById(buildConfiguration2.getId());
+
+        List<BuildConfigurationAudited> buildConfig2Revisions = buildConfigurationAuditedRepository
+                .findAllByIdOrderByRevDesc(buildConfiguration2.getId());
+        int buildConfig2RevisionsCount = buildConfig2Revisions.size();
+
+        BuildConfigurationAudited buildConfig2InitialAudit = buildConfig2Revisions
+                .get(buildConfig2RevisionsCount - INITIAL_REVISION);
+        BuildConfigurationAudited buildConfig2SecondAudit = buildConfig2Revisions
+                .get(buildConfig2RevisionsCount - SECOND_REVISION);
+
         if (buildConfig2InitialAudit != null && buildConfig2SecondAudit != null) {
 
             String nextId = Sequence.nextBase32Id();
@@ -978,25 +1003,19 @@ public class DatabaseDataInitializer {
             buildRecords.add(tempRecord1);
         }
 
-        BuildConfigurationAudited buildConfig6InitialAudit = buildConfigurationAuditedRepository
-                .findLatestById(buildConfiguration6.getId());
-        // update buildConfiguration6 to really get its next revision
-        buildConfiguration6.setBuildScript(buildConfiguration6.getBuildScript() + " -DskipTests");
-        helper.save(buildConfiguration6);
-        BuildConfigurationAudited buildConfig6SecondAudit = buildConfigurationAuditedRepository
-                .findLatestById(buildConfiguration6.getId());
+        List<BuildConfigurationAudited> buildConfig6Revisions = buildConfigurationAuditedRepository
+                .findAllByIdOrderByRevDesc(buildConfiguration6.getId());
+        int buildConfig6RevisionsCount = buildConfig6Revisions.size();
 
-        // update buildConfiguration1 to really get its next revision
-        buildConfiguration1.setBuildScript("mvn clean install -DskipTests=true");
-        helper.save(buildConfiguration1);
-        BuildConfigurationAudited buildConfig1SecondAudit = buildConfigurationAuditedRepository
-                .findLatestById(buildConfiguration1.getId());
+        BuildConfigurationAudited buildConfig6InitialAudit = buildConfig6Revisions
+                .get(buildConfig6RevisionsCount - INITIAL_REVISION);
+        BuildConfigurationAudited buildConfig6SecondAudit = buildConfig6Revisions
+                .get(buildConfig6RevisionsCount - SECOND_REVISION);
 
-        // update buildConfiguration1 to really get its next revision
-        buildConfiguration1.setBuildScript("mvn clean install");
-        helper.save(buildConfiguration1);
-        BuildConfigurationAudited buildConfig1ThirdAudit = buildConfigurationAuditedRepository
-                .findLatestById(buildConfiguration1.getId());
+        BuildConfigurationAudited buildConfig1SecondAudit = buildConfig1Revisions
+                .get(buildConfig1RevisionsCount - SECOND_REVISION);
+        BuildConfigurationAudited buildConfig1ThirdAudit = buildConfig1Revisions
+                .get(buildConfig1RevisionsCount - THIRD_REVISION);
 
         if (buildConfig6InitialAudit != null && buildConfig6SecondAudit != null) {
             String nextId = Sequence.nextBase32Id();

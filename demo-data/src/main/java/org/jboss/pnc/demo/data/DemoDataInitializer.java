@@ -70,6 +70,7 @@ public class DemoDataInitializer {
         } else {
             logger.info("Initializing DEMO data");
             dbDataInitializer.initiliazeProjectProductData();
+            dbDataInitializer.updateBuildConfigurations();
             dbDataInitializer.initiliazeBuildRecordDemoData();
             dbDataInitializer.verifyData();
             logger.info("Finished initializing DEMO data");
