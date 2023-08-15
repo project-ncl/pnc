@@ -20,7 +20,6 @@ package org.jboss.pnc.facade.providers;
 import lombok.extern.slf4j.Slf4j;
 import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
-import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
@@ -53,14 +52,11 @@ import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.Tuple;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -353,9 +349,5 @@ public class ProductVersionProviderImpl extends
         }
 
         return productMilestoneRepositoryTypeStats;
-    }
-
-    private Instant dateToInstant(Date date) {
-        return Optional.ofNullable(date).map(Date::toInstant).orElse(null);
     }
 }

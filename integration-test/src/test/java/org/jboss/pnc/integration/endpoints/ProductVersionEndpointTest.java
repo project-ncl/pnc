@@ -471,7 +471,7 @@ public class ProductVersionEndpointTest {
                 .isEqualTo(expectedDeliveredArtifactsStats.getNoMilestone());
         assertThat(actualStats.getDeliveredArtifactsSource().getNoBuild())
                 .isEqualTo(expectedDeliveredArtifactsStats.getNoBuild());
-        assertThat(actualStats).isEqualTo(expectedStats); // also test it as a whole
+        assertThat(actualStats).isEqualTo(expectedStats);
     }
 
     @Test

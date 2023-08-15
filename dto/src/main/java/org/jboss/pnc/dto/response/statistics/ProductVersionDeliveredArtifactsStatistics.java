@@ -40,8 +40,8 @@ public class ProductVersionDeliveredArtifactsStatistics {
     long thisVersion;
 
     /**
-     * Number of Delivered Artifacts of Milestones of this Version produced by Builds contained in Milestones of
-     * other Versions of the same Product.
+     * Number of Delivered Artifacts of Milestones of this Version produced by Builds contained in Milestones of other
+     * Versions of the same Product.
      */
     long otherVersions;
 

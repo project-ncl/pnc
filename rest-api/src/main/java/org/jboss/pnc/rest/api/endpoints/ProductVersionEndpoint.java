@@ -341,7 +341,7 @@ public interface ProductVersionEndpoint {
     @Path("/{id}/statistics")
     ProductVersionStatistics getStatistics(@Parameter(description = PV_ID) @PathParam("id") String id);
 
-    static final String GET_ARTIFACT_QUALITIES_STATISTICS = "Gets statistics about proportion of quality of delivered artifacts in this version.";
+    static final String GET_ARTIFACT_QUALITIES_STATISTICS = "Gets statistics about proportion of quality of delivered artifacts in this product version.";
 
     /**
      * {@value GET_ARTIFACT_QUALITIES_STATISTICS}
@@ -368,7 +368,7 @@ public interface ProductVersionEndpoint {
             @Parameter(description = PV_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 
-    static final String GET_REPOSITORY_TYPES_STATISTICS = "Gets statistics about proportion of repository types of delivered artifacts in this version.";
+    static final String GET_REPOSITORY_TYPES_STATISTICS = "Gets statistics about proportion of repository types of delivered artifacts in this product version.";
 
     @Operation(
             summary = GET_REPOSITORY_TYPES_STATISTICS,
