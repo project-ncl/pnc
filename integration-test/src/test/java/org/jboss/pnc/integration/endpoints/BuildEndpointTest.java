@@ -200,7 +200,7 @@ public class BuildEndpointTest {
 
         int pageCount = response.getBody().jsonPath().get("totalPages");
 
-        assertThat(pageCount).isEqualTo(7);
+        assertThat(pageCount).isEqualTo(9);
     }
 
     @Test
@@ -235,7 +235,7 @@ public class BuildEndpointTest {
                 .map(User::getUsername)
                 .collect(Collectors.toList());
 
-        assertThat(userNames).hasSize(5); // from DatabaseDataInitializer
+        assertThat(userNames).hasSize(7); // from DatabaseDataInitializer
         assertThat(userNames).containsOnly(username);
     }
 
@@ -253,7 +253,7 @@ public class BuildEndpointTest {
                 .map(BuildConfigurationRevisionRef::getName)
                 .collect(Collectors.toList());
 
-        assertThat(buildConfigNames).hasSize(2); // from DatabaseDataInitializer
+        assertThat(buildConfigNames).hasSize(4); // from DatabaseDataInitializer
         assertThat(buildConfigNames).containsOnly(buildConfigName);
     }
 
@@ -271,7 +271,7 @@ public class BuildEndpointTest {
                 .map(BuildConfigurationRevisionRef::getName)
                 .collect(Collectors.toList());
 
-        assertThat(buildConfigNames).hasSize(2); // from DatabaseDataInitializer
+        assertThat(buildConfigNames).hasSize(4); // from DatabaseDataInitializer
         assertThat(buildConfigNames).containsOnly(buildConfigName);
     }
 
@@ -314,9 +314,8 @@ public class BuildEndpointTest {
 
         System.out.println(buildConfigNamesDash);
 
-        assertThat(buildConfigNamesDash).hasSize(2); // from DatabaseDataInitializer
-        assertThat(buildConfigNamesDash).contains(buildConfigName);
-        assertThat(buildConfigNamesDash).contains(buildConfigName);
+        assertThat(buildConfigNamesDash).hasSize(4); // from DatabaseDataInitializer
+        assertThat(buildConfigNamesDash).containsOnly(buildConfigName);
         assertThat(buildConfigNamesDash).doesNotContain(underscoredName);
 
         // When
@@ -399,7 +398,7 @@ public class BuildEndpointTest {
 
         RemoteCollection<Build> all = client.getAll(null, null);
 
-        assertThat(all).hasSize(7);
+        assertThat(all).hasSize(9);
     }
 
     @Test

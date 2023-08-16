@@ -78,5 +78,9 @@
       <artifactId>hibernate-core</artifactId>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>jakarta.enterprise</groupId>
+        <artifactId>jakarta.enterprise.cdi-api</artifactId>
+    </dependency>
   </dependencies>
 </project>

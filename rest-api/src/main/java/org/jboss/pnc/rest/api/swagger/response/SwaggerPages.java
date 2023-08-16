@@ -45,6 +45,8 @@ import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneRepositoryTypeStatistics;
 
 /**
  *
@@ -130,5 +132,13 @@ public class SwaggerPages {
     }
 
     public static class DeliverableAnalyzerReportPage extends Page<DeliverableAnalyzerReport> {
+    }
+
+    public static class ProductVersionArtifactQualityStatisticsPage
+            extends Page<ProductMilestoneArtifactQualityStatistics> {
+    }
+
+    public static class ProductVersionRepositoryTypeStatisticsPage
+            extends Page<ProductMilestoneRepositoryTypeStatistics> {
     }
 }

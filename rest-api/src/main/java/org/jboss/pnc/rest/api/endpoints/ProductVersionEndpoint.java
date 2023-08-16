@@ -23,7 +23,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.ProductMilestone;
@@ -31,9 +30,13 @@ import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneRepositoryTypeStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.processor.annotation.Client;
 import org.jboss.pnc.rest.annotation.RespondWithStatus;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
+import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.BuildConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.GroupConfigPage;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages.ProductMilestonePage;
@@ -308,6 +311,84 @@ public interface ProductVersionEndpoint {
     @GET
     @Path("/{id}/releases")
     Page<ProductRelease> getReleases(
+            @Parameter(description = PV_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParameters);
+
+    static final String GET_PV_STATISTICS = "Gets statistics about produced and delivered artifacts from this product version.";
+
+    /**
+     * {@value GET_PV_STATISTICS}
+     *
+     * @param id {@value PV_ID}
+     * @return
+     */
+    @Operation(
+            summary = GET_PV_STATISTICS,
+            responses = {
+                    @ApiResponse(
+                            responseCode = SUCCESS_CODE,
+                            description = SUCCESS_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ProductVersionStatistics.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/statistics")
+    ProductVersionStatistics getStatistics(@Parameter(description = PV_ID) @PathParam("id") String id);
+
+    static final String GET_ARTIFACT_QUALITIES_STATISTICS = "Gets statistics about proportion of quality of delivered artifacts in this product version.";
+
+    /**
+     * {@value GET_ARTIFACT_QUALITIES_STATISTICS}
+     */
+    @Operation(
+            summary = GET_ARTIFACT_QUALITIES_STATISTICS,
+            responses = { @ApiResponse(
+                    responseCode = SUCCESS_CODE,
+                    description = SUCCESS_DESCRIPTION,
+                    content = @Content(
+                            schema = @Schema(
+                                    implementation = SwaggerPages.ProductVersionArtifactQualityStatisticsPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/artifact-quality-statistics")
+    Page<ProductMilestoneArtifactQualityStatistics> getArtifactQualitiesStatistics(
+            @Parameter(description = PV_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParameters);
+
+    static final String GET_REPOSITORY_TYPES_STATISTICS = "Gets statistics about proportion of repository types of delivered artifacts in this product version.";
+
+    @Operation(
+            summary = GET_REPOSITORY_TYPES_STATISTICS,
+            responses = { @ApiResponse(
+                    responseCode = SUCCESS_CODE,
+                    description = SUCCESS_DESCRIPTION,
+                    content = @Content(
+                            schema = @Schema(
+                                    implementation = SwaggerPages.ProductVersionRepositoryTypeStatisticsPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @GET
+    @Path("/{id}/repository-type-statistics")
+    Page<ProductMilestoneRepositoryTypeStatistics> getRepositoryTypesStatistics(
             @Parameter(description = PV_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
 }

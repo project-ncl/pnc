@@ -29,7 +29,9 @@ import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.client.patch.PatchBuilderException;
 import org.jboss.pnc.client.patch.ProductVersionPatchBuilder;
+import org.jboss.pnc.common.Maps;
 import org.jboss.pnc.constants.Attributes;
+import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.BuildConfiguration;
 import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.GroupConfigurationRef;
@@ -39,6 +41,12 @@ import org.jboss.pnc.dto.ProductMilestoneRef;
 import org.jboss.pnc.dto.ProductRef;
 import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneRepositoryTypeStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductVersionDeliveredArtifactsStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
@@ -51,6 +59,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -420,4 +429,120 @@ public class ProductVersionEndpointTest {
         ProductVersion refresh = client.getSpecific(productVersionsId2);
         assertThat(refresh.getBuildConfigs().keySet()).doesNotContain(toRemove.getId());
     }
+
+    @Test
+    public void testGetStatistics() throws ClientException {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+
+        // from DatabaseDataInitializer: dPM = demoProductMilestone, bA = builtArtifact, iA = importedArtifact
+        ProductVersionDeliveredArtifactsStatistics expectedDeliveredArtifactsStats = ProductVersionDeliveredArtifactsStatistics
+                .builder()
+                .thisVersion(3L) // bA1, bA9, bA10
+                .otherVersions(1L) // bA13
+                .otherProducts(2L) // bA11, bA12
+                .noMilestone(1L) // bA5
+                .noBuild(1L) // iA2
+                .build();
+
+        ProductVersionStatistics expectedStats = ProductVersionStatistics.builder()
+                .milestones(4L) // dPM1, dPM2, dPM3, dPM4
+                .productDependencies(2L) // PNC, EAP
+                .milestoneDependencies(5L) // dPM1, dPM2, dPM3, dPM5, dPM7
+                .artifactsInVersion(4L) // bA1, bA2, bA9, bA10
+                .deliveredArtifactsSource(expectedDeliveredArtifactsStats)
+                .build();
+
+        // when
+        ProductVersionStatistics actualStats = client.getStatistics(productVersionsId);
+
+        // then
+        assertThat(actualStats.getMilestones()).isEqualTo(expectedStats.getMilestones());
+        assertThat(actualStats.getProductDependencies()).isEqualTo(expectedStats.getProductDependencies());
+        assertThat(actualStats.getMilestoneDependencies()).isEqualTo(expectedStats.getMilestoneDependencies());
+        assertThat(actualStats.getArtifactsInVersion()).isEqualTo(expectedStats.getArtifactsInVersion());
+        assertThat(actualStats.getDeliveredArtifactsSource().getThisVersion())
+                .isEqualTo(expectedDeliveredArtifactsStats.getThisVersion());
+        assertThat(actualStats.getDeliveredArtifactsSource().getOtherVersions())
+                .isEqualTo(expectedDeliveredArtifactsStats.getOtherVersions());
+        assertThat(actualStats.getDeliveredArtifactsSource().getOtherProducts())
+                .isEqualTo(expectedDeliveredArtifactsStats.getOtherProducts());
+        assertThat(actualStats.getDeliveredArtifactsSource().getNoMilestone())
+                .isEqualTo(expectedDeliveredArtifactsStats.getNoMilestone());
+        assertThat(actualStats.getDeliveredArtifactsSource().getNoBuild())
+                .isEqualTo(expectedDeliveredArtifactsStats.getNoBuild());
+        assertThat(actualStats).isEqualTo(expectedStats);
+    }
+
+    @Test
+    public void testGetArtifactQualitiesStatistics() throws ClientException {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+
+        EnumMap<ArtifactQuality, Long> expectedArtifactQualities = Maps
+                .initEnumMapWithDefaultValue(ArtifactQuality.class, 0L);
+        expectedArtifactQualities.put(ArtifactQuality.NEW, 6L);
+        expectedArtifactQualities.put(ArtifactQuality.VERIFIED, 1L);
+
+        ProductMilestoneArtifactQualityStatistics expectedArtQualityStats = ProductMilestoneArtifactQualityStatistics
+                .builder()
+                .productMilestone(
+                        ProductMilestoneRef.refBuilder()
+                                .id("100")
+                                .version(DatabaseDataInitializer.PNC_PRODUCT_MILESTONE1)
+                                .build())
+                .artifactQuality(expectedArtifactQualities)
+                .build();
+
+        // when
+        RemoteCollection<ProductMilestoneArtifactQualityStatistics> all = client
+                .getArtifactQualitiesStatistics(productVersionsId);
+
+        // then
+        assertThat(all).hasSize(4);
+        var actualArtQualStats = all.iterator().next();
+
+        // do not assert date attributes of ProductMilestoneRef
+        assertThat(actualArtQualStats.getProductMilestone().getId())
+                .isEqualTo(expectedArtQualityStats.getProductMilestone().getId());
+        assertThat(actualArtQualStats.getProductMilestone().getVersion())
+                .isEqualTo(expectedArtQualityStats.getProductMilestone().getVersion());
+        assertThat(actualArtQualStats.getArtifactQuality()).isEqualTo(expectedArtifactQualities);
+    }
+
+    @Test
+    public void testGetRepositoryTypesStatistics() throws ClientException {
+        // given
+        ProductVersionClient client = new ProductVersionClient(RestClientConfiguration.asAnonymous());
+
+        EnumMap<RepositoryType, Long> expectedRepositoryTypes = Maps
+                .initEnumMapWithDefaultValue(RepositoryType.class, 0L);
+        expectedRepositoryTypes.put(RepositoryType.MAVEN, 7L);
+
+        ProductMilestoneRepositoryTypeStatistics expectedRepoTypeStats = ProductMilestoneRepositoryTypeStatistics
+                .builder()
+                .productMilestone(
+                        ProductMilestoneRef.refBuilder()
+                                .id("100")
+                                .version(DatabaseDataInitializer.PNC_PRODUCT_MILESTONE1)
+                                .build())
+                .repositoryType(expectedRepositoryTypes)
+                .build();
+
+        // when
+        RemoteCollection<ProductMilestoneRepositoryTypeStatistics> all = client
+                .getRepositoryTypesStatistics(productVersionsId);
+        var actualRepoTypeStats = all.iterator().next();
+
+        // then
+        assertThat(all).hasSize(4);
+
+        // do not assert date attributes of ProductMilestoneRef
+        assertThat(actualRepoTypeStats.getProductMilestone().getId())
+                .isEqualTo(expectedRepoTypeStats.getProductMilestone().getId());
+        assertThat(actualRepoTypeStats.getProductMilestone().getVersion())
+                .isEqualTo(expectedRepoTypeStats.getProductMilestone().getVersion());
+        assertThat(actualRepoTypeStats.getRepositoryType()).isEqualTo(expectedRepositoryTypes);
+    }
+
 }
