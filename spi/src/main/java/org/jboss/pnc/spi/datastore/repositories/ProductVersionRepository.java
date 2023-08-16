@@ -17,11 +17,39 @@
  */
 package org.jboss.pnc.spi.datastore.repositories;
 
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
+import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductVersion;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+
+import javax.persistence.Tuple;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Interface for manipulating {@link org.jboss.pnc.model.ProductVersion} entity.
  */
 public interface ProductVersionRepository extends Repository<ProductVersion, Integer> {
+
+    long countMilestonesInVersion(Integer id);
+
+    long countProductDependenciesInVersion(Integer id);
+
+    long countMilestoneDependenciesInVersion(Integer id);
+
+    long countBuiltArtifactsInVersion(Integer id);
+
+    long countDeliveredArtifactsBuiltInThisVersion(Integer id);
+
+    long countDeliveredArtifactsBuiltInOtherVersions(Integer id);
+
+    long countDeliveredArtifactsBuiltByOtherProducts(Integer id);
+
+    long countDeliveredArtifactsBuiltInNoMilestone(Integer id);
+
+    long countDeliveredArtifactsNotBuilt(Integer id);
+
+    List<Tuple> getArtifactQualityStatistics(Set<Integer> ids);
+
+    List<Tuple> getRepositoryTypesStatistics(Set<Integer> ids);
 }

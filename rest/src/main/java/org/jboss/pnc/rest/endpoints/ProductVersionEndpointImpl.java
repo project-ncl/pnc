@@ -24,6 +24,9 @@ import org.jboss.pnc.dto.ProductRelease;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneArtifactQualityStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductMilestoneRepositoryTypeStatistics;
+import org.jboss.pnc.dto.response.statistics.ProductVersionStatistics;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.GroupConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
@@ -118,6 +121,35 @@ public class ProductVersionEndpointImpl implements ProductVersionEndpoint {
     public Page<ProductRelease> getReleases(String id, PageParameters pageParameters) {
 
         return productReleaseProvider.getProductReleasesForProductVersion(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
+                id);
+    }
+
+    @Override
+    public ProductVersionStatistics getStatistics(String id) {
+        return productVersionProvider.getStatistics(id);
+    }
+
+    @Override
+    public Page<ProductMilestoneArtifactQualityStatistics> getArtifactQualitiesStatistics(
+            String id,
+            PageParameters pageParameters) {
+        return productVersionProvider.getArtifactQualitiesStatistics(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getSort(),
+                pageParameters.getQ(),
+                id);
+    }
+
+    @Override
+    public Page<ProductMilestoneRepositoryTypeStatistics> getRepositoryTypesStatistics(
+            String id,
+            PageParameters pageParameters) {
+        return productVersionProvider.getRepositoryTypesStatistics(
                 pageParameters.getPageIndex(),
                 pageParameters.getPageSize(),
                 pageParameters.getSort(),
