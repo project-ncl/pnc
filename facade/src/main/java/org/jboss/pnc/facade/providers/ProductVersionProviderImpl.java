@@ -304,10 +304,10 @@ public class ProductVersionProviderImpl extends
 
         for (Tuple tuple : tuples) {
             var id = tuple.get(0, Integer.class);
-            EnumMap<E, Long> artifactQualitiesOfThisId = statisticsById
+            EnumMap<E, Long> statsOfThisId = statisticsById
                     .getOrDefault(id, Maps.initEnumMapWithDefaultValue(entityClass, 0L));
-            artifactQualitiesOfThisId.put(tuple.get(1, entityClass), tuple.get(2, Long.class));
-            statisticsById.put(id, artifactQualitiesOfThisId);
+            statsOfThisId.put(tuple.get(1, entityClass), tuple.get(2, Long.class));
+            statisticsById.put(id, statsOfThisId);
         }
 
         return statisticsById;
