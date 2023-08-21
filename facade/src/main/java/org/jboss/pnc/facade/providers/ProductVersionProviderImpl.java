@@ -255,7 +255,11 @@ public class ProductVersionProviderImpl extends
                 productMilestones,
                 artifactQualityStatsById);
 
-        return new Page<>(pageIndex, pageSize, artifactQualityStatistics.size(), artifactQualityStatistics);
+        return new Page<>(
+                pageIndex,
+                pageSize,
+                countAllProductMilestonesOfTheVersion(query, entityId),
+                artifactQualityStatistics);
     }
 
     @Override
@@ -276,7 +280,11 @@ public class ProductVersionProviderImpl extends
                 productMilestones,
                 repositoryTypesStatsById);
 
-        return new Page<>(pageIndex, pageSize, repositoryTypesStats.size(), repositoryTypesStats);
+        return new Page<>(
+                pageIndex,
+                pageSize,
+                countAllProductMilestonesOfTheVersion(query, entityId),
+                repositoryTypesStats);
     }
 
     private List<ProductMilestone> getProductMilestones(
@@ -304,10 +312,10 @@ public class ProductVersionProviderImpl extends
 
         for (Tuple tuple : tuples) {
             Integer id = tuple.get(0, Integer.class);
-            EnumMap<E, Long> artifactQualitiesOfThisId = statisticsById
+            EnumMap<E, Long> statsOfThisId = statisticsById
                     .getOrDefault(id, Maps.initEnumMapWithDefaultValue(entityClass, 0L));
-            artifactQualitiesOfThisId.put(tuple.get(1, entityClass), tuple.get(2, Long.class));
-            statisticsById.put(id, artifactQualitiesOfThisId);
+            statsOfThisId.put(tuple.get(1, entityClass), tuple.get(2, Long.class));
+            statisticsById.put(id, statsOfThisId);
         }
 
         return statisticsById;
@@ -349,5 +357,11 @@ public class ProductVersionProviderImpl extends
         }
 
         return productMilestoneRepositoryTypeStats;
+    }
+
+    private int countAllProductMilestonesOfTheVersion(String query, Integer id) {
+        Predicate<ProductMilestone> rsqlPredicate = rsqlPredicateProducer
+                .getCriteriaPredicate(ProductMilestone.class, query);
+        return milestoneRepository.count(rsqlPredicate, ProductMilestonePredicates.withProductVersionId(id));
     }
 }
