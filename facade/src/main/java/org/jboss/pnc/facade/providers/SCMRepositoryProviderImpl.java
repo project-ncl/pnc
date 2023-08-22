@@ -220,8 +220,9 @@ public class SCMRepositoryProviderImpl
             throw new InvalidEntityException("You must specify the SCM URL.");
         }
 
+        String secondaryAuthority = config.getSecondaryInternalScmAuthority();
         if (scmUrl.contains(config.getInternalScmAuthority())
-                || scmUrl.contains(config.getSecondaryInternalScmAuthority())) { // is internal repository
+                || (secondaryAuthority != null && scmUrl.contains(secondaryAuthority))) { // is internal repository
             // validation phase
             validateInternalRepository(scmUrl);
             validateRepositoryWithInternalURLDoesNotExist(scmUrl, null);
