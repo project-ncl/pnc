@@ -24,6 +24,7 @@ import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -64,6 +65,10 @@ public class OperationsManagerImpl implements OperationsManager {
     private ProductMilestoneRepository productMilestoneRepository;
     @Inject
     private UserService userService;
+
+    @Inject
+    private KeycloakServiceClient keycloakServiceClient;
+
     @Inject
     private GlobalModuleGroup globalConfig;
     @Inject
@@ -149,7 +154,7 @@ public class OperationsManagerImpl implements OperationsManager {
 
     @Override
     public Request getOperationCallback(Base32LongID operationId) {
-        String accessToken = userService.currentUserToken();
+        String accessToken = keycloakServiceClient.getAuthToken();
         List<Request.Header> headers = new ArrayList<>();
         addCommonHeaders(headers, accessToken);
         addMDCHeaders(headers);
