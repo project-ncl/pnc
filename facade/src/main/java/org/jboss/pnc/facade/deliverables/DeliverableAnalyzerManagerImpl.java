@@ -31,6 +31,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.model.AnalyzeDeliverablesBpmRequest;
 import org.jboss.pnc.bpm.task.AnalyzeDeliverablesTask;
@@ -114,6 +115,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private OperationsManager operationsManager;
     @Inject
     private UserService userService;
+
+    @Inject
+    private KeycloakServiceClient keycloakServiceClient;
+
     @Inject
     private BpmModuleConfig bpmConfig;
     @Inject
@@ -411,7 +416,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     bpmConfig.getAnalyzeDeliverablesBpmProcessId(),
                     analyzeTask,
                     id,
-                    userService.currentUserToken());
+                    keycloakServiceClient.getAuthToken());
 
             DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
                     .started(id, milestoneId, deliverablesUrls);
