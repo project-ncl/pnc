@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.causeway.BuildPushOperation;
 import org.jboss.pnc.bpm.causeway.BuildResultPushManager;
 import org.jboss.pnc.bpm.causeway.InProgress;
@@ -33,7 +34,6 @@ import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.BuildPushStatus;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.facade.BrewPusher;
-import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.AlreadyRunningException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
@@ -95,7 +95,7 @@ public class BrewPusherImpl implements BrewPusher {
     private BuildPushResultMapper buildPushResultMapper;
 
     @Inject
-    private UserService userService;
+    private KeycloakServiceClient keycloakServiceClient;
 
     private final static EnumSet<ArtifactQuality> ARTIFACT_BAD_QUALITIES = EnumSet.of(DELETED, BLACKLISTED);
 
@@ -199,7 +199,7 @@ public class BrewPusherImpl implements BrewPusher {
                 buildPushParameters.isReimport(),
                 getCompleteCallbackUrlTemplate());
 
-        Result pushResult = buildResultPushManager.push(buildPushOperation, userService.currentUserToken());
+        Result pushResult = buildResultPushManager.push(buildPushOperation, keycloakServiceClient.getAuthToken());
         log.info("Push Result {}.", pushResult);
 
         BuildPushResult result = BuildPushResult.builder()
