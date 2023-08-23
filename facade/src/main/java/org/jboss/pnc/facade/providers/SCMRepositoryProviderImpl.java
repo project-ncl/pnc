@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.BpmEventType;
 import org.jboss.pnc.bpm.Connector;
 import org.jboss.pnc.bpm.model.RepositoryCreationProcess;
@@ -41,7 +42,6 @@ import org.jboss.pnc.enums.JobNotificationType;
 import org.jboss.pnc.facade.providers.api.BuildConfigurationProvider;
 import org.jboss.pnc.facade.providers.api.SCMRepositoryProvider;
 import org.jboss.pnc.facade.util.RepourClient;
-import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.mapper.api.SCMRepositoryMapper;
@@ -90,7 +90,7 @@ public class SCMRepositoryProviderImpl
     private RepositoryConfigurationRepository repositoryConfigurationRepository;
 
     @Inject
-    private UserService userService;
+    private KeycloakServiceClient keycloakServiceClient;
 
     @Inject
     private Notifier notifier;
@@ -341,7 +341,7 @@ public class SCMRepositoryProviderImpl
             boolean preBuildSyncEnabled,
             JobNotificationType jobType,
             Optional<BuildConfiguration> buildConfiguration) {
-        String userToken = userService.currentUserToken();
+        String authToken = keycloakServiceClient.getAuthToken();
 
         org.jboss.pnc.bpm.model.RepositoryConfiguration repositoryConfiguration = org.jboss.pnc.bpm.model.RepositoryConfiguration
                 .builder()
@@ -363,7 +363,7 @@ public class SCMRepositoryProviderImpl
             Map<String, Serializable> parameters = new HashMap<>();
             parameters.put("processParameters", task.getProcessParameters());
             parameters.put("taskId", id);
-            connector.startProcess(bpmConfig.getNewBcCreationProcessId(), parameters, Objects.toString(id), userToken);
+            connector.startProcess(bpmConfig.getNewBcCreationProcessId(), parameters, Objects.toString(id), authToken);
         } catch (CoreException e) {
             throw new RuntimeException("Could not get process parameters: " + task, e);
         } catch (ProcessManagerException e) {

@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.causeway.ProductMilestoneReleaseManager;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -29,7 +30,6 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.validation.groups.WhenUpdating;
 import org.jboss.pnc.facade.providers.api.ProductMilestoneProvider;
-import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.ConflictedEntryException;
 import org.jboss.pnc.facade.validation.ConflictedEntryValidator;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
@@ -94,7 +94,7 @@ public class ProductMilestoneProviderImpl extends
     private final ProductMilestoneCloseResultMapper milestoneReleaseMapper;
 
     @Inject
-    private UserService userService;
+    private KeycloakServiceClient keycloakServiceClient;
 
     @Inject
     private EntityManager em;
@@ -186,7 +186,7 @@ public class ProductMilestoneProviderImpl extends
                 log.debug("Milestone's 'end date' set; no release of the milestone in progress: will start release");
 
                 ProductMilestoneRelease milestoneReleaseDb = releaseManager
-                        .startRelease(milestoneInDb, userService.currentUserToken(), milestoneReleaseId);
+                        .startRelease(milestoneInDb, keycloakServiceClient.getAuthToken(), milestoneReleaseId);
                 ProductMilestoneCloseResult milestoneCloseResult = milestoneReleaseMapper.toDTO(milestoneReleaseDb);
                 return milestoneCloseResult;
             }
@@ -208,7 +208,7 @@ public class ProductMilestoneProviderImpl extends
                 throw new EmptyEntityException("No running cancel process for given id.");
             } else {
                 userLog.info("Cancelling milestone release process ...");
-                releaseManager.cancel(milestoneInDb, userService.currentUserToken());
+                releaseManager.cancel(milestoneInDb, keycloakServiceClient.getAuthToken());
             }
         }
     }
