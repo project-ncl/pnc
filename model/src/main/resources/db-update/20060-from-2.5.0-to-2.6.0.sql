@@ -18,6 +18,11 @@
 
 BEGIN;
     ALTER TABLE buildconfigsetrecord ALTER COLUMN id SET DATA TYPE bigint;
+    -- update foreign bcsr keys
+    ALTER TABLE buildrecord ALTER COLUMN buildconfigsetrecord_id TYPE bigint;
+    ALTER TABLE build_config_set_record_attributes ALTER COLUMN build_config_set_record_id TYPE bigint;
+    -- update archived build records foreign key
+    ALTER TABLE _archived_buildrecords ALTER COLUMN buildconfigsetrecord_id TYPE bigint;
 
     CREATE TABLE build_configuration_align_strats
     (
@@ -37,7 +42,7 @@ BEGIN;
     ALTER TABLE build_configuration_align_strats
         ADD CONSTRAINT fk_align_strats_bc FOREIGN KEY (buildconfiguration_id) REFERENCES buildconfiguration(id);
 
-CREATE TABLE build_configuration_align_strats_aud
+    CREATE TABLE build_configuration_align_strats_aud
     (
         rev                   integer                NOT NULL,
         revtype               smallint               NOT NULL,
