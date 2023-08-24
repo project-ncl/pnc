@@ -31,9 +31,13 @@ public interface DeliverableAnalyzerManager {
      * 
      * @param id The milestone id.
      * @param deliverablesUrls List of URLs to deliverable archives.
+     * @param runAsScratchAnalysis Boolean flag whether the analysis should be run as "scratch".
      * @return Operation started for the analysis.
      */
-    DeliverableAnalyzerOperation analyzeDeliverables(String id, List<String> deliverablesUrls);
+    DeliverableAnalyzerOperation analyzeDeliverables(
+            String id,
+            List<String> deliverablesUrls,
+            boolean runAsScratchAnalysis);
 
     /**
      * Processes the result of anylysis of delivarables and stores the artifacts as distributed artifacts of Product

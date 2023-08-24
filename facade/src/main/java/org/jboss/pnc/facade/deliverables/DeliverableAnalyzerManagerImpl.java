@@ -126,7 +126,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private Connector connector;
 
     @Override
-    public DeliverableAnalyzerOperation analyzeDeliverables(String id, List<String> deliverablesUrls) {
+    public DeliverableAnalyzerOperation analyzeDeliverables(
+            String id,
+            List<String> deliverablesUrls,
+            boolean runAsScratchAnalysis) {
         int i = 1;
         Map<String, String> inputParams = new HashMap<>();
         for (String url : deliverablesUrls) {
@@ -137,7 +140,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         try {
             log.info("Starting analysis of deliverables for milestone {} from urls: {}.", id, deliverablesUrls);
-            startAnalysis(id, deliverablesUrls, operationId);
+            startAnalysis(id, deliverablesUrls, runAsScratchAnalysis, operationId);
             return deliverableAnalyzerOperationMapper.toDTO(
                     (org.jboss.pnc.model.DeliverableAnalyzerOperation) operationsManager
                             .updateProgress(operationId, ProgressStatus.IN_PROGRESS));
@@ -397,14 +400,19 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return targetRepositoryRepository.save(tr);
     }
 
-    private void startAnalysis(String milestoneId, List<String> deliverablesUrls, Base32LongID operationId) {
+    private void startAnalysis(
+            String milestoneId,
+            List<String> deliverablesUrls,
+            boolean runAsScratchAnalysis,
+            Base32LongID operationId) {
         Request callback = operationsManager.getOperationCallback(operationId);
         String id = operationId.getId();
         try {
             AnalyzeDeliverablesBpmRequest bpmRequest = new AnalyzeDeliverablesBpmRequest(
                     id,
                     milestoneId,
-                    deliverablesUrls);
+                    deliverablesUrls,
+                    runAsScratchAnalysis);
             AnalyzeDeliverablesTask analyzeTask = new AnalyzeDeliverablesTask(bpmRequest, callback);
 
             connector.startProcess(
