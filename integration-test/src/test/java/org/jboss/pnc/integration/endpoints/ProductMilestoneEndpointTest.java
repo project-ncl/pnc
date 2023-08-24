@@ -36,6 +36,7 @@ import org.jboss.pnc.dto.ProductMilestone;
 import org.jboss.pnc.dto.ProductMilestoneCloseResult;
 import org.jboss.pnc.dto.ProductVersion;
 import org.jboss.pnc.dto.ProductVersionRef;
+import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.requests.validation.VersionValidationRequest;
 import org.jboss.pnc.dto.response.ValidationResponse;
 import org.jboss.pnc.dto.response.statistics.ProductMilestoneDeliveredArtifactsStatistics;
@@ -46,9 +47,11 @@ import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.enums.ValidationErrorType;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
+import org.jboss.pnc.integration.utils.BPMWireMock;
 import org.jboss.pnc.rest.api.parameters.ProductMilestoneCloseParameters;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -62,14 +65,18 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_MILESTONE3;
 import static org.jboss.pnc.demo.data.DatabaseDataInitializer.PNC_PRODUCT_NAME;
+import static org.jboss.pnc.demo.data.DatabaseDataInitializer.log;
 
 /**
  * @author <a href="mailto:jbrazdil@redhat.com">Honza Brazdil</a>
@@ -87,6 +94,7 @@ public class ProductMilestoneEndpointTest {
     private static ProductMilestone milestone;
     private static String milestoneId;
     private static ProductMilestone milestone2;
+    private static BPMWireMock bpm;
 
     @Deployment
     public static EnterpriseArchive deploy() {
@@ -103,6 +111,15 @@ public class ProductMilestoneEndpointTest {
         milestone = it.next();
         milestoneId = milestone.getId();
         milestone2 = it.next();
+        var bpmPort = 8288;
+        bpm = new BPMWireMock(bpmPort);
+        log.info("Mocked BPM started at port: " + bpmPort);
+    }
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        bpm.close();
+        log.info("Mocked BPM stopped");
     }
 
     @Test
@@ -333,14 +350,14 @@ public class ProductMilestoneEndpointTest {
 
         RemoteCollection<DeliverableAnalyzerOperation> all = client.getAllDeliverableAnalyzerOperations(milestoneId);
 
-        assertThat(all).hasSize(2);
+        assertThat(all).hasSize(5);
 
         RemoteCollection<DeliverableAnalyzerOperation> allInProgress = client.getAllDeliverableAnalyzerOperations(
                 milestoneId,
                 Optional.empty(),
                 Optional.of("progressStatus==IN_PROGRESS"));
 
-        assertThat(allInProgress).hasSize(1);
+        assertThat(allInProgress).hasSize(4);
     }
 
     @Test
@@ -391,5 +408,73 @@ public class ProductMilestoneEndpointTest {
         assertThat(actualStats.getArtifactQuality()).isEqualTo(expectedArtifactQualities);
         assertThat(actualStats.getRepositoryType()).isEqualTo(expectedRepositoryTypes);
         assertThat(actualStats).isEqualTo(expectedStats);
+    }
+
+    @Test
+    public void shouldScratchFlagBeFalseImplicitly() throws ClientException {
+        // given
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
+
+        // when
+        client.analyzeDeliverables(
+                milestoneId,
+                DeliverablesAnalysisRequest.builder()
+                        .deliverablesUrls(
+                                List.of(
+                                        "https://indy.psi.idk.com/api/content/maven/hosted/pnc-builds/com/jboss/super-important-1.jar"))
+                        .build());
+
+        // then
+        bpm.getWireMockServer()
+                .verify(
+                        postRequestedFor(urlMatching(".*")).withRequestBody(
+                                matching(".*super-important-1.jar.*")
+                                        .and(matching(".*\"runAsScratchAnalysis\":false.*"))));
+    }
+
+    @Test
+    public void shouldScratchFlagBeFalse() throws ClientException {
+        // given
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
+
+        // when
+        client.analyzeDeliverables(
+                milestoneId,
+                DeliverablesAnalysisRequest.builder()
+                        .deliverablesUrls(
+                                List.of(
+                                        "https://indy.psi.idk.com/api/content/maven/hosted/pnc-builds/com/jboss/super-important-2.jar"))
+                        .runAsScratchAnalysis(false)
+                        .build());
+
+        // then
+        bpm.getWireMockServer()
+                .verify(
+                        postRequestedFor(urlMatching(".*")).withRequestBody(
+                                matching(".*super-important-2.jar.*")
+                                        .and(matching(".*\"runAsScratchAnalysis\":false.*"))));
+    }
+
+    @Test
+    public void shouldScratchFlagBeTrue() throws ClientException {
+        // given
+        ProductMilestoneClient client = new ProductMilestoneClient(RestClientConfiguration.asUser());
+
+        // when
+        client.analyzeDeliverables(
+                milestoneId,
+                DeliverablesAnalysisRequest.builder()
+                        .deliverablesUrls(
+                                List.of(
+                                        "https://indy.psi.idk.com/api/content/maven/hosted/pnc-builds/com/jboss/super-important-3.jar"))
+                        .runAsScratchAnalysis(true)
+                        .build());
+
+        // then
+        bpm.getWireMockServer()
+                .verify(
+                        postRequestedFor(urlMatching(".*")).withRequestBody(
+                                matching(".*super-important-3.jar.*")
+                                        .and(matching(".*\"runAsScratchAnalysis\":true.*"))));
     }
 }

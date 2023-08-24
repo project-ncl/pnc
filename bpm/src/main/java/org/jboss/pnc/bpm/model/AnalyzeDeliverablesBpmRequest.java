@@ -33,4 +33,5 @@ public class AnalyzeDeliverablesBpmRequest implements Serializable {
     private final String operationId;
     private final String milestoneId;
     private final List<String> urls;
+    private final boolean runAsScratchAnalysis;
 }
