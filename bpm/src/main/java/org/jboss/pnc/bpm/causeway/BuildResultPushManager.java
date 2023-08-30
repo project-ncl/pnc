@@ -143,7 +143,6 @@ public class BuildResultPushManager {
                     buildPushOperation.getBuildRecord(),
                     buildPushOperation.getTagPrefix(),
                     URI.create(String.format(buildPushOperation.getCompleteCallbackUrlTemplate(), externalBuildId)),
-                    authToken,
                     buildPushOperation.getPushResultId(),
                     buildPushOperation.isReImport());
             boolean successfullyStarted = causewayClient.importBuild(buildImportRequest, authToken);
@@ -170,7 +169,6 @@ public class BuildResultPushManager {
             BuildRecord buildRecord,
             String tagPrefix,
             URI callBackUrl,
-            String authToken,
             Long pushResultId,
             boolean reimport) {
         BuildEnvironment buildEnvironment = buildRecord.getBuildConfigurationAudited().getBuildEnvironment();
@@ -202,7 +200,6 @@ public class BuildResultPushManager {
 
         Request callbackTarget = Request.builder()
                 .method(Request.Method.POST)
-                .authTokenHeader(authToken)
                 .uri(callBackUrl)
                 .header(MDCUtils.HEADER_KEY_MAPPING.get(MDCKeys.PROCESS_CONTEXT_KEY), pushResultId.toString())
                 .build();
