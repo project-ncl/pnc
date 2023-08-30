@@ -19,11 +19,11 @@ package org.jboss.pnc.facade.providers;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import org.assertj.core.api.Condition;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.enums.ResultStatus;
-import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.User;
@@ -82,9 +82,7 @@ public class GroupBuildProviderTest extends AbstractLongIdProviderTest<BuildConf
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
 
     @Mock
-    private UserService userService;
-
-    private User user;
+    private KeycloakServiceClient keycloakServiceClient;
 
     @Spy
     @InjectMocks
@@ -104,10 +102,7 @@ public class GroupBuildProviderTest extends AbstractLongIdProviderTest<BuildConf
                 Arrays.asList(new BuildConfigSetRecord[] { a, b, c, d, e, bcsr }));
         fillRepository(records);
 
-        user = mock(User.class);
-        when(user.getId()).thenReturn(CURRENT_USER);
-        when(user.getLoginToken()).thenReturn(USER_TOKEN);
-        when(userService.currentUser()).thenReturn(user);
+        when(keycloakServiceClient.getAuthToken()).thenReturn(USER_TOKEN);
     }
 
     @Override

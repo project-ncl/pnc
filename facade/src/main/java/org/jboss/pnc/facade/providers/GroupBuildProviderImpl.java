@@ -18,6 +18,8 @@
 package org.jboss.pnc.facade.providers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.util.HttpUtils;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.GroupBuild;
@@ -86,9 +88,14 @@ public class GroupBuildProviderImpl extends AbstractProvider<Long, BuildConfigSe
     @Context
     private HttpServletRequest httpServletRequest;
 
+    @Inject
+    private KeycloakServiceClient keycloakServiceClient;
+
     private UserService userService;
 
     private ResultMapper resultMapper;
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Inject
     public GroupBuildProviderImpl(
@@ -114,26 +121,26 @@ public class GroupBuildProviderImpl extends AbstractProvider<Long, BuildConfigSe
 
     @Override
     public boolean delete(String id, String callback) {
-        User user = userService.currentUser();
 
-        if (user == null) {
-            throw new RuntimeException("Failed to load user metadata.");
-        }
         try {
+            String accessToken = keycloakServiceClient.getAuthToken();
             return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuildConfigSetRecord(
                     Long.valueOf(id),
-                    user.getLoginToken(),
-                    notifyOnDeletionCompletion(callback));
+                    accessToken,
+                    notifyOnDeletionCompletion(callback, accessToken));
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
     }
 
-    private Consumer<Result> notifyOnDeletionCompletion(String callbackUrl) {
+    private Consumer<Result> notifyOnDeletionCompletion(String callbackUrl, String accessToken) {
         return (result) -> {
             if (callbackUrl != null && !callbackUrl.isEmpty()) {
                 try {
-                    HttpUtils.performHttpPostRequest(callbackUrl, resultMapper.toDTO(result));
+                    HttpUtils.performHttpPostRequest(
+                            callbackUrl,
+                            OBJECT_MAPPER.writeValueAsString(resultMapper.toDTO(result)),
+                            accessToken);
                 } catch (JsonProcessingException e) {
                     logger.error("Failed to perform a callback of BuildConfigSetRecord delete operation.", e);
                 }

@@ -18,7 +18,9 @@
 package org.jboss.pnc.facade.providers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.gerrit.Gerrit;
 import org.jboss.pnc.common.gerrit.GerritException;
 import org.jboss.pnc.common.graph.GraphBuilder;
@@ -156,6 +158,10 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
     private ResultMapper resultMapper;
 
+    private KeycloakServiceClient keycloakServiceClient;
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @Inject
     public BuildProviderImpl(
             ArtifactRepository artifactRepository,
@@ -169,7 +175,8 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
             BuildCoordinator buildCoordinator,
             UserService userService,
             TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker,
-            ResultMapper resultMapper) {
+            ResultMapper resultMapper,
+            KeycloakServiceClient keycloakServiceClient) {
         super(repository, mapper, BuildRecord.class);
 
         this.artifactRepository = artifactRepository;
@@ -184,6 +191,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         this.userService = userService;
         this.temporaryBuildsCleanerAsyncInvoker = temporaryBuildsCleanerAsyncInvoker;
         this.resultMapper = resultMapper;
+        this.keycloakServiceClient = keycloakServiceClient;
     }
 
     @Override
@@ -211,27 +219,26 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
     @RolesAllowed(SYSTEM_USER)
     @Override
     public boolean delete(String buildId, String callback) {
-        User user = userService.currentUser();
-
-        if (user == null) {
-            throw new RuntimeException("Failed to load user metadata.");
-        }
 
         try {
+            String accessToken = keycloakServiceClient.getAuthToken();
             return temporaryBuildsCleanerAsyncInvoker.deleteTemporaryBuild(
                     parseId(buildId),
-                    user.getLoginToken(),
-                    notifyOnBuildDeletionCompletion(callback));
+                    accessToken,
+                    notifyOnBuildDeletionCompletion(callback, accessToken));
         } catch (ValidationException e) {
             throw new RepositoryViolationException(e);
         }
     }
 
-    private Consumer<Result> notifyOnBuildDeletionCompletion(String callback) {
+    private Consumer<Result> notifyOnBuildDeletionCompletion(String callback, String authToken) {
         return (result) -> {
             if (callback != null && !callback.isEmpty()) {
                 try {
-                    HttpUtils.performHttpPostRequest(callback, resultMapper.toDTO(result));
+                    HttpUtils.performHttpPostRequest(
+                            callback,
+                            OBJECT_MAPPER.writeValueAsString(resultMapper.toDTO(result)),
+                            authToken);
                 } catch (JsonProcessingException e) {
                     logger.error("Failed to perform a callback of delete operation.", e);
                 }
