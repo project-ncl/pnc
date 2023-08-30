@@ -24,7 +24,6 @@ import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
-import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.common.logging.MDCUtils;
@@ -65,9 +64,6 @@ public class OperationsManagerImpl implements OperationsManager {
     private ProductMilestoneRepository productMilestoneRepository;
     @Inject
     private UserService userService;
-
-    @Inject
-    private KeycloakServiceClient keycloakServiceClient;
 
     @Inject
     private GlobalModuleGroup globalConfig;
@@ -154,9 +150,8 @@ public class OperationsManagerImpl implements OperationsManager {
 
     @Override
     public Request getOperationCallback(Base32LongID operationId) {
-        String accessToken = keycloakServiceClient.getAuthToken();
         List<Request.Header> headers = new ArrayList<>();
-        addCommonHeaders(headers, accessToken);
+        addCommonHeaders(headers);
         addMDCHeaders(headers);
         addOTELHeaders(headers);
 
@@ -172,11 +167,8 @@ public class OperationsManagerImpl implements OperationsManager {
         headersFromMdc(headers, MDCHeaderKeys.SLF4J_SPAN_ID);
     }
 
-    private void addCommonHeaders(List<Request.Header> headers, String accessToken) {
+    private void addCommonHeaders(List<Request.Header> headers) {
         headers.add(new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, MediaType.APPLICATION_JSON));
-        if (accessToken != null) {
-            headers.add(new Request.Header(HttpHeaders.AUTHORIZATION_STRING, "Bearer " + accessToken));
-        }
     }
 
     private void addOTELHeaders(List<Request.Header> headers) {
