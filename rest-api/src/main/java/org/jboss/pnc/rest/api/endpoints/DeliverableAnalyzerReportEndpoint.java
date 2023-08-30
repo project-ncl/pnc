@@ -64,8 +64,8 @@ public interface DeliverableAnalyzerReportEndpoint {
                     @ApiResponse(
                             description = SUCCESS_DESCRIPTION,
                             responseCode = SUCCESS_CODE,
-                            content = @Content(schema = @Schema(implementation = SwaggerPages.AnalyzedArtifactPage.class))
-                    ),
+                            content = @Content(
+                                    schema = @Schema(implementation = SwaggerPages.AnalyzedArtifactPage.class))),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
                             description = INVALID_DESCRIPTION,
