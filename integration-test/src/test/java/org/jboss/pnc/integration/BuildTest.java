@@ -315,7 +315,7 @@ public class BuildTest {
         Instant oldLastModDateDependency = dependency.getModificationTime();
         BuildConfiguration updatedDependency = dependency.toBuilder()
                 .description("Random Description so it rebuilds")
-                .buildScript("mvn" + "   clean deploy -DskipTests=true")
+                .buildScript("mvn" + "   clean deploy -DskipTests=true -DmoreRandomness=true")
                 .build();
         buildConfigurationClient.update(updatedDependency.getId(), updatedDependency);
         updatedDependency = buildConfigurationClient.getSpecific(updatedDependency.getId());
