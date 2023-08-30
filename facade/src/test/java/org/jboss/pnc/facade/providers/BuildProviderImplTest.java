@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.providers;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import org.assertj.core.api.Condition;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.coordinator.maintenance.TemporaryBuildsCleanerAsyncInvoker;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.response.Edge;
@@ -27,7 +28,6 @@ import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.dto.response.Vertex;
 import org.jboss.pnc.enums.ResultStatus;
 import org.jboss.pnc.facade.providers.api.BuildPageInfo;
-import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.CorruptedDataException;
 import org.jboss.pnc.facade.validation.EmptyEntityException;
 import org.jboss.pnc.mapper.api.BuildMapper;
@@ -123,12 +123,10 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
     private BuildConfigurationAuditedRepository buildConfigurationAuditedRepository;
 
     @Mock
-    private UserService userService;
+    private KeycloakServiceClient keycloakServiceClient;
 
     @Mock
     private TemporaryBuildsCleanerAsyncInvoker temporaryBuildsCleanerAsyncInvoker;
-
-    private User user;
 
     @InjectMocks
     private BuildProviderImpl provider;
@@ -157,9 +155,7 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
         when(buildCoordinator.getSubmittedBuildTasks()).thenReturn(runningBuilds);
         when(rsqlPredicateProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
 
-        user = mock(User.class);
-        when(user.getLoginToken()).thenReturn(USER_TOKEN);
-        when(userService.currentUser()).thenReturn(user);
+        when(keycloakServiceClient.getAuthToken()).thenReturn(USER_TOKEN);
 
         BuildConfigSetRecord buildConfigSetRecord = BuildConfigSetRecord.Builder.newBuilder()
                 .id(1)
