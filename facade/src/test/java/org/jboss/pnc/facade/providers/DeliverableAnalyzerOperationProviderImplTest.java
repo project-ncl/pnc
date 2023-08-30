@@ -31,13 +31,12 @@ import java.util.Map;
 import org.assertj.core.api.Condition;
 
 import org.jboss.pnc.api.enums.ProgressStatus;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
@@ -56,21 +55,14 @@ public class DeliverableAnalyzerOperationProviderImplTest
 
     private final Logger logger = LoggerFactory.getLogger(DeliverableAnalyzerOperationProviderImplTest.class);
 
-    private static final String USER_TOKEN = "token";
-
     @Mock
     private DeliverableAnalyzerOperationRepository repository;
 
     @Mock
-    private ProductMilestoneRepository productMilestoneRepository;
-
-    @Mock
-    private UserService userService;
+    private KeycloakServiceClient keycloakServiceClient;
 
     @InjectMocks
     private DeliverableAnalyzerOperationProviderImpl provider;
-
-    private User user;
 
     @Override
     protected AbstractProvider provider() {
@@ -124,9 +116,7 @@ public class DeliverableAnalyzerOperationProviderImplTest
     @Before
     public void prepareMock() throws ReflectiveOperationException, IllegalArgumentException {
 
-        user = mock(User.class);
-        when(user.getLoginToken()).thenReturn(USER_TOKEN);
-        when(userService.currentUser()).thenReturn(user);
+        when(keycloakServiceClient.getAuthToken()).thenReturn("1234");
 
     }
 
