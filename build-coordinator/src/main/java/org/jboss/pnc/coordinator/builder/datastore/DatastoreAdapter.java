@@ -377,7 +377,6 @@ public class DatastoreAdapter {
     public BuildRecord storeResult(BuildTask buildTask, Optional<BuildResult> buildResult, Throwable e)
             throws DatastoreException {
         BuildRecord.Builder buildRecordBuilder = initBuildRecordBuilder(buildTask);
-        buildRecordBuilder.status(SYSTEM_ERROR);
 
         StringBuilder errorLog = new StringBuilder();
 
@@ -424,7 +423,43 @@ public class DatastoreAdapter {
         errorLog.append(stackTraceWriter.getBuffer());
         buildRecordBuilder.buildLog(errorLog.toString());
 
-        userLog.error("Build status: {}.", getBuildStatus(buildResult));
+        if (getBuildStatus(buildResult) != null) {
+            String message;
+            switch (getBuildStatus(buildResult)) {
+                case SUCCESS:
+                case NO_REBUILD_REQUIRED:
+                    break;
+                case FAILED:
+                    buildRecordBuilder.status(FAILED);
+                    message = "Build status: Build FAILED.";
+                    userLog.warn(message);
+                    break;
+                case CANCELLED:
+                    buildRecordBuilder.status(CANCELLED);
+                    message = "Build status: Build CANCELLED.";
+                    userLog.info(message);
+                    break;
+                case TIMED_OUT:
+                    buildRecordBuilder.status(SYSTEM_ERROR);
+                    message = "Build status: Build TIMED-OUT, failing with SYSTEM_ERROR.";
+                    userLog.error(message);
+                    break;
+                case SYSTEM_ERROR:
+                    buildRecordBuilder.status(SYSTEM_ERROR);
+                    message = "Build status: Build failed with SYSTEM_ERROR.";
+                    userLog.error(message);
+                    break;
+                default:
+                    buildRecordBuilder.status(SYSTEM_ERROR);
+                    message = "Build status: Invalid build status, failing with SYSTEM_ERROR.";
+                    userLog.error(message);
+                    break;
+            }
+        } else {
+            buildRecordBuilder.status(SYSTEM_ERROR);
+            userLog.error("Build status: Missing Build Result!");
+        }
+
         log.debug(
                 "Storing ERROR result of " + buildTask.getBuildConfigurationAudited().getName() + " to datastore.",
                 e);
