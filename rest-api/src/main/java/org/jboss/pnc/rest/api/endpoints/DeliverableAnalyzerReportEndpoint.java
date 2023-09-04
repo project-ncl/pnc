@@ -27,8 +27,11 @@ import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
+import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 
+import javax.validation.Valid;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -76,5 +79,7 @@ public interface DeliverableAnalyzerReportEndpoint {
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @Path("/{id}/analyzed-artifacts")
     @GET
-    Page<AnalyzedArtifact> getAnalyzedArtifacts(@Parameter(description = DEL_AN_ID) @PathParam("id") String id);
+    Page<AnalyzedArtifact> getAnalyzedArtifacts(
+            @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParameters);
 }

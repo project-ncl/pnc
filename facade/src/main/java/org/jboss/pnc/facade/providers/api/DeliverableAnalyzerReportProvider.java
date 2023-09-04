@@ -15,25 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.rest.endpoints;
+package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
-import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
-import org.jboss.pnc.rest.api.endpoints.DeliverableAnalyzerReportEndpoint;
-import org.jboss.pnc.rest.api.parameters.PageParameters;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+public interface DeliverableAnalyzerReportProvider {
 
-@ApplicationScoped
-public class DeliverableAnalyzerReportEndpointImpl implements DeliverableAnalyzerReportEndpoint {
-
-    @Inject
-    private DeliverableAnalyzerReportProvider provider;
-
-    @Override
-    public Page<AnalyzedArtifact> getAnalyzedArtifacts(String id, PageParameters pageParameters) {
-        return provider.getAnalyzedArtifacts(pageParameters.getPageIndex(), pageParameters.getPageSize(), id);
-    }
+    Page<AnalyzedArtifact> getAnalyzedArtifacts(int pageIndex, int pageSize, String id);
 }
