@@ -24,14 +24,38 @@ import javax.persistence.Converter;
 import java.util.EnumSet;
 
 /**
- * The converter between {@link DeliverableAnalyzerReportLabel} and {@link String}.
+ * The converter between {@link DeliverableAnalyzerReportLabel} and {@link String}. It automatically converts the
+ * attribute annotated with {@link javax.persistence.Convert} to {@link String}. When we're fetching the data from the
+ * database, the opposite conversion takes place. Hence, we do not need to create extra-table just for the labels.
  */
 @Converter(autoApply = true)
 public class DeliverableAnalyzerReportLabelToStringConverter
-        extends EnumSetToStringConverter<DeliverableAnalyzerReportLabel>
         implements AttributeConverter<EnumSet<DeliverableAnalyzerReportLabel>, String> {
 
-    public DeliverableAnalyzerReportLabelToStringConverter() {
-        super(DeliverableAnalyzerReportLabel.class);
+    private static final String SEPARATOR = ",";
+
+    @Override
+    public String convertToDatabaseColumn(EnumSet<DeliverableAnalyzerReportLabel> labelsSet) {
+        var sb = new StringBuilder();
+        var sep = "";
+
+        for (var label : labelsSet) {
+            sb.append(sep).append(label.name());
+            sep = SEPARATOR;
+        }
+
+        return sb.toString();
+    }
+
+    @Override
+    public EnumSet<DeliverableAnalyzerReportLabel> convertToEntityAttribute(String labelsString) {
+        var setOfLabels = EnumSet.noneOf(DeliverableAnalyzerReportLabel.class);
+        var labelsSplit = labelsString.split(SEPARATOR);
+
+        for (String label : labelsSplit) {
+            setOfLabels.add(Enum.valueOf(DeliverableAnalyzerReportLabel.class, label));
+        }
+
+        return setOfLabels;
     }
 }
