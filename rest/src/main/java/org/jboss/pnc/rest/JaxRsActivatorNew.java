@@ -33,6 +33,7 @@ import io.swagger.v3.oas.models.servers.Server;
 import org.jboss.pnc.common.json.moduleconfig.KeycloakClientConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.util.StringUtils;
+import org.jboss.pnc.datastore.repositories.DeliverableAnalyzerReportRepositoryImpl;
 import org.jboss.pnc.pncmetrics.rest.GeneralRestMetricsFilter;
 import org.jboss.pnc.pncmetrics.rest.TimedMetric;
 import org.jboss.pnc.pncmetrics.rest.TimedMetricFilter;
@@ -40,6 +41,7 @@ import org.jboss.pnc.rest.endpoints.ArtifactEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildConfigurationEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildEndpointImpl;
 import org.jboss.pnc.rest.endpoints.BuildRecordAliasEndpointImpl;
+import org.jboss.pnc.rest.endpoints.DeliverableAnalyzerReportEndpointImpl;
 import org.jboss.pnc.rest.endpoints.EnvironmentEndpointImpl;
 import org.jboss.pnc.rest.endpoints.GroupBuildEndpointImpl;
 import org.jboss.pnc.rest.endpoints.GroupConfigurationEndpointImpl;
@@ -218,6 +220,7 @@ public class JaxRsActivatorNew extends Application {
         resources.add(UserEndpointImpl.class);
 
         resources.add(BuildRecordAliasEndpointImpl.class);
+        resources.add(DeliverableAnalyzerReportEndpointImpl.class);
 
         resources.add(HealthCheckEndpointImpl.class);
         resources.add(GenericSettingEndpointImpl.class);
@@ -225,6 +228,7 @@ public class JaxRsActivatorNew extends Application {
         resources.add(DebugEndpointImpl.class);
         resources.add(DeliverableAnalysisEndpointImpl.class);
         resources.add(OperationEndpointImpl.class);
+        resources.add(DeliverableAnalyzerReportRepositoryImpl.class);
 
         resources.add(VersionEndpointImpl.class);
     }

@@ -21,12 +21,11 @@ import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
-import org.jboss.pnc.mapper.api.EntityMapper;
+import org.jboss.pnc.mapper.api.DeliverableAnalyzerReportMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -40,19 +39,21 @@ public class DeliverableAnalyzerReportProviderImpl extends
         AbstractProvider<Base32LongID, DeliverableAnalyzerReport, org.jboss.pnc.dto.DeliverableAnalyzerReport, org.jboss.pnc.dto.DeliverableAnalyzerReport>
         implements DeliverableAnalyzerReportProvider {
 
-    private final DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
+    private DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
 
-    private final ArtifactMapper artifactMapper;
+    private DeliverableAnalyzerReportMapper deliverableAnalyzerReportMapper;
+
+    private ArtifactMapper artifactMapper;
 
     @Inject
     public DeliverableAnalyzerReportProviderImpl(
-            Repository<DeliverableAnalyzerReport, Base32LongID> repository,
-            EntityMapper<Base32LongID, DeliverableAnalyzerReport, org.jboss.pnc.dto.DeliverableAnalyzerReport, org.jboss.pnc.dto.DeliverableAnalyzerReport> mapper,
-            Class<DeliverableAnalyzerReport> type,
-            DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository,
+            DeliverableAnalyzerReportRepository repository,
+            DeliverableAnalyzerReportMapper mapper,
             ArtifactMapper artifactMapper) {
-        super(repository, mapper, type);
-        this.deliverableAnalyzerReportRepository = deliverableAnalyzerReportRepository;
+        super(repository, mapper, DeliverableAnalyzerReport.class);
+
+        this.deliverableAnalyzerReportRepository = repository;
+        this.deliverableAnalyzerReportMapper = mapper;
         this.artifactMapper = artifactMapper;
     }
 
