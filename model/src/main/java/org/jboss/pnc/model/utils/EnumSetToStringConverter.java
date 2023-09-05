@@ -24,12 +24,15 @@ import java.util.EnumSet;
 /**
  * Generic converter which converts between EnumSet<E> and String. It automatically converts the attribute annotated
  * with {@link javax.persistence.Convert} to {@link String}. When we're fetching the data from the database, the
- * opposite conversion takes place. Hence, we do not need to create extra-table just for the labels.
+ * opposite conversion takes place. Hence, we do not need to create extra-table just for the enum set.
+ * <p>
+ * Note: We want to make this generic class abstract in order to prevent instantiation, e.g. due to forgotten
+ * {@code @Converter} annotation.
+ * </p>
  *
  * @param <E> entity class
  */
-@Converter
-public class EnumSetToStringConverter<E extends Enum<E>> implements AttributeConverter<EnumSet<E>, String> {
+public abstract class EnumSetToStringConverter<E extends Enum<E>> implements AttributeConverter<EnumSet<E>, String> {
 
     private final Class<E> enumType;
 
