@@ -40,7 +40,7 @@ import javax.persistence.ManyToOne;
 @Builder
 @Entity
 @IdClass(DeliverableArtifactPK.class)
-public class DeliverableArtifact {
+public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK> {
 
     @Id
     @ManyToOne
