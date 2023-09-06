@@ -356,7 +356,7 @@ public class BuildTest extends RemoteServices {
                 .description("Random Description so it rebuilds")
                 .buildScript("mvn" + "   clean deploy -DskipTests=true")
                 .build();
-        Thread.sleep(1L);
+        Thread.sleep(11L);
         buildConfigurationClient.update(updatedDependency.getId(), updatedDependency);
         assertThat(oldLastModDateDependency).isNotEqualTo(updatedDependency.getModificationTime());
 
