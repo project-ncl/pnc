@@ -24,6 +24,7 @@ import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.DeliverableAnalyzerReportClient;
 import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
@@ -33,6 +34,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
+
+import java.util.Iterator;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -49,7 +54,9 @@ public class DeliverableAnalyzerReportEndpointTest {
     @BeforeClass
     public static void prepareData() throws Exception {
         OperationClient operationClient = new OperationClient(RestClientConfiguration.asAnonymous());
-        operationId = operationClient.getAllDeliverableAnalyzerOperation().iterator().next().getId();
+        Iterator<DeliverableAnalyzerOperation> it = operationClient.getAllDeliverableAnalyzerOperation().iterator();
+        it.next();
+        operationId = it.next().getId();
     }
 
     @Test
@@ -62,8 +69,18 @@ public class DeliverableAnalyzerReportEndpointTest {
         RemoteCollection<AnalyzedArtifact> analyzedArtifacts = client.getAnalyzedArtifacts(operationId);
 
         // then
-        System.out.println("######## analyzedArtifacts: ");
-        analyzedArtifacts.forEach(System.out::println);
-        System.out.println("######## operationId: " + operationId);
+        assertThat(analyzedArtifacts.size()).isEqualTo(2);
+
+        Iterator<AnalyzedArtifact> it = analyzedArtifacts.iterator();
+
+        AnalyzedArtifact analyzedArtifact0 = it.next();
+        assertThat(analyzedArtifact0.isBuiltFromSource()).isTrue();
+        assertThat(analyzedArtifact0.getBrewId()).isNull();
+        assertThat(analyzedArtifact0.getArtifact().getIdentifier()).isEqualTo("demo:built-artifact1:jar:1.0");
+
+        AnalyzedArtifact analyzedArtifact1 = it.next();
+        assertThat(analyzedArtifact1.isBuiltFromSource()).isFalse();
+        assertThat(analyzedArtifact1.getBrewId()).isNull();
+        assertThat(analyzedArtifact1.getArtifact().getIdentifier()).isEqualTo("demo:imported-artifact2:jar:1.0");
     }
 }
