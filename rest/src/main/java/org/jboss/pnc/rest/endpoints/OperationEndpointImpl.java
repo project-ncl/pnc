@@ -26,7 +26,9 @@ import javax.validation.constraints.NotNull;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.OperationRef;
+import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.facade.DeliverableAnalyzerManager;
 import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerOperationProvider;
 import org.jboss.pnc.mapper.api.OperationMapper;
@@ -35,6 +37,8 @@ import org.jboss.pnc.rest.api.endpoints.OperationEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 @ApplicationScoped
 public class OperationEndpointImpl implements OperationEndpoint {
@@ -46,6 +50,9 @@ public class OperationEndpointImpl implements OperationEndpoint {
 
     @Inject
     private DeliverableAnalyzerOperationProvider delAnalyzerOperationProvider;
+
+    @Inject
+    private DeliverableAnalyzerManager deliverableAnalyzerManager;
 
     private EndpointHelper<Base32LongID, DeliverableAnalyzerOperation, OperationRef> delAnalyzerendpointHelper;
 
@@ -78,6 +85,12 @@ public class OperationEndpointImpl implements OperationEndpoint {
         logger.debug("Retrieving deliverable analyzer operations with these " + pageParams.toString());
         return delAnalyzerOperationProvider
                 .getAll(pageParams.getPageIndex(), pageParams.getPageSize(), pageParams.getSort(), pageParams.getQ());
+    }
+
+    @Override
+    public void startScratchDeliverableAnalysis(ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest) {
+        deliverableAnalyzerManager
+                .analyzeDeliverables(Optional.empty(), scratchDeliverablesAnalysisRequest.getDeliverablesUrls(), true);
     }
 
 }

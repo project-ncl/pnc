@@ -21,6 +21,7 @@ import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author jakubvanko
@@ -33,7 +34,7 @@ public interface DeliverableAnalysisStatusChangedEvent {
 
     OperationResult getResult();
 
-    String getMilestoneId();
+    Optional<String> getMilestoneId();
 
     List<String> getDeliverablesUrls();
 }

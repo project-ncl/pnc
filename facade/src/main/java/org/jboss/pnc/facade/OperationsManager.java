@@ -26,6 +26,7 @@ import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.Operation;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface OperationsManager {
 
@@ -33,7 +34,9 @@ public interface OperationsManager {
 
     Operation setResult(Base32LongID operationId, OperationResult result);
 
-    DeliverableAnalyzerOperation newDeliverableAnalyzerOperation(String milestoneId, Map<String, String> inputParams);
+    DeliverableAnalyzerOperation newDeliverableAnalyzerOperation(
+            Optional<String> milestoneId,
+            Map<String, String> inputParams);
 
     Request getOperationCallback(Base32LongID operationId);
 }

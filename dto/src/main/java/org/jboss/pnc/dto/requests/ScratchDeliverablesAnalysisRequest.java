@@ -15,24 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.bpm.model;
+package org.jboss.pnc.dto.requests;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
+import org.hibernate.validator.constraints.URL;
 
-import java.io.Serializable;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
-import java.util.Optional;
 
-@ToString
-@Getter
-@AllArgsConstructor
-public class AnalyzeDeliverablesBpmRequest implements Serializable {
-    private static final long serialVersionUID = 2808475070463010184L;
+/**
+ * This type of request differs from {@link DeliverablesAnalysisRequest} in a way that this request is used to start
+ * only "SCRATCH" analysis.
+ */
+@Data
+@Jacksonized
+@Builder
+public class ScratchDeliverablesAnalysisRequest {
 
-    private final String operationId;
-    private final Optional<String> milestoneId;
-    private final List<String> urls;
-    private final boolean runAsScratchAnalysis;
+    @NotEmpty
+    private final List<@URL String> deliverablesUrls;
 }

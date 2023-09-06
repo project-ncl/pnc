@@ -18,6 +18,7 @@
 package org.jboss.pnc.rest.endpoints;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
@@ -176,6 +177,6 @@ public class ProductMilestoneEndpointImpl implements ProductMilestoneEndpoint {
     @Override
     public DeliverableAnalyzerOperation analyzeDeliverables(String id, DeliverablesAnalysisRequest request) {
         return deliverableAnalyzerManager
-                .analyzeDeliverables(id, request.getDeliverablesUrls(), request.isRunAsScratchAnalysis());
+                .analyzeDeliverables(Optional.of(id), request.getDeliverablesUrls(), request.isRunAsScratchAnalysis());
     }
 }

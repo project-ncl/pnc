@@ -22,6 +22,7 @@ import lombok.Getter;
 import org.jboss.pnc.common.json.JsonOutputConverterMapper;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author jakubvanko
@@ -30,11 +31,15 @@ import java.util.List;
 public class AnalysisStatusMessage implements Message {
 
     private final String attribute;
-    private final String milestoneId;
+    private final Optional<String> milestoneId;
     private final String status;
     private final List<String> deliverablesUrls;
 
-    public AnalysisStatusMessage(String attribute, String milestoneId, String status, List<String> deliverablesUrls) {
+    public AnalysisStatusMessage(
+            String attribute,
+            Optional<String> milestoneId,
+            String status,
+            List<String> deliverablesUrls) {
         this.attribute = attribute;
         this.milestoneId = milestoneId;
         this.status = status;

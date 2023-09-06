@@ -40,6 +40,7 @@ import javax.ws.rs.core.MediaType;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.Product;
+import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.processor.annotation.Client;
@@ -49,6 +50,8 @@ import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.CONFLICTED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_UPDATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
@@ -67,6 +70,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
 @Client
 public interface OperationEndpoint {
 
+    static final String START_DELIVERABLE_ANALYSIS = "Starts the new deliverable analysis above artifacts given by URLs";
     static final String GET_ALL_DELIVERABLE_ANALYZER_OPERATIONS_DESC = "Gets all deliverable analyzer operations.";
     static final String COMPLETE_OPERATION_DESC = "Complete a running operation.";
     static final String OPERATION_RESULT = "Result of completed operation.";
@@ -178,5 +182,20 @@ public interface OperationEndpoint {
     @GET
     @Path("/deliverable-analyzer")
     Page<DeliverableAnalyzerOperation> getAllDeliverableAnalyzerOperation(@Valid @BeanParam PageParameters pageParams);
+
+    @Operation(
+            summary = START_DELIVERABLE_ANALYSIS,
+            responses = { @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @POST
+    @Path("/deliverable-analyzer/start")
+    void startScratchDeliverableAnalysis(@Valid ScratchDeliverablesAnalysisRequest scratchDeliverablesAnalysisRequest);
 
 }

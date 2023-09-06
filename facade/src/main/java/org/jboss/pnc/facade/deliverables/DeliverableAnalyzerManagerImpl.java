@@ -75,6 +75,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -132,7 +133,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
     @Override
     public DeliverableAnalyzerOperation analyzeDeliverables(
-            String id,
+            Optional<String> id,
             List<String> deliverablesUrls,
             boolean runAsScratchAnalysis) {
         int i = 1;
@@ -406,7 +407,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     }
 
     private void startAnalysis(
-            String milestoneId,
+            Optional<String> milestoneId,
             List<String> deliverablesUrls,
             boolean runAsScratchAnalysis,
             Base32LongID operationId) {
@@ -457,7 +458,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         DeliverableAnalysisStatusChangedEvent analysisStatusChanged = DefaultDeliverableAnalysisStatusChangedEvent
                 .finished(
                         operation.getId().getId(),
-                        operation.getProductMilestone().getId().toString(),
+                        Optional.of(operation.getProductMilestone().getId().toString()),
                         operation.getResult(),
                         deliverablesUrls);
         analysisStatusChangedEventNotifier.fire(analysisStatusChanged);

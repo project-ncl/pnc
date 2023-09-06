@@ -54,6 +54,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @ApplicationScoped
@@ -122,11 +123,12 @@ public class OperationsManagerImpl implements OperationsManager {
 
     @Override
     public DeliverableAnalyzerOperation newDeliverableAnalyzerOperation(
-            String milestoneId,
+            Optional<String> milestoneId,
             Map<String, String> inputParams) {
-        ProductMilestone milestone = productMilestoneRepository
-                .queryById(ProductMilestoneMapper.idMapper.toEntity(milestoneId));
-        if (milestone == null) {
+        ProductMilestone milestone = milestoneId
+                .map(id -> productMilestoneRepository.queryById(ProductMilestoneMapper.idMapper.toEntity(id)))
+                .orElse(null);
+        if (milestone == null && milestoneId.isPresent()) {
             throw new EmptyEntityException("Milestone with id " + milestoneId + " doesn't exist");
         }
 

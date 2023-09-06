@@ -24,6 +24,7 @@ import org.jboss.pnc.model.User;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface DeliverableAnalyzerManager {
     /**
@@ -35,7 +36,7 @@ public interface DeliverableAnalyzerManager {
      * @return Operation started for the analysis.
      */
     DeliverableAnalyzerOperation analyzeDeliverables(
-            String id,
+            Optional<String> id,
             List<String> deliverablesUrls,
             boolean runAsScratchAnalysis);
 

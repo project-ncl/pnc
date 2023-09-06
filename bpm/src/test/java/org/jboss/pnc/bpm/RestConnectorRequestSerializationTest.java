@@ -40,6 +40,7 @@ import javax.ws.rs.core.MediaType;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.findAll;
@@ -112,7 +113,11 @@ public class RestConnectorRequestSerializationTest {
         urls.add(url1);
         urls.add(url2);
         String operationId = Sequence.nextBase32Id();
-        AnalyzeDeliverablesBpmRequest request = new AnalyzeDeliverablesBpmRequest(operationId, "id", urls, false);
+        AnalyzeDeliverablesBpmRequest request = new AnalyzeDeliverablesBpmRequest(
+                operationId,
+                Optional.of("id"),
+                urls,
+                false);
         List<Request.Header> headers = new ArrayList<>();
         headers.add(new Request.Header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON));
 

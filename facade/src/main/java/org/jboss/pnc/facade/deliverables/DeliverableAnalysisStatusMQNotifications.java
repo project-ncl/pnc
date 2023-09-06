@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * @author jakubvanko
@@ -67,7 +68,7 @@ public class DeliverableAnalysisStatusMQNotifications {
         Map<String, String> headers = new HashMap<>();
         headers.put("type", "DeliverableAnalysisStateChange");
         headers.put("attribute", ATTRIBUTE_NAME);
-        headers.put("milestoneId", event.getMilestoneId());
+        headers.put("milestoneId", event.getMilestoneId().orElse("null"));
         headers.put("status", event.getStatus().toString());
         return headers;
     }

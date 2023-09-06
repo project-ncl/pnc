@@ -23,6 +23,7 @@ import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author jakubvanko
@@ -32,14 +33,14 @@ public class DefaultDeliverableAnalysisStatusChangedEvent implements Deliverable
     private final String operationId;
     private final ProgressStatus status;
     private final OperationResult result;
-    private final String milestoneId;
+    private final Optional<String> milestoneId;
     private final List<String> deliverablesUrls;
 
     public DefaultDeliverableAnalysisStatusChangedEvent(
             String operationId,
             ProgressStatus status,
             OperationResult result,
-            String milestoneId,
+            Optional<String> milestoneId,
             List<String> deliverablesUrls) {
         this.operationId = operationId;
         this.status = status;
@@ -50,7 +51,7 @@ public class DefaultDeliverableAnalysisStatusChangedEvent implements Deliverable
 
     public static DefaultDeliverableAnalysisStatusChangedEvent started(
             String operationId,
-            String milestoneId,
+            Optional<String> milestoneId,
             List<String> deliverablesUrls) {
         return new DefaultDeliverableAnalysisStatusChangedEvent(
                 operationId,
@@ -62,7 +63,7 @@ public class DefaultDeliverableAnalysisStatusChangedEvent implements Deliverable
 
     public static DefaultDeliverableAnalysisStatusChangedEvent finished(
             String operationId,
-            String milestoneId,
+            Optional<String> milestoneId,
             OperationResult result,
             List<String> deliverablesUrls) {
         return new DefaultDeliverableAnalysisStatusChangedEvent(

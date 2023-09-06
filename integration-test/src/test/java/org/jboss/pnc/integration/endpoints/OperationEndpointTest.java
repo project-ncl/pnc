@@ -17,12 +17,18 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.demo.data.DatabaseDataInitializer.log;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.arquillian.container.test.api.Deployment;
@@ -35,10 +41,15 @@ import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.requests.DeliverablesAnalysisRequest;
+import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
+import org.jboss.pnc.integration.utils.BPMWireMock;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -54,9 +65,24 @@ public class OperationEndpointTest {
 
     private OperationClient client = new OperationClient(RestClientConfiguration.asUser());
 
+    private static BPMWireMock bpm;
+
     @Deployment
     public static EnterpriseArchive deploy() {
         return Deployments.testEar();
+    }
+
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        var bpmPort = 8288;
+        bpm = new BPMWireMock(bpmPort);
+        log.info("Mocked BPM started at port: " + bpmPort);
+    }
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        bpm.close();
+        log.info("Mocked BPM stopped");
     }
 
     @Test
@@ -139,5 +165,23 @@ public class OperationEndpointTest {
         assertThat(finishedOperationReturned.getProgressStatus()).isEqualTo(ProgressStatus.FINISHED);
         assertThat(finishedOperationReturned.getResult()).isEqualTo(OperationResult.FAILED);
         assertThat(finishedOperationReturned.getEndTime()).isAfter(beforeFinish);
+    }
+
+    @Test
+    public void shouldScratchFlagBeTrue() throws ClientException {
+        // when
+        client.startScratchDeliverableAnalysis(
+                ScratchDeliverablesAnalysisRequest.builder()
+                        .deliverablesUrls(
+                                List.of(
+                                        "https://indy.psi.idk.com/api/content/maven/hosted/pnc-builds/com/jboss/super-important.jar"))
+                        .build());
+
+        // then
+        bpm.getWireMockServer()
+                .verify(
+                        postRequestedFor(urlMatching(".*")).withRequestBody(
+                                matching(".*super-important.jar.*")
+                                        .and(matching(".*\"runAsScratchAnalysis\":true.*"))));
     }
 }

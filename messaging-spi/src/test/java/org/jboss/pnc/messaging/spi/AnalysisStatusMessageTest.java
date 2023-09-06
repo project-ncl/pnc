@@ -27,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,7 +45,7 @@ public class AnalysisStatusMessageTest {
 
         Message message = new AnalysisStatusMessage(
                 "test-attribute",
-                "test-milestone-id",
+                Optional.of("test-milestone-id"),
                 "test-status",
                 deliverablesUrls);
 
