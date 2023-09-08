@@ -35,7 +35,6 @@ import org.jboss.pnc.mapper.api.GroupConfigurationMapper;
 import org.jboss.pnc.mapper.api.ResultMapper;
 import org.jboss.pnc.model.BuildConfigSetRecord;
 import org.jboss.pnc.model.BuildConfigSetRecord_;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.Result;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigSetRecordRepository;
@@ -60,7 +59,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigSetRecordPredicates.withBuildConfigSetId;
 
 @PermitAll
@@ -113,7 +113,7 @@ public class GroupBuildProviderImpl extends AbstractProvider<Long, BuildConfigSe
         throw new UnsupportedOperationException("Direct GroupBuilds creation is not available.");
     }
 
-    @RolesAllowed(SYSTEM_USER)
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     @Override
     public GroupBuild update(String id, GroupBuild restEntity) {
         return super.update(id, restEntity);

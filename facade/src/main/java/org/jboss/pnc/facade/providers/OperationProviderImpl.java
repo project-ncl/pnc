@@ -50,7 +50,7 @@ import java.sql.Date;
 import java.time.Instant;
 import java.util.Map;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 import static org.jboss.pnc.spi.datastore.predicates.OperationPredicates.withMilestoneId;
 
 @PermitAll
@@ -73,7 +73,7 @@ public abstract class OperationProviderImpl<DB extends org.jboss.pnc.model.Opera
     }
 
     @Override
-    @RolesAllowed(SYSTEM_USER)
+    @RolesAllowed(USERS_ADMIN)
     public DTO update(String operationId, DTO restEntity) {
         return super.update(operationId, restEntity);
     }
