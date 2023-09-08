@@ -28,7 +28,7 @@ import org.jboss.util.Strings;
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
 import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
-import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -53,7 +53,7 @@ public class GenericSettingProvider {
     public GenericSettingProvider() {
     }
 
-    @RolesAllowed("system-user")
+    @RolesAllowed(USERS_ADMIN)
     public void activateMaintenanceMode(String reason) {
 
         log.info("Activating Maintenance mode, with reason: '{}'", reason);
@@ -66,7 +66,7 @@ public class GenericSettingProvider {
         setAnnouncementBanner(reason);
     }
 
-    @RolesAllowed("system-user")
+    @RolesAllowed(USERS_ADMIN)
     public void deactivateMaintenanceMode() {
 
         log.info("Deactivating Maintenance mode");
@@ -100,7 +100,7 @@ public class GenericSettingProvider {
 
     public boolean isCurrentUserAllowedToTriggerBuilds() {
 
-        boolean isLoggedInUserSystemUser = userService.hasLoggedInUserRole(SYSTEM_USER);
+        boolean isLoggedInUserSystemUser = userService.hasLoggedInUserRole(USERS_ADMIN);
         if (isLoggedInUserSystemUser) {
             log.info("Users with system-role are always allowed to trigger builds");
             return true;
@@ -109,7 +109,7 @@ public class GenericSettingProvider {
         return !isInMaintenanceMode();
     }
 
-    @RolesAllowed("system-user")
+    @RolesAllowed(USERS_ADMIN)
     public void setPNCVersion(String version) {
 
         log.info("PNC System version set to: '{}'", version);
@@ -129,7 +129,7 @@ public class GenericSettingProvider {
         }
     }
 
-    @RolesAllowed("system-user")
+    @RolesAllowed(USERS_ADMIN)
     public void setAnnouncementBanner(String banner) {
 
         log.info("Announcement banner set to: '{}'", banner);
