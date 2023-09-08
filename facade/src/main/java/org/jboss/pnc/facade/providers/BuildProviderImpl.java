@@ -117,7 +117,9 @@ import java.util.stream.StreamSupport;
 
 import static java.lang.Math.min;
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_DELETE;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withIds;
 import static org.jboss.pnc.spi.datastore.predicates.BuildConfigurationPredicates.withProjectId;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.buildFinishedBefore;
@@ -199,13 +201,13 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         throw new UnsupportedOperationException("Direct build creation is not available.");
     }
 
-    @RolesAllowed(SYSTEM_USER)
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     @Override
     public void delete(String id) {
         throw new UnsupportedOperationException("Deleting persistent builds is never allowed");
     }
 
-    @RolesAllowed(SYSTEM_USER)
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     @Override
     public Build update(String buildId, Build restEntity) {
         Base32LongID id = parseId(buildId);
@@ -216,7 +218,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         return mapper.toDTO(entityInDB);
     }
 
-    @RolesAllowed(SYSTEM_USER)
+    @RolesAllowed({ USERS_BUILD_DELETE, USERS_BUILD_ADMIN, USERS_ADMIN })
     @Override
     public boolean delete(String buildId, String callback) {
 
@@ -639,7 +641,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 BuildRecordPredicates.withBuildLogContains(search));
     }
 
-    @RolesAllowed(SYSTEM_USER)
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     @Override
     public void setBuiltArtifacts(String buildId, List<String> artifactIds) {
         Set<Integer> ids = artifactIds.stream().map(Integer::valueOf).collect(Collectors.toSet());
@@ -673,7 +675,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 .collect(Collectors.toSet());
     }
 
-    @RolesAllowed(SYSTEM_USER)
+    @RolesAllowed({ USERS_BUILD_ADMIN, USERS_ADMIN })
     @Override
     public void setDependentArtifacts(String buildId, List<String> artifactIds) {
         BuildRecord buildRecord = repository.queryById(parseId(buildId));
