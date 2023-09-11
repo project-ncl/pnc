@@ -29,7 +29,4 @@ import java.util.List;
  */
 public interface DeliverableAnalyzerReportRepository extends Repository<DeliverableAnalyzerReport, Base32LongID> {
 
-    List<DeliverableArtifact> getAnalyzedArtifacts(Base32LongID id);
-
-    int countAnalyzedArtifacts(Base32LongID id);
 }

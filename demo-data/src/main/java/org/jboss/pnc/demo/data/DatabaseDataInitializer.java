@@ -1274,7 +1274,7 @@ public class DatabaseDataInitializer {
 
         DeliverableAnalyzerLabelEntry report1labelEntry1 = DeliverableAnalyzerLabelEntry.builder()
                 .report(report1)
-                .orderId(1)
+                .changeOrder(1)
                 .entryTime(TODAY)
                 .user(demoUser)
                 .reason("This analysis was run as scratch!")
