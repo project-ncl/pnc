@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers;
 
+import com.google.common.collect.ObjectArrays;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
@@ -25,7 +26,12 @@ import org.jboss.pnc.mapper.api.DeliverableAnalyzerReportMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
+import org.jboss.pnc.spi.datastore.predicates.DeliverableArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
@@ -41,6 +47,8 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
     private DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
 
+    private DeliverableArtifactRepository deliverableArtifactRepository;
+
     private DeliverableAnalyzerReportMapper deliverableAnalyzerReportMapper;
 
     private ArtifactMapper artifactMapper;
@@ -48,20 +56,36 @@ public class DeliverableAnalyzerReportProviderImpl extends
     @Inject
     public DeliverableAnalyzerReportProviderImpl(
             DeliverableAnalyzerReportRepository repository,
+            DeliverableArtifactRepository deliverableArtifactRepository,
             DeliverableAnalyzerReportMapper mapper,
             ArtifactMapper artifactMapper) {
         super(repository, mapper, DeliverableAnalyzerReport.class);
 
         this.deliverableAnalyzerReportRepository = repository;
+        this.deliverableArtifactRepository = deliverableArtifactRepository;
         this.deliverableAnalyzerReportMapper = mapper;
         this.artifactMapper = artifactMapper;
     }
 
     @Override
-    public Page<AnalyzedArtifact> getAnalyzedArtifacts(int pageIndex, int pageSize, String id) {
+    public Page<AnalyzedArtifact> getAnalyzedArtifacts(
+            int pageIndex,
+            int pageSize,
+            String query,
+            String sort,
+            String id) {
         Base32LongID entityId = mapper.getIdMapper().toEntity(id);
+        Predicate<DeliverableArtifact> rsqlPredicate = rsqlPredicateProducer
+                .getCriteriaPredicate(DeliverableArtifact.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo<DeliverableArtifact> sortInfo = rsqlPredicateProducer.getSortInfo(DeliverableArtifact.class, sort);
 
-        List<AnalyzedArtifact> analyzedArtifacts = deliverableAnalyzerReportRepository.getAnalyzedArtifacts(entityId)
+        List<AnalyzedArtifact> analyzedArtifacts = deliverableArtifactRepository
+                .queryWithPredicates(
+                        pageInfo,
+                        sortInfo,
+                        rsqlPredicate,
+                        DeliverableArtifactPredicates.withReportId(entityId))
                 .stream()
                 .map(this::deliverableArtifactToDto)
                 .collect(Collectors.toList());
@@ -69,7 +93,8 @@ public class DeliverableAnalyzerReportProviderImpl extends
         return new Page<>(
                 pageIndex,
                 pageSize,
-                deliverableAnalyzerReportRepository.countAnalyzedArtifacts(entityId),
+                deliverableArtifactRepository
+                        .count(rsqlPredicate, DeliverableArtifactPredicates.withReportId(entityId)),
                 analyzedArtifacts);
     }
 

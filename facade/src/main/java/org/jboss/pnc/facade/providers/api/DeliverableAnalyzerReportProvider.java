@@ -22,5 +22,5 @@ import org.jboss.pnc.dto.response.Page;
 
 public interface DeliverableAnalyzerReportProvider {
 
-    Page<AnalyzedArtifact> getAnalyzedArtifacts(int pageIndex, int pageSize, String id);
+    Page<AnalyzedArtifact> getAnalyzedArtifacts(int pageIndex, int pageSize, String query, String sort, String id);
 }

@@ -34,6 +34,11 @@ public class DeliverableAnalyzerReportEndpointImpl implements DeliverableAnalyze
 
     @Override
     public Page<AnalyzedArtifact> getAnalyzedArtifacts(String id, PageParameters pageParameters) {
-        return provider.getAnalyzedArtifacts(pageParameters.getPageIndex(), pageParameters.getPageSize(), id);
+        return provider.getAnalyzedArtifacts(
+                pageParameters.getPageIndex(),
+                pageParameters.getPageSize(),
+                pageParameters.getQ(),
+                pageParameters.getSort(),
+                id);
     }
 }
