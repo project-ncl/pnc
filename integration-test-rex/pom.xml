@@ -334,7 +334,9 @@
                     <unzip src="${test.server.unpack.dir}/rh-sso-7.6.1-eap7-adapter-dist.zip" dest="${test.server.unpack.dir}/jboss-eap-7.4/" overwrite="true" />
 
                     <copy file="src/test/resources/pnc-config.json" tofile="${test.server.unpack.dir}/${app.server}-${jboss.version}/pnc-config.json" />
-
+                    <replace file="${test.server.unpack.dir}/${app.server}-${jboss.version}/pnc-config.json" propertyFile="${basedir}/target/test.properties">
+                      <replaceFilter token="@keycloakPort@" property="keycloakPort"/>
+                    </replace>
                   </target>
                 </configuration>
               </execution>
