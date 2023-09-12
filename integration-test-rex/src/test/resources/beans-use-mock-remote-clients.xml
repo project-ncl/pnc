@@ -20,7 +20,6 @@
 -->
 <beans xmlns="http://xmlns.jcp.org/xml/ns/javaee" bean-discovery-mode="annotated">
   <scan>
-    <exclude name="org.jboss.pnc.auth.DefaultKeycloakServiceClient" />
     <exclude name="org.jboss.pnc.causewayclient.DefaultCausewayClient" />
     <exclude name="org.jboss.pnc.coordinator.maintenance.DefaultRemoteBuildsCleaner" />
   </scan>

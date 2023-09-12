@@ -17,9 +17,7 @@
  */
 package org.jboss.pnc.integrationrex.setup;
 
-import org.jboss.pnc.auth.DefaultKeycloakServiceClient;
 import org.jboss.pnc.integrationrex.mock.RemoteBuildsCleanerMock;
-import org.jboss.pnc.integrationrex.mock.client.KeycloakServiceClientMock;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -30,6 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,6 +57,7 @@ public class Deployments {
         ear.setApplicationXML("application.xml");
 
         addMocks(ear);
+        setupAuthentication();
 
         logger.info("Ear archive listing: {}", ear.toString(true));
 
@@ -80,9 +82,6 @@ public class Deployments {
     private static void addMocks(EnterpriseArchive enterpriseArchive) {
         JavaArchive authJar = enterpriseArchive.getAsType(JavaArchive.class, AUTH_JAR);
 
-        authJar.deleteClass(DefaultKeycloakServiceClient.class);
-        authJar.addClass(KeycloakServiceClientMock.class);
-
         JavaArchive coordinatorJar = enterpriseArchive.getAsType(JavaArchive.class, COORDINATOR_JAR);
         coordinatorJar.deleteClass(org.jboss.pnc.coordinator.maintenance.DefaultRemoteBuildsCleaner.class);
         coordinatorJar.addClass(RemoteBuildsCleanerMock.class);
@@ -92,6 +91,18 @@ public class Deployments {
         logger.info(authJar.toString(true));
 
         enterpriseArchive.addAsModule(authJar);
+    }
+
+    private static void setupAuthentication() {
+        // This secret is set in the keycloak-realm-export.json
+        // The path of the secret file is also set in pnc-config.json for the service account
+        try {
+            Files.write(
+                    Paths.get("/tmp/integration-test-rex-sa-secret"),
+                    "gatp28CxLfslmahNqbqm8o3BMR7NPRye".getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

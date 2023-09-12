@@ -25,7 +25,16 @@
           "brewTagPattern" : "${product_short_name}-${product_version}-pnc",
           "temporaryBuildsLifeSpan" : "14",
           "legacyBuildCoordinator" : "false",
-          "recordUpdateJobEnabled" : "false"
+          "recordUpdateJobEnabled" : "false",
+          "keycloakServiceAccountConfig": {
+            "realm": "newcastle-testcontainer",
+            "auth-server-url": "http://localhost:@keycloakPort@",
+            "ssl-required": false,
+            "resource": "pnc-orchestrator-sa",
+            "credentials": {
+                "secretFileLocation": "/tmp/integration-test-rex-sa-secret"
+            }
+          }
         },
         {
           "@module-config": "demo-data-config",

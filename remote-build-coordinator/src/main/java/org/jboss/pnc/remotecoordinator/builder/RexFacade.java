@@ -26,6 +26,7 @@ import org.jboss.pnc.api.constants.HttpHeaders;
 import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.bpm.model.MDCParameters;
 import org.jboss.pnc.bpm.task.BpmBuildTask;
 import org.jboss.pnc.common.Date.ExpiresDate;
@@ -133,6 +134,8 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     private BuildTaskMappers mappers;
     private RexHttpClient rexClient;
 
+    private KeycloakServiceClient keycloakServiceClient;
+
     @Deprecated
     public RexFacade() { // CDI workaround
     }
@@ -143,12 +146,14 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             GlobalModuleGroup globalConfig,
             BpmModuleConfig bpmConfig,
             BuildTaskMappers mappers,
-            RexHttpClient rexClient) {
+            RexHttpClient rexClient,
+            KeycloakServiceClient keycloakServiceClient) {
         this.systemConfig = systemConfig;
         this.globalConfig = globalConfig;
         this.bpmConfig = bpmConfig;
         this.mappers = mappers;
         this.rexClient = rexClient;
+        this.keycloakServiceClient = keycloakServiceClient;
     }
 
     @WithSpan
@@ -348,13 +353,11 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             BpmEndpointUrlFactory bpmUrlFactory,
             RemoteBuildTask buildTask,
             User user) {
-        String loginToken = user.getLoginToken();
         BpmBuildTask bpmBuildTask = new BpmBuildTask(toBuildTask(buildTask, user, new Date()), globalConfig);
         Map<String, Serializable> bpmTask = Collections
                 .singletonMap("processParameters", bpmBuildTask.getProcessParameters());
 
         Map<String, Object> processParameters = new HashMap<>();
-        processParameters.put("auth", Collections.singletonMap("token", loginToken));
         processParameters.put("mdc", new MDCParameters());
         processParameters.put("task", bpmTask);
         processParameters.put("submitTime", buildTask.getSubmitTime());
@@ -367,6 +370,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 .map(entry -> new Request.Header(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
+        String loginToken = keycloakServiceClient.getAuthToken();
         headers.addAll(
                 List.of(
                         new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),

@@ -420,6 +420,46 @@
       ]
     },
     {
+      "id": "bbc10776-a303-4024-bea9-6793f5ef685d",
+      "clientId": "pnc-orchestrator-sa",
+      "surrogateAuthRequired": false,
+      "enabled": true,
+      "alwaysDisplayInConsole": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "gatp28CxLfslmahNqbqm8o3BMR7NPRye",
+      "redirectUris": ["*"],
+      "webOrigins": [],
+      "notBefore": 0,
+      "bearerOnly": false,
+      "consentRequired": false,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
+      "frontchannelLogout": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "backchannel.logout.session.required": "true",
+        "backchannel.logout.revoke.offline.tokens": "false"
+      },
+      "authenticationFlowBindingOverrides": {},
+      "fullScopeAllowed": true,
+      "nodeReRegistrationTimeout": -1,
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
       "id": "7fbba07f-4c29-4ce8-98bf-791116455a25",
       "clientId": "rex",
       "surrogateAuthRequired": false,
@@ -2024,6 +2064,41 @@
           "manage-account"
         ]
       }
+    },
+    {
+      "username": "service-account-pnc-orchestrator-sa",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": false,
+      "email": "service-account-pnc-orchestrator-sa@placeholder.org",
+      "serviceAccountClientId": "pnc-orchestrator-sa",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "pnc-users-repository-driver-admin",
+        "pnc-users-admin",
+        "pnc-users-build-driver-admin",
+        "pnc-users-causeway-admin",
+        "pnc-users-repour-admin",
+        "pnc-users-build-delete",
+        "pnc-users-build-agent-admin",
+        "pnc-users-da-admin",
+        "pnc-users-rex-user",
+        "offline_access",
+        "system-user",
+        "user",
+        "uma_authorization",
+        "pnc-users-rex-admin",
+        "pnc-users-build-admin",
+        "pnc-users-sbomer-admin",
+        "pnc-users-deliverables-analyzer-admin",
+        "pnc-users-environment-admin",
+        "pnc-users-artifact-admin",
+        "pnc-users-environment-driver-admin",
+        "pnc-users-cleaner-admin"
+      ],
+      "notBefore": 0,
+      "groups": []
     }
   ]
 }
