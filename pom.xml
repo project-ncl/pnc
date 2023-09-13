@@ -1099,6 +1099,12 @@
         <artifactId>apicurio-registry-common</artifactId>
         <version>${version.apicurio-registry}</version>
       </dependency>
+      <!-- required by kafka compression -->
+      <dependency>
+        <groupId>org.xerial.snappy</groupId>
+        <artifactId>snappy-java</artifactId>
+        <version>1.1.10.3</version>
+      </dependency>
 
       <dependency>
         <groupId>org.infinispan</groupId>

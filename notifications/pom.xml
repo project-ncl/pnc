@@ -103,6 +103,11 @@
             <groupId>io.apicurio</groupId>
             <artifactId>apicurio-registry-common</artifactId>
         </dependency>
+        <!-- required for kafka compression -->
+        <dependency>
+            <groupId>org.xerial.snappy</groupId>
+            <artifactId>snappy-java</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.infinispan</groupId>
