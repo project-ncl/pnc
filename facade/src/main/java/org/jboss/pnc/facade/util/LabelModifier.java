@@ -15,9 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.validation.labels;
+package org.jboss.pnc.facade.util;
 
 import org.jboss.pnc.api.enums.LabelOperation;
+import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 
 import java.util.EnumSet;
 
@@ -35,13 +36,21 @@ public interface LabelModifier<E extends Enum<E>> {
 
     default void checkLabelIsNotPresent(E label, EnumSet<E> labels) {
         if (labels.contains(label)) {
-            throw new InvalidLabelOperationException(label, labels, LabelOperation.ADDED, "label already present in the set of active labels");
+            throw new InvalidLabelOperationException(
+                    label,
+                    labels,
+                    LabelOperation.ADDED,
+                    "label already present in the set of active labels");
         }
     }
 
     default void checkLabelIsPresent(E label, EnumSet<E> labels) {
         if (!labels.contains(label)) {
-            throw new InvalidLabelOperationException(label, labels, LabelOperation.REMOVED, "no such label present in the set of active labels");
+            throw new InvalidLabelOperationException(
+                    label,
+                    labels,
+                    LabelOperation.REMOVED,
+                    "no such label present in the set of active labels");
         }
     }
 }

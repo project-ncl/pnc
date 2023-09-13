@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.validation.labels;
+package org.jboss.pnc.facade.validation;
 
 import lombok.Getter;
 import org.jboss.pnc.api.enums.LabelOperation;
@@ -23,9 +23,9 @@ import org.jboss.pnc.api.enums.LabelOperation;
 import java.util.EnumSet;
 
 /**
- * This exception is being thrown in case the operation would lead the deliverable analyzer report to inconsistent
- * state (e.g. adding RELEASED label when the report was already marked as DELETED) or in case of unexpected operation
- * (e.g. adding SCRATCH label when the SCRATCH label is already present).
+ * This exception is being thrown in case the operation would lead the deliverable analyzer report to inconsistent state
+ * (e.g. adding RELEASED label when the report was already marked as DELETED) or in case of unexpected operation (e.g.
+ * adding SCRATCH label when the SCRATCH label is already present).
  */
 @Getter
 public class InvalidLabelOperationException extends RuntimeException {
@@ -38,7 +38,11 @@ public class InvalidLabelOperationException extends RuntimeException {
 
     private final String reason;
 
-    public InvalidLabelOperationException(Enum<?> label, EnumSet<? extends Enum<?>> labels, LabelOperation operation, String reason) {
+    public InvalidLabelOperationException(
+            Enum<?> label,
+            EnumSet<? extends Enum<?>> labels,
+            LabelOperation operation,
+            String reason) {
         super();
 
         this.label = label;
@@ -49,6 +53,11 @@ public class InvalidLabelOperationException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return String.format("Unable to %s the label %s to labels: %s: %s", operation.getPresentTense(), label, labels, reason);
+        return String.format(
+                "Unable to %s the label %s to labels: %s: %s",
+                operation.getPresentTense(),
+                label,
+                labels,
+                reason);
     }
 }

@@ -22,7 +22,7 @@ import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
-import org.jboss.pnc.facade.validation.labels.DeliverableAnalyzerReportLabelModifier;
+import org.jboss.pnc.facade.util.DeliverableAnalyzerReportLabelModifier;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerReportMapper;
 import org.jboss.pnc.model.Base32LongID;

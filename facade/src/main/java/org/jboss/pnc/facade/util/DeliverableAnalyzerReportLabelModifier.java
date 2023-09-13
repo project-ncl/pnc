@@ -15,10 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.validation.labels;
+package org.jboss.pnc.facade.util;
 
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
+import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 
 import javax.ejb.Stateless;
 import java.util.EnumSet;
@@ -30,7 +31,8 @@ import java.util.EnumSet;
 public class DeliverableAnalyzerReportLabelModifier implements LabelModifier<DeliverableAnalyzerReportLabel> {
 
     @Override
-    public void addLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> labels) throws InvalidLabelOperationException {
+    public void addLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> labels)
+            throws InvalidLabelOperationException {
         checkLabelIsNotPresent(label, labels);
 
         switch (label) {
@@ -39,21 +41,34 @@ public class DeliverableAnalyzerReportLabelModifier implements LabelModifier<Del
                 break;
             case RELEASED:
                 if (labels.contains(DeliverableAnalyzerReportLabel.DELETED)) {
-                    throw new InvalidLabelOperationException(label, labels, LabelOperation.ADDED, "cannot mark as RELEASED the report which is already marked DELETED");
+                    throw new InvalidLabelOperationException(
+                            label,
+                            labels,
+                            LabelOperation.ADDED,
+                            "cannot mark as RELEASED the report which is already marked DELETED");
                 } else if (labels.contains(DeliverableAnalyzerReportLabel.SCRATCH)) {
-                    throw new InvalidLabelOperationException(label, labels, LabelOperation.ADDED, "cannot mark as RELEASED the report which is already marked SCRATCH");
+                    throw new InvalidLabelOperationException(
+                            label,
+                            labels,
+                            LabelOperation.ADDED,
+                            "cannot mark as RELEASED the report which is already marked SCRATCH");
                 }
                 labels.add(label);
                 break;
             case SCRATCH:
-                throw new InvalidLabelOperationException(label, labels, LabelOperation.ADDED, "label can be marked as 'SCRATCH' only when the analysis is executed");
+                throw new InvalidLabelOperationException(
+                        label,
+                        labels,
+                        LabelOperation.ADDED,
+                        "label can be marked as 'SCRATCH' only when the analysis is executed");
             default:
                 throw new UnsupportedOperationException("Adding of label " + label + " is not supported");
         }
     }
 
     @Override
-    public void removeLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> labels) throws InvalidLabelOperationException {
+    public void removeLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> labels)
+            throws InvalidLabelOperationException {
         checkLabelIsPresent(label, labels);
 
         switch (label) {

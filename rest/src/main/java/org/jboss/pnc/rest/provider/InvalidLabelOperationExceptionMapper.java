@@ -18,7 +18,7 @@
 package org.jboss.pnc.rest.provider;
 
 import org.jboss.pnc.dto.response.ErrorResponse;
-import org.jboss.pnc.facade.validation.labels.InvalidLabelOperationException;
+import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
