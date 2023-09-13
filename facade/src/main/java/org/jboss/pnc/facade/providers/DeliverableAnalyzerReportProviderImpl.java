@@ -17,10 +17,12 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import com.google.common.collect.ObjectArrays;
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
+import org.jboss.pnc.facade.validation.labels.DeliverableAnalyzerReportLabelModifier;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerReportMapper;
 import org.jboss.pnc.model.Base32LongID;
@@ -36,6 +38,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,18 +56,22 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
     private ArtifactMapper artifactMapper;
 
+    private DeliverableAnalyzerReportLabelModifier labelModifier;
+
     @Inject
     public DeliverableAnalyzerReportProviderImpl(
             DeliverableAnalyzerReportRepository repository,
             DeliverableArtifactRepository deliverableArtifactRepository,
             DeliverableAnalyzerReportMapper mapper,
-            ArtifactMapper artifactMapper) {
+            ArtifactMapper artifactMapper,
+            DeliverableAnalyzerReportLabelModifier labelModifier) {
         super(repository, mapper, DeliverableAnalyzerReport.class);
 
         this.deliverableAnalyzerReportRepository = repository;
         this.deliverableArtifactRepository = deliverableArtifactRepository;
         this.deliverableAnalyzerReportMapper = mapper;
         this.artifactMapper = artifactMapper;
+        this.labelModifier = labelModifier;
     }
 
     @Override
@@ -96,6 +103,18 @@ public class DeliverableAnalyzerReportProviderImpl extends
                 deliverableArtifactRepository
                         .count(rsqlPredicate, DeliverableArtifactPredicates.withReportId(entityId)),
                 analyzedArtifacts);
+    }
+
+    @Override
+    public void addLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
+        Base32LongID entityId = mapper.getIdMapper().toEntity(id);
+        DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(entityId);
+        EnumSet<DeliverableAnalyzerReportLabel> labels = report.getLabels();
+
+        // 1) Add label to active labels
+        labelModifier.addLabel(request.getLabel(), labels);
+
+        // 2) Store to label history
     }
 
     private AnalyzedArtifact deliverableArtifactToDto(DeliverableArtifact deliverableArtifact) {

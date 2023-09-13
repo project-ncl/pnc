@@ -17,10 +17,13 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
+import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
 
 public interface DeliverableAnalyzerReportProvider {
 
     Page<AnalyzedArtifact> getAnalyzedArtifacts(int pageIndex, int pageSize, String query, String sort, String id);
+
+    void addLabel(String id, DeliverableAnalyzerReportLabelRequest request);
 }

@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.ErrorResponse;
 import org.jboss.pnc.dto.response.Page;
@@ -34,11 +35,14 @@ import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
@@ -61,6 +65,8 @@ public interface DeliverableAnalyzerReportEndpoint {
 
     String GET_ANALYZED_ARTIFACTS = "Gets analyzed artifacts of this deliverable analysis report";
 
+    String ADD_DEL_AN_REPORT_LABEL = "Adds new deliverable analyzer report Label to this report";
+
     @Operation(
             summary = GET_ANALYZED_ARTIFACTS,
             responses = {
@@ -82,4 +88,21 @@ public interface DeliverableAnalyzerReportEndpoint {
     Page<AnalyzedArtifact> getAnalyzedArtifacts(
             @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
             @Valid @BeanParam PageParameters pageParameters);
+
+    @Operation(
+            summary = ADD_DEL_AN_REPORT_LABEL,
+            responses = { @ApiResponse(responseCode = ENTITY_CREATED_CODE, description = ENTITY_CREATED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @Path("/{id}/label")
+    @POST
+    void addLabel(
+            @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
+            @Valid DeliverableAnalyzerReportLabelRequest deliverableAnalyzerReportLabelRequest);
 }

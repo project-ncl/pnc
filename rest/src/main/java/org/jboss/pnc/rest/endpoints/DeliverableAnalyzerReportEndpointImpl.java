@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.rest.endpoints;
 
+import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
@@ -40,5 +41,10 @@ public class DeliverableAnalyzerReportEndpointImpl implements DeliverableAnalyze
                 pageParameters.getQ(),
                 pageParameters.getSort(),
                 id);
+    }
+
+    @Override
+    public void addLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
+        provider.addLabel(id, request);
     }
 }
