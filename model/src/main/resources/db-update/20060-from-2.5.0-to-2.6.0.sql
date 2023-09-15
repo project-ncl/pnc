@@ -63,4 +63,8 @@ BEGIN;
 
     ALTER TABLE build_configuration_align_strats_aud
         ADD CONSTRAINT fk_buildconfiguration_align_strats_aud_buildconfiguration FOREIGN KEY (buildconfiguration_id, rev) REFERENCES buildconfiguration_aud(id, rev);
+
+    ALTER TABLE buildrecord ADD COLUMN scmbuildconfigrevision varchar(255);
+    ALTER TABLE buildrecord ADD COLUMN scmbuildconfigrevisioninternal boolean;
+
 COMMIT;
