@@ -63,7 +63,7 @@ public class BuildExecutionConfigurationRest {
     protected String scmRevision;
     protected String scmTag;
     protected String scmBuildConfigRevision;
-    protected boolean scmBuildConfigRevisionInternal;
+    protected Boolean scmBuildConfigRevisionInternal;
     protected String originRepoURL;
     protected boolean preBuildSyncEnabled;
 
