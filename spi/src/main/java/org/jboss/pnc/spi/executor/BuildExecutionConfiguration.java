@@ -21,6 +21,7 @@ package org.jboss.pnc.spi.executor;
 import org.jboss.pnc.api.enums.AlignmentPreference;
 import org.jboss.pnc.enums.BuildType;
 import org.jboss.pnc.enums.SystemImageType;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.spi.repositorymanager.ArtifactRepository;
 import org.jboss.pnc.spi.repositorymanager.BuildExecution;
 
@@ -50,6 +51,10 @@ public interface BuildExecutionConfiguration extends BuildExecution {
 
     String getScmTag();
 
+    String getScmBuildConfigRevision();
+
+    Boolean isScmBuildConfigRevisionInternal();
+
     String getOriginRepoURL();
 
     boolean isPreBuildSyncEnabled();
@@ -78,6 +83,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String scmRepoURL,
             String scmRevision,
             String scmTag,
+            String scmBuildConfigRevision,
+            Boolean scmBuildConfigRevisionInternal,
             String originRepoURL,
             boolean preBuildSyncEnabled,
             String systemImageId,
@@ -101,6 +108,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
                 scmRepoURL,
                 scmRevision,
                 scmTag,
+                scmBuildConfigRevision,
+                scmBuildConfigRevisionInternal,
                 originRepoURL,
                 preBuildSyncEnabled,
                 systemImageId,
@@ -127,6 +136,8 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             String scmRepoURL,
             String scmRevision,
             String scmTag,
+            String scmBuildConfigRevision,
+            Boolean scmBuildConfigRevisionInternal,
             String originRepoURL,
             boolean preBuildSyncEnabled,
             String systemImageId,
@@ -203,6 +214,16 @@ public interface BuildExecutionConfiguration extends BuildExecution {
             @Override
             public String getScmTag() {
                 return scmTag;
+            }
+
+            @Override
+            public String getScmBuildConfigRevision() {
+                return scmBuildConfigRevision;
+            }
+
+            @Override
+            public Boolean isScmBuildConfigRevisionInternal() {
+                return scmBuildConfigRevisionInternal;
             }
 
             @Override

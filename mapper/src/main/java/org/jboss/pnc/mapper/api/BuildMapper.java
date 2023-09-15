@@ -88,7 +88,8 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
                     "repourLogMd5", "repourLogSha256", "repourLogSize", "buildRecordPushResults",
                     "buildConfigurationId", "buildConfigurationRev", "buildEnvironment", "buildConfigurationAudited",
                     "dependentBuildRecordIds", "dependencyBuildRecordIds", "user", "attributes", "attributesMap",
-                    "buildConfigurationAuditedIdRev", "buildOutputChecksum", "noRebuildRequired" })
+                    "buildConfigurationAuditedIdRev", "buildOutputChecksum", "scmBuildConfigRevision",
+                    "scmBuildConfigRevisionInternal" })
     BuildRef toRef(BuildRecord dbEntity);
 
     @Override
@@ -145,6 +146,8 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "scmRepoURL", ignore = true)
     @Mapping(target = "scmRevision", ignore = true)
     @Mapping(target = "scmTag", ignore = true)
+    @Mapping(target = "scmBuildConfigRevision", ignore = true)
+    @Mapping(target = "scmBuildConfigRevisionInternal", ignore = true)
     @Mapping(target = "buildOutputChecksum", ignore = true)
     @Mapping(target = "sshCommand", ignore = true)
     @Mapping(target = "sshPassword", ignore = true)
@@ -193,6 +196,8 @@ public interface BuildMapper extends UpdatableEntityMapper<Base32LongID, BuildRe
     @Mapping(target = "scmUrl", ignore = true)
     @Mapping(target = "scmRevision", ignore = true)
     @Mapping(target = "scmTag", ignore = true)
+    @Mapping(target = "scmBuildConfigRevision", ignore = true)
+    @Mapping(target = "scmBuildConfigRevisionInternal", ignore = true)
     @Mapping(target = "attributes", ignore = true)
     @Mapping(target = "lastUpdateTime", ignore = true)
     @Mapping(target = "progress", source = "status")
