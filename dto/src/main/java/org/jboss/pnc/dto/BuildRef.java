@@ -122,6 +122,18 @@ public class BuildRef implements DTOEntity {
      */
     protected final Instant lastUpdateTime;
 
+    /**
+     * The commit ID resolved from the build configuration revision when cloning the SCM repository, before any
+     * alignment operation is made. Called Pre-alignment SCM Revision in the UI.
+     */
+    @NoHtml(groups = { WhenCreatingNew.class, WhenUpdating.class })
+    protected final String scmBuildConfigRevision;
+
+    /**
+     * Whether the build configuration revision was only found in the downstream (internal) repository and not upstream.
+     */
+    protected final Boolean scmBuildConfigRevisionInternal;
+
     @JsonPOJOBuilder(withPrefix = "")
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder {

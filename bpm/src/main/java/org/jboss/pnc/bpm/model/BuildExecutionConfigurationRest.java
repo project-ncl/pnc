@@ -62,6 +62,8 @@ public class BuildExecutionConfigurationRest {
     protected String scmRepoURL;
     protected String scmRevision;
     protected String scmTag;
+    protected String scmBuildConfigRevision;
+    protected boolean scmBuildConfigRevisionInternal;
     protected String originRepoURL;
     protected boolean preBuildSyncEnabled;
 
@@ -99,6 +101,8 @@ public class BuildExecutionConfigurationRest {
         scmRepoURL = buildExecutionConfiguration.getScmRepoURL();
         scmRevision = buildExecutionConfiguration.getScmRevision();
         scmTag = buildExecutionConfiguration.getScmTag();
+        scmBuildConfigRevision = buildExecutionConfiguration.getScmBuildConfigRevision();
+        scmBuildConfigRevisionInternal = buildExecutionConfiguration.isScmBuildConfigRevisionInternal();
         originRepoURL = buildExecutionConfiguration.getOriginRepoURL();
         preBuildSyncEnabled = buildExecutionConfiguration.isPreBuildSyncEnabled();
         buildType = buildExecutionConfiguration.getBuildType();
@@ -136,6 +140,8 @@ public class BuildExecutionConfigurationRest {
                 scmRepoURL,
                 scmRevision,
                 scmTag,
+                scmBuildConfigRevision,
+                scmBuildConfigRevisionInternal,
                 originRepoURL,
                 preBuildSyncEnabled,
                 systemImageId,

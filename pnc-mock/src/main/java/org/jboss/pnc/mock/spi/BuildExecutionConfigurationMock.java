@@ -43,6 +43,8 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
     private String scmRepoURL;
     private String scmRevision;
     private String scmTag;
+    private String scmBuildConfigRevision;
+    private Boolean scmBuildConfigRevisionInternal;
     private String originRepoURL;
     private boolean preBuildSyncEnabled;
     private BuildType buildType;
@@ -63,6 +65,8 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
         mock.setBuildScript("mvn install");
         mock.setScmRepoURL("http://www.github.com");
         mock.setScmRevision("f18de64523d5054395d82e24d4e28473a05a3880");
+        mock.setScmBuildConfigRevision("e18de64523d5054395d82e24d4e28473a05a3880");
+        mock.setScmBuildConfigRevisionInternal(false);
         mock.setScmTag("1.0.0.redhat-1");
         mock.setPreBuildSyncEnabled(false);
         mock.setBuildType(BuildType.MVN);
@@ -90,6 +94,8 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
                 "https://pathToRepo.git",
                 "f18de64523d5054395d82e24d4e28473a05a3880",
                 "1.0.0.redhat-1",
+                "e18de64523d5054395d82e24d4e28473a05a3880",
+                false,
                 "https://pathToOriginRepo.git",
                 false,
                 DEFAULT_SYSTEM_IMAGE_ID,
@@ -297,6 +303,24 @@ public class BuildExecutionConfigurationMock implements BuildExecutionConfigurat
 
     public void setDefaultAlignmentParams(String defaultAlignmentParams) {
         this.defaultAlignmentParams = defaultAlignmentParams;
+    }
+
+    @Override
+    public String getScmBuildConfigRevision() {
+        return scmBuildConfigRevision;
+    }
+
+    public void setScmBuildConfigRevision(String scmBuildConfigRevision) {
+        this.scmBuildConfigRevision = scmBuildConfigRevision;
+    }
+
+    @Override
+    public Boolean isScmBuildConfigRevisionInternal() {
+        return scmBuildConfigRevisionInternal;
+    }
+
+    public void setScmBuildConfigRevisionInternal(Boolean scmBuildConfigRevisionInternal) {
+        this.scmBuildConfigRevisionInternal = scmBuildConfigRevisionInternal;
     }
 
 }

@@ -119,7 +119,9 @@ public class Build extends BuildRef {
             ProductMilestoneRef productMilestone,
             String buildOutputChecksum,
             BuildRef noRebuildCause,
-            Instant lastUpdateTime) {
+            Instant lastUpdateTime,
+            String scmBuildConfigRevision,
+            Boolean scmBuildConfigRevisionInternal) {
         super(
                 id,
                 submitTime,
@@ -134,7 +136,9 @@ public class Build extends BuildRef {
                 scmRevision,
                 scmTag,
                 buildOutputChecksum,
-                lastUpdateTime);
+                lastUpdateTime,
+                scmBuildConfigRevision,
+                scmBuildConfigRevisionInternal);
         this.project = project;
         this.scmRepository = scmRepository;
         this.environment = environment;
