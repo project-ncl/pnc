@@ -317,6 +317,9 @@ public class DatastoreAdapter {
                 buildRecordBuilder.scmRepoURL(buildExecutionConfig.getScmRepoURL());
                 buildRecordBuilder.scmRevision(buildExecutionConfig.getScmRevision());
                 buildRecordBuilder.scmTag(buildExecutionConfig.getScmTag());
+                buildRecordBuilder.scmBuildConfigRevision(buildExecutionConfig.getScmBuildConfigRevision());
+                buildRecordBuilder
+                        .scmBuildConfigRevisionInternal(buildExecutionConfig.isScmBuildConfigRevisionInternal());
             } else if (!buildResult.hasFailed()) {
                 return storeResult(
                         buildTask,
@@ -412,7 +415,8 @@ public class DatastoreAdapter {
                 buildRecordBuilder.scmRepoURL(r.getScmRepoURL());
                 buildRecordBuilder.scmRevision(r.getScmRevision());
                 buildRecordBuilder.scmTag(r.getScmTag());
-
+                buildRecordBuilder.scmBuildConfigRevision(r.getScmBuildConfigRevision());
+                buildRecordBuilder.scmBuildConfigRevisionInternal(r.isScmBuildConfigRevisionInternal());
             });
         });
 

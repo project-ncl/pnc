@@ -84,6 +84,12 @@ public class BpmBuildTask {
                 buildConfigurationAudited.getScmRevision(),
                 // SCM Tag is about to be set once it is created after the alignment phase
                 null,
+                // The commit ID resolved from the build configuration revision when cloning the SCM repository, done by
+                // Repour
+                null,
+                // Whether the build configuration revision was only found in the downstream (internal) repository and
+                // not upstream, done by Repour
+                null,
                 buildConfigurationAudited.getRepositoryConfiguration().getExternalUrl(),
                 buildConfigurationAudited.getRepositoryConfiguration().isPreBuildSyncEnabled(),
                 buildConfigurationAudited.getBuildEnvironment().getSystemImageId(),

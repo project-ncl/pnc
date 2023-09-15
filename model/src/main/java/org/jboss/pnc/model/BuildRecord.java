@@ -179,6 +179,17 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
     @Column(updatable = false)
     private String scmTag;
 
+    /**
+     * The scm commit ID resolved from the revision submitted by the user (in the build config). This should always be
+     * an unmodifiable commit ID and should never be a tag or branch.
+     */
+    @Size(max = 255)
+    @Column(updatable = false)
+    protected String scmBuildConfigRevision;
+
+    @Column(updatable = false)
+    protected Boolean scmBuildConfigRevisionInternal;
+
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     @Basic(fetch = FetchType.LAZY)
@@ -459,6 +470,22 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
     public void setScmTag(String scmTag) {
         this.scmTag = scmTag;
+    }
+
+    public String getScmBuildConfigRevision() {
+        return scmBuildConfigRevision;
+    }
+
+    public void setScmBuildConfigRevision(String scmBuildConfigRevision) {
+        this.scmBuildConfigRevision = scmBuildConfigRevision;
+    }
+
+    public Boolean isScmBuildConfigRevisionInternal() {
+        return scmBuildConfigRevisionInternal;
+    }
+
+    public void setScmBuildConfigRevisionInternal(Boolean scmBuildConfigRevisionInternal) {
+        this.scmBuildConfigRevisionInternal = scmBuildConfigRevisionInternal;
     }
 
     public String getRepourLog() {
@@ -963,6 +990,10 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
 
         private Date lastUpdateTime;
 
+        private String scmBuildConfigRevision;
+
+        private Boolean scmBuildConfigRevisionInternal;
+
         public Builder() {
             dependencies = new HashSet<>();
         }
@@ -1003,6 +1034,8 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
             buildRecord.setBuildConfigurationRev(buildConfigurationAuditedRev);
             setLogs(buildRecord, sanitizeLogs);
             buildRecord.setbuildOutputChecksum(buildOutputChecksum);
+            buildRecord.setScmBuildConfigRevision(scmBuildConfigRevision);
+            buildRecord.setScmBuildConfigRevisionInternal(scmBuildConfigRevisionInternal);
 
             if (temporaryBuild == null) {
                 temporaryBuild = true;
@@ -1249,6 +1282,17 @@ public class BuildRecord implements GenericEntity<Base32LongID> {
             this.lastUpdateTime = lastUpdateTime;
             return this;
         }
+
+        public BuildRecord.Builder scmBuildConfigRevision(String scmBuildConfigRevision) {
+            this.scmBuildConfigRevision = scmBuildConfigRevision;
+            return this;
+        }
+
+        public BuildRecord.Builder scmBuildConfigRevisionInternal(Boolean scmBuildConfigRevisionInternal) {
+            this.scmBuildConfigRevisionInternal = scmBuildConfigRevisionInternal;
+            return this;
+        }
+
     }
 
 }
