@@ -32,6 +32,8 @@ import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.facade.validation.InvalidEntityException;
 import org.jboss.pnc.facade.validation.ValidationBuilder;
 import org.jboss.pnc.mapper.api.BuildTaskMappers;
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.BuildRecord;
 import org.jboss.pnc.remotecoordinator.builder.SetRecordTasks;
 import org.jboss.pnc.rest.endpoints.internal.api.BuildTaskEndpoint;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
@@ -46,6 +48,7 @@ import org.jboss.pnc.spi.coordinator.BuildMeta;
 import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.ProcessException;
+import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
 import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.exception.MissingDataException;
 import org.jboss.pnc.spi.exception.RemoteRequestException;
@@ -94,6 +97,9 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
     @Inject
     private BuildProvider buildProvider;
+
+    @Inject
+    private BuildRecordRepository buildRecordRepository;
 
     @Inject
     private GroupBuildProvider groupBuildProvider;
@@ -225,7 +231,8 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
     private void validateBuildHasNotBeenSaved(String buildId, NotificationRequest request)
             throws WebApplicationException {
-        Build build = buildProvider.getSpecific(buildId);
+        // fetch directly from DB
+        BuildRecord build = buildRecordRepository.queryById(new Base32LongID(buildId));
         if (build != null && build.getStatus().isFinal()) {
             logger.error("Notification arrived while Build '{}' is already saved. Request: {}", buildId, request);
             throw new WebApplicationException(
