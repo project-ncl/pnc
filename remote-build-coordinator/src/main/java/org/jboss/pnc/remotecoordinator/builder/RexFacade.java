@@ -23,6 +23,7 @@ import io.opentelemetry.instrumentation.annotations.WithSpan;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.entity.ContentType;
 import org.jboss.pnc.api.constants.HttpHeaders;
+import org.jboss.pnc.api.constants.MDCHeaderKeys;
 import org.jboss.pnc.api.constants.MDCKeys;
 import org.jboss.pnc.api.dto.Request;
 import org.jboss.pnc.bpm.model.MDCParameters;
@@ -44,6 +45,7 @@ import org.jboss.pnc.remotecoordinator.rexclient.exception.TaskNotFoundException
 import org.jboss.pnc.rest.jackson.JacksonProvider;
 import org.jboss.pnc.rex.api.parameters.TaskFilterParameters;
 import org.jboss.pnc.rex.common.enums.Mode;
+import org.jboss.pnc.rex.dto.ConfigurationDTO;
 import org.jboss.pnc.rex.dto.CreateTaskDTO;
 import org.jboss.pnc.rex.dto.EdgeDTO;
 import org.jboss.pnc.rex.dto.TaskDTO;
@@ -74,6 +76,7 @@ import javax.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -185,10 +188,21 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             edges.add(edge);
         }
 
-        CreateGraphRequest createGraphRequest = new CreateGraphRequest(
-                buildConfigSetRecordId == null ? null : String.valueOf(buildConfigSetRecordId),
-                edges,
-                vertices);
+        Map<String, String> mdcHeaderMapping = Arrays.stream(MDCHeaderKeys.values())
+                .collect(Collectors.toMap(MDCHeaderKeys::getHeaderName, MDCHeaderKeys::getMdcKey));
+
+        ConfigurationDTO commonConfig = ConfigurationDTO.builder()
+                .mdcHeaderKeyMapping(mdcHeaderMapping)
+                .passOTELInRequestBody(true)
+                .passMDCInRequestBody(true)
+                .build();
+
+        CreateGraphRequest createGraphRequest = CreateGraphRequest.builder()
+                .graphConfiguration(commonConfig)
+                .correlationID(buildConfigSetRecordId == null ? null : String.valueOf(buildConfigSetRecordId))
+                .edges(edges)
+                .vertices(vertices)
+                .build();
         try {
             rexClient.start(createGraphRequest);
         } catch (ConflictResponseException e) {
