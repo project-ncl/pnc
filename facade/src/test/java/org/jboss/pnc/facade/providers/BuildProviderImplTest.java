@@ -148,6 +148,10 @@ public class BuildProviderImplTest extends AbstractBase32LongIDProviderTest<Buil
                                     && task.getBuildConfigSetRecordId().equals(bcsrid))
                     .collect(Collectors.toList());
         });
+        when(buildCoordinator.getSubmittedBuildTask(anyString())).thenAnswer(inv -> {
+            String id = inv.getArgument(0);
+            return runningBuilds.stream().filter(task -> task.getId().equals(id)).findFirst();
+        });
         when(rsqlPredicateProducer.getSortInfo(any(), any())).thenAnswer(i -> mock(SortInfo.class));
 
         when(keycloakServiceClient.getAuthToken()).thenReturn(USER_TOKEN);
