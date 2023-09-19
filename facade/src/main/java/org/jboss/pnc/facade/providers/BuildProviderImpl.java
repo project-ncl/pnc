@@ -607,23 +607,16 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     @Override
     public Build getSpecific(String buildId) {
-        List<BuildTask> runningBuilds = null;
-        try {
-            runningBuilds = buildCoordinator.getSubmittedBuildTasks();
-        } catch (RemoteRequestException | MissingDataException e) {
-            throw new RuntimeException(e);
-        }
+        // use findByIdFetchProperties instead of super.getSpecific to get 'BuildConfigurationAudited' object
+        Build build = mapper.toDTO(buildRecordRepository.findByIdFetchProperties(parseId(buildId)));
 
-        Build build = runningBuilds.stream()
-                .filter(buildTask -> buildId.equals(buildTask.getId()))
-                .findAny()
-                .map(buildMapper::fromBuildTask)
-                .orElse(null);
-
-        // if build not in runningBuilds, check the database
+        // if build is not in DB, check running builds
         if (build == null) {
-            // use findByIdFetchProperties instead of super.getSpecific to get 'BuildConfigurationAudited' object
-            build = mapper.toDTO(buildRecordRepository.findByIdFetchProperties(parseId(buildId)));
+            try {
+                build = buildCoordinator.getSubmittedBuildTask(buildId).map(buildMapper::fromBuildTask).orElse(null);
+            } catch (RemoteRequestException | MissingDataException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return build;
