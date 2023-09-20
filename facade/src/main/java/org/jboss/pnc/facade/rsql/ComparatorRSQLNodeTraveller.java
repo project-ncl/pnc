@@ -39,25 +39,24 @@ class ComparatorRSQLNodeTraveller<DTO> extends RSQLNodeTraveller<Comparator<DTO>
 
     @Override
     public Comparator<DTO> visit(LogicalNode logicalNode) {
-        return null;
+        Comparator<DTO> comparator = logicalNode.getChildren()
+                .stream()
+                .map(this::visit)
+                .reduce(Comparator::thenComparing)
+                .orElseThrow(() -> new RSQLException("No nodes for RSQL comparison found."));
+        return comparator;
     }
 
     @Override
     public Comparator<DTO> visit(ComparisonNode node) {
         logger.trace("Sorting direction - {}, arguments {}", node.getOperator(), node.getArguments());
-        Comparator<DTO> comparator = null;
-        for (String argument : node.getArguments()) {
-            Comparator<DTO> comp = Comparator
-                    .comparing(dto -> getProperty(dto, argument), Comparator.nullsLast(Comparator.naturalOrder()));
-            if (comparator == null) {
-                comparator = comp;
-            } else {
-                comparator = comparator.thenComparing(comp);
-            }
-        }
-        if (comparator == null) {
-            throw new RSQLException("No argument for RSQL comparsion found.");
-        }
+
+        Comparator<DTO> comparator = node.getArguments()
+                .stream()
+                .map(this::getComparator)
+                .reduce(Comparator::thenComparing)
+                .orElseThrow(() -> new RSQLException("No argument for RSQL comparison found."));
+
         if (node.getOperator().equals(DESC)) {
             comparator = comparator.reversed();
         }
@@ -65,14 +64,19 @@ class ComparatorRSQLNodeTraveller<DTO> extends RSQLNodeTraveller<Comparator<DTO>
         return comparator;
     }
 
-    private Comparable getProperty(Object object, String argument) {
+    private Comparator<DTO> getComparator(String argument) {
+        return Comparator
+                .comparing((DTO dto) -> getProperty(dto, argument), Comparator.nullsLast(Comparator.naturalOrder()));
+    }
+
+    private Comparable<Object> getProperty(DTO object, String argument) {
         try {
             String getter = "get" + StringUtils.firstCharToUpperCase(argument);
             Method method = object.getClass().getMethod(getter);
             Class<?> returnType = method.getReturnType();
             Object obj = method.invoke(object);
             if (Comparable.class.isAssignableFrom(returnType)) {
-                return (Comparable) obj;
+                return (Comparable<Object>) obj;
             } else {
                 throw new RSQLException("Field " + argument + " is not comparable.");
             }
