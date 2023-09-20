@@ -19,6 +19,7 @@ package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
+import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 /**
@@ -27,4 +28,11 @@ import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 public interface DeliverableAnalyzerLabelEntryRepository
         extends Repository<DeliverableAnalyzerLabelEntry, Base32LongID> {
 
+    /**
+     * Gets the latest changeOrder for the {@link DeliverableAnalyzerReport} given by its id.
+     *
+     * @param reportId the ID of the {@link DeliverableAnalyzerReport}
+     * @return latest changeOrder
+     */
+    Integer getLatestChangeOrderOfReport(Base32LongID reportId);
 }

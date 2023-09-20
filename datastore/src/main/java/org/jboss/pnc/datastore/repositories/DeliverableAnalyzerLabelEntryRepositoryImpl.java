@@ -21,11 +21,17 @@ import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
+import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry_;
+import org.jboss.pnc.model.DeliverableAnalyzerReport_;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
+import javax.persistence.NoResultException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
-@Stateless
+@ApplicationScoped
 public class DeliverableAnalyzerLabelEntryRepositoryImpl
         extends AbstractRepository<DeliverableAnalyzerLabelEntry, Base32LongID>
         implements DeliverableAnalyzerLabelEntryRepository {
@@ -40,5 +46,24 @@ public class DeliverableAnalyzerLabelEntryRepositoryImpl
             entity.setId(new Base32LongID(Sequence.nextBase32Id()));
         }
         return super.save(entity);
+    }
+
+    @Override
+    public Integer getLatestChangeOrderOfReport(Base32LongID id) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Integer> query = cb.createQuery(Integer.class);
+
+        Root<DeliverableAnalyzerLabelEntry> deliverableAnalyzerReportsLabelHistory = query
+                .from(DeliverableAnalyzerLabelEntry.class);
+
+        query.select(cb.max(deliverableAnalyzerReportsLabelHistory.get(DeliverableAnalyzerLabelEntry_.changeOrder)));
+        query.where(cb.equal(deliverableAnalyzerReportsLabelHistory.get(DeliverableAnalyzerLabelEntry_.report).get(DeliverableAnalyzerReport_.id), id));
+
+        try {
+            return entityManager.createQuery(query).getSingleResult();
+        } catch (NoResultException ex) {
+            // In case the label history is empty, return the starting orderId
+            return 1;
+        }
     }
 }
