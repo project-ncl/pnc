@@ -189,6 +189,14 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
         }
 
         Map<String, String> mdcHeaderMapping = Arrays.stream(MDCHeaderKeys.values())
+                .filter(
+                        key -> !EnumSet
+                                .of(
+                                        MDCHeaderKeys.SLF4J_SPAN_ID,
+                                        MDCHeaderKeys.SLF4J_TRACE_ID,
+                                        MDCHeaderKeys.SLF4J_TRACE_FLAGS,
+                                        MDCHeaderKeys.SLF4J_TRACE_STATE)
+                                .contains(key))
                 .collect(Collectors.toMap(MDCHeaderKeys::getHeaderName, MDCHeaderKeys::getMdcKey));
 
         ConfigurationDTO commonConfig = ConfigurationDTO.builder()

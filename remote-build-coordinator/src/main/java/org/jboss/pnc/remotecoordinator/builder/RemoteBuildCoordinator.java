@@ -226,10 +226,10 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         } catch (ScheduleConflictException | BuildConflictException | BuildRequestException e) {
             log.warn("Cannot prepare build.", e);
             throw e;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             String errorMessage = "Unexpected error while trying to schedule build.";
             log.error(errorMessage, e);
-            throw new CoreException(errorMessage + " " + e.getMessage());
+            throw new CoreException(errorMessage + " " + e.getMessage(), e);
         }
     }
 
