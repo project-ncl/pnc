@@ -17,18 +17,21 @@
  */
 package org.jboss.pnc.facade.providers;
 
-import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
 import org.jboss.pnc.facade.util.DeliverableAnalyzerReportLabelModifier;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerReportMapper;
 import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.spi.datastore.predicates.DeliverableArtifactPredicates;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
@@ -36,14 +39,15 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.annotation.security.PermitAll;
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.util.EnumSet;
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @PermitAll
-@Stateless
+@ApplicationScoped
 public class DeliverableAnalyzerReportProviderImpl extends
         AbstractProvider<Base32LongID, DeliverableAnalyzerReport, org.jboss.pnc.dto.DeliverableAnalyzerReport, org.jboss.pnc.dto.DeliverableAnalyzerReport>
         implements DeliverableAnalyzerReportProvider {
@@ -52,7 +56,11 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
     private DeliverableArtifactRepository deliverableArtifactRepository;
 
+    private DeliverableAnalyzerLabelEntryRepository deliverableAnalyzerLabelEntryRepository;
+
     private DeliverableAnalyzerReportMapper deliverableAnalyzerReportMapper;
+
+    private UserService userService;
 
     private ArtifactMapper artifactMapper;
 
@@ -62,6 +70,8 @@ public class DeliverableAnalyzerReportProviderImpl extends
     public DeliverableAnalyzerReportProviderImpl(
             DeliverableAnalyzerReportRepository repository,
             DeliverableArtifactRepository deliverableArtifactRepository,
+            DeliverableAnalyzerLabelEntryRepository deliverableAnalyzerLabelEntryRepository,
+            UserService userService,
             DeliverableAnalyzerReportMapper mapper,
             ArtifactMapper artifactMapper,
             DeliverableAnalyzerReportLabelModifier labelModifier) {
@@ -69,6 +79,8 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
         this.deliverableAnalyzerReportRepository = repository;
         this.deliverableArtifactRepository = deliverableArtifactRepository;
+        this.deliverableAnalyzerLabelEntryRepository = deliverableAnalyzerLabelEntryRepository;
+        this.userService = userService;
         this.deliverableAnalyzerReportMapper = mapper;
         this.artifactMapper = artifactMapper;
         this.labelModifier = labelModifier;
@@ -107,14 +119,23 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
     @Override
     public void addLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
-        Base32LongID entityId = mapper.getIdMapper().toEntity(id);
-        DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(entityId);
-        EnumSet<DeliverableAnalyzerReportLabel> labels = report.getLabels();
+        Base32LongID reportId = mapper.getIdMapper().toEntity(id);
+        DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
+        DeliverableAnalyzerLabelEntry labelHistoryEntry = DeliverableAnalyzerLabelEntry.builder()
+                .report(report)
+                .changeOrder(deliverableAnalyzerLabelEntryRepository.getLatestChangeOrderOfReport(report.getId()))
+                .entryTime(Date.from(Instant.now()))
+                .user(userService.currentUser())
+                .reason(request.getReason())
+                .label(request.getLabel())
+                .change(LabelOperation.ADDED)
+                .build();
 
-        // 1) Add label to active labels
-        labelModifier.addLabel(request.getLabel(), labels);
-
-        // 2) Store to label history
+        labelModifier.addLabelToActiveLabelsAndModifyLabelHistory(
+                reportId,
+                request.getLabel(),
+                report.getLabels(),
+                labelHistoryEntry);
     }
 
     private AnalyzedArtifact deliverableArtifactToDto(DeliverableArtifact deliverableArtifact) {

@@ -57,7 +57,11 @@ public class DeliverableAnalyzerLabelEntryRepositoryImpl
                 .from(DeliverableAnalyzerLabelEntry.class);
 
         query.select(cb.max(deliverableAnalyzerReportsLabelHistory.get(DeliverableAnalyzerLabelEntry_.changeOrder)));
-        query.where(cb.equal(deliverableAnalyzerReportsLabelHistory.get(DeliverableAnalyzerLabelEntry_.report).get(DeliverableAnalyzerReport_.id), id));
+        query.where(
+                cb.equal(
+                        deliverableAnalyzerReportsLabelHistory.get(DeliverableAnalyzerLabelEntry_.report)
+                                .get(DeliverableAnalyzerReport_.id),
+                        id));
 
         try {
             return entityManager.createQuery(query).getSingleResult();

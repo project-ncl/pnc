@@ -29,6 +29,8 @@ public class InvalidLabelOperationExceptionMapper implements ExceptionMapper<Inv
 
     @Override
     public Response toResponse(InvalidLabelOperationException e) {
-        return Response.status(Response.Status.CONFLICT).entity(new ErrorResponse("InvalidLabelOperationException", e.getMessage())).build();
+        return Response.status(Response.Status.CONFLICT)
+                .entity(new ErrorResponse("InvalidLabelOperationException", e.getMessage()))
+                .build();
     }
 }

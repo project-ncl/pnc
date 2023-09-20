@@ -20,65 +20,102 @@ package org.jboss.pnc.facade.util;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
+import org.jboss.pnc.model.DeliverableAnalyzerReport;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
 
-import javax.ejb.Stateless;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.EnumSet;
 
 /**
  * {@link LabelModifier} for {@link DeliverableAnalyzerReportLabel} entity.
  */
-@Stateless
-public class DeliverableAnalyzerReportLabelModifier implements LabelModifier<DeliverableAnalyzerReportLabel> {
+@ApplicationScoped
+public class DeliverableAnalyzerReportLabelModifier extends
+        LabelModifier<Base32LongID, Base32LongID, DeliverableAnalyzerReportLabel, DeliverableAnalyzerLabelEntry> {
 
-    @Override
-    public void addLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> labels)
-            throws InvalidLabelOperationException {
-        checkLabelIsNotPresent(label, labels);
+    @Inject
+    private DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
 
-        switch (label) {
-            case DELETED:
-                labels.add(label);
-                break;
-            case RELEASED:
-                if (labels.contains(DeliverableAnalyzerReportLabel.DELETED)) {
-                    throw new InvalidLabelOperationException(
-                            label,
-                            labels,
-                            LabelOperation.ADDED,
-                            "cannot mark as RELEASED the report which is already marked DELETED");
-                } else if (labels.contains(DeliverableAnalyzerReportLabel.SCRATCH)) {
-                    throw new InvalidLabelOperationException(
-                            label,
-                            labels,
-                            LabelOperation.ADDED,
-                            "cannot mark as RELEASED the report which is already marked SCRATCH");
-                }
-                labels.add(label);
-                break;
-            case SCRATCH:
-                throw new InvalidLabelOperationException(
-                        label,
-                        labels,
-                        LabelOperation.ADDED,
-                        "label can be marked as 'SCRATCH' only when the analysis is executed");
-            default:
-                throw new UnsupportedOperationException("Adding of label " + label + " is not supported");
-        }
+    @Inject
+    private DeliverableAnalyzerLabelEntryRepository deliverableAnalyzerLabelEntryRepository;
+
+    public static final String ERR_DELETED_ADD_RELEASED = "cannot mark as RELEASED the report which is already marked DELETED";
+    public static final String ERR_SCRATCH_ADD_RELEASED = "cannot mark as RELEASED the report which is already marked SCRATCH";
+    public static final String ERR_ADD_SCRATCH = "label can be marked as SCRATCH only when the analysis is executed";
+
+    @Inject
+    public DeliverableAnalyzerReportLabelModifier() {
+        super();
+
+        super.labelHistoryRepository = deliverableAnalyzerLabelEntryRepository;
     }
 
     @Override
-    public void removeLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> labels)
-            throws InvalidLabelOperationException {
-        checkLabelIsPresent(label, labels);
+    public void addLabelToActiveLabels(
+            Base32LongID reportId,
+            DeliverableAnalyzerReportLabel label,
+            EnumSet<DeliverableAnalyzerReportLabel> activeLabels) throws InvalidLabelOperationException {
+        checkLabelIsNotPresent(label, activeLabels);
+
+        switch (label) {
+            case DELETED:
+                if (activeLabels.contains(DeliverableAnalyzerReportLabel.RELEASED)) {
+                    activeLabels.remove(DeliverableAnalyzerReportLabel.RELEASED);
+                }
+                activeLabels.add(label);
+                break;
+            case RELEASED:
+                if (activeLabels.contains(DeliverableAnalyzerReportLabel.DELETED)) {
+                    invalid(label, activeLabels, LabelOperation.ADDED, ERR_DELETED_ADD_RELEASED);
+                } else if (activeLabels.contains(DeliverableAnalyzerReportLabel.SCRATCH)) {
+                    invalid(label, activeLabels, LabelOperation.ADDED, ERR_SCRATCH_ADD_RELEASED);
+                }
+                activeLabels.add(label);
+                break;
+            case SCRATCH:
+                invalid(label, activeLabels, LabelOperation.ADDED, ERR_ADD_SCRATCH);
+            default:
+                throw new UnsupportedOperationException("Adding of label " + label + " is not supported");
+        }
+
+        saveActiveLabels(reportId, activeLabels);
+    }
+
+    @Override
+    public void removeLabelFromActiveLabels(
+            Base32LongID reportId,
+            DeliverableAnalyzerReportLabel label,
+            EnumSet<DeliverableAnalyzerReportLabel> activeLabels) throws InvalidLabelOperationException {
+        checkLabelIsPresent(label, activeLabels);
 
         switch (label) {
             case DELETED:
             case RELEASED:
             case SCRATCH:
-                labels.remove(label);
+                activeLabels.remove(label);
                 break;
             default:
                 throw new UnsupportedOperationException("Deleting of label " + label + " is not supported");
         }
+
+        saveActiveLabels(reportId, activeLabels);
+    }
+
+    private void saveActiveLabels(Base32LongID reportId, EnumSet<DeliverableAnalyzerReportLabel> activeLabels) {
+        DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
+        report.setLabels(activeLabels);
+        deliverableAnalyzerReportRepository.save(report);
+    }
+
+    private static void invalid(
+            DeliverableAnalyzerReportLabel label,
+            EnumSet<DeliverableAnalyzerReportLabel> labels,
+            LabelOperation labelOperation,
+            String reason) {
+        throw new InvalidLabelOperationException(label, labels, labelOperation, reason);
     }
 }

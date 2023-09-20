@@ -19,22 +19,61 @@ package org.jboss.pnc.facade.util;
 
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
+import org.jboss.pnc.model.GenericEntity;
+import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.io.Serializable;
 import java.util.EnumSet;
 
 /**
- * The class implementing this interface is able to add (remove) new (old) label to (from) the set of active labels.
- * Such a class complies with the rules of adding (removing) label for the given entity type E.
+ * The class implementing this interface is able to add (remove) new (old) label to (from) the set of active labels and
+ * update the label history. Such a class complies with the rules of adding (removing) label for the given entity type
+ * E.
  *
- * @param <E> entity
+ * @param <L> label entity, e.g. {@link org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel}
+ * @param <LH> label history entity, e.g. {@link org.jboss.pnc.model.DeliverableAnalyzerLabelEntry}
+ * @param <LH_ID> the ID type of the label history entity
+ * @param <LO_ID> the ID type of the labeled object entity, which is e.g.
+ *        {@link org.jboss.pnc.model.DeliverableAnalyzerReport}
  */
-public interface LabelModifier<E extends Enum<E>> {
+public abstract class LabelModifier<LO_ID extends Serializable, LH_ID extends Serializable, L extends Enum<L>, LH extends GenericEntity<LH_ID>> {
 
-    void addLabel(E label, EnumSet<E> labels) throws InvalidLabelOperationException;
+    @Inject
+    protected Repository<LH, LH_ID> labelHistoryRepository;
 
-    void removeLabel(E label, EnumSet<E> labels) throws InvalidLabelOperationException;
+    public abstract void addLabelToActiveLabels(LO_ID labeledObjectId, L label, EnumSet<L> activeLabels)
+            throws InvalidLabelOperationException;
 
-    default void checkLabelIsNotPresent(E label, EnumSet<E> labels) {
+    public abstract void removeLabelFromActiveLabels(LO_ID labeledObjectId, L label, EnumSet<L> activeLabels)
+            throws InvalidLabelOperationException;
+
+    @Transactional
+    public void addLabelToActiveLabelsAndModifyLabelHistory(
+            LO_ID labeledObjectId,
+            L label,
+            EnumSet<L> activeLabels,
+            LH labelHistoryEntry) {
+        addLabelToActiveLabels(labeledObjectId, label, activeLabels);
+        modifyLabelHistory(labelHistoryEntry);
+    }
+
+    @Transactional
+    public void removeLabelFromActiveLabelsAndModifyLabelHistory(
+            LO_ID labeledObjectId,
+            L label,
+            EnumSet<L> activeLabels,
+            LH labelHistoryEntry) {
+        removeLabelFromActiveLabels(labeledObjectId, label, activeLabels);
+        modifyLabelHistory(labelHistoryEntry);
+    }
+
+    private void modifyLabelHistory(LH labelHistoryEntry) {
+        labelHistoryRepository.save(labelHistoryEntry);
+    }
+
+    protected void checkLabelIsNotPresent(L label, EnumSet<L> labels) {
         if (labels.contains(label)) {
             throw new InvalidLabelOperationException(
                     label,
@@ -44,7 +83,7 @@ public interface LabelModifier<E extends Enum<E>> {
         }
     }
 
-    default void checkLabelIsPresent(E label, EnumSet<E> labels) {
+    protected void checkLabelIsPresent(L label, EnumSet<L> labels) {
         if (!labels.contains(label)) {
             throw new InvalidLabelOperationException(
                     label,
