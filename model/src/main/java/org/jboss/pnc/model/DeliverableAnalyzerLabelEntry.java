@@ -69,8 +69,8 @@ public class DeliverableAnalyzerLabelEntry implements GenericEntity<Base32LongID
      * attribute to create unique constraint in order to prevent 2 threads to modify the same report in the same time
      * and bring it to the inconsistent state.
      */
-    @Column(name = "order_id")
-    private Integer orderId;
+    @Column(name = "change_order")
+    private Integer changeOrder;
 
     /**
      * The date of the change.
