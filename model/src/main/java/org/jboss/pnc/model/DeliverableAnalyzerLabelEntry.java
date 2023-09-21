@@ -32,7 +32,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import java.util.Date;
@@ -80,7 +79,8 @@ public class DeliverableAnalyzerLabelEntry implements GenericEntity<Base32LongID
     /**
      * The user who triggered the change.
      */
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_delanlabelentry_user"))
     private User user;
 
     /**
