@@ -88,7 +88,7 @@ CREATE TABLE deliverable_artifact
     (
         report_id           BIGINT                  NOT NULL,
         artifact_id         INTEGER                 NOT NULL,
-        built_from_source   BOOLEAN,
+        built_from_source   BOOLEAN                 NOT NULL,
         brew_build_id       INTEGER,
         PRIMARY KEY (report_id, artifact_id)
     );
