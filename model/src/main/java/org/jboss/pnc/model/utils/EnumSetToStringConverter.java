@@ -18,8 +18,8 @@
 package org.jboss.pnc.model.utils;
 
 import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
 import java.util.EnumSet;
+import java.util.StringJoiner;
 
 /**
  * Generic converter which converts between EnumSet<E> and String. It automatically converts the attribute annotated
@@ -44,15 +44,11 @@ public abstract class EnumSetToStringConverter<E extends Enum<E>> implements Att
 
     @Override
     public String convertToDatabaseColumn(EnumSet<E> labelsSet) {
-        var sb = new StringBuilder();
-        var sep = "";
-
+        StringJoiner joiner = new StringJoiner(SEPARATOR);
         for (E label : labelsSet) {
-            sb.append(sep).append(label.name());
-            sep = SEPARATOR;
+            joiner.add(label.name());
         }
-
-        return sb.toString();
+        return joiner.toString();
     }
 
     @Override
