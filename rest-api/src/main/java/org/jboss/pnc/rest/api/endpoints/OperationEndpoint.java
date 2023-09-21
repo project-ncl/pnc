@@ -141,7 +141,7 @@ public interface OperationEndpoint {
                     @ApiResponse(
                             responseCode = SUCCESS_CODE,
                             description = SUCCESS_DESCRIPTION,
-                            content = @Content(schema = @Schema(implementation = Product.class))),
+                            content = @Content(schema = @Schema(implementation = DeliverableAnalyzerOperation.class))),
                     @ApiResponse(responseCode = NOT_FOUND_CODE, description = NOT_FOUND_DESCRIPTION),
                     @ApiResponse(
                             responseCode = SERVER_ERROR_CODE,
