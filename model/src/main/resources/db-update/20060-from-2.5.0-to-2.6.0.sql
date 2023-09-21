@@ -73,7 +73,7 @@ BEGIN;
 CREATE TABLE delan_report
     (
         operation_id        BIGINT                  NOT NULL,
-        label               VARCHAR(255),
+        labels              VARCHAR(1023),
         PRIMARY KEY (operation_id)
     );
     ALTER TABLE delan_report
