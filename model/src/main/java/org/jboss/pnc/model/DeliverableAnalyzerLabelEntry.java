@@ -49,8 +49,8 @@ import java.util.Date;
 @Entity
 @Table(
         uniqueConstraints = @UniqueConstraint(
-                name = "uk_delanlabelentry_id_orderid",
-                columnNames = { "id", "order_id" }))
+                name = "uk_delanlabelentry_id_report",
+                columnNames = { "id", "report_id" }))
 public class DeliverableAnalyzerLabelEntry implements GenericEntity<Base32LongID> {
 
     @EmbeddedId
