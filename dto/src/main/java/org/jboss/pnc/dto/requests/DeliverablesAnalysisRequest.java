@@ -26,9 +26,12 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Data
-@Jacksonized
 @Builder(builderClassName = "Builder")
+@Jacksonized
 public class DeliverablesAnalysisRequest {
+
     @NotEmpty
     private final List<@URL String> deliverablesUrls;
+
+    private boolean runAsScratchAnalysis;
 }

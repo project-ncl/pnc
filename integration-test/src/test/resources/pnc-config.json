@@ -45,6 +45,9 @@
         },
         {
           "@module-config": "bpm-config",
+          "analyzeDeliverablesBpmProcessId": "100",
+          "bpmNewBaseUrl": "http://localhost:8288",
+          "bpmNewDeploymentId": "bpm",
           "httpConnectionRequestTimeout": "${env.HTTP_CONNECTION_REQUEST_TIMEOUT}"
         },
         {
