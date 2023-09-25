@@ -17,8 +17,11 @@
  */
 package org.jboss.pnc.spi.datastore.repositories.api;
 
+import javax.persistence.metamodel.SingularAttribute;
 import java.util.List;
 
 public interface SortInfo<T> {
     List<OrderInfo<T>> orders();
+
+    SortInfo<T> thenOrderBy(SingularAttribute<T, ? > attribute, OrderInfo.SortingDirection direction);
 }
