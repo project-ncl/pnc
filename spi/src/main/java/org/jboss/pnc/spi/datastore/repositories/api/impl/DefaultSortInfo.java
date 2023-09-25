@@ -30,11 +30,15 @@ public class DefaultSortInfo<T> implements SortInfo<T> {
     private final List<OrderInfo<T>> order;
 
     public DefaultSortInfo(List<OrderInfo<T>> orderInfo) {
-        this.order = List.copyOf(orderInfo);
+        this.order = new ArrayList<>(orderInfo);
     }
 
     public DefaultSortInfo(OrderInfo<T> orderInfo) {
-        this.order = Collections.singletonList(orderInfo);
+        this(Collections.singletonList(orderInfo));
+    }
+
+    public DefaultSortInfo() {
+        this.order = new ArrayList<>();
     }
 
     public static <T> SortInfo<T> asc(SingularAttribute<T, ?> field) {
@@ -52,39 +56,33 @@ public class DefaultSortInfo<T> implements SortInfo<T> {
     }
 
     public static <T> SortInfo<T> descs(SingularAttribute<T, ?>... fields) {
-        return appendAll(null, OrderInfo.SortingDirection.DESC, fields);
+        return new DefaultSortInfo<T>().appendAll(OrderInfo.SortingDirection.DESC, fields);
     }
 
     public static <T> SortInfo<T> ascs(SingularAttribute<T, ?>... fields) {
-        return appendAll(null, OrderInfo.SortingDirection.ASC, fields);
+        return new DefaultSortInfo<T>().appendAll(OrderInfo.SortingDirection.ASC, fields);
     }
 
-    public static <T> SortInfo<T> appendAll(
-            SortInfo<T> order,
+    private DefaultSortInfo<T> appendAll(
             OrderInfo.SortingDirection dir,
             SingularAttribute<T, ?>... fields) {
-        List<OrderInfo<T>> orders = new ArrayList<>(order == null ? List.of() : order.orders());
-
-        if (fields == null || fields.length == 0) {
-            return order;
+        if (fields != null) {
+            for (SingularAttribute<T, ?> attribute : fields) {
+                order.add(new DefaultOrderInfo<>(dir, root -> root.get(attribute)));
+            }
         }
 
-        for (SingularAttribute<T, ?> attribute : fields) {
-            orders.add(new DefaultOrderInfo<>(dir, root -> root.get(attribute)));
-        }
-
-        return new DefaultSortInfo<>(orders);
+        return this;
     }
 
-    public static <T> SortInfo<T> append(
-            SortInfo<T> sortInfo,
+    public DefaultSortInfo<T> thenOrderBy(
             SingularAttribute<T, ?> attribute,
             OrderInfo.SortingDirection direction) {
-        return appendAll(sortInfo, direction, attribute);
+        return appendAll(direction, attribute);
     }
 
     @Override
     public List<OrderInfo<T>> orders() {
-        return order;
+        return Collections.unmodifiableList(order);
     }
 }

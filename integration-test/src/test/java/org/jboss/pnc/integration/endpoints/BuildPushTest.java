@@ -23,6 +23,7 @@ import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.pnc.causewayclient.DefaultCausewayClient;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.requests.BuildPushParameters;
@@ -31,6 +32,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.mock.client.CausewayClientMock;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
@@ -43,7 +45,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.ForbiddenException;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -73,7 +77,15 @@ public class BuildPushTest {
     @BeforeClass
     public static void prepareData() throws Exception {
         BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
-        Iterator<Build> it = bc.getAll(null, null).iterator();
+        RemoteCollection<Build> builds = bc.getAll(null, null);
+
+        // Sort by ID to retain IDs in the test
+        // After, NCL-8156 the default ordering was fixed and changed to submitTime
+        Iterator<Build> it = builds.getAll()
+                .stream()
+                .sorted(Comparator.comparingLong(build -> new Base32LongID(build.getId()).getLongId()))
+                .iterator();
+
         buildId = it.next().getId();
         build2Id = it.next().getId();
     }
