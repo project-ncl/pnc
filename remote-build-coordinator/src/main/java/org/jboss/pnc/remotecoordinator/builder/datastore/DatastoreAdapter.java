@@ -382,6 +382,7 @@ public class DatastoreAdapter {
         e.printStackTrace(new PrintWriter(stackTraceWriter));
         errorLog.append(stackTraceWriter.getBuffer());
         buildRecordBuilder.buildLog(errorLog.toString());
+        userLog.error(errorLog.toString());
 
         if (getBuildStatus(buildResult) != null) {
             String message;
