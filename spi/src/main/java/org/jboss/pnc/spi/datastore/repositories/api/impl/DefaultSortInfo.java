@@ -22,6 +22,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,14 +41,46 @@ public class DefaultSortInfo<T> implements SortInfo<T> {
         DefaultOrderInfo<T> orderInfo = new DefaultOrderInfo<>(
                 OrderInfo.SortingDirection.ASC,
                 (Root<T> root) -> root.get(field));
-        return new DefaultSortInfo(orderInfo);
+        return new DefaultSortInfo<>(orderInfo);
     }
 
     public static <T> SortInfo<T> desc(SingularAttribute<T, ?> field) {
         DefaultOrderInfo<T> orderInfo = new DefaultOrderInfo<>(
                 OrderInfo.SortingDirection.DESC,
                 (Root<T> root) -> root.get(field));
-        return new DefaultSortInfo(orderInfo);
+        return new DefaultSortInfo<>(orderInfo);
+    }
+
+    public static <T> SortInfo<T> descs(SingularAttribute<T, ?>... fields) {
+        return appendAll(null, OrderInfo.SortingDirection.DESC, fields);
+    }
+
+    public static <T> SortInfo<T> ascs(SingularAttribute<T, ?>... fields) {
+        return appendAll(null, OrderInfo.SortingDirection.ASC, fields);
+    }
+
+    public static <T> SortInfo<T> appendAll(
+            SortInfo<T> order,
+            OrderInfo.SortingDirection dir,
+            SingularAttribute<T, ?>... fields) {
+        List<OrderInfo<T>> orders = new ArrayList<>(order == null ? List.of() : order.orders());
+
+        if (fields == null || fields.length == 0) {
+            return order;
+        }
+
+        for (SingularAttribute<T, ?> attribute : fields) {
+            orders.add(new DefaultOrderInfo<>(dir, root -> root.get(attribute)));
+        }
+
+        return new DefaultSortInfo<>(orders);
+    }
+
+    public static <T> SortInfo<T> append(
+            SortInfo<T> sortInfo,
+            SingularAttribute<T, ?> attribute,
+            OrderInfo.SortingDirection direction) {
+        return appendAll(sortInfo, direction, attribute);
     }
 
     @Override
