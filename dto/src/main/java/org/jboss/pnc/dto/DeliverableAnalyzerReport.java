@@ -37,7 +37,7 @@ import java.util.Map;
 public class DeliverableAnalyzerReport implements DTOEntity {
 
     /**
-     * ID of the report (which is in fact the same as the ID of the deliverable analyzer operation to which this report
+     * ID of the report (which is in fact the same as the ID of the deliverable analyzer operation by which this report
      * was done).
      */
     String id;
