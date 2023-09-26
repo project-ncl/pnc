@@ -41,7 +41,7 @@ public class AnalyzedArtifact {
     Integer brewId;
 
     /**
-     * Another required attributes of the artifact.
+     * Artifact's actual data.
      */
     Artifact artifact;
 }
