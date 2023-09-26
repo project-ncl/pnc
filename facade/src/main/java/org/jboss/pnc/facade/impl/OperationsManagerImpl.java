@@ -123,9 +123,9 @@ public class OperationsManagerImpl implements OperationsManager {
         ProductMilestone milestone = null;
         if (milestoneId != null) {
             milestone = productMilestoneRepository.queryById(ProductMilestoneMapper.idMapper.toEntity(milestoneId));
-        }
-        if (milestone == null && milestoneId != null) {
-            throw new EmptyEntityException("Milestone with id " + milestoneId + " doesn't exist");
+            if (milestone == null) {
+                throw new EmptyEntityException("Milestone with id " + milestoneId + " doesn't exist");
+            }
         }
 
         String operationId = Sequence.nextBase32Id();
