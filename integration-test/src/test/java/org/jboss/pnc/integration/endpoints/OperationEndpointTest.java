@@ -17,14 +17,6 @@
  */
 package org.jboss.pnc.integration.endpoints;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -32,18 +24,32 @@ import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.OperationClient;
-import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.pnc.LongBase32IdConverter;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.requests.ScratchDeliverablesAnalysisRequest;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
+import org.jboss.pnc.integration.utils.BPMWireMock;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -54,9 +60,24 @@ public class OperationEndpointTest {
 
     private OperationClient client = new OperationClient(RestClientConfiguration.asUser());
 
+    private static BPMWireMock bpm;
+
     @Deployment
     public static EnterpriseArchive deploy() {
         return Deployments.testEar();
+    }
+
+    @BeforeClass
+    public static void beforeClass() {
+        var bpmPort = 8288;
+        bpm = new BPMWireMock(bpmPort);
+        logger.info("Mocked BPM started at port: " + bpmPort);
+    }
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        bpm.close();
+        logger.info("Mocked BPM stopped");
     }
 
     @Test
@@ -139,5 +160,23 @@ public class OperationEndpointTest {
         assertThat(finishedOperationReturned.getProgressStatus()).isEqualTo(ProgressStatus.FINISHED);
         assertThat(finishedOperationReturned.getResult()).isEqualTo(OperationResult.FAILED);
         assertThat(finishedOperationReturned.getEndTime()).isAfter(beforeFinish);
+    }
+
+    @Test
+    public void shouldScratchFlagBeTrue() throws ClientException {
+        // when
+        client.startScratchDeliverableAnalysis(
+                ScratchDeliverablesAnalysisRequest.builder()
+                        .deliverablesUrls(
+                                List.of(
+                                        "https://indy.psi.idk.com/api/content/maven/hosted/pnc-builds/com/jboss/super-important.jar"))
+                        .build());
+
+        // then
+        bpm.getWireMockServer()
+                .verify(
+                        postRequestedFor(urlMatching(".*")).withRequestBody(
+                                matching(".*super-important.jar.*")
+                                        .and(matching(".*\"runAsScratchAnalysis\":true.*"))));
     }
 }
