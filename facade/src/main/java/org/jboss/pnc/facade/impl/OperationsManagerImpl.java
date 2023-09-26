@@ -120,9 +120,11 @@ public class OperationsManagerImpl implements OperationsManager {
     public DeliverableAnalyzerOperation newDeliverableAnalyzerOperation(
             String milestoneId,
             Map<String, String> inputParams) {
-        ProductMilestone milestone = productMilestoneRepository
-                .queryById(ProductMilestoneMapper.idMapper.toEntity(milestoneId));
-        if (milestone == null) {
+        ProductMilestone milestone = null;
+        if (milestoneId != null) {
+            milestone = productMilestoneRepository.queryById(ProductMilestoneMapper.idMapper.toEntity(milestoneId));
+        }
+        if (milestone == null && milestoneId != null) {
             throw new EmptyEntityException("Milestone with id " + milestoneId + " doesn't exist");
         }
 
