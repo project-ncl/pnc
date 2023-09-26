@@ -274,6 +274,8 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             ArrayList<BuildTaskRef> toReturn = new ArrayList<>();
 
             for (var task : rexClient.byCorrelation(Objects.toString(buildConfigSetRecordId, null))) {
+                if (task == null)
+                    continue;
                 toReturn.add(mappers.toBuildTaskRef(task, getBuildMetadata(task)));
             }
 
