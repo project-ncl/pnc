@@ -73,7 +73,7 @@ public interface OperationEndpoint {
     static final String COMPLETE_OPERATION_DESC = "Complete a running operation.";
     static final String OPERATION_RESULT = "Result of completed operation.";
     static final String UPDATE_DEL_ANALYZER_DESC = "Updates an existing deliverable analyzer operation.";
-    static final String START_DELIVERABLE_ANALYSIS = "Starts the new deliverable analysis above artifacts given by URLs";
+    static final String START_DELIVERABLE_ANALYSIS = "Starts a new deliverable analysis of deliverables given by URLs";
     static final String GET_SPECIFIC_DEL_ANALYZER_DESC = "Gets a specific delivarable analyzer operation.";
     static final String OP_ID = "ID of the operation";
 
