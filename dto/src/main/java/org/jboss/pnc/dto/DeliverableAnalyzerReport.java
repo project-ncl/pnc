@@ -43,7 +43,7 @@ public class DeliverableAnalyzerReport implements DTOEntity {
     String id;
 
     /**
-     * The time when the deliverable analysis was submitted to
+     * The time when the deliverable analysis was submitted.
      */
     Date submitTime;
 
