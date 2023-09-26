@@ -18,12 +18,12 @@
 package org.jboss.pnc.rest.endpoints.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.pnc.api.dto.ErrorResponse;
 import org.jboss.pnc.bpm.model.BuildResultRest;
 import org.jboss.pnc.bpm.model.mapper.BuildResultMapper;
 import org.jboss.pnc.common.Date.ExpiresDate;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.common.logging.MDCUtils;
-import org.jboss.pnc.dto.Build;
 import org.jboss.pnc.dto.validation.groups.WhenCreatingNew;
 import org.jboss.pnc.enums.BuildCoordinationStatus;
 import org.jboss.pnc.facade.providers.api.BuildProvider;
@@ -325,42 +325,82 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
     private Optional<BuildResult> getBuildResult(MinimizedTask rexTask, State previousState)
             throws InvalidEntityException {
-        var bpmResponse = rexTask.getServerResponses()
+        var responseObject = rexTask.getServerResponses()
                 .stream()
                 .filter(sr -> sr.getState() == previousState) // get bpm response out of Rex's dto
-                .map(ServerResponse::getBody)
                 .findFirst();
+
+        var bpmResponse = responseObject.map(ServerResponse::getBody);
 
         if (bpmResponse.isEmpty()) {
             // BPM returned null message
-
-            switch (rexTask.getStopFlag()) {
-                case NONE:
-                case UNSUCCESSFUL: {
-                    // SYSTEM_ERRORS
-                    if (rexTask.getState() == State.START_FAILED) {
-                        return Optional.of(
-                                createEmptyExceptionalResult(
-                                        new ProcessException(
-                                                "Failed to start BPM process for build " + rexTask.getName())));
-                    } else if (rexTask.getState() == State.FAILED) {
-                        return Optional.of(
-                                createEmptyExceptionalResult(
-                                        new ProcessException(
-                                                "BPM response is missing for build " + rexTask.getName())));
-                    }
-
-                    return Optional.empty();
-                }
-                // dependency was cancelled or failed
-                case CANCELLED:
-                case DEPENDENCY_FAILED:
-                    return Optional.empty();
-            }
+            return handleEmptyResponse(rexTask);
         }
 
-        Optional<BuildResult> buildResultRest;
+        return handleResponse(rexTask, responseObject.get(), bpmResponse);
+    }
 
+    private Optional<BuildResult> handleEmptyResponse(MinimizedTask rexTask) {
+        switch (rexTask.getStopFlag()) {
+            case NONE:
+            case UNSUCCESSFUL: {
+                // SYSTEM_ERRORS
+                if (rexTask.getState() == State.START_FAILED) {
+                    return Optional.of(
+                            createEmptyExceptionalResult(
+                                    new ProcessException(
+                                            "Failed to start BPM process for build " + rexTask.getName())));
+                } else if (rexTask.getState() == State.FAILED) {
+                    return Optional.of(
+                            createEmptyExceptionalResult(
+                                    new ProcessException("BPM response is missing for build " + rexTask.getName())));
+                }
+
+                return Optional.empty();
+            }
+            // dependency was cancelled or failed
+            case CANCELLED:
+            case DEPENDENCY_FAILED:
+                return Optional.empty();
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<BuildResult> handleResponse(
+            MinimizedTask rexTask,
+            ServerResponse responseObject,
+            Optional<Object> bpmResponse) {
+        switch (responseObject.getOrigin()) {
+            case REMOTE_ENTITY:
+                return parseBPMResult(rexTask, bpmResponse);
+            case REX_INTERNAL_ERROR:
+                return parseInternalError(rexTask, bpmResponse);
+            default:
+                throw new InternalServerErrorException("Unknown origin.");
+        }
+    }
+
+    private Optional<BuildResult> parseInternalError(MinimizedTask rexTask, Optional<Object> bpmResponse) {
+        Optional<ErrorResponse> errorOpt = Optional
+                .ofNullable(jsonMapper.convertValue(bpmResponse, ErrorResponse.class));
+        if (errorOpt.isPresent()) {
+            ErrorResponse error = errorOpt.get();
+            return Optional.of(
+                    createEmptyExceptionalResult(
+                            new ProcessException(
+                                    "REX Internal Error for build " + rexTask.getName() + ". Exception: "
+                                            + error.getErrorType() + "\nException Message: " + error.getErrorMessage()
+                                            + "\nREX Details: " + error.getDetails().toString())));
+        }
+        return Optional.of(
+                createEmptyExceptionalResult(
+                        new ProcessException(
+                                "Rex Internal Error for build " + rexTask.getName() + ". Can't parse the error.")));
+    }
+
+    private Optional<BuildResult> parseBPMResult(MinimizedTask rexTask, Optional<Object> bpmResponse) {
+        Optional<BuildResult> buildResultRest;
         try {
             // valid response from BPM
             buildResultRest = Optional
