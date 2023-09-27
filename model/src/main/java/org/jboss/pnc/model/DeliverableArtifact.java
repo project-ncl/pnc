@@ -60,7 +60,7 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
     /**
      * The id of the Brew build in case this artifact was built in Brew.
      */
-    private Integer brewBuildId;
+    private Long brewBuildId;
 
     public DeliverableArtifactPK getId() {
         return new DeliverableArtifactPK(report, artifact);
