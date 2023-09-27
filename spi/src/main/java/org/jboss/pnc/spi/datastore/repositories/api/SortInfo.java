@@ -23,5 +23,5 @@ import java.util.List;
 public interface SortInfo<T> {
     List<OrderInfo<T>> orders();
 
-    SortInfo<T> thenOrderBy(SingularAttribute<T, ? > attribute, OrderInfo.SortingDirection direction);
+    SortInfo<T> thenOrderBy(SingularAttribute<T, ?> attribute, OrderInfo.SortingDirection direction);
 }
