@@ -20,18 +20,19 @@ package org.jboss.pnc.datastore.limits.rsql;
 import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultOrderInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
+import javax.persistence.metamodel.SingularAttribute;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
-public class EmptySortInfo<T> implements SortInfo<T> {
+public class EmptySortInfo<T> extends DefaultSortInfo<T> {
 
-    @Override
-    public List<OrderInfo<T>> orders() {
-        return Collections
-                .singletonList(new DefaultOrderInfo<T>(OrderInfo.SortingDirection.ASC, EmptySortInfo::idOrder));
+    public EmptySortInfo() {
+        super(new DefaultOrderInfo<T>(OrderInfo.SortingDirection.ASC, EmptySortInfo::idOrder));
     }
 
     private static <T> Expression<?> idOrder(Root<T> root) {
