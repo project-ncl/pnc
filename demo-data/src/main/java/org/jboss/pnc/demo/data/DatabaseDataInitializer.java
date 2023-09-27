@@ -18,13 +18,21 @@
 package org.jboss.pnc.demo.data;
 
 import com.google.common.base.Preconditions;
-
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.common.json.moduleconfig.DemoDataConfig;
 import org.jboss.pnc.common.json.moduleconfig.SystemConfig;
 import org.jboss.pnc.constants.ReposiotryIdentifier;
-import org.jboss.pnc.enums.*;
+import org.jboss.pnc.enums.ArtifactQuality;
+import org.jboss.pnc.enums.BuildCategory;
+import org.jboss.pnc.enums.BuildStatus;
+import org.jboss.pnc.enums.BuildType;
+import org.jboss.pnc.enums.MilestoneCloseStatus;
+import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.enums.SupportLevel;
+import org.jboss.pnc.enums.SystemImageType;
 import org.jboss.pnc.model.Artifact;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.BuildConfigSetRecord;
@@ -33,7 +41,10 @@ import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
+import org.jboss.pnc.model.DeliverableAnalyzerReport;
+import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.model.Product;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.ProductMilestoneRelease;
@@ -52,7 +63,10 @@ import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationSetRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildEnvironmentRepository;
 import org.jboss.pnc.spi.datastore.repositories.BuildRecordRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneReleaseRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductReleaseRepository;
@@ -75,6 +89,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -183,6 +198,15 @@ public class DatabaseDataInitializer {
 
     @Inject
     private DeliverableAnalyzerOperationRepository deliverableAnalyzerOperationRepository;
+
+    @Inject
+    private DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
+
+    @Inject
+    private DeliverableArtifactRepository deliverableArtifactRepository;
+
+    @Inject
+    private DeliverableAnalyzerLabelEntryRepository deliverableAnalyzerLabelEntryRepository;
 
     @Inject
     private Datastore datastore;
@@ -1240,7 +1264,40 @@ public class DatabaseDataInitializer {
                 .user(demoUser)
                 .productMilestone(demoProductMilestone1)
                 .build();
-        deliverableAnalyzerOperationRepository.save(operation2);
+        operation2 = deliverableAnalyzerOperationRepository.save(operation2);
+
+        DeliverableAnalyzerReport report1 = DeliverableAnalyzerReport.builder()
+                .operation(operation2)
+                .labels(EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH))
+                .build();
+        report1 = deliverableAnalyzerReportRepository.save(report1);
+
+        DeliverableAnalyzerLabelEntry report1labelEntry1 = DeliverableAnalyzerLabelEntry.builder()
+                .report(report1)
+                .changeOrder(1)
+                .entryTime(TODAY)
+                .user(demoUser)
+                .reason("This analysis was run as scratch!")
+                .label(DeliverableAnalyzerReportLabel.SCRATCH)
+                .change(LabelOperation.ADDED)
+                .build();
+        deliverableAnalyzerLabelEntryRepository.save(report1labelEntry1);
+
+        DeliverableArtifact report1analyzedArtifact1 = DeliverableArtifact.builder()
+                .report(report1)
+                .artifact(builtArtifact1)
+                .builtFromSource(true)
+                .brewBuildId(null)
+                .build();
+        deliverableArtifactRepository.save(report1analyzedArtifact1);
+
+        DeliverableArtifact report1analyzedArtifact2 = DeliverableArtifact.builder()
+                .report(report1)
+                .artifact(importedArtifact2)
+                .builtFromSource(false)
+                .brewBuildId(null)
+                .build();
+        deliverableArtifactRepository.save(report1analyzedArtifact2);
     }
 
     private RepositoryConfiguration createRepositoryConfiguration(String internalScmUrl, String externalUrl) {

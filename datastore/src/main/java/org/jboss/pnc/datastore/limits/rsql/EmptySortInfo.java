@@ -35,6 +35,10 @@ public class EmptySortInfo<T> implements SortInfo<T> {
     }
 
     private static <T> Expression<?> idOrder(Root<T> root) {
-        return root.get("id");
+        try {
+            return root.get("id");
+        } catch (IllegalArgumentException ex) {
+            return root;
+        }
     }
 }

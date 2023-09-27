@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import org.jboss.pnc.common.concurrent.Sequence;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
@@ -31,5 +32,13 @@ public class DeliverableAnalyzerLabelEntryRepositoryImpl
 
     public DeliverableAnalyzerLabelEntryRepositoryImpl() {
         super(DeliverableAnalyzerLabelEntry.class, Base32LongID.class);
+    }
+
+    @Override
+    public DeliverableAnalyzerLabelEntry save(DeliverableAnalyzerLabelEntry entity) {
+        if (entity.getId() == null) {
+            entity.setId(new Base32LongID(Sequence.nextBase32Id()));
+        }
+        return super.save(entity);
     }
 }
