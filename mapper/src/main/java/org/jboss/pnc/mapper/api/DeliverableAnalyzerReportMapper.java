@@ -37,7 +37,9 @@ public interface DeliverableAnalyzerReportMapper extends
     @Mapping(target = "operation.startTime", source = "startTime")
     @Mapping(target = "operation.endTime", source = "endTime")
     @Mapping(target = "operation.user", source = "user")
-    @Mapping(target = "operation.operationParameters", source = "parameters")
+    @Mapping(
+            target = "operation.operationParameters",
+            expression = "java( UrlTreeSetAndOperationParametersConverter.operationParametersFromUrlSet(deliverableAnalyzerReport.getUrls()) )")
     @Mapping(target = "operation.productMilestone", source = "productMilestone")
     @Mapping(target = "labelHistory", ignore = true)
     @Mapping(target = "artifacts", ignore = true)
@@ -55,7 +57,9 @@ public interface DeliverableAnalyzerReportMapper extends
     @Mapping(target = "startTime", source = "dbEntity.operation.startTime")
     @Mapping(target = "endTime", source = "dbEntity.operation.endTime")
     @Mapping(target = "user", source = "dbEntity.operation.user")
-    @Mapping(target = "parameters", source = "dbEntity.operation.operationParameters")
+    @Mapping(
+            target = "urls",
+            expression = "java( UrlTreeSetAndOperationParametersConverter.urlSetFromOperationParameters(dbEntity.getOperation().getOperationParameters()) )")
     @Mapping(
             target = "productMilestone",
             source = "dbEntity.operation.productMilestone",
@@ -73,5 +77,4 @@ public interface DeliverableAnalyzerReportMapper extends
     default IdMapper<Base32LongID, String> getIdMapper() {
         return idMapper;
     }
-
 }

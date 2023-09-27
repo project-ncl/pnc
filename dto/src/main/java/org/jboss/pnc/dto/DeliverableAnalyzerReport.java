@@ -25,7 +25,7 @@ import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.Map;
+import java.util.List;
 
 /**
  * The report of the deliverable analysis.
@@ -63,9 +63,9 @@ public class DeliverableAnalyzerReport implements DTOEntity {
     User user;
 
     /**
-     * Map of operation input parameters. These parameters are used by the specific operation for the execution.
+     * List of artifacts URLs, which were analyzed.
      */
-    Map<String, String> parameters;
+    List<String> urls;
 
     /**
      * The product milestone on which was the deliverable analysis run (if any).
