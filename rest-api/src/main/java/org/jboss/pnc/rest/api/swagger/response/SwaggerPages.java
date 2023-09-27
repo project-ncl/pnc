@@ -39,6 +39,7 @@ import org.jboss.pnc.dto.SCMRepository;
 import org.jboss.pnc.dto.TargetRepository;
 import org.jboss.pnc.dto.User;
 import org.jboss.pnc.dto.insights.BuildRecordInsights;
+import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.ArtifactInfo;
 import org.jboss.pnc.dto.response.MilestoneInfo;
 import org.jboss.pnc.dto.response.Page;
@@ -118,5 +119,8 @@ public class SwaggerPages {
     }
 
     public static class DeliverableAnalyzerOperationPage extends Page<DeliverableAnalyzerOperation> {
+    }
+
+    public static class AnalyzedArtifactPage extends Page<AnalyzedArtifact> {
     }
 }

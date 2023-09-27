@@ -87,7 +87,7 @@ CREATE TABLE deliverableartifact
     report_id           BIGINT                  NOT NULL,
     artifact_id         INTEGER                 NOT NULL,
     builtfromsource     BOOLEAN                 NOT NULL,
-    brewbuildid         INTEGER,
+    brewbuildid         BIGINT,
     PRIMARY KEY (report_id, artifact_id)
 );
 ALTER TABLE deliverableartifact
