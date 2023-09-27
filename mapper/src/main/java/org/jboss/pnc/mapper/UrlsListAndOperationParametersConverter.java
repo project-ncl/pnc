@@ -18,6 +18,7 @@
 package org.jboss.pnc.mapper;
 
 import javax.enterprise.context.ApplicationScoped;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -35,6 +36,9 @@ public class UrlsListAndOperationParametersConverter {
         return operationParameters.entrySet()
                 .stream()
                 .filter(entry -> entry.getKey().startsWith(URL_PARAMETER_PREFIX))
+                .sorted(
+                        Comparator.comparingInt(
+                                entry -> Integer.parseInt(entry.getKey().substring(URL_PARAMETER_PREFIX.length()))))
                 .map(Map.Entry::getValue)
                 .distinct()
                 .collect(Collectors.toList());
