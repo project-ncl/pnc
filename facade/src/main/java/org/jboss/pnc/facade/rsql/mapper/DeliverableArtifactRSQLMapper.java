@@ -36,8 +36,6 @@ public class DeliverableArtifactRSQLMapper extends AbstractRSQLMapper<Deliverabl
     @Override
     protected SingularAttribute<? super DeliverableArtifact, ? extends GenericEntity<?>> toEntity(String name) {
         switch (name) {
-            case "report":
-                return DeliverableArtifact_.report;
             case "artifact":
                 return DeliverableArtifact_.artifact;
             default:
