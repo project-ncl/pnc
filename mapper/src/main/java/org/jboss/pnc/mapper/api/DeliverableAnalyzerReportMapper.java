@@ -39,7 +39,7 @@ public interface DeliverableAnalyzerReportMapper extends
     @Mapping(target = "operation.user", source = "user")
     @Mapping(
             target = "operation.operationParameters",
-            expression = "java( UrlTreeSetAndOperationParametersConverter.operationParametersFromUrlSet(deliverableAnalyzerReport.getUrls()) )")
+            expression = "java( UrlsListAndOperationParametersConverter.operationParametersFromUrlSet(deliverableAnalyzerReport.getUrls()) )")
     @Mapping(target = "operation.productMilestone", source = "productMilestone")
     @Mapping(target = "labelHistory", ignore = true)
     @Mapping(target = "artifacts", ignore = true)
@@ -59,7 +59,7 @@ public interface DeliverableAnalyzerReportMapper extends
     @Mapping(target = "user", source = "dbEntity.operation.user")
     @Mapping(
             target = "urls",
-            expression = "java( UrlTreeSetAndOperationParametersConverter.urlSetFromOperationParameters(dbEntity.getOperation().getOperationParameters()) )")
+            expression = "java( UrlsListAndOperationParametersConverter.urlSetFromOperationParameters(dbEntity.getOperation().getOperationParameters()) )")
     @Mapping(
             target = "productMilestone",
             source = "dbEntity.operation.productMilestone",

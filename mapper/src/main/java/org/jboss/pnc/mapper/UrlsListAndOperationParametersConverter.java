@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
  * Converts between operation parameters, which represent URL and list of URLs.
  */
 @ApplicationScoped
-public class UrlTreeSetAndOperationParametersConverter {
+public class UrlsListAndOperationParametersConverter {
 
     private static final String URL_PARAMETER_PREFIX = "url-";
 

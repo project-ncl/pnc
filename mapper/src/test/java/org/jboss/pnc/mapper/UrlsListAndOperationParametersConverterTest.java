@@ -26,7 +26,7 @@ import java.util.TreeMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class UrlTreeSetAndOperationParametersConverterTest {
+public class UrlsListAndOperationParametersConverterTest {
 
     @Test
     public void testUrlSetFromOperationParameters() {
@@ -37,7 +37,7 @@ public class UrlTreeSetAndOperationParametersConverterTest {
         List<String> expectedMappedUrls = new ArrayList<>(List.of(url0, url1));
 
         // when
-        List<String> actualMappedUrls = UrlTreeSetAndOperationParametersConverter
+        List<String> actualMappedUrls = UrlsListAndOperationParametersConverter
                 .urlSetFromOperationParameters(operationParameters);
 
         // then
@@ -53,7 +53,7 @@ public class UrlTreeSetAndOperationParametersConverterTest {
         Map<String, String> expectedOperationParameters = new TreeMap<>(Map.of("url-0", url0, "url-1", url1));
 
         // when
-        Map<String, String> actualOperationParameters = UrlTreeSetAndOperationParametersConverter
+        Map<String, String> actualOperationParameters = UrlsListAndOperationParametersConverter
                 .operationParametersFromUrlSet(urls);
 
         // then
