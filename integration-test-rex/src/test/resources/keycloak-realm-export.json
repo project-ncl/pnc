@@ -315,7 +315,7 @@
     },
     {
       "id": "bbc10776-a303-4024-bea9-6793f5ef685d,",
-      "clientId": "pnc-orch-sa",
+      "clientId": "pnc-sa",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
