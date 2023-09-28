@@ -314,8 +314,8 @@
       ]
     },
     {
-      "id": "bbc10776-a303-4024-bea9-6793f5ef685d,",
-      "clientId": "pnc-orchestrator-sa",
+      "id": "aa8ab20d-cba9-4f39-916b-65e3418e65c4",
+      "clientId": "pnc-test",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
@@ -329,7 +329,7 @@
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
       "serviceAccountsEnabled": false,
-      "publicClient": false,
+      "publicClient": true,
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
