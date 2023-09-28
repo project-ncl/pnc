@@ -320,7 +320,6 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "gatp28CxLfslmahNqbqm8o3BMR7NPRye",
       "redirectUris": ["*"],
       "webOrigins": [],
       "notBefore": 0,
