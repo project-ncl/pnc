@@ -1957,53 +1957,6 @@
           "manage-account"
         ]
       }
-    },
-    {
-      "username": "service-account-pnc-orchestrator-sa",
-      "enabled": true,
-      "totp": false,
-      "emailVerified": false,
-      "email": "service-account-pnc-orchestrator-sa@placeholder.org",
-      "serviceAccountClientId": "pnc-orchestrator-sa",
-      "disableableCredentialTypes": [],
-      "requiredActions": [],
-      "realmRoles": [
-        "pnc-users-repository-driver-admin",
-        "pnc-users-admin",
-        "pnc-users-build-driver-admin",
-        "pnc-users-causeway-admin",
-        "pnc-users-repour-admin",
-        "pnc-users-build-delete",
-        "pnc-users-build-agent-admin",
-        "pnc-users-da-admin",
-        "pnc-users-rex-user",
-        "offline_access",
-        "system-user",
-        "user",
-        "uma_authorization",
-        "pnc-users-rex-admin",
-        "pnc-users-build-admin",
-        "pnc-users-sbomer-admin",
-        "pnc-users-deliverables-analyzer-admin",
-        "pnc-users-environment-admin",
-        "pnc-users-artifact-admin",
-        "pnc-users-environment-driver-admin",
-        "pnc-users-cleaner-admin"
-      ],
-      "clientRoles": {
-        "pncindyui": [
-          "pncindyadmin"
-        ],
-        "pncindy": [
-          "pncindyadmin"
-        ],
-        "account": [
-          "view-profile",
-          "manage-account"
-        ]
-      },
-      "notBefore": 0,
-      "groups": []
     }
   ]
 }
