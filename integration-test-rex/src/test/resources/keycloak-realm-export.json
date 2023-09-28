@@ -315,7 +315,7 @@
     },
     {
       "id": "bbc10776-a303-4024-bea9-6793f5ef685d,",
-      "clientId": "pnc-orchestrator-sa",
+      "clientId": "pnc-orch-sa",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
