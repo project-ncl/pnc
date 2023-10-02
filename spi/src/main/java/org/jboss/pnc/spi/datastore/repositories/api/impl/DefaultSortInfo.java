@@ -64,7 +64,7 @@ public class DefaultSortInfo<T> implements SortInfo<T> {
         return new DefaultSortInfo<T>().appendAll(OrderInfo.SortingDirection.ASC, fields);
     }
 
-    private DefaultSortInfo<T> appendAll(OrderInfo.SortingDirection dir, SingularAttribute<T, ?>... fields) {
+    protected DefaultSortInfo<T> appendAll(OrderInfo.SortingDirection dir, SingularAttribute<T, ?>... fields) {
         if (fields != null) {
             for (SingularAttribute<T, ?> attribute : fields) {
                 order.add(new DefaultOrderInfo<>(dir, root -> root.get(attribute)));
