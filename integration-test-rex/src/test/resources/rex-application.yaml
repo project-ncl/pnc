@@ -21,6 +21,12 @@ quarkus:
     application-type: SERVICE
     tls:
       verification: none
+  oidc-client:
+    enabled: true
+    auth-server-url: http://keycloak:8080/realms/newcastle-testcontainer
+    client-id: rex
+    credentials:
+      secret: "b4722299-9807-4dee-a03b-64d3bf289759"
 
   infinispan-client:
     hosts: infinispan:11222
@@ -31,7 +37,7 @@ quarkus:
     password: password
     cache:
       "rex-counter":
-        configuration-uri: "task-configuration.xml"
+        configuration-uri: "counter-configuration.xml"
         near-cache-mode: disabled
         near-cache-max-entries: -1
       "rex-tasks":
@@ -56,6 +62,6 @@ quarkus:
         level: ERROR
       "io.quarkus.oidc":
         level: TRACE
-    min-level: FINEST
+    min-level: TRACE
   vertx:
     max-event-loop-execute-time: 10s

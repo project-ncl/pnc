@@ -37,6 +37,7 @@ import org.jboss.pnc.dto.GroupConfiguration;
 import org.jboss.pnc.dto.notification.BuildChangedNotification;
 import org.jboss.pnc.dto.notification.GroupBuildChangedNotification;
 import org.jboss.pnc.dto.requests.GroupBuildRequest;
+import org.jboss.pnc.integrationrex.BuildTest;
 import org.jboss.pnc.integrationrex.RemoteServices;
 import org.jboss.pnc.integrationrex.setup.RestClientConfiguration;
 import org.jboss.pnc.integrationrex.utils.ResponseUtils;
@@ -83,8 +84,11 @@ public class WebSocketClientTest extends RemoteServices {
     private AdvancedBuildConfigurationClient buildConfigurationClient;
     private AdvancedGroupConfigurationClient groupConfigurationClient;
 
+    private BuildTest.BPMWireMock bpm;
+
     @Before
     public void beforeEach() {
+        bpm = new BuildTest.BPMWireMock(8088);
         String token = KeycloakClient
                 .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
                 .getToken();
@@ -94,7 +98,8 @@ public class WebSocketClientTest extends RemoteServices {
     }
 
     @After
-    public void afterEach() {
+    public void afterEach() throws IOException {
+        bpm.close();
         buildConfigurationClient.close();
         groupConfigurationClient.close();
     }

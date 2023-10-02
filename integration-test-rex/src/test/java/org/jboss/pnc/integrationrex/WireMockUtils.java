@@ -33,7 +33,7 @@ public class WireMockUtils {
         return new WebhookDefinition().withMethod(RequestMethod.POST)
                 .withHeader("Content-Type", "application/json")
                 .withHeader("Authorization", "{{originalRequest.headers.Authorization}}")
-                .withUrl("{{jsonPath originalRequest.body '$.callback'}}");
+                .withUrl("{{jsonPath originalRequest.body '$.callback.uri'}}");
     }
 
     public static ResponseDefinitionBuilder response200() {

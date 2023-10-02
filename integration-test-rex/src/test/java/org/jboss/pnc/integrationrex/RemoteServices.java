@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.integrationrex;
 
+import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.integrationrex.setup.Deployments;
 import org.jboss.pnc.integrationrex.testcontainers.CustomKeycloakContainer;
@@ -24,6 +25,7 @@ import org.jboss.pnc.integrationrex.testcontainers.InfinispanContainer;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.util.StringPropertyReplacer;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +56,28 @@ public class RemoteServices {
 
     protected static String keycloakRealm = "newcastle-testcontainer";
 
-    private static dasniko.testcontainers.keycloak.KeycloakContainer keycloakContainer;
+    private static final dasniko.testcontainers.keycloak.KeycloakContainer keycloakContainer;
+    private static final Properties testProperties;
+
     private static GenericContainer rexContainer;
+    private static InfinispanContainer ispnContainer;
+
+    private static final Network containerNetwork = Network.newNetwork();
+
+    static {
+        testProperties = initTestProperties();
+
+        // REUSE Keycloak container throughout all tests
+        keycloakContainer = createKeycloakContainer();
+        keycloakContainer.start();
+
+        authServerUrl = keycloakContainer.getAuthServerUrl();
+    }
+
+    @Deployment(testable = false)
+    public static EnterpriseArchive deploy() throws IOException {
+        return Deployments.testEar();
+    }
 
     @BeforeClass
     public static void beforeAll() throws IOException {
@@ -68,57 +90,97 @@ public class RemoteServices {
         logger.info("Containers started.");
     }
 
-    @Deployment(testable = false)
-    public static EnterpriseArchive deploy() throws IOException {
-        return Deployments.testEar();
-    }
-
     @AfterClass
     public static void afterAll() throws InterruptedException {
         logger.info("Stopping containers ...");
-        keycloakContainer.stop();
+        ispnContainer.stop();
         rexContainer.stop();
         logger.info("Containers stopped.");
         Thread.sleep(1000L); // make sure all resources are released
     }
 
-    protected static void startRemoteServices() throws IOException {
+    @Before
+    public void w8() throws InterruptedException {
+        Thread.sleep(1000L);
+    }
+
+    private static Properties initTestProperties() {
         // properties to share port numbers
-        Properties testProperties = new Properties();
+        Properties properties = new Properties();
         try (InputStream propFile = new FileInputStream("target/test.properties")) {
-            testProperties.load(propFile);
+            properties.load(propFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+        return properties;
+    }
 
-        Network network = Network.newNetwork();
-
-        Consumer<OutputFrame> keycloakLogConsumer = frame -> logger.debug("KEYCOAK >>" + frame.getUtf8String());
+    private static KeycloakContainer createKeycloakContainer() {
+        Consumer<OutputFrame> keycloakLogConsumer = frame -> logger
+                .debug("KEYCLOAK >>" + frame.getUtf8StringWithoutLineEnding());
 
         String keycloakHostPort = testProperties.getProperty(GetFreePort.KEYCLOAK_PORT);
         String keycloakPortBinding = keycloakHostPort + ":" + 8080; // 8080 is in-container port
-        keycloakContainer = new CustomKeycloakContainer("quay.io/keycloak/keycloak:21.1.0").withNetwork(network)
+        KeycloakContainer keycloak = new CustomKeycloakContainer("quay.io/keycloak/keycloak:21.1.0")
+                .withNetwork(containerNetwork)
                 .withLogConsumer(keycloakLogConsumer)
                 .withNetworkAliases("keycloak")
                 .withRealmImportFile("keycloak-realm-export.json")
                 .withAccessToHost(true)
                 .withStartupAttempts(5);
-        // .withReuse(true);
-        keycloakContainer.setPortBindings(List.of(keycloakPortBinding));
+
+        keycloak.setPortBindings(List.of(keycloakPortBinding));
         logger.info("Starting keycloak and binding it to port {}.", keycloakHostPort);
-        keycloakContainer.start();
 
-        BuildTest.authServerUrl = keycloakContainer.getAuthServerUrl();
+        return keycloak;
+    }
 
+    protected static void startRemoteServices() throws IOException {
         // int rexHostPort = GetFreePort.getFreeHostPort();
         int rexHostPort = 5679;
         logger.info("Rex container will bind to host port: {}.", rexHostPort);
         String rexPortBinding = rexHostPort + ":" + 8080; // 8080 is in-container port
 
-        Consumer<OutputFrame> rexLogConsumer = frame -> logger.debug("REX >>" + frame.getUtf8String());
+        ispnContainer = createInfinispanContainer();
 
-        rexContainer = new GenericContainer(DockerImageName.parse("quay.io/rh-newcastle/rex:latest"))
-                // DockerImageName.parse("localhost/-your-name/rex-core:1.0.0-SNAPSHOT"))
+        rexContainer = createRexContainer(ispnContainer, rexPortBinding);
+
+        ispnContainer.start();
+        rexContainer.start();
+
+        String rexHost = rexContainer.getHost();
+        logger.info("Rex host: {}", rexHost);
+        logger.info("Rex port: {}", rexHostPort);
+        System.setProperty(SCHEDULER_URL_KEY, "http://" + rexHost + ":" + rexHostPort);
+
+        updatePncConfigJson(rexHostPort);
+    }
+
+    private static void updatePncConfigJson(int rexHostPort) throws IOException {
+        Path configFile = Path.of(System.getProperty("pnc-config-path"));
+        logger.info("Updating config file {}.", configFile);
+
+        String config = Files.readString(configFile);
+        Properties properties = new Properties();
+        properties.put("PNC_SCHEDULER_BASE_URL", "http://localhost:" + rexHostPort);
+        properties.put("PNC_UI_KEYCLOAK_URL", BuildTest.authServerUrl);
+        String replacedConfig = StringPropertyReplacer.replaceProperties(config, properties);
+        Files.writeString(configFile, replacedConfig);
+    }
+
+    private static InfinispanContainer createInfinispanContainer() {
+        return new InfinispanContainer(false).withNetwork(containerNetwork)
+                .withNetworkAliases("infinispan")
+                .withStartupAttempts(5);
+    }
+
+    private static GenericContainer createRexContainer(InfinispanContainer ispn, String portBinding) {
+        Consumer<OutputFrame> rexLogConsumer = frame -> logger.debug("REX >>" + frame.getUtf8StringWithoutLineEnding());
+
+        GenericContainer rex = new GenericContainer(DockerImageName.parse("quay.io/rh-newcastle/rex:latest"))
+                /* DockerImageName.parse("localhost/<<your-name>>/rex:1.0.0-SNAPSHOT")) */
                 .withAccessToHost(true)
-                .withNetwork(network)
+                .withNetwork(containerNetwork)
                 .withNetworkAliases("rex")
                 .withAccessToHost(true)
                 .withLogConsumer(rexLogConsumer)
@@ -127,30 +189,10 @@ public class RemoteServices {
                         "/home/jboss/config/application.yaml",
                         BindMode.READ_ONLY)
                 .waitingFor(Wait.forLogMessage(".*Installed features:.*", 1))
-                .withStartupAttempts(5);
-        // .withReuse(true);
+                .withStartupAttempts(5)
+                .dependsOn(ispn, keycloakContainer);
 
-        InfinispanContainer ispn = new InfinispanContainer(false).withNetwork(network)
-                .withNetworkAliases("infinispan")
-                .withStartupAttempts(5);
-        ispn.start();
-
-        rexContainer.setPortBindings(List.of(rexPortBinding));
-
-        rexContainer.start();
-
-        String rexHost = rexContainer.getHost();
-        logger.info("Rex host: {}", rexHost);
-        logger.info("Rex port: {}", rexHostPort);
-        System.setProperty(SCHEDULER_URL_KEY, "http://" + rexHost + ":" + rexHostPort);
-
-        Path configFile = Path.of(System.getProperty("pnc-config-path"));
-        logger.info("Updating config file {}.", configFile);
-        String config = Files.readString(configFile);
-        Properties properties = new Properties();
-        properties.put("PNC_SCHEDULER_BASE_URL", "http://localhost:" + rexHostPort);
-        properties.put("PNC_UI_KEYCLOAK_URL", BuildTest.authServerUrl);
-        String replacedConfig = StringPropertyReplacer.replaceProperties(config, properties);
-        Files.writeString(configFile, replacedConfig);
+        rex.setPortBindings(List.of(portBinding));
+        return rex;
     }
 }
