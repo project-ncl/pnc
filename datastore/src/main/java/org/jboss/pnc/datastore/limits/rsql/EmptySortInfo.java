@@ -35,6 +35,12 @@ public class EmptySortInfo<T> extends DefaultSortInfo<T> {
         super(new DefaultOrderInfo<T>(OrderInfo.SortingDirection.ASC, EmptySortInfo::idOrder));
     }
 
+    @Override
+    public DefaultSortInfo<T> thenOrderBy(SingularAttribute<T, ?> attribute, OrderInfo.SortingDirection direction) {
+        // remove default ID sorting on a change of ordering
+        return new DefaultSortInfo<T>().thenOrderBy(attribute, direction);
+    }
+
     private static <T> Expression<?> idOrder(Root<T> root) {
         try {
             return root.get("id");
