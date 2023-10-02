@@ -42,6 +42,112 @@
   "quickLoginCheckMilliSeconds": 1000,
   "maxDeltaTimeSeconds": 43200,
   "failureFactor": 30,
+  "roles": {
+    "realm": [
+      {
+        "id": "a9c9a3e4-fab8-402b-aa8a-3fb8db8511ac",
+        "name": "admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "690d4920-beed-4e6e-a0cd-967b046db6ee",
+        "name": "pnc-users-rex-user",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "73cf72eb-a4a1-416e-9fd5-6417196155b2",
+        "name": "pnc-users-admin",
+        "description": "Admin users of PNC",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "c8c78a88-38f2-4d3d-b919-ca36f2323b3a",
+        "name": "system-user",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "c94458da-1409-4942-8a69-d42d26f03558",
+        "name": "user",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "e10990bc-3995-4e24-9132-97dd14c915e0",
+        "name": "pnc-users-rex-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      }
+    ],
+    "client": {
+      "rex" : [
+        {
+          "id": "a9d9a3e4-fab8-402b-aa8a-3fb8db8511ac",
+          "name": "admin",
+          "composite": false,
+          "clientRole": false,
+          "containerId": "newcastle-testcontainer",
+          "attributes": {}
+        },
+        {
+          "id": "691d4920-beed-4e6e-a0cd-967b046db6ee",
+          "name": "pnc-users-rex-user",
+          "composite": false,
+          "clientRole": false,
+          "containerId": "newcastle-testcontainer",
+          "attributes": {}
+        },
+        {
+          "id": "73cf71eb-a4a1-416e-9fd5-6417196155b2",
+          "name": "pnc-users-admin",
+          "description": "Admin users of PNC",
+          "composite": false,
+          "clientRole": false,
+          "containerId": "newcastle-testcontainer",
+          "attributes": {}
+        },
+        {
+          "id": "c8c78188-38f2-4d3d-b919-ca36f2323b3a",
+          "name": "system-user",
+          "composite": false,
+          "clientRole": false,
+          "containerId": "newcastle-testcontainer",
+          "attributes": {}
+        },
+        {
+          "id": "c94451da-1409-4942-8a69-d42d26f03558",
+          "name": "user",
+          "composite": false,
+          "clientRole": false,
+          "containerId": "newcastle-testcontainer",
+          "attributes": {}
+        },
+        {
+          "id": "e10991bc-3995-4e24-9132-97dd14c915e0",
+          "name": "pnc-users-rex-admin",
+          "composite": false,
+          "clientRole": false,
+          "containerId": "newcastle-testcontainer",
+          "attributes": {}
+        }
+      ]
+    }
+  },
   "defaultRole": {
     "id": "8ce570ff-4f86-4515-bb3c-b44b8d8e0fd6",
     "name": "default-roles-newcastle-testcontainer",
@@ -328,8 +434,8 @@
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "directAccessGrantsEnabled": true,
-      "serviceAccountsEnabled": false,
-      "publicClient": true,
+      "serviceAccountsEnabled": true,
+      "publicClient": false,
       "frontchannelLogout": false,
       "protocol": "openid-connect",
       "attributes": {
@@ -350,7 +456,8 @@
         "phone",
         "offline_access",
         "microprofile-jwt"
-      ]
+      ],
+      "secret": "b4722299-9807-4dee-a03b-64d3bf289759"
     },
     {
       "id": "1b6cb490-b0c0-4171-9ed2-7803a4d8b7bc",
@@ -1910,7 +2017,7 @@
           "value": "test-pass"
         }
       ],
-      "realmRoles": [ "user" ],
+      "realmRoles": [ "user", "pnc-users-rex-user", "pnc-users-admin" ],
       "clientRoles": {
         "account": [
           "view-profile",
