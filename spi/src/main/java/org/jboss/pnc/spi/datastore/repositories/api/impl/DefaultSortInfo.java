@@ -24,6 +24,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.SingularAttribute;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class DefaultSortInfo<T> implements SortInfo<T> {
@@ -74,7 +75,7 @@ public class DefaultSortInfo<T> implements SortInfo<T> {
     }
 
     public DefaultSortInfo<T> thenOrderBy(SingularAttribute<T, ?> attribute, OrderInfo.SortingDirection direction) {
-        return appendAll(direction, attribute);
+        return new DefaultSortInfo<>(orders()).appendAll(direction, attribute);
     }
 
     @Override
