@@ -44,7 +44,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(builderClassName = "Builder", toBuilder = true)
 @Entity
 public class DeliverableAnalyzerReport implements GenericEntity<Base32LongID> {
 
