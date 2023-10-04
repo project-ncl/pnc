@@ -41,12 +41,6 @@ public class MyHeaderPropagator implements ClientHeadersFactory {
             MultivaluedMap<String, String> clientOutgoingHeaders) {
         MultivaluedMap<String, String> outgoingHeaders = new MultivaluedHashMap<>();
 
-        // propagate User Token if present in original request
-        if (incomingHeaders.containsKey(HttpHeaders.AUTHORIZATION_STRING)) {
-            outgoingHeaders
-                    .put(HttpHeaders.AUTHORIZATION_STRING, incomingHeaders.get(HttpHeaders.AUTHORIZATION_STRING));
-        }
-
         addMDCHeaders(outgoingHeaders);
 
         return outgoingHeaders;
