@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.ErrorResponse;
@@ -71,6 +72,8 @@ public interface DeliverableAnalyzerReportEndpoint {
     String ADD_DEL_AN_REPORT_LABEL = "Adds new deliverable analyzer report label to this report";
 
     String REMOVE_DEL_AN_REPORT_LABEL = "Removes old deliverable analyzer report label from this report";
+
+    String GET_DEL_AN_REPORT_LABEL_HISTORY = "Gets the label history of this deliverable analyzer report";
 
     @Operation(
             summary = GET_ANALYZED_ARTIFACTS,
@@ -127,4 +130,25 @@ public interface DeliverableAnalyzerReportEndpoint {
     void removeLabel(
             @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
             @Valid DeliverableAnalyzerReportLabelRequest request);
+
+    @Operation(
+            summary = GET_DEL_AN_REPORT_LABEL_HISTORY,
+            responses = { @ApiResponse(
+                    responseCode = SUCCESS_CODE,
+                    description = SUCCESS_DESCRIPTION,
+                    content = @Content(
+                            schema = @Schema(implementation = SwaggerPages.DeliverableAnalyzerLabelEntryPage.class))),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @Path("/{id}/label-history")
+    @GET
+    Page<DeliverableAnalyzerLabelEntry> getLabelHistory(
+            @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
+            @Valid @BeanParam PageParameters pageParameters);
 }
