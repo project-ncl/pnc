@@ -26,4 +26,6 @@ public interface DeliverableAnalyzerReportProvider {
     Page<AnalyzedArtifact> getAnalyzedArtifacts(int pageIndex, int pageSize, String query, String sort, String id);
 
     void addLabel(String id, DeliverableAnalyzerReportLabelRequest request);
+
+    void removeLabel(String id, DeliverableAnalyzerReportLabelRequest request);
 }

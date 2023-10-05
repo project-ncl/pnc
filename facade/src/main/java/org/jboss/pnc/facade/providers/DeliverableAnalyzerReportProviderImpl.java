@@ -93,7 +93,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
             String query,
             String sort,
             String id) {
-        Base32LongID entityId = mapper.getIdMapper().toEntity(id);
+        Base32LongID entityId = transformToEntityId(id);
         Predicate<DeliverableArtifact> rsqlPredicate = rsqlPredicateProducer
                 .getCriteriaPredicate(DeliverableArtifact.class, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
@@ -119,7 +119,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
     @Override
     public void addLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
-        Base32LongID reportId = mapper.getIdMapper().toEntity(id);
+        Base32LongID reportId = transformToEntityId(id);
         DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
         DeliverableAnalyzerLabelEntry labelHistoryEntry = DeliverableAnalyzerLabelEntry.builder()
                 .report(report)
@@ -136,6 +136,31 @@ public class DeliverableAnalyzerReportProviderImpl extends
                 request.getLabel(),
                 report.getLabels(),
                 labelHistoryEntry);
+    }
+
+    @Override
+    public void removeLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
+        Base32LongID reportId = transformToEntityId(id);
+        DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
+        DeliverableAnalyzerLabelEntry labelHistoryEntry = DeliverableAnalyzerLabelEntry.builder()
+                .report(report)
+                .changeOrder(deliverableAnalyzerLabelEntryRepository.getLatestChangeOrderOfReport(report.getId()))
+                .entryTime(Date.from(Instant.now()))
+                .user(userService.currentUser())
+                .reason(request.getReason())
+                .label(request.getLabel())
+                .change(LabelOperation.REMOVED)
+                .build();
+
+        labelModifier.removeLabelFromActiveLabelsAndModifyLabelHistory(
+                reportId,
+                request.getLabel(),
+                report.getLabels(),
+                labelHistoryEntry);
+    }
+
+    private Base32LongID transformToEntityId(String id) {
+        return mapper.getIdMapper().toEntity(id);
     }
 
     private AnalyzedArtifact deliverableArtifactToDto(DeliverableArtifact deliverableArtifact) {
