@@ -26,6 +26,7 @@ import org.jboss.pnc.facade.util.DeliverableAnalyzerReportLabelModifier;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerReportMapper;
+import org.jboss.pnc.mapper.api.UserMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
@@ -48,6 +49,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
+import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerLabelEntryPredicates.withReportId;
 
 @PermitAll
 @ApplicationScoped
@@ -67,6 +69,8 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
     private ArtifactMapper artifactMapper;
 
+    private UserMapper userMapper;
+
     private DeliverableAnalyzerReportLabelModifier labelModifier;
 
     @Inject
@@ -77,6 +81,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
             UserService userService,
             DeliverableAnalyzerReportMapper mapper,
             ArtifactMapper artifactMapper,
+            UserMapper userMapper,
             DeliverableAnalyzerReportLabelModifier labelModifier) {
         super(repository, mapper, DeliverableAnalyzerReport.class);
 
@@ -86,6 +91,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
         this.userService = userService;
         this.deliverableAnalyzerReportMapper = mapper;
         this.artifactMapper = artifactMapper;
+        this.userMapper = userMapper;
         this.labelModifier = labelModifier;
     }
 
@@ -164,8 +170,42 @@ public class DeliverableAnalyzerReportProviderImpl extends
                 labelHistoryEntry);
     }
 
+    @Override
+    public Page<org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry> getLabelHistory(
+            String id,
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String query) {
+        var reportId = transformToEntityId(id);
+        Predicate<DeliverableAnalyzerLabelEntry> rsqlPredicate = rsqlPredicateProducer
+                .getCriteriaPredicate(DeliverableAnalyzerLabelEntry.class, query);
+        PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
+        SortInfo<DeliverableAnalyzerLabelEntry> sortInfo = rsqlPredicateProducer
+                .getSortInfo(DeliverableAnalyzerLabelEntry.class, sort);
+
+        List<org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry> labelHistory = deliverableAnalyzerLabelEntryRepository
+                .queryWithPredicates(pageInfo, sortInfo, rsqlPredicate, withReportId(reportId))
+                .stream()
+                .map(this::deliverableAnalyzerLabelEntryToDto)
+                .collect(Collectors.toList());
+        int totalHits = deliverableAnalyzerLabelEntryRepository.count(rsqlPredicate, withReportId(reportId));
+
+        return new Page<>(pageIndex, pageSize, totalHits, labelHistory);
+    }
+
     private Base32LongID transformToEntityId(String id) {
         return mapper.getIdMapper().toEntity(id);
+    }
+
+    private org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry deliverableAnalyzerLabelEntryToDto(
+            DeliverableAnalyzerLabelEntry deliverableAnalyzerLabelEntry) {
+        return org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry.builder()
+                .label(deliverableAnalyzerLabelEntry.getLabel())
+                .date(deliverableAnalyzerLabelEntry.getEntryTime())
+                .reason(deliverableAnalyzerLabelEntry.getReason())
+                .user(userMapper.toDTO(deliverableAnalyzerLabelEntry.getUser()))
+                .build();
     }
 
     private AnalyzedArtifact deliverableArtifactToDto(DeliverableArtifact deliverableArtifact) {

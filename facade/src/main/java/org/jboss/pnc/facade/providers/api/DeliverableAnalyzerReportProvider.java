@@ -17,6 +17,7 @@
  */
 package org.jboss.pnc.facade.providers.api;
 
+import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
@@ -28,4 +29,11 @@ public interface DeliverableAnalyzerReportProvider {
     void addLabel(String id, DeliverableAnalyzerReportLabelRequest request);
 
     void removeLabel(String id, DeliverableAnalyzerReportLabelRequest request);
+
+    Page<DeliverableAnalyzerLabelEntry> getLabelHistory(
+            String id,
+            int pageIndex,
+            int pageSize,
+            String sort,
+            String query);
 }
