@@ -211,7 +211,7 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
 
             handleFinalTransition(notification.getTask(), buildMeta, previousState);
         } else if (!shouldSkip(previousState, newState, stopFlag)) {
-            handleRegularTransition(notification.getTask(), buildMeta, newState, stopFlag);
+            handleRegularTransition(notification.getTask(), buildMeta, newState, previousState, stopFlag);
         }
 
         logger.debug("Completed notification for build '{}'.", buildId);
@@ -299,9 +299,11 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
             MinimizedTask rexTask,
             BuildMeta buildMeta,
             State newState,
+            State previousState,
             StopFlag stopFlag) {
         buildCoordinator.updateBuildTaskStatus(
                 taskMapper.toBuildTaskRef(rexTask, buildMeta),
+                toBuildStatus(previousState, stopFlag),
                 toBuildStatus(newState, stopFlag));
     }
 
@@ -309,7 +311,10 @@ public class BuildTaskEndpointImpl implements BuildTaskEndpoint {
         Optional<BuildResult> buildResultRest = getBuildResult(rexTask, previousState);
 
         // store BuildRecord
-        buildCoordinator.completeBuild(taskMapper.toBuildTaskRef(rexTask, meta), buildResultRest);
+        buildCoordinator.completeBuild(
+                taskMapper.toBuildTaskRef(rexTask, meta),
+                buildResultRest,
+                toBuildStatus(previousState, rexTask.getStopFlag()));
 
         // poke BCSR update job
         if (rexTask.getCorrelationID() != null) {
