@@ -202,13 +202,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             ScheduleResult scheduleResult = validateAndRunBuilds(user, buildOptions, buildGraph, null);
 
             // save and notify NRR records
-            scheduleResult.noRebuildTasks.forEach(
-                    task -> completeNoBuild(
-                            task,
-                            scheduleResult.buildGraph,
-                            CompletionStatus.NO_REBUILD_REQUIRED,
-                            null,
-                            user));
+            scheduleResult.noRebuildTasks.forEach(task -> completeNoBuild(task, scheduleResult.buildGraph, null, user));
             // Notification of the scheduled builds are triggered from the Rex.
             BuildSetTask buildSetTask = BuildSetTask.Builder.newBuilder().build();
             BuildTask buildTask = BuildTask.build(
@@ -401,13 +395,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                 buildOptions);
 
         // save and notify NRR records
-        scheduleResult.noRebuildTasks.forEach(
-                task -> completeNoBuild(
-                        task,
-                        scheduleResult.buildGraph,
-                        CompletionStatus.NO_REBUILD_REQUIRED,
-                        buildConfigSetRecord,
-                        user));
+        scheduleResult.noRebuildTasks
+                .forEach(task -> completeNoBuild(task, scheduleResult.buildGraph, buildConfigSetRecord, user));
         // Notification of the scheduled builds are triggered from the Rex.
 
         // return BCSR.ID only
@@ -469,22 +458,44 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         return true; // TODO once fully migrated, return void as the exception is thrown;
     }
 
-    public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status) {
+    public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus newState) {
         throw new UnsupportedOperationException("This method should not be used with Remote coordinator");
     }
 
-    public void updateBuildTaskStatus(BuildTaskRef task, BuildCoordinationStatus status) {
+    public void updateBuildTaskStatus(
+            BuildTaskRef task,
+            BuildCoordinationStatus previousState,
+            BuildCoordinationStatus newState) {
         Build build = buildMapper.fromBuildTask(taskMappers.toBuildTask(task));
-        BuildStatus oldStatus = build.getStatus();
-        BuildStatus newStatus = BuildStatus.fromBuildCoordinationStatus(status);
+        BuildStatus oldStatus = BuildStatus.fromBuildCoordinationStatus(previousState);
+        BuildStatus newStatus = BuildStatus.fromBuildCoordinationStatus(newState);
+
+        if (build.getStatus().equals(newStatus)) {
+            // This can happen if we have a FAILED build in Rex that internally failed with SYSTEM_ERROR
+            log.warn(
+                    "Build task {} status mismatch between Rex BuildTask '{}' and desired status '{}'. Overriding status to {}.",
+                    build.getId(),
+                    build.getStatus(),
+                    newStatus,
+                    newStatus);
+            build = build.toBuilder().status(newStatus).build();
+        }
+
         BuildStatusChangedEvent buildStatusChanged = new DefaultBuildStatusChangedEvent(build, oldStatus, newStatus);
-        log.debug("Updated build task {} status to {}; new coord status: {}", task.getId(), buildStatusChanged, status);
+        log.debug(
+                "Updated build task {} status to {}; new coord status: {}",
+                task.getId(),
+                buildStatusChanged,
+                task.getStatus());
 
         logProcessStageChange(oldStatus, newStatus);
 
         // TODO make sure it satisfies NCL-5885
         buildStatusChangedEventNotifier.fire(buildStatusChanged);
-        log.debug("Fired buildStatusChangedEventNotifier after task {} status update to {}.", task.getId(), status);
+        log.debug(
+                "Fired buildStatusChangedEventNotifier after task {} status update to {}.",
+                task.getId(),
+                task.getStatus());
     }
 
     private void logProcessStageChange(BuildStatus oldStatus, BuildStatus newStatus) {
@@ -572,31 +583,19 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     private void completeNoBuild(
             RemoteBuildTask buildTask,
             Graph<RemoteBuildTask> buildGraph,
-            CompletionStatus completionStatus,
             BuildConfigSetRecord buildConfigSetRecord,
             User user) {
         String buildTaskId = buildTask.getId();
         Long buildConfigSetRecordId = buildConfigSetRecord == null ? null : buildConfigSetRecord.getId();
 
         BuildTaskRef taskRef = taskMappers.toNRRBuildTaskRef(buildTask, buildConfigSetRecordId);
-
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         try {
-            if (CompletionStatus.NO_REBUILD_REQUIRED.equals(completionStatus)) {
-                updateBuildTaskStatus(taskRef, BuildCoordinationStatus.REJECTED_ALREADY_BUILT);
-                // TODO cancel should be here enable in 2.0 as CANCELed is not failed build
-                // } else if (CompletionStatus.CANCELLED.equals(completionStatus)) {
-                // updateBuildTaskStatus(buildTask, BuildCoordinationStatus.CANCELLED);
-            } else {
-                throw new BuildCoordinationException(String.format("Invalid status %s.", completionStatus));
-            }
-
             log.debug("Storing no build required result. Id: {}", buildTaskId);
-
             BuildRecord buildRecord = datastoreAdapter.storeRecordForNoRebuild(taskRef);
 
             if (buildRecord.getStatus().completedSuccessfully()) {
-                coordinationStatus = BuildCoordinationStatus.DONE;
+                coordinationStatus = BuildCoordinationStatus.REJECTED_ALREADY_BUILT;
             } else {
                 log.warn(
                         "[buildTaskId: {}] Something went wrong while storing the success result. The status has changed to {}.",
@@ -609,7 +608,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             log.error("[buildTaskId: " + buildTaskId + "] Cannot store results to datastore.", e);
             coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
         } finally {
-            updateBuildTaskStatus(taskRef, coordinationStatus);
+            updateBuildTaskStatus(taskRef, BuildCoordinationStatus.NEW, coordinationStatus);
         }
     }
 
@@ -620,12 +619,15 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
 
     @Override
     // TODO propagate DatastoreException?
-    public void completeBuild(BuildTaskRef buildTask, Optional<BuildResult> buildResult) {
+    public void completeBuild(
+            BuildTaskRef buildTask,
+            Optional<BuildResult> buildResult,
+            BuildCoordinationStatus previousState) {
         try {
             if (buildResult.isPresent()) {
-                completeBuildWithResult(buildTask, buildResult.get());
+                completeBuildWithResult(buildTask, buildResult.get(), previousState);
             } else {
-                completeRejectedBuild(buildTask);
+                completeRejectedBuild(buildTask, previousState);
             }
         } finally {
             // Starts when the build execution completes
@@ -633,7 +635,10 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         }
     }
 
-    private void completeBuildWithResult(BuildTaskRef buildTaskRef, BuildResult buildResult) {
+    private void completeBuildWithResult(
+            BuildTaskRef buildTaskRef,
+            BuildResult buildResult,
+            BuildCoordinationStatus previousState) {
         String buildTaskId = buildTaskRef.getId();
 
         BuildCoordinationStatus coordinationStatus = BuildCoordinationStatus.SYSTEM_ERROR;
@@ -713,29 +718,29 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                 }
             }
 
-            updateBuildTaskStatus(buildTaskRef, coordinationStatus);
+            updateBuildTaskStatus(buildTaskRef, previousState, coordinationStatus);
 
         } catch (Throwable e) {
             log.error("[buildTaskId: " + buildTaskId + "] Cannot store results to datastore.", e);
-            updateBuildTaskStatus(buildTaskRef, BuildCoordinationStatus.SYSTEM_ERROR);
+            updateBuildTaskStatus(buildTaskRef, previousState, BuildCoordinationStatus.SYSTEM_ERROR);
         }
     }
 
-    private void completeRejectedBuild(BuildTaskRef rejectedTask) {
+    private void completeRejectedBuild(BuildTaskRef rejectedTask, BuildCoordinationStatus previousState) {
         log.debug("Finishing task {} due to a failed dependency.", rejectedTask.toString());
 
         String statusDescription = null;
         if (rejectedTask.getStatus() == BuildCoordinationStatus.CANCELLED) {
             log.debug("Finishing task {} due to a failed dependency.", rejectedTask.toString());
-            updateBuildTaskStatus(rejectedTask, BuildCoordinationStatus.CANCELLED);
+            updateBuildTaskStatus(rejectedTask, previousState, BuildCoordinationStatus.CANCELLED);
             statusDescription = "Dependency build was cancelled";
         } else if (rejectedTask.getStatus() == BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES) {
             log.debug("Finishing task {} due to a failed dependency.", rejectedTask.toString());
-            updateBuildTaskStatus(rejectedTask, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES);
+            updateBuildTaskStatus(rejectedTask, previousState, BuildCoordinationStatus.REJECTED_FAILED_DEPENDENCIES);
             statusDescription = "Dependency build failed";
         } else if (rejectedTask.getStatus() == BuildCoordinationStatus.SYSTEM_ERROR) {
             log.debug("Handling erroneous finish of {} without result.", rejectedTask.toString());
-            updateBuildTaskStatus(rejectedTask, BuildCoordinationStatus.SYSTEM_ERROR);
+            updateBuildTaskStatus(rejectedTask, previousState, BuildCoordinationStatus.SYSTEM_ERROR);
             statusDescription = "Build failed unexpectedly.";
         }
         log.trace("Status of build task {} updated.", rejectedTask);

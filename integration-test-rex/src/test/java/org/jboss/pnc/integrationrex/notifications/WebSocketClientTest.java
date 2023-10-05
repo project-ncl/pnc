@@ -152,7 +152,7 @@ public class WebSocketClientTest extends RemoteServices {
         Thread.sleep(1000);
         unsubscriber.run();
         wsClient.disconnect().get();
-        assertThat(notificationCounter).hasValueGreaterThanOrEqualTo(2);
+        assertThat(notificationCounter).hasValueGreaterThanOrEqualTo(1);
     }
 
     @Test
