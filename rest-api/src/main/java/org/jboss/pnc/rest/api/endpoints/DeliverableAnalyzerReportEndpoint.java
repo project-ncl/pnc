@@ -34,6 +34,7 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -43,6 +44,8 @@ import javax.ws.rs.core.MediaType;
 
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_CREATED_DESCRIPTION;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_CODE;
+import static org.jboss.pnc.rest.configuration.SwaggerConstants.ENTITY_DELETED_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_CODE;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.INVALID_DESCRIPTION;
 import static org.jboss.pnc.rest.configuration.SwaggerConstants.SERVER_ERROR_CODE;
@@ -66,6 +69,8 @@ public interface DeliverableAnalyzerReportEndpoint {
     String GET_ANALYZED_ARTIFACTS = "Gets analyzed artifacts of this deliverable analysis report";
 
     String ADD_DEL_AN_REPORT_LABEL = "Adds new deliverable analyzer report label to this report";
+
+    String REMOVE_DEL_AN_REPORT_LABEL = "Removes old deliverable analyzer report label from this report";
 
     @Operation(
             summary = GET_ANALYZED_ARTIFACTS,
@@ -103,6 +108,23 @@ public interface DeliverableAnalyzerReportEndpoint {
     @Path("/{id}/label")
     @POST
     void addLabel(
+            @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
+            @Valid DeliverableAnalyzerReportLabelRequest request);
+
+    @Operation(
+            summary = REMOVE_DEL_AN_REPORT_LABEL,
+            responses = { @ApiResponse(responseCode = ENTITY_DELETED_CODE, description = ENTITY_DELETED_DESCRIPTION),
+                    @ApiResponse(
+                            responseCode = INVALID_CODE,
+                            description = INVALID_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(
+                            responseCode = SERVER_ERROR_CODE,
+                            description = SERVER_ERROR_DESCRIPTION,
+                            content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
+    @Path("/{id}/label")
+    @DELETE
+    void removeLabel(
             @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
             @Valid DeliverableAnalyzerReportLabelRequest request);
 }

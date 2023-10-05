@@ -47,4 +47,9 @@ public class DeliverableAnalyzerReportEndpointImpl implements DeliverableAnalyze
     public void addLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
         provider.addLabel(id, request);
     }
+
+    @Override
+    public void removeLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
+        provider.removeLabel(id, request);
+    }
 }
