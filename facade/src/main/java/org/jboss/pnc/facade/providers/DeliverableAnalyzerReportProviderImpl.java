@@ -39,12 +39,15 @@ import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 
 @PermitAll
 @ApplicationScoped
@@ -117,6 +120,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
                 analyzedArtifacts);
     }
 
+    @RolesAllowed(SYSTEM_USER)
     @Override
     public void addLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
         Base32LongID reportId = transformToEntityId(id);
@@ -138,6 +142,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
                 labelHistoryEntry);
     }
 
+    @RolesAllowed(SYSTEM_USER)
     @Override
     public void removeLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
         Base32LongID reportId = transformToEntityId(id);
