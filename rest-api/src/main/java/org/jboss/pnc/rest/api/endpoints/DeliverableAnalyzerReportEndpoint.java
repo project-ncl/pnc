@@ -104,5 +104,5 @@ public interface DeliverableAnalyzerReportEndpoint {
     @POST
     void addLabel(
             @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
-            @Valid DeliverableAnalyzerReportLabelRequest deliverableAnalyzerReportLabelRequest);
+            @Valid DeliverableAnalyzerReportLabelRequest request);
 }
