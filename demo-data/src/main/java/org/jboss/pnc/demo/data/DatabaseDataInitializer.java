@@ -1272,16 +1272,27 @@ public class DatabaseDataInitializer {
                 .build();
         report1 = deliverableAnalyzerReportRepository.save(report1);
 
-        DeliverableAnalyzerLabelEntry report1labelEntry1 = DeliverableAnalyzerLabelEntry.builder()
+        DeliverableAnalyzerLabelEntry report1LabelEntry1 = DeliverableAnalyzerLabelEntry.builder()
                 .report(report1)
                 .changeOrder(1)
-                .entryTime(TODAY)
-                .user(demoUser)
-                .reason("This analysis was run as scratch!")
+                .entryTime(ONE_WEEK_BEFORE_TODAY)
+                .user(pncAdminUser)
                 .label(DeliverableAnalyzerReportLabel.SCRATCH)
                 .change(LabelOperation.ADDED)
+                .reason("This analysis was run as scratch!")
                 .build();
-        deliverableAnalyzerLabelEntryRepository.save(report1labelEntry1);
+        deliverableAnalyzerLabelEntryRepository.save(report1LabelEntry1);
+
+        DeliverableAnalyzerLabelEntry report1LabelEntry2 = DeliverableAnalyzerLabelEntry.builder()
+                .report(report1)
+                .changeOrder(2)
+                .entryTime(TODAY)
+                .user(pncAdminUser)
+                .label(DeliverableAnalyzerReportLabel.SCRATCH)
+                .change(LabelOperation.REMOVED)
+                .reason("This was actually quite successful, removing SCRATCH")
+                .build();
+        deliverableAnalyzerLabelEntryRepository.save(report1LabelEntry2);
 
         DeliverableArtifact report1analyzedArtifact1 = DeliverableArtifact.builder()
                 .report(report1)

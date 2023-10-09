@@ -20,14 +20,18 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.DeliverableAnalyzerReportClient;
 import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.demo.data.DatabaseDataInitializer;
+import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
+import org.jboss.pnc.model.User;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
@@ -38,6 +42,7 @@ import org.junit.runner.RunWith;
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.jboss.pnc.demo.data.DatabaseDataInitializer.*;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -82,5 +87,27 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(analyzedArtifact1.isBuiltFromSource()).isFalse();
         assertThat(analyzedArtifact1.getBrewId()).isNull();
         assertThat(analyzedArtifact1.getArtifact().getIdentifier()).isEqualTo("demo:imported-artifact2:jar:1.0");
+    }
+
+    @Test
+    public void testGetLabelHistory() throws ClientException {
+        // given
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asAnonymous());
+
+        // when
+        RemoteCollection<DeliverableAnalyzerLabelEntry> labelHistory = client.getLabelHistory(operationId);
+
+        // then
+        assertThat(labelHistory.size()).isEqualTo(2);
+
+        Iterator<DeliverableAnalyzerLabelEntry> labelHistoryIterator = labelHistory.iterator();
+        var firstLabelHistoryEntry = labelHistoryIterator.next();
+        assertThat(firstLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.SCRATCH);
+        assertThat(firstLabelHistoryEntry.getReason()).isEqualTo("This analysis was run as scratch!");
+
+        var secondLabelHistoryEntry = labelHistoryIterator.next();
+        assertThat(secondLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.SCRATCH);
+        assertThat(secondLabelHistoryEntry.getReason())
+                .isEqualTo("This was actually quite successful, removing SCRATCH");
     }
 }
