@@ -76,6 +76,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.CursorPageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultOrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.jboss.pnc.spi.exception.MissingDataException;
@@ -950,7 +951,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
         // NCL-8156 SECONDARY sort by unique column like long ID to achieve determinism
         comparing = thenCompareByLongID(comparing);
-        sortInfo = sortInfo.thenOrderBy(BuildRecord_.id, DESC);
+        sortInfo = sortInfo.thenOrderBy(DefaultOrderInfo.desc(BuildRecord_.id));
 
         MergeIterator<Build> builds = new MergeIterator(
                 runningBuilds.iterator(),
@@ -1092,7 +1093,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     private Optional<Build> readLatestFinishedBuild(Predicate<BuildRecord> predicate) {
         PageInfo pageInfo = this.pageInfoProducer.getPageInfo(0, 1);
-        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.descs(BuildRecord_.submitTime, BuildRecord_.id);
+        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.submitTime, BuildRecord_.id);
         List<BuildRecord> buildRecords = repository.queryWithPredicates(pageInfo, sortInfo, predicate);
 
         return buildRecords.stream().map(mapper::toDTO).findFirst();

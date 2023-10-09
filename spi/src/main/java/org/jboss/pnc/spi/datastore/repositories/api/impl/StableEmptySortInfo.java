@@ -15,26 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.datastore.limits.rsql;
+package org.jboss.pnc.spi.datastore.repositories.api.impl;
 
 import org.jboss.pnc.spi.datastore.repositories.api.OrderInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultOrderInfo;
-import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
-import javax.persistence.metamodel.SingularAttribute;
+import java.util.Collections;
+import java.util.List;
 
-public class StableEmptySortInfo<T> extends DefaultSortInfo<T> {
+/**
+ * This class represents a {@link SortInfo} that has no defined sorting. Internally it uses a default stable sorting,
+ * but otherwise is treated as an empty SortInfo.
+ * 
+ * @param <T>
+ */
+public class StableEmptySortInfo<T> implements SortInfo<T> {
 
-    public StableEmptySortInfo() {
-        super(new DefaultOrderInfo<T>(OrderInfo.SortingDirection.ASC, StableEmptySortInfo::idOrder));
+    @Override
+    public List<OrderInfo<T>> orders() {
+        return Collections
+                .singletonList(new DefaultOrderInfo<T>(OrderInfo.SortingDirection.ASC, StableEmptySortInfo::idOrder));
     }
 
     @Override
-    public DefaultSortInfo<T> thenOrderBy(SingularAttribute<T, ?> attribute, OrderInfo.SortingDirection direction) {
+    public DefaultSortInfo<T> thenOrderBy(OrderInfo<T> order) {
         // remove default ID sorting on a change of ordering
-        return new DefaultSortInfo<T>().thenOrderBy(attribute, direction);
+        return new DefaultSortInfo<T>(order);
     }
 
     private static <T> Expression<?> idOrder(Root<T> root) {
