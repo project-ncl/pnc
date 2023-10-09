@@ -38,6 +38,14 @@ public class DefaultOrderInfo<T> implements OrderInfo<T> {
         this.toExpression = root -> root.get(attribute);
     }
 
+    public static <T> DefaultOrderInfo<T> asc(SingularAttribute<T, ?> attribute) {
+        return new DefaultOrderInfo<>(SortingDirection.ASC, attribute);
+    }
+
+    public static <T> DefaultOrderInfo<T> desc(SingularAttribute<T, ?> attribute) {
+        return new DefaultOrderInfo<>(SortingDirection.DESC, attribute);
+    }
+
     @Override
     public SortingDirection getDirection() {
         return direction;
