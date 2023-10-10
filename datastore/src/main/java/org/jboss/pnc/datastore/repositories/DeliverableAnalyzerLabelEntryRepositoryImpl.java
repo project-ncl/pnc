@@ -25,13 +25,13 @@ import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry_;
 import org.jboss.pnc.model.DeliverableAnalyzerReport_;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.ejb.Stateless;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-@ApplicationScoped
+@Stateless
 public class DeliverableAnalyzerLabelEntryRepositoryImpl
         extends AbstractRepository<DeliverableAnalyzerLabelEntry, Base32LongID>
         implements DeliverableAnalyzerLabelEntryRepository {
