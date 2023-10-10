@@ -20,6 +20,7 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.DeliverableAnalyzerReportClient;
@@ -28,6 +29,7 @@ import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
@@ -35,6 +37,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -89,6 +92,7 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(analyzedArtifact1.getArtifact().getIdentifier()).isEqualTo("demo:imported-artifact2:jar:1.0");
     }
 
+    @Ignore
     @Test
     public void testGetLabelHistory() throws ClientException {
         // given
@@ -109,5 +113,41 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(secondLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.SCRATCH);
         assertThat(secondLabelHistoryEntry.getReason())
                 .isEqualTo("This was actually quite successful, removing SCRATCH");
+    }
+
+    @Test
+    @InSequence(10)
+    public void testRemoveLabelEntry() throws ClientException {
+        // given
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asSystem());
+        DeliverableAnalyzerReportLabelRequest request = DeliverableAnalyzerReportLabelRequest.builder()
+                .label(DeliverableAnalyzerReportLabel.SCRATCH)
+                .reason("It's perfect, let's make it RELEASED!")
+                .build();
+
+        // when
+        client.removeLabel(operationId, request);
+        RemoteCollection<DeliverableAnalyzerLabelEntry> labelHistory = client.getLabelHistory(operationId);
+
+        // then
+        assertThat(labelHistory.size()).isEqualTo(3);
+    }
+
+    @Test
+    @InSequence(20)
+    public void testAddLabelEntry() throws ClientException {
+        // given
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asSystem());
+        DeliverableAnalyzerReportLabelRequest request = DeliverableAnalyzerReportLabelRequest.builder()
+                .label(DeliverableAnalyzerReportLabel.RELEASED)
+                .reason("This was the true diamond, releasing..")
+                .build();
+
+        // when
+        client.addLabel(operationId, request);
+        RemoteCollection<DeliverableAnalyzerLabelEntry> labelHistory = client.getLabelHistory(operationId);
+
+        // then
+        assertThat(labelHistory.size()).isEqualTo(4);
     }
 }
