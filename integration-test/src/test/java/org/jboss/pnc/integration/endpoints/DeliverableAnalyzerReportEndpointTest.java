@@ -27,19 +27,15 @@ import org.jboss.pnc.client.DeliverableAnalyzerReportClient;
 import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.client.RemoteCollection;
 import org.jboss.pnc.client.RemoteResourceException;
-import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
-import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
-import org.jboss.pnc.model.User;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -47,9 +43,6 @@ import org.junit.runner.RunWith;
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jboss.pnc.demo.data.DatabaseDataInitializer.*;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunAsClient
@@ -144,7 +137,7 @@ public class DeliverableAnalyzerReportEndpointTest {
     @InSequence(30)
     public void testAddLabelEntry() throws ClientException {
         // given
-        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asSystem());
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asAnonymous());
         DeliverableAnalyzerReportLabelRequest request = DeliverableAnalyzerReportLabelRequest.builder()
                 .label(DeliverableAnalyzerReportLabel.RELEASED)
                 .reason("This was the true diamond, releasing..")
@@ -162,7 +155,7 @@ public class DeliverableAnalyzerReportEndpointTest {
     @InSequence(40)
     public void shouldThrowExceptionWhenAddingDuplicate() throws ClientException {
         // given
-        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asSystem());
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asAnonymous());
         DeliverableAnalyzerReportLabelRequest request = DeliverableAnalyzerReportLabelRequest.builder()
                 .label(DeliverableAnalyzerReportLabel.RELEASED)
                 .reason("Let's try to add duplicate RELEASED ^.-")
