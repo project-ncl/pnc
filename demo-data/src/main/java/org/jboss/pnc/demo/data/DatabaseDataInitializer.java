@@ -1284,16 +1284,10 @@ public class DatabaseDataInitializer {
         deliverableAnalyzerLabelEntryRepository.save(report1LabelEntry1);
 
         /*
-        DeliverableAnalyzerLabelEntry report1LabelEntry2 = DeliverableAnalyzerLabelEntry.builder()
-                .report(report1)
-                .changeOrder(2)
-                .entryTime(TODAY)
-                .user(pncAdminUser)
-                .label(DeliverableAnalyzerReportLabel.SCRATCH)
-                .change(LabelOperation.REMOVED)
-                .reason("This was actually quite successful, removing SCRATCH")
-                .build();
-        deliverableAnalyzerLabelEntryRepository.save(report1LabelEntry2);
+         * DeliverableAnalyzerLabelEntry report1LabelEntry2 = DeliverableAnalyzerLabelEntry.builder() .report(report1)
+         * .changeOrder(2) .entryTime(TODAY) .user(pncAdminUser) .label(DeliverableAnalyzerReportLabel.SCRATCH)
+         * .change(LabelOperation.REMOVED) .reason("This was actually quite successful, removing SCRATCH") .build();
+         * deliverableAnalyzerLabelEntryRepository.save(report1LabelEntry2);
          */
 
         DeliverableArtifact report1analyzedArtifact1 = DeliverableArtifact.builder()

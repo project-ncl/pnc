@@ -96,7 +96,11 @@ public class DeliverableAnalyzerReportLabelModifier extends
         switch (label) {
             case SCRATCH:
                 if (activeLabels.contains(label)) {
-                    throw new InvalidLabelOperationException(label, activeLabels, LabelOperation.REMOVED, ERR_REMOVE_SCRATCH);
+                    throw new InvalidLabelOperationException(
+                            label,
+                            activeLabels,
+                            LabelOperation.REMOVED,
+                            ERR_REMOVE_SCRATCH);
                 }
                 // Do not break!! We want the SCRATCH to be removed in this case
             case DELETED:

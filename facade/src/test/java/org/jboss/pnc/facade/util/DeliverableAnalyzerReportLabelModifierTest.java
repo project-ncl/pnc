@@ -210,8 +210,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
                 modifier::removeLabelFromActiveLabels,
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH),
                 DeliverableAnalyzerReportLabel.SCRATCH,
-                "Unable to remove the label SCRATCH from labels: [SCRATCH]: label marked SCRATCH cannot be removed"
-        );
+                "Unable to remove the label SCRATCH from labels: [SCRATCH]: label marked SCRATCH cannot be removed");
     }
 
     @Test
