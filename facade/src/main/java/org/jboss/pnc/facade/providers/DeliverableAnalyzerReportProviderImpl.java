@@ -100,7 +100,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
             String query,
             String sort,
             String id) {
-        Base32LongID entityId = transformToEntityId(id);
+        Base32LongID entityId = parseId(id);
         Predicate<DeliverableArtifact> rsqlPredicate = rsqlPredicateProducer
                 .getCriteriaPredicate(DeliverableArtifact.class, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
@@ -126,7 +126,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
     @Override
     public void addLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
-        Base32LongID reportId = transformToEntityId(id);
+        Base32LongID reportId = parseId(id);
         DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
         DeliverableAnalyzerLabelEntry labelHistoryEntry = DeliverableAnalyzerLabelEntry.builder()
                 .report(report)
@@ -147,7 +147,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
 
     @Override
     public void removeLabel(String id, DeliverableAnalyzerReportLabelRequest request) {
-        Base32LongID reportId = transformToEntityId(id);
+        Base32LongID reportId = parseId(id);
         DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
         DeliverableAnalyzerLabelEntry labelHistoryEntry = DeliverableAnalyzerLabelEntry.builder()
                 .report(report)
@@ -173,7 +173,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
             int pageSize,
             String sort,
             String query) {
-        var reportId = transformToEntityId(id);
+        Base32LongID reportId = parseId(id);
         Predicate<DeliverableAnalyzerLabelEntry> rsqlPredicate = rsqlPredicateProducer
                 .getCriteriaPredicate(DeliverableAnalyzerLabelEntry.class, query);
         PageInfo pageInfo = pageInfoProducer.getPageInfo(pageIndex, pageSize);
@@ -188,10 +188,6 @@ public class DeliverableAnalyzerReportProviderImpl extends
         int totalHits = deliverableAnalyzerLabelEntryRepository.count(rsqlPredicate, withReportId(reportId));
 
         return new Page<>(pageIndex, pageSize, totalHits, labelHistory);
-    }
-
-    private Base32LongID transformToEntityId(String id) {
-        return mapper.getIdMapper().toEntity(id);
     }
 
     private org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry deliverableAnalyzerLabelEntryToDto(
