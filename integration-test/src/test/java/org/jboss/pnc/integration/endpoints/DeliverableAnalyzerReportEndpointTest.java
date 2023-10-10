@@ -97,6 +97,7 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(analyzedArtifact1.getArtifact().getIdentifier()).isEqualTo("demo:imported-artifact2:jar:1.0");
     }
 
+    // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
     @Test
     public void testGetLabelHistory() throws ClientException {
         // given
@@ -119,6 +120,7 @@ public class DeliverableAnalyzerReportEndpointTest {
                 .isEqualTo("This was actually quite successful, removing SCRATCH");
     }
 
+    // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
     @Test
     @InSequence(20)
     public void testRemoveLabelEntry() throws ClientException {
@@ -137,6 +139,7 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(labelHistory.size()).isEqualTo(3);
     }
 
+    // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
     @Test
     @InSequence(30)
     public void testAddLabelEntry() throws ClientException {
