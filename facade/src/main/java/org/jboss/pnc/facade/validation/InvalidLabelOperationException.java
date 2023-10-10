@@ -55,7 +55,7 @@ public class InvalidLabelOperationException extends RuntimeException {
     public String getMessage() {
         return String.format(
                 "Unable to %s the label %s %s labels: %s: %s",
-                operation.getPresentTense(),
+                operation == LabelOperation.ADDED ? "add" : "remove",
                 label,
                 operation == LabelOperation.ADDED ? "to" : "from",
                 labels,
