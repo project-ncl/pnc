@@ -41,7 +41,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.enterprise.context.ApplicationScoped;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Date;
@@ -52,7 +52,7 @@ import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.DeliverableAnalyzerLabelEntryPredicates.withReportId;
 
 @PermitAll
-@ApplicationScoped
+@Stateless
 public class DeliverableAnalyzerReportProviderImpl extends
         AbstractProvider<Base32LongID, DeliverableAnalyzerReport, org.jboss.pnc.dto.DeliverableAnalyzerReport, org.jboss.pnc.dto.DeliverableAnalyzerReport>
         implements DeliverableAnalyzerReportProvider {
