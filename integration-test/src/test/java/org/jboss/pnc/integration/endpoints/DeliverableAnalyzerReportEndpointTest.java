@@ -26,11 +26,13 @@ import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.DeliverableAnalyzerReportClient;
 import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.client.RemoteResourceException;
 import org.jboss.pnc.demo.data.DatabaseDataInitializer;
 import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
+import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.model.User;
@@ -46,6 +48,9 @@ import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.jboss.pnc.demo.data.DatabaseDataInitializer.*;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -92,7 +97,6 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(analyzedArtifact1.getArtifact().getIdentifier()).isEqualTo("demo:imported-artifact2:jar:1.0");
     }
 
-    @Ignore
     @Test
     public void testGetLabelHistory() throws ClientException {
         // given
@@ -116,7 +120,7 @@ public class DeliverableAnalyzerReportEndpointTest {
     }
 
     @Test
-    @InSequence(10)
+    @InSequence(20)
     public void testRemoveLabelEntry() throws ClientException {
         // given
         var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asSystem());
@@ -134,7 +138,7 @@ public class DeliverableAnalyzerReportEndpointTest {
     }
 
     @Test
-    @InSequence(20)
+    @InSequence(30)
     public void testAddLabelEntry() throws ClientException {
         // given
         var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asSystem());
@@ -149,5 +153,24 @@ public class DeliverableAnalyzerReportEndpointTest {
 
         // then
         assertThat(labelHistory.size()).isEqualTo(4);
+    }
+
+    @Test
+    @InSequence(40)
+    public void shouldThrowExceptionWhenAddingDuplicate() throws ClientException {
+        // given
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asSystem());
+        DeliverableAnalyzerReportLabelRequest request = DeliverableAnalyzerReportLabelRequest.builder()
+                .label(DeliverableAnalyzerReportLabel.RELEASED)
+                .reason("Let's try to add duplicate RELEASED ^.-")
+                .build();
+
+        // then
+        try {
+            client.addLabel(operationId, request);
+            fail("Expecting this test method to throw exception when adding duplicate label");
+        } catch (RemoteResourceException ex) {
+            assertThat(ex.getCause().getMessage()).isEqualTo("HTTP 409 Conflict");
+        }
     }
 }
