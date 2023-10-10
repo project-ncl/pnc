@@ -204,24 +204,25 @@ public class DeliverableAnalyzerReportLabelModifierTest {
 
     @Test
     public void testRemoveScratchWhenScratchOnly() {
-        // { SCRATCH } ---SCRATCH---> { }
+        // { SCRATCH } ---SCRATCH---> error
 
-        generalModifyLabelTestWhenSuccess(
+        generalModifyLabelTestWhenFail(
                 modifier::removeLabelFromActiveLabels,
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH),
-                EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
-                DeliverableAnalyzerReportLabel.SCRATCH);
+                DeliverableAnalyzerReportLabel.SCRATCH,
+                "Unable to remove the label SCRATCH from labels: [SCRATCH]: label marked SCRATCH cannot be removed"
+        );
     }
 
     @Test
     public void testRemoveScratchWhenScratchAndReleased() {
-        // { SCRATCH, RELEASED } ---SCRATCH---> { RELEASED }
+        // { SCRATCH, RELEASED } ---SCRATCH---> error
 
-        generalModifyLabelTestWhenSuccess(
+        generalModifyLabelTestWhenFail(
                 modifier::removeLabelFromActiveLabels,
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH, DeliverableAnalyzerReportLabel.RELEASED),
-                EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED),
-                DeliverableAnalyzerReportLabel.SCRATCH);
+                DeliverableAnalyzerReportLabel.SCRATCH,
+                "Unable to remove the label SCRATCH from labels: [SCRATCH, RELEASED]: label marked SCRATCH cannot be removed");
     }
 
     private void generalModifyLabelTestWhenSuccess(

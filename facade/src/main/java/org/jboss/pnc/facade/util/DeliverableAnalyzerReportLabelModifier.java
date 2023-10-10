@@ -46,6 +46,7 @@ public class DeliverableAnalyzerReportLabelModifier extends
     public static final String ERR_DELETED_ADD_RELEASED = "cannot mark as RELEASED the report which is already marked DELETED";
     public static final String ERR_SCRATCH_ADD_RELEASED = "cannot mark as RELEASED the report which is already marked SCRATCH";
     public static final String ERR_ADD_SCRATCH = "label can be marked as SCRATCH only when the analysis is executed";
+    public static final String ERR_REMOVE_SCRATCH = "label marked SCRATCH cannot be removed";
 
     @Inject
     public DeliverableAnalyzerReportLabelModifier() {
@@ -93,9 +94,13 @@ public class DeliverableAnalyzerReportLabelModifier extends
         checkLabelIsPresent(label, activeLabels);
 
         switch (label) {
+            case SCRATCH:
+                if (activeLabels.contains(label)) {
+                    throw new InvalidLabelOperationException(label, activeLabels, LabelOperation.REMOVED, ERR_REMOVE_SCRATCH);
+                }
+                // Do not break!! We want the SCRATCH to be removed in this case
             case DELETED:
             case RELEASED:
-            case SCRATCH:
                 activeLabels.remove(label);
                 break;
             default:

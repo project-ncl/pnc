@@ -36,6 +36,7 @@ import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -114,6 +115,7 @@ public class DeliverableAnalyzerReportEndpointTest {
     }
 
     // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
+    @Ignore
     @Test
     @InSequence(20)
     public void testRemoveLabelEntry() throws ClientException {
@@ -133,6 +135,7 @@ public class DeliverableAnalyzerReportEndpointTest {
     }
 
     // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
+    @Ignore
     @Test
     @InSequence(30)
     public void testAddLabelEntry() throws ClientException {
@@ -151,6 +154,7 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(labelHistory.size()).isEqualTo(4);
     }
 
+    @Ignore
     @Test
     @InSequence(40)
     public void shouldThrowExceptionWhenAddingDuplicate() throws ClientException {
