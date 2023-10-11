@@ -22,6 +22,7 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.jackson.Jacksonized;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.api.enums.LabelOperation;
 
 import java.util.Date;
 
@@ -40,6 +41,11 @@ public class DeliverableAnalyzerLabelEntry {
      * The date of the change.
      */
     Date date;
+
+    /**
+     * Holds the information whether the {@link DeliverableAnalyzerReportLabel} is added (removed) to (from) this entry.
+     */
+    LabelOperation change;
 
     /**
      * The reason of the change.
