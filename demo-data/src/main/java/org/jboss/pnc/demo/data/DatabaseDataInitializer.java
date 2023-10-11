@@ -1268,7 +1268,7 @@ public class DatabaseDataInitializer {
 
         DeliverableAnalyzerReport report1 = DeliverableAnalyzerReport.builder()
                 .operation(operation2)
-                .labels(EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH))
+                .labels(EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED))
                 .build();
         report1 = deliverableAnalyzerReportRepository.save(report1);
 
@@ -1277,18 +1277,11 @@ public class DatabaseDataInitializer {
                 .changeOrder(1)
                 .entryTime(ONE_WEEK_BEFORE_TODAY)
                 .user(pncAdminUser)
-                .label(DeliverableAnalyzerReportLabel.SCRATCH)
+                .label(DeliverableAnalyzerReportLabel.RELEASED)
                 .change(LabelOperation.ADDED)
-                .reason("This analysis was run as scratch!")
+                .reason("This was a game-changer! Release it! <3")
                 .build();
         deliverableAnalyzerLabelEntryRepository.save(report1LabelEntry1);
-
-        /*
-         * DeliverableAnalyzerLabelEntry report1LabelEntry2 = DeliverableAnalyzerLabelEntry.builder() .report(report1)
-         * .changeOrder(2) .entryTime(TODAY) .user(pncAdminUser) .label(DeliverableAnalyzerReportLabel.SCRATCH)
-         * .change(LabelOperation.REMOVED) .reason("This was actually quite successful, removing SCRATCH") .build();
-         * deliverableAnalyzerLabelEntryRepository.save(report1LabelEntry2);
-         */
 
         DeliverableArtifact report1analyzedArtifact1 = DeliverableArtifact.builder()
                 .report(report1)

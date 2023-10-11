@@ -23,7 +23,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 /**
- * Mapper which maps {@link org.jboss.pnc.model.DeliverableAnalyzerLabelEntry} to {@link org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry}.
+ * Mapper which maps {@link org.jboss.pnc.model.DeliverableAnalyzerLabelEntry} to
+ * {@link org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry}.
  */
 @Mapper(config = MapperCentralConfig.class, uses = { UserMapper.class })
 public interface DeliverableAnalyzerLabelEntryMapper {

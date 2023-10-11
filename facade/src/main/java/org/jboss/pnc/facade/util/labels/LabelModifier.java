@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.util;
+package org.jboss.pnc.facade.util.labels;
 
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
@@ -30,7 +30,7 @@ import java.util.EnumSet;
 /**
  * The class implementing this interface is able to add (remove) new (old) label to (from) the set of active labels and
  * update the label history. Such a class complies with the rules of adding (removing) label for the given entity type
- * E.
+ * E. Concrete implementations of this class has to be annotated {@value @RequestScoped}.
  *
  * @param <L> label entity, e.g. {@link org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel}
  * @param <LH> label history entity, e.g. {@link org.jboss.pnc.model.DeliverableAnalyzerLabelEntry}
@@ -40,54 +40,55 @@ import java.util.EnumSet;
  */
 public abstract class LabelModifier<LO_ID extends Serializable, LH_ID extends Serializable, L extends Enum<L>, LH extends GenericEntity<LH_ID>> {
 
-    @Inject
-    protected Repository<LH, LH_ID> labelHistoryRepository;
+    protected LO_ID labeledObjectId;
 
-    public abstract void addLabelToActiveLabels(LO_ID labeledObjectId, L label, EnumSet<L> activeLabels)
-            throws InvalidLabelOperationException;
+    protected EnumSet<L> activeLabels;
 
-    public abstract void removeLabelFromActiveLabels(LO_ID labeledObjectId, L label, EnumSet<L> activeLabels)
-            throws InvalidLabelOperationException;
+    protected String reason;
 
-    @Transactional
+    @Transactional(Transactional.TxType.MANDATORY)
     public void addLabelToActiveLabelsAndModifyLabelHistory(
             LO_ID labeledObjectId,
             L label,
             EnumSet<L> activeLabels,
-            LH labelHistoryEntry) {
-        addLabelToActiveLabels(labeledObjectId, label, activeLabels);
-        modifyLabelHistory(labelHistoryEntry);
+            String reason) {
+        this.labeledObjectId = labeledObjectId;
+        this.activeLabels = activeLabels;
+        this.reason = reason;
+        validateAndAdd(label);
     }
 
-    @Transactional
+    @Transactional(Transactional.TxType.MANDATORY)
     public void removeLabelFromActiveLabelsAndModifyLabelHistory(
             LO_ID labeledObjectId,
             L label,
             EnumSet<L> activeLabels,
-            LH labelHistoryEntry) {
-        removeLabelFromActiveLabels(labeledObjectId, label, activeLabels);
-        modifyLabelHistory(labelHistoryEntry);
+            String reason) {
+        this.labeledObjectId = labeledObjectId;
+        this.activeLabels = activeLabels;
+        this.reason = reason;
+        validateAndRemove(label);
     }
 
-    private void modifyLabelHistory(LH labelHistoryEntry) {
-        labelHistoryRepository.save(labelHistoryEntry);
-    }
+    protected abstract void validateAndAdd(L label);
 
-    protected void checkLabelIsNotPresent(L label, EnumSet<L> labels) {
-        if (labels.contains(label)) {
+    protected abstract void validateAndRemove(L label);
+
+    protected void checkLabelIsNotPresent(L label) {
+        if (activeLabels.contains(label)) {
             throw new InvalidLabelOperationException(
                     label,
-                    labels,
+                    activeLabels,
                     LabelOperation.ADDED,
                     "label already present in the set of active labels");
         }
     }
 
-    protected void checkLabelIsPresent(L label, EnumSet<L> labels) {
-        if (!labels.contains(label)) {
+    protected void checkLabelIsPresent(L label) {
+        if (!activeLabels.contains(label)) {
             throw new InvalidLabelOperationException(
                     label,
-                    labels,
+                    activeLabels,
                     LabelOperation.REMOVED,
                     "no such label present in the set of active labels");
         }

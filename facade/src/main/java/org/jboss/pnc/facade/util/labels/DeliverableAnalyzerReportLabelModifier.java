@@ -15,20 +15,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.facade.util;
+package org.jboss.pnc.facade.util.labels;
 
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 
 import java.util.EnumSet;
 
-@FunctionalInterface
-public interface DeliverableAnalyzerReportLabelUpdateFunction {
+/**
+ *
+ */
+public interface DeliverableAnalyzerReportLabelModifier {
 
-    void accept(
-            Base32LongID reportId,
+    void addLabelToActiveLabelsAndModifyLabelHistory(
+            Base32LongID labeledObjectId,
             DeliverableAnalyzerReportLabel label,
             EnumSet<DeliverableAnalyzerReportLabel> activeLabels,
             String reason);
+
+    void removeLabelFromActiveLabelsAndModifyLabelHistory(
+            Base32LongID labeledObjectId,
+            DeliverableAnalyzerReportLabel label,
+            EnumSet<DeliverableAnalyzerReportLabel> activeLabels,
+            String reason);
+
+    void validateAndAdd(DeliverableAnalyzerReportLabel label) throws InvalidLabelOperationException;
+
+    void validateAndRemove(DeliverableAnalyzerReportLabel label);
 }

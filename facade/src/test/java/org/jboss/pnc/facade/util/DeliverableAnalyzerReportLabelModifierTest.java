@@ -18,6 +18,7 @@
 package org.jboss.pnc.facade.util;
 
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerReportLabelModifierImpl;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
@@ -42,7 +43,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
     private DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
 
     @InjectMocks
-    private DeliverableAnalyzerReportLabelModifier modifier;
+    private DeliverableAnalyzerReportLabelModifierImpl modifier;
 
     private static final Base32LongID reportId = new Base32LongID(42L);
 
@@ -50,10 +51,11 @@ public class DeliverableAnalyzerReportLabelModifierTest {
     public void shouldFailWhenAddingLabelWhichIsAlreadyThere() {
         InvalidLabelOperationException labelOperationException = assertThrows(
                 InvalidLabelOperationException.class,
-                () -> modifier.addLabelToActiveLabels(
+                () -> modifier.addLabelToActiveLabelsAndModifyLabelHistory(
                         reportId,
                         DeliverableAnalyzerReportLabel.SCRATCH,
-                        EnumSet.of(DeliverableAnalyzerReportLabel.DELETED, DeliverableAnalyzerReportLabel.SCRATCH)));
+                        EnumSet.of(DeliverableAnalyzerReportLabel.DELETED, DeliverableAnalyzerReportLabel.SCRATCH),
+                        null));
         assertThat(labelOperationException.getMessage()).isEqualTo(
                 "Unable to add the label SCRATCH to labels: [DELETED, SCRATCH]: label already present in the set of active labels");
     }
@@ -62,10 +64,11 @@ public class DeliverableAnalyzerReportLabelModifierTest {
     public void shouldFailWhenRemovingLabelWhichIsNotThere() {
         InvalidLabelOperationException labelOperationException = assertThrows(
                 InvalidLabelOperationException.class,
-                () -> modifier.removeLabelFromActiveLabels(
+                () -> modifier.removeLabelFromActiveLabelsAndModifyLabelHistory(
                         reportId,
                         DeliverableAnalyzerReportLabel.SCRATCH,
-                        EnumSet.noneOf(DeliverableAnalyzerReportLabel.class)));
+                        EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
+                        null));
         assertThat(labelOperationException.getMessage()).isEqualTo(
                 "Unable to remove the label SCRATCH from labels: []: no such label present in the set of active labels");
     }
@@ -75,7 +78,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { } +++DELETED+++> { DELETED }
 
         generalModifyLabelTestWhenSuccess(
-                modifier::addLabelToActiveLabels,
+                modifier::addLabelToActiveLabelsAndModifyLabelHistory,
                 EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
                 EnumSet.of(DeliverableAnalyzerReportLabel.DELETED),
                 DeliverableAnalyzerReportLabel.DELETED);
@@ -86,7 +89,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { RELEASED } +++DELETED+++> { DELETED }
 
         generalModifyLabelTestWhenSuccess(
-                modifier::addLabelToActiveLabels,
+                modifier::addLabelToActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED),
                 EnumSet.of(DeliverableAnalyzerReportLabel.DELETED),
                 DeliverableAnalyzerReportLabel.DELETED);
@@ -97,7 +100,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { SCRATCH } +++DELETED+++> { SCRATCH, DELETED }
 
         generalModifyLabelTestWhenSuccess(
-                modifier::addLabelToActiveLabels,
+                modifier::addLabelToActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH),
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH, DeliverableAnalyzerReportLabel.DELETED),
                 DeliverableAnalyzerReportLabel.DELETED);
@@ -108,7 +111,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { } +++RELEASED+++> { RELEASED }
 
         generalModifyLabelTestWhenSuccess(
-                modifier::addLabelToActiveLabels,
+                modifier::addLabelToActiveLabelsAndModifyLabelHistory,
                 EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
                 EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED),
                 DeliverableAnalyzerReportLabel.RELEASED);
@@ -119,7 +122,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { DELETED } +++RELEASED+++> error
 
         generalModifyLabelTestWhenFail(
-                modifier::addLabelToActiveLabels,
+                modifier::addLabelToActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.DELETED),
                 DeliverableAnalyzerReportLabel.RELEASED,
                 "Unable to add the label RELEASED to labels: [DELETED]: cannot mark as RELEASED the report which is already marked DELETED");
@@ -130,7 +133,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { SCRATCH } +++RELEASED+++> error
 
         generalModifyLabelTestWhenFail(
-                modifier::addLabelToActiveLabels,
+                modifier::addLabelToActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH),
                 DeliverableAnalyzerReportLabel.RELEASED,
                 "Unable to add the label RELEASED to labels: [SCRATCH]: cannot mark as RELEASED the report which is already marked SCRATCH");
@@ -141,7 +144,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { SCRATCH, DELETED } +++RELEASED+++> error
 
         generalModifyLabelTestWhenFail(
-                modifier::addLabelToActiveLabels,
+                modifier::addLabelToActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH, DeliverableAnalyzerReportLabel.DELETED),
                 DeliverableAnalyzerReportLabel.RELEASED,
                 "Unable to add the label RELEASED to labels: [DELETED, SCRATCH]: cannot mark as RELEASED the report which is already marked DELETED");
@@ -152,7 +155,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { } +++SCRATCH+++> error
 
         generalModifyLabelTestWhenFail(
-                modifier::addLabelToActiveLabels,
+                modifier::addLabelToActiveLabelsAndModifyLabelHistory,
                 EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
                 DeliverableAnalyzerReportLabel.SCRATCH,
                 "Unable to add the label SCRATCH to labels: []: label can be marked as SCRATCH only when the analysis is executed");
@@ -163,7 +166,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { RELEASED } +++SCRATCH+++> error
 
         generalModifyLabelTestWhenFail(
-                modifier::addLabelToActiveLabels,
+                modifier::addLabelToActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED),
                 DeliverableAnalyzerReportLabel.SCRATCH,
                 "Unable to add the label SCRATCH to labels: [RELEASED]: label can be marked as SCRATCH only when the analysis is executed");
@@ -174,7 +177,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { DELETED } ---DELETED---> { }
 
         generalModifyLabelTestWhenSuccess(
-                modifier::removeLabelFromActiveLabels,
+                modifier::removeLabelFromActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.DELETED),
                 EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
                 DeliverableAnalyzerReportLabel.DELETED);
@@ -185,7 +188,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { DELETED, SCRATCH } ---DELETED---> { SCRATCH }
 
         generalModifyLabelTestWhenSuccess(
-                modifier::removeLabelFromActiveLabels,
+                modifier::removeLabelFromActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.DELETED, DeliverableAnalyzerReportLabel.SCRATCH),
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH),
                 DeliverableAnalyzerReportLabel.DELETED);
@@ -196,7 +199,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { RELEASED } ---RELEASED---> { }
 
         generalModifyLabelTestWhenSuccess(
-                modifier::removeLabelFromActiveLabels,
+                modifier::removeLabelFromActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED),
                 EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
                 DeliverableAnalyzerReportLabel.RELEASED);
@@ -207,7 +210,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { SCRATCH } ---SCRATCH---> error
 
         generalModifyLabelTestWhenFail(
-                modifier::removeLabelFromActiveLabels,
+                modifier::removeLabelFromActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH),
                 DeliverableAnalyzerReportLabel.SCRATCH,
                 "Unable to remove the label SCRATCH from labels: [SCRATCH]: label marked SCRATCH cannot be removed");
@@ -218,7 +221,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         // { SCRATCH, RELEASED } ---SCRATCH---> error
 
         generalModifyLabelTestWhenFail(
-                modifier::removeLabelFromActiveLabels,
+                modifier::removeLabelFromActiveLabelsAndModifyLabelHistory,
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH, DeliverableAnalyzerReportLabel.RELEASED),
                 DeliverableAnalyzerReportLabel.SCRATCH,
                 "Unable to remove the label SCRATCH from labels: [SCRATCH, RELEASED]: label marked SCRATCH cannot be removed");
@@ -238,7 +241,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
 
         // when
         when(deliverableAnalyzerReportRepository.queryById(reportId)).thenReturn(reportWithoutUpdatedLabels);
-        functionProvider.accept(reportId, labelToBeApplied, nonUpdatedLabels);
+        functionProvider.accept(reportId, labelToBeApplied, nonUpdatedLabels, null);
 
         // then
         verify(deliverableAnalyzerReportRepository).save(reportWithUpdatedLabels);
@@ -251,7 +254,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
             String expectedExceptionMessage) {
         InvalidLabelOperationException labelOperationException = assertThrows(
                 InvalidLabelOperationException.class,
-                () -> functionProvider.accept(reportId, labelToBeApplied, nonUpdatedLabels));
+                () -> functionProvider.accept(reportId, labelToBeApplied, nonUpdatedLabels, null));
         assertThat(labelOperationException.getMessage()).isEqualTo(expectedExceptionMessage);
     }
 }

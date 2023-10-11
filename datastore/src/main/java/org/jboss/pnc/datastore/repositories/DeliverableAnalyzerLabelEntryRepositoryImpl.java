@@ -67,7 +67,7 @@ public class DeliverableAnalyzerLabelEntryRepositoryImpl
             return entityManager.createQuery(query).getSingleResult();
         } catch (NoResultException ex) {
             // In case the label history is empty, return the starting orderId
-            return 1;
+            return 0;
         }
     }
 }
