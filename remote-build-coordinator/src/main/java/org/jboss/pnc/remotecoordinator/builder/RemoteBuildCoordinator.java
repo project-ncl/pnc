@@ -830,6 +830,11 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         }
     }
 
+    @Override
+    public long queueSize() throws RemoteRequestException {
+        return buildScheduler.getBuildQueueSize();
+    }
+
     private String findTaskIdForCongifId(Graph<RemoteBuildTask> buildGraph, Integer id) {
         return GraphUtils.unwrap(buildGraph.getVerticies())
                 .stream()

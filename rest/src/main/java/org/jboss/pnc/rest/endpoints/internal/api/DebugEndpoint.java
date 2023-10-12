@@ -28,6 +28,7 @@ import javax.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.jboss.pnc.dto.response.LongResponse;
 import org.jboss.pnc.rest.configuration.SwaggerConstants;
 
 /**
@@ -43,6 +44,10 @@ public interface DebugEndpoint {
     @GET
     @Path("/build-queue")
     String getBuildQueueInfo();
+
+    @GET
+    @Path("/build-queue/size")
+    LongResponse getBuildQueueSize();
 
     /**
      * curl -v -X POST http://localhost:8080/pnc-rest/v2/debug/mq-send-dummy-message curl -v -X POST

@@ -973,6 +973,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
         log.info("The application is shutting down ...");
     }
 
+    @Override
+    public long queueSize() {
+        return systemConfig.getCoordinatorMaxConcurrentBuilds();
+    }
+
     private void startThreads() {
         int threadPoolSize = systemConfig.getCoordinatorThreadPoolSize();
         ExecutorService executorService = MDCExecutors
