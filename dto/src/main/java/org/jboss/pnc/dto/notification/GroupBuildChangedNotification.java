@@ -78,6 +78,8 @@ public class GroupBuildChangedNotification extends Notification {
     public static JobNotificationProgress getPreviousProgress(BuildStatus status) {
         if (BuildStatus.NEW.equals(status)) {
             return null;
+        } else if (BuildStatus.NO_REBUILD_REQUIRED.equals(status)) {
+            return PENDING;
         } else if (status.isFinal()) {
             return IN_PROGRESS;
         } else {
