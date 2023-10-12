@@ -36,4 +36,8 @@ public interface RexBuildScheduler {
             throws ScheduleException;
 
     void cancel(String taskId) throws RemoteRequestException;
+
+    long getBuildQueueSize() throws RemoteRequestException;
+
+    void setBuildQueueSize(long queueSize) throws RemoteRequestException;
 }

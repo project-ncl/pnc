@@ -35,6 +35,7 @@ import org.jboss.pnc.model.BuildConfiguration;
 import org.jboss.pnc.model.BuildConfigurationAudited;
 import org.jboss.pnc.model.BuildConfigurationSet;
 import org.jboss.pnc.model.BuildRecord;
+import org.jboss.pnc.model.GenericSetting;
 import org.jboss.pnc.model.IdRev;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
@@ -55,6 +56,7 @@ import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.datastore.DatastoreException;
 import org.jboss.pnc.spi.datastore.repositories.BuildConfigurationAuditedRepository;
+import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.events.BuildSetStatusChangedEvent;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
 import org.jboss.pnc.spi.exception.BuildConflictException;
@@ -83,6 +85,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
 
 /**
  * Individual build submitted: - collect all the tasks based on the dependencies
@@ -117,6 +121,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     private GroupBuildMapper groupBuildMapper;
     private BuildMapper buildMapper;
     private BuildTaskMappers taskMappers;
+    private GenericSettingRepository genericSettingRepository;
 
     private BuildConfigurationAuditedRepository bcaRepository;
 
@@ -136,7 +141,8 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
             GroupBuildMapper groupBuildMapper,
             BuildMapper buildMapper,
             BuildTasksInitializer buildTasksInitializer,
-            BuildTaskMappers taskMappers) {
+            BuildTaskMappers taskMappers,
+            GenericSettingRepository genericSettingRepository) {
         this.datastoreAdapter = datastoreAdapter;
         this.buildStatusChangedEventNotifier = buildStatusChangedEventNotifier;
         this.buildSetStatusChangedEventNotifier = buildSetStatusChangedEventNotifier;
@@ -148,6 +154,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         this.groupBuildMapper = groupBuildMapper;
         this.buildMapper = buildMapper;
         this.taskMappers = taskMappers;
+        this.genericSettingRepository = genericSettingRepository;
     }
 
     /**
@@ -470,7 +477,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
         BuildStatus oldStatus = BuildStatus.fromBuildCoordinationStatus(previousState);
         BuildStatus newStatus = BuildStatus.fromBuildCoordinationStatus(newState);
 
-        if (build.getStatus().equals(newStatus)) {
+        if (!build.getStatus().equals(newStatus)) {
             // This can happen if we have a FAILED build in Rex that internally failed with SYSTEM_ERROR
             log.warn(
                     "Build task {} status mismatch between Rex BuildTask '{}' and desired status '{}'. Overriding status to {}.",
@@ -769,6 +776,33 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     @PostConstruct
     public void start() {
         log.info("The application is starting ...");
+
+        try {
+            setMaximumConcurrentBuilds(systemConfig.getCoordinatorMaxConcurrentBuilds());
+        } catch (Exception e) {
+            // ignore, to avoid interrupting startup
+            log.error("Couldn't set Queue size on startup.", e);
+        }
+    }
+
+    private void setMaximumConcurrentBuilds(int queueSize) throws RemoteRequestException {
+        // TODO uncomment if maintenance mode modifies the queue size
+        /*
+         * if (isInMaintenanceMode()) {
+         * log.info("Orchestrator is in maintenance mode. Skipping adjustment of queue size."); return; }
+         */
+
+        if (buildScheduler.getBuildQueueSize() != queueSize) {
+            log.info("Changing build queue size to {}", queueSize);
+            buildScheduler.setBuildQueueSize(queueSize);
+            log.info("Build queue size set to {}.", queueSize);
+        }
+    }
+
+    private boolean isInMaintenanceMode() {
+        GenericSetting setting = genericSettingRepository.queryByKey(MAINTENANCE_MODE);
+
+        return setting != null && setting.getValue() != null && setting.getValue().equals(Boolean.TRUE.toString());
     }
 
     @PreDestroy

@@ -61,6 +61,7 @@ import org.jboss.pnc.spi.coordinator.BuildTask;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
 import org.jboss.pnc.spi.datastore.DatastoreException;
+import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.exception.BuildConflictException;
 import org.jboss.pnc.spi.exception.BuildRequestException;
@@ -180,7 +181,8 @@ public abstract class AbstractDependentBuildTest {
                 mock(GroupBuildMapper.class),
                 mock(BuildMapper.class),
                 buildTasksInitializer,
-                mock(BuildTaskMappers.class));
+                mock(BuildTaskMappers.class),
+                mock(GenericSettingRepository.class));
 
         updateSetJob = new SetRecordTasks(taskRepository, datastore, coordinator);
         buildScheduler.setTaskRepositoryMock(taskRepository);

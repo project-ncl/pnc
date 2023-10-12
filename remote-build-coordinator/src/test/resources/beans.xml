@@ -22,7 +22,9 @@
     <alternatives>
         <class>org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler</class>
         <class>org.jboss.pnc.remotecoordinator.test.mock.RexHttpClientMock</class>
+        <class>org.jboss.pnc.remotecoordinator.test.mock.RexQueueHttpClientMock</class>
         <class>org.jboss.pnc.remotecoordinator.test.mock.UserRepositoryMock</class>
+        <class>org.jboss.pnc.remotecoordinator.test.mock.GenericSettingsRepositoryMock</class>
         <class>org.jboss.pnc.mock.mapper.AlignStratMapperMock</class>
     </alternatives>
     <scan>
