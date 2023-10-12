@@ -101,6 +101,8 @@ public interface BuildCoordinator {
 
     void start();
 
+    long queueSize() throws RemoteRequestException;
+
     @Deprecated
     Optional<BuildTaskContext> getMDCMeta(String buildTaskId);
 }

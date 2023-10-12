@@ -167,4 +167,9 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     @Override
     public void start() {
     }
+
+    @Override
+    public long queueSize() {
+        return 5;
+    }
 }
