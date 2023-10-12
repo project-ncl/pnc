@@ -45,9 +45,11 @@ import org.jboss.pnc.mock.repository.BuildConfigSetRecordRepositoryMock;
 import org.jboss.pnc.mock.repository.BuildConfigurationAuditedRepositoryMock;
 import org.jboss.pnc.model.BuildEnvironment;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
+import org.jboss.pnc.remotecoordinator.test.mock.GenericSettingsRepositoryMock;
 import org.jboss.pnc.remotecoordinator.test.mock.RexHttpClientMock;
 import org.jboss.pnc.remotecoordinator.builder.RexFacade;
 import org.jboss.pnc.remotecoordinator.test.mock.MockBuildScheduler;
+import org.jboss.pnc.remotecoordinator.test.mock.RexQueueHttpClientMock;
 import org.jboss.pnc.remotecoordinator.test.mock.UserRepositoryMock;
 import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildSetStatusChangedEvent;
@@ -107,8 +109,10 @@ public class BuildCoordinatorDeployments {
                 .addClass(TestEntitiesFactory.class)
                 .addClass(BuildCoordinatorFactory.class)
                 .addClass(BuildConfigurationAuditedRepositoryMock.class)
+                .addClass(GenericSettingsRepositoryMock.class)
                 .addClass(EntityManagerMock.class)
                 .addClass(RexHttpClientMock.class)
+                .addClass(RexQueueHttpClientMock.class)
                 .addClass(UserRepositoryMock.class)
                 .addPackages(false, BuildResultMapper.class.getPackage())
                 .addPackages(

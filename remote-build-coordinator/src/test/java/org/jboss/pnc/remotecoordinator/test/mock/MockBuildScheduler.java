@@ -29,6 +29,7 @@ import org.jboss.pnc.spi.builddriver.BuildDriverResult;
 import org.jboss.pnc.spi.coordinator.CompletionStatus;
 import org.jboss.pnc.spi.coordinator.DefaultBuildTaskRef;
 import org.jboss.pnc.spi.coordinator.RemoteBuildTask;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 import org.jboss.pnc.spi.exception.ScheduleException;
 import org.jboss.pnc.spi.executor.BuildExecutionConfiguration;
 import org.jboss.pnc.spi.repositorymanager.RepositoryManagerResult;
@@ -147,5 +148,14 @@ public class MockBuildScheduler implements RexBuildScheduler {
 
     public long activeBuildTaskCount() {
         return taskRepositoryMock.getUnfinishedTasks().size();
+    }
+
+    @Override
+    public long getBuildQueueSize() throws RemoteRequestException {
+        return 10;
+    }
+
+    @Override
+    public void setBuildQueueSize(long queueSize) {
     }
 }
