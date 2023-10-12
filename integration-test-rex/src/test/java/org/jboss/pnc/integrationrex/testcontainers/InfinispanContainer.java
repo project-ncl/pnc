@@ -42,9 +42,4 @@ public class InfinispanContainer extends GenericContainer<InfinispanContainer> {
         withEnv("USER", INFINISPAN_USERNAME);
         withEnv("PASS", INFINISPAN_PASSWORD);
     }
-
-    public String getIPAddress() {
-        getMappedPort(11222);
-        return getHost() + ':' + getMappedPort(11222);
-    }
 }

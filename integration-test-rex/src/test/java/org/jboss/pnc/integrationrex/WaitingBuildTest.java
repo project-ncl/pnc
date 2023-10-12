@@ -38,7 +38,9 @@ import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -77,14 +79,23 @@ public class WaitingBuildTest extends RemoteServices {
     BuildUtils buildUtils;
 
     private static final String PNC_SOCKET_URL = "ws://localhost:8080" + NOTIFICATION_PATH;
-    WebSocketClient wsClient = new VertxWebSocketClient();
 
-    private BPMWireMock bpm;
+    private final WebSocketClient wsClient = new VertxWebSocketClient();
+
+    private static BPMWireMock bpm;
+
+    @BeforeClass
+    public static void startBPM() {
+        bpm = new BPMWireMock(8088);
+    }
+
+    @AfterClass
+    public static void stopBPM() throws IOException {
+        bpm.close();
+    }
 
     @Before
     public void beforeEach() throws ExecutionException, InterruptedException {
-        bpm = new BPMWireMock(8088);
-
         String token = KeycloakClient
                 .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
                 .getToken();
@@ -99,7 +110,6 @@ public class WaitingBuildTest extends RemoteServices {
 
     @After
     public void afterEach() throws IOException {
-        bpm.close();
         wsClient.disconnect();
     }
 
