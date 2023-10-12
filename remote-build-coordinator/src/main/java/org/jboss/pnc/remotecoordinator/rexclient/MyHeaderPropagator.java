@@ -19,10 +19,13 @@ package org.jboss.pnc.remotecoordinator.rexclient;
 
 import org.eclipse.microprofile.rest.client.ext.ClientHeadersFactory;
 import org.jboss.pnc.api.constants.HttpHeaders;
+import org.jboss.pnc.auth.KeycloakServiceClient;
 import org.jboss.pnc.common.log.MDCUtils;
 
+import javax.enterprise.inject.spi.CDI;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import java.util.List;
 import java.util.Map;
 
 public class MyHeaderPropagator implements ClientHeadersFactory {
@@ -41,6 +44,9 @@ public class MyHeaderPropagator implements ClientHeadersFactory {
             MultivaluedMap<String, String> clientOutgoingHeaders) {
         MultivaluedMap<String, String> outgoingHeaders = new MultivaluedHashMap<>();
 
+        KeycloakServiceClient keycloakServiceClient = CDI.current().select(KeycloakServiceClient.class).get();
+        outgoingHeaders
+                .put(HttpHeaders.AUTHORIZATION_STRING, List.of("Bearer " + keycloakServiceClient.getAuthToken()));
         addMDCHeaders(outgoingHeaders);
 
         return outgoingHeaders;
