@@ -370,12 +370,10 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 .map(entry -> new Request.Header(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
-        String loginToken = keycloakServiceClient.getAuthToken();
         headers.addAll(
                 List.of(
                         new Request.Header(HttpHeaders.CONTENT_TYPE_STRING, ContentType.APPLICATION_JSON.toString()),
-                        new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON),
-                        new Request.Header(HttpHeaders.AUTHORIZATION_STRING, "Bearer " + loginToken)));
+                        new Request.Header(HttpHeaders.ACCEPT_STRING, MediaType.APPLICATION_JSON)));
 
         Request remoteStart = bpmUrlFactory.startProcessInstance(
                 bpmConfig.getBpmNewDeploymentId(),
