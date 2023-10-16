@@ -19,6 +19,7 @@ package org.jboss.pnc.facade.util.labels;
 
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
+import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
@@ -37,9 +38,15 @@ public class DeliverableAnalyzerLabelSaverImpl extends
         LabelSaver<Base32LongID, Base32LongID, DeliverableAnalyzerReportLabel, DeliverableAnalyzerLabelEntry, DeliverableAnalyzerReport>
         implements DeliverableAnalyzerLabelSaver {
 
+    private final UserService userService;
+
     @Inject
-    public DeliverableAnalyzerLabelSaverImpl(DeliverableAnalyzerLabelEntryRepository repository) {
+    public DeliverableAnalyzerLabelSaverImpl(
+            DeliverableAnalyzerLabelEntryRepository repository,
+            UserService userService) {
         super(repository);
+
+        this.userService = userService;
     }
 
     @Override
@@ -68,6 +75,7 @@ public class DeliverableAnalyzerLabelSaverImpl extends
         return DeliverableAnalyzerLabelEntry.builder()
                 .report(labeledObject)
                 .changeOrder(++nextChangeOrder)
+                .user(userService.currentUser())
                 .entryTime(Date.from(Instant.now()))
                 .reason(reason)
                 .label(label)
