@@ -148,7 +148,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
         DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
 
         labelSaver.init(report, request.getReason());
-        labelModifier.addLabelToActiveLabelsAndModifyLabelHistory(
+        labelModifier.addLabel(
                 reportId,
                 request.getLabel(),
                 report.getLabels(),
@@ -161,7 +161,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
         DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
 
         labelSaver.init(report, request.getReason());
-        labelModifier.removeLabelFromActiveLabelsAndModifyLabelHistory(
+        labelModifier.removeLabel(
                 reportId,
                 request.getLabel(),
                 report.getLabels(),

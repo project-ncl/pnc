@@ -28,13 +28,13 @@ import java.util.EnumSet;
  */
 public interface DeliverableAnalyzerReportLabelModifier {
 
-    void addLabelToActiveLabelsAndModifyLabelHistory(
+    void addLabel(
             Base32LongID labeledObjectId,
             DeliverableAnalyzerReportLabel label,
             EnumSet<DeliverableAnalyzerReportLabel> activeLabels,
             String reason);
 
-    void removeLabelFromActiveLabelsAndModifyLabelHistory(
+    void removeLabel(
             Base32LongID labeledObjectId,
             DeliverableAnalyzerReportLabel label,
             EnumSet<DeliverableAnalyzerReportLabel> activeLabels,

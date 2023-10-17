@@ -20,9 +20,7 @@ package org.jboss.pnc.facade.util.labels;
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
-import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.util.EnumSet;
@@ -47,7 +45,7 @@ public abstract class LabelModifier<LO_ID extends Serializable, LH_ID extends Se
     protected String reason;
 
     @Transactional(Transactional.TxType.MANDATORY)
-    public void addLabelToActiveLabelsAndModifyLabelHistory(
+    public void addLabel(
             LO_ID labeledObjectId,
             L label,
             EnumSet<L> activeLabels,
@@ -59,7 +57,7 @@ public abstract class LabelModifier<LO_ID extends Serializable, LH_ID extends Se
     }
 
     @Transactional(Transactional.TxType.MANDATORY)
-    public void removeLabelFromActiveLabelsAndModifyLabelHistory(
+    public void removeLabel(
             LO_ID labeledObjectId,
             L label,
             EnumSet<L> activeLabels,
