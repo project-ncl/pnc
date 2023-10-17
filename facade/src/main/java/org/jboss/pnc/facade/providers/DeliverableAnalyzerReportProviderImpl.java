@@ -148,11 +148,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
         DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
 
         labelSaver.init(report, request.getReason());
-        labelModifier.addLabel(
-                reportId,
-                request.getLabel(),
-                report.getLabels(),
-                request.getReason());
+        labelModifier.addLabel(reportId, request.getLabel(), report.getLabels(), request.getReason());
     }
 
     @Override
@@ -161,11 +157,7 @@ public class DeliverableAnalyzerReportProviderImpl extends
         DeliverableAnalyzerReport report = deliverableAnalyzerReportRepository.queryById(reportId);
 
         labelSaver.init(report, request.getReason());
-        labelModifier.removeLabel(
-                reportId,
-                request.getLabel(),
-                report.getLabels(),
-                request.getReason());
+        labelModifier.removeLabel(reportId, request.getLabel(), report.getLabels(), request.getReason());
     }
 
     private AnalyzedArtifact deliverableArtifactToDto(DeliverableArtifact deliverableArtifact) {

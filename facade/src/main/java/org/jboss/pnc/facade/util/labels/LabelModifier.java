@@ -45,11 +45,7 @@ public abstract class LabelModifier<LO_ID extends Serializable, LH_ID extends Se
     protected String reason;
 
     @Transactional(Transactional.TxType.MANDATORY)
-    public void addLabel(
-            LO_ID labeledObjectId,
-            L label,
-            EnumSet<L> activeLabels,
-            String reason) {
+    public void addLabel(LO_ID labeledObjectId, L label, EnumSet<L> activeLabels, String reason) {
         this.labeledObjectId = labeledObjectId;
         this.activeLabels = activeLabels;
         this.reason = reason;
@@ -57,11 +53,7 @@ public abstract class LabelModifier<LO_ID extends Serializable, LH_ID extends Se
     }
 
     @Transactional(Transactional.TxType.MANDATORY)
-    public void removeLabel(
-            LO_ID labeledObjectId,
-            L label,
-            EnumSet<L> activeLabels,
-            String reason) {
+    public void removeLabel(LO_ID labeledObjectId, L label, EnumSet<L> activeLabels, String reason) {
         this.labeledObjectId = labeledObjectId;
         this.activeLabels = activeLabels;
         this.reason = reason;

@@ -18,15 +18,16 @@
 package org.jboss.pnc.facade.util;
 
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerLabelSaver;
 import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerReportLabelModifierImpl;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerReport;
-import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.EnumSet;
@@ -34,13 +35,12 @@ import java.util.EnumSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeliverableAnalyzerReportLabelModifierTest {
 
     @Mock
-    private DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
+    private DeliverableAnalyzerLabelSaver deliverableAnalyzerLabelSaver;
 
     @InjectMocks
     private DeliverableAnalyzerReportLabelModifierImpl modifier;
@@ -76,45 +76,59 @@ public class DeliverableAnalyzerReportLabelModifierTest {
     @Test
     public void testAddDeletedWhenEmpty() {
         // { } +++DELETED+++> { DELETED }
+        var labelToBeAdded = DeliverableAnalyzerReportLabel.DELETED;
+        EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.noneOf(DeliverableAnalyzerReportLabel.class);
 
-        generalModifyLabelTestWhenSuccess(
-                modifier::addLabel,
-                EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
-                EnumSet.of(DeliverableAnalyzerReportLabel.DELETED),
-                DeliverableAnalyzerReportLabel.DELETED);
+        // when
+        modifier.addLabel(reportId, labelToBeAdded, activeLabels, null);
+
+        // then
+        verify(deliverableAnalyzerLabelSaver).addLabel(labelToBeAdded);
     }
 
     @Test
     public void testAddDeletedWhenReleasedOnly() {
         // { RELEASED } +++DELETED+++> { DELETED }
+        // given
+        var labelToBeAdded = DeliverableAnalyzerReportLabel.DELETED;
+        EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED);
 
-        generalModifyLabelTestWhenSuccess(
-                modifier::addLabel,
-                EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED),
-                EnumSet.of(DeliverableAnalyzerReportLabel.DELETED),
-                DeliverableAnalyzerReportLabel.DELETED);
+        // when
+        modifier.addLabel(reportId, labelToBeAdded, activeLabels, null);
+
+        // then
+        InOrder inOrder = Mockito.inOrder(deliverableAnalyzerLabelSaver);
+
+        inOrder.verify(deliverableAnalyzerLabelSaver).removeLabel(DeliverableAnalyzerReportLabel.RELEASED);
+        inOrder.verify(deliverableAnalyzerLabelSaver).addLabel(DeliverableAnalyzerReportLabel.DELETED);
     }
 
     @Test
     public void testAddDeletedWhenScratchOnly() {
         // { SCRATCH } +++DELETED+++> { SCRATCH, DELETED }
+        // given
+        var labelToBeAdded = DeliverableAnalyzerReportLabel.DELETED;
+        EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH);
 
-        generalModifyLabelTestWhenSuccess(
-                modifier::addLabel,
-                EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH),
-                EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH, DeliverableAnalyzerReportLabel.DELETED),
-                DeliverableAnalyzerReportLabel.DELETED);
+        // when
+        modifier.addLabel(reportId, labelToBeAdded, activeLabels, null);
+
+        // then
+        verify(deliverableAnalyzerLabelSaver).addLabel(labelToBeAdded);
     }
 
     @Test
     public void testAddReleasedWhenEmpty() {
         // { } +++RELEASED+++> { RELEASED }
+        // given
+        var labelToBeAdded = DeliverableAnalyzerReportLabel.RELEASED;
+        EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.noneOf(DeliverableAnalyzerReportLabel.class);
 
-        generalModifyLabelTestWhenSuccess(
-                modifier::addLabel,
-                EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
-                EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED),
-                DeliverableAnalyzerReportLabel.RELEASED);
+        // when
+        modifier.addLabel(reportId, labelToBeAdded, activeLabels, null);
+
+        // then
+        verify(deliverableAnalyzerLabelSaver).addLabel(labelToBeAdded);
     }
 
     @Test
@@ -175,40 +189,49 @@ public class DeliverableAnalyzerReportLabelModifierTest {
     @Test
     public void testRemoveDeletedWhenDeletedOnly() {
         // { DELETED } ---DELETED---> { }
+        // given
+        var labelToBeRemoved = DeliverableAnalyzerReportLabel.DELETED;
+        EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.of(DeliverableAnalyzerReportLabel.DELETED);
 
-        generalModifyLabelTestWhenSuccess(
-                modifier::removeLabel,
-                EnumSet.of(DeliverableAnalyzerReportLabel.DELETED),
-                EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
-                DeliverableAnalyzerReportLabel.DELETED);
+        // when
+        modifier.removeLabel(reportId, labelToBeRemoved, activeLabels, null);
+
+        // then
+        verify(deliverableAnalyzerLabelSaver).removeLabel(labelToBeRemoved);
     }
 
     @Test
     public void testRemoveDeletedWhenDeletedAndScratch() {
         // { DELETED, SCRATCH } ---DELETED---> { SCRATCH }
+        // given
+        var labelToBeRemoved = DeliverableAnalyzerReportLabel.DELETED;
+        EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet
+                .of(DeliverableAnalyzerReportLabel.DELETED, DeliverableAnalyzerReportLabel.SCRATCH);
 
-        generalModifyLabelTestWhenSuccess(
-                modifier::removeLabel,
-                EnumSet.of(DeliverableAnalyzerReportLabel.DELETED, DeliverableAnalyzerReportLabel.SCRATCH),
-                EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH),
-                DeliverableAnalyzerReportLabel.DELETED);
+        // when
+        modifier.removeLabel(reportId, labelToBeRemoved, activeLabels, null);
+
+        // then
+        verify(deliverableAnalyzerLabelSaver).removeLabel(labelToBeRemoved);
     }
 
     @Test
     public void testRemoveReleasedWhenReleasedOnly() {
         // { RELEASED } ---RELEASED---> { }
+        // given
+        var labelToBeRemoved = DeliverableAnalyzerReportLabel.RELEASED;
+        EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED);
 
-        generalModifyLabelTestWhenSuccess(
-                modifier::removeLabel,
-                EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED),
-                EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
-                DeliverableAnalyzerReportLabel.RELEASED);
+        // when
+        modifier.removeLabel(reportId, labelToBeRemoved, activeLabels, null);
+
+        // then
+        verify(deliverableAnalyzerLabelSaver).removeLabel(labelToBeRemoved);
     }
 
     @Test
     public void testRemoveScratchWhenScratchOnly() {
         // { SCRATCH } ---SCRATCH---> error
-
         generalModifyLabelTestWhenFail(
                 modifier::removeLabel,
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH),
@@ -225,26 +248,6 @@ public class DeliverableAnalyzerReportLabelModifierTest {
                 EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH, DeliverableAnalyzerReportLabel.RELEASED),
                 DeliverableAnalyzerReportLabel.SCRATCH,
                 "Unable to remove the label SCRATCH from labels: [SCRATCH, RELEASED]: label marked SCRATCH cannot be removed");
-    }
-
-    private void generalModifyLabelTestWhenSuccess(
-            DeliverableAnalyzerReportLabelUpdateFunction functionProvider,
-            EnumSet<DeliverableAnalyzerReportLabel> nonUpdatedLabels,
-            EnumSet<DeliverableAnalyzerReportLabel> updatedLabels,
-            DeliverableAnalyzerReportLabel labelToBeApplied) {
-        // given
-        var reportWithoutUpdatedLabels = DeliverableAnalyzerReport.builder()
-                .id(reportId)
-                .labels(nonUpdatedLabels)
-                .build();
-        var reportWithUpdatedLabels = reportWithoutUpdatedLabels.toBuilder().labels(updatedLabels).build();
-
-        // when
-        when(deliverableAnalyzerReportRepository.queryById(reportId)).thenReturn(reportWithoutUpdatedLabels);
-        functionProvider.accept(reportId, labelToBeApplied, nonUpdatedLabels, null);
-
-        // then
-        verify(deliverableAnalyzerReportRepository).save(reportWithUpdatedLabels);
     }
 
     private void generalModifyLabelTestWhenFail(
