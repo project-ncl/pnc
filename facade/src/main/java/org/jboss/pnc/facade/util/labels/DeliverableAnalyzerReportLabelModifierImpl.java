@@ -20,8 +20,6 @@ package org.jboss.pnc.facade.util.labels;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -32,7 +30,7 @@ import java.util.EnumSet;
  */
 @RequestScoped
 public class DeliverableAnalyzerReportLabelModifierImpl
-        extends LabelModifier<Base32LongID, Base32LongID, DeliverableAnalyzerReportLabel, DeliverableAnalyzerLabelEntry>
+        extends LabelModifier<DeliverableAnalyzerReportLabel>
         implements DeliverableAnalyzerReportLabelModifier {
 
     private final DeliverableAnalyzerLabelSaver deliverableAnalyzerLabelSaver;

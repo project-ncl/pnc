@@ -19,10 +19,8 @@ package org.jboss.pnc.facade.util.labels;
 
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
-import org.jboss.pnc.model.GenericEntity;
 
 import javax.transaction.Transactional;
-import java.io.Serializable;
 import java.util.EnumSet;
 
 /**
@@ -31,32 +29,20 @@ import java.util.EnumSet;
  * E. Concrete implementations of this class has to be annotated {@value @RequestScoped}.
  *
  * @param <L> label entity, e.g. {@link org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel}
- * @param <LH> label history entity, e.g. {@link org.jboss.pnc.model.DeliverableAnalyzerLabelEntry}
- * @param <LH_ID> the ID type of the label history entity
- * @param <LO_ID> the ID type of the labeled object entity, which is e.g.
- *        {@link org.jboss.pnc.model.DeliverableAnalyzerReport}
  */
-public abstract class LabelModifier<LO_ID extends Serializable, LH_ID extends Serializable, L extends Enum<L>, LH extends GenericEntity<LH_ID>> {
-
-    protected LO_ID labeledObjectId;
+public abstract class LabelModifier<L extends Enum<L>> {
 
     protected EnumSet<L> activeLabels;
 
-    protected String reason;
-
     @Transactional(Transactional.TxType.MANDATORY)
-    public void addLabel(LO_ID labeledObjectId, L label, EnumSet<L> activeLabels, String reason) {
-        this.labeledObjectId = labeledObjectId;
+    public void addLabel(L label, EnumSet<L> activeLabels) {
         this.activeLabels = activeLabels;
-        this.reason = reason;
         validateAndAdd(label);
     }
 
     @Transactional(Transactional.TxType.MANDATORY)
-    public void removeLabel(LO_ID labeledObjectId, L label, EnumSet<L> activeLabels, String reason) {
-        this.labeledObjectId = labeledObjectId;
+    public void removeLabel(L label, EnumSet<L> activeLabels) {
         this.activeLabels = activeLabels;
-        this.reason = reason;
         validateAndRemove(label);
     }
 
