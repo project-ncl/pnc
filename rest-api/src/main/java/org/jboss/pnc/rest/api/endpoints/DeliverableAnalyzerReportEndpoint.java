@@ -108,7 +108,7 @@ public interface DeliverableAnalyzerReportEndpoint {
                             responseCode = SERVER_ERROR_CODE,
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @Path("/{id}/label")
+    @Path("/{id}/add-label")
     @POST
     void addLabel(
             @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
@@ -125,7 +125,7 @@ public interface DeliverableAnalyzerReportEndpoint {
                             responseCode = SERVER_ERROR_CODE,
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @Path("/{id}/label")
+    @Path("/{id}/remove-label")
     @DELETE
     void removeLabel(
             @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
@@ -146,7 +146,7 @@ public interface DeliverableAnalyzerReportEndpoint {
                             responseCode = SERVER_ERROR_CODE,
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
-    @Path("/{id}/label-history")
+    @Path("/{id}/labels-history")
     @GET
     Page<DeliverableAnalyzerLabelEntry> getLabelHistory(
             @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
