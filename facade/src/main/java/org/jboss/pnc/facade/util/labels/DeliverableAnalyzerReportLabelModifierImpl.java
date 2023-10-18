@@ -21,14 +21,14 @@ import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import java.util.EnumSet;
 
 /**
  * {@link LabelModifier} for {@link DeliverableAnalyzerReportLabel} entity.
  */
-@ApplicationScoped
+@RequestScoped
 public class DeliverableAnalyzerReportLabelModifierImpl extends LabelModifier<DeliverableAnalyzerReportLabel>
         implements DeliverableAnalyzerReportLabelModifier {
 
