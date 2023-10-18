@@ -26,7 +26,7 @@ import java.util.EnumSet;
 /**
  * The class implementing this interface is able to add (remove) new (old) label to (from) the set of active labels and
  * update the label history. Such a class complies with the rules of adding (removing) label for the given entity type
- * E. Concrete implementations of this class has to be annotated {@value @RequestScoped}.
+ * E.
  *
  * @param <L> label entity, e.g. {@link org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel}
  */
