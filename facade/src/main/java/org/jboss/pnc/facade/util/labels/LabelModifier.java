@@ -32,25 +32,27 @@ import java.util.EnumSet;
  */
 public abstract class LabelModifier<L extends Enum<L>> {
 
-    protected EnumSet<L> activeLabels;
+    private EnumSet<L> activeLabels;
 
     @Transactional(Transactional.TxType.MANDATORY)
-    public void addLabel(L label, EnumSet<L> activeLabels) {
+    public void validateAndAddLabel(L label, EnumSet<L> activeLabels) {
         this.activeLabels = activeLabels;
-        validateAndAdd(label);
+        checkLabelIsNotPresent(label);
+        addLabel(label, activeLabels);
     }
 
     @Transactional(Transactional.TxType.MANDATORY)
-    public void removeLabel(L label, EnumSet<L> activeLabels) {
+    public void validateAndRemoveLabel(L label, EnumSet<L> activeLabels) {
         this.activeLabels = activeLabels;
-        validateAndRemove(label);
+        checkLabelIsPresent(label);
+        removeLabel(label, activeLabels);
     }
 
-    protected abstract void validateAndAdd(L label);
+    protected abstract void addLabel(L label, EnumSet<L> activeLabels);
 
-    protected abstract void validateAndRemove(L label);
+    protected abstract void removeLabel(L label, EnumSet<L> activeLabels);
 
-    protected void checkLabelIsNotPresent(L label) {
+    private void checkLabelIsNotPresent(L label) {
         if (activeLabels.contains(label)) {
             throw new InvalidLabelOperationException(
                     label,
@@ -60,7 +62,7 @@ public abstract class LabelModifier<L extends Enum<L>> {
         }
     }
 
-    protected void checkLabelIsPresent(L label) {
+    private void checkLabelIsPresent(L label) {
         if (!activeLabels.contains(label)) {
             throw new InvalidLabelOperationException(
                     label,

@@ -22,16 +22,16 @@ import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 
 import java.util.EnumSet;
 
-/**
- *
- */
 public interface DeliverableAnalyzerReportLabelModifier {
+
+    void validateAndAddLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> activeLabels)
+            throws InvalidLabelOperationException;
+
+    void validateAndRemoveLabel(
+            DeliverableAnalyzerReportLabel label,
+            EnumSet<DeliverableAnalyzerReportLabel> activeLabels) throws InvalidLabelOperationException;
 
     void addLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> activeLabels);
 
     void removeLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> activeLabels);
-
-    void validateAndAdd(DeliverableAnalyzerReportLabel label) throws InvalidLabelOperationException;
-
-    void validateAndRemove(DeliverableAnalyzerReportLabel label) throws InvalidLabelOperationException;
 }

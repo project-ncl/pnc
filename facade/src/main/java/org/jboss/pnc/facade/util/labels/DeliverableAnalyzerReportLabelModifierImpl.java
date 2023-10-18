@@ -29,8 +29,7 @@ import java.util.EnumSet;
  * {@link LabelModifier} for {@link DeliverableAnalyzerReportLabel} entity.
  */
 @RequestScoped
-public class DeliverableAnalyzerReportLabelModifierImpl
-        extends LabelModifier<DeliverableAnalyzerReportLabel>
+public class DeliverableAnalyzerReportLabelModifierImpl extends LabelModifier<DeliverableAnalyzerReportLabel>
         implements DeliverableAnalyzerReportLabelModifier {
 
     private final DeliverableAnalyzerLabelSaver deliverableAnalyzerLabelSaver;
@@ -46,9 +45,8 @@ public class DeliverableAnalyzerReportLabelModifierImpl
     }
 
     @Override
-    public void validateAndAdd(DeliverableAnalyzerReportLabel label) throws InvalidLabelOperationException {
-        checkLabelIsNotPresent(label);
-
+    public void addLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> activeLabels)
+            throws InvalidLabelOperationException {
         switch (label) {
             case DELETED:
                 if (activeLabels.contains(DeliverableAnalyzerReportLabel.RELEASED)) {
@@ -72,9 +70,9 @@ public class DeliverableAnalyzerReportLabelModifierImpl
     }
 
     @Override
-    public void validateAndRemove(DeliverableAnalyzerReportLabel label) {
-        checkLabelIsPresent(label);
-
+    public void removeLabel(
+            DeliverableAnalyzerReportLabel label,
+            EnumSet<DeliverableAnalyzerReportLabel> activeLabels) {
         switch (label) {
             case SCRATCH:
                 throw new InvalidLabelOperationException(

@@ -21,7 +21,6 @@ import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerLabelSaver;
 import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerReportLabelModifierImpl;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
-import org.jboss.pnc.model.Base32LongID;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -45,17 +44,13 @@ public class DeliverableAnalyzerReportLabelModifierTest {
     @InjectMocks
     private DeliverableAnalyzerReportLabelModifierImpl modifier;
 
-    private static final Base32LongID reportId = new Base32LongID(42L);
-
     @Test
     public void shouldFailWhenAddingLabelWhichIsAlreadyThere() {
         InvalidLabelOperationException labelOperationException = assertThrows(
                 InvalidLabelOperationException.class,
                 () -> modifier.addLabel(
-                        reportId,
                         DeliverableAnalyzerReportLabel.SCRATCH,
-                        EnumSet.of(DeliverableAnalyzerReportLabel.DELETED, DeliverableAnalyzerReportLabel.SCRATCH),
-                        null));
+                        EnumSet.of(DeliverableAnalyzerReportLabel.DELETED, DeliverableAnalyzerReportLabel.SCRATCH)));
         assertThat(labelOperationException.getMessage()).isEqualTo(
                 "Unable to add the label SCRATCH to labels: [DELETED, SCRATCH]: label already present in the set of active labels");
     }
@@ -65,10 +60,8 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         InvalidLabelOperationException labelOperationException = assertThrows(
                 InvalidLabelOperationException.class,
                 () -> modifier.removeLabel(
-                        reportId,
                         DeliverableAnalyzerReportLabel.SCRATCH,
-                        EnumSet.noneOf(DeliverableAnalyzerReportLabel.class),
-                        null));
+                        EnumSet.noneOf(DeliverableAnalyzerReportLabel.class)));
         assertThat(labelOperationException.getMessage()).isEqualTo(
                 "Unable to remove the label SCRATCH from labels: []: no such label present in the set of active labels");
     }
@@ -80,7 +73,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.noneOf(DeliverableAnalyzerReportLabel.class);
 
         // when
-        modifier.addLabel(reportId, labelToBeAdded, activeLabels, null);
+        modifier.addLabel(labelToBeAdded, activeLabels);
 
         // then
         verify(deliverableAnalyzerLabelSaver).addLabel(labelToBeAdded);
@@ -94,7 +87,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED);
 
         // when
-        modifier.addLabel(reportId, labelToBeAdded, activeLabels, null);
+        modifier.addLabel(labelToBeAdded, activeLabels);
 
         // then
         InOrder inOrder = Mockito.inOrder(deliverableAnalyzerLabelSaver);
@@ -111,7 +104,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH);
 
         // when
-        modifier.addLabel(reportId, labelToBeAdded, activeLabels, null);
+        modifier.addLabel(labelToBeAdded, activeLabels);
 
         // then
         verify(deliverableAnalyzerLabelSaver).addLabel(labelToBeAdded);
@@ -125,7 +118,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.noneOf(DeliverableAnalyzerReportLabel.class);
 
         // when
-        modifier.addLabel(reportId, labelToBeAdded, activeLabels, null);
+        modifier.addLabel(labelToBeAdded, activeLabels);
 
         // then
         verify(deliverableAnalyzerLabelSaver).addLabel(labelToBeAdded);
@@ -194,7 +187,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.of(DeliverableAnalyzerReportLabel.DELETED);
 
         // when
-        modifier.removeLabel(reportId, labelToBeRemoved, activeLabels, null);
+        modifier.removeLabel(labelToBeRemoved, activeLabels);
 
         // then
         verify(deliverableAnalyzerLabelSaver).removeLabel(labelToBeRemoved);
@@ -209,7 +202,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
                 .of(DeliverableAnalyzerReportLabel.DELETED, DeliverableAnalyzerReportLabel.SCRATCH);
 
         // when
-        modifier.removeLabel(reportId, labelToBeRemoved, activeLabels, null);
+        modifier.removeLabel(labelToBeRemoved, activeLabels);
 
         // then
         verify(deliverableAnalyzerLabelSaver).removeLabel(labelToBeRemoved);
@@ -223,7 +216,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         EnumSet<DeliverableAnalyzerReportLabel> activeLabels = EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED);
 
         // when
-        modifier.removeLabel(reportId, labelToBeRemoved, activeLabels, null);
+        modifier.removeLabel(labelToBeRemoved, activeLabels);
 
         // then
         verify(deliverableAnalyzerLabelSaver).removeLabel(labelToBeRemoved);
@@ -257,7 +250,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
             String expectedExceptionMessage) {
         InvalidLabelOperationException labelOperationException = assertThrows(
                 InvalidLabelOperationException.class,
-                () -> functionProvider.accept(reportId, labelToBeApplied, nonUpdatedLabels, null));
+                () -> functionProvider.accept(labelToBeApplied, nonUpdatedLabels));
         assertThat(labelOperationException.getMessage()).isEqualTo(expectedExceptionMessage);
     }
 }

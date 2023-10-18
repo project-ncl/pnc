@@ -18,17 +18,11 @@
 package org.jboss.pnc.facade.util;
 
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 
 import java.util.EnumSet;
 
 @FunctionalInterface
 public interface DeliverableAnalyzerReportLabelUpdateFunction {
 
-    void accept(
-            Base32LongID reportId,
-            DeliverableAnalyzerReportLabel label,
-            EnumSet<DeliverableAnalyzerReportLabel> activeLabels,
-            String reason);
+    void accept(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> activeLabels);
 }
