@@ -27,6 +27,7 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRep
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.Date;
 
@@ -50,12 +51,14 @@ public class DeliverableAnalyzerLabelSaverImpl extends
     }
 
     @Override
+    @Transactional(Transactional.TxType.MANDATORY)
     public void addLabel(DeliverableAnalyzerReportLabel label) {
         labeledObject.getLabels().add(label);
         labelEntryRepository.save(createAddLabelHistoryEntry(label));
     }
 
     @Override
+    @Transactional(Transactional.TxType.MANDATORY)
     public void removeLabel(DeliverableAnalyzerReportLabel label) {
         labeledObject.getLabels().remove(label);
         labelEntryRepository.save(createRemoveLabelHistoryEntry(label));
