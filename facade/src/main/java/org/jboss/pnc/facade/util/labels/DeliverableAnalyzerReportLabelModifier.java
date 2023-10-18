@@ -30,8 +30,4 @@ public interface DeliverableAnalyzerReportLabelModifier {
     void validateAndRemoveLabel(
             DeliverableAnalyzerReportLabel label,
             EnumSet<DeliverableAnalyzerReportLabel> activeLabels) throws InvalidLabelOperationException;
-
-    void addLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> activeLabels);
-
-    void removeLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> activeLabels);
 }
