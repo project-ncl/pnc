@@ -69,9 +69,9 @@ public interface DeliverableAnalyzerReportEndpoint {
 
     String GET_ANALYZED_ARTIFACTS = "Gets analyzed artifacts of this deliverable analysis report";
 
-    String ADD_DEL_AN_REPORT_LABEL = "Adds new deliverable analyzer report label to this report";
+    String ADD_DEL_AN_REPORT_LABEL = "Adds label to this deliverable analyzer report";
 
-    String REMOVE_DEL_AN_REPORT_LABEL = "Removes old deliverable analyzer report label from this report";
+    String REMOVE_DEL_AN_REPORT_LABEL = "Removes label from this deliverable analyzer report";
 
     String GET_DEL_AN_REPORT_LABEL_HISTORY = "Gets the label history of this deliverable analyzer report";
 
