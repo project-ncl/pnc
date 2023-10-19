@@ -19,7 +19,7 @@ package org.jboss.pnc.facade.util;
 
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerLabelSaver;
-import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerReportLabelModifier;
+import org.jboss.pnc.facade.util.labels.DeliverableAnalyzerReportLabelModifierImpl;
 import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,10 +39,10 @@ import static org.mockito.Mockito.verify;
 public class DeliverableAnalyzerReportLabelModifierTest {
 
     @Mock
-    private DeliverableAnalyzerLabelSaver deliverableAnalyzerLabelSaver;
+    private DeliverableAnalyzerLabelSaver saver;
 
     @InjectMocks
-    private DeliverableAnalyzerReportLabelModifier modifier;
+    private DeliverableAnalyzerReportLabelModifierImpl modifier;
 
     @Test
     public void shouldFailWhenAddingLabelWhichIsAlreadyThere() {
@@ -76,7 +76,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         modifier.validateAndAddLabel(labelToBeAdded, activeLabels);
 
         // then
-        verify(deliverableAnalyzerLabelSaver).addLabel(labelToBeAdded);
+        verify(saver).addLabel(labelToBeAdded);
     }
 
     @Test
@@ -90,10 +90,10 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         modifier.validateAndAddLabel(labelToBeAdded, activeLabels);
 
         // then
-        InOrder inOrder = Mockito.inOrder(deliverableAnalyzerLabelSaver);
+        InOrder inOrder = Mockito.inOrder(saver);
 
-        inOrder.verify(deliverableAnalyzerLabelSaver).removeLabel(DeliverableAnalyzerReportLabel.RELEASED);
-        inOrder.verify(deliverableAnalyzerLabelSaver).addLabel(DeliverableAnalyzerReportLabel.DELETED);
+        inOrder.verify(saver).removeLabel(DeliverableAnalyzerReportLabel.RELEASED);
+        inOrder.verify(saver).addLabel(DeliverableAnalyzerReportLabel.DELETED);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         modifier.validateAndAddLabel(labelToBeAdded, activeLabels);
 
         // then
-        verify(deliverableAnalyzerLabelSaver).addLabel(labelToBeAdded);
+        verify(saver).addLabel(labelToBeAdded);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         modifier.validateAndAddLabel(labelToBeAdded, activeLabels);
 
         // then
-        verify(deliverableAnalyzerLabelSaver).addLabel(labelToBeAdded);
+        verify(saver).addLabel(labelToBeAdded);
     }
 
     @Test
@@ -190,7 +190,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         modifier.validateAndRemoveLabel(labelToBeRemoved, activeLabels);
 
         // then
-        verify(deliverableAnalyzerLabelSaver).removeLabel(labelToBeRemoved);
+        verify(saver).removeLabel(labelToBeRemoved);
     }
 
     @Test
@@ -205,7 +205,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         modifier.validateAndRemoveLabel(labelToBeRemoved, activeLabels);
 
         // then
-        verify(deliverableAnalyzerLabelSaver).removeLabel(labelToBeRemoved);
+        verify(saver).removeLabel(labelToBeRemoved);
     }
 
     @Test
@@ -219,7 +219,7 @@ public class DeliverableAnalyzerReportLabelModifierTest {
         modifier.validateAndRemoveLabel(labelToBeRemoved, activeLabels);
 
         // then
-        verify(deliverableAnalyzerLabelSaver).removeLabel(labelToBeRemoved);
+        verify(saver).removeLabel(labelToBeRemoved);
     }
 
     @Test
