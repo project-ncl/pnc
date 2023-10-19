@@ -26,10 +26,10 @@ import javax.inject.Inject;
 import java.util.EnumSet;
 
 /**
- * {@link LabelModifier} for {@link DeliverableAnalyzerReportLabel} entity.
+ * {@link AbstractLabelModifier} for {@link DeliverableAnalyzerReportLabel} entity.
  */
 @RequestScoped
-public class DeliverableAnalyzerReportLabelModifierImpl extends LabelModifier<DeliverableAnalyzerReportLabel>
+public class DeliverableAnalyzerReportLabelModifierImpl extends AbstractLabelModifier<DeliverableAnalyzerReportLabel>
         implements DeliverableAnalyzerReportLabelModifier {
 
     private final DeliverableAnalyzerLabelSaver deliverableAnalyzerLabelSaver;

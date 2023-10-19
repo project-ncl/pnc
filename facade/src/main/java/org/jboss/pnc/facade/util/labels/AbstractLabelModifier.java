@@ -30,7 +30,7 @@ import java.util.EnumSet;
  *
  * @param <L> label entity, e.g. {@link org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel}
  */
-public abstract class LabelModifier<L extends Enum<L>> {
+public abstract class AbstractLabelModifier<L extends Enum<L>> {
 
     private EnumSet<L> activeLabels;
 
