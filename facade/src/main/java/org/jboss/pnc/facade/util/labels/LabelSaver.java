@@ -15,17 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
+package org.jboss.pnc.facade.util.labels;
 
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
-import org.jboss.pnc.model.DeliverableAnalyzerReport;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.model.GenericEntity;
+
+import java.io.Serializable;
 
 /**
- * Interface for manipulating {@link DeliverableAnalyzerLabelEntry} entity
+ * Gets the requests what to store and without no further validation stores into DB requested entities.
+ *
+ * @param <LO_ID> The id of the labeled object entity.
+ * @param <L> The label enum.
+ * @param <LO> The labeled object entity, e.g. {@link org.jboss.pnc.model.DeliverableAnalyzerReport}.
  */
-public interface DeliverableAnalyzerLabelEntryRepository
-        extends LabelEntryRepository<Base32LongID, Base32LongID, DeliverableAnalyzerLabelEntry> {
+public interface LabelSaver<LO_ID extends Serializable, L extends Enum<L>, LO extends GenericEntity<LO_ID>> {
 
+    void init(LO labeledObject, String reason);
+
+    void addLabel(L label);
+
+    void removeLabel(L label);
 }

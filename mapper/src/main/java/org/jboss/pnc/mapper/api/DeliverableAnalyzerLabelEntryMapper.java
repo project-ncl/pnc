@@ -15,17 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
+package org.jboss.pnc.mapper.api;
 
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
-import org.jboss.pnc.model.DeliverableAnalyzerReport;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 /**
- * Interface for manipulating {@link DeliverableAnalyzerLabelEntry} entity
+ * Mapper which maps {@link org.jboss.pnc.model.DeliverableAnalyzerLabelEntry} to
+ * {@link org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry}.
  */
-public interface DeliverableAnalyzerLabelEntryRepository
-        extends LabelEntryRepository<Base32LongID, Base32LongID, DeliverableAnalyzerLabelEntry> {
+@Mapper(config = MapperCentralConfig.class, uses = { UserMapper.class })
+public interface DeliverableAnalyzerLabelEntryMapper {
 
+    @Mapping(target = "date", source = "entryTime")
+    @BeanMapping(ignoreUnmappedSourceProperties = { "id" })
+    DeliverableAnalyzerLabelEntry toDto(org.jboss.pnc.model.DeliverableAnalyzerLabelEntry entity);
 }

@@ -53,6 +53,10 @@ public abstract class EnumSetToStringConverter<E extends Enum<E>> implements Att
 
     @Override
     public EnumSet<E> convertToEntityAttribute(String labelsString) {
+        if (labelsString == null || "".equals(labelsString)) {
+            return EnumSet.noneOf(enumType);
+        }
+
         var setOfLabels = EnumSet.noneOf(enumType);
         var labelsSplit = labelsString.split(SEPARATOR);
 

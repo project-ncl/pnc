@@ -15,17 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
+package org.jboss.pnc.facade.util.labels;
 
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
-import org.jboss.pnc.model.DeliverableAnalyzerReport;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 
-/**
- * Interface for manipulating {@link DeliverableAnalyzerLabelEntry} entity
- */
-public interface DeliverableAnalyzerLabelEntryRepository
-        extends LabelEntryRepository<Base32LongID, Base32LongID, DeliverableAnalyzerLabelEntry> {
+public interface DeliverableAnalyzerReportLabelModifier extends LabelModifier<DeliverableAnalyzerReportLabel> {
 
 }
