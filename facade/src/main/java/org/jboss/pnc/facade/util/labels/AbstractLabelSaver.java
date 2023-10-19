@@ -26,7 +26,8 @@ import java.io.Serializable;
 /**
  * Concrete implementations of this class MUST BE annotated @RequestScoped.
  */
-public abstract class AbstractLabelSaver<LH_ID extends Serializable, LO_ID extends Serializable, L extends Enum<L>, LH extends GenericEntity<LH_ID>, LO extends GenericEntity<LO_ID>> implements LabelSaver<LH_ID, LO_ID, L, LH, LO> {
+public abstract class AbstractLabelSaver<LH_ID extends Serializable, LO_ID extends Serializable, L extends Enum<L>, LH extends GenericEntity<LH_ID>, LO extends GenericEntity<LO_ID>>
+        implements LabelSaver<LH_ID, LO_ID, L, LH, LO> {
 
     protected LO labeledObject;
 
