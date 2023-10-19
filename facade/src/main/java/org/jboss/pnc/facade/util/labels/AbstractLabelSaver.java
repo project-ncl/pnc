@@ -24,10 +24,9 @@ import javax.transaction.Transactional;
 import java.io.Serializable;
 
 /**
- * Gets the requests what to store and without no further validation stores into DB requested entities. Concrete
- * implementations of this class MUST BE annotated @RequestScoped.
+ * Concrete implementations of this class MUST BE annotated @RequestScoped.
  */
-public abstract class AbstractLabelSaver<LH_ID extends Serializable, LO_ID extends Serializable, L extends Enum<L>, LH extends GenericEntity<LH_ID>, LO extends GenericEntity<LO_ID>> {
+public abstract class AbstractLabelSaver<LH_ID extends Serializable, LO_ID extends Serializable, L extends Enum<L>, LH extends GenericEntity<LH_ID>, LO extends GenericEntity<LO_ID>> implements LabelSaver<LH_ID, LO_ID, L, LH, LO> {
 
     protected LO labeledObject;
 
@@ -41,14 +40,11 @@ public abstract class AbstractLabelSaver<LH_ID extends Serializable, LO_ID exten
         this.labelEntryRepository = labelEntryRepository;
     }
 
+    @Override
     @Transactional(Transactional.TxType.MANDATORY)
     public void init(LO labeledObject, String reason) {
         this.labeledObject = labeledObject;
         this.nextChangeOrder = labelEntryRepository.getLatestChangeOrderOfReport(labeledObject.getId());
         this.reason = reason;
     }
-
-    public abstract void addLabel(L label);
-
-    public abstract void removeLabel(L label);
 }
