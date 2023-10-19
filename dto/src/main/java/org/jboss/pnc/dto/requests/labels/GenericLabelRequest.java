@@ -15,17 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
+package org.jboss.pnc.dto.requests.labels;
 
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
-import org.jboss.pnc.model.DeliverableAnalyzerReport;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import lombok.Getter;
+import lombok.experimental.SuperBuilder;
 
 /**
- * Interface for manipulating {@link DeliverableAnalyzerLabelEntry} entity
+ * Generic label request used for POST and DELETE operations above labels (which is some enum).
  */
-public interface DeliverableAnalyzerLabelEntryRepository
-        extends LabelEntryRepository<Base32LongID, Base32LongID, DeliverableAnalyzerLabelEntry> {
+@Getter
+@SuperBuilder(toBuilder = true)
+public abstract class GenericLabelRequest<E extends Enum<E>> {
 
+    /**
+     * The label being added (removed).
+     */
+    private E label;
+
+    /**
+     * The reason why is this label being added (removed).
+     */
+    private String reason;
 }
