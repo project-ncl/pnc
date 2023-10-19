@@ -61,6 +61,122 @@
         "attributes": {}
       },
       {
+        "id": "7b454c01-c47f-432e-b76b-31b01d9ddd1d",
+        "name": "pnc-users-repository-driver-admin",
+        "description": "Users that can use repository driver endpoints",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "6e6a8003-b381-4349-8bcd-5c79f1050eab",
+        "name": "pnc-users-build-driver-admin",
+        "description": "Users that can use build-driver",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "644da504-f9f6-44ca-9e8b-bd06ac3cd68d",
+        "name": "pnc-users-causeway-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "ef444f99-da47-4164-a69a-5823a04f26be",
+        "name": "pnc-users-repour-admin",
+        "description": "Users that can use repour",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "060b93da-e865-4ea2-99ea-42aa4af512b3",
+        "name": "pnc-users-build-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "5d6fa115-ac12-4870-9aa0-137611506fb7",
+        "name": "pnc-users-sbomer-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "bff7d54c-4954-4ba7-a282-b590625dc944",
+        "name": "pnc-users-deliverables-analyzer-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "f1967655-1a38-4041-b80f-e88920912e41",
+        "name": "pnc-users-environment-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "6925747b-98fe-4f12-9be4-7030372a5891",
+        "name": "pnc-users-artifact-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "a42141b3-fc4e-498c-806f-70bdda2cbc1a",
+        "name": "pnc-users-build-delete",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "64c8ad84-fc5f-4296-bb18-94ad2b071cc2",
+        "name": "pnc-users-build-agent-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "695c0563-a357-4ff6-ae78-8257594a4484",
+        "name": "pnc-users-environment-driver-admin",
+        "description": "Users that can use environment driver",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "31228290-a36f-4859-972a-0a41c16eca74",
+        "name": "pnc-users-cleaner-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
+        "id": "ff2d0adc-b2b4-47cd-8db6-d9f2cb99dcb0",
+        "name": "pnc-users-da-admin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "newcastle-testcontainer",
+        "attributes": {}
+      },
+      {
         "id": "73cf72eb-a4a1-416e-9fd5-6417196155b2",
         "name": "pnc-users-admin",
         "description": "Admin users of PNC",
@@ -95,57 +211,7 @@
       }
     ],
     "client": {
-      "rex" : [
-        {
-          "id": "a9d9a3e4-fab8-402b-aa8a-3fb8db8511ac",
-          "name": "admin",
-          "composite": false,
-          "clientRole": false,
-          "containerId": "newcastle-testcontainer",
-          "attributes": {}
-        },
-        {
-          "id": "691d4920-beed-4e6e-a0cd-967b046db6ee",
-          "name": "pnc-users-rex-user",
-          "composite": false,
-          "clientRole": false,
-          "containerId": "newcastle-testcontainer",
-          "attributes": {}
-        },
-        {
-          "id": "73cf71eb-a4a1-416e-9fd5-6417196155b2",
-          "name": "pnc-users-admin",
-          "description": "Admin users of PNC",
-          "composite": false,
-          "clientRole": false,
-          "containerId": "newcastle-testcontainer",
-          "attributes": {}
-        },
-        {
-          "id": "c8c78188-38f2-4d3d-b919-ca36f2323b3a",
-          "name": "system-user",
-          "composite": false,
-          "clientRole": false,
-          "containerId": "newcastle-testcontainer",
-          "attributes": {}
-        },
-        {
-          "id": "c94451da-1409-4942-8a69-d42d26f03558",
-          "name": "user",
-          "composite": false,
-          "clientRole": false,
-          "containerId": "newcastle-testcontainer",
-          "attributes": {}
-        },
-        {
-          "id": "e10991bc-3995-4e24-9132-97dd14c915e0",
-          "name": "pnc-users-rex-admin",
-          "composite": false,
-          "clientRole": false,
-          "containerId": "newcastle-testcontainer",
-          "attributes": {}
-        }
-      ]
+      "rex" : []
     }
   },
   "defaultRole": {
@@ -2072,6 +2138,41 @@
       "emailVerified": false,
       "email": "service-account-pnc-orchestrator-sa@placeholder.org",
       "serviceAccountClientId": "pnc-orchestrator-sa",
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "pnc-users-repository-driver-admin",
+        "pnc-users-admin",
+        "pnc-users-build-driver-admin",
+        "pnc-users-causeway-admin",
+        "pnc-users-repour-admin",
+        "pnc-users-build-delete",
+        "pnc-users-build-agent-admin",
+        "pnc-users-da-admin",
+        "pnc-users-rex-user",
+        "offline_access",
+        "system-user",
+        "user",
+        "uma_authorization",
+        "pnc-users-rex-admin",
+        "pnc-users-build-admin",
+        "pnc-users-sbomer-admin",
+        "pnc-users-deliverables-analyzer-admin",
+        "pnc-users-environment-admin",
+        "pnc-users-artifact-admin",
+        "pnc-users-environment-driver-admin",
+        "pnc-users-cleaner-admin"
+      ],
+      "notBefore": 0,
+      "groups": []
+    },
+    {
+      "username": "service-account-rex",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": false,
+      "email": "service-account-rex@placeholder.org",
+      "serviceAccountClientId": "rex",
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": [
