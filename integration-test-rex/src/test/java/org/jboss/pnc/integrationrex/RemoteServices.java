@@ -20,7 +20,6 @@ package org.jboss.pnc.integrationrex;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.integrationrex.setup.Deployments;
-import org.jboss.pnc.integrationrex.testcontainers.CustomKeycloakContainer;
 import org.jboss.pnc.integrationrex.testcontainers.InfinispanContainer;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.util.StringPropertyReplacer;
@@ -56,7 +55,7 @@ public class RemoteServices {
 
     protected static String keycloakRealm = "newcastle-testcontainer";
 
-    private static final dasniko.testcontainers.keycloak.KeycloakContainer keycloakContainer;
+    private static final KeycloakContainer keycloakContainer;
     private static final Properties testProperties;
 
     private static GenericContainer rexContainer;
@@ -121,13 +120,16 @@ public class RemoteServices {
 
         String keycloakHostPort = testProperties.getProperty(GetFreePort.KEYCLOAK_PORT);
         String keycloakPortBinding = keycloakHostPort + ":" + 8080; // 8080 is in-container port
-        KeycloakContainer keycloak = new CustomKeycloakContainer("quay.io/keycloak/keycloak:21.1.0")
+        KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:21.1.0")
                 .withNetwork(containerNetwork)
                 .withLogConsumer(keycloakLogConsumer)
                 .withNetworkAliases("keycloak")
                 .withRealmImportFile("keycloak-realm-export.json")
                 .withAccessToHost(true)
                 .withStartupAttempts(5);
+
+        // Force JWT issuer field to this URL to get through issuer verification for tokens originating in REX
+        keycloak.withEnv("KC_HOSTNAME_URL", "http://localhost:" + keycloakHostPort + "/");
 
         keycloak.setPortBindings(List.of(keycloakPortBinding));
         logger.info("Starting keycloak and binding it to port {}.", keycloakHostPort);
@@ -178,8 +180,7 @@ public class RemoteServices {
         Consumer<OutputFrame> rexLogConsumer = frame -> logger.debug("REX >>" + frame.getUtf8StringWithoutLineEnding());
 
         GenericContainer rex = new GenericContainer(DockerImageName.parse("quay.io/rh-newcastle/rex:latest"))
-                /* DockerImageName.parse("localhost/<<your-name>>/rex:1.0.0-SNAPSHOT")) */
-                .withAccessToHost(true)
+                // DockerImageName.parse("localhost/<<your-name>>/rex:1.0.0-SNAPSHOT"))
                 .withNetwork(containerNetwork)
                 .withNetworkAliases("rex")
                 .withAccessToHost(true)
