@@ -15,17 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
+package org.jboss.pnc.spi.datastore.predicates;
 
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
-import org.jboss.pnc.model.DeliverableAnalyzerReport;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry_;
+import org.jboss.pnc.model.DeliverableAnalyzerReport_;
+import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 
 /**
- * Interface for manipulating {@link DeliverableAnalyzerLabelEntry} entity
+ * Predicates for {@link org.jboss.pnc.model.DeliverableAnalyzerLabelEntry} entity.
  */
-public interface DeliverableAnalyzerLabelEntryRepository
-        extends LabelEntryRepository<Base32LongID, Base32LongID, DeliverableAnalyzerLabelEntry> {
+public class DeliverableAnalyzerLabelEntryPredicates {
 
+    public static Predicate<DeliverableAnalyzerLabelEntry> withReportId(Base32LongID reportId) {
+        return (root, query, cb) -> cb
+                .equal(root.get(DeliverableAnalyzerLabelEntry_.report).get(DeliverableAnalyzerReport_.id), reportId);
+    }
 }

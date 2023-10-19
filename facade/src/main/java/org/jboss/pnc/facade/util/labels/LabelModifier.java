@@ -15,17 +15,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
+package org.jboss.pnc.facade.util.labels;
 
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
-import org.jboss.pnc.model.DeliverableAnalyzerReport;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import java.util.EnumSet;
 
 /**
- * Interface for manipulating {@link DeliverableAnalyzerLabelEntry} entity
+ * The class implementing this interface is able to add (remove) new (old) label to (from) the set of active labels and
+ * update the label history. Such a class complies with the rules of adding (removing) label for its entity type.
  */
-public interface DeliverableAnalyzerLabelEntryRepository
-        extends LabelEntryRepository<Base32LongID, Base32LongID, DeliverableAnalyzerLabelEntry> {
+public interface LabelModifier<L extends Enum<L>> {
 
+    void validateAndAddLabel(L label, EnumSet<L> activeLabels);
+
+    void validateAndRemoveLabel(L label, EnumSet<L> activeLabels);
 }

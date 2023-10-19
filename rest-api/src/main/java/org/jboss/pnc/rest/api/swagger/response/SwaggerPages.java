@@ -25,6 +25,7 @@ import org.jboss.pnc.dto.BuildConfigurationRevision;
 import org.jboss.pnc.dto.BuildConfigurationWithLatestBuild;
 import org.jboss.pnc.dto.BuildPushResult;
 import org.jboss.pnc.dto.DTOEntity;
+import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.GroupBuild;
@@ -122,5 +123,8 @@ public class SwaggerPages {
     }
 
     public static class AnalyzedArtifactPage extends Page<AnalyzedArtifact> {
+    }
+
+    public static class DeliverableAnalyzerLabelEntryPage extends Page<DeliverableAnalyzerLabelEntry> {
     }
 }

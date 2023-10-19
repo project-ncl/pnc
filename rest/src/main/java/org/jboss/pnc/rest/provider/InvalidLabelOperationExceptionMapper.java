@@ -15,17 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
+package org.jboss.pnc.rest.provider;
 
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
-import org.jboss.pnc.model.DeliverableAnalyzerReport;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import org.jboss.pnc.dto.response.ErrorResponse;
+import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 
-/**
- * Interface for manipulating {@link DeliverableAnalyzerLabelEntry} entity
- */
-public interface DeliverableAnalyzerLabelEntryRepository
-        extends LabelEntryRepository<Base32LongID, Base32LongID, DeliverableAnalyzerLabelEntry> {
+import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
+@Provider
+public class InvalidLabelOperationExceptionMapper implements ExceptionMapper<InvalidLabelOperationException> {
+
+    @Override
+    public Response toResponse(InvalidLabelOperationException e) {
+        return Response.status(Response.Status.CONFLICT)
+                .entity(new ErrorResponse("InvalidLabelOperationException", e.getMessage()))
+                .build();
+    }
 }

@@ -15,17 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.pnc.spi.datastore.repositories;
+package org.jboss.pnc.dto.requests.labels;
 
-import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
-import org.jboss.pnc.model.DeliverableAnalyzerReport;
-import org.jboss.pnc.spi.datastore.repositories.api.Repository;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 
 /**
- * Interface for manipulating {@link DeliverableAnalyzerLabelEntry} entity
+ * Label request for {@link DeliverableAnalyzerReportLabel} entity.
  */
-public interface DeliverableAnalyzerLabelEntryRepository
-        extends LabelEntryRepository<Base32LongID, Base32LongID, DeliverableAnalyzerLabelEntry> {
+@SuperBuilder(toBuilder = true)
+@Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class DeliverableAnalyzerReportLabelRequest extends GenericLabelRequest<DeliverableAnalyzerReportLabel> {
 
 }

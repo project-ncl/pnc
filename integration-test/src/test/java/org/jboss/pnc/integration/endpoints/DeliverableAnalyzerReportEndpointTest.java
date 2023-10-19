@@ -20,17 +20,24 @@ package org.jboss.pnc.integration.endpoints;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.arquillian.junit.InSequence;
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.client.ClientException;
 import org.jboss.pnc.client.DeliverableAnalyzerReportClient;
 import org.jboss.pnc.client.OperationClient;
 import org.jboss.pnc.client.RemoteCollection;
+import org.jboss.pnc.client.RemoteResourceException;
+import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -38,6 +45,7 @@ import org.junit.runner.RunWith;
 import java.util.Iterator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 @RunAsClient
 @RunWith(Arquillian.class)
@@ -82,5 +90,122 @@ public class DeliverableAnalyzerReportEndpointTest {
         assertThat(analyzedArtifact1.isBuiltFromSource()).isFalse();
         assertThat(analyzedArtifact1.getBrewId()).isNull();
         assertThat(analyzedArtifact1.getArtifact().getIdentifier()).isEqualTo("demo:imported-artifact2:jar:1.0");
+    }
+
+    // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
+    @Test
+    public void testGetLabelHistory() throws ClientException {
+        // given
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asAnonymous());
+
+        // when
+        RemoteCollection<DeliverableAnalyzerLabelEntry> labelHistory = client.getLabelHistory(operationId);
+
+        // then
+        assertThat(labelHistory.size()).isEqualTo(1);
+
+        Iterator<DeliverableAnalyzerLabelEntry> labelHistoryIterator = labelHistory.iterator();
+        var firstLabelHistoryEntry = labelHistoryIterator.next();
+        assertThat(firstLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.RELEASED);
+        assertThat(firstLabelHistoryEntry.getReason()).isEqualTo("This was a game-changer! Release it! <3");
+    }
+
+    // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
+    @Test
+    @InSequence(10)
+    public void testAddLabelEntry() throws ClientException {
+        // given
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asUser());
+        DeliverableAnalyzerReportLabelRequest request = DeliverableAnalyzerReportLabelRequest.builder()
+                .label(DeliverableAnalyzerReportLabel.DELETED)
+                .reason("Oh jeez, this was clearly a mistake, marking as DELETED..")
+                .build();
+
+        // when
+        assertThat(client.getLabelHistory(operationId).size()).isOne();
+        client.addLabel(operationId, request);
+        RemoteCollection<DeliverableAnalyzerLabelEntry> labelHistory = client.getLabelHistory(operationId);
+
+        // then
+        assertThat(labelHistory.size()).isEqualTo(3);
+
+        Iterator<DeliverableAnalyzerLabelEntry> labelHistoryIterator = labelHistory.iterator();
+        var firstLabelHistoryEntry = labelHistoryIterator.next();
+        assertThat(firstLabelHistoryEntry.getChange()).isEqualTo(LabelOperation.ADDED);
+        assertThat(firstLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.RELEASED);
+        assertThat(firstLabelHistoryEntry.getReason()).isEqualTo("This was a game-changer! Release it! <3");
+
+        var secondLabelHistoryEntry = labelHistoryIterator.next();
+        assertThat(secondLabelHistoryEntry.getChange()).isEqualTo(LabelOperation.REMOVED);
+        assertThat(secondLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.RELEASED);
+        assertThat(secondLabelHistoryEntry.getReason())
+                .isEqualTo("Oh jeez, this was clearly a mistake, marking as DELETED..");
+
+        var thirdLabelHistoryEntry = labelHistoryIterator.next();
+        assertThat(thirdLabelHistoryEntry.getChange()).isEqualTo(LabelOperation.ADDED);
+        assertThat(thirdLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.DELETED);
+        assertThat(thirdLabelHistoryEntry.getReason())
+                .isEqualTo("Oh jeez, this was clearly a mistake, marking as DELETED..");
+    }
+
+    // TODO: Check also DeliverableAnalyzerReport.labels as part of NCL-8066
+    @Test
+    @InSequence(20)
+    public void testRemoveLabelEntry() throws ClientException {
+        // given
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asUser());
+        DeliverableAnalyzerReportLabelRequest request = DeliverableAnalyzerReportLabelRequest.builder()
+                .label(DeliverableAnalyzerReportLabel.DELETED)
+                .reason("Nvm, let it live")
+                .build();
+
+        // when
+        client.removeLabel(operationId, request);
+        RemoteCollection<DeliverableAnalyzerLabelEntry> labelHistory = client.getLabelHistory(operationId);
+
+        // then
+        assertThat(labelHistory.size()).isEqualTo(4);
+
+        Iterator<DeliverableAnalyzerLabelEntry> labelHistoryIterator = labelHistory.iterator();
+        var firstLabelHistoryEntry = labelHistoryIterator.next();
+        assertThat(firstLabelHistoryEntry.getChange()).isEqualTo(LabelOperation.ADDED);
+        assertThat(firstLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.RELEASED);
+        assertThat(firstLabelHistoryEntry.getReason()).isEqualTo("This was a game-changer! Release it! <3");
+
+        var secondLabelHistoryEntry = labelHistoryIterator.next();
+        assertThat(secondLabelHistoryEntry.getChange()).isEqualTo(LabelOperation.REMOVED);
+        assertThat(secondLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.RELEASED);
+        assertThat(secondLabelHistoryEntry.getReason())
+                .isEqualTo("Oh jeez, this was clearly a mistake, marking as DELETED..");
+
+        var thirdLabelHistoryEntry = labelHistoryIterator.next();
+        assertThat(thirdLabelHistoryEntry.getChange()).isEqualTo(LabelOperation.ADDED);
+        assertThat(thirdLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.DELETED);
+        assertThat(thirdLabelHistoryEntry.getReason())
+                .isEqualTo("Oh jeez, this was clearly a mistake, marking as DELETED..");
+
+        var fourthLabelHistoryEntry = labelHistoryIterator.next();
+        assertThat(fourthLabelHistoryEntry.getChange()).isEqualTo(LabelOperation.REMOVED);
+        assertThat(fourthLabelHistoryEntry.getLabel()).isEqualTo(DeliverableAnalyzerReportLabel.DELETED);
+        assertThat(fourthLabelHistoryEntry.getReason()).isEqualTo("Nvm, let it live");
+    }
+
+    @Test
+    @InSequence(30)
+    public void shouldThrowExceptionWhenRemovingNonexistent() throws ClientException {
+        // given
+        var client = new DeliverableAnalyzerReportClient(RestClientConfiguration.asUser());
+        DeliverableAnalyzerReportLabelRequest request = DeliverableAnalyzerReportLabelRequest.builder()
+                .label(DeliverableAnalyzerReportLabel.DELETED)
+                .reason("Let's try to remove something what is not here")
+                .build();
+
+        // then
+        try {
+            client.removeLabel(operationId, request);
+            fail("Expecting this test method to throw exception when adding duplicate label");
+        } catch (RemoteResourceException ex) {
+            assertThat(ex.getCause().getMessage()).isEqualTo("HTTP 409 Conflict");
+        }
     }
 }
