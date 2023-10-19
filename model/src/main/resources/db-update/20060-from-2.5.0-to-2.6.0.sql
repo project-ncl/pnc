@@ -70,33 +70,33 @@ BEGIN;
 --------------------------------------------------------------------------------
 -- DeliverableAnalyzerReport
 --------------------------------------------------------------------------------
-CREATE TABLE delan_report
+CREATE TABLE deliverableanalyzerreport
     (
         operation_id        BIGINT                  NOT NULL,
         labels              TEXT,
         PRIMARY KEY (operation_id)
     );
-    ALTER TABLE delan_report
-        ADD CONSTRAINT fk_delanreport_operation
+    ALTER TABLE deliverableanalyzerreport
+        ADD CONSTRAINT fk_deliverableanalyzerreport_operation
             FOREIGN KEY (operation_id)
             REFERENCES operation(id);
 
 --------------------------------------------------------------------------------
 -- DeliverableArtifact
 --------------------------------------------------------------------------------
-CREATE TABLE deliverable_artifact
+CREATE TABLE deliverableartifact
     (
         report_id           BIGINT                  NOT NULL,
         artifact_id         INTEGER                 NOT NULL,
-        built_from_source   BOOLEAN                 NOT NULL,
-        brew_build_id       INTEGER,
+        builtfromsource     BOOLEAN                 NOT NULL,
+        brewbuildid         INTEGER,
         PRIMARY KEY (report_id, artifact_id)
     );
-    ALTER TABLE deliverable_artifact
+    ALTER TABLE deliverableartifact
         ADD CONSTRAINT fk_deliverableartifact_report
             FOREIGN KEY (report_id)
-            REFERENCES delan_report(operation_id);
-    ALTER TABLE deliverable_artifact
+            REFERENCES deliverableanalyzerreport(operation_id);
+    ALTER TABLE deliverableartifact
         ADD CONSTRAINT fk_deliverableartifact_artifact
             FOREIGN KEY (artifact_id)
             REFERENCES artifact(id);
@@ -104,27 +104,27 @@ CREATE TABLE deliverable_artifact
 --------------------------------------------------------------------------------
 -- DeliverableAnalyzerLabelEntry
 --------------------------------------------------------------------------------
-CREATE TABLE delan_label_entry
+CREATE TABLE deliverableanalyzerlabelentry
     (
-        id                  INTEGER                 NOT NULL,
-        report_id           BIGINT,
-        order_id            INTEGER,
-        entry_time          TIMESTAMP,
-        user_id             INTEGER,
-        reason              TEXT,
-        delan_report_label  TEXT,
-        change              TEXT,
+        id              INTEGER                 NOT NULL,
+        report_id       BIGINT,
+        changeorder     INTEGER,
+        entry_time      TIMESTAMP,
+        user_id         INTEGER,
+        reason          TEXT,
+        label           TEXT,
+        change          TEXT,
         PRIMARY KEY (id)
     );
-    ALTER TABLE delan_label_entry
+    ALTER TABLE deliverableanalyzerlabelentry
         ADD CONSTRAINT uk_reportid_orderid
-            UNIQUE (report_id, order_id);
-    ALTER TABLE delan_label_entry
-        ADD CONSTRAINT fk_delanlabelentry_report
+            UNIQUE (report_id, changeorder);
+    ALTER TABLE deliverableanalyzerlabelentry
+        ADD CONSTRAINT fk_deliverableanalyzerlabelentry_report
             FOREIGN KEY (report_id)
-            REFERENCES delan_report(operation_id);
-    ALTER TABLE delan_label_entry
-        ADD CONSTRAINT fk_delanlabelentry_user
+            REFERENCES deliverableanalyzerreport(operation_id);
+    ALTER TABLE deliverableanalyzerlabelentry
+        ADD CONSTRAINT fk_deliverableanalyzerlabelentry_user
             FOREIGN KEY (user_id)
             REFERENCES usertable(id);
 COMMIT;
