@@ -18,16 +18,7 @@
 package org.jboss.pnc.facade.util.labels;
 
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
-import org.jboss.pnc.facade.validation.InvalidLabelOperationException;
 
-import java.util.EnumSet;
+public interface DeliverableAnalyzerReportLabelModifier extends LabelModifier<DeliverableAnalyzerReportLabel> {
 
-public interface DeliverableAnalyzerReportLabelModifier {
-
-    void validateAndAddLabel(DeliverableAnalyzerReportLabel label, EnumSet<DeliverableAnalyzerReportLabel> activeLabels)
-            throws InvalidLabelOperationException;
-
-    void validateAndRemoveLabel(
-            DeliverableAnalyzerReportLabel label,
-            EnumSet<DeliverableAnalyzerReportLabel> activeLabels) throws InvalidLabelOperationException;
 }
