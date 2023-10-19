@@ -32,11 +32,11 @@ import java.time.Instant;
 import java.util.Date;
 
 /**
- * Concrete implementation of {@link LabelSaver} for {@link DeliverableAnalyzerReport}.
+ * Concrete implementation of {@link AbstractLabelSaver} for {@link DeliverableAnalyzerReport}.
  */
 @RequestScoped
 public class DeliverableAnalyzerLabelSaverImpl extends
-        LabelSaver<Base32LongID, Base32LongID, DeliverableAnalyzerReportLabel, DeliverableAnalyzerLabelEntry, DeliverableAnalyzerReport>
+        AbstractLabelSaver<Base32LongID, Base32LongID, DeliverableAnalyzerReportLabel, DeliverableAnalyzerLabelEntry, DeliverableAnalyzerReport>
         implements DeliverableAnalyzerLabelSaver {
 
     private final UserService userService;
