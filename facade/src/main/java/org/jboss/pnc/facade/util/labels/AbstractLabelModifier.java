@@ -24,16 +24,15 @@ import javax.transaction.Transactional;
 import java.util.EnumSet;
 
 /**
- * The class implementing this interface is able to add (remove) new (old) label to (from) the set of active labels and
- * update the label history. Such a class complies with the rules of adding (removing) label for the given entity type
- * E. Concrete implementations of this class has to be annotated {@value @RequestScoped}.
+ * Concrete implementations of this class has to be annotated {@value @RequestScoped}.
  *
  * @param <L> label entity, e.g. {@link org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel}
  */
-public abstract class AbstractLabelModifier<L extends Enum<L>> {
+public abstract class AbstractLabelModifier<L extends Enum<L>> implements LabelModifier<L> {
 
     private EnumSet<L> activeLabels;
 
+    @Override
     @Transactional(Transactional.TxType.MANDATORY)
     public void validateAndAddLabel(L label, EnumSet<L> activeLabels) {
         this.activeLabels = activeLabels;
@@ -41,16 +40,13 @@ public abstract class AbstractLabelModifier<L extends Enum<L>> {
         addLabel(label, activeLabels);
     }
 
+    @Override
     @Transactional(Transactional.TxType.MANDATORY)
     public void validateAndRemoveLabel(L label, EnumSet<L> activeLabels) {
         this.activeLabels = activeLabels;
         checkLabelIsPresent(label);
         removeLabel(label, activeLabels);
     }
-
-    protected abstract void addLabel(L label, EnumSet<L> activeLabels);
-
-    protected abstract void removeLabel(L label, EnumSet<L> activeLabels);
 
     private void checkLabelIsNotPresent(L label) {
         if (activeLabels.contains(label)) {
