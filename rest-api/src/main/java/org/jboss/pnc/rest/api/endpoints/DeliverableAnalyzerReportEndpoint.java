@@ -35,7 +35,6 @@ import org.jboss.pnc.rest.api.swagger.response.SwaggerPages;
 import javax.validation.Valid;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -126,7 +125,7 @@ public interface DeliverableAnalyzerReportEndpoint {
                             description = SERVER_ERROR_DESCRIPTION,
                             content = @Content(schema = @Schema(implementation = ErrorResponse.class))) })
     @Path("/{id}/remove-label")
-    @DELETE
+    @POST
     void removeLabel(
             @Parameter(description = DEL_AN_ID) @PathParam("id") String id,
             @Valid DeliverableAnalyzerReportLabelRequest request);
