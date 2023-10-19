@@ -40,6 +40,8 @@ public abstract class AbstractLabelModifier<L extends Enum<L>> implements LabelM
         addLabel(label, activeLabels);
     }
 
+    protected abstract void addLabel(L label, EnumSet<L> activeLabels);
+
     @Override
     @Transactional(Transactional.TxType.MANDATORY)
     public void validateAndRemoveLabel(L label, EnumSet<L> activeLabels) {
@@ -47,6 +49,8 @@ public abstract class AbstractLabelModifier<L extends Enum<L>> implements LabelM
         checkLabelIsPresent(label);
         removeLabel(label, activeLabels);
     }
+
+    protected abstract void removeLabel(L label, EnumSet<L> activeLabels);
 
     private void checkLabelIsNotPresent(L label) {
         if (activeLabels.contains(label)) {

@@ -28,8 +28,4 @@ public interface LabelModifier<L extends Enum<L>> {
     void validateAndAddLabel(L label, EnumSet<L> activeLabels);
 
     void validateAndRemoveLabel(L label, EnumSet<L> activeLabels);
-
-    void addLabel(L label, EnumSet<L> activeLabels);
-
-    void removeLabel(L label, EnumSet<L> activeLabels);
 }
