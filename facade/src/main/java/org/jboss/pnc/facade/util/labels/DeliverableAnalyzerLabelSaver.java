@@ -19,10 +19,9 @@ package org.jboss.pnc.facade.util.labels;
 
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.model.Base32LongID;
-import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 
-public interface DeliverableAnalyzerLabelSaver extends
-        LabelSaver<Base32LongID, Base32LongID, DeliverableAnalyzerReportLabel, DeliverableAnalyzerLabelEntry, DeliverableAnalyzerReport> {
+public interface DeliverableAnalyzerLabelSaver
+        extends LabelSaver<Base32LongID, DeliverableAnalyzerReportLabel, DeliverableAnalyzerReport> {
 
 }

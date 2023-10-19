@@ -19,19 +19,16 @@ package org.jboss.pnc.facade.util.labels;
 
 import org.jboss.pnc.model.GenericEntity;
 
-import javax.transaction.Transactional;
 import java.io.Serializable;
 
 /**
  * Gets the requests what to store and without no further validation stores into DB requested entities.
  *
- * @param <LH_ID> The id of the label history entity.
  * @param <LO_ID> The id of the labeled object entity.
  * @param <L> The label enum.
- * @param <LH> The label history entity, e.g. {@link org.jboss.pnc.model.DeliverableAnalyzerLabelEntry}.
  * @param <LO> The labeled object entity, e.g. {@link org.jboss.pnc.model.DeliverableAnalyzerReport}.
  */
-public interface LabelSaver<LH_ID extends Serializable, LO_ID extends Serializable, L extends Enum<L>, LH extends GenericEntity<LH_ID>, LO extends GenericEntity<LO_ID>> {
+public interface LabelSaver<LO_ID extends Serializable, L extends Enum<L>, LO extends GenericEntity<LO_ID>> {
 
     void init(LO labeledObject, String reason);
 
