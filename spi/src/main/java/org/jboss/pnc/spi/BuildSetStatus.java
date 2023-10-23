@@ -28,7 +28,7 @@ import java.util.Arrays;
  */
 // mstodo can be removed
 public enum BuildSetStatus {
-    NEW,
+    NEW(false, BuildStatus.NEW),
     DONE(true, BuildStatus.SUCCESS),
     REJECTED(true, BuildStatus.REJECTED),
     /**
@@ -39,11 +39,6 @@ public enum BuildSetStatus {
     private final boolean isFinal;
 
     private final BuildStatus buildStatus;
-
-    BuildSetStatus() {
-        isFinal = false;
-        buildStatus = BuildStatus.NEW;
-    }
 
     BuildSetStatus(boolean isFinal, BuildStatus status) {
         this.isFinal = isFinal;

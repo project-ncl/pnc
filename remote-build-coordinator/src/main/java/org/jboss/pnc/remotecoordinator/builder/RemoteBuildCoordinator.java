@@ -527,7 +527,7 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
     private BuildConfigSetRecord storeAndNotifyBuildConfigSetRecord(
             Long buildConfigSetRecordId,
             BuildConfigurationSet buildConfigurationSet,
-            BuildStatus status,
+            BuildStatus newStatus,
             String description,
             User user,
             BuildOptions buildOptions) throws CoreException {
@@ -537,12 +537,12 @@ public class RemoteBuildCoordinator implements BuildCoordinator {
                 .buildConfigurationSet(buildConfigurationSet)
                 .user(user)
                 .startTime(new Date())
-                .status(status)
+                .status(BuildStatus.NEW) // will transition to newStatus in next storeAndNotifyBuildConfigSetRecord
                 .temporaryBuild(buildOptions.isTemporaryBuild())
                 .alignmentPreference(buildOptions.getAlignmentPreference())
                 .build();
 
-        storeAndNotifyBuildConfigSetRecord(buildConfigSetRecord, status, description);
+        storeAndNotifyBuildConfigSetRecord(buildConfigSetRecord, newStatus, description);
         return buildConfigSetRecord;
     }
 
