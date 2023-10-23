@@ -712,7 +712,7 @@
       <dependency>
         <groupId>io.smallrye</groupId>
         <artifactId>smallrye-fault-tolerance-context-propagation</artifactId>
-        <version>5.5.0</version>
+        <version>6.2.6.redhat-00001</version>
         <scope>test</scope>
       </dependency>
       <dependency>
