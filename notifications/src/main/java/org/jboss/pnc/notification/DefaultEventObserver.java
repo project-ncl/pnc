@@ -69,7 +69,10 @@ public class DefaultEventObserver {
 
     public void collectBuildSetStatusChangedEvent(@Observes BuildSetStatusChangedEvent buildSetStatusChangedEvent) {
         logger.trace("Observed new set status changed event {}.", buildSetStatusChangedEvent);
-        sendMessage(new GroupBuildChangedNotification(buildSetStatusChangedEvent.getGroupBuild()));
+        sendMessage(
+                new GroupBuildChangedNotification(
+                        buildSetStatusChangedEvent.getGroupBuild(),
+                        buildSetStatusChangedEvent.getOldBuildStatus()));
         logger.trace("Set status changed event processed {}.", buildSetStatusChangedEvent);
     }
 
