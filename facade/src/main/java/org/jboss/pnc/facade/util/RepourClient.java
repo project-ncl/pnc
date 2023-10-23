@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 @Dependent
 public class RepourClient {
 
-    private Logger logger = LoggerFactory.getLogger(BlacklistAsyncInvoker.class);
+    private Logger logger = LoggerFactory.getLogger(RepourClient.class);
 
     private static final String TRANSLATE_ENDPOINT = "/git-external-to-internal";
 
