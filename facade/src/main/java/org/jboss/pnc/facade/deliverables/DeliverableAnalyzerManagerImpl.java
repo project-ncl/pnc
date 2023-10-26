@@ -713,7 +713,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         private String getKojiPath(Build build) {
-            return KOJI_PATH_MAVEN_PREFIX + build.getBrewNVR();
+            return KOJI_PATH_MAVEN_PREFIX + build.getBrewNVR() + '/';
         }
 
         private void assertBrewArtifacts(Artifact artifact) {
