@@ -38,6 +38,7 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -292,6 +293,8 @@ public class BuildRecordRepositoryImpl extends AbstractRepository<BuildRecord, B
                 "SELECT COUNT(DISTINCT buildrecord_id) "
                         + " FROM _archived_buildrecords WHERE lastupdatetime > :lastupdatetime ");
         query.setParameter("lastupdatetime", lastupdatetime);
-        return (Integer) query.getSingleResult();
+        BigInteger count = ((BigInteger) query.getSingleResult());
+
+        return count.intValue();
     }
 }
