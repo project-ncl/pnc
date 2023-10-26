@@ -410,7 +410,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     }
 
     private TargetRepository getBrewRepository(Build build) {
-        String path = KOJI_PATH_MAVEN_PREFIX + build.getBrewNVR();
+        String path = KOJI_PATH_MAVEN_PREFIX + build.getBrewNVR() + '/';
         TargetRepository tr = targetRepositoryRepository.queryByIdentifierAndPath(INDY_MAVEN, path);
         if (tr == null) {
             tr = createRepository(path, INDY_MAVEN, RepositoryType.MAVEN);
