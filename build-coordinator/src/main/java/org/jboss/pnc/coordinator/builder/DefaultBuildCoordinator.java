@@ -62,6 +62,7 @@ import org.jboss.pnc.spi.exception.CoreException;
 import org.jboss.pnc.spi.repour.RepourResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -417,9 +418,17 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
             } else {
                 updateBuildTaskStatus(buildTask, BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES);
                 Runnable onTaskReady = () -> {
+                    var restoreOuter = MDC.getCopyOfContextMap();
+
+                    // wrap in appropriate MDC context to avoid using context of dependant
+                    MDCUtils.addBuildContext(getMDCMeta(buildTask));
                     ProcessStageUtils.logProcessStageEnd(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
                     updateBuildTaskStatus(buildTask, BuildCoordinationStatus.ENQUEUED);
                     ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.ENQUEUED.toString());
+                    MDCUtils.removeBuildContext();
+
+                    // restore dependants MDC values
+                    restoreOuter.forEach(MDC::put);
                 };
                 buildQueue.addWaitingTask(buildTask, onTaskReady);
                 ProcessStageUtils.logProcessStageBegin(BuildCoordinationStatus.WAITING_FOR_DEPENDENCIES.toString());
