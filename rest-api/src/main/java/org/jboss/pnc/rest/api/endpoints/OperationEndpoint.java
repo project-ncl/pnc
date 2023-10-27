@@ -108,7 +108,7 @@ public interface OperationEndpoint {
      * @return
      */
     @Operation(
-            summary = "[role:admin] " + UPDATE_DEL_ANALYZER_DESC,
+            summary = "[role:pnc-users-admin] " + UPDATE_DEL_ANALYZER_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
