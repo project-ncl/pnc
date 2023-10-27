@@ -64,7 +64,10 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     }
 
     @Override
-    public void completeBuild(BuildTaskRef buildTask, Optional<BuildResult> buildResult) {
+    public void completeBuild(
+            BuildTaskRef buildTask,
+            Optional<BuildResult> buildResult,
+            BuildCoordinationStatus previousState) {
     }
 
     @Override
@@ -130,11 +133,14 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
     }
 
     @Override
-    public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status) {
+    public void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus newState) {
     }
 
     @Override
-    public void updateBuildTaskStatus(BuildTaskRef task, BuildCoordinationStatus status) {
+    public void updateBuildTaskStatus(
+            BuildTaskRef task,
+            BuildCoordinationStatus previousState,
+            BuildCoordinationStatus newState) {
     }
 
     public void addActiveTask(BuildTask task) {
@@ -160,5 +166,10 @@ public class BuildCoordinatorMock implements BuildCoordinator { // TODO most lik
 
     @Override
     public void start() {
+    }
+
+    @Override
+    public long queueSize() {
+        return 5;
     }
 }

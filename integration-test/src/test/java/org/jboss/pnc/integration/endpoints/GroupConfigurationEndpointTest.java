@@ -56,6 +56,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -212,11 +213,12 @@ public class GroupConfigurationEndpointTest {
     @Test
     public void testConcurrentGet() throws RemoteResourceException {
         GroupConfigurationClient client = new GroupConfigurationClient(RestClientConfiguration.asUser());
-        Map<Integer, RemoteCollection<BuildConfiguration>> responseMap = new HashMap<>();
+        Map<Integer, RemoteCollection<BuildConfiguration>> responseMap = new ConcurrentHashMap<>();
         String gcId = "100";
 
         ExecutorService executorService = MDCExecutors.newFixedThreadPool(2);
-        executorService.execute(() -> {
+
+        Runnable first = () -> {
             logger.info("Making 1st request ...");
             RemoteCollection<BuildConfiguration> configurations = null;
             try {
@@ -226,9 +228,9 @@ public class GroupConfigurationEndpointTest {
             }
             logger.info("1st done.");
             responseMap.put(1, configurations);
-        });
+        };
 
-        executorService.execute(() -> {
+        Runnable second = () -> {
             logger.info("Making 2nd request ...");
             RemoteCollection<BuildConfiguration> configurations = null;
             try {
@@ -238,9 +240,13 @@ public class GroupConfigurationEndpointTest {
             }
             logger.info("2nd done.");
             responseMap.put(2, configurations);
-        });
+        };
+
+        executorService.submit(first);
+        executorService.submit(second);
 
         try {
+            executorService.shutdown();
             executorService.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             executorService.shutdownNow();

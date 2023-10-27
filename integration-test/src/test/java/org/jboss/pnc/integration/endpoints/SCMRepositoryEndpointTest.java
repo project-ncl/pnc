@@ -54,7 +54,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @RunAsClient
 @RunWith(Arquillian.class)
 @Category(ContainerTest.class)
-@Ignore // TODO enable me
 public class SCMRepositoryEndpointTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SCMRepositoryEndpointTest.class);
@@ -153,6 +152,7 @@ public class SCMRepositoryEndpointTest {
     }
 
     @Test
+    @Ignore // TODO mock RepourClient
     public void shouldUpdate() throws ClientException {
         // with
         SCMRepository scmRepository = repositoryClient.getAll(null, null).iterator().next();

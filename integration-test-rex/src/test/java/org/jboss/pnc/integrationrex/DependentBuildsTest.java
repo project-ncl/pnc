@@ -44,8 +44,10 @@ import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -78,12 +80,20 @@ public class DependentBuildsTest extends RemoteServices {
 
     private BuildUtils buildUtils;
 
-    private BPMWireMock bpm;
+    private static BPMWireMock bpm;
 
-    private static final String PNC_SOCKET_URL = "ws://localhost:8080" + NOTIFICATION_PATH;
-    WebSocketClient wsClient = new VertxWebSocketClient();
     private BuildClient buildClient;
     private BuildConfigurationClient buildConfigurationClient;
+
+    @BeforeClass
+    public static void startBPM() {
+        bpm = new BPMWireMock(8088);
+    }
+
+    @AfterClass
+    public static void stopBPM() throws IOException {
+        bpm.close();
+    }
 
     @Before
     public void beforeEach() throws ExecutionException, InterruptedException {
@@ -95,17 +105,8 @@ public class DependentBuildsTest extends RemoteServices {
         groupBuildClient = new GroupBuildClient(withBearerToken(token));
         buildConfigurationClient = new BuildConfigurationClient(withBearerToken(token));
 
-        wsClient.connect(PNC_SOCKET_URL).get();
-
         buildClient = new BuildClient(withBearerToken(token));
         buildUtils = new BuildUtils(buildClient, new GroupBuildClient(withBearerToken(token)));
-        bpm = new BPMWireMock(8088);
-    }
-
-    @After
-    public void afterEach() throws IOException {
-        bpm.close();
-        wsClient.disconnect();
     }
 
     @Test

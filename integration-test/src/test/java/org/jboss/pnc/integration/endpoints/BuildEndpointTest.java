@@ -20,6 +20,7 @@ package org.jboss.pnc.integration.endpoints;
 import io.undertow.Undertow;
 import io.undertow.util.HttpString;
 import org.apache.http.entity.ContentType;
+import org.apache.kafka.common.quota.ClientQuotaAlteration;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
@@ -48,6 +49,7 @@ import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.integration.setup.Credentials;
 import org.jboss.pnc.integration.setup.Deployments;
 import org.jboss.pnc.integration.setup.RestClientConfiguration;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
@@ -71,6 +73,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -110,7 +113,15 @@ public class BuildEndpointTest {
     @BeforeClass
     public static void prepareData() throws Exception {
         BuildClient bc = new BuildClient(RestClientConfiguration.asAnonymous());
-        Iterator<Build> it = bc.getAll(null, null).iterator();
+        RemoteCollection<Build> builds = bc.getAll(null, null);
+
+        // Sort by ID to retain IDs in the test
+        // After, NCL-8156 the default ordering was fixed and changed to submitTime
+        Iterator<Build> it = builds.getAll()
+                .stream()
+                .sorted(Comparator.comparingLong(build -> new Base32LongID(build.getId()).getLongId()))
+                .iterator();
+
         buildId = it.next().getId();
         build2Id = it.next().getId();
         build3Id = it.next().getId();

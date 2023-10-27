@@ -19,12 +19,13 @@ package org.jboss.pnc.spi.datastore.repositories;
 
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
+import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.spi.datastore.repositories.api.Repository;
 
 /**
  * Interface for manipulating {@link DeliverableAnalyzerLabelEntry} entity
  */
 public interface DeliverableAnalyzerLabelEntryRepository
-        extends Repository<DeliverableAnalyzerLabelEntry, Base32LongID> {
+        extends LabelEntryRepository<Base32LongID, Base32LongID, DeliverableAnalyzerLabelEntry> {
 
 }

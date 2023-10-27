@@ -20,13 +20,12 @@ package org.jboss.pnc.integrationrex;
 import dasniko.testcontainers.keycloak.KeycloakContainer;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.pnc.integrationrex.setup.Deployments;
-import org.jboss.pnc.integrationrex.testcontainers.CustomKeycloakContainer;
+import org.jboss.pnc.integrationrex.setup.arquillian.AfterDeploy;
+import org.jboss.pnc.integrationrex.setup.arquillian.AfterUnDeploy;
+import org.jboss.pnc.integrationrex.setup.arquillian.BeforeDeploy;
 import org.jboss.pnc.integrationrex.testcontainers.InfinispanContainer;
 import org.jboss.shrinkwrap.api.spec.EnterpriseArchive;
 import org.jboss.util.StringPropertyReplacer;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.Testcontainers;
@@ -56,7 +55,7 @@ public class RemoteServices {
 
     protected static String keycloakRealm = "newcastle-testcontainer";
 
-    private static final dasniko.testcontainers.keycloak.KeycloakContainer keycloakContainer;
+    private static final KeycloakContainer keycloakContainer;
     private static final Properties testProperties;
 
     private static GenericContainer rexContainer;
@@ -74,15 +73,20 @@ public class RemoteServices {
         authServerUrl = keycloakContainer.getAuthServerUrl();
     }
 
+    @BeforeDeploy
+    public static void startContainers() throws IOException {
+        logger.info("Starting containers ...");
+        System.out.println("Starting containers");
+        startRemoteServices();
+    }
+
     @Deployment(testable = false)
     public static EnterpriseArchive deploy() throws IOException {
         return Deployments.testEar();
     }
 
-    @BeforeClass
-    public static void beforeAll() throws IOException {
-        logger.info("Starting containers ...");
-        startRemoteServices();
+    @AfterDeploy
+    public static void exposeHostPorts() {
 
         // 8080 IS JBOSS CONTAINER
         // 8088 IS BPM WIREMOCK MOCK
@@ -90,18 +94,12 @@ public class RemoteServices {
         logger.info("Containers started.");
     }
 
-    @AfterClass
-    public static void afterAll() throws InterruptedException {
+    @AfterUnDeploy
+    public static void stopContainers() throws InterruptedException {
         logger.info("Stopping containers ...");
         ispnContainer.stop();
         rexContainer.stop();
         logger.info("Containers stopped.");
-        Thread.sleep(1000L); // make sure all resources are released
-    }
-
-    @Before
-    public void w8() throws InterruptedException {
-        Thread.sleep(1000L);
     }
 
     private static Properties initTestProperties() {
@@ -121,13 +119,16 @@ public class RemoteServices {
 
         String keycloakHostPort = testProperties.getProperty(GetFreePort.KEYCLOAK_PORT);
         String keycloakPortBinding = keycloakHostPort + ":" + 8080; // 8080 is in-container port
-        KeycloakContainer keycloak = new CustomKeycloakContainer("quay.io/keycloak/keycloak:21.1.0")
+        KeycloakContainer keycloak = new KeycloakContainer("quay.io/keycloak/keycloak:21.1.0")
                 .withNetwork(containerNetwork)
                 .withLogConsumer(keycloakLogConsumer)
                 .withNetworkAliases("keycloak")
                 .withRealmImportFile("keycloak-realm-export.json")
                 .withAccessToHost(true)
                 .withStartupAttempts(5);
+
+        // Force JWT issuer field to this URL to get through issuer verification for tokens originating in REX
+        keycloak.withEnv("KC_HOSTNAME_URL", "http://localhost:" + keycloakHostPort + "/");
 
         keycloak.setPortBindings(List.of(keycloakPortBinding));
         logger.info("Starting keycloak and binding it to port {}.", keycloakHostPort);
@@ -178,8 +179,7 @@ public class RemoteServices {
         Consumer<OutputFrame> rexLogConsumer = frame -> logger.debug("REX >>" + frame.getUtf8StringWithoutLineEnding());
 
         GenericContainer rex = new GenericContainer(DockerImageName.parse("quay.io/rh-newcastle/rex:latest"))
-                /* DockerImageName.parse("localhost/<<your-name>>/rex:1.0.0-SNAPSHOT")) */
-                .withAccessToHost(true)
+                // DockerImageName.parse("localhost/<<your-name>>/rex:1.0.0-SNAPSHOT"))
                 .withNetwork(containerNetwork)
                 .withNetworkAliases("rex")
                 .withAccessToHost(true)

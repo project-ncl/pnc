@@ -1268,20 +1268,20 @@ public class DatabaseDataInitializer {
 
         DeliverableAnalyzerReport report1 = DeliverableAnalyzerReport.builder()
                 .operation(operation2)
-                .labels(EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH))
+                .labels(EnumSet.of(DeliverableAnalyzerReportLabel.RELEASED))
                 .build();
         report1 = deliverableAnalyzerReportRepository.save(report1);
 
-        DeliverableAnalyzerLabelEntry report1labelEntry1 = DeliverableAnalyzerLabelEntry.builder()
+        DeliverableAnalyzerLabelEntry report1LabelEntry1 = DeliverableAnalyzerLabelEntry.builder()
                 .report(report1)
                 .changeOrder(1)
-                .entryTime(TODAY)
-                .user(demoUser)
-                .reason("This analysis was run as scratch!")
-                .label(DeliverableAnalyzerReportLabel.SCRATCH)
+                .entryTime(ONE_WEEK_BEFORE_TODAY)
+                .user(pncAdminUser)
+                .label(DeliverableAnalyzerReportLabel.RELEASED)
                 .change(LabelOperation.ADDED)
+                .reason("This was a game-changer! Release it! <3")
                 .build();
-        deliverableAnalyzerLabelEntryRepository.save(report1labelEntry1);
+        deliverableAnalyzerLabelEntryRepository.save(report1LabelEntry1);
 
         DeliverableArtifact report1analyzedArtifact1 = DeliverableArtifact.builder()
                 .report(report1)

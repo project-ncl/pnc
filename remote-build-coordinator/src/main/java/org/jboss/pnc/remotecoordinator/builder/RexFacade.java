@@ -41,6 +41,7 @@ import org.jboss.pnc.model.User;
 import org.jboss.pnc.model.utils.ContentIdentityManager;
 import org.jboss.pnc.remotecoordinator.BpmEndpointUrlFactory;
 import org.jboss.pnc.remotecoordinator.rexclient.RexHttpClient;
+import org.jboss.pnc.remotecoordinator.rexclient.RexQueueHttpClient;
 import org.jboss.pnc.remotecoordinator.rexclient.exception.ConflictResponseException;
 import org.jboss.pnc.remotecoordinator.rexclient.exception.TaskNotFoundException;
 import org.jboss.pnc.rest.jackson.JacksonProvider;
@@ -133,6 +134,7 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
     private BpmModuleConfig bpmConfig;
     private BuildTaskMappers mappers;
     private RexHttpClient rexClient;
+    private RexQueueHttpClient rexQueueClient;
 
     private KeycloakServiceClient keycloakServiceClient;
 
@@ -147,12 +149,14 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
             BpmModuleConfig bpmConfig,
             BuildTaskMappers mappers,
             RexHttpClient rexClient,
+            RexQueueHttpClient rexQueueClient,
             KeycloakServiceClient keycloakServiceClient) {
         this.systemConfig = systemConfig;
         this.globalConfig = globalConfig;
         this.bpmConfig = bpmConfig;
         this.mappers = mappers;
         this.rexClient = rexClient;
+        this.rexQueueClient = rexQueueClient;
         this.keycloakServiceClient = keycloakServiceClient;
     }
 
@@ -422,5 +426,23 @@ public class RexFacade implements RexBuildScheduler, BuildTaskRepository {
                 null,
                 null,
                 null);
+    }
+
+    @Override
+    public long getBuildQueueSize() throws RemoteRequestException {
+        try {
+            return rexQueueClient.getConcurrent().getNumber();
+        } catch (Exception e) {
+            throw new RemoteRequestException("Cannot get build queue size", e);
+        }
+    }
+
+    @Override
+    public void setBuildQueueSize(long queueSize) throws RemoteRequestException {
+        try {
+            rexQueueClient.setConcurrent(queueSize);
+        } catch (Exception e) {
+            throw new RemoteRequestException("Cannot set build queue size", e);
+        }
     }
 }

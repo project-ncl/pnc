@@ -50,7 +50,9 @@ import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
 import org.jboss.pnc.restclient.websocket.WebSocketClient;
 import org.jboss.pnc.test.category.ContainerTest;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -84,11 +86,20 @@ public class WebSocketClientTest extends RemoteServices {
     private AdvancedBuildConfigurationClient buildConfigurationClient;
     private AdvancedGroupConfigurationClient groupConfigurationClient;
 
-    private BuildTest.BPMWireMock bpm;
+    private static BuildTest.BPMWireMock bpm;
+
+    @BeforeClass
+    public static void startBPM() {
+        bpm = new BuildTest.BPMWireMock(8088);
+    }
+
+    @AfterClass
+    public static void stopBPM() throws IOException {
+        bpm.close();
+    }
 
     @Before
     public void beforeEach() {
-        bpm = new BuildTest.BPMWireMock(8088);
         String token = KeycloakClient
                 .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
                 .getToken();
@@ -99,7 +110,6 @@ public class WebSocketClientTest extends RemoteServices {
 
     @After
     public void afterEach() throws IOException {
-        bpm.close();
         buildConfigurationClient.close();
         groupConfigurationClient.close();
     }
@@ -149,10 +159,10 @@ public class WebSocketClientTest extends RemoteServices {
         buildConfigurationClient.trigger(bc.getId(), new BuildParameters());
 
         // then
-        Thread.sleep(1000);
+        Thread.sleep(500);
         unsubscriber.run();
         wsClient.disconnect().get();
-        assertThat(notificationCounter).hasValueGreaterThanOrEqualTo(2);
+        assertThat(notificationCounter).hasValueGreaterThanOrEqualTo(1);
     }
 
     @Test

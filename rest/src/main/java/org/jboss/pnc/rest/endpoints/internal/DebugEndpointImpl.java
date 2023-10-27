@@ -19,12 +19,15 @@ package org.jboss.pnc.rest.endpoints.internal;
 
 import org.jboss.pnc.coordinator.notifications.buildTask.MessageSenderProvider;
 import org.jboss.pnc.dto.Build;
+import org.jboss.pnc.dto.response.LongResponse;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.messaging.spi.MessageSender;
 import org.jboss.pnc.rest.endpoints.internal.api.DebugEndpoint;
+import org.jboss.pnc.spi.coordinator.BuildCoordinator;
 import org.jboss.pnc.spi.coordinator.events.DefaultBuildStatusChangedEvent;
 import org.jboss.pnc.spi.datastore.BuildTaskRepository;
 import org.jboss.pnc.spi.events.BuildStatusChangedEvent;
+import org.jboss.pnc.spi.exception.RemoteRequestException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Event;
@@ -44,6 +47,9 @@ public class DebugEndpointImpl implements DebugEndpoint {
     private BuildTaskRepository taskRepository;
 
     @Inject
+    private BuildCoordinator coordinator;
+
+    @Inject
     private MessageSenderProvider messageSenderProvider;
 
     @Inject
@@ -52,6 +58,15 @@ public class DebugEndpointImpl implements DebugEndpoint {
     @Override
     public String getBuildQueueInfo() {
         return taskRepository.getDebugInfo();
+    }
+
+    @Override
+    public LongResponse getBuildQueueSize() {
+        try {
+            return LongResponse.builder().number(coordinator.queueSize()).build();
+        } catch (RemoteRequestException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

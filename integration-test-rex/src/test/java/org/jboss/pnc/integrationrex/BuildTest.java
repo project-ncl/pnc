@@ -25,6 +25,7 @@ import org.jboss.pnc.auth.KeycloakClient;
 import org.jboss.pnc.client.BuildClient;
 import org.jboss.pnc.client.BuildConfigurationClient;
 import org.jboss.pnc.client.ClientException;
+import org.jboss.pnc.client.Configuration;
 import org.jboss.pnc.client.GroupBuildClient;
 import org.jboss.pnc.client.GroupConfigurationClient;
 import org.jboss.pnc.client.RemoteCollection;
@@ -38,16 +39,16 @@ import org.jboss.pnc.dto.requests.GroupBuildRequest;
 import org.jboss.pnc.enums.BuildStatus;
 import org.jboss.pnc.enums.RebuildMode;
 import org.jboss.pnc.integrationrex.mock.BPMResultsMock;
+import org.jboss.pnc.integrationrex.setup.RestClientConfiguration;
 import org.jboss.pnc.integrationrex.utils.BuildUtils;
 import org.jboss.pnc.integrationrex.utils.ResponseUtils;
 import org.jboss.pnc.rest.api.parameters.BuildsFilterParameters;
 import org.jboss.pnc.rest.api.parameters.GroupBuildParameters;
 import org.jboss.pnc.restclient.AdvancedBuildClient;
-import org.jboss.pnc.restclient.websocket.VertxWebSocketClient;
-import org.jboss.pnc.restclient.websocket.WebSocketClient;
 import org.jboss.pnc.test.category.ContainerTest;
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -66,11 +67,13 @@ import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.any;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.jboss.pnc.integrationrex.WireMockUtils.baseBPMWebhook;
 import static org.jboss.pnc.integrationrex.WireMockUtils.defaultConfiguration;
 import static org.jboss.pnc.integrationrex.WireMockUtils.response200;
-import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.NOTIFICATION_PATH;
+import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.BASE_REST_PATH;
 import static org.jboss.pnc.integrationrex.setup.RestClientConfiguration.withBearerToken;
 
 @RunAsClient
@@ -88,14 +91,20 @@ public class BuildTest extends RemoteServices {
 
     private BuildUtils buildUtils;
 
-    private static final String PNC_SOCKET_URL = "ws://localhost:8080" + NOTIFICATION_PATH;
-    WebSocketClient wsClient = new VertxWebSocketClient();
+    private static BPMWireMock bpm;
 
-    private BPMWireMock bpm;
+    @BeforeClass
+    public static void startBPM() {
+        bpm = new BPMWireMock(8088);
+    }
+
+    @AfterClass
+    public static void stopBPM() throws IOException {
+        bpm.close();
+    }
 
     @Before
     public void beforeEach() throws ExecutionException, InterruptedException {
-        bpm = new BPMWireMock(8088);
 
         String token = KeycloakClient
                 .getAuthTokensBySecret(authServerUrl, keycloakRealm, "test-user", "test-pass", "pnc", "", false)
@@ -105,14 +114,19 @@ public class BuildTest extends RemoteServices {
         buildConfigurationClient = new BuildConfigurationClient(withBearerToken(token));
         groupConfigurationClient = new GroupConfigurationClient(withBearerToken(token));
         buildUtils = new BuildUtils(buildClient, new GroupBuildClient(withBearerToken(token)));
-
-        wsClient.connect(PNC_SOCKET_URL).get();
     }
 
-    @After
-    public void afterEach() throws IOException {
-        bpm.close();
-        wsClient.disconnect();
+    @Test
+    public void testThatBuildQueueSizeIsSet() {
+        Configuration conf = RestClientConfiguration.asAnonymous();
+
+        given().baseUri(conf.getProtocol() + "://" + conf.getHost() + ":" + conf.getPort())
+                .basePath(BASE_REST_PATH)
+                .when()
+                .get("/debug/build-queue/size")
+                .then()
+                .statusCode(200)
+                .body("number", equalTo(10)); // value from Rex set from pnc-config.json
     }
 
     @Test
@@ -532,7 +546,7 @@ public class BuildTest extends RemoteServices {
                             .withPostServeAction(
                                     "webhook",
                                     baseBPMWebhook().withBody(BPMResultsMock.mockBuildResultSuccess())
-                                            .withFixedDelay(500)));
+                                            .withFixedDelay(250)));
             wireMockServer.start();
         }
 

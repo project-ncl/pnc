@@ -25,7 +25,11 @@ import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.util.Strings;
 
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.ANNOUNCEMENT_BANNER;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.MAINTENANCE_MODE;
+import static org.jboss.pnc.api.constants.GenericSettingsKeys.PNC_VERSION;
 import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -36,10 +40,6 @@ import javax.inject.Inject;
 @Stateless
 @Slf4j
 public class GenericSettingProvider {
-
-    public static final String ANNOUNCEMENT_BANNER = "ANNOUNCEMENT_BANNER";
-    public static final String MAINTENANCE_MODE = "MAINTENANCE_MODE";
-    public static final String PNC_VERSION = "PNC_VERSION";
 
     @Inject
     private GenericSettingRepository genericSettingRepository;

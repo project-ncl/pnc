@@ -21,4 +21,6 @@ import java.util.List;
 
 public interface SortInfo<T> {
     List<OrderInfo<T>> orders();
+
+    SortInfo<T> thenOrderBy(OrderInfo<T> order);
 }

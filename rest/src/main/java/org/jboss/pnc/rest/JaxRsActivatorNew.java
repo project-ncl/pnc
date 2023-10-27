@@ -68,6 +68,7 @@ import org.jboss.pnc.rest.provider.BpmExceptionMapper;
 import org.jboss.pnc.rest.provider.BuildConflictExceptionMapper;
 import org.jboss.pnc.rest.provider.ConstraintViolationExceptionMapper;
 import org.jboss.pnc.rest.provider.EJBExceptionMapper;
+import org.jboss.pnc.rest.provider.InvalidLabelOperationExceptionMapper;
 import org.jboss.pnc.rest.provider.OperationNotAllowedExceptionsMapper;
 import org.jboss.pnc.rest.provider.RSQLExceptionMapper;
 import org.jboss.pnc.rest.provider.RespondWithStatusFilter;
@@ -242,6 +243,7 @@ public class JaxRsActivatorNew extends Application {
         resources.add(RSQLExceptionMapper.class);
         resources.add(UnauthorizedExceptionMapper.class);
         resources.add(ValidationExceptionExceptionMapper.class);
+        resources.add(InvalidLabelOperationExceptionMapper.class);
     }
 
     private void addSwaggerResources(Set<Class<?>> resources) {

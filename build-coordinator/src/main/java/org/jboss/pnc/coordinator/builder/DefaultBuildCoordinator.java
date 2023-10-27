@@ -111,7 +111,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     private Event<BuildSetStatusChangedEvent> buildSetStatusChangedEventNotifier;
 
     @Override
-    public void completeBuild(BuildTaskRef buildTask, Optional<BuildResult> buildResult) {
+    public void completeBuild(
+            BuildTaskRef buildTask,
+            Optional<BuildResult> buildResult,
+            BuildCoordinationStatus previousState) {
         throw new UnsupportedOperationException("Legacy Coordinator does not support new way of saving result");
     }
 
@@ -568,7 +571,10 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     }
 
     @Override
-    public void updateBuildTaskStatus(BuildTaskRef task, BuildCoordinationStatus status) {
+    public void updateBuildTaskStatus(
+            BuildTaskRef task,
+            BuildCoordinationStatus previousState,
+            BuildCoordinationStatus newState) {
         throw new UnsupportedOperationException("This method should not be used with InMemory coordinator");
     }
 
@@ -965,6 +971,11 @@ public class DefaultBuildCoordinator implements BuildCoordinator {
     @PreDestroy
     public void destroy() {
         log.info("The application is shutting down ...");
+    }
+
+    @Override
+    public long queueSize() {
+        return systemConfig.getCoordinatorMaxConcurrentBuilds();
     }
 
     private void startThreads() {

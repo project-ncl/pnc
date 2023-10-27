@@ -76,6 +76,7 @@ import org.jboss.pnc.spi.datastore.repositories.api.PageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.jboss.pnc.spi.datastore.repositories.api.SortInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.CursorPageInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultOrderInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultPageInfo;
 import org.jboss.pnc.spi.datastore.repositories.api.impl.DefaultSortInfo;
 import org.jboss.pnc.spi.exception.MissingDataException;
@@ -112,6 +113,7 @@ import java.util.Spliterators;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -136,6 +138,7 @@ import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withU
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutAttribute;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutImplicitDependants;
 import static org.jboss.pnc.spi.datastore.predicates.BuildRecordPredicates.withoutLinkedNRRRecordOlderThanTimestamp;
+import static org.jboss.pnc.spi.datastore.repositories.api.OrderInfo.SortingDirection.DESC;
 
 @PermitAll
 @Stateless
@@ -897,7 +900,7 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
         List<Build> runningBuilds = readRunningBuilds(pageInfo, predicate);
 
         List<Build> builds = runningBuilds.stream()
-                .skip(pageInfo.getPageIndex() * pageInfo.getPageSize())
+                .skip((long) pageInfo.getPageIndex() * pageInfo.getPageSize())
                 .limit(pageInfo.getPageSize())
                 .collect(Collectors.toList());
         return new Page<>(
@@ -942,11 +945,16 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 pageInfo.getQ(),
                 pageInfo.getBuildConfigName());
         Comparator<Build> comparing = Comparator.comparing(Build::getSubmitTime).reversed();
+        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.submitTime);
         if (!StringUtils.isEmpty(pageInfo.getSort())) {
             comparing = rsqlPredicateProducer.getComparator(pageInfo.getSort());
+            sortInfo = rsqlPredicateProducer.getSortInfo(type, pageInfo.getSort());
         }
 
-        SortInfo<BuildRecord> sortInfo = rsqlPredicateProducer.getSortInfo(type, pageInfo.getSort());
+        // NCL-8156 SECONDARY sort by unique column like long ID to achieve determinism
+        comparing = thenCompareByLongID(comparing);
+        sortInfo = sortInfo.thenOrderBy(DefaultOrderInfo.desc(BuildRecord_.id));
+
         MergeIterator<Build> builds = new MergeIterator(
                 runningBuilds.iterator(),
                 new BuildIterator(
@@ -970,6 +978,13 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                 (int) Math.ceil((double) hits / pageInfo.getPageSize()),
                 hits,
                 resultList);
+    }
+
+    private Comparator<Build> thenCompareByLongID(Comparator<Build> comparing) {
+        ToLongFunction<Build> longId = build -> parseId(build.getId()).getLongId();
+        Comparator<Build> sortByLongId = Comparator.comparingLong(longId).reversed(); // id DESC
+
+        return comparing.thenComparing(sortByLongId);
     }
 
     private Predicate<BuildRecord>[] preparePredicates(
@@ -1034,6 +1049,9 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
                             .test(t.getBuildConfigurationAudited()));
         }
 
+        // NCL-8156 SECONDARY sort by unique column like long ID to achieve determinism
+        comparing = thenCompareByLongID(comparing);
+
         return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(Objects::nonNull)
                 .filter(predicate)
                 .map(buildMapper::fromBuildTask)
@@ -1066,16 +1084,18 @@ public class BuildProviderImpl extends AbstractUpdatableProvider<Base32LongID, B
 
     private Optional<Build> readLatestRunningBuild(java.util.function.Predicate<BuildTask> predicate)
             throws RemoteRequestException, MissingDataException {
+        Comparator<BuildTask> comparator = Comparator.comparing(BuildTask::getSubmitTime)
+                .thenComparingLong(task -> parseId(task.getId()).getLongId());
+
         return nullableStreamOf(buildCoordinator.getSubmittedBuildTasks()).filter(Objects::nonNull)
                 .filter(predicate)
-                .sorted(Comparator.comparing(BuildTask::getSubmitTime).reversed())
-                .findFirst()
+                .max(comparator) // submitTime DESC, id DESC
                 .map(buildMapper::fromBuildTask);
     }
 
     private Optional<Build> readLatestFinishedBuild(Predicate<BuildRecord> predicate) {
         PageInfo pageInfo = this.pageInfoProducer.getPageInfo(0, 1);
-        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.submitTime);
+        SortInfo<BuildRecord> sortInfo = DefaultSortInfo.desc(BuildRecord_.submitTime, BuildRecord_.id);
         List<BuildRecord> buildRecords = repository.queryWithPredicates(pageInfo, sortInfo, predicate);
 
         return buildRecords.stream().map(mapper::toDTO).findFirst();

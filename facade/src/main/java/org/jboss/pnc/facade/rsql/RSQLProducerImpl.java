@@ -22,7 +22,7 @@ import cz.jirutka.rsql.parser.RSQLParserException;
 import cz.jirutka.rsql.parser.ast.ComparisonOperator;
 import cz.jirutka.rsql.parser.ast.Node;
 import cz.jirutka.rsql.parser.ast.RSQLOperators;
-import org.jboss.pnc.datastore.limits.rsql.EmptySortInfo;
+import org.jboss.pnc.spi.datastore.repositories.api.impl.StableEmptySortInfo;
 import org.jboss.pnc.datastore.predicates.rsql.EmptyRSQLPredicate;
 import org.jboss.pnc.facade.rsql.mapper.UniversalRSQLMapper;
 import org.jboss.pnc.model.GenericEntity;
@@ -123,7 +123,7 @@ public class RSQLProducerImpl implements RSQLProducer {
     @Override
     public <DB extends GenericEntity<?>> SortInfo<DB> getSortInfo(Class<DB> type, String rsql) {
         if (rsql == null || rsql.isEmpty()) {
-            return new EmptySortInfo<>();
+            return new StableEmptySortInfo<>();
         }
 
         if (!rsql.startsWith(FIXED_START_OF_SORTING_EXPRESSION)) {

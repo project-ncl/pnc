@@ -64,6 +64,15 @@ public class GroupBuildChangedNotification extends Notification {
         this.groupBuild = groupBuild;
     }
 
+    public GroupBuildChangedNotification(GroupBuild groupBuild, BuildStatus oldStatus) {
+        super(
+                GROUP_BUILD,
+                GROUP_BUILD_STATUS_CHANGED,
+                getProgress(groupBuild.getStatus()),
+                oldStatus == null ? PENDING : getProgress(oldStatus));
+        this.groupBuild = groupBuild;
+    }
+
     // mstodo could be problem
     public static JobNotificationProgress getProgress(BuildStatus status) {
         if (BuildStatus.NEW.equals(status)) {
@@ -78,6 +87,8 @@ public class GroupBuildChangedNotification extends Notification {
     public static JobNotificationProgress getPreviousProgress(BuildStatus status) {
         if (BuildStatus.NEW.equals(status)) {
             return null;
+        } else if (BuildStatus.NO_REBUILD_REQUIRED.equals(status)) {
+            return PENDING;
         } else if (status.isFinal()) {
             return IN_PROGRESS;
         } else {

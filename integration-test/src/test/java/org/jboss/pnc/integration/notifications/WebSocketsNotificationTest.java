@@ -141,7 +141,7 @@ public class WebSocketsNotificationTest {
                 "description");
         String groupBuildString = mapperProvider.getMapper().writeValueAsString(groupBuild);
         String expectedJsonResponse = "{\"groupBuild\":" + groupBuildString
-                + ",\"job\":\"GROUP_BUILD\",\"notificationType\":\"GROUP_BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldProgress\":\"IN_PROGRESS\",\"message\":null}";
+                + ",\"job\":\"GROUP_BUILD\",\"notificationType\":\"GROUP_BUILD_STATUS_CHANGED\",\"progress\":\"FINISHED\",\"oldProgress\":\"PENDING\",\"message\":null}";
 
         // when
         buildSetStatusNotificationEvent.fire(buildStatusChangedEvent);

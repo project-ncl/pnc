@@ -86,7 +86,7 @@ public class BuildTriggererImpl implements BuildTriggerer {
     private HibernateLazyInitializer hibernateLazyInitializer;
 
     @Inject
-    GenericSettingProvider genericSettingProvider;
+    private GenericSettingProvider genericSettingProvider;
 
     @Override
     public String triggerBuild(

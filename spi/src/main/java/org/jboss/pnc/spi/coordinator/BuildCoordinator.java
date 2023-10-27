@@ -72,7 +72,10 @@ public interface BuildCoordinator {
 
     void completeBuild(BuildTask buildTask, BuildResult buildResult);
 
-    void completeBuild(BuildTaskRef buildTask, Optional<BuildResult> buildResult);
+    void completeBuild(
+            BuildTaskRef buildTask,
+            Optional<BuildResult> buildResult,
+            BuildCoordinationStatus previousState);
 
     /**
      * Cancels a running build
@@ -86,14 +89,19 @@ public interface BuildCoordinator {
     boolean cancelSet(long buildConfigSetRecordId) throws CoreException;
 
     @Deprecated // used only internally
-    void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus status);
+    void updateBuildTaskStatus(BuildTask task, BuildCoordinationStatus newState);
 
-    void updateBuildTaskStatus(BuildTaskRef task, BuildCoordinationStatus status);
+    void updateBuildTaskStatus(
+            BuildTaskRef task,
+            BuildCoordinationStatus previousState,
+            BuildCoordinationStatus newState);
 
-    void storeAndNotifyBuildConfigSetRecord(BuildConfigSetRecord setRecord, BuildStatus status, String description)
+    void storeAndNotifyBuildConfigSetRecord(BuildConfigSetRecord setRecord, BuildStatus newState, String description)
             throws CoreException;
 
     void start();
+
+    long queueSize() throws RemoteRequestException;
 
     @Deprecated
     Optional<BuildTaskContext> getMDCMeta(String buildTaskId);
