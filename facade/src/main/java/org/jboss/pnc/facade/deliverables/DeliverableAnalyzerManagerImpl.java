@@ -201,8 +201,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
         if (!notFoundArtifacts.isEmpty()) {
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
-            stats.notFoundArtifactsCount = notFoundArtifacts.size();
             notFoundArtifacts.stream()
+                    .peek(stats.notFoundCounter())
                     .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository))
                     .peek(artifactUpdater)
                     .forEach(milestone::addDeliveredArtifact);
@@ -259,6 +259,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         // create
         artifact.setTargetRepository(targetRepo);
+        createGenericPurl(targetRepo.getRepositoryPath(), artifact.getFilename().toString(), artifact.getSha256());
         org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
         targetRepo.getArtifacts().add(savedArtifact);
         return savedArtifact;
@@ -296,14 +297,15 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     }
 
     private org.jboss.pnc.model.Artifact.Builder mapArtifact(Artifact artifact) {
+        Date now = new Date();
         org.jboss.pnc.model.Artifact.Builder builder = org.jboss.pnc.model.Artifact.builder();
         builder.md5(artifact.getMd5());
         builder.sha1(artifact.getSha1());
         builder.sha256(artifact.getSha256());
         builder.size(artifact.getSize());
-        builder.importDate(new Date());
+        builder.importDate(now);
         builder.creationUser(userService.currentUser());
-        builder.creationTime(new Date());
+        builder.creationTime(now);
 
         if (artifact.isBuiltFromSource()) {
             builder.artifactQuality(ArtifactQuality.NEW);
@@ -358,6 +360,29 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             if (!StringUtils.isEmpty(mavenArtifact.getClassifier())) {
                 purlBuilder.withQualifier("classifier", mavenArtifact.getClassifier());
             }
+            return purlBuilder.build().toString();
+        } catch (MalformedPackageURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Compute the purl string for a generic download, that does not match package type specific files structure. See
+     * https://github.com/package-url/purl-spec/blob/master/PURL-TYPES.rst#generic
+     *
+     * @param downloadUrl url where the artifact was downloaded from
+     * @param filename the artifact filename
+     * @param sha256 the SHA-256 of the artifact
+     * @return the generated purl
+     * @throws MalformedPackageURLException
+     */
+    private String createGenericPurl(String downloadUrl, String filename, String sha256) {
+        try {
+            PackageURLBuilder purlBuilder = PackageURLBuilder.aPackageURL()
+                    .withType(PackageURL.StandardTypes.GENERIC)
+                    .withName(filename)
+                    .withQualifier("download_url", downloadUrl)
+                    .withQualifier("checksum", "sha256:" + sha256);
             return purlBuilder.build().toString();
         } catch (MalformedPackageURLException e) {
             throw new RuntimeException(e);
@@ -491,10 +516,17 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             };
         }
 
+        public Consumer<Artifact> notFoundCounter() {
+            return a -> {
+                totalArtifacts++;
+                notFoundArtifactsCount++;
+            };
+        }
+
         public void log(String distributionUrl) {
             log.info("Processed {} artifacts from deliverables at {}: ", totalArtifacts, distributionUrl);
             log.info(
-                    "  PNC artifacts: {} ({} artifacts not built from source), BREW artifacts: {} ({} artifacts not built from source), not found artifacts: {} ",
+                    "  PNC artifacts: {} ({} artifacts not built from source), BREW artifacts: {} ({} artifacts not built from source), other artifacts not built from source: {} ",
                     pncArtifactsCount,
                     pncNotBuiltArtifactsCount,
                     brewArtifactsCount,
