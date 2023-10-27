@@ -56,6 +56,7 @@ public class DeliverableAnalysisStatusMQNotifications {
 
     private void send(MessageSender ms, DeliverableAnalysisStatusChangedEvent event) {
         Message message = new AnalysisStatusMessage(
+                event.getOperationId(),
                 ATTRIBUTE_NAME,
                 event.getMilestoneId(),
                 event.getStatus().toString(),
@@ -69,6 +70,7 @@ public class DeliverableAnalysisStatusMQNotifications {
         headers.put("attribute", ATTRIBUTE_NAME);
         headers.put("milestoneId", event.getMilestoneId());
         headers.put("status", event.getStatus().toString());
+        headers.put("operationId", event.getOperationId());
         return headers;
     }
 }
