@@ -29,12 +29,23 @@ import java.util.List;
 @Getter
 public class AnalysisStatusMessage implements Message {
 
+    private final String operationId;
     private final String attribute;
     private final String milestoneId;
     private final String status;
     private final List<String> deliverablesUrls;
 
     public AnalysisStatusMessage(String attribute, String milestoneId, String status, List<String> deliverablesUrls) {
+        this("", attribute, milestoneId, status, deliverablesUrls);
+    }
+
+    public AnalysisStatusMessage(
+            String operationId,
+            String attribute,
+            String milestoneId,
+            String status,
+            List<String> deliverablesUrls) {
+        this.operationId = operationId;
         this.attribute = attribute;
         this.milestoneId = milestoneId;
         this.status = status;
