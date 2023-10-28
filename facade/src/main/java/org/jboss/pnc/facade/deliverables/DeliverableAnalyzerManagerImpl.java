@@ -327,7 +327,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
     private static String createFileName(MavenArtifact mavenArt) {
         String filename = mavenArt.getArtifactId() + "-" + mavenArt.getVersion();
-        if (Strings.isEmpty(mavenArt.getClassifier())) {
+        if (!Strings.isEmpty(mavenArt.getClassifier())) {
             filename += "-" + mavenArt.getClassifier();
         }
         filename += "." + mavenArt.getType();
