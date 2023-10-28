@@ -67,11 +67,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -241,7 +243,57 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         return findOrCreateArtifact(mapBrewArtifact(artifact, nvr), targetRepo);
     }
 
+    private Optional<org.jboss.pnc.model.Artifact> getBestMatchingArtifact(
+            Collection<org.jboss.pnc.model.Artifact> artifacts) {
+        if (artifacts == null || artifacts.isEmpty()) {
+            return Optional.empty();
+        }
+
+        if (artifacts.size() == 1) {
+            return Optional.of(artifacts.iterator().next());
+        }
+
+        return Optional.of(
+                artifacts.stream()
+                        .sorted(Comparator.comparing(DeliverableAnalyzerManagerImpl::getArtifactQuality).reversed())
+                        .findFirst()
+                        .orElse(artifacts.iterator().next()));
+    }
+
+    private static int getArtifactQuality(Object obj) {
+        org.jboss.pnc.model.Artifact a = (org.jboss.pnc.model.Artifact) obj;
+        ArtifactQuality quality = a.getArtifactQuality();
+
+        switch (quality) {
+            case NEW:
+                return 1;
+            case VERIFIED:
+                return 2;
+            case TESTED:
+                return 3;
+            case DEPRECATED:
+                return -1;
+            case BLACKLISTED:
+                return -2;
+            case TEMPORARY:
+                return -3;
+            case DELETED:
+                return -4;
+            default:
+                log.warn("Unsupported ArtifactQuality! Got: {}", quality);
+                return -100;
+        }
+    }
+
     private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(Artifact artifact, TargetRepository targetRepo) {
+        // find
+        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
+                .queryWithPredicates(ArtifactPredicates.withSha256(Optional.of(artifact.getSha256())));
+
+        Optional<org.jboss.pnc.model.Artifact> bestMatch = getBestMatchingArtifact(artifacts);
+        if (bestMatch.isPresent()) {
+            return bestMatch.get();
+        }
         return findOrCreateArtifact(mapNotFoundArtifact(artifact), targetRepo);
     }
 
