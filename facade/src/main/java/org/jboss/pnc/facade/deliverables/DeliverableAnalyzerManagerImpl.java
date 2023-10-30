@@ -259,7 +259,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         // create
         artifact.setTargetRepository(targetRepo);
-        createGenericPurl(targetRepo.getRepositoryPath(), artifact.getFilename().toString(), artifact.getSha256());
+        artifact.setPurl(createGenericPurl(targetRepo.getRepositoryPath(), artifact.getFilename().toString(), artifact.getSha256()));
         org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
         targetRepo.getArtifacts().add(savedArtifact);
         return savedArtifact;
