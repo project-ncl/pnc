@@ -718,7 +718,7 @@
       <dependency>
         <groupId>org.eclipse.microprofile.metrics</groupId>
         <artifactId>microprofile-metrics-api</artifactId>
-        <version>3.0.1</version>
+        <version>4.0.1.redhat-00001</version>
       </dependency>
       <dependency>
         <groupId>io.smallrye</groupId>
