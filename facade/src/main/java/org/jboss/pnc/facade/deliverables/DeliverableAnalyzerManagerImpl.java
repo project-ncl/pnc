@@ -43,6 +43,7 @@ import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.ProductMilestone;
@@ -67,13 +68,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -159,6 +163,9 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 milestoneId,
                 builds.size(),
                 distributionUrl);
+
+        // Set containing all the PNC builds found in the deliverable analysis
+        Set<Base32LongID> pncBuiltRecordIds = new HashSet<>();
         ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
         Consumer<org.jboss.pnc.model.Artifact> artifactUpdater = artifactUpdater(
                 "Added as delivered artifact for milestone " + milestoneId);
@@ -174,6 +181,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 case PNC:
                     statCounter = stats.pncCounter();
                     artifactParser = this::getPncArtifact;
+                    pncBuiltRecordIds.add(BuildMapper.idMapper.toEntity(build.getPncId()));
                     break;
                 case BREW:
                     statCounter = stats.brewCounter();
@@ -197,7 +205,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
             notFoundArtifacts.stream()
                     .peek(stats.notFoundCounter())
-                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository))
+                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository, pncBuiltRecordIds))
                     .peek(artifactUpdater)
                     .forEach(milestone::addDeliveredArtifact);
         }
@@ -271,6 +279,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 return 2;
             case TESTED:
                 return 3;
+            case IMPORTED:
+                return 4;
             case DEPRECATED:
                 return -1;
             case BLACKLISTED:
@@ -285,21 +295,41 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
     }
 
-    private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(Artifact artifact, TargetRepository targetRepo) {
-        // find
-        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository
-                .queryWithPredicates(ArtifactPredicates.withSha256(Optional.of(artifact.getSha256())));
+    private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(
+            Artifact artifact,
+            TargetRepository targetRepo,
+            Set<Base32LongID> pncBuiltRecordIds) {
+        // The artifact was not built from source, but could already be present as a dependency recorded in PNC system.
+        // To avoid unnecessary artifact duplication (see NCLSUP-990), we will search for a best matching artifact with
+        // some priority checks.
 
+        // Firstly, we will see if there are artifacts with the same SHA-256 which are dependencies of one of the found
+        // PNC builds in the current delivered analysis.
+        // If more than one artifact is found, find a best match.
+        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository.queryWithPredicates(
+                ArtifactPredicates.withSha256AndDependantBuildRecordIdIn(artifact.getSha256(), pncBuiltRecordIds));
         Optional<org.jboss.pnc.model.Artifact> bestMatch = getBestMatchingArtifact(artifacts);
         if (bestMatch.isPresent()) {
             return bestMatch.get();
         }
+
+        // Secondly, we will see if there is an artifact just with the same SHA-256.
+        // If more than one artifact is found, find a best match.
+        artifacts = artifactRepository
+                .queryWithPredicates(ArtifactPredicates.withSha256In(Collections.singleton(artifact.getSha256())));
+        bestMatch = getBestMatchingArtifact(artifacts);
+        if (bestMatch.isPresent()) {
+            return bestMatch.get();
+        }
+
+        // Lastly, there was no artifact found with the same SHA-56. Create a new one
         return findOrCreateArtifact(mapNotFoundArtifact(artifact), targetRepo);
     }
 
     private org.jboss.pnc.model.Artifact findOrCreateArtifact(
             org.jboss.pnc.model.Artifact artifact,
             TargetRepository targetRepo) {
+
         // find
         org.jboss.pnc.model.Artifact dbArtifact = artifactRepository.queryByPredicates(
                 ArtifactPredicates.withIdentifierAndSha256(artifact.getIdentifier(), artifact.getSha256()),
