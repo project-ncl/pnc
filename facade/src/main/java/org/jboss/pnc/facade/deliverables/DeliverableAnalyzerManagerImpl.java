@@ -374,7 +374,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
      * @param filename the artifact filename
      * @param sha256 the SHA-256 of the artifact
      * @return the generated purl
-     * @throws MalformedPackageURLException
      */
     private String createGenericPurl(String downloadUrl, String filename, String sha256) {
         try {
