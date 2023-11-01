@@ -40,10 +40,6 @@ public class UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    public static final String ROLE_USER = "user";
-    public static final String ROLE_ADMIN = "admin";
-    public static final String ROLE_SYSTEM_USER = "system-user";
-
     @Inject
     private AuthenticationProvider authenticationProvider;
 
