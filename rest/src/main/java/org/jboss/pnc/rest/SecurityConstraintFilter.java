@@ -52,32 +52,17 @@ public class SecurityConstraintFilter implements ContainerRequestFilter {
         String path = requestContext.getUriInfo().getPath();
 
         if ((path.matches("/builds/ssh-credentials.*") || path.matches("/users/current.*"))
-                && Strings.anyStringEquals(method, HttpMethod.GET)
-                && !isUserInAnyRole(UserService.ROLE_USER, UserService.ROLE_ADMIN, UserService.ROLE_SYSTEM_USER)) {
+                && Strings.anyStringEquals(method, HttpMethod.GET) && !userService.isUserLoggedIn()) {
             throw new NotAuthorizedException("Authorization required to access this resource.");
         }
-        if (path.matches("/.*")
-                && Strings.anyStringEquals(
-                        method,
-                        HttpMethod.POST,
-                        HttpMethod.PUT,
-                        HttpMethod.DELETE,
-                        HttpMethod.HEAD,
-                        HttpMethod.PATCH)
-                && !isUserInAnyRole(UserService.ROLE_USER, UserService.ROLE_ADMIN, UserService.ROLE_SYSTEM_USER)) {
+        if (path.matches("/.*") && Strings.anyStringEquals(
+                method,
+                HttpMethod.POST,
+                HttpMethod.PUT,
+                HttpMethod.DELETE,
+                HttpMethod.HEAD,
+                HttpMethod.PATCH) && !userService.isUserLoggedIn()) {
             throw new NotAuthorizedException("Authorization required to access this resource.");
         }
-    }
-
-    private boolean isUserInAnyRole(String... roles) {
-        if (!userService.isUserLoggedIn()) {
-            return false;
-        }
-        for (String role : roles) {
-            if (userService.hasLoggedInUserRole(role)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
