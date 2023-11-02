@@ -26,6 +26,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.*;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
+import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.model.GenericEntity;
@@ -116,7 +117,8 @@ public class DeliverableAnalyzerManagerTest {
                 .build();
 
         // when
-        processor.completeAnalysis(1, Collections.singletonList(result));
+        processor.completeAnalysis(
+                AnalysisResult.builder().milestoneId(1).results(Collections.singletonList(result)).build());
 
         // verify that:
         // all artifacts were set as distributed

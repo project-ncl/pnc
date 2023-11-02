@@ -29,6 +29,7 @@ import org.jboss.pnc.api.deliverablesanalyzer.dto.BuildSystemType;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.MavenArtifact;
 import org.jboss.pnc.api.dto.Request;
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.OperationResult;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.auth.KeycloakServiceClient;
@@ -43,16 +44,20 @@ import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.OperationsManager;
+import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.DeliverableAnalyzerReport;
+import org.jboss.pnc.model.DeliverableArtifact;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.jboss.pnc.spi.events.OperationChangedEvent;
@@ -67,9 +72,11 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -109,6 +116,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private TargetRepositoryRepository targetRepositoryRepository;
     @Inject
     private DeliverableAnalyzerOperationRepository deliverableAnalyzerOperationRepository;
+    @Inject
+    private DeliverableArtifactRepository deliverableArtifactRepository;
     @Inject
     private ArtifactMapper artifactMapper;
     @Inject
@@ -155,29 +164,46 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
     }
 
+    @Override
+    @Transactional
+    public void completeAnalysis(AnalysisResult analysisResult) {
+        log.info(
+                "Processing deliverables of milestone {} in {} results.",
+                analysisResult.getMilestoneId(),
+                analysisResult.getResults().size());
+        DeliverableAnalyzerReport report = createReportForCompletedAnalysis(analysisResult.getDeliverableAnalyzerOperationId(), analysisResult.isWasRunAsScratchAnalysis());
+        for (FinderResult finderResult : analysisResult.getResults()) {
+            processDeliverables(
+                    report,
+                    finderResult.getBuilds(),
+                    finderResult.getUrl().toString(),
+                    finderResult.getNotFoundArtifacts());
+        }
+    }
+
+    @Transactional(Transactional.TxType.MANDATORY)
     private void processDeliverables(
-            int milestoneId,
+            DeliverableAnalyzerReport report,
             Collection<Build> builds,
             String distributionUrl,
             Collection<Artifact> notFoundArtifacts) {
+
         log.debug(
-                "Processing deliverables of milestone {} in {} builds. Distribution URL: {}",
-                milestoneId,
+                "Processing deliverables of in {} builds. Distribution URL: {}",
                 builds.size(),
                 distributionUrl);
-        ProductMilestone milestone = milestoneRepository.queryById(milestoneId);
-        Consumer<org.jboss.pnc.model.Artifact> artifactUpdater = artifactUpdater(
-                "Added as delivered artifact for milestone " + milestoneId);
-        ArtifactStats stats = new ArtifactStats();
 
+        ArtifactStats stats = new ArtifactStats();
         ArtifactCache artifactCache = new ArtifactCache(builds);
+        Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
+        Consumer<Artifact> statCounter;
+
         for (Build build : builds) {
             log.debug("Processing build {}", build);
-            Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
-            Consumer<Artifact> statCounter;
             if (build.getBuildSystemType() == null) {
                 throw new IllegalArgumentException("Build system type not set.");
             }
+
             switch (build.getBuildSystemType()) {
                 case PNC:
                     statCounter = stats.pncCounter();
@@ -196,19 +222,59 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                     .stream()
                     .peek(statCounter)
                     .map(artifactParser)
-                    .peek(artifactUpdater)
-                    .forEach(milestone::addDeliveredArtifact);
+                    // TODO: Better would be to handle it as Long, hence update of the field in DB
+                    // No such mapping with .intValue() and null checks wouldn't be needed then
+                    .forEach(
+                            artifact -> addDeliveredArtifact(
+                                    artifact,
+                                    report,
+                                    true,
+                                    (build.getBrewId() == null) ? null : build.getBrewId().intValue()));
         }
+
         if (!notFoundArtifacts.isEmpty()) {
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
             notFoundArtifacts.stream()
                     .peek(stats.notFoundCounter())
                     .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository))
-                    .peek(artifactUpdater)
-                    .forEach(milestone::addDeliveredArtifact);
+                    .forEach(artifact -> addDeliveredArtifact(artifact, report, false, null));
         }
         stats.log(distributionUrl);
-        milestone.setDeliveredArtifactsImporter(userService.currentUser());
+    }
+
+    @Transactional(Transactional.TxType.MANDATORY)
+    private void addDeliveredArtifact(
+            org.jboss.pnc.model.Artifact artifact,
+            DeliverableAnalyzerReport report,
+            boolean builtFromSource,
+            Integer brewBuildId) {
+        DeliverableArtifact deliverableArtifact = DeliverableArtifact.builder()
+                .artifact(artifact)
+                .report(report)
+                .builtFromSource(builtFromSource)
+                .brewBuildId(brewBuildId)
+                .build();
+        deliverableArtifactRepository.save(deliverableArtifact);
+    }
+
+    @Transactional
+    private DeliverableAnalyzerReport createReportForCompletedAnalysis(
+            Base32LongID operationId,
+            boolean wasRunAsScratchAnalysis) {
+        org.jboss.pnc.model.DeliverableAnalyzerOperation operation = deliverableAnalyzerOperationRepository
+                .queryById(operationId);
+        // TODO: Is this the only thing we update at operation?
+        operation.setUser(userService.currentUser());
+
+        return DeliverableAnalyzerReport.builder()
+                .id(operationId)
+                .operation(operation)
+                .labels(
+                        (wasRunAsScratchAnalysis) ? EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH)
+                                : EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+                .labelHistory(new ArrayList<>(List.of())) // TODO: What if wasRunAsScratchAnalysis == true?
+                .artifacts(new HashSet<>(Set.of()))
+                .build();
     }
 
     public Consumer<org.jboss.pnc.model.Artifact> artifactUpdater(String message) {
@@ -218,19 +284,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             a.setModificationUser(user);
             a.setModificationTime(new Date());
         };
-    }
-
-    @Override
-    @Transactional
-    public void completeAnalysis(int milestoneId, List<FinderResult> results) {
-        log.info("Processing deliverables of milestone {} in {} results.", milestoneId, results.size());
-        for (FinderResult finderResult : results) {
-            processDeliverables(
-                    milestoneId,
-                    finderResult.getBuilds(),
-                    finderResult.getUrl().toString(),
-                    finderResult.getNotFoundArtifacts());
-        }
     }
 
     @Override

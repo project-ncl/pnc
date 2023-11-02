@@ -19,6 +19,7 @@ package org.jboss.pnc.rest.endpoints.internal;
 
 import org.jboss.pnc.api.deliverablesanalyzer.dto.AnalysisResult;
 import org.jboss.pnc.facade.deliverables.DeliverableAnalyzerManagerImpl;
+import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.mapper.api.ProductMilestoneMapper;
 import org.jboss.pnc.rest.endpoints.internal.api.DeliverableAnalysisEndpoint;
 
@@ -34,16 +35,29 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
     @Inject
     private ProductMilestoneMapper milestoneMapper;
 
+    @Inject
+    private DeliverableAnalyzerOperationMapper deliverableAnalyzerOperationMapper;
+
     @Override
     public void completeAnalysis(AnalysisResult response) {
-        int milestoneId = milestoneMapper.getIdMapper().toEntity(response.getMilestoneId());
-        resultProcessor.completeAnalysis(milestoneId, response.getResults());
+        resultProcessor.completeAnalysis(transformToModelAnalysisResult(response));
     }
 
     @Override
     public void clearAnalysis(String milestoneId) {
         int id = milestoneMapper.getIdMapper().toEntity(milestoneId);
         resultProcessor.clear(id);
+    }
+
+    private org.jboss.pnc.facade.deliverables.api.AnalysisResult transformToModelAnalysisResult(
+            AnalysisResult analysisResult) {
+        return org.jboss.pnc.facade.deliverables.api.AnalysisResult.builder()
+                .milestoneId(milestoneMapper.getIdMapper().toEntity(analysisResult.getMilestoneId()))
+                .deliverableAnalyzerOperationId(
+                        deliverableAnalyzerOperationMapper.getIdMapper().toEntity(analysisResult.getOperationId()))
+                .results(analysisResult.getResults())
+                .wasRunAsScratchAnalysis(analysisResult.isScratch())
+                .build();
     }
 
 }
