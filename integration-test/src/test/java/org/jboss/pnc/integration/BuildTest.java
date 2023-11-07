@@ -312,13 +312,13 @@ public class BuildTest {
         updatedParent = buildConfigurationClient.getSpecific(updatedParent.getId());
         assertThat(oldLastModDateParent).isNotEqualTo(updatedParent.getModificationTime());
 
-        Instant oldLastModDateDependency = parent.getModificationTime();
+        Instant oldLastModDateDependency = dependency.getModificationTime();
         BuildConfiguration updatedDependency = dependency.toBuilder()
                 .description("Random Description so it rebuilds")
                 .buildScript("mvn" + "   clean deploy -DskipTests=true -DmoreRandomness=true")
                 .build();
-        Thread.sleep(1L);
         buildConfigurationClient.update(updatedDependency.getId(), updatedDependency);
+        updatedDependency = buildConfigurationClient.getSpecific(updatedDependency.getId());
         assertThat(oldLastModDateDependency).isNotEqualTo(updatedDependency.getModificationTime());
 
         EnumSet<BuildStatus> isIn = EnumSet.of(BuildStatus.SUCCESS);
