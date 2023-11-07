@@ -20,20 +20,30 @@ package org.jboss.pnc.facade.deliverables;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 
 import org.jboss.pnc.api.deliverablesanalyzer.dto.*;
+import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.enums.ArtifactQuality;
 import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.model.Base32LongID;
+import org.jboss.pnc.model.DeliverableAnalyzerOperation;
+import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.GenericEntity;
 import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.junit.Before;
@@ -56,12 +66,17 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeliverableAnalyzerManagerTest {
 
-    @Mock
-    private ProductMilestoneRepository milestoneRepository;
+    public static final Base32LongID ID = new Base32LongID(42);
     @Mock
     private ArtifactRepository artifactRepository;
     @Mock
     private TargetRepositoryRepository targetRepositoryRepository;
+    @Mock
+    private DeliverableAnalyzerOperationRepository deliverableAnalyzerOperationRepository;
+    @Mock
+    private DeliverableArtifactRepository deliverableArtifactRepository;
+    @Mock
+    private DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
     @Mock
     private ArtifactMapper artifactMapper;
     @Mock
@@ -72,18 +87,28 @@ public class DeliverableAnalyzerManagerTest {
     @InjectMocks
     private DeliverableAnalyzerManagerImpl processor;
 
-    @Mock
-    private ProductMilestone milestone;
-
     int id = 100;
     private List<TargetRepository> repositories = new ArrayList<>();
     private List<org.jboss.pnc.model.Artifact> artifacts = new ArrayList<>();
     private final static User USER = User.Builder.newBuilder().id(42).username("TheUser").build();
+    private DeliverableAnalyzerOperation deliverableAnalyzerOperation = DeliverableAnalyzerOperation.Builder
+            .newBuilder()
+            .id(ID)
+            .submitTime(Date.from(LocalDateTime.now().minusMinutes(5).atZone(ZoneId.systemDefault()).toInstant()))
+            .startTime(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
+            .user(USER)
+            .progressStatus(ProgressStatus.IN_PROGRESS)
+            .build();
+    private DeliverableAnalyzerReport report = DeliverableAnalyzerReport.builder()
+            .id(ID)
+            .operation(deliverableAnalyzerOperation)
+            .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
+            .labelHistory(Collections.emptyList())
+            .build();
 
     @Before
     public void initMock() {
         when(artifactMapper.getIdMapper()).thenCallRealMethod();
-        when(milestoneRepository.queryById(1)).thenReturn(milestone);
         repositories.clear();
         when(targetRepositoryRepository.save(any())).thenAnswer(new RepositorSave(repositories));
         when(targetRepositoryRepository.queryByIdentifierAndPath(any(), any())).thenAnswer(invocation -> {
@@ -95,13 +120,10 @@ public class DeliverableAnalyzerManagerTest {
                     .orElse(null);
         });
         when(artifactRepository.save(any())).thenAnswer(new RepositorSave(artifacts));
-        when(artifactRepository.queryById(any())).thenAnswer(invocation -> {
-            Integer id = invocation.getArgument(0);
-            return artifacts.stream().filter(a -> id.equals(a.getId())).findAny().orElse(null);
-        });
         when(artifactRepository.queryWithPredicates(any())).thenReturn(artifacts); // just return all for the cache
         when((userService.currentUser())).thenReturn(USER);
         when(globalConfig.getBrewContentUrl()).thenReturn("https://example.com/");
+        when(deliverableAnalyzerOperationRepository.queryById(any())).thenReturn(deliverableAnalyzerOperation);
     }
 
     @Test
@@ -118,35 +140,62 @@ public class DeliverableAnalyzerManagerTest {
 
         // when
         processor.completeAnalysis(
-                AnalysisResult.builder().milestoneId(1).results(Collections.singletonList(result)).build());
+                AnalysisResult.builder()
+                        .milestoneId(1)
+                        .deliverableAnalyzerOperationId(ID)
+                        .results(Collections.singletonList(result))
+                        .wasRunAsScratchAnalysis(false)
+                        .build());
 
         // verify that:
         // all artifacts were set as distributed
-        verify(milestone, times(14)).addDeliveredArtifact(any());
+        verify(deliverableArtifactRepository, times(14)).save(argThat(da -> da.getReport().getId().equals(ID)));
         // unknown artifacts were converted and set as distributed
-        verify(milestone, times(2)).addDeliveredArtifact(argThat(a -> {
-            return a.getArtifactQuality().equals(ArtifactQuality.IMPORTED)
-                    && a.getTargetRepository().getIdentifier().equals(DISTRIBUTION_ARCHIVE)
-                    && a.getTargetRepository().getRepositoryType().equals(RepositoryType.DISTRIBUTION_ARCHIVE)
-                    && a.getTargetRepository().getRepositoryPath().equals(distributionUrl);
+        verify(deliverableArtifactRepository, times(2)).save(argThat(da -> {
+            return da.getArtifact().getArtifactQuality().equals(ArtifactQuality.IMPORTED)
+                    && da.getArtifact().getTargetRepository().getIdentifier().equals(DISTRIBUTION_ARCHIVE)
+                    && da.getArtifact()
+                            .getTargetRepository()
+                            .getRepositoryType()
+                            .equals(RepositoryType.DISTRIBUTION_ARCHIVE)
+                    && da.getArtifact().getTargetRepository().getRepositoryPath().equals(distributionUrl)
+                    && !da.isBuiltFromSource() && da.getBrewBuildId() == null;
         }));
         // brew unbuilt artifacts were converted and set as distributed
-        verify(milestone, times(2)).addDeliveredArtifact(argThat(a -> {
-            return a.getArtifactQuality().equals(ArtifactQuality.IMPORTED)
-                    && a.getTargetRepository().getIdentifier().equals(INDY_MAVEN)
-                    && a.getTargetRepository().getRepositoryType().equals(RepositoryType.MAVEN);
+        verify(deliverableArtifactRepository, times(2)).save(argThat(da -> {
+            return da.getArtifact().getArtifactQuality().equals(ArtifactQuality.IMPORTED)
+                    && da.getArtifact().getTargetRepository().getIdentifier().equals(INDY_MAVEN)
+                    && da.getArtifact().getTargetRepository().getRepositoryType().equals(RepositoryType.MAVEN)
+                    && !da.isBuiltFromSource() && da.getBrewBuildId() != null;
         }));
         // brew built artifacts (in brew build "second-build-ever") were converted and set as distributed
-        verify(milestone, times(2)).addDeliveredArtifact(argThat(a -> {
-            return a.getArtifactQuality().equals(ArtifactQuality.NEW)
-                    && a.getTargetRepository().getIdentifier().equals(INDY_MAVEN)
-                    && a.getTargetRepository().getRepositoryType().equals(RepositoryType.MAVEN)
-                    && a.getTargetRepository().getRepositoryPath().contains("second-build-ever");
+        verify(deliverableArtifactRepository, times(2)).save(argThat(da -> {
+            return da.getArtifact().getArtifactQuality().equals(ArtifactQuality.NEW)
+                    && da.getArtifact().getTargetRepository().getIdentifier().equals(INDY_MAVEN)
+                    && da.getArtifact().getTargetRepository().getRepositoryType().equals(RepositoryType.MAVEN)
+                    && da.getArtifact().getTargetRepository().getRepositoryPath().contains("second-build-ever")
+                    && da.isBuiltFromSource() && da.getBrewBuildId() != null;
         }));
         // PNC artifacts were set as distributed
-        verify(milestone, times(artifacts.size())).addDeliveredArtifact(argThat(a -> artifacts.contains(a)));
-        // user was set for milestone
-        verify(milestone).setDeliveredArtifactsImporter(USER);
+        verify(deliverableArtifactRepository, times(artifacts.size()))
+                .save(argThat(da -> artifacts.contains(da.getArtifact())));
+        verify(deliverableAnalyzerReportRepository).save(
+                argThat(
+                        r -> r.getArtifacts().size() == 14 && r.getLabels().isEmpty()
+                                && r.getLabelHistory().isEmpty()));
+    }
+
+    @Test
+    public void testScratchLabelGenerated() {
+        // when
+        processor.completeAnalysis(
+                AnalysisResult.builder().results(Collections.emptyList()).wasRunAsScratchAnalysis(true).build());
+
+        // then
+        verify(deliverableAnalyzerReportRepository).save(
+                argThat(
+                        r -> r.getLabels().contains(DeliverableAnalyzerReportLabel.SCRATCH)
+                                && r.getLabelHistory().size() == 1));
     }
 
     private Set<Build> prepareBuilds() {
