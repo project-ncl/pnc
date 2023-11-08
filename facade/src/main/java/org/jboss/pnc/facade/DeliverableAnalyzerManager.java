@@ -20,6 +20,7 @@ package org.jboss.pnc.facade;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.Build;
 import org.jboss.pnc.api.deliverablesanalyzer.dto.FinderResult;
 import org.jboss.pnc.dto.DeliverableAnalyzerOperation;
+import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
 import org.jboss.pnc.model.User;
 
 import java.util.Collection;
@@ -43,10 +44,9 @@ public interface DeliverableAnalyzerManager {
      * Processes the result of anylysis of delivarables and stores the artifacts as distributed artifacts of Product
      * Milestone.
      *
-     * @param milestoneId Id of the milestone to which the distributed artifact will be stored.
-     * @param results List of the build finder results.
+     * @param analysisResult The result of the deliverable analyzer operation.
      */
-    void completeAnalysis(int milestoneId, List<FinderResult> results);
+    void completeAnalysis(AnalysisResult analysisResult);
 
     /**
      * Clear the milestone of all delivered artifacts.

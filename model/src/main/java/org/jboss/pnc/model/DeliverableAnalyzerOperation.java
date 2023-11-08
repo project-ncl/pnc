@@ -62,6 +62,10 @@ public class DeliverableAnalyzerOperation extends Operation {
         return productMilestone;
     }
 
+    public DeliverableAnalyzerReport getReport() {
+        return report;
+    }
+
     /**
      * Sets the product milestone associated with the deliverable analysis operation.
      *
