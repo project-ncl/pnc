@@ -323,7 +323,22 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         // Lastly, there was no artifact found with the same SHA-56. Create a new one
-        return findOrCreateArtifact(mapNotFoundArtifact(artifact), targetRepo);
+        return createArtifact(mapNotFoundArtifact(artifact), targetRepo);
+    }
+
+    private org.jboss.pnc.model.Artifact createArtifact(
+            org.jboss.pnc.model.Artifact artifact,
+            TargetRepository targetRepo) {
+
+        artifact.setTargetRepository(targetRepo);
+        artifact.setPurl(
+                createGenericPurl(
+                        targetRepo.getRepositoryPath(),
+                        artifact.getFilename().toString(),
+                        artifact.getSha256()));
+        org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
+        targetRepo.getArtifacts().add(savedArtifact);
+        return savedArtifact;
     }
 
     private org.jboss.pnc.model.Artifact findOrCreateArtifact(
@@ -339,15 +354,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         }
 
         // create
-        artifact.setTargetRepository(targetRepo);
-        artifact.setPurl(
-                createGenericPurl(
-                        targetRepo.getRepositoryPath(),
-                        artifact.getFilename().toString(),
-                        artifact.getSha256()));
-        org.jboss.pnc.model.Artifact savedArtifact = artifactRepository.save(artifact);
-        targetRepo.getArtifacts().add(savedArtifact);
-        return savedArtifact;
+        return createArtifact(artifact, targetRepo);
     }
 
     private org.jboss.pnc.model.Artifact getPncArtifact(Artifact art) {
