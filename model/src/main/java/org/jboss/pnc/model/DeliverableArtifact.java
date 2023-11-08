@@ -28,6 +28,7 @@ import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import java.util.Objects;
 
 /**
  * Join table between {@link DeliverableAnalyzerReport} and {@link Artifact} with some additional information.
@@ -69,5 +70,28 @@ public class DeliverableArtifact implements GenericEntity<DeliverableArtifactPK>
     public void setId(DeliverableArtifactPK id) {
         report = id.getReport();
         artifact = id.getArtifact();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DeliverableArtifact)) {
+            return false;
+        }
+        DeliverableArtifact that = (DeliverableArtifact) o;
+        return Objects.equals(report, that.report) && Objects.equals(artifact, that.artifact);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(report, artifact);
+    }
+
+    @Override
+    public String toString() {
+        return "DeliverableArtifact{" + "report=" + report.getId() + ", artifact=" + artifact + ", builtFromSource="
+                + builtFromSource + ", brewBuildId=" + brewBuildId + '}';
     }
 }
