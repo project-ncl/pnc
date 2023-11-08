@@ -55,13 +55,9 @@ public class SecurityConstraintFilter implements ContainerRequestFilter {
                 && Strings.anyStringEquals(method, HttpMethod.GET) && !userService.isUserLoggedIn()) {
             throw new NotAuthorizedException("Authorization required to access this resource.");
         }
-        if (path.matches("/.*") && Strings.anyStringEquals(
-                method,
-                HttpMethod.POST,
-                HttpMethod.PUT,
-                HttpMethod.DELETE,
-                HttpMethod.HEAD,
-                HttpMethod.PATCH) && !userService.isUserLoggedIn()) {
+        if (path.matches("/.*")
+                && Strings.anyStringEquals(method, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH)
+                && !userService.isUserLoggedIn()) {
             throw new NotAuthorizedException("Authorization required to access this resource.");
         }
     }
