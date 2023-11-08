@@ -175,7 +175,7 @@ public interface GenericSettingEndpoint {
     @Path("in-maintenance-mode")
     Boolean isInMaintenanceMode();
 
-    static final String IS_USER_ALLOWED_TO_TRIGGER_BUILDS_DESC = "Provides information whether the current user is allowed to trigger builds (pnc-users-admin are always allowed, other users only if maintenance mode is off)";
+    static final String IS_USER_ALLOWED_TO_TRIGGER_BUILDS_DESC = "Provides information whether the current user is allowed to trigger builds (system-users are always allowed, other users only if maintenance mode is off)";
 
     /**
      * {@value IS_USER_ALLOWED_TO_TRIGGER_BUILDS_DESC}
@@ -210,7 +210,7 @@ public interface GenericSettingEndpoint {
      * @param reason {@value MAINTENANCE_REASON}
      */
     @Operation(
-            summary = "[role:pnc-users-admin] " + ACTIVATE_MAINTENANCE_MODE_DESC,
+            summary = "[role:admin] " + ACTIVATE_MAINTENANCE_MODE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,
@@ -230,7 +230,7 @@ public interface GenericSettingEndpoint {
      * {@value DEACTIVATE_MAINTENANCE_MODE_DESC} {@value SwaggerConstants#REQUIRES_ADMIN}
      */
     @Operation(
-            summary = "[role:pnc-users-admin] " + DEACTIVATE_MAINTENANCE_MODE_DESC,
+            summary = "[role:admin] " + DEACTIVATE_MAINTENANCE_MODE_DESC,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
                             responseCode = INVALID_CODE,

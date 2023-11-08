@@ -214,7 +214,7 @@ public interface ArtifactEndpoint {
      * @return
      */
     @Operation(
-            summary = "[role:pnc-users-artifact-admin, pnc-users-admin] " + CREATE_DESC,
+            summary = "[role:admin] " + CREATE_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
             responses = {
                     @ApiResponse(
@@ -246,7 +246,7 @@ public interface ArtifactEndpoint {
      * @param artifact
      */
     @Operation(
-            summary = "[role:pnc-users-artifact-admin, pnc-users-admin] " + UPDATE_DESC,
+            summary = "[role:admin] " + UPDATE_DESC,
             tags = SwaggerConstants.TAG_INTERNAL,
             responses = { @ApiResponse(responseCode = ENTITY_UPDATED_CODE, description = ENTITY_UPDATED_DESCRIPTION),
                     @ApiResponse(
@@ -265,7 +265,7 @@ public interface ArtifactEndpoint {
     @Path("/{id}")
     void update(@PathParam("id") String id, @NotNull Artifact artifact);
 
-    static final String CREATE_ARTIFACT_QUALITY_REVISION = "Add a new quality level revision for this artifact. Accepted values from standard users are NEW, VERIFIED, TESTED, DEPRECATED. Users with pnc-users-artifact-admin, pnc-users-build-admin, pnc-users-admin role can also specify BLACKLISTED and DELETED quality levels.";
+    static final String CREATE_ARTIFACT_QUALITY_REVISION = "Add a new quality level revision for this artifact. Accepted values from standard users are NEW, VERIFIED, TESTED, DEPRECATED. Users with system-user role can also specify BLACKLISTED and DELETED quality levels.";
     static final String ARTIFACT_QUALITY = "Quality level of the artifact.";
     static final String ARTIFACT_QUALITY_REASON = "The reason for adding a new quality level for this artifact.";
 
