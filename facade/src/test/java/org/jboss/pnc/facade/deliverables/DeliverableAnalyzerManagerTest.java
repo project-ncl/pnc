@@ -26,6 +26,7 @@ import java.util.*;
 
 import org.jboss.pnc.api.deliverablesanalyzer.dto.*;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
+import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.api.enums.ProgressStatus;
 import org.jboss.pnc.common.json.GlobalModuleGroup;
 import org.jboss.pnc.enums.ArtifactQuality;
@@ -41,6 +42,7 @@ import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
@@ -78,6 +80,8 @@ public class DeliverableAnalyzerManagerTest {
     @Mock
     private DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
     @Mock
+    private DeliverableAnalyzerLabelEntryRepository deliverableAnalyzerLabelEntryRepository;
+    @Mock
     private ArtifactMapper artifactMapper;
     @Mock
     private GlobalModuleGroup globalConfig;
@@ -87,7 +91,6 @@ public class DeliverableAnalyzerManagerTest {
     @InjectMocks
     private DeliverableAnalyzerManagerImpl processor;
 
-    int id = 100;
     private List<TargetRepository> repositories = new ArrayList<>();
     private List<org.jboss.pnc.model.Artifact> artifacts = new ArrayList<>();
     private final static User USER = User.Builder.newBuilder().id(42).username("TheUser").build();
@@ -98,12 +101,6 @@ public class DeliverableAnalyzerManagerTest {
             .startTime(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
             .user(USER)
             .progressStatus(ProgressStatus.IN_PROGRESS)
-            .build();
-    private DeliverableAnalyzerReport report = DeliverableAnalyzerReport.builder()
-            .id(ID)
-            .operation(deliverableAnalyzerOperation)
-            .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
-            .labelHistory(Collections.emptyList())
             .build();
 
     @Before
@@ -124,6 +121,8 @@ public class DeliverableAnalyzerManagerTest {
         when((userService.currentUser())).thenReturn(USER);
         when(globalConfig.getBrewContentUrl()).thenReturn("https://example.com/");
         when(deliverableAnalyzerOperationRepository.queryById(any())).thenReturn(deliverableAnalyzerOperation);
+        when(deliverableAnalyzerReportRepository.save(any()))
+                .thenReturn(DeliverableAnalyzerReport.builder().id(ID).build());
     }
 
     @Test
@@ -141,7 +140,6 @@ public class DeliverableAnalyzerManagerTest {
         // when
         processor.completeAnalysis(
                 AnalysisResult.builder()
-                        .milestoneId(1)
                         .deliverableAnalyzerOperationId(ID)
                         .results(Collections.singletonList(result))
                         .wasRunAsScratchAnalysis(false)
@@ -189,13 +187,22 @@ public class DeliverableAnalyzerManagerTest {
     public void testScratchLabelGenerated() {
         // when
         processor.completeAnalysis(
-                AnalysisResult.builder().results(Collections.emptyList()).wasRunAsScratchAnalysis(true).build());
+                AnalysisResult.builder()
+                        .deliverableAnalyzerOperationId(ID)
+                        .results(Collections.emptyList())
+                        .wasRunAsScratchAnalysis(true)
+                        .build());
 
         // then
         verify(deliverableAnalyzerReportRepository).save(
                 argThat(
                         r -> r.getLabels().contains(DeliverableAnalyzerReportLabel.SCRATCH)
                                 && r.getLabelHistory().size() == 1));
+        verify(deliverableAnalyzerLabelEntryRepository).save(
+                argThat(
+                        entry -> entry.getReport().getId().equals(ID) && entry.getChangeOrder().equals(1)
+                                && entry.getUser().equals(USER) && entry.getReason().equals("Analysis run as scratch.")
+                                && entry.getChange().equals(LabelOperation.ADDED)));
     }
 
     private Set<Build> prepareBuilds() {

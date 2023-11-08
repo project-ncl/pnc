@@ -32,8 +32,6 @@ import java.util.List;
 @Builder(builderClassName = "Builder", toBuilder = true)
 public class AnalysisResult {
 
-    Integer milestoneId;
-
     Base32LongID deliverableAnalyzerOperationId;
 
     List<FinderResult> results;

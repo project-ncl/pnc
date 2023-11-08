@@ -52,7 +52,6 @@ public class DeliverableAnalysisEndpointImpl implements DeliverableAnalysisEndpo
     private org.jboss.pnc.facade.deliverables.api.AnalysisResult transformToModelAnalysisResult(
             AnalysisResult analysisResult) {
         return org.jboss.pnc.facade.deliverables.api.AnalysisResult.builder()
-                .milestoneId(milestoneMapper.getIdMapper().toEntity(analysisResult.getMilestoneId()))
                 .deliverableAnalyzerOperationId(
                         deliverableAnalyzerOperationMapper.getIdMapper().toEntity(analysisResult.getOperationId()))
                 .results(analysisResult.getResults())

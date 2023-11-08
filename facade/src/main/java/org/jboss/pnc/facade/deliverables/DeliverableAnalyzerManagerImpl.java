@@ -58,6 +58,7 @@ import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
@@ -125,6 +126,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private DeliverableArtifactRepository deliverableArtifactRepository;
     @Inject
     private DeliverableAnalyzerReportRepository deliverableAnalyzerReportRepository;
+    @Inject
+    private DeliverableAnalyzerLabelEntryRepository deliverableAnalyzerLabelEntryRepository;
     @Inject
     private ArtifactMapper artifactMapper;
     @Inject
@@ -201,8 +204,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         ArtifactStats stats = new ArtifactStats();
         ArtifactCache artifactCache = new ArtifactCache(builds);
-        Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
-        Consumer<Artifact> statCounter;
 
         for (Build build : builds) {
             log.debug("Processing build {}", build);
@@ -210,6 +211,8 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 throw new IllegalArgumentException("Build system type not set.");
             }
 
+            Function<Artifact, org.jboss.pnc.model.Artifact> artifactParser;
+            Consumer<Artifact> statCounter;
             switch (build.getBuildSystemType()) {
                 case PNC:
                     statCounter = stats.pncCounter();
@@ -224,18 +227,13 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 default:
                     throw new UnsupportedOperationException("Unknown build system type " + build.getBuildSystemType());
             }
-            Function<Artifact, org.jboss.pnc.model.Artifact> effectivlyFinalArtifactParser = artifactParser;
-            build.getArtifacts()
-                    .stream()
-                    .peek(statCounter)
-                    .forEach(
-                            artifactDto -> {
-                                addDeliveredArtifact(
-                                    effectivlyFinalArtifactParser.apply(artifactDto),
-                                    report,
-                                    artifactDto.isBuiltFromSource(),
-                                    build.getBrewId());
-                            });
+            build.getArtifacts().stream().peek(statCounter).forEach(artifactDto -> {
+                addDeliveredArtifact(
+                        artifactParser.apply(artifactDto),
+                        report,
+                        artifactDto.isBuiltFromSource(),
+                        build.getBrewId());
+            });
         }
 
         if (!notFoundArtifacts.isEmpty()) {
@@ -266,13 +264,10 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     private DeliverableAnalyzerReport createReportForCompletedAnalysis(
             Base32LongID operationId,
             boolean wasRunAsScratchAnalysis) {
-        org.jboss.pnc.model.DeliverableAnalyzerOperation operation = deliverableAnalyzerOperationRepository
-                .queryById(operationId);
-        operation.setUser(userService.currentUser());
 
         var report = DeliverableAnalyzerReport.builder()
                 .id(operationId)
-                .operation(operation)
+                .operation(deliverableAnalyzerOperationRepository.queryById(operationId))
                 .labels(getReportLabels(wasRunAsScratchAnalysis))
                 .labelHistory(new ArrayList<>())
                 .artifacts(new HashSet<>(Set.of()))
@@ -290,7 +285,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     }
 
     private void updateLabelHistoryWithScratchEntry(DeliverableAnalyzerReport report) {
-        report.getLabelHistory().add(DeliverableAnalyzerLabelEntry.builder()
+        DeliverableAnalyzerLabelEntry labelHistoryEntry = DeliverableAnalyzerLabelEntry.builder()
                 .report(report)
                 .changeOrder(1)
                 .entryTime(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
@@ -298,7 +293,9 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .reason("Analysis run as scratch.")
                 .change(LabelOperation.ADDED)
                 .label(DeliverableAnalyzerReportLabel.SCRATCH)
-                .build());
+                .build();
+        deliverableAnalyzerLabelEntryRepository.save(labelHistoryEntry);
+        report.getLabelHistory().add(labelHistoryEntry);
     }
 
     public Consumer<org.jboss.pnc.model.Artifact> artifactUpdater(String message) {
