@@ -80,7 +80,7 @@ import java.util.stream.Collectors;
 
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 
 /**
  *
@@ -226,7 +226,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
     }
 
     @Override
-    @RolesAllowed(USERS_ADMIN)
+    @RolesAllowed(SYSTEM_USER)
     @Transactional
     public void clear(int id) {
         ProductMilestone milestone = milestoneRepository.queryById(id);

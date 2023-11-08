@@ -136,7 +136,7 @@ public interface TargetRepositoryEndpoint {
      * @return created target repository
      */
     @Operation(
-            summary = "[role:pnc-users-build-admin, pnc-users-artifact-admin, pnc-users-admin] " + CREATE_NEW_DESC,
+            summary = "[role:admin] " + CREATE_NEW_DESC,
             responses = {
                     @ApiResponse(
                             responseCode = ENTITY_CREATED_CODE,

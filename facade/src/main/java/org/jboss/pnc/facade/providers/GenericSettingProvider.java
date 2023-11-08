@@ -25,7 +25,7 @@ import org.jboss.pnc.spi.datastore.repositories.GenericSettingRepository;
 import org.jboss.pnc.spi.notifications.Notifier;
 import org.jboss.util.Strings;
 
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -54,7 +54,7 @@ public class GenericSettingProvider {
     public GenericSettingProvider() {
     }
 
-    @RolesAllowed(USERS_ADMIN)
+    @RolesAllowed("system-user")
     public void activateMaintenanceMode(String reason) {
 
         log.info("Activating Maintenance mode, with reason: '{}'", reason);
@@ -67,7 +67,7 @@ public class GenericSettingProvider {
         setAnnouncementBanner(reason);
     }
 
-    @RolesAllowed(USERS_ADMIN)
+    @RolesAllowed("system-user")
     public void deactivateMaintenanceMode() {
 
         log.info("Deactivating Maintenance mode");
@@ -101,7 +101,7 @@ public class GenericSettingProvider {
 
     public boolean isCurrentUserAllowedToTriggerBuilds() {
 
-        boolean isLoggedInUserSystemUser = userService.hasLoggedInUserRole(USERS_ADMIN);
+        boolean isLoggedInUserSystemUser = userService.hasLoggedInUserRole(SYSTEM_USER);
         if (isLoggedInUserSystemUser) {
             log.info("Users with system-role are always allowed to trigger builds");
             return true;
@@ -110,7 +110,7 @@ public class GenericSettingProvider {
         return !isInMaintenanceMode();
     }
 
-    @RolesAllowed(USERS_ADMIN)
+    @RolesAllowed("system-user")
     public void setPNCVersion(String version) {
 
         log.info("PNC System version set to: '{}'", version);
@@ -130,7 +130,7 @@ public class GenericSettingProvider {
         }
     }
 
-    @RolesAllowed(USERS_ADMIN)
+    @RolesAllowed("system-user")
     public void setAnnouncementBanner(String banner) {
 
         log.info("Announcement banner set to: '{}'", banner);

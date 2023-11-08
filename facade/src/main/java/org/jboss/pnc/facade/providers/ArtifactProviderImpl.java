@@ -78,9 +78,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.jboss.pnc.common.util.StreamHelper.nullableStreamOf;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_ARTIFACT_ADMIN;
-import static org.jboss.pnc.facade.providers.api.UserRoles.USERS_BUILD_ADMIN;
+import static org.jboss.pnc.facade.providers.api.UserRoles.SYSTEM_USER;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDependantBuildRecordId;
 import static org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates.withDeliveredInProductMilestone;
@@ -203,7 +201,7 @@ public class ArtifactProviderImpl
     }
 
     @Override
-    @RolesAllowed({ USERS_ARTIFACT_ADMIN, USERS_ADMIN })
+    @RolesAllowed(SYSTEM_USER)
     public org.jboss.pnc.dto.Artifact store(org.jboss.pnc.dto.Artifact restEntity) throws DTOValidationException {
         org.jboss.pnc.model.User currentUser = userService.currentUser();
         User user = userMapper.toDTO(currentUser);
@@ -236,11 +234,7 @@ public class ArtifactProviderImpl
     public ArtifactRevision createQualityLevelRevision(String id, String quality, String reason)
             throws DTOValidationException {
 
-        boolean isLoggedInUserAdmin = userService.hasLoggedInUserRole(USERS_ADMIN);
-        boolean isLoggedInUserArtifactAdmin = userService.hasLoggedInUserRole(USERS_ARTIFACT_ADMIN);
-        boolean isLoggedInBuildAdmin = userService.hasLoggedInUserRole(USERS_BUILD_ADMIN);
-
-        boolean isLoggedInUserSystemUser = isLoggedInUserAdmin || isLoggedInUserArtifactAdmin || isLoggedInBuildAdmin;
+        boolean isLoggedInUserSystemUser = userService.hasLoggedInUserRole(SYSTEM_USER);
 
         ArtifactQuality newQuality = validateProvidedArtifactQuality(quality, isLoggedInUserSystemUser);
 
