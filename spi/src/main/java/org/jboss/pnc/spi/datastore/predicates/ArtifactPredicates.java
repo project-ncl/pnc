@@ -130,6 +130,17 @@ public class ArtifactPredicates {
         }
     }
 
+    public static Predicate<Artifact> withSha256AndDependantBuildRecordIdIn(
+            String sha256,
+            Set<Base32LongID> buildRecordIds) {
+        return ((root, query, cb) -> {
+            Join<Artifact, BuildRecord> buildRecords = root.join(Artifact_.dependantBuildRecords);
+            return cb.and(
+                    cb.equal(root.get(Artifact_.sha256), sha256),
+                    buildRecords.get(BuildRecord_.id).in(buildRecordIds));
+        });
+    }
+
     public static Predicate<Artifact> withIds(Set<Integer> ids) {
         if (ids.isEmpty()) {
             return (root, query, cb) -> cb.or();
