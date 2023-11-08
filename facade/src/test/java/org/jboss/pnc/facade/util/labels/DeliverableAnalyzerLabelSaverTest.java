@@ -20,6 +20,7 @@ package org.jboss.pnc.facade.util.labels;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
 import org.jboss.pnc.api.enums.LabelOperation;
 import org.jboss.pnc.facade.util.UserService;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.User;
@@ -56,6 +57,8 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DeliverableAnalyzerLabelSaverTest {
 
+    private static final Base32LongID ID = new Base32LongID(42);
+
     @Mock
     private UserService userService;
 
@@ -76,6 +79,7 @@ public class DeliverableAnalyzerLabelSaverTest {
     public void testAddLabel() {
         // given
         var oldReport = DeliverableAnalyzerReport.builder()
+                .id(ID)
                 .labels(EnumSet.noneOf(DeliverableAnalyzerReportLabel.class))
                 .build();
         var updatedReport = oldReport.toBuilder().labels(EnumSet.of(DeliverableAnalyzerReportLabel.DELETED)).build();
@@ -101,6 +105,7 @@ public class DeliverableAnalyzerLabelSaverTest {
     public void testRemoveLabel() {
         // given
         var oldReport = DeliverableAnalyzerReport.builder()
+                .id(ID)
                 .labels(EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH, DeliverableAnalyzerReportLabel.DELETED))
                 .build();
         var updatedReport = oldReport.toBuilder().labels(EnumSet.of(DeliverableAnalyzerReportLabel.SCRATCH)).build();

@@ -34,12 +34,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * The report of the {@link DeliverableAnalyzerOperation}.
- *
- * @author Adam Kridl &lt;akridl@redhat.com&gt;
  */
 @Data
 @NoArgsConstructor
@@ -83,4 +82,35 @@ public class DeliverableAnalyzerReport implements GenericEntity<Base32LongID> {
      */
     @OneToMany(mappedBy = "report", cascade = CascadeType.PERSIST)
     private Set<DeliverableArtifact> artifacts;
+
+    public void addDeliverableArtifact(DeliverableArtifact deliverableArtifact) {
+        artifacts.add(deliverableArtifact);
+    }
+
+    public void removeDeliverableArtifact(DeliverableArtifact deliverableArtifact) {
+        artifacts.remove(deliverableArtifact);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof DeliverableAnalyzerReport)) {
+            return false;
+        }
+        DeliverableAnalyzerReport report = (DeliverableAnalyzerReport) o;
+        return id != null && id.equals(report.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "DeliverableAnalyzerReport{" + "id=" + id + ", operation=" + operation + ", labels=" + labels
+                + ", labelHistory=" + labelHistory + ", artifacts=" + artifacts + '}';
+    }
 }
