@@ -257,18 +257,13 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             return Optional.empty();
         }
 
-        if (artifacts.size() == 1) {
-            return artifacts.stream().findFirst();
-        }
-
         return artifacts.stream()
                 .sorted(Comparator.comparing(DeliverableAnalyzerManagerImpl::getNotFoundArtifactRating).reversed())
                 .findFirst();
     }
 
-    private static int getNotFoundArtifactRating(Object obj) {
-        org.jboss.pnc.model.Artifact a = (org.jboss.pnc.model.Artifact) obj;
-        ArtifactQuality quality = a.getArtifactQuality();
+    private static int getNotFoundArtifactRating(org.jboss.pnc.model.Artifact artifact) {
+        ArtifactQuality quality = artifact.getArtifactQuality();
 
         switch (quality) {
             case NEW:

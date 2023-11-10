@@ -34,7 +34,7 @@ import static org.jboss.pnc.auth.keycloakutil.util.HttpUtil.urlencode;
 /**
  * @author <a href="mailto:matejonnet@gmail.com">Matej Lazar</a>
  */
-class KeycloakClient {
+public class KeycloakClient {
 
     static AccessTokenResponse getAuthTokensBySecret(
             String server,
@@ -45,7 +45,7 @@ class KeycloakClient {
         return getAuthTokensBySecret(server, realm, null, null, clientId, secret, sslRequired);
     }
 
-    static AccessTokenResponse getAuthTokensBySecret(
+    public static AccessTokenResponse getAuthTokensBySecret(
             String server,
             String realm,
             String user,
