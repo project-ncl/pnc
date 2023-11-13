@@ -62,7 +62,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_DESCRIPT
  * as it does {@code DeliverableAnalysisEndpoint} in the rest module.
  */
 @Tag(name = "Deliverable Analysis")
-@Path("/deliverable-analysis")
+@Path("/deliverable-analyses")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Client

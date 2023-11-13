@@ -41,7 +41,7 @@ import static org.jboss.pnc.rest.configuration.SwaggerConstants.SUCCESS_CODE;
  * @author Honza Brázdil
  */
 @Tag(name = SwaggerConstants.TAG_INTERNAL)
-@Path("/deliverable-analysis")
+@Path("/deliverable-analyses")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public interface DeliverableAnalysisEndpoint {
