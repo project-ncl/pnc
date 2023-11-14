@@ -296,14 +296,19 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         // To avoid unnecessary artifact duplication (see NCLSUP-990), we will search for a best matching artifact with
         // some priority checks.
 
+        List<org.jboss.pnc.model.Artifact> artifacts;
+        Optional<org.jboss.pnc.model.Artifact> bestMatch;
+
         // Firstly, we will see if there are artifacts with the same SHA-256 which are dependencies of one of the found
-        // PNC builds in the current delivered analysis.
+        // PNC builds (if any) in the current delivered analysis.
         // If more than one artifact is found, find a best match.
-        List<org.jboss.pnc.model.Artifact> artifacts = artifactRepository.queryWithPredicates(
-                ArtifactPredicates.withSha256AndDependantBuildRecordIdIn(artifact.getSha256(), pncBuiltRecordIds));
-        Optional<org.jboss.pnc.model.Artifact> bestMatch = getBestMatchingArtifact(artifacts);
-        if (bestMatch.isPresent()) {
-            return bestMatch.get();
+        if (!pncBuiltRecordIds.isEmpty()) {
+            artifacts = artifactRepository.queryWithPredicates(
+                    ArtifactPredicates.withSha256AndDependantBuildRecordIdIn(artifact.getSha256(), pncBuiltRecordIds));
+            bestMatch = getBestMatchingArtifact(artifacts);
+            if (bestMatch.isPresent()) {
+                return bestMatch.get();
+            }
         }
 
         // Secondly, we will see if there is an artifact just with the same SHA-256.
