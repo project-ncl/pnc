@@ -208,6 +208,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         ArtifactStats stats = new ArtifactStats();
         ArtifactCache artifactCache = new ArtifactCache(builds);
+        Set<Base32LongID> pncBuildIds = new HashSet<>();
 
         for (Build build : builds) {
             log.debug("Processing build {}", build);
@@ -221,7 +222,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 case PNC:
                     statCounter = stats.pncCounter();
                     artifactParser = artifactCache::findPNCArtifact;
-                    pncBuiltRecordIds.add(BuildMapper.idMapper.toEntity(build.getPncId()));
+                    pncBuildIds.add(BuildMapper.idMapper.toEntity(build.getPncId()));
                     break;
                 case BREW:
                     statCounter = stats.brewCounter();
@@ -245,7 +246,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
             notFoundArtifacts.stream()
                     .peek(stats.notFoundCounter())
-                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository, pncBuiltRecordIds))
+                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository, pncBuildIds))
                     .forEach(artifact -> addDeliveredArtifact(artifact, report, false, null));
         }
         stats.log(distributionUrl);
@@ -361,6 +362,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             Artifact artifact,
             TargetRepository targetRepo,
             Set<Base32LongID> pncBuiltRecordIds) {
+
         // The artifact was not built from source, but could already be present as a dependency recorded in PNC system.
         // To avoid unnecessary artifact duplication (see NCLSUP-990), we will search for a best matching artifact with
         // some priority checks.
@@ -368,28 +370,44 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         List<org.jboss.pnc.model.Artifact> artifacts;
         Optional<org.jboss.pnc.model.Artifact> bestMatch;
 
-        // Firstly, we will see if there are artifacts with the same SHA-256 which are dependencies of one of the found
+        // 1) We will see if there are artifacts with the same SHA-256 which are dependencies of one of the found
         // PNC builds (if any) in the current delivered analysis.
         // If more than one artifact is found, find a best match.
         if (!pncBuiltRecordIds.isEmpty()) {
-            artifacts = artifactRepository.queryWithPredicates(
-                    ArtifactPredicates.withSha256AndDependantBuildRecordIdIn(artifact.getSha256(), pncBuiltRecordIds));
+            artifacts = artifactRepository
+                    .withSha256AndDependantBuildRecordIdIn(artifact.getSha256(), pncBuiltRecordIds);
             bestMatch = getBestMatchingArtifact(artifacts);
             if (bestMatch.isPresent()) {
                 return bestMatch.get();
             }
         }
 
-        // Secondly, we will see if there is an artifact just with the same SHA-256.
+        // 2) We will see if there is an artifact with the same SHA-256 and identifier.
         // If more than one artifact is found, find a best match.
-        artifacts = artifactRepository
-                .queryWithPredicates(ArtifactPredicates.withSha256In(Collections.singleton(artifact.getSha256())));
+        if (artifact.getArtifactType() == ArtifactType.MAVEN) {
+            String identifier = createIdentifier((MavenArtifact) artifact);
+            artifacts = artifactRepository.withIdentifierAndSha256(identifier, artifact.getSha256());
+            bestMatch = getBestMatchingArtifact(artifacts);
+            if (bestMatch.isPresent()) {
+                return bestMatch.get();
+            }
+        } else {
+            artifacts = artifactRepository.withIdentifierAndSha256(artifact.getFilename(), artifact.getSha256());
+            bestMatch = getBestMatchingArtifact(artifacts);
+            if (bestMatch.isPresent()) {
+                return bestMatch.get();
+            }
+        }
+
+        // 3) We will see if there is an artifact just with the same SHA-256.
+        // If more than one artifact is found, find a best match.
+        artifacts = artifactRepository.withSha256In(Collections.singleton(artifact.getSha256()));
         bestMatch = getBestMatchingArtifact(artifacts);
         if (bestMatch.isPresent()) {
             return bestMatch.get();
         }
 
-        // Lastly, there was no artifact found with the same SHA-56. Create a new one
+        // Finally, there was no artifact found with the same SHA-256. Create a new one
         return createArtifact(mapNotFoundArtifact(artifact), targetRepo);
     }
 

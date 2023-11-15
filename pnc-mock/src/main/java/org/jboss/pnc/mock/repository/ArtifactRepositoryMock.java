@@ -18,7 +18,12 @@
 package org.jboss.pnc.mock.repository;
 
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Author: Michal Szynkiewicz, michal.l.szynkiewicz@gmail.com Date: 9/22/16 Time: 12:05 PM
@@ -28,5 +33,25 @@ public class ArtifactRepositoryMock extends IntIdRepositoryMock<Artifact> implem
     @Override
     public Artifact withPurl(String purl) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<Artifact> withIdentifierAndSha256(Collection<Artifact.IdentifierSha256> identifierSha256Set) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Artifact> withSha256AndDependantBuildRecordIdIn(String sha256, Set<Base32LongID> buildRecordIds) {
+        throw new UnsupportedOperationException("Unimplemented method 'withSha256AndDependantBuildRecordIdIn'");
+    }
+
+    @Override
+    public List<Artifact> withIdentifierAndSha256(String identifier, String sha256) {
+        throw new UnsupportedOperationException("Unimplemented method 'withIdentifierAndSha256'");
+    }
+
+    @Override
+    public List<Artifact> withSha256In(Set<String> sha256) {
+        throw new UnsupportedOperationException("Unimplemented method 'withSha256In'");
     }
 }
