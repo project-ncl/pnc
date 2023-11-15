@@ -18,7 +18,6 @@
 package org.jboss.pnc.facade.deliverables;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -38,7 +37,6 @@ import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
@@ -46,7 +44,6 @@ import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRep
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
-import org.jboss.pnc.spi.datastore.repositories.ProductMilestoneRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -117,6 +114,7 @@ public class DeliverableAnalyzerManagerTest {
                     .orElse(null);
         });
         when(artifactRepository.save(any())).thenAnswer(new RepositorSave(artifacts));
+
         when(artifactRepository.queryWithPredicates(any())).thenReturn(artifacts); // just return all for the cache
         when((userService.currentUser())).thenReturn(USER);
         when(globalConfig.getBrewContentUrl()).thenReturn("https://example.com/");
@@ -271,7 +269,7 @@ public class DeliverableAnalyzerManagerTest {
                 .buildSystemType(BuildSystemType.BREW)
                 .brewId(brewId)
                 .builtFromSource(buildFromSource);
-        prepareArtifact(builder, artifactId + "-" + version + " .jar");
+        prepareArtifact(builder, artifactId + "-" + version + ".jar");
         return builder.build();
     }
 
@@ -285,9 +283,9 @@ public class DeliverableAnalyzerManagerTest {
                 .buildSystemType(BuildSystemType.PNC)
                 .pncId(pncId)
                 .builtFromSource(true);
-        prepareArtifact(builder, artifactId + "-" + version + " .jar");
+        prepareArtifact(builder, artifactId + "-" + version + ".jar");
         MavenArtifact artifact = builder.build();
-        savePNCArtifact(artifact, groupId + ":" + artifactId + ":jar:" + ":" + version);
+        savePNCArtifact(artifact, groupId + ":" + artifactId + ":jar" + ":" + version);
         return artifact;
     }
 
@@ -299,7 +297,7 @@ public class DeliverableAnalyzerManagerTest {
                 .buildSystemType(BuildSystemType.PNC)
                 .pncId(pncId)
                 .builtFromSource(true);
-        prepareArtifact(builder, name + "-" + version + " .zip");
+        prepareArtifact(builder, name + "-" + version + ".zip");
         NPMArtifact artifact = builder.build();
         savePNCArtifact(artifact, name + ":" + version);
         return artifact;

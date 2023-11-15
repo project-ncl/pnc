@@ -17,15 +17,21 @@
  */
 package org.jboss.pnc.datastore.repositories;
 
+import com.google.common.collect.Lists;
 import org.jboss.pnc.datastore.repositories.internal.AbstractRepository;
 import org.jboss.pnc.model.Artifact;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 
 import javax.ejb.Stateless;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import static org.jboss.pnc.datastore.DefaultDatastore.QUERY_ARTIFACT_PARITION_SIZE;
 
 @Stateless
 public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer> implements ArtifactRepository {
@@ -45,4 +51,32 @@ public class ArtifactRepositoryImpl extends AbstractRepository<Artifact, Integer
         return null;
     }
 
+    @Override
+    public Set<Artifact> withIdentifierAndSha256(Collection<Artifact.IdentifierSha256> identifierSha256Set) {
+        // [NCLSUP-912] partition the constraints in maximum size to avoid a stackoverflow in Hibernate
+        // We use the Guava Lists.partition, which requires a List. Hence we have to convert it also
+        List<List<Artifact.IdentifierSha256>> partitionedList = Lists
+                .partition(new ArrayList<>(identifierSha256Set), QUERY_ARTIFACT_PARITION_SIZE);
+        HashSet<Artifact> artifacts = new HashSet<>();
+        for (List<Artifact.IdentifierSha256> partition : partitionedList) {
+            List<Artifact> artifactsInDb = queryWithPredicates(ArtifactPredicates.withIdentifierAndSha256(partition));
+            artifacts.addAll(artifactsInDb);
+        }
+        return artifacts;
+    }
+
+    @Override
+    public List<Artifact> withSha256AndDependantBuildRecordIdIn(String sha256, Set<Base32LongID> buildRecordIds) {
+        return queryWithPredicates(ArtifactPredicates.withSha256AndDependantBuildRecordIdIn(sha256, buildRecordIds));
+    }
+
+    @Override
+    public List<Artifact> withIdentifierAndSha256(String identifier, String sha256) {
+        return queryWithPredicates(ArtifactPredicates.withIdentifierAndSha256(identifier, sha256));
+    }
+
+    @Override
+    public List<Artifact> withSha256In(Set<String> sha256) {
+        return queryWithPredicates(ArtifactPredicates.withSha256In(sha256));
+    }
 }
