@@ -48,6 +48,7 @@ import org.jboss.pnc.facade.OperationsManager;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
+import org.jboss.pnc.mapper.api.BuildMapper;
 import org.jboss.pnc.mapper.api.DeliverableAnalyzerOperationMapper;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerLabelEntry;
@@ -79,6 +80,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -86,6 +89,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -201,6 +205,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
 
         ArtifactStats stats = new ArtifactStats();
         ArtifactCache artifactCache = new ArtifactCache(builds);
+        Set<Base32LongID> pncBuildIds = new HashSet<>();
 
         for (Build build : builds) {
             log.debug("Processing build {}", build);
@@ -214,6 +219,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 case PNC:
                     statCounter = stats.pncCounter();
                     artifactParser = artifactCache::findPNCArtifact;
+                    pncBuildIds.add(BuildMapper.idMapper.toEntity(build.getPncId()));
                     break;
                 case BREW:
                     statCounter = stats.brewCounter();
@@ -237,7 +243,7 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
             TargetRepository distributionRepository = getDistributionRepository(distributionUrl);
             notFoundArtifacts.stream()
                     .peek(stats.notFoundCounter())
-                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository))
+                    .map(art -> findOrCreateNotFoundArtifact(art, distributionRepository, pncBuildIds))
                     .forEach(artifact -> addDeliveredArtifact(artifact, report, false, null));
         }
         stats.log(distributionUrl);
@@ -304,22 +310,100 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
         };
     }
 
-    private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(Artifact artifact, TargetRepository targetRepo) {
-        return findOrCreateArtifact(mapNotFoundArtifact(artifact), targetRepo);
-    }
-
-    private org.jboss.pnc.model.Artifact findOrCreateArtifact(
-            org.jboss.pnc.model.Artifact artifact,
-            TargetRepository targetRepo) {
-        // find
-        org.jboss.pnc.model.Artifact dbArtifact = artifactRepository.queryByPredicates(
-                ArtifactPredicates.withIdentifierAndSha256(artifact.getIdentifier(), artifact.getSha256()),
-                ArtifactPredicates.withTargetRepositoryId(targetRepo.getId()));
-        if (dbArtifact != null) {
-            return dbArtifact;
+    private Optional<org.jboss.pnc.model.Artifact> getBestMatchingArtifact(
+            Collection<org.jboss.pnc.model.Artifact> artifacts) {
+        if (artifacts == null || artifacts.isEmpty()) {
+            return Optional.empty();
         }
 
-        // create
+        return artifacts.stream()
+                .sorted(Comparator.comparing(DeliverableAnalyzerManagerImpl::getNotFoundArtifactRating).reversed())
+                .findFirst();
+    }
+
+    private static int getNotFoundArtifactRating(org.jboss.pnc.model.Artifact artifact) {
+        ArtifactQuality quality = artifact.getArtifactQuality();
+
+        switch (quality) {
+            case NEW:
+                return 1;
+            case VERIFIED:
+                return 2;
+            case TESTED:
+                return 3;
+            case IMPORTED:
+                return 4;
+            case DEPRECATED:
+                return -1;
+            case BLACKLISTED:
+                return -2;
+            case TEMPORARY:
+                return -3;
+            case DELETED:
+                return -4;
+            default:
+                log.warn("Unsupported ArtifactQuality! Got: {}", quality);
+                return -100;
+        }
+    }
+
+    private org.jboss.pnc.model.Artifact findOrCreateNotFoundArtifact(
+            Artifact artifact,
+            TargetRepository targetRepo,
+            Set<Base32LongID> pncBuiltRecordIds) {
+
+        // The artifact was not built from source, but could already be present as a dependency recorded in PNC system.
+        // To avoid unnecessary artifact duplication (see NCLSUP-990), we will search for a best matching artifact with
+        // some priority checks.
+
+        List<org.jboss.pnc.model.Artifact> artifacts;
+        Optional<org.jboss.pnc.model.Artifact> bestMatch;
+
+        // 1) We will see if there are artifacts with the same SHA-256 which are dependencies of one of the found
+        // PNC builds (if any) in the current delivered analysis.
+        // If more than one artifact is found, find a best match.
+        if (!pncBuiltRecordIds.isEmpty()) {
+            artifacts = artifactRepository
+                    .withSha256AndDependantBuildRecordIdIn(artifact.getSha256(), pncBuiltRecordIds);
+            bestMatch = getBestMatchingArtifact(artifacts);
+            if (bestMatch.isPresent()) {
+                return bestMatch.get();
+            }
+        }
+
+        // 2) We will see if there is an artifact with the same SHA-256 and identifier.
+        // If more than one artifact is found, find a best match.
+        if (artifact.getArtifactType() == ArtifactType.MAVEN) {
+            String identifier = createIdentifier((MavenArtifact) artifact);
+            artifacts = artifactRepository.withIdentifierAndSha256(identifier, artifact.getSha256());
+            bestMatch = getBestMatchingArtifact(artifacts);
+            if (bestMatch.isPresent()) {
+                return bestMatch.get();
+            }
+        } else {
+            artifacts = artifactRepository.withIdentifierAndSha256(artifact.getFilename(), artifact.getSha256());
+            bestMatch = getBestMatchingArtifact(artifacts);
+            if (bestMatch.isPresent()) {
+                return bestMatch.get();
+            }
+        }
+
+        // 3) We will see if there is an artifact just with the same SHA-256.
+        // If more than one artifact is found, find a best match.
+        artifacts = artifactRepository.withSha256In(Collections.singleton(artifact.getSha256()));
+        bestMatch = getBestMatchingArtifact(artifacts);
+        if (bestMatch.isPresent()) {
+            return bestMatch.get();
+        }
+
+        // Finally, there was no artifact found with the same SHA-56. Create a new one
+        return createArtifact(mapNotFoundArtifact(artifact), targetRepo);
+    }
+
+    private org.jboss.pnc.model.Artifact createArtifact(
+            org.jboss.pnc.model.Artifact artifact,
+            TargetRepository targetRepo) {
+
         artifact.setTargetRepository(targetRepo);
         artifact.setPurl(
                 createGenericPurl(
@@ -465,15 +549,6 @@ public class DeliverableAnalyzerManagerImpl implements org.jboss.pnc.facade.Deli
                 .stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.joining(":"));
-    }
-
-    private TargetRepository getBrewRepository(Build build) {
-        String path = KOJI_PATH_MAVEN_PREFIX + build.getBrewNVR();
-        TargetRepository tr = targetRepositoryRepository.queryByIdentifierAndPath(INDY_MAVEN, path);
-        if (tr == null) {
-            tr = createRepository(path, INDY_MAVEN, RepositoryType.MAVEN);
-        }
-        return tr;
     }
 
     private TargetRepository getDistributionRepository(String distURL) {
