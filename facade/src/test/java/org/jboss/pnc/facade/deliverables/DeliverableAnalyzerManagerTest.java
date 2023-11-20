@@ -18,13 +18,10 @@
 package org.jboss.pnc.facade.deliverables;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-
-import javax.persistence.criteria.CriteriaBuilder;
 
 import org.jboss.pnc.api.deliverablesanalyzer.dto.*;
 import org.jboss.pnc.api.enums.DeliverableAnalyzerReportLabel;
@@ -36,30 +33,23 @@ import org.jboss.pnc.enums.RepositoryType;
 import org.jboss.pnc.facade.deliverables.api.AnalysisResult;
 import org.jboss.pnc.facade.util.UserService;
 import org.jboss.pnc.mapper.api.ArtifactMapper;
-import org.jboss.pnc.model.Artifact_;
 import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.model.DeliverableAnalyzerOperation;
 import org.jboss.pnc.model.DeliverableAnalyzerReport;
 import org.jboss.pnc.model.GenericEntity;
-import org.jboss.pnc.model.ProductMilestone;
 import org.jboss.pnc.model.TargetRepository;
 import org.jboss.pnc.model.User;
-import org.jboss.pnc.spi.datastore.predicates.ArtifactPredicates;
 import org.jboss.pnc.spi.datastore.repositories.ArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerLabelEntryRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerOperationRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableAnalyzerReportRepository;
 import org.jboss.pnc.spi.datastore.repositories.DeliverableArtifactRepository;
 import org.jboss.pnc.spi.datastore.repositories.TargetRepositoryRepository;
-import org.jboss.pnc.spi.datastore.repositories.api.Predicate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -67,10 +57,6 @@ import org.mockito.stubbing.Answer;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.DISTRIBUTION_ARCHIVE;
 import static org.jboss.pnc.constants.ReposiotryIdentifier.INDY_MAVEN;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anySet;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -129,10 +115,6 @@ public class DeliverableAnalyzerManagerTest {
         });
         when(artifactRepository.save(any())).thenAnswer(new RepositorSave(artifacts));
 
-        when(artifactRepository.withSha256AndDependantBuildRecordIdIn(anyString(), anySet()))
-                .thenReturn(Collections.emptyList());
-        when(artifactRepository.withIdentifierAndSha256(anyString(), anyString())).thenReturn(Collections.emptyList());
-        when(artifactRepository.withSha256In(anySet())).thenReturn(Collections.emptyList());
         when(artifactRepository.queryWithPredicates(any())).thenReturn(artifacts); // just return all for the cache
         when((userService.currentUser())).thenReturn(USER);
         when(globalConfig.getBrewContentUrl()).thenReturn("https://example.com/");
