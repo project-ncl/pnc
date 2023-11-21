@@ -18,13 +18,16 @@
 package org.jboss.pnc.rest.endpoints;
 
 import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
+import org.jboss.pnc.dto.DeliverableAnalyzerReport;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
 import org.jboss.pnc.facade.providers.api.DeliverableAnalyzerReportProvider;
+import org.jboss.pnc.model.Base32LongID;
 import org.jboss.pnc.rest.api.endpoints.DeliverableAnalyzerReportEndpoint;
 import org.jboss.pnc.rest.api.parameters.PageParameters;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -33,6 +36,23 @@ public class DeliverableAnalyzerReportEndpointImpl implements DeliverableAnalyze
 
     @Inject
     private DeliverableAnalyzerReportProvider provider;
+
+    private EndpointHelper<Base32LongID, DeliverableAnalyzerReport, DeliverableAnalyzerReport> endpointHelper;
+
+    @PostConstruct
+    public void init() {
+        endpointHelper = new EndpointHelper<>(DeliverableAnalyzerReport.class, provider);
+    }
+
+    @Override
+    public Page<DeliverableAnalyzerReport> getAll(PageParameters pageParameters) {
+        return endpointHelper.getAll(pageParameters);
+    }
+
+    @Override
+    public DeliverableAnalyzerReport getSpecific(String id) {
+        return endpointHelper.getSpecific(id);
+    }
 
     @Override
     public Page<AnalyzedArtifact> getAnalyzedArtifacts(String id, PageParameters pageParameters) {

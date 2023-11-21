@@ -18,11 +18,15 @@
 package org.jboss.pnc.facade.providers.api;
 
 import org.jboss.pnc.dto.DeliverableAnalyzerLabelEntry;
+import org.jboss.pnc.dto.DeliverableAnalyzerReport;
+import org.jboss.pnc.dto.Environment;
 import org.jboss.pnc.dto.requests.labels.DeliverableAnalyzerReportLabelRequest;
 import org.jboss.pnc.dto.response.AnalyzedArtifact;
 import org.jboss.pnc.dto.response.Page;
+import org.jboss.pnc.model.Base32LongID;
 
-public interface DeliverableAnalyzerReportProvider {
+public interface DeliverableAnalyzerReportProvider extends
+        Provider<Base32LongID, org.jboss.pnc.model.DeliverableAnalyzerReport, DeliverableAnalyzerReport, DeliverableAnalyzerReport> {
 
     Page<AnalyzedArtifact> getAnalyzedArtifacts(int pageIndex, int pageSize, String query, String sort, String id);
 

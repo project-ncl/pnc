@@ -913,6 +913,7 @@ public class DatabaseDataInitializer {
                 .id(new Base32LongID(1000002l))
                 .progressStatus(ProgressStatus.IN_PROGRESS)
                 .submitTime(TODAY)
+                .startTime(TODAY)
                 .user(demoUser)
                 .productMilestone(demoProductMilestone1)
                 .build();
